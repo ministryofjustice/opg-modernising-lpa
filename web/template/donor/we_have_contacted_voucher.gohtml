@@ -28,16 +28,28 @@
 
             <h2 class="govuk-heading-m">{{ tr .App "whatHappensNext" }}</h2>
 
+            <p class="govuk-inset-text">
+                {{ tr .App "weSentYourVouchingCodeTo" }}
+                <strong>{{ .Donor.VoucherCodeSentTo }}</strong>
+            </p>
+
             <ol class="govuk-list govuk-list--number">
                 {{ if not .Donor.Tasks.PayForLpa.IsCompleted }}
                     <li>{{ trFormat .App "weAreProcessingFeeWhenResolvedWillContactVoucher" "VoucherFullName" .Donor.Voucher.FullName }}</li>
                 {{ end }}
-                
+
                 {{ trFormatHtml .App "voucherWhatHappensNextBullets" "VoucherFullName" .Donor.Voucher.FullName }}
             </ol>
 
+            {{ template "details" (details . "imHavingProblemWithVouchingCode" (
+                trFormat .App (printf "imHavingProblemWithVouchingCodeContent:%s" .Donor.VoucherCodeChannel.String)
+                "ResendLink" (link .App (global.Paths.ResendVoucherAccessCode.Format .Donor.LpaID))
+                "ChangeMobileNumberLink" (link .App (global.Paths.ChangeDonorMobileNumber.Format .Donor.LpaID))
+                "ChangeEmailLink" (link .App (global.Paths.ChangeDonorEmail.Format .Donor.LpaID))
+                ) false) }}
+
             {{ template "details" (details . "confirmYourIdentityAnotherWay" (trFormat .App "confirmYourIdentityAnotherWayContent" "VoucherFullName" .Donor.Voucher.FullName) false) }}
-            
+
             <div class="govuk-button-group">
                 <a href="{{ global.Paths.TaskList.Format .App.LpaID }}" class="govuk-link govuk-button">{{ tr .App "returnToTaskList" }}</a>
                 <a href="{{ global.Paths.WhatYouCanDoNow.Format .App.LpaID }}" class="govuk-link govuk-button govuk-button--secondary">{{ tr .App "confirmMyIdentityAnotherWay" }}</a>

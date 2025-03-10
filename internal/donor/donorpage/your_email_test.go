@@ -28,7 +28,7 @@ func TestGetYourEmail(t *testing.T) {
 		}).
 		Return(nil)
 
-	err := YourEmail(template.Execute, nil)(testAppData, w, r, &donordata.Provided{})
+	err := YourEmail(template.Execute, nil, nil)(testAppData, w, r, &donordata.Provided{})
 	resp := w.Result()
 
 	assert.Nil(t, err)
@@ -44,7 +44,7 @@ func TestGetYourEmailWhenTemplateErrors(t *testing.T) {
 		On("Execute", w, mock.Anything).
 		Return(expectedError)
 
-	err := YourEmail(template.Execute, nil)(testAppData, w, r, &donordata.Provided{})
+	err := YourEmail(template.Execute, nil, nil)(testAppData, w, r, &donordata.Provided{})
 	resp := w.Result()
 
 	assert.Equal(t, expectedError, err)
@@ -88,7 +88,7 @@ func TestPostYourEmail(t *testing.T) {
 				}).
 				Return(nil)
 
-			err := YourEmail(nil, donorStore)(tc.appData, w, r, &donordata.Provided{
+			err := YourEmail(nil, donorStore, nil)(tc.appData, w, r, &donordata.Provided{
 				LpaID: "lpa-id",
 				Donor: donordata.Donor{
 					FirstNames: "John",
@@ -119,7 +119,7 @@ func TestPostYourEmailWhenValidationError(t *testing.T) {
 		})).
 		Return(nil)
 
-	err := YourEmail(template.Execute, nil)(testAppData, w, r, &donordata.Provided{})
+	err := YourEmail(template.Execute, nil, nil)(testAppData, w, r, &donordata.Provided{})
 	resp := w.Result()
 
 	assert.Nil(t, err)
@@ -140,7 +140,7 @@ func TestPostYourEmailWhenStoreErrors(t *testing.T) {
 		On("Put", r.Context(), mock.Anything).
 		Return(expectedError)
 
-	err := YourEmail(nil, donorStore)(testAppData, w, r, &donordata.Provided{})
+	err := YourEmail(nil, donorStore, nil)(testAppData, w, r, &donordata.Provided{})
 	assert.Equal(t, expectedError, err)
 }
 

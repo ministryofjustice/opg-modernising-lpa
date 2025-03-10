@@ -175,31 +175,9 @@ func (s *Sender) SendAttorneys(ctx context.Context, appData appcontext.Data, lpa
 	return nil
 }
 
-func (s *Sender) SendVoucherAccessCode(ctx context.Context, provided *donordata.Provided, appData appcontext.Data) error {
-	shareCode, err := s.createShareCode(ctx, provided.PK, provided.SK, provided.Voucher.UID, actor.TypeVoucher)
-	if err != nil {
+func (s *Sender) SendVoucherInvite(ctx context.Context, provided *donordata.Provided, appData appcontext.Data) error {
+	if err := s.SendVoucherAccessCode(ctx, provided, appData); err != nil {
 		return err
-	}
-
-	if provided.Donor.Mobile != "" {
-		if err := s.sendSMS(ctx, notify.ToDonor(provided), provided.LpaUID, notify.VouchingShareCodeSMS{
-			ShareCode:                 shareCode.Plain(),
-			DonorFullNamePossessive:   appData.Localizer.Possessive(provided.Donor.FullName()),
-			LpaType:                   appData.Localizer.T(provided.Type.String()),
-			VoucherFullName:           provided.Voucher.FullName(),
-			DonorFirstNamesPossessive: appData.Localizer.Possessive(provided.Donor.FirstNames),
-		}); err != nil {
-			return err
-		}
-	} else {
-		if err := s.sendEmail(ctx, notify.ToDonor(provided), provided.LpaUID, notify.VouchingShareCodeEmail{
-			ShareCode:       shareCode.Plain(),
-			VoucherFullName: provided.Voucher.FullName(),
-			DonorFullName:   provided.Donor.FullName(),
-			LpaType:         appData.Localizer.T(provided.Type.String()),
-		}); err != nil {
-			return err
-		}
 	}
 
 	return s.sendEmail(ctx, notify.ToVoucher(provided.Voucher), provided.LpaUID, notify.VoucherInviteEmail{
@@ -210,6 +188,44 @@ func (s *Sender) SendVoucherAccessCode(ctx context.Context, provided *donordata.
 		LpaType:                   appData.Localizer.T(provided.Type.String()),
 		VoucherStartPageURL:       s.appPublicURL + page.PathVoucherStart.Format(),
 	})
+}
+
+func (s *Sender) SendVoucherAccessCode(ctx context.Context, provided *donordata.Provided, appData appcontext.Data) error {
+	shareCode, err := s.createShareCode(ctx, provided.PK, provided.SK, provided.Voucher.UID, actor.TypeVoucher)
+	if err != nil {
+		return err
+	}
+
+	provided.VoucherInvitedAt = s.now()
+
+	if provided.Donor.Mobile != "" {
+		provided.VoucherCodeChannel = lpadata.ChannelPaper
+		provided.VoucherCodeSentTo = provided.Donor.Mobile
+
+		if err := s.sendSMS(ctx, notify.ToDonorOnly(provided), provided.LpaUID, notify.VouchingShareCodeSMS{
+			ShareCode:                 shareCode.Plain(),
+			DonorFullNamePossessive:   appData.Localizer.Possessive(provided.Donor.FullName()),
+			LpaType:                   appData.Localizer.T(provided.Type.String()),
+			VoucherFullName:           provided.Voucher.FullName(),
+			DonorFirstNamesPossessive: appData.Localizer.Possessive(provided.Donor.FirstNames),
+		}); err != nil {
+			return err
+		}
+	} else {
+		provided.VoucherCodeChannel = lpadata.ChannelOnline
+		provided.VoucherCodeSentTo = provided.Donor.Email
+
+		if err := s.sendEmail(ctx, notify.ToDonorOnly(provided), provided.LpaUID, notify.VouchingShareCodeEmail{
+			ShareCode:       shareCode.Plain(),
+			VoucherFullName: provided.Voucher.FullName(),
+			DonorFullName:   provided.Donor.FullName(),
+			LpaType:         appData.Localizer.T(provided.Type.String()),
+		}); err != nil {
+			return err
+		}
+	}
+
+	return nil
 }
 
 func (s *Sender) sendOriginalAttorney(ctx context.Context, appData appcontext.Data, lpa *lpadata.Lpa, attorney lpadata.Attorney) error {

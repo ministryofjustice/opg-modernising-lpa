@@ -23,7 +23,7 @@ func TestGetCheckYourDetails(t *testing.T) {
 		Execute(w, &checkYourDetailsData{App: testAppData, Donor: donor}).
 		Return(nil)
 
-	err := CheckYourDetails(template.Execute, nil, nil, nil)(testAppData, w, r, donor)
+	err := CheckYourDetails(template.Execute, nil, nil)(testAppData, w, r, donor)
 	resp := w.Result()
 
 	assert.Nil(t, err)
@@ -39,7 +39,7 @@ func TestGetCheckYourDetailsWhenTemplateErrors(t *testing.T) {
 		Execute(w, &checkYourDetailsData{App: testAppData, Donor: &donordata.Provided{}}).
 		Return(expectedError)
 
-	err := CheckYourDetails(template.Execute, nil, nil, nil)(testAppData, w, r, &donordata.Provided{})
+	err := CheckYourDetails(template.Execute, nil, nil)(testAppData, w, r, &donordata.Provided{})
 
 	assert.Equal(t, expectedError, err)
 }
@@ -57,7 +57,7 @@ func TestPostCheckYourDetails(t *testing.T) {
 
 	shareCodeSender := newMockShareCodeSender(t)
 	shareCodeSender.EXPECT().
-		SendVoucherAccessCode(r.Context(), provided, testAppData).
+		SendVoucherInvite(r.Context(), provided, testAppData).
 		Return(nil)
 
 	donorStore := newMockDonorStore(t)
@@ -67,11 +67,10 @@ func TestPostCheckYourDetails(t *testing.T) {
 			Tasks: donordata.Tasks{
 				PayForLpa: task.PaymentStateCompleted,
 			},
-			VoucherInvitedAt: testNow,
 		}).
 		Return(nil)
 
-	err := CheckYourDetails(nil, shareCodeSender, testNowFn, donorStore)(testAppData, w, r, provided)
+	err := CheckYourDetails(nil, shareCodeSender, donorStore)(testAppData, w, r, provided)
 	resp := w.Result()
 
 	assert.Nil(t, err)
@@ -83,7 +82,7 @@ func TestPostCheckYourDetailsWhenUnpaid(t *testing.T) {
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest(http.MethodPost, "/", nil)
 
-	err := CheckYourDetails(nil, nil, nil, nil)(testAppData, w, r, &donordata.Provided{LpaID: "lpa-id"})
+	err := CheckYourDetails(nil, nil, nil)(testAppData, w, r, &donordata.Provided{LpaID: "lpa-id"})
 	resp := w.Result()
 
 	assert.Nil(t, err)
@@ -104,10 +103,10 @@ func TestPostCheckYourDetailsWhenShareCodeStoreError(t *testing.T) {
 
 	shareCodeSender := newMockShareCodeSender(t)
 	shareCodeSender.EXPECT().
-		SendVoucherAccessCode(r.Context(), provided, testAppData).
+		SendVoucherInvite(r.Context(), provided, testAppData).
 		Return(expectedError)
 
-	err := CheckYourDetails(nil, shareCodeSender, nil, nil)(testAppData, w, r, provided)
+	err := CheckYourDetails(nil, shareCodeSender, nil)(testAppData, w, r, provided)
 	resp := w.Result()
 
 	assert.Error(t, err)
@@ -127,7 +126,7 @@ func TestPostCheckYourDetailsWhenDonorStoreError(t *testing.T) {
 
 	shareCodeSender := newMockShareCodeSender(t)
 	shareCodeSender.EXPECT().
-		SendVoucherAccessCode(mock.Anything, mock.Anything, mock.Anything).
+		SendVoucherInvite(mock.Anything, mock.Anything, mock.Anything).
 		Return(nil)
 
 	donorStore := newMockDonorStore(t)
@@ -135,7 +134,7 @@ func TestPostCheckYourDetailsWhenDonorStoreError(t *testing.T) {
 		Put(mock.Anything, mock.Anything).
 		Return(expectedError)
 
-	err := CheckYourDetails(nil, shareCodeSender, testNowFn, donorStore)(testAppData, w, r, provided)
+	err := CheckYourDetails(nil, shareCodeSender, donorStore)(testAppData, w, r, provided)
 	resp := w.Result()
 
 	assert.Error(t, err)

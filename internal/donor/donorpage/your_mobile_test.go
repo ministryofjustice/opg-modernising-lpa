@@ -27,7 +27,7 @@ func TestGetYourMobile(t *testing.T) {
 		}).
 		Return(nil)
 
-	err := YourMobile(template.Execute, nil)(testAppData, w, r, &donordata.Provided{})
+	err := YourMobile(template.Execute, nil, nil)(testAppData, w, r, &donordata.Provided{})
 	resp := w.Result()
 
 	assert.Nil(t, err)
@@ -43,7 +43,7 @@ func TestGetYourMobileWhenTemplateErrors(t *testing.T) {
 		On("Execute", w, mock.Anything).
 		Return(expectedError)
 
-	err := YourMobile(template.Execute, nil)(testAppData, w, r, &donordata.Provided{})
+	err := YourMobile(template.Execute, nil, nil)(testAppData, w, r, &donordata.Provided{})
 	resp := w.Result()
 
 	assert.Equal(t, expectedError, err)
@@ -71,7 +71,7 @@ func TestPostYourMobile(t *testing.T) {
 		}).
 		Return(nil)
 
-	err := YourMobile(nil, donorStore)(testAppData, w, r, &donordata.Provided{
+	err := YourMobile(nil, donorStore, nil)(testAppData, w, r, &donordata.Provided{
 		LpaID: "lpa-id",
 		Donor: donordata.Donor{
 			FirstNames: "John",
@@ -100,7 +100,7 @@ func TestPostYourMobileWhenValidationError(t *testing.T) {
 		})).
 		Return(nil)
 
-	err := YourMobile(template.Execute, nil)(testAppData, w, r, &donordata.Provided{})
+	err := YourMobile(template.Execute, nil, nil)(testAppData, w, r, &donordata.Provided{})
 	resp := w.Result()
 
 	assert.Nil(t, err)
@@ -121,7 +121,7 @@ func TestPostYourMobileWhenStoreErrors(t *testing.T) {
 		On("Put", r.Context(), mock.Anything).
 		Return(expectedError)
 
-	err := YourMobile(nil, donorStore)(testAppData, w, r, &donordata.Provided{})
+	err := YourMobile(nil, donorStore, nil)(testAppData, w, r, &donordata.Provided{})
 	assert.Equal(t, expectedError, err)
 }
 
