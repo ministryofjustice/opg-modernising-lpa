@@ -136,4 +136,4 @@ jobs:
               - type: "section"
                 text:
                   type: "plain_text"
-                  text: ${{ needs.get_run_url.outputs.job_summary_url }}
+                  text: "${{ needs.get_run_url.outputs.job_summary_url }}"
