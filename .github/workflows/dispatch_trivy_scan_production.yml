@@ -130,7 +130,7 @@ jobs:
               - type: "section"
                 text:
                   type: "plain_text"
-                  text: ":critical:Critical or :exclamation:High severity vulnerabilities found in version *${{ needs.pull_tags.outputs.docker_tag }}*"
+                  text: "Critical or High severity vulnerabilities found in version *${{ needs.pull_tags.outputs.docker_tag }}*"
                   emoji: true
               - type: "actions"
                 block_id: action_1
