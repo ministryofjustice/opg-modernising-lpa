@@ -110,8 +110,10 @@ jobs:
               echo "</details>"
             } >> $GITHUB_STEP_SUMMARY
           fi
-      - name: Post to a Slack channel
+      - name: check file exists
         if: ${{ hashFiles('trivy-results.txt') != '' }}
+        run: echo "File exists"
+      - name: Post to a Slack channel
         id: slack
         uses: slackapi/slack-github-action@v2.0.0
         with:
