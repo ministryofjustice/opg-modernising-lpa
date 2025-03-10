@@ -120,7 +120,7 @@ jobs:
               - type: "header"
                 text:
                   type: "plain_text"
-                  text: "Production Image Scan Findings for ${{ matrix.ecr_repository }}"
+                  text: "Production Image Scan Findings for ${{ matrix.ecr_repository }} version ${{ needs.pull_tags.outputs.docker_tag }}"
               - type: "section"
                 text:
                   type: "mrkdwn"
