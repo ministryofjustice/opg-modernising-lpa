@@ -114,7 +114,7 @@ jobs:
           method: chat.postMessage
           token: ${{ secrets.SLACK_BOT_TOKEN }}
           payload: |
-            channel: opg-mlpa-builds
+            channel: opg-mlpa-dev
             text: "Production Image Scan Findings"
             blocks:
               - type: "header"
