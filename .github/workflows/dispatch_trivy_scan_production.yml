@@ -42,7 +42,7 @@ jobs:
     outputs:
       job_summary_url: ${{ steps.get_run_url.outputs.job_summary_url }}
 
-  docker_build_scan_push:
+  trivy_scan_report:
     needs: [
       pull_tags,
       get_summary_url
