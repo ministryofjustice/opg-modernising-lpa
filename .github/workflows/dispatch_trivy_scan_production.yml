@@ -97,9 +97,6 @@ jobs:
         if: always()
         run: |
           unset AWS_ACCESS_KEY_ID AWS_SECRET_ACCESS_KEY AWS_SESSION_TOKEN
-        with:
-          aws-region: eu-west-1
-          unset-current-credentials: true
       - name: Publish Trivy Output to Summary
         run: |
           if [[ -s trivy-results.txt ]]; then
