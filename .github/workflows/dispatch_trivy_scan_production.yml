@@ -33,9 +33,20 @@ jobs:
     outputs:
       docker_tag: ${{ steps.pull_tag.outputs.tag }}
       tag_from: ${{ steps.pull_tag.outputs.env }}
+  get_summary_url:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Get run URL
+        id: get_run_url
+        uses: pl-strflt/job-summary-url-action@v1.0.0
+    outputs:
+      job_summary_url: ${{ steps.get_run_url.outputs.job_summary_url }}
 
   docker_build_scan_push:
-    needs: pull_tags
+    needs: [
+      pull_tags,
+      get_summary_url
+    ]
     strategy:
       fail-fast: false
       matrix:
@@ -64,9 +75,6 @@ jobs:
     runs-on: ubuntu-latest
     name: ${{ matrix.ecr_repository }}
     steps:
-      - name: Get run URL
-        id: get_run_url
-        uses: pl-strflt/job-summary-url-action@v1.0.0
       - name: Run Against Image/Configure AWS Credentials
         uses: aws-actions/configure-aws-credentials@v4.1.0
         with:
@@ -128,4 +136,4 @@ jobs:
               - type: "section"
                 text:
                   type: "plain_text"
-                  text: ${{ steps.get_run_url.outputs.job_summary_url }}
+                  text: ${{ needs.get_run_url.outputs.job_summary_url }}
