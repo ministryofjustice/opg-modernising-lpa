@@ -34,10 +34,7 @@ jobs:
       docker_tag: ${{ steps.pull_tag.outputs.tag }}
       tag_from: ${{ steps.pull_tag.outputs.env }}
   trivy_scan_report:
-    needs: [
-      pull_tags,
-      get_summary_url
-    ]
+    needs: pull_tags
     strategy:
       fail-fast: false
       matrix:
