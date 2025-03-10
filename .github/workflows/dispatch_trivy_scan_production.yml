@@ -76,6 +76,9 @@ jobs:
         with:
           mask-password: true
           registries: 311462405659
+      - name: check file exists
+        if: ${{ hashFiles('trivy-results.txt') != '' }}
+        run: rm -f trivy-results.txt
       - uses: actions/checkout@v4
       - name: Trivy Image Vulnerability Scanner for ${{ matrix.ecr_repository }}
         id: trivy_scan
@@ -114,6 +117,7 @@ jobs:
         if: ${{ hashFiles('trivy-results.txt') != '' }}
         run: echo "File exists"
       - name: Post to a Slack channel
+        if: ${{ hashFiles('trivy-results.txt') != '' }}
         id: slack
         uses: slackapi/slack-github-action@v2.0.0
         with:
