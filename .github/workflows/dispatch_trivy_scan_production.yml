@@ -132,7 +132,7 @@ jobs:
                   text: "Critical or High severity vulnerabilities found in version *${{ needs.pull_tags.outputs.docker_tag }}*"
               - type: "section"
                 block_id: action_1
-                elements:
+                accessory:
                 - type: "button"
                   text:
                     type: "plain_text"
