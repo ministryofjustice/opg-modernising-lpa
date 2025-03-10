@@ -93,8 +93,10 @@ jobs:
           format: 'table'
           output: 'trivy-results.txt'
           exit-code: 0
-      - name: Run Against Image/Configure AWS Credentials
-        uses: aws-actions/configure-aws-credentials@v4.1.0
+      - name: Unset AWS credentials
+        if: always()
+        run: |
+          unset AWS_ACCESS_KEY_ID AWS_SECRET_ACCESS_KEY AWS_SESSION_TOKEN
         with:
           aws-region: eu-west-1
           unset-current-credentials: true
