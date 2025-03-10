@@ -180,7 +180,7 @@ func handleFeeApproved(
 		}
 
 		if donor.Voucher.Allowed && donor.VoucherInvitedAt.IsZero() {
-			if err := shareCodeSender.SendVoucherAccessCode(ctx, donor, appData); err != nil {
+			if err := shareCodeSender.SendVoucherInvite(ctx, donor, appData); err != nil {
 				return err
 			}
 
