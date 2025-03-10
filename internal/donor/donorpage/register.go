@@ -90,6 +90,7 @@ type ShareCodeSender interface {
 	SendCertificateProviderInvite(ctx context.Context, appData appcontext.Data, invite sharecode.CertificateProviderInvite, to notify.ToEmail) error
 	SendCertificateProviderPrompt(ctx context.Context, appData appcontext.Data, provided *donordata.Provided) error
 	SendVoucherAccessCode(ctx context.Context, donor *donordata.Provided, appData appcontext.Data) error
+	SendVoucherInvite(ctx context.Context, donor *donordata.Provided, appData appcontext.Data) error
 }
 
 type OneLoginClient interface {
@@ -249,9 +250,9 @@ func Register(
 	handleWithDonor(donor.PathReceivingUpdatesAboutYourLpa, page.CanGoBack,
 		Guidance(tmpls.Get("receiving_updates_about_your_lpa.gohtml")))
 	handleWithDonor(donor.PathYourEmail, page.CanGoBack,
-		YourEmail(tmpls.Get("your_email.gohtml"), donorStore))
+		YourEmail(tmpls.Get("your_email.gohtml"), donorStore, nil))
 	handleWithDonor(donor.PathYourMobile, page.CanGoBack,
-		YourMobile(tmpls.Get("your_mobile.gohtml"), donorStore))
+		YourMobile(tmpls.Get("your_mobile.gohtml"), donorStore, nil))
 	handleWithDonor(donor.PathWeHaveUpdatedYourDetails, page.None,
 		Guidance(tmpls.Get("we_have_updated_your_details.gohtml")))
 	handleWithDonor(donor.PathCanYouSignYourLpa, page.CanGoBack,
@@ -439,7 +440,7 @@ func Register(
 	handleWithDonor(donor.PathConfirmPersonAllowedToVouch, page.CanGoBack,
 		ConfirmPersonAllowedToVouch(tmpls.Get("confirm_person_allowed_to_vouch.gohtml"), donorStore))
 	handleWithDonor(donor.PathCheckYourDetails, page.CanGoBack,
-		CheckYourDetails(tmpls.Get("check_your_details.gohtml"), shareCodeSender, time.Now, donorStore))
+		CheckYourDetails(tmpls.Get("check_your_details.gohtml"), shareCodeSender, donorStore))
 	handleWithDonor(donor.PathWeHaveContactedVoucher, page.None,
 		Guidance(tmpls.Get("we_have_contacted_voucher.gohtml")))
 	handleWithDonor(donor.PathWhatYouCanDoNow, page.CanGoBack,
@@ -452,6 +453,12 @@ func Register(
 		AreYouSureYouNoLongerNeedVoucher(tmpls.Get("are_you_sure_you_no_longer_need_voucher.gohtml"), donorStore, notifyClient))
 	handleWithDonor(donor.PathWeHaveInformedVoucherNoLongerNeeded, page.None,
 		Guidance(tmpls.Get("we_have_informed_voucher_no_longer_needed.gohtml")))
+	handleWithDonor(donor.PathResendVoucherAccessCode, page.CanGoBack,
+		ResendVoucherAccessCode(tmpls.Get("resend_witness_code.gohtml"), shareCodeSender))
+	handleWithDonor(donor.PathChangeDonorMobileNumber, page.CanGoBack,
+		YourMobile(tmpls.Get("your_mobile.gohtml"), donorStore, shareCodeSender))
+	handleWithDonor(donor.PathChangeDonorEmail, page.CanGoBack,
+		YourEmail(tmpls.Get("your_email.gohtml"), donorStore, shareCodeSender))
 
 	handleWithDonor(donor.PathHowToSignYourLpa, page.None,
 		Guidance(tmpls.Get("how_to_sign_your_lpa.gohtml")))

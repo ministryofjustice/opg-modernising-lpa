@@ -140,6 +140,8 @@ type appPaths struct {
 	CertificateProviderDetails                           donor.Path
 	CertificateProviderOptOut                            donor.Path
 	ChangeCertificateProviderMobileNumber                donor.Path
+	ChangeDonorEmail                                     donor.Path
+	ChangeDonorMobileNumber                              donor.Path
 	ChangeIndependentWitnessMobileNumber                 donor.Path
 	CheckYouCanSign                                      donor.Path
 	CheckYourDetails                                     donor.Path
@@ -155,6 +157,7 @@ type appPaths struct {
 	ChooseReplacementAttorneys                           donor.Path
 	ChooseReplacementAttorneysAddress                    donor.Path
 	ChooseReplacementAttorneysSummary                    donor.Path
+	ChooseSomeoneToVouchForYou                           donor.Path
 	ChooseYourCertificateProvider                        donor.Path
 	ConfirmPersonAllowedToVouch                          donor.Path
 	ConfirmYourCertificateProviderIsNotRelated           donor.Path
@@ -204,6 +207,7 @@ type appPaths struct {
 	RemoveTrustCorporation                               donor.Path
 	ResendCertificateProviderCode                        donor.Path
 	ResendIndependentWitnessCode                         donor.Path
+	ResendVoucherAccessCode                              donor.Path
 	Restrictions                                         donor.Path
 	SendUsYourEvidenceByPost                             donor.Path
 	SignTheLpaOnBehalf                                   donor.Path
@@ -219,7 +223,6 @@ type appPaths struct {
 	WhatACertificateProviderDoes                         donor.Path
 	WhatHappensNextPostEvidence                          donor.Path
 	WhatHappensNextRegisteringWithCourtOfProtection      donor.Path
-	ChooseSomeoneToVouchForYou                           donor.Path
 	WhatYouCanDoNow                                      donor.Path
 	WhenCanTheLpaBeUsed                                  donor.Path
 	WhichFeeTypeAreYouApplyingFor                        donor.Path
@@ -368,6 +371,8 @@ var paths = appPaths{
 	CertificateProviderDetails:                           donor.PathCertificateProviderDetails,
 	CertificateProviderOptOut:                            donor.PathCertificateProviderOptOut,
 	ChangeCertificateProviderMobileNumber:                donor.PathChangeCertificateProviderMobileNumber,
+	ChangeDonorEmail:                                     donor.PathChangeDonorEmail,
+	ChangeDonorMobileNumber:                              donor.PathChangeDonorMobileNumber,
 	ChangeIndependentWitnessMobileNumber:                 donor.PathChangeIndependentWitnessMobileNumber,
 	CheckYouCanSign:                                      donor.PathCheckYouCanSign,
 	CheckYourDetails:                                     donor.PathCheckYourDetails,
@@ -383,6 +388,7 @@ var paths = appPaths{
 	ChooseReplacementAttorneys:                           donor.PathChooseReplacementAttorneys,
 	ChooseReplacementAttorneysAddress:                    donor.PathChooseReplacementAttorneysAddress,
 	ChooseReplacementAttorneysSummary:                    donor.PathChooseReplacementAttorneysSummary,
+	ChooseSomeoneToVouchForYou:                           donor.PathChooseSomeoneToVouchForYou,
 	ChooseYourCertificateProvider:                        donor.PathChooseYourCertificateProvider,
 	ConfirmPersonAllowedToVouch:                          donor.PathConfirmPersonAllowedToVouch,
 	ConfirmYourCertificateProviderIsNotRelated:           donor.PathConfirmYourCertificateProviderIsNotRelated,
@@ -432,6 +438,7 @@ var paths = appPaths{
 	RemoveTrustCorporation:                               donor.PathRemoveTrustCorporation,
 	ResendCertificateProviderCode:                        donor.PathResendCertificateProviderCode,
 	ResendIndependentWitnessCode:                         donor.PathResendIndependentWitnessCode,
+	ResendVoucherAccessCode:                              donor.PathResendVoucherAccessCode,
 	Restrictions:                                         donor.PathRestrictions,
 	SendUsYourEvidenceByPost:                             donor.PathSendUsYourEvidenceByPost,
 	SignTheLpaOnBehalf:                                   donor.PathSignTheLpaOnBehalf,
@@ -447,7 +454,6 @@ var paths = appPaths{
 	WhatACertificateProviderDoes:                         donor.PathWhatACertificateProviderDoes,
 	WhatHappensNextPostEvidence:                          donor.PathWhatHappensNextPostEvidence,
 	WhatHappensNextRegisteringWithCourtOfProtection:      donor.PathWhatHappensNextRegisteringWithCourtOfProtection,
-	ChooseSomeoneToVouchForYou:                           donor.PathChooseSomeoneToVouchForYou,
 	WhatYouCanDoNow:                                      donor.PathWhatYouCanDoNow,
 	WhenCanTheLpaBeUsed:                                  donor.PathWhenCanTheLpaBeUsed,
 	WhichFeeTypeAreYouApplyingFor:                        donor.PathWhichFeeTypeAreYouApplyingFor,

@@ -85,7 +85,7 @@ func PaymentConfirmation(logger Logger, payClient PayClient, donorStore DonorSto
 				nextPage = donor.PathTaskList
 
 				if provided.Voucher.Allowed && provided.VoucherInvitedAt.IsZero() {
-					if err := shareCodeSender.SendVoucherAccessCode(r.Context(), provided, appData); err != nil {
+					if err := shareCodeSender.SendVoucherInvite(r.Context(), provided, appData); err != nil {
 						return err
 					}
 

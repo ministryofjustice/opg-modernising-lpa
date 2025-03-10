@@ -157,6 +157,12 @@ type Provided struct {
 	VouchAttempts int `checkhash:"-"`
 	// FailedVoucher is the last voucher that was unable to vouch for the donor
 	FailedVoucher Voucher `checkhash:"-"`
+	// VoucherCodeSentBySMS records the whether the voucher access code was sent
+	// to the donor by sms (if not it was email).
+	VoucherCodeSentBySMS bool `checkhash:"-"`
+	// VoucherCodeSentTo records the mobile number or email address that the
+	// voucher access code was sent to.
+	VoucherCodeSentTo string `checkhash:"-"`
 
 	// Codes used for the certificate provider to witness signing
 	CertificateProviderCodes WitnessCodes `checkhash:"-"`

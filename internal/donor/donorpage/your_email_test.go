@@ -21,14 +21,14 @@ func TestGetYourEmail(t *testing.T) {
 	r, _ := http.NewRequest(http.MethodGet, "/", nil)
 
 	template := newMockTemplate(t)
-	template.
-		On("Execute", w, &yourEmailData{
+	template.EXPECT().
+		Execute(w, &yourEmailData{
 			App:  testAppData,
 			Form: &yourEmailForm{},
 		}).
 		Return(nil)
 
-	err := YourEmail(template.Execute, nil)(testAppData, w, r, &donordata.Provided{})
+	err := YourEmail(template.Execute, nil, nil)(testAppData, w, r, &donordata.Provided{})
 	resp := w.Result()
 
 	assert.Nil(t, err)
@@ -40,11 +40,11 @@ func TestGetYourEmailWhenTemplateErrors(t *testing.T) {
 	r, _ := http.NewRequest(http.MethodGet, "/", nil)
 
 	template := newMockTemplate(t)
-	template.
-		On("Execute", w, mock.Anything).
+	template.EXPECT().
+		Execute(w, mock.Anything).
 		Return(expectedError)
 
-	err := YourEmail(template.Execute, nil)(testAppData, w, r, &donordata.Provided{})
+	err := YourEmail(template.Execute, nil, nil)(testAppData, w, r, &donordata.Provided{})
 	resp := w.Result()
 
 	assert.Equal(t, expectedError, err)
@@ -78,8 +78,8 @@ func TestPostYourEmail(t *testing.T) {
 			r.Header.Add("Content-Type", page.FormUrlEncoded)
 
 			donorStore := newMockDonorStore(t)
-			donorStore.
-				On("Put", r.Context(), &donordata.Provided{
+			donorStore.EXPECT().
+				Put(r.Context(), &donordata.Provided{
 					LpaID: "lpa-id",
 					Donor: donordata.Donor{
 						FirstNames: "John",
@@ -88,7 +88,7 @@ func TestPostYourEmail(t *testing.T) {
 				}).
 				Return(nil)
 
-			err := YourEmail(nil, donorStore)(tc.appData, w, r, &donordata.Provided{
+			err := YourEmail(nil, donorStore, nil)(tc.appData, w, r, &donordata.Provided{
 				LpaID: "lpa-id",
 				Donor: donordata.Donor{
 					FirstNames: "John",
@@ -103,6 +103,81 @@ func TestPostYourEmail(t *testing.T) {
 	}
 }
 
+func TestPostYourEmailWhenShareCodeSender(t *testing.T) {
+	testcases := map[string]appcontext.Data{
+		"donor":     testAppData,
+		"supporter": testSupporterAppData,
+	}
+
+	for name, appData := range testcases {
+		t.Run(name, func(t *testing.T) {
+			form := url.Values{
+				"email": {"john@example.com"},
+			}
+
+			w := httptest.NewRecorder()
+
+			r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(form.Encode()))
+			r.Header.Add("Content-Type", page.FormUrlEncoded)
+
+			provided := &donordata.Provided{
+				LpaID: "lpa-id",
+				Donor: donordata.Donor{
+					FirstNames: "John",
+					Email:      "john@example.com",
+				},
+			}
+
+			shareCodeSender := newMockShareCodeSender(t)
+			shareCodeSender.EXPECT().
+				SendVoucherAccessCode(r.Context(), provided, appData).
+				Return(nil)
+
+			donorStore := newMockDonorStore(t)
+			donorStore.EXPECT().
+				Put(r.Context(), provided).
+				Return(nil)
+
+			err := YourEmail(nil, donorStore, shareCodeSender)(appData, w, r, &donordata.Provided{
+				LpaID: "lpa-id",
+				Donor: donordata.Donor{
+					FirstNames: "John",
+				},
+			})
+			resp := w.Result()
+
+			assert.Nil(t, err)
+			assert.Equal(t, http.StatusFound, resp.StatusCode)
+			assert.Equal(t, donor.PathWeHaveContactedVoucher.Format("lpa-id"), resp.Header.Get("Location"))
+		})
+	}
+}
+
+func TestPostYourEmailWhenShareCodeSenderErrors(t *testing.T) {
+	form := url.Values{
+		"email": {"john@example.com"},
+	}
+
+	w := httptest.NewRecorder()
+
+	r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(form.Encode()))
+	r.Header.Add("Content-Type", page.FormUrlEncoded)
+
+	shareCodeSender := newMockShareCodeSender(t)
+	shareCodeSender.EXPECT().
+		SendVoucherAccessCode(mock.Anything, mock.Anything, mock.Anything).
+		Return(expectedError)
+
+	err := YourEmail(nil, nil, shareCodeSender)(testAppData, w, r, &donordata.Provided{
+		LpaID: "lpa-id",
+		Donor: donordata.Donor{
+			FirstNames: "John",
+		},
+	})
+
+	assert.ErrorIs(t, err, expectedError)
+}
+
 func TestPostYourEmailWhenValidationError(t *testing.T) {
 	form := url.Values{
 		"email": {"john"},
@@ -113,13 +188,13 @@ func TestPostYourEmailWhenValidationError(t *testing.T) {
 	r.Header.Add("Content-Type", page.FormUrlEncoded)
 
 	template := newMockTemplate(t)
-	template.
-		On("Execute", w, mock.MatchedBy(func(data *yourEmailData) bool {
+	template.EXPECT().
+		Execute(w, mock.MatchedBy(func(data *yourEmailData) bool {
 			return assert.Equal(t, validation.With("email", validation.EmailError{Label: "email"}), data.Errors)
 		})).
 		Return(nil)
 
-	err := YourEmail(template.Execute, nil)(testAppData, w, r, &donordata.Provided{})
+	err := YourEmail(template.Execute, nil, nil)(testAppData, w, r, &donordata.Provided{})
 	resp := w.Result()
 
 	assert.Nil(t, err)
@@ -136,11 +211,11 @@ func TestPostYourEmailWhenStoreErrors(t *testing.T) {
 	r.Header.Add("Content-Type", page.FormUrlEncoded)
 
 	donorStore := newMockDonorStore(t)
-	donorStore.
-		On("Put", r.Context(), mock.Anything).
+	donorStore.EXPECT().
+		Put(r.Context(), mock.Anything).
 		Return(expectedError)
 
-	err := YourEmail(nil, donorStore)(testAppData, w, r, &donordata.Provided{})
+	err := YourEmail(nil, donorStore, nil)(testAppData, w, r, &donordata.Provided{})
 	assert.Equal(t, expectedError, err)
 }
 
