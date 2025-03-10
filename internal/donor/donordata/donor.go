@@ -22,7 +22,7 @@ type Donor struct {
 	// Last name of the donor
 	LastName string
 	// Email of the donor
-	Email string `relatedhash:"-"`
+	Email string `checkhash:"-" relatedhash:"-"`
 	// Other names the donor is known by
 	OtherNames string `relatedhash:"-"`
 	// Date of birth of the donor
@@ -30,7 +30,7 @@ type Donor struct {
 	// Address of the donor
 	Address place.Address
 	// Mobile phone number to contact the donor
-	Mobile string `relatedhash:"-"`
+	Mobile string `checkhash:"-" relatedhash:"-"`
 	// ThinksCanSign is what the donor thinks about their ability to sign online
 	ThinksCanSign YesNoMaybe `relatedhash:"-"`
 	// CanSign is Yes if the donor has said they will sign online

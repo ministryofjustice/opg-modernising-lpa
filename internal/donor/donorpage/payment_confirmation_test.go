@@ -509,7 +509,7 @@ func TestGetPaymentConfirmationApprovedOrDeniedWhenVoucherAllowed(t *testing.T) 
 
 			shareCodeSender := newMockShareCodeSender(t)
 			shareCodeSender.EXPECT().
-				SendVoucherAccessCode(r.Context(), provided, testAppData).
+				SendVoucherInvite(r.Context(), provided, testAppData).
 				Return(nil)
 
 			err := PaymentConfirmation(newMockLogger(t), payClient, donorStore, sessionStore, shareCodeSender, nil, eventClient, notifyClient)(testAppData, w, r, provided)
@@ -550,7 +550,7 @@ func TestGetPaymentConfirmationWhenVoucherAllowedShareCodeError(t *testing.T) {
 
 	shareCodeSender := newMockShareCodeSender(t)
 	shareCodeSender.EXPECT().
-		SendVoucherAccessCode(mock.Anything, mock.Anything, mock.Anything).
+		SendVoucherInvite(mock.Anything, mock.Anything, mock.Anything).
 		Return(expectedError)
 
 	err := PaymentConfirmation(newMockLogger(t), payClient, nil, sessionStore, shareCodeSender, nil, eventClient, notifyClient)(testAppData, w, r, &donordata.Provided{

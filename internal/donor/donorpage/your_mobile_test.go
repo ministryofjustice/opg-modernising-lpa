@@ -20,14 +20,14 @@ func TestGetYourMobile(t *testing.T) {
 	r, _ := http.NewRequest(http.MethodGet, "/", nil)
 
 	template := newMockTemplate(t)
-	template.
-		On("Execute", w, &yourMobileData{
+	template.EXPECT().
+		Execute(w, &yourMobileData{
 			App:  testAppData,
 			Form: &yourMobileForm{},
 		}).
 		Return(nil)
 
-	err := YourMobile(template.Execute, nil)(testAppData, w, r, &donordata.Provided{})
+	err := YourMobile(template.Execute, nil, nil)(testAppData, w, r, &donordata.Provided{})
 	resp := w.Result()
 
 	assert.Nil(t, err)
@@ -39,11 +39,11 @@ func TestGetYourMobileWhenTemplateErrors(t *testing.T) {
 	r, _ := http.NewRequest(http.MethodGet, "/", nil)
 
 	template := newMockTemplate(t)
-	template.
-		On("Execute", w, mock.Anything).
+	template.EXPECT().
+		Execute(w, mock.Anything).
 		Return(expectedError)
 
-	err := YourMobile(template.Execute, nil)(testAppData, w, r, &donordata.Provided{})
+	err := YourMobile(template.Execute, nil, nil)(testAppData, w, r, &donordata.Provided{})
 	resp := w.Result()
 
 	assert.Equal(t, expectedError, err)
@@ -61,8 +61,8 @@ func TestPostYourMobile(t *testing.T) {
 	r.Header.Add("Content-Type", page.FormUrlEncoded)
 
 	donorStore := newMockDonorStore(t)
-	donorStore.
-		On("Put", r.Context(), &donordata.Provided{
+	donorStore.EXPECT().
+		Put(r.Context(), &donordata.Provided{
 			LpaID: "lpa-id",
 			Donor: donordata.Donor{
 				FirstNames: "John",
@@ -71,7 +71,7 @@ func TestPostYourMobile(t *testing.T) {
 		}).
 		Return(nil)
 
-	err := YourMobile(nil, donorStore)(testAppData, w, r, &donordata.Provided{
+	err := YourMobile(nil, donorStore, nil)(testAppData, w, r, &donordata.Provided{
 		LpaID: "lpa-id",
 		Donor: donordata.Donor{
 			FirstNames: "John",
@@ -84,6 +84,72 @@ func TestPostYourMobile(t *testing.T) {
 	assert.Equal(t, donor.PathReceivingUpdatesAboutYourLpa.Format("lpa-id"), resp.Header.Get("Location"))
 }
 
+func TestPostYourMobileWhenShareCodeSender(t *testing.T) {
+	form := url.Values{
+		"mobile": {"07000000000"},
+	}
+
+	w := httptest.NewRecorder()
+
+	r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(form.Encode()))
+	r.Header.Add("Content-Type", page.FormUrlEncoded)
+
+	provided := &donordata.Provided{
+		LpaID: "lpa-id",
+		Donor: donordata.Donor{
+			FirstNames: "John",
+			Mobile:     "07000000000",
+		},
+	}
+
+	shareCodeSender := newMockShareCodeSender(t)
+	shareCodeSender.EXPECT().
+		SendVoucherAccessCode(r.Context(), provided, testAppData).
+		Return(nil)
+
+	donorStore := newMockDonorStore(t)
+	donorStore.EXPECT().
+		Put(r.Context(), provided).
+		Return(nil)
+
+	err := YourMobile(nil, donorStore, shareCodeSender)(testAppData, w, r, &donordata.Provided{
+		LpaID: "lpa-id",
+		Donor: donordata.Donor{
+			FirstNames: "John",
+		},
+	})
+	resp := w.Result()
+
+	assert.Nil(t, err)
+	assert.Equal(t, http.StatusFound, resp.StatusCode)
+	assert.Equal(t, donor.PathWeHaveContactedVoucher.Format("lpa-id"), resp.Header.Get("Location"))
+}
+
+func TestPostYourMobileWhenShareCodeSenderErrors(t *testing.T) {
+	form := url.Values{
+		"mobile": {"07000000000"},
+	}
+
+	w := httptest.NewRecorder()
+
+	r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(form.Encode()))
+	r.Header.Add("Content-Type", page.FormUrlEncoded)
+
+	shareCodeSender := newMockShareCodeSender(t)
+	shareCodeSender.EXPECT().
+		SendVoucherAccessCode(mock.Anything, mock.Anything, mock.Anything).
+		Return(expectedError)
+
+	err := YourMobile(nil, nil, shareCodeSender)(testAppData, w, r, &donordata.Provided{
+		LpaID: "lpa-id",
+		Donor: donordata.Donor{
+			FirstNames: "John",
+		},
+	})
+
+	assert.ErrorIs(t, err, expectedError)
+}
+
 func TestPostYourMobileWhenValidationError(t *testing.T) {
 	form := url.Values{
 		"mobile": {"john"},
@@ -94,13 +160,13 @@ func TestPostYourMobileWhenValidationError(t *testing.T) {
 	r.Header.Add("Content-Type", page.FormUrlEncoded)
 
 	template := newMockTemplate(t)
-	template.
-		On("Execute", w, mock.MatchedBy(func(data *yourMobileData) bool {
+	template.EXPECT().
+		Execute(w, mock.MatchedBy(func(data *yourMobileData) bool {
 			return assert.Equal(t, validation.With("mobile", validation.PhoneError{Label: "mobile", Tmpl: "errorMobile"}), data.Errors)
 		})).
 		Return(nil)
 
-	err := YourMobile(template.Execute, nil)(testAppData, w, r, &donordata.Provided{})
+	err := YourMobile(template.Execute, nil, nil)(testAppData, w, r, &donordata.Provided{})
 	resp := w.Result()
 
 	assert.Nil(t, err)
@@ -117,11 +183,11 @@ func TestPostYourMobileWhenStoreErrors(t *testing.T) {
 	r.Header.Add("Content-Type", page.FormUrlEncoded)
 
 	donorStore := newMockDonorStore(t)
-	donorStore.
-		On("Put", r.Context(), mock.Anything).
+	donorStore.EXPECT().
+		Put(r.Context(), mock.Anything).
 		Return(expectedError)
 
-	err := YourMobile(nil, donorStore)(testAppData, w, r, &donordata.Provided{})
+	err := YourMobile(nil, donorStore, nil)(testAppData, w, r, &donordata.Provided{})
 	assert.Equal(t, expectedError, err)
 }
 
