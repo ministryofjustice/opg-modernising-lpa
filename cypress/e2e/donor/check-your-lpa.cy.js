@@ -77,9 +77,9 @@ describe('Check the LPA', () => {
 
                 cy.url().should('contain', '/lpa-details-saved');
 
-                cy.get('div[data-module=govuk-notification-banner]').contains('You should show your LPA to your certificate provider, Charlie Cooper.')
+                cy.get('div[data-module=govuk-notification-banner]').contains('You will need to show Charlie your LPA so they can read it')
 
-                cy.contains('a', 'Continue').click();
+                cy.contains('a', 'Return to task list').click();
 
                 cy.url().should('contain', '/task-list');
             })
@@ -107,9 +107,9 @@ describe('Check the LPA', () => {
 
                 cy.url().should('contain', '/lpa-details-saved');
 
-                cy.get('div[data-module=govuk-notification-banner]').contains('We’ve saved your changes and sent a text to your certificate provider, Charlie Cooper, to tell them that your LPA is ready for review. You should show them your LPA.')
+                cy.get('div[data-module=govuk-notification-banner]').contains('We will text your certificate provider Charlie Cooper to let them know the LPA has been amended')
 
-                cy.contains('a', 'Continue').click();
+                cy.contains('a', 'Return to task list').click();
 
                 cy.url().should('contain', '/task-list');
             })
@@ -137,11 +137,11 @@ describe('Check the LPA', () => {
 
                 cy.url().should('contain', '/lpa-details-saved');
 
-                cy.get('div[data-module=govuk-notification-banner]').contains('We’ve saved your changes and sent a text to your certificate provider, Charlie Cooper, to tell them that your LPA is ready for review. You should show them your LPA.')
+                cy.get('div[data-module=govuk-notification-banner]').contains('We will text your certificate provider Charlie Cooper to let them know the LPA has been amended')
 
-                cy.contains('a', 'Return to dashboard').click();
+                cy.contains('a', 'Return to task list').click();
 
-                cy.url().should('contain', '/dashboard');
+                cy.url().should('contain', '/task-list');
             })
         })
     })
@@ -160,9 +160,9 @@ describe('Check the LPA', () => {
 
                 cy.url().should('contain', '/lpa-details-saved');
 
-                cy.get('div[data-module=govuk-notification-banner]').contains('We’ve sent an email to your certificate provider, Charlie Cooper, to tell them what they need to do next. You should tell them to expect an email from us.')
+                cy.get('div[data-module=govuk-notification-banner]').contains('We will also give Charlie an access code so they can read your LPA online and you can discuss it together')
 
-                cy.contains('a', 'Continue').click();
+                cy.contains('a', 'Return to task list').click();
 
                 cy.url().should('contain', '/task-list');
             })
@@ -190,9 +190,9 @@ describe('Check the LPA', () => {
 
                 cy.url().should('contain', '/lpa-details-saved');
 
-                cy.get('div[data-module=govuk-notification-banner]').contains('We’ve saved your changes and sent a text to your certificate provider, Charlie Cooper, to tell them that they should review your LPA online.')
+                cy.get('div[data-module=govuk-notification-banner]').contains('We will text your certificate provider Charlie Cooper to let them know the LPA has been amended')
 
-                cy.contains('a', 'Continue').click();
+                cy.contains('a', 'Return to task list').click();
 
                 cy.url().should('contain', '/task-list');
             })
@@ -220,11 +220,11 @@ describe('Check the LPA', () => {
 
                 cy.url().should('contain', '/lpa-details-saved');
 
-                cy.get('div[data-module=govuk-notification-banner]').contains('We’ve saved your changes and sent a text to your certificate provider, Charlie Cooper, to tell them that they should review your LPA online.')
+                cy.get('div[data-module=govuk-notification-banner]').contains('We will text your certificate provider Charlie Cooper to let them know the LPA has been amended')
 
-                cy.contains('a', 'Return to dashboard').click();
+                cy.contains('a', 'Return to task list').click();
 
-                cy.url().should('contain', '/dashboard');
+                cy.url().should('contain', '/task-list');
             })
         })
     })
@@ -252,7 +252,7 @@ describe('Check the LPA', () => {
 
         cy.url().should('contain', '/lpa-details-saved');
 
-        cy.contains('a', 'Continue').click();
+        cy.contains('a', 'Return to task list').click();
 
         cy.url().should('contain', '/task-list');
 
