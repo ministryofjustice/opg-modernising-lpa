@@ -1,0 +1,56 @@
+{{ template "page" . }}
+
+{{ define "main" }}
+    <div class="govuk-grid-row">
+        <div class="govuk-grid-column-one-third" id="guidance-nav">
+            <nav class="moj-side-navigation" aria-label="Side navigation">
+                <ul class="moj-side-navigation__list">
+                    <li class="moj-side-navigation__item {{ if eq .App.Page global.Paths.HowToMakeAndRegisterYourLPA.Format }}moj-side-navigation__item--active{{ end }}">
+                        <a href="{{ link .App global.Paths.HowToMakeAndRegisterYourLPA.Format }}" aria-current="location">How to make and register your lasting power of attorney</a>
+                    </li>
+                    <li class="moj-side-navigation__item {{ if eq .App.Page global.Paths.TheTwoTypesOfLPA.Format }}moj-side-navigation__item--active{{ end }}">
+                        <a href="{{ link .App global.Paths.TheTwoTypesOfLPA.Format }}">The 2 types of LPA</a>
+                    </li>
+                    <li class="moj-side-navigation__item {{ if eq .App.Page global.Paths.UnderstandingMentalCapacity.Format }}moj-side-navigation__item--active{{ end }}">
+                        <a href="{{ link .App global.Paths.UnderstandingMentalCapacity.Format }}">Understanding mental capacity</a>
+                    </li>
+                    <li class="moj-side-navigation__item {{ if eq .App.Page global.Paths.HowToSelectAttorneysForAnLPA.Format }}moj-side-navigation__item--active{{ end }}">
+                        <a href="{{ link .App global.Paths.HowToSelectAttorneysForAnLPA.Format }}">How to select attorneys for an LPA</a>
+                    </li>
+                    <li class="moj-side-navigation__item {{ if eq .App.Page global.Paths.UnderstandingLifeSustainingTreatment.Format }}moj-side-navigation__item--active{{ end }}">
+                        <a href="{{ link .App global.Paths.UnderstandingLifeSustainingTreatment.Format }}">Understanding life sustaining treatment</a>
+                    </li>
+                    <li class="moj-side-navigation__item {{ if eq .App.Page global.Paths.HowDecisionsAreMadeWithMultipleAttorneys.Format }}moj-side-navigation__item--active{{ end }}">
+                        <a href="{{ link .App global.Paths.HowDecisionsAreMadeWithMultipleAttorneys.Format }}">How decisions are made in LPAs with more than one attorney</a>
+                    </li>
+                    <li class="moj-side-navigation__item {{ if eq .App.Page global.Paths.ReplacementAttorneys.Format }}moj-side-navigation__item--active{{ end }}">
+                        <a href="{{ link .App global.Paths.ReplacementAttorneys.Format }}">Replacement attorneys</a>
+                    </li>
+                    <li class="moj-side-navigation__item {{ if eq .App.Page global.Paths.AddingRestrictionsAndConditions.Format }}moj-side-navigation__item--active{{ end }}">
+                        <a href="{{ link .App global.Paths.AddingRestrictionsAndConditions.Format }}">Adding restrictions and conditions to the LPA</a>
+                    </li>
+                    <li class="moj-side-navigation__item {{ if eq .App.Page global.Paths.ContactTheOfficeOfThePublicGuardian.Format }}moj-side-navigation__item--active{{ end }}">
+                        <a href="{{ link .App global.Paths.ContactTheOfficeOfThePublicGuardian.Format }}">Contact the Office of the Public Guardian</a>
+                    </li>
+                    <li class="moj-side-navigation__item">
+                        <a href="#">Glossary</a>
+                    </li>
+                </ul>
+            </nav>
+
+            <div class="app-back-to-top-desktop" id="back-to-top-link-wrapper">
+                <div class="app-back-to-top">
+                    {{ template "back-to-top-link" . }}
+                </div>
+            </div>
+        </div>
+
+        <div class="govuk-grid-column-two-thirds" id="guidance-content">
+            {{ template "help-and-support-content" . }}
+        </div>
+
+        <div class="govuk-grid-column-full app-back-to-top-mobile">
+            {{ template "back-to-top-link" . }}
+        </div>
+    </div>
+{{ end }}

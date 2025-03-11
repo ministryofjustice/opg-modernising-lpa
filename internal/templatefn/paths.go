@@ -109,6 +109,16 @@ type appPaths struct {
 	Voucher             voucherPaths
 	HealthCheck         healthCheckPaths
 
+	AddingRestrictionsAndConditions          page.Path
+	ContactTheOfficeOfThePublicGuardian      page.Path
+	HowDecisionsAreMadeWithMultipleAttorneys page.Path
+	HowToMakeAndRegisterYourLPA              page.Path
+	HowToSelectAttorneysForAnLPA             page.Path
+	ReplacementAttorneys                     page.Path
+	TheTwoTypesOfLPA                         page.Path
+	UnderstandingLifeSustainingTreatment     page.Path
+	UnderstandingMentalCapacity              page.Path
+
 	AccessibilityStatement      page.Path
 	AttorneyFixtures            page.Path
 	AuthRedirect                page.Path
@@ -339,6 +349,16 @@ var paths = appPaths{
 		Service:    page.PathHealthCheckService,
 		Dependency: page.PathHealthCheckDependency,
 	},
+
+	AddingRestrictionsAndConditions:          page.PathAddingRestrictionsAndConditions,
+	ContactTheOfficeOfThePublicGuardian:      page.PathContactTheOfficeOfThePublicGuardian,
+	HowDecisionsAreMadeWithMultipleAttorneys: page.PathHowDecisionsAreMadeWithMultipleAttorneys,
+	HowToMakeAndRegisterYourLPA:              page.PathHowToMakeAndRegisterYourLPA,
+	HowToSelectAttorneysForAnLPA:             page.PathHowToSelectAttorneysForAnLPA,
+	ReplacementAttorneys:                     page.PathReplacementAttorneys,
+	TheTwoTypesOfLPA:                         page.PathTheTwoTypesOfLPAPath,
+	UnderstandingLifeSustainingTreatment:     page.PathUnderstandingLifeSustainingTreatment,
+	UnderstandingMentalCapacity:              page.PathUnderstandingMentalCapacity,
 
 	AccessibilityStatement:      page.PathAccessibilityStatement,
 	AttorneyFixtures:            page.PathAttorneyFixtures,

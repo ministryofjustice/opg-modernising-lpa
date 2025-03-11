@@ -1,0 +1,14 @@
+{{ template "help-and-support-page" . }}
+
+{{ define "pageTitle" }}{{ tr .App "How to make and register your lasting power of attorney" }}{{ end }}
+
+{{ define "help-and-support-content" }}
+    <span class="govuk-caption-xl">{{ tr .App "Help and support" }}</span>
+    <h1 class="govuk-heading-xl">{{ tr .App "How to make and register your lasting power of attorney" }}</h1>
+
+    <p class="govuk-body">The pages in this section contain guidance to help you make and register a lasting power of attorney.</p>
+
+    <p class="govuk-body">You will also find links to this guidance as you progress through your task list in the service.</p>
+
+    <p class="govuk-body">For further advice, you <a href="{{ link .App global.Paths.ContactTheOfficeOfThePublicGuardian.Format }}" class="govuk-link">can contact the Office of the Public Guardian</a>.</p>
+{{ end }}
