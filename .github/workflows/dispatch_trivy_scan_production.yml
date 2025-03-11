@@ -113,11 +113,11 @@ jobs:
               echo "</details>"
             } >> $GITHUB_STEP_SUMMARY
           fi
-      # - name: check file exists
-      #   if: ${{ hashFiles('${{ matrix.name }}-trivy-results.txt') != '' }}
-      #   run: |
-      #     cat ${{ matrix.name }}-trivy-results.txt
-      #     echo ${{ hashFiles('${{ matrix.name }}-trivy-results.txt') }}
+      - name: check file exists
+        if: ${{ hashFiles('${{ matrix.name }}-trivy-results.txt') != '' }}
+        run: |
+          cat ${{ matrix.name }}-trivy-results.txt
+          echo ${{ hashFiles('${{ matrix.name }}-trivy-results.txt') }}
       - name: Post to a Slack channel
         if: ${{ hashFiles('${{ matrix.name }}-trivy-results.txt') != '' }}
         id: slack
