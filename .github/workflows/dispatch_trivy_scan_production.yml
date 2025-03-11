@@ -114,7 +114,7 @@ jobs:
             } >> $GITHUB_STEP_SUMMARY
           fi
       - name: check file exists
-        if: ${{ hashFiles('trivy-results.txt') != '' }}
+        if: ${{ $(cat trivy-results.txt) != '' }}
         run: |
           cat trivy-results.txt
           echo ${{ hashFiles('trivy-results.txt') }}
