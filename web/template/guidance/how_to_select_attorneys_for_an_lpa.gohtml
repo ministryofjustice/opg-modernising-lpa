@@ -1,0 +1,84 @@
+{{ template "help-and-support-page" . }}
+
+{{ define "pageTitle" }}{{ tr .App "How to select attorneys for an LPA" }}{{ end }}
+
+{{ define "help-and-support-content" }}
+    <span class="govuk-caption-xl">{{ tr .App "Help and support" }}</span>
+    <h1 class="govuk-heading-xl">{{ tr .App "How to select attorneys for an LPA" }}</h1>
+
+    <p class="govuk-body">When they make an LPA, the donor chooses one or more trusted people to make decisions (‘act’) on their behalf. These people are called attorneys.</p>
+    <p class="govuk-body">The donor must choose at least one attorney. They can have as many attorneys as they want, but if there are too many, it may be difficult for them to all work together.</p>
+    <p class="govuk-body">When making decisions for the donor, the attorneys must always:</p>
+
+    <ul class="govuk-list govuk-list--bullet">
+        <li>act in the donor’s best interests</li>
+        <li>follow any restrictions and conditions the donor puts in their LPA</li>
+        <li>follow the <a href="#" class="govuk-link" target="_blank" rel="noreferrer noopener">Mental Capacity Act Code of Practice (opens in new tab)</a></li>
+    </ul>
+
+    <h2 class="govuk-heading-l">Choosing attorneys</h2>
+
+    <p class="govuk-body">Anyone aged 18 or over who has mental capacity can be an attorney.</p>
+    <p class="govuk-body">The donor should choose people they trust to act in their best interests. Attorneys do not need to be solicitors or have a legal background – many donors choose family members or close friends.</p>
+    <p class="govuk-body">However, the donor can also ask a solicitor or other type of professional to act as their attorney, usually for a fee.</p>
+    <p class="govuk-body">A person who is on the Disclosure and Barring Service barred list cannot act as a paid attorney. They're breaking the law if they do.</p>
+    <p class="govuk-body">An undischarged bankrupt or a person subject to a debt relief order cannot be an attorney for a property and affairs LPA.</p>
+    <p class="govuk-body">It’s important that:</p>
+
+    <ul class="govuk-list govuk-list--bullet">
+        <li>the attorneys understand the donor’s beliefs and preferences well enough to make decisions for the donor</li>
+        <li>the attorneys work well together</li>
+        <li>the donor trusts their attorneys to act in their best interests</li>
+        <li>the attorneys have the skills to act under the LPA – for example, do they manage their own affairs well?</li>
+    </ul>
+
+    <p class="govuk-body">The donor should fully discuss the LPA with their potential attorneys before appointing them. Being an attorney can be a lot of work.</p>
+    <p class="govuk-body">Ask the potential attorneys to visit <a href="#" class="govuk-link" target="_blank" rel="noreferrer noopener">Acting as an attorney (opens in new tab)</a> to find out more about what’s involved.</p>
+
+    <h2 class="govuk-heading-l">Appointing the donor’s wife, husband or civil partner as an attorney</h2>
+
+    <p class="govuk-body">The donor can appoint their wife, husband or civil partner as an attorney. This person will usually have to stop being an attorney if the marriage or civil partnership is later ended. If they’re the only attorney and there are no replacements, this means the LPA can no longer be used.</p>
+    <p class="govuk-body">In the ‘Add restrictions to the LPA’ section, the donor can state that their wife, husband or civil partner can continue to be their attorney after a divorce, dissolution or annulment.</p>
+
+    <h2 class="govuk-heading-l">Professional attorneys</h2>
+
+    <p class="govuk-body">Some donors ask a professional, such as a solicitor or accountant, to be their attorney or one of their attorneys. Professional attorneys usually charge fees.</p>
+    <p class="govuk-body">If the donor appoints a professional attorney, they must name an individual in the LPA. They cannot just give a job title or the name of a firm.</p>
+
+    <h2 class="govuk-heading-l">Trust corporations</h2>
+
+    <p class="govuk-body">A trust corporation can be the attorney or one of the attorneys on a property and financial affairs LPA. A trust corporation manages funds, such as savings, pensions, investments. It’s usually run by a commercial bank or firm of solicitors.</p>
+    <p class="govuk-body">If the donor’s finances are complex or they do not have anyone they want to appoint as an attorney, they might choose a trust corporation. If they’re considering this, the donor should get legal or financial advice.</p>
+    <p class="govuk-body">If the donor appoints a trust corporation as their attorney, they must make sure they use the exact name it operates under in the LPA.</p>
+    <p class="govuk-body">The donor can only appoint one trust corporation in their LPA.</p>
+
+    <h2 class="govuk-heading-l">When attorneys can no longer act</h2>
+
+    <p class="govuk-body">An attorney can no longer act if they:</p>
+
+    <ul class="govuk-list govuk-list--bullet">
+
+        <li>lose <a href="{{ link .App global.Paths.UnderstandingMentalCapacity.Format }}" class="govuk-link">mental capacity</a></li>
+        <li>decide they no longer want to act as an attorney (known as 'disclaiming their appointment')</li>
+        <li>were the donor’s wife, husband or civil partner, but the relationship has legally ended (unless the donor states otherwise in their restrictions and conditions)</li>
+        <li>become bankrupt or subject to a debt relief order and were an attorney for a property and financial affairs LPA</li>
+        <li>are paid to act as an attorney, and placed on the Disclosure and Barring Service barred list</li>
+    </ul>
+
+    <p class="govuk-body">When an attorney dies or can no longer act, the LPA will be cancelled if:</p>
+
+    <ul class="govuk-list govuk-list--bullet">
+        <li>the donor only appointed one attorney and no <a href="{{ link .App global.Paths.ReplacementAttorneys.Format }}" class="govuk-link">replacement attorneys</a></li>
+        <li>the donor appointed the attorneys jointly and did not appoint any replacements, unless the donor specified otherwise in their <a href="{{ link .App global.Paths.AddingRestrictionsAndConditions.Format }}" class="govuk-link">restrictions and conditions</a></li>
+    </ul>
+
+    <p class="govuk-body">If the donor cancels their LPA, the attorneys can no longer act on the donor’s behalf.</p>
+
+    <h2 class="govuk-heading-l">Remove an attorney after the LPA has been registered</h2>
+
+    <p class="govuk-body">As long as the donor still has mental capacity, they can contact OPG and ask for a particular attorney to be removed from their LPA.</p>
+
+    <h2 class="govuk-heading-l">Concerns about attorneys</h2>
+
+    <p class="govuk-body">The Office of the Public Guardian (OPG) does not supervise attorneys. However, <a href="#" class="govuk-link" target="_blank" rel="noreferrer noopener">you can raise a concern with OPG if you believe an attorney is not acting in the donor’s best interests (opens in new tab)</a>. OPG or other organisations, such as the police or social services, may investigate.</p>
+{{ end }}

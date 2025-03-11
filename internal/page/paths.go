@@ -40,6 +40,16 @@ const (
 	PathVoucherDonorDetailsDoNotMatch                                      = Path("/voucher-donor-details-do-not-match")
 	PathYouCannotVouchForDonor                                             = Path("/you-cannot-vouch-for-donor")
 
+	PathAddingRestrictionsAndConditions          = Path("/adding-restrictions-and-conditions")
+	PathContactTheOfficeOfThePublicGuardian      = Path("/contact-the-office-ofhte-public-guardian")
+	PathHowDecisionsAreMadeWithMultipleAttorneys = Path("/how-decisions-are-made-with-multiple-attorneys")
+	PathHowToMakeAndRegisterYourLPA              = Path("/how-to-make-and-register-your-lasting-power-of-attorney")
+	PathHowToSelectAttorneysForAnLPA             = Path("/how-to-select-attorneys-for-a-lasting-power-of-attorney")
+	PathReplacementAttorneys                     = Path("/replacement-attorneys")
+	PathTheTwoTypesOfLPAPath                     = Path("/the-two-types-of-lasting-power-of-attorney")
+	PathUnderstandingLifeSustainingTreatment     = Path("/understanding-life-sustaining-treatment")
+	PathUnderstandingMentalCapacity              = Path("/understanding-mental-capacity")
+
 	PathAccessibilityStatement      = Path("/accessibility-statement")
 	PathAttorneyFixtures            = Path("/fixtures/attorney")
 	PathAuthRedirect                = Path("/auth/redirect")

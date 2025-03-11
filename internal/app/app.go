@@ -92,7 +92,7 @@ func App(
 	logger *slog.Logger,
 	bundle Bundle,
 	lang localize.Lang,
-	tmpls, donorTmpls, certificateProviderTmpls, attorneyTmpls, supporterTmpls, voucherTmpls template.Templates,
+	tmpls, donorTmpls, certificateProviderTmpls, attorneyTmpls, supporterTmpls, voucherTmpls, guidanceTmpls template.Templates,
 	sessionStore *sesh.Store,
 	lpaDynamoClient DynamoClient,
 	appPublicURL string,
@@ -167,6 +167,25 @@ func App(
 		page.Guidance(tmpls.Get("lpa_withdrawn.gohtml")))
 	handleRoot(page.PathAccessibilityStatement, None,
 		page.Guidance(tmpls.Get("accessibility_statement.gohtml")))
+
+	handleRoot(page.PathAddingRestrictionsAndConditions, None,
+		page.Guidance(guidanceTmpls.Get("adding_restrictions_and_conditions.gohtml")))
+	handleRoot(page.PathContactTheOfficeOfThePublicGuardian, None,
+		page.Guidance(guidanceTmpls.Get("contact_opg.gohtml")))
+	handleRoot(page.PathHowDecisionsAreMadeWithMultipleAttorneys, None,
+		page.Guidance(guidanceTmpls.Get("how_decisions_are_made_with_multiple_attorneys.gohtml")))
+	handleRoot(page.PathHowToMakeAndRegisterYourLPA, None,
+		page.Guidance(guidanceTmpls.Get("how_to_make_and_register_your_lpa.gohtml")))
+	handleRoot(page.PathHowToSelectAttorneysForAnLPA, None,
+		page.Guidance(guidanceTmpls.Get("how_to_select_attorneys_for_an_lpa.gohtml")))
+	handleRoot(page.PathReplacementAttorneys, None,
+		page.Guidance(guidanceTmpls.Get("replacement_attorneys.gohtml")))
+	handleRoot(page.PathTheTwoTypesOfLPAPath, None,
+		page.Guidance(guidanceTmpls.Get("the_two_types_of_lpa.gohtml")))
+	handleRoot(page.PathUnderstandingLifeSustainingTreatment, None,
+		page.Guidance(guidanceTmpls.Get("understanding_life_sustaining_treatment.gohtml")))
+	handleRoot(page.PathUnderstandingMentalCapacity, None,
+		page.Guidance(guidanceTmpls.Get("understanding_mental_capacity.gohtml")))
 
 	voucherpage.Register(
 		rootMux,
