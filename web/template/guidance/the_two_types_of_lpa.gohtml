@@ -1,0 +1,82 @@
+{{ template "help-and-support-page" . }}
+
+{{ define "pageTitle" }}{{ tr .App "The 2 types of LPA" }}{{ end }}
+
+{{ define "help-and-support-content" }}
+    <span class="govuk-caption-xl">{{ tr .App "Help and support" }}</span>
+    <h1 class="govuk-heading-xl">{{ tr .App "The 2 types of LPA" }}</h1>
+
+    <p class="govuk-body">There are 2 types of LPA: property and affairs, and personal welfare.</p>
+
+    <p class="govuk-body">The person making the LPA is called the donor.  The donor can have one or both types of LPA. The LPAs do not have to be made at the same time and the donor can choose different attorneys for each LPA.</p>
+
+    <p class="govuk-body">The 2 types of LPA are separate you cannot have an LPA which covers both property and affairs, and personal welfare.</p>
+
+    <h2 class="govuk-heading-l">Property and affairs LPA</h2>
+
+    <p class="govuk-body">This LPA covers decisions about the donor’s money, bills, benefits and home ownership.</p>
+
+    <p class="govuk-body">The donor does not have to own their own home or have a lot of money to make this type of LPA.</p>
+
+    <h3 class="govuk-heading-m">Decisions the attorneys can make</h3>
+
+    <p class="govuk-body">The donor chooses people they trust (attorneys) to make decisions on their behalf in their best interests. The decisions cover money and financial matters, including, but not limited to:</p>
+
+    <ul class="govuk-list govuk-list--bullet">
+        <li>opening, closing and using their bank or building society accounts</li>
+        <li>claiming, receiving and using their benefits, pensions and allowances</li>
+        <li>paying household and other bills</li>
+        <li>buying and selling their house</li>
+        <li>managing their property and investments</li>
+    </ul>
+
+    <p class="govuk-body">Ideally, a donor’s money should be kept separate from their attorneys’ money.</p>
+
+    <p class="govuk-body">The donor can also make a separate LPA for their business affairs if they want different people to make those decisions.</p>
+
+    <h3 class="govuk-heading-m">When a property and affairs LPA can be used</h3>
+
+    <p class="govuk-body">When they make their LPA, the donor can decide when it can be used. For a property and affairs LPA, this can be either as soon as it’s registered,
+        or only when the donor lacks <a href="{{ link .App (global.Paths.UnderstandingMentalCapacity.Format .App.LpaID) }}" class="govuk-link">mental capacity</a>.</p>
+
+    <h2 class="govuk-heading-l">Personal welfare LPA</h2>
+
+    <p class="govuk-body">This LPA covers covers decisions about the donor’s day-to-day needs, health care, where they live, and their medical treatment.</p>
+
+    <h3 class="govuk-heading-m">Decisions the attorneys can make</h3>
+
+    <p class="govuk-body">The donor chooses people they trust (attorneys) to make decisions about things including, but not limited to:</p>
+
+    <ul class="govuk-list govuk-list--bullet">
+        <li>giving or refusing consent to particular types of health care, including medical treatment</li>
+        <li>getting help and support from social services</li>
+        <li>where the donor lives - for example, whether the donor stays in their own home or moves into a care home</li>
+        <li>finding a good care home or care providers</li>
+        <li>day-to-day matters like the donor’s diet, dress or daily routine</li>
+        <li>managing their property and investments</li>
+    </ul>
+
+    <p class="govuk-body">A personal welfare attorney might need to spend the donor’s money on things that maintain or improve the donor’s quality of life. This can include:</p>
+
+    <ul class="govuk-list govuk-list--bullet">
+        <li>hairdressing or new clothes</li>
+        <li>decorating the donor’s home or room in a care home</li>
+        <li>paying for extra support so the donor can go out more, for example to visit relatives or to go on holiday</li>
+    </ul>
+
+    <p class="govuk-body">The attorney must ask for money from the person in charge of the donor’s funds. In some cases, the same person may be an attorney on both the donor’s property and affairs LPA and personal welfare LPA.</p>
+
+    <h3 class="govuk-heading-m">When a personal welfare LPA can be used</h3>
+
+    <p class="govuk-body">This type of LPA can only be used after it’s been registered and if the donor does not have the mental capacity to make decisions.</p>
+
+    <h3 class="govuk-heading-m">Life-sustaining treatment</h3>
+
+    <p class="govuk-body">‘Life-sustaining treatment’ is medical treatment needed to keep someone alive.
+
+    <p class="govuk-body">In their personal welfare LPA, the donor must choose whether their attorneys can give or refuse consent to life-sustaining treatment on their behalf.</p>
+
+    <p class="govuk-body">
+        <a href="{{ link .App (global.Paths.UnderstandingLifeSustainingTreatment.Format .App.LpaID) }}" class="govuk-link">Learn more about life-sustaining treatment</a>.
+    </p>
+{{ end }}

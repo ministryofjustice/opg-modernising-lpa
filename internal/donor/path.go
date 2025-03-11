@@ -135,6 +135,16 @@ const (
 	PathYourMobile                                           = Path("/your-mobile")
 	PathYourName                                             = Path("/your-name")
 	PathYourPreferredLanguage                                = Path("/your-preferred-language")
+
+	PathAddingRestrictionsAndConditions          = Path("/adding-restrictions-and-conditions")
+	PathContactTheOfficeOfThePublicGuardian      = Path("/contact-the-office-ofhte-public-guardian")
+	PathHowDecisionsAreMadeWithMultipleAttorneys = Path("/how-decisions-are-made-with-multiple-attorneys")
+	PathHowToMakeAndRegisterYourLPA              = Path("/how-to-make-and-register-your-lasting-power-of-attorney")
+	PathHowToSelectAttorneysForAnLPA             = Path("/how-to-select-attorneys-for-a-lasting-power-of-attorney")
+	PathReplacementAttorneys                     = Path("/replacement-attorneys")
+	PathTheTwoTypesOfLPAPath                     = Path("/the-two-types-of-lasting-power-of-attorney")
+	PathUnderstandingLifeSustainingTreatment     = Path("/understanding-life-sustaining-treatment")
+	PathUnderstandingMentalCapacity              = Path("/understanding-mental-capacity")
 )
 
 type Path string

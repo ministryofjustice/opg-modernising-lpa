@@ -1,0 +1,56 @@
+{{ template "page" . }}
+
+{{ define "main" }}
+    <div class="govuk-grid-row">
+        <div class="govuk-grid-column-one-third" id="guidance-nav">
+            <nav class="moj-side-navigation" aria-label="Side navigation">
+                <ul class="moj-side-navigation__list">
+                    <li class="moj-side-navigation__item {{ if eq .App.Page (global.Paths.HowToMakeAndRegisterYourLPA.Format .App.LpaID) }}moj-side-navigation__item--active{{ end }}">
+                        <a href="{{ link .App (global.Paths.HowToMakeAndRegisterYourLPA.Format .App.LpaID) }}" aria-current="location">How to make and register your lasting power of attorney</a>
+                    </li>
+                    <li class="moj-side-navigation__item {{ if eq .App.Page (global.Paths.TheTwoTypesOfLPA.Format .App.LpaID) }}moj-side-navigation__item--active{{ end }}">
+                        <a href="{{ link .App (global.Paths.TheTwoTypesOfLPA.Format .App.LpaID) }}">The 2 types of LPA</a>
+                    </li>
+                    <li class="moj-side-navigation__item {{ if eq .App.Page (global.Paths.UnderstandingMentalCapacity.Format .App.LpaID) }}moj-side-navigation__item--active{{ end }}">
+                        <a href="{{ link .App (global.Paths.UnderstandingMentalCapacity.Format .App.LpaID) }}">Understanding mental capacity</a>
+                    </li>
+                    <li class="moj-side-navigation__item {{ if eq .App.Page (global.Paths.HowToSelectAttorneysForAnLPA.Format .App.LpaID) }}moj-side-navigation__item--active{{ end }}">
+                        <a href="{{ link .App (global.Paths.HowToSelectAttorneysForAnLPA.Format .App.LpaID) }}">How to select attorneys for an LPA</a>
+                    </li>
+                    <li class="moj-side-navigation__item {{ if eq .App.Page (global.Paths.UnderstandingLifeSustainingTreatment.Format .App.LpaID) }}moj-side-navigation__item--active{{ end }}">
+                        <a href="{{ link .App (global.Paths.UnderstandingLifeSustainingTreatment.Format .App.LpaID) }}">Understanding life sustaining treatment</a>
+                    </li>
+                    <li class="moj-side-navigation__item {{ if eq .App.Page (global.Paths.HowDecisionsAreMadeWithMultipleAttorneys.Format .App.LpaID) }}moj-side-navigation__item--active{{ end }}">
+                        <a href="{{ link .App (global.Paths.HowDecisionsAreMadeWithMultipleAttorneys.Format .App.LpaID) }}">How decisions are made in LPAs with more than one attorney</a>
+                    </li>
+                    <li class="moj-side-navigation__item {{ if eq .App.Page (global.Paths.ReplacementAttorneys.Format .App.LpaID) }}moj-side-navigation__item--active{{ end }}">
+                        <a href="{{ link .App (global.Paths.ReplacementAttorneys.Format .App.LpaID) }}">Replacement attorneys</a>
+                    </li>
+                    <li class="moj-side-navigation__item {{ if eq .App.Page (global.Paths.AddingRestrictionsAndConditions.Format .App.LpaID) }}moj-side-navigation__item--active{{ end }}">
+                        <a href="{{ link .App (global.Paths.AddingRestrictionsAndConditions.Format .App.LpaID) }}">Adding restrictions and conditions to the LPA</a>
+                    </li>
+                    <li class="moj-side-navigation__item {{ if eq .App.Page (global.Paths.ContactTheOfficeOfThePublicGuardian.Format .App.LpaID) }}moj-side-navigation__item--active{{ end }}">
+                        <a href="{{ link .App (global.Paths.ContactTheOfficeOfThePublicGuardian.Format .App.LpaID) }}">Contact the Office of the Public Guardian</a>
+                    </li>
+                    <li class="moj-side-navigation__item">
+                        <a href="#">Glossary</a>
+                    </li>
+                </ul>
+            </nav>
+
+            <div class="app-back-to-top-desktop" id="back-to-top-link-wrapper">
+                <div class="app-back-to-top">
+                    {{ template "back-to-top-link" . }}
+                </div>
+            </div>
+        </div>
+
+        <div class="govuk-grid-column-two-thirds" id="guidance-content">
+            {{ block "help-and-support-content" . }}{{ end }}
+        </div>
+
+        <div class="govuk-grid-column-full app-back-to-top-mobile">
+            {{ template "back-to-top-link" . }}
+        </div>
+    </div>
+{{ end }}

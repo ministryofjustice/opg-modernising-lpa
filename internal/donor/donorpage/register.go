@@ -212,6 +212,7 @@ func Register(
 	scheduledStore ScheduledStore,
 	voucherStore VoucherStore,
 	bundle Bundle,
+	guidanceTmpls template.Templates,
 ) {
 	payer := Pay(logger, sessionStore, donorStore, payClient, appPublicURL)
 
@@ -225,6 +226,25 @@ func Register(
 		EnterAccessCode(logger, tmpls.Get("enter_access_code.gohtml"), shareCodeStore, donorStore))
 
 	handleWithDonor := makeLpaHandle(rootMux, sessionStore, errorHandler, donorStore)
+
+	handleWithDonor(donor.PathAddingRestrictionsAndConditions, page.None,
+		Guidance(guidanceTmpls.Get("adding_restrictions_and_conditions.gohtml")))
+	handleWithDonor(donor.PathContactTheOfficeOfThePublicGuardian, page.None,
+		Guidance(guidanceTmpls.Get("contact_opg.gohtml")))
+	handleWithDonor(donor.PathHowDecisionsAreMadeWithMultipleAttorneys, page.None,
+		Guidance(guidanceTmpls.Get("how_decisions_are_made_with_multiple_attorneys.gohtml")))
+	handleWithDonor(donor.PathHowToMakeAndRegisterYourLPA, page.None,
+		Guidance(guidanceTmpls.Get("how_to_make_and_register_your_lpa.gohtml")))
+	handleWithDonor(donor.PathHowToSelectAttorneysForAnLPA, page.None,
+		Guidance(guidanceTmpls.Get("how_to_select_attorneys_for_an_lpa.gohtml")))
+	handleWithDonor(donor.PathReplacementAttorneys, page.None,
+		Guidance(guidanceTmpls.Get("replacement_attorneys.gohtml")))
+	handleWithDonor(donor.PathTheTwoTypesOfLPAPath, page.None,
+		Guidance(guidanceTmpls.Get("the_two_types_of_lpa.gohtml")))
+	handleWithDonor(donor.PathUnderstandingLifeSustainingTreatment, page.None,
+		Guidance(guidanceTmpls.Get("understanding_life_sustaining_treatment.gohtml")))
+	handleWithDonor(donor.PathUnderstandingMentalCapacity, page.None,
+		Guidance(guidanceTmpls.Get("understanding_mental_capacity.gohtml")))
 
 	handleWithDonor(donor.PathViewLPA, page.None,
 		ViewLpa(tmpls.Get("view_lpa.gohtml"), lpaStoreClient))

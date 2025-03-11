@@ -92,7 +92,7 @@ func App(
 	logger *slog.Logger,
 	bundle Bundle,
 	lang localize.Lang,
-	tmpls, donorTmpls, certificateProviderTmpls, attorneyTmpls, supporterTmpls, voucherTmpls template.Templates,
+	tmpls, donorTmpls, certificateProviderTmpls, attorneyTmpls, supporterTmpls, voucherTmpls, guidanceTmpls template.Templates,
 	sessionStore *sesh.Store,
 	lpaDynamoClient DynamoClient,
 	appPublicURL string,
@@ -268,6 +268,7 @@ func App(
 		scheduledStore,
 		voucherStore,
 		bundle,
+		guidanceTmpls,
 	)
 
 	return withAppData(page.ValidateCsrf(rootMux, sessionStore, random.String, errorHandler), localizer, lang)
