@@ -114,7 +114,7 @@ func Voucher(
 				shareCodeSender.UseTestCode(shareCode)
 			}
 
-			shareCodeSender.SendVoucherAccessCode(donorCtx, donorDetails, appcontext.Data{
+			shareCodeSender.SendVoucherInvite(donorCtx, donorDetails, appcontext.Data{
 				SessionID: donorSessionID,
 				LpaID:     donorDetails.LpaID,
 				Localizer: appData.Localizer,

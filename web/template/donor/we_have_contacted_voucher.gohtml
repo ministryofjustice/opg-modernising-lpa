@@ -6,7 +6,7 @@
     <div class="govuk-grid-row">
         <div class="govuk-grid-column-two-thirds">
             <h1 class="govuk-heading-xl">
-                {{ if .Donor.Tasks.PayForLpa.IsCompleted }}
+                {{ if .Donor.VoucherCodeSentTo }}
                     {{ trFormat .App "weHaveContactedVoucher" "VoucherFullName" .Donor.Voucher.FullName }}
                 {{ else }}
                     {{ trFormat .App "weWillContactVoucher" "VoucherFullName" .Donor.Voucher.FullName }}
@@ -28,16 +28,39 @@
 
             <h2 class="govuk-heading-m">{{ tr .App "whatHappensNext" }}</h2>
 
+            {{ if .Donor.VoucherCodeSentTo }}
+                <p class="govuk-inset-text">
+                    {{ tr .App "weSentYourVouchingCodeTo" }}
+                    <strong>{{ .Donor.VoucherCodeSentTo }}</strong>
+                </p>
+            {{ end }}
+
             <ol class="govuk-list govuk-list--number">
                 {{ if not .Donor.Tasks.PayForLpa.IsCompleted }}
                     <li>{{ trFormat .App "weAreProcessingFeeWhenResolvedWillContactVoucher" "VoucherFullName" .Donor.Voucher.FullName }}</li>
                 {{ end }}
-                
+
                 {{ trFormatHtml .App "voucherWhatHappensNextBullets" "VoucherFullName" .Donor.Voucher.FullName }}
             </ol>
 
+            {{ if .Donor.VoucherCodeSentTo }}
+                {{ if .Donor.VoucherCodeSentBySMS }}
+                    {{ template "details" (details . "imHavingProblemWithVouchingCode" (
+                        trFormat .App "imHavingProblemWithVouchingCodeContent:sms"
+                        "ResendLink" (link .App (global.Paths.ResendVoucherAccessCode.Format .Donor.LpaID))
+                        "ChangeLink" (link .App (global.Paths.ChangeDonorMobileNumber.Format .Donor.LpaID))
+                        ) false) }}
+                {{ else }}
+                    {{ template "details" (details . "imHavingProblemWithVouchingCode" (
+                        trFormat .App "imHavingProblemWithVouchingCodeContent:email"
+                        "ResendLink" (link .App (global.Paths.ResendVoucherAccessCode.Format .Donor.LpaID))
+                        "ChangeLink" (link .App (global.Paths.ChangeDonorEmail.Format .Donor.LpaID))
+                        ) false) }}
+                {{ end }}
+            {{ end }}
+
             {{ template "details" (details . "confirmYourIdentityAnotherWay" (trFormat .App "confirmYourIdentityAnotherWayContent" "VoucherFullName" .Donor.Voucher.FullName) false) }}
-            
+
             <div class="govuk-button-group">
                 <a href="{{ global.Paths.TaskList.Format .App.LpaID }}" class="govuk-link govuk-button">{{ tr .App "returnToTaskList" }}</a>
                 <a href="{{ global.Paths.WhatYouCanDoNow.Format .App.LpaID }}" class="govuk-link govuk-button govuk-button--secondary">{{ tr .App "confirmMyIdentityAnotherWay" }}</a>

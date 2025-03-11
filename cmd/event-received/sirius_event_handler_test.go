@@ -565,7 +565,7 @@ func TestHandleFeeApprovedWhenVoucherSelected(t *testing.T) {
 
 	shareCodeSender := newMockShareCodeSender(t)
 	shareCodeSender.EXPECT().
-		SendVoucherAccessCode(ctx, &donordata.Provided{
+		SendVoucherInvite(ctx, &donordata.Provided{
 			PK:      dynamo.LpaKey("123"),
 			SK:      dynamo.LpaOwnerKey(dynamo.DonorKey("456")),
 			FeeType: pay.NoFee,
@@ -604,7 +604,7 @@ func TestHandleFeeApprovedWhenVoucherSelectedAndShareCodeSenderError(t *testing.
 
 	shareCodeSender := newMockShareCodeSender(t)
 	shareCodeSender.EXPECT().
-		SendVoucherAccessCode(mock.Anything, mock.Anything, mock.Anything).
+		SendVoucherInvite(mock.Anything, mock.Anything, mock.Anything).
 		Return(expectedError)
 
 	err := handleFeeApproved(ctx, client, event, shareCodeSender, nil, nil, appcontext.Data{}, testNowFn)
