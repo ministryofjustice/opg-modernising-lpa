@@ -37,10 +37,12 @@ type ApplicationUpdatedDonor struct {
 }
 
 type ReducedFeeRequested struct {
-	UID              string     `json:"uid"`
-	RequestType      string     `json:"requestType"`
-	Evidence         []Evidence `json:"evidence,omitempty"`
-	EvidenceDelivery string     `json:"evidenceDelivery"`
+	UID                       string     `json:"uid"`
+	RequestType               string     `json:"requestType"`
+	PreviousApplicationNumber string     `json:"previousReferenceNumber,omitempty"`
+	PreviousFee               string     `json:"previousFee,omitempty"`
+	Evidence                  []Evidence `json:"evidence,omitempty"`
+	EvidenceDelivery          string     `json:"evidenceDelivery"`
 }
 
 type Evidence struct {
