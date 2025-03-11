@@ -57,6 +57,19 @@ var eventTests = map[string]map[string]any{
 			RequestType:      "NoFee",
 			EvidenceDelivery: "post",
 		},
+		"repeat 7": ReducedFeeRequested{
+			UID:                       "M-0000-0000-0000",
+			RequestType:               "RepeatApplicationFee",
+			PreviousApplicationNumber: "70000",
+			PreviousFee:               "Half",
+			EvidenceDelivery:          "post",
+		},
+		"repeat M": ReducedFeeRequested{
+			UID:                       "M-0000-0000-0000",
+			RequestType:               "RepeatApplicationFee",
+			PreviousApplicationNumber: "M0000",
+			EvidenceDelivery:          "post",
+		},
 	},
 	"notification-sent": {
 		"valid": NotificationSent{
