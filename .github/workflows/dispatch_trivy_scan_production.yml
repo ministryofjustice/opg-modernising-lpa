@@ -115,7 +115,9 @@ jobs:
           fi
       - name: check file exists
         if: ${{ hashFiles('trivy-results.txt') != '' }}
-        run: cat trivy-results.txt
+        run: |
+          cat trivy-results.txt
+          echo ${{ hashFiles('trivy-results.txt') }}
       # - name: Post to a Slack channel
       #   if: ${{ hashFiles('trivy-results.txt') != '' }}
       #   id: slack
