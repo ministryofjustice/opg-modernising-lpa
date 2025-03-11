@@ -1,0 +1,123 @@
+{{ template "page" . }}
+
+{{ define "pageTitle" }}{{ tr .App "Replacement attorneys" }}{{ end }}
+
+{{ define "main" }}
+    <div class="govuk-grid-row">
+        {{ template "help-and-support-nav" . }}
+
+        <div class="govuk-grid-column-two-thirds" id="guidance-content">
+            <span class="govuk-caption-xl">{{ tr .App "Help and support" }}</span>
+            <h1 class="govuk-heading-xl">{{ tr .App "Replacement attorneys" }}</h1>
+
+            <p class="govuk-body">Replacement attorneys are people the donor chooses to step in if one of their original attorneys can no longer act.</p>
+            <p class="govuk-body">The donor does not have to appoint replacement attorneys, but having them helps to protect the LPA. It means the LPA should still work if an original attorney can no longer act.</p>
+            <p class="govuk-body">Without replacements:</p>
+
+            <ul class="govuk-list govuk-list--bullet">
+                <li>if there’s only one attorney and that attorney can no longer act, the LPA will stop working</li>
+                <li>if the donor <a href="{{ link .App global.Paths.HowDecisionsAreMadeWithMultipleAttorneys.Format }}" class="govuk-link">appointed their attorneys to act jointly</a> and one attorney can no longer act, the LPA will stop working, unless the donor has stated otherwise in their <a href="{{ link .App global.Paths.AddingRestrictionsAndConditions.Format }}" class="govuk-link">restrictions and conditions</a></li>
+                <li>if the donor appointed their attorneys to act jointly for some decisions, and one attorney can no longer act, the joint decisions can no longer be made, unless the donor has stated otherwise in their restrictions and conditions</li>
+            </ul>
+
+            <p class="govuk-body">If the LPA cannot be used and the donor no longer has mental capacity, someone will have to apply to the Court of Protection to become a ‘deputy’ – meaning they are given the power by the court to act on the donor’s behalf.</p>
+            <p class="govuk-body">This can be expensive and usually takes a long time. If appointed, the deputy must report to the Office of the Public Guardian (OPG) every year, as well as pay an annual fee.</p>
+
+            <h2 class="govuk-heading-l">Who can be a replacement attorney</h2>
+
+            <p class="govuk-body">A replacement attorney must meet the same requirements as an original attorney. This includes having mental capacity and being 18 or over when the donor signs the LPA.</p>
+
+            <p class="govuk-body">The donor should choose their replacements as carefully as they <a href="{{ link .App global.Paths.HowToSelectAttorneysForAnLPA.Format }}" class="govuk-link">choose their original attorneys</a>.</p>
+
+            <h2 class="govuk-heading-l">What’s the difference between appointing a replacement attorney and appointing multiple attorneys?</h2>
+
+            <p class="govuk-body">A replacement attorney cannot start to make decisions until after one of your original attorneys can no longer act.</p>
+            <p class="govuk-body">This means a replacement attorney is a back-up for your LPA, a way to ensure it keeps working if your original attorneys can no longer make decisions on your behalf.</p>
+
+            <h2 class="govuk-heading-l">When replacement attorneys can act</h2>
+
+            <p class="govuk-body">Replacement attorneys cannot act without the authorisation of the Office of the Public Guardian (OPG). If one of the donor’s original attorneys can no longer act, OPG must be contacted to amend the LPA accordingly.</p>
+            <p class="govuk-body">A replacement attorney cannot temporarily stand in for an attorney who is still able to act (for example, while the first attorney is on holiday).</p>
+            <p class="govuk-body">There are a number of reasons why an attorney can no longer act. The attorney may:</p>
+
+            <ul class="govuk-list govuk-list--bullet">
+                <li>die</li>
+                <li>lose mental capacity</li>
+                <li>decide they no longer want to act as an attorney (known as 'disclaiming their appointment')</li>
+                <li>be the donor’s wife, husband or civil partner, but the relationship has legally ended and the donor has not stated in their restrictions and conditions that their ex-partner can continue as an attorney in these circumstances</li>
+                <li>become bankrupt or subject to a debt relief order as an attorney for a property and financial affairs LPA</li>
+            </ul>
+
+            <h2 class="govuk-heading-l">Replacing attorneys who act jointly and severally</h2>
+
+
+            <p class="govuk-body">When the original <a href="{{ link .App global.Paths.HowDecisionsAreMadeWithMultipleAttorneys.Format }}" class="govuk-link">attorneys are appointed to act jointly and severally</a> and an original attorney dies or can no longer act:</p>
+
+            <ul class="govuk-list govuk-list--bullet">
+                <li>all the replacement attorneys will step in together, unless the donor has stated otherwise in their restrictions and conditions</li>
+                <li>the replacement attorneys and any remaining original attorneys can then make decisions jointly and severally</li>
+            </ul>
+
+            <h3 class="govuk-heading-m">Examples of restrictions and conditions to change when and how replacement attorneys step in</h3>
+
+
+            <p class="govuk-body">When the original attorneys are appointed to act jointly and severally, the donor can add restrictions and conditions to specify the order in which their replacement can step in. This is optional.</p>
+            <p class="govuk-body">Examples:</p>
+
+            <div class="govuk-inset-text">
+                <p class="govuk-body">‘If one of my attorneys (either my mother Jane Brown or my father John Brown) can no longer act, I would like that attorney to be replaced by my sister Sarah Smith, who is one of my replacement attorneys. If later on my other parent can no longer act, I would like my other replacement attorney, my brother Michael Brown, to step in to replace that person as my attorney.’</p>
+            </div>
+
+            <div class="govuk-inset-text">
+                <p class="govuk-body">‘If my attorney Dave Smith becomes unable to act under this LPA, I want replacement attorney Jane Hall to step in and act in his place.’</p>
+            </div>
+
+            <h2 class="govuk-heading-l">Replacing attorneys who act jointly</h2>
+
+            <p class="govuk-body">Replacement attorneys are an important backup when attorneys are appointed to act jointly.</p>
+            <p class="govuk-body">When there are replacement attorneys, if an original attorney dies or can no longer act:</p>
+
+            <ul class="govuk-list govuk-list--bullet">
+                <li>all the replacement attorneys will replace all the original attorneys</li>
+                <li>the remaining original attorneys will not be able to make any decisions on the donor’s behalf anymore</li>
+            </ul>
+
+            <h3 class="govuk-heading-m">Examples of restrictions and conditions to change what happens when a joint attorney dies or is unable to act</h3>
+
+            <p class="govuk-body">If the original attorneys are appointed jointly, the donor can add restrictions and conditions to change what happens when an original attorney dies or is unable or unwilling to act.</p>
+            <p class="govuk-body">Example:</p>
+
+            <div class="govuk-inset-text">
+                <p class="govuk-body">‘If one of my original joint attorneys, Jane Doe or John Doe, is unable or unwilling to act, I then reappoint my remaining original attorney(s), Jane Doe or John Doe, as a replacement attorney.’</p>
+            </div>
+
+            <h2 class="govuk-heading-l">Replacing attorneys who act jointly for some decisions</h2>
+
+            <p class="govuk-body">Replacement attorneys are an important backup when <a href="{{ link .App global.Paths.HowDecisionsAreMadeWithMultipleAttorneys.Format }}" class="govuk-link">attorneys are appointed to act jointly for some decisions, and jointly and severally for others</a>.</p>
+            <p class="govuk-body">When there are replacement attorneys, if an attorney dies or can no longer act:</p>
+
+            <ul class="govuk-list govuk-list--bullet">
+                <li>all the replacement attorneys step in and take over making the joint decisions</li>
+                <li>the remaining original attorneys will not be able to make the joint decisions anymore</li>
+                <li>the replacement and remaining original attorneys can make all other decisions individually</li>
+            </ul>
+
+            <h3 class="govuk-heading-m">Examples of restrictions and conditions to change what happens when an attorney who acts jointly for some decisions dies or is unable to act</h3>
+
+            <p class="govuk-body">If the original attorneys are appointed jointly for some decisions, the donor can add restrictions and conditions to change what happens when an original attorney dies or is unable or unwilling to act.</p>
+            <p class="govuk-body">Examples:</p>
+
+            <div class="govuk-inset-text">
+                <p class="govuk-body">‘If one of my original attorneys, David Smith or Andrea Williams, is unable or unwilling to act, I then reappoint my remaining original attorney(s), David Smith or Andrea Williams, to continue to make the decisions I have specified to be jointly made.’</p>
+            </div>
+
+            <div class="govuk-inset-text">
+                <p class="govuk-body">‘If one of my replacement attorneys, Margaret Taylor or Nick Brown, is unable or unwilling to act, I then reappoint my remaining replacement attorney(s), Margaret Taylor or Nick Brown, to continue to make the decisions I have specified to be jointly made.’</p>
+            </div>
+        </div>
+
+        <div class="govuk-grid-column-full app-back-to-top-mobile">
+            {{ template "back-to-top-link" . }}
+        </div>
+    </div>
+{{ end }}
