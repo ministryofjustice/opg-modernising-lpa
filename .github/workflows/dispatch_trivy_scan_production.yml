@@ -120,10 +120,11 @@ jobs:
           cat ${{ matrix.name }}-trivy-results.txt
           echo ${{ hashFiles('${{ matrix.name }}-trivy-results.txt') }}
           if [[ -s ${{ matrix.name }}-trivy-results.txt ]]; then
-            echo "post=true" >> $GITHUB_OUTPUT
+            echo "post=1" >> $GITHUB_OUTPUT
+          else echo "post=0" >> $GITHUB_OUTPUT
           fi
       - name: Post to a Slack channel
-        if: steps.post_check.output.post == true
+        if: steps.post_check.output.post == 1
         # if: ${{ hashFiles('${{ matrix.name }}-trivy-results.txt') != '' }}
         id: slack
         uses: slackapi/slack-github-action@v2.0.0
