@@ -5,6 +5,7 @@ import $ from 'jquery';
 import { CrossServiceHeader } from './service-header';
 import { DataLossWarning } from './data-loss-warning';
 import { FileUploadModal } from "./file-upload-modal";
+import {GuidanceNav} from "./guidance-nav";
 
 // Account for DOMContentLoaded firing before JS runs
 if (document.readyState !== "loading") {
@@ -25,6 +26,8 @@ function init() {
     if (header) {
         new CrossServiceHeader(header).init();
     }
+
+
 
     document.querySelectorAll(".moj-button-menu").forEach(buttonMenu => {
         new MOJFrontend.ButtonMenu({
@@ -55,6 +58,8 @@ function init() {
             e.preventDefault();
         }, false);
     }
+
+    new GuidanceNav().init()
 
     function metaContent(name) {
         return document.querySelector(`meta[name=${name}]`).content;
