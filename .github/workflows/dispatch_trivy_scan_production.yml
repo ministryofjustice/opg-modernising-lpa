@@ -94,7 +94,7 @@ jobs:
           image-ref: ${{ steps.login_ecr.outputs.registry }}/${{ matrix.ecr_repository }}:${{ needs.pull_tags.outputs.docker_tag }}
           severity: 'HIGH,CRITICAL'
           format: 'table'
-          output: '${{ matrix.ecr_repository }}-trivy-results.txt'
+          output: '${{ matrix.name }}-trivy-results.txt'
           exit-code: 0
       - name: Unset AWS credentials
         if: always()
@@ -102,22 +102,22 @@ jobs:
           unset AWS_ACCESS_KEY_ID AWS_SECRET_ACCESS_KEY AWS_SESSION_TOKEN
       - name: Publish Trivy Output to Summary
         run: |
-          if [[ -s ${{ matrix.ecr_repository }}-trivy-results.txt ]]; then
+          if [[ -s ${{ matrix.name }}-trivy-results.txt ]]; then
             {
               echo "### Security Output ${{ matrix.ecr_repository }}:${{ needs.pull_tags.outputs.docker_tag }}"
               echo "<details><summary>Click to expand</summary>"
               echo ""
               echo '```text'
-              cat ${{ matrix.ecr_repository }}-trivy-results.txt
+              cat ${{ matrix.name }}-trivy-results.txt
               echo '```'
               echo "</details>"
             } >> $GITHUB_STEP_SUMMARY
           fi
       - name: check file exists
-        if: ${{ hashFiles('${{ matrix.ecr_repository }}-trivy-results.txt') != '' }}
+        if: ${{ hashFiles('${{ matrix.name }}-trivy-results.txt') != '' }}
         run: |
-          cat ${{ matrix.ecr_repository }}-trivy-results.txt
-          echo ${{ hashFiles('${{ matrix.ecr_repository }}-trivy-results.txt') }}
+          cat ${{ matrix.name }}-trivy-results.txt
+          echo ${{ hashFiles('${{ matrix.name }}-trivy-results.txt') }}
       # - name: Post to a Slack channel
       #   if: ${{ hashFiles('trivy-results.txt') != '' }}
       #   id: slack
