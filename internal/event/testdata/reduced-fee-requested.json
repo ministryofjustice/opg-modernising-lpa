@@ -1,48 +1,117 @@
 {
-  "$id": "https://opg.service.justice.gov.uk/opg.poas.makeregister/reduced-fee-requested.json",
-  "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "title": "opg.poas.makeregister/reduced-fee-requested",
-  "type": "object",
-  "properties": {
-    "uid": {
-      "type": "string",
-      "description": "The UID of the LPA",
-      "pattern": "^M(-[A-Z0-9]{4}){3}$"
-    },
-    "requestType": {
-      "type": "string",
-      "description": "The type of reduction being requested",
-      "enum": ["HalfFee", "NoFee"]
-    },
-    "evidence": {
-      "type": "array",
-      "description": "An array of objects containing filenames and absolute paths to evidence files in S3",
-      "items": {
-        "type": "object",
-        "properties": {
-          "path": {
-            "type": "string",
-            "description": "The absolute path to the evidence file in S3. The first item in the path will always be the UID of the LPA the evidence is associated with.",
-            "pattern": "^M(-[A-Z0-9]{4}){3}/evidence/.+$"
-          },
-          "filename": {
-            "type": "string",
-            "description": "The filename of the evidence file"
-          }
-        }
-      }
-    },
-    "evidenceDelivery": {
-      "type": "string",
-      "description": "How the evidence is being delivered to OPG",
-      "enum": ["upload", "post"]
-    }
-  },
-  "if": {
+    "$id": "https://opg.service.justice.gov.uk/opg.poas.makeregister/reduced-fee-requested.json",
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "title": "opg.poas.makeregister/reduced-fee-requested",
+    "type": "object",
     "properties": {
-      "evidenceDelivery": { "const": "upload" }
-    }
-  },
-  "then": { "required": ["uid", "requestType", "evidence", "evidenceDelivery"] },
-  "else": { "required": ["uid", "requestType", "evidenceDelivery"] }
+        "uid": {
+            "type": "string",
+            "description": "The UID of the LPA",
+            "pattern": "^M(-[A-Z0-9]{4}){3}$"
+        },
+        "requestType": {
+            "type": "string",
+            "description": "The type of reduction being requested",
+            "enum": [
+                "HalfFee",
+                "QuarterFee",
+                "NoFee",
+                "HardshipFee",
+                "RepeatApplicationFee"
+            ]
+        },
+        "previousApplicationNumber": {
+            "type": "string",
+            "description": "The application number used for the previous application"
+        },
+        "previousFee": {
+            "type": "string",
+            "description": "The fee previously applied for",
+            "enum": [
+                "Full",
+                "Half",
+                "Exemption",
+                "Hardship"
+            ]
+        },
+        "evidence": {
+            "type": "array",
+            "description": "An array of objects containing filenames and absolute paths to evidence files in S3",
+            "items": {
+                "type": "object",
+                "properties": {
+                    "path": {
+                        "type": "string",
+                        "description": "The absolute path to the evidence file in S3. The first item in the path will always be the UID of the LPA the evidence is associated with.",
+                        "pattern": "^M(-[A-Z0-9]{4}){3}/evidence/.+$"
+                    },
+                    "filename": {
+                        "type": "string",
+                        "description": "The filename of the evidence file"
+                    }
+                }
+            }
+        },
+        "evidenceDelivery": {
+            "type": "string",
+            "description": "How the evidence is being delivered to OPG",
+            "enum": [
+                "upload",
+                "post"
+            ]
+        }
+    },
+    "required": [
+        "uid",
+        "requestType",
+        "evidenceDelivery"
+    ],
+    "allOf": [
+        {
+            "if": {
+                "properties": {
+                    "evidenceDelivery": {
+                        "const": "upload"
+                    }
+                }
+            },
+            "then": {
+                "required": [
+                    "evidence"
+                ]
+            }
+        },
+        {
+            "if": {
+                "properties": {
+                    "requestType": {
+                        "const": "RepeatApplicationFee"
+                    }
+                }
+            },
+            "then": {
+                "required": [
+                    "previousApplicationNumber"
+                ]
+            }
+        },
+        {
+            "if": {
+                "properties": {
+                    "previousApplicationNumber": {
+                        "type": "string",
+                        "pattern": "^7"
+                    }
+                },
+                "required": [
+                    "previousApplicationNumber"
+                ]
+            },
+            "then": {
+                "required": [
+                    "previousFee"
+                ]
+            }
+        }
+    ]
 }
