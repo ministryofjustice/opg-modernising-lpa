@@ -27,6 +27,7 @@
         </head>
 
         <body class="govuk-template__body app-body-class">
+            <a id="top"></a>
             {{ if not .App.CookieConsentSet }}
                 <div class="govuk-cookie-banner" data-nosnippet role="region" aria-label="{{ tr .App "cookiesOn" }}">
                     <div class="govuk-cookie-banner__message govuk-width-container">
@@ -127,7 +128,7 @@
                 <main class="govuk-main-wrapper app-main-class" id="main-content" role="main">
                     {{ template "supporter-lpa-context" . }}
                     {{ template "error-summary" . }}
-                    {{ template "main" . }}
+                    {{ block "main" . }}{{ end }}
                 </main>
             </div>
 

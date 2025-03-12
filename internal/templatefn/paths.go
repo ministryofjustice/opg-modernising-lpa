@@ -245,6 +245,16 @@ type appPaths struct {
 	YourMobile                                           donor.Path
 	YourName                                             donor.Path
 	YourPreferredLanguage                                donor.Path
+
+	AddingRestrictionsAndConditions          donor.Path
+	ContactTheOfficeOfThePublicGuardian      donor.Path
+	HowDecisionsAreMadeWithMultipleAttorneys donor.Path
+	HowToMakeAndRegisterYourLPA              donor.Path
+	HowToSelectAttorneysForAnLPA             donor.Path
+	ReplacementAttorneys                     donor.Path
+	TheTwoTypesOfLPA                         donor.Path
+	UnderstandingLifeSustainingTreatment     donor.Path
+	UnderstandingMentalCapacity              donor.Path
 }
 
 var paths = appPaths{
@@ -476,4 +486,14 @@ var paths = appPaths{
 	YourMobile:                                           donor.PathYourMobile,
 	YourName:                                             donor.PathYourName,
 	YourPreferredLanguage:                                donor.PathYourPreferredLanguage,
+
+	AddingRestrictionsAndConditions:          donor.PathAddingRestrictionsAndConditions,
+	ContactTheOfficeOfThePublicGuardian:      donor.PathContactTheOfficeOfThePublicGuardian,
+	HowDecisionsAreMadeWithMultipleAttorneys: donor.PathHowDecisionsAreMadeWithMultipleAttorneys,
+	HowToMakeAndRegisterYourLPA:              donor.PathHowToMakeAndRegisterYourLPA,
+	HowToSelectAttorneysForAnLPA:             donor.PathHowToSelectAttorneysForAnLPA,
+	ReplacementAttorneys:                     donor.PathReplacementAttorneys,
+	TheTwoTypesOfLPA:                         donor.PathTheTwoTypesOfLPAPath,
+	UnderstandingLifeSustainingTreatment:     donor.PathUnderstandingLifeSustainingTreatment,
+	UnderstandingMentalCapacity:              donor.PathUnderstandingMentalCapacity,
 }
