@@ -114,19 +114,8 @@ jobs:
               echo "</details>"
             } >> $GITHUB_STEP_SUMMARY
           fi
-      # - name: check file exists
-      #   id: post_check
-      #   # if: ${{ hashFiles('${{ matrix.name }}-trivy-results.txt') != '' }}
-      #   run: |
-      #     cat ${{ matrix.name }}-trivy-results.txt
-      #     echo ${{ hashFiles('${{ matrix.name }}-trivy-results.txt') }}
-      #     if [[ -s ${{ matrix.name }}-trivy-results.txt ]]; then
-      #       echo "post=1" >> $GITHUB_OUTPUT
-      #     else echo "post=0" >> $GITHUB_OUTPUT
-      #     fi
       - name: Post to a Slack channel
         if: always() && steps.trivy_scan.conclusion == 'failure'
-        # if: ${{ hashFiles('${{ matrix.name }}-trivy-results.txt') != '' }}
         id: slack
         uses: slackapi/slack-github-action@v2.0.0
         with:
