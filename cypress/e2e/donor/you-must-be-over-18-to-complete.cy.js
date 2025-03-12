@@ -17,8 +17,8 @@ describe('You must be over 18 to complete', () => {
             cy.contains('label', 'Custom').click();
             cy.get('[name=first-names]').invoke('val', 'John');
             cy.get('[name=last-name]').invoke('val', 'Johnson');
-            cy.get('[name=day]').invoke('val', dateOfBirth.getDay());
-            cy.get('[name=month]').invoke('val', dateOfBirth.getMonth());
+            cy.get('[name=day]').invoke('val', dateOfBirth.getDate());
+            cy.get('[name=month]').invoke('val', dateOfBirth.getMonth() + 1);
             cy.get('[name=year]').invoke('val', dateOfBirth.getFullYear());
             cy.contains('button', 'Continue').click();
         });
@@ -61,8 +61,8 @@ describe('You must be over 18 to complete', () => {
             cy.contains('label', 'Custom').click();
             cy.get('[name=first-names]').invoke('val', 'John');
             cy.get('[name=last-name]').invoke('val', 'Johnson');
-            cy.get('[name=day]').invoke('val', dateOfBirth.getDay());
-            cy.get('[name=month]').invoke('val', dateOfBirth.getMonth());
+            cy.get('[name=day]').invoke('val', dateOfBirth.getDate());
+            cy.get('[name=month]').invoke('val', dateOfBirth.getMonth() + 1);
             cy.get('[name=year]').invoke('val', dateOfBirth.getFullYear());
             cy.contains('button', 'Continue').click();
         });
