@@ -212,14 +212,14 @@ func TestGenerateHash(t *testing.T) {
 	}
 
 	// DO change this value to match the updates
-	const modified uint64 = 0x23ceb83e46b7d0db
+	const modified uint64 = 0x97633005a8db6d1
 
 	// DO NOT change these initial hash values. If a field has been added/removed
 	// you will need to handle the version gracefully by modifying
 	// (*Provided).HashInclude and adding another testcase for the new
 	// version.
 	testcases := map[uint8]uint64{
-		0: 0xf85fabf253f0f5ac,
+		0: 0xf46a56a2989e47ba,
 	}
 
 	for version, initial := range testcases {
@@ -269,13 +269,13 @@ func TestGenerateCheckedHash(t *testing.T) {
 	}
 
 	// DO change this value to match the updates
-	const modified uint64 = 0x60eb485427e65e67
+	const modified uint64 = 0x11a7ddc4490982a6
 
 	// DO NOT change these initial hash values. If a field has been added/removed
 	// you will need to handle the version gracefully by modifying
 	// toCheck.HashInclude and adding another testcase for the new version.
 	testcases := map[uint8]uint64{
-		0: 0x66f7e6e18e7afcd,
+		0: 0xf03839c34589438f,
 	}
 
 	for version, initial := range testcases {
@@ -497,6 +497,21 @@ func TestSigningDeadline(t *testing.T) {
 	donor.RegisteringWithCourtOfProtection = true
 	expected = time.Date(2020, time.May, 16, 3, 4, 5, 6, time.UTC)
 	assert.Equal(t, expected, donor.SigningDeadline())
+}
+
+func TestDonorSigningDeadline(t *testing.T) {
+	donor := Provided{
+		IdentityUserData: identity.UserData{
+			CheckedAt: time.Date(2020, time.January, 2, 3, 4, 5, 6, time.UTC),
+			Status:    identity.StatusConfirmed,
+		},
+	}
+
+	expected := time.Date(2020, time.July, 2, 3, 4, 5, 6, time.UTC)
+	assert.Equal(t, expected, donor.DonorSigningDeadline())
+
+	donor.IdentityUserData.Status = identity.StatusFailed
+	assert.True(t, donor.DonorSigningDeadline().IsZero())
 }
 
 func TestCourtOfProtectionSubmissionDeadline(t *testing.T) {

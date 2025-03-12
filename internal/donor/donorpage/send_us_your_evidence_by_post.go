@@ -26,9 +26,11 @@ func SendUsYourEvidenceByPost(tmpl template.Template, payer Handler, eventClient
 
 		if r.Method == http.MethodPost {
 			if err := eventClient.SendReducedFeeRequested(r.Context(), event.ReducedFeeRequested{
-				UID:              donor.LpaUID,
-				RequestType:      donor.FeeType.String(),
-				EvidenceDelivery: donor.EvidenceDelivery.String(),
+				UID:                       donor.LpaUID,
+				RequestType:               donor.FeeType.String(),
+				PreviousFee:               donor.PreviousFee.String(),
+				PreviousApplicationNumber: donor.PreviousApplicationNumber,
+				EvidenceDelivery:          donor.EvidenceDelivery.String(),
 			}); err != nil {
 				return err
 			}

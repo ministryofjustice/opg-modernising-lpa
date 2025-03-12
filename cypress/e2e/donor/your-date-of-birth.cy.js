@@ -1,4 +1,4 @@
-import {DateOfBirthAssertions} from "../../support/e2e";
+import { DateOfBirthAssertions } from "../../support/e2e";
 
 describe('Your date of birth', () => {
     describe('first time', () => {
@@ -30,24 +30,6 @@ describe('Your date of birth', () => {
 
         it('errors when invalid dates of birth', () => {
             DateOfBirthAssertions.assertInvalidDatesOfBirth()
-        });
-
-        it('permanently warns when date of birth is under 18', () => {
-            cy.get('#f-date-of-birth').invoke('val', '1');
-            cy.get('#f-date-of-birth-month').invoke('val', '2');
-            cy.get('#f-date-of-birth-year').invoke('val', new Date().getFullYear() - 1);
-            cy.contains('button', 'Save and continue').click();
-            cy.url().should('contain', '/your-date-of-birth');
-
-            cy.contains('You are under 18. By continuing, you understand that you must be at least 18 years old on the date you sign the LPA, or it will be rejected.');
-
-            cy.contains('button', 'Save and continue').click();
-            cy.url().should('contain', '/your-address');
-
-            cy.visitLpa("/your-date-of-birth")
-            cy.url().should('contain', '/your-date-of-birth');
-
-            cy.contains('You are under 18. By continuing, you understand that you must be at least 18 years old on the date you sign the LPA, or it will be rejected.');
         });
 
         it('warns when date of birth is over 100', () => {

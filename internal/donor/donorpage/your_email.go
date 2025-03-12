@@ -1,6 +1,7 @@
 package donorpage
 
 import (
+	"fmt"
 	"net/http"
 
 	"github.com/ministryofjustice/opg-go-common/template"
@@ -18,7 +19,7 @@ type yourEmailData struct {
 	CanTaskList bool
 }
 
-func YourEmail(tmpl template.Template, donorStore DonorStore) Handler {
+func YourEmail(tmpl template.Template, donorStore DonorStore, shareCodeSender ShareCodeSender) Handler {
 	return func(appData appcontext.Data, w http.ResponseWriter, r *http.Request, provided *donordata.Provided) error {
 		data := &yourEmailData{
 			App: appData,
@@ -33,17 +34,26 @@ func YourEmail(tmpl template.Template, donorStore DonorStore) Handler {
 			data.Errors = data.Form.Validate()
 
 			if data.Errors.None() {
+				redirect := donor.PathReceivingUpdatesAboutYourLpa
+				if appData.SupporterData != nil {
+					redirect = donor.PathCanYouSignYourLpa
+				}
+
 				provided.Donor.Email = data.Form.Email
+
+				if shareCodeSender != nil {
+					redirect = donor.PathWeHaveContactedVoucher
+
+					if err := shareCodeSender.SendVoucherAccessCode(r.Context(), provided, appData); err != nil {
+						return fmt.Errorf("error sending voucher access code: %w", err)
+					}
+				}
 
 				if err := donorStore.Put(r.Context(), provided); err != nil {
 					return err
 				}
 
-				if appData.SupporterData != nil {
-					return donor.PathCanYouSignYourLpa.Redirect(w, r, appData, provided)
-				} else {
-					return donor.PathReceivingUpdatesAboutYourLpa.Redirect(w, r, appData, provided)
-				}
+				return redirect.Redirect(w, r, appData, provided)
 			}
 		}
 

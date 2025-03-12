@@ -1382,20 +1382,22 @@ func TestShareCodeSenderSendAttorneysWhenEventClientErrors(t *testing.T) {
 	}
 }
 
-func TestSendVoucherAccessCode(t *testing.T) {
+func TestSendVoucherInvite(t *testing.T) {
 	ctx := context.Background()
 	uid := actoruid.New()
 
 	testcases := map[string]struct {
-		notifyClient func(*donordata.Provided) *mockNotifyClient
-		localizer    func() *mockLocalizer
-		donor        donordata.Donor
+		notifyClient         func(*donordata.Provided) *mockNotifyClient
+		localizer            func() *mockLocalizer
+		donor                donordata.Donor
+		voucherCodeSentBySMS bool
+		voucherCodeSentTo    string
 	}{
 		"sms": {
 			notifyClient: func(provided *donordata.Provided) *mockNotifyClient {
 				nc := newMockNotifyClient(t)
 				nc.EXPECT().
-					SendActorSMS(ctx, notify.ToDonor(provided), "lpa-uid", notify.VouchingShareCodeSMS{
+					SendActorSMS(ctx, notify.ToDonorOnly(provided), "lpa-uid", notify.VouchingShareCodeSMS{
 						ShareCode:                 testStringCode,
 						DonorFullNamePossessive:   "Possessive full name",
 						LpaType:                   "translated type",
@@ -1437,12 +1439,14 @@ func TestSendVoucherAccessCode(t *testing.T) {
 				Mobile:     "123",
 				Email:      "donor@example.com",
 			},
+			voucherCodeSentBySMS: true,
+			voucherCodeSentTo:    "123",
 		},
 		"email": {
 			notifyClient: func(provided *donordata.Provided) *mockNotifyClient {
 				nc := newMockNotifyClient(t)
 				nc.EXPECT().
-					SendActorEmail(ctx, notify.ToDonor(provided), "lpa-uid",
+					SendActorEmail(ctx, notify.ToDonorOnly(provided), "lpa-uid",
 						notify.VouchingShareCodeEmail{
 							ShareCode:       testStringCode,
 							VoucherFullName: "c d",
@@ -1481,6 +1485,8 @@ func TestSendVoucherAccessCode(t *testing.T) {
 				LastName:   "b",
 				Email:      "donor@example.com",
 			},
+			voucherCodeSentBySMS: false,
+			voucherCodeSentTo:    "donor@example.com",
 		},
 	}
 
@@ -1514,11 +1520,16 @@ func TestSendVoucherAccessCode(t *testing.T) {
 				notifyClient:   tc.notifyClient(provided),
 				appPublicURL:   "http://app",
 				generate:       testGenerateFn,
+				now:            testNowFn,
 			}
 			testAppData.Localizer = tc.localizer()
 
-			err := sender.SendVoucherAccessCode(ctx, provided, testAppData)
+			err := sender.SendVoucherInvite(ctx, provided, testAppData)
 			assert.Nil(t, err)
+
+			assert.Equal(t, testNow, provided.VoucherInvitedAt)
+			assert.Equal(t, tc.voucherCodeSentBySMS, provided.VoucherCodeSentBySMS)
+			assert.Equal(t, tc.voucherCodeSentTo, provided.VoucherCodeSentTo)
 		})
 	}
 }
@@ -1536,6 +1547,7 @@ func TestSendVoucherAccessCodeWhenShareCodeStoreError(t *testing.T) {
 		shareCodeStore: shareCodeStore,
 		appPublicURL:   "http://app",
 		generate:       testGenerateFn,
+		now:            testNowFn,
 	}
 
 	err := sender.SendVoucherAccessCode(ctx, &donordata.Provided{
@@ -1559,7 +1571,7 @@ func TestSendVoucherAccessCodeWhenShareCodeStoreError(t *testing.T) {
 	assert.Equal(t, fmt.Errorf("creating share failed: %w", expectedError), err)
 }
 
-func TestSendVoucherAccessCodeWhenNotifyClientError(t *testing.T) {
+func TestSendVoucherInviteWhenNotifyClientError(t *testing.T) {
 	testcases := map[string]struct {
 		email        string
 		mobile       string
@@ -1658,9 +1670,10 @@ func TestSendVoucherAccessCodeWhenNotifyClientError(t *testing.T) {
 				notifyClient:   tc.notifyClient(),
 				appPublicURL:   "http://app",
 				generate:       testGenerateFn,
+				now:            testNowFn,
 			}
 
-			err := sender.SendVoucherAccessCode(ctx, &donordata.Provided{
+			err := sender.SendVoucherInvite(ctx, &donordata.Provided{
 				PK:     dynamo.LpaKey("lpa"),
 				SK:     dynamo.LpaOwnerKey(dynamo.DonorKey("donor")),
 				LpaUID: "lpa-uid",
