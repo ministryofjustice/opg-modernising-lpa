@@ -95,12 +95,13 @@ jobs:
           severity: 'HIGH,CRITICAL'
           format: 'table'
           output: '${{ matrix.name }}-trivy-results.txt'
-          exit-code: 0
+          exit-code: 1
       - name: Unset AWS credentials
         if: always()
         run: |
           unset AWS_ACCESS_KEY_ID AWS_SECRET_ACCESS_KEY AWS_SESSION_TOKEN
       - name: Publish Trivy Output to Summary
+        if: always()
         run: |
           if [[ -s ${{ matrix.name }}-trivy-results.txt ]]; then
             {
@@ -113,18 +114,18 @@ jobs:
               echo "</details>"
             } >> $GITHUB_STEP_SUMMARY
           fi
-      - name: check file exists
-        id: post_check
-        # if: ${{ hashFiles('${{ matrix.name }}-trivy-results.txt') != '' }}
-        run: |
-          cat ${{ matrix.name }}-trivy-results.txt
-          echo ${{ hashFiles('${{ matrix.name }}-trivy-results.txt') }}
-          if [[ -s ${{ matrix.name }}-trivy-results.txt ]]; then
-            echo "post=1" >> $GITHUB_OUTPUT
-          else echo "post=0" >> $GITHUB_OUTPUT
-          fi
+      # - name: check file exists
+      #   id: post_check
+      #   # if: ${{ hashFiles('${{ matrix.name }}-trivy-results.txt') != '' }}
+      #   run: |
+      #     cat ${{ matrix.name }}-trivy-results.txt
+      #     echo ${{ hashFiles('${{ matrix.name }}-trivy-results.txt') }}
+      #     if [[ -s ${{ matrix.name }}-trivy-results.txt ]]; then
+      #       echo "post=1" >> $GITHUB_OUTPUT
+      #     else echo "post=0" >> $GITHUB_OUTPUT
+      #     fi
       - name: Post to a Slack channel
-        if: steps.post_check.output.post == 1
+        if: steps.trivy_scan.conclusion == 'failure'
         # if: ${{ hashFiles('${{ matrix.name }}-trivy-results.txt') != '' }}
         id: slack
         uses: slackapi/slack-github-action@v2.0.0
