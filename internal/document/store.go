@@ -170,10 +170,12 @@ func (s *Store) Submit(ctx context.Context, donor *donordata.Provided, documents
 
 	if len(unsentDocuments) > 0 {
 		if err := s.eventClient.SendReducedFeeRequested(ctx, event.ReducedFeeRequested{
-			UID:              donor.LpaUID,
-			RequestType:      donor.FeeType.String(),
-			Evidence:         unsentEvidence,
-			EvidenceDelivery: donor.EvidenceDelivery.String(),
+			UID:                       donor.LpaUID,
+			RequestType:               donor.FeeType.String(),
+			PreviousFee:               donor.PreviousFee.String(),
+			PreviousApplicationNumber: donor.PreviousApplicationNumber,
+			Evidence:                  unsentEvidence,
+			EvidenceDelivery:          donor.EvidenceDelivery.String(),
 		}); err != nil {
 			return err
 		}

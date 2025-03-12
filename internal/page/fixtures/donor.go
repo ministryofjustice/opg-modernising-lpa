@@ -89,6 +89,7 @@ type FixtureData struct {
 	CertificateProviderMobile string
 	DonorSub                  string
 	DonorEmail                string
+	DonorMobile               string
 	DonorFirstNames           string
 	DonorLastName             string
 	IdStatus                  string
@@ -222,6 +223,7 @@ func updateLPAProgress(
 		}
 
 		donorDetails.Donor = makeDonor(data.DonorEmail, data.DonorFirstNames, data.DonorLastName)
+		donorDetails.Donor.Mobile = data.DonorMobile
 
 		donorDetails.Type = lpadata.LpaTypePropertyAndAffairs
 
@@ -474,6 +476,12 @@ func updateLPAProgress(
 
 			if donorDetails.Tasks.PayForLpa.IsCompleted() {
 				donorDetails.VoucherInvitedAt = time.Now()
+				if donorDetails.Donor.Mobile != "" {
+					donorDetails.VoucherCodeSentTo = donorDetails.Donor.Mobile
+					donorDetails.VoucherCodeSentBySMS = true
+				} else {
+					donorDetails.VoucherCodeSentTo = donorDetails.Donor.Email
+				}
 			}
 		}
 
@@ -756,6 +764,7 @@ func setFixtureData(r *http.Request) FixtureData {
 		CertificateProviderMobile: r.FormValue("certificateProviderMobile"),
 		DonorSub:                  r.FormValue("donorSub"),
 		DonorEmail:                r.FormValue("donorEmail"),
+		DonorMobile:               r.FormValue("donorMobile"),
 		DonorFirstNames:           r.FormValue("donorFirstNames"),
 		DonorLastName:             r.FormValue("donorLastName"),
 		IdStatus:                  r.FormValue("idStatus"),
