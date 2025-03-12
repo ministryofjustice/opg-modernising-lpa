@@ -89,10 +89,9 @@ describe('Check the LPA', () => {
             it('content is tailored for paper CPs, a warning component is shown and nav redirects to payment', () => {
                 cy.visit('/fixtures?redirect=/task-list&progress=checkAndSendToYourCertificateProvider&certificateProvider=paper');
 
-                cy.contains('li', 'Add a correspondent').should('contain', 'Completed').click();
+                cy.contains('li', 'Choose when your LPA can be used').should('contain', 'Completed').click();
 
-                cy.url().should('contain', '/add-correspondent');
-                cy.contains('label', 'No').click();
+                cy.contains('label', 'Only when').click();
                 cy.contains('button', 'Save and continue').click();
 
                 cy.url().should('contain', '/task-list');
@@ -119,10 +118,9 @@ describe('Check the LPA', () => {
             it('content is tailored for paper CPs, a warning component is shown and nav redirects to dashboard', () => {
                 cy.visit('/fixtures?redirect=/task-list&progress=payForTheLpa&certificateProvider=paper');
 
-                cy.contains('li', 'Add a correspondent').should('contain', 'Completed').click();
+                cy.contains('li', 'Choose when your LPA can be used').should('contain', 'Completed').click();
 
-                cy.url().should('contain', '/add-correspondent');
-                cy.contains('label', 'No').click();
+                cy.contains('label', 'Only when').click();
                 cy.contains('button', 'Save and continue').click();
 
                 cy.url().should('contain', '/task-list');
@@ -172,10 +170,9 @@ describe('Check the LPA', () => {
             it('content is tailored for online CPs, a warning component is shown and nav redirects to payment', () => {
                 cy.visit('/fixtures?redirect=/task-list&progress=checkAndSendToYourCertificateProvider');
 
-                cy.contains('li', 'Add a correspondent').should('contain', 'Completed').click();
+                cy.contains('li', 'Choose when your LPA can be used').should('contain', 'Completed').click();
 
-                cy.url().should('contain', '/add-correspondent');
-                cy.contains('label', 'No').click();
+                cy.contains('label', 'Only when').click();
                 cy.contains('button', 'Save and continue').click();
 
                 cy.url().should('contain', '/task-list');
@@ -202,10 +199,9 @@ describe('Check the LPA', () => {
             it('content is tailored for online CPs, a warning component is shown and nav redirects to dashboard', () => {
                 cy.visit('/fixtures?redirect=/task-list&progress=payForTheLpa');
 
-                cy.contains('li', 'Add a correspondent').should('contain', 'Completed').click();
+                cy.contains('li', 'Choose when your LPA can be used').should('contain', 'Completed').click();
 
-                cy.url().should('contain', '/add-correspondent');
-                cy.contains('label', 'No').click();
+                cy.contains('label', 'Only when').click();
                 cy.contains('button', 'Save and continue').click();
 
                 cy.url().should('contain', '/task-list');
@@ -236,10 +232,9 @@ describe('Check the LPA', () => {
 
         cy.contains('li', 'Check and send to your certificate provider').should('contain', 'Completed');
         cy.contains('li', 'Pay for the LPA').should('contain', 'Not started');
-        cy.contains('li', 'Add a correspondent').should('contain', 'Completed').click();
+        cy.contains('li', 'Choose when your LPA can be used').should('contain', 'Completed').click();
 
-        cy.url().should('contain', '/add-correspondent');
-        cy.contains('label', 'No').click();
+        cy.contains('label', 'Only when').click();
         cy.contains('button', 'Save and continue').click();
 
         cy.url().should('contain', '/task-list');
