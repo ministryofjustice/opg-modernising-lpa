@@ -1,6 +1,7 @@
 package fixtures
 
 import (
+	"cmp"
 	"encoding/base64"
 	"net/http"
 	"slices"
@@ -54,27 +55,33 @@ func CertificateProvider(
 		acceptCookiesConsent(w)
 
 		var (
-			lpaType                           = r.FormValue("lpa-type")
-			progress                          = slices.Index(progressValues, r.FormValue("progress"))
-			email                             = r.FormValue("email")
-			phone                             = r.FormValue("phone")
-			donorEmail                        = r.FormValue("donorEmail")
-			redirect                          = r.FormValue("redirect")
-			asProfessionalCertificateProvider = r.FormValue("relationship") == "professional"
-			certificateProviderSub            = r.FormValue("certificateProviderSub")
-			shareCode                         = r.FormValue("withShareCode")
-			useRealUID                        = r.FormValue("uid") == "real"
-			donorChannel                      = r.FormValue("donorChannel")
-			isSupported                       = r.FormValue("is-supported") == "1"
-			idStatus                          = r.FormValue("idStatus")
+			email                  = r.FormValue("email")
+			phone                  = r.FormValue("phone")
+			certificateProviderSub = cmp.Or(r.FormValue("certificateProviderSub"), random.String(16))
+			donorEmail             = cmp.Or(r.FormValue("donorEmail"), testEmail)
+			lpaType                = r.FormValue("lpa-type")
+			lpaLanguage, _         = localize.ParseLang(r.FormValue("lpa-language"))
+
+			options                           = r.Form["options"]
+			useRealUID                        = slices.Contains(options, "uid")
+			fromStartPage                     = slices.Contains(options, "from-start-page")
+			asProfessionalCertificateProvider = slices.Contains(options, "is-professional")
+			isSupported                       = slices.Contains(options, "is-supported")
+			isPaperDonor                      = slices.Contains(options, "is-paper-donor")
+
+			progress = slices.Index(progressValues, r.FormValue("progress"))
+
+			redirect  = r.FormValue("redirect")
+			shareCode = r.FormValue("withShareCode")
+			idStatus  = r.FormValue("idStatus")
 		)
 
-		if certificateProviderSub == "" {
-			certificateProviderSub = random.String(16)
+		if lpaLanguage.Empty() {
+			lpaLanguage = localize.En
 		}
 
-		if donorEmail == "" {
-			donorEmail = testEmail
+		if fromStartPage {
+			redirect = "/certificate-provider-start"
 		}
 
 		if phone == "not-provided" {
@@ -100,7 +107,7 @@ func CertificateProvider(
 
 		var donorDetails *donordata.Provided
 
-		if donorChannel == "paper" {
+		if isPaperDonor {
 			lpaID := random.UuidString()
 			donorDetails = &donordata.Provided{
 				PK:                               dynamo.LpaKey(lpaID),
@@ -126,7 +133,7 @@ func CertificateProvider(
 			createLpa := lpastore.CreateLpa{
 				LpaType:  lpadata.LpaTypePropertyAndAffairs,
 				Channel:  lpadata.ChannelPaper,
-				Language: localize.En,
+				Language: lpaLanguage,
 				Donor: lpadata.Donor{
 					UID:        actoruid.New(),
 					FirstNames: "Feed",
@@ -260,8 +267,9 @@ func CertificateProvider(
 			certificateProviderCtx = appcontext.ContextWithSession(r.Context(), &appcontext.Session{SessionID: certificateProviderSessionID, LpaID: donorDetails.LpaID})
 		)
 
-		if donorChannel != "paper" {
+		if !isPaperDonor {
 			donorDetails.Donor = makeDonor(donorEmail, "Sam", "Smith")
+			donorDetails.Donor.LpaLanguagePreference = lpaLanguage
 
 			donorDetails.Type = lpadata.LpaTypePropertyAndAffairs
 			if lpaType == "personal-welfare" {
