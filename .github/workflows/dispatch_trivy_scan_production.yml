@@ -125,7 +125,7 @@ jobs:
       #     else echo "post=0" >> $GITHUB_OUTPUT
       #     fi
       - name: Post to a Slack channel
-        if: steps.trivy_scan.conclusion == 'failure'
+        if: always() && steps.trivy_scan.conclusion == 'failure'
         # if: ${{ hashFiles('${{ matrix.name }}-trivy-results.txt') != '' }}
         id: slack
         uses: slackapi/slack-github-action@v2.0.0
