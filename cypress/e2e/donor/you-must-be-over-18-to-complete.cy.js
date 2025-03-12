@@ -44,6 +44,7 @@ describe('You must be over 18 to complete', () => {
 
     it('shows your deadline when will be 18', () => {
         const dateOfBirth = new Date()
+        dateOfBirth.setMonth(1);
         dateOfBirth.setMonth(dateOfBirth.getMonth() - 7);
         dateOfBirth.setFullYear(dateOfBirth.getFullYear() - 17);
 
