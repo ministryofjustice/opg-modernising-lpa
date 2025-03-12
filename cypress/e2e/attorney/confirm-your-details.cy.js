@@ -31,7 +31,7 @@ describe('Confirm your details', () => {
 
     describe('paper donor', () => {
         beforeEach(() => {
-            cy.visit('/fixtures/attorney?is-paper-donor=1&redirect=/task-list');
+            cy.visit('/fixtures/attorney?options=is-paper-donor&redirect=/task-list');
 
             cy.contains('li', 'Confirm your details').should('contain', 'Not started').click();
 
@@ -59,7 +59,7 @@ describe('Confirm your details', () => {
 
     describe('paper donor gave phone number', () => {
         beforeEach(() => {
-            cy.visit('/fixtures/attorney?is-paper-donor=1&has-phone-number=1&redirect=/task-list');
+            cy.visit('/fixtures/attorney?options=is-paper-donor&options=has-phone-number&redirect=/task-list');
 
             cy.contains('li', 'Confirm your details').should('contain', 'Not started').click();
 
