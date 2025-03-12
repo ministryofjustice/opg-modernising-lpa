@@ -303,7 +303,7 @@ describe('Confirm your identity', () => {
 
     describe('when voucher has verified donor identity but not vouched', () => {
         beforeEach(() => {
-            cy.visit('/fixtures?redirect=/task-list&progress=confirmYourIdentity&idStatus=donor:verified-not-vouched&voucher=1');
+            cy.visit('/fixtures?redirect=/task-list&progress=confirmYourIdentity&idStatus=donor:verified-not-vouched&options=voucher');
         });
 
         it('cannot update name or date of birth', () => {

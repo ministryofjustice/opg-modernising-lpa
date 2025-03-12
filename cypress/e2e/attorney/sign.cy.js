@@ -42,7 +42,7 @@ describe('Sign', () => {
 
     describe('as a replacement attorney', () => {
         beforeEach(() => {
-            cy.visit('/fixtures/attorney?redirect=/sign&is-replacement=1&progress=readTheLPA');
+            cy.visit('/fixtures/attorney?redirect=/sign&options=is-replacement&progress=readTheLPA');
         });
 
         it('can be signed', () => {
