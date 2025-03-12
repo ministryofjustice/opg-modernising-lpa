@@ -91,7 +91,7 @@ describe('Progress', () => {
         });
 
         it('when the voucher has been contacted', () => {
-            cy.visit('/fixtures?redirect=/progress&progress=signTheLpa&voucher=1&idStatus=donor:insufficient-evidence');
+            cy.visit('/fixtures?redirect=/progress&progress=signTheLpa&options=voucher&idStatus=donor:insufficient-evidence');
             cy.checkA11yApp();
             cy.contains('Important: 2 notifications from OPG')
 
@@ -102,7 +102,7 @@ describe('Progress', () => {
         });
 
         it('when the voucher has not been contacted due to outstanding payment', () => {
-            cy.visit('/fixtures?redirect=/progress&progress=signTheLpa&voucher=1&paymentTaskProgress=InProgress&idStatus=donor:insufficient-evidence');
+            cy.visit('/fixtures?redirect=/progress&progress=signTheLpa&options=voucher&paymentTaskProgress=InProgress&idStatus=donor:insufficient-evidence');
             cy.checkA11yApp();
             cy.contains('Important: 2 notifications from OPG')
 
@@ -113,7 +113,7 @@ describe('Progress', () => {
         });
 
         it('when a vouch attempt has been unsuccessful', () => {
-            cy.visit('/fixtures?redirect=/progress&progress=signTheLpa&voucher=1&vouchAttempts=1&idStatus=donor:insufficient-evidence');
+            cy.visit('/fixtures?redirect=/progress&progress=signTheLpa&options=voucher&vouchAttempts=1&idStatus=donor:insufficient-evidence');
             cy.checkA11yApp();
             cy.contains('Important: 2 notifications from OPG')
 
@@ -133,7 +133,7 @@ describe('Progress', () => {
         });
 
         it('when the voucher has successfully vouched - lpa not signed', () => {
-            cy.visit('/fixtures?redirect=/progress&progress=confirmYourIdentity&voucher=1&idStatus=donor:vouched');
+            cy.visit('/fixtures?redirect=/progress&progress=confirmYourIdentity&options=voucher&idStatus=donor:vouched');
             cy.checkA11yApp();
             cy.contains('Success: 1 notification from OPG')
 
@@ -148,7 +148,7 @@ describe('Progress', () => {
         });
 
         it('when the voucher has successfully vouched - lpa signed', () => {
-            cy.visit('/fixtures?redirect=/progress&progress=signTheLpa&voucher=1&idStatus=donor:vouched');
+            cy.visit('/fixtures?redirect=/progress&progress=signTheLpa&options=voucher&idStatus=donor:vouched');
             cy.checkA11yApp();
             cy.contains('Important: 1 notification from OPG')
 

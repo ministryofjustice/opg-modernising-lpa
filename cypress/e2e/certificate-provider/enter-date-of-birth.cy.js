@@ -1,4 +1,4 @@
-import {DateOfBirthAssertions} from "../../support/e2e";
+import { DateOfBirthAssertions } from "../../support/e2e";
 
 describe('Enter date of birth', () => {
     describe('can be completed by a', () => {
@@ -17,7 +17,7 @@ describe('Enter date of birth', () => {
 
 
         it('professional certificate provider', () => {
-            cy.visit('/fixtures/certificate-provider?redirect=/enter-date-of-birth&relationship=professional');
+            cy.visit('/fixtures/certificate-provider?redirect=/enter-date-of-birth&options=is-professional');
             cy.checkA11yApp();
 
             cy.get('#f-date-of-birth').invoke('val', '1');
