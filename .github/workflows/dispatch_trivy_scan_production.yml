@@ -1,4 +1,4 @@
-name: "[Job] Scan production containers for vulnerabilities"
+name: "[WD] Scan production containers for vulnerabilities"
 
 on:
   workflow_dispatch:
@@ -10,13 +10,10 @@ defaults:
 permissions:
   id-token: write
 
+
 jobs:
   pull_tags:
     runs-on: ubuntu-latest
-    needs: [
-      create_tags,
-      generate_environment_workspace_name
-    ]
     steps:
       - name: Configure AWS Credentials
         uses: aws-actions/configure-aws-credentials@v4.1.0
@@ -36,12 +33,113 @@ jobs:
     outputs:
       docker_tag: ${{ steps.pull_tag.outputs.tag }}
       tag_from: ${{ steps.pull_tag.outputs.env }}
-  scan_and_report:
-    needs:  [
-      pull_tags
-    ]
+  trivy_scan_report:
+    needs: pull_tags
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - ecr_repository: modernising-lpa/app
+            name: app
+            path: ./docker/mlpa/Dockerfile
+            trivyignores: ./docker/mlpa/.trivyignore.yaml
+            platforms: linux/amd64
+          - ecr_repository: modernising-lpa/create-s3-batch-replication-job
+            name: create-s3-batch-replication-job
+            path: ./docker/create-s3-replication-job/Dockerfile
+            trivyignores: ./docker/create-s3-replication-job/.trivyignore.yaml
+            platforms: linux/amd64
+          - ecr_repository: modernising-lpa/event-received
+            name: event-received
+            path: ./docker/event-received/Dockerfile
+            trivyignores: ./docker/event-received/.trivyignore.yaml
+            platforms: linux/amd64
+          - ecr_repository: modernising-lpa/schedule-runner
+            name: schedule-runner
+            path: ./docker/schedule-runner/Dockerfile
+            trivyignores: ./docker/schedule-runner/.trivyignore.yaml
+            platforms: linux/amd64
+
+    runs-on: ubuntu-latest
+    name: ${{ matrix.ecr_repository }}
     steps:
-      - name: Docker Scan and Report
-        uses: ./.github/workflows/docker_scan_and_report.yml
+      - name: Run Against Image/Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v4.1.0
         with:
-          tag: ${{ needs.pull_tags.outputs.docker_tag}}
+          aws-region: eu-west-1
+          role-to-assume: arn:aws:iam::311462405659:role/modernising-lpa-github-actions-image-scan
+          role-duration-seconds: 900
+          role-session-name: GithubActionsECRPullMLPAB
+      - name: ECR Login
+        id: login_ecr
+        uses: aws-actions/amazon-ecr-login@v2.0.1
+        with:
+          mask-password: true
+          registries: 311462405659
+      - name: check file exists
+        if: ${{ hashFiles('trivy-results.txt') != '' }}
+        run: rm -f trivy-results.txt
+      - uses: actions/checkout@v4
+      - name: Trivy Image Vulnerability Scanner for ${{ matrix.ecr_repository }}
+        id: trivy_scan
+        uses: aquasecurity/trivy-action@0.29.0
+        env:
+          TRIVY_DB_REPOSITORY: ${{ steps.login_ecr.outputs.registry }}/trivy-db-public-ecr/aquasecurity/trivy-db:2
+          TRIVY_JAVA_DB_REPOSITORY: ${{ steps.login_ecr.outputs.registry }}/trivy-db-public-ecr/aquasecurity/trivy-java-db:1
+          TRIVY_DISABLE_VEX_NOTICE: true
+          TRIVY_IGNOREFILE: ${{ matrix.trivyignores }}
+        with:
+          scan-type: 'image'
+          scanners: 'vuln'
+          image-ref: ${{ steps.login_ecr.outputs.registry }}/${{ matrix.ecr_repository }}:${{ needs.pull_tags.outputs.docker_tag }}
+          severity: 'HIGH,CRITICAL'
+          format: 'table'
+          output: '${{ matrix.name }}-trivy-results.txt'
+          exit-code: 1
+      - name: Unset AWS credentials
+        if: always()
+        run: |
+          unset AWS_ACCESS_KEY_ID AWS_SECRET_ACCESS_KEY AWS_SESSION_TOKEN
+      - name: Publish Trivy Output to Summary
+        if: always()
+        run: |
+          if [[ -s ${{ matrix.name }}-trivy-results.txt ]]; then
+            {
+              echo "### Security Output ${{ matrix.ecr_repository }}:${{ needs.pull_tags.outputs.docker_tag }}"
+              echo "<details><summary>Click to expand</summary>"
+              echo ""
+              echo '```text'
+              cat ${{ matrix.name }}-trivy-results.txt
+              echo '```'
+              echo "</details>"
+            } >> $GITHUB_STEP_SUMMARY
+          fi
+      - name: Post to a Slack channel
+        if: always() && steps.trivy_scan.conclusion == 'failure'
+        id: slack
+        uses: slackapi/slack-github-action@v2.0.0
+        with:
+          method: chat.postMessage
+          token: ${{ secrets.SLACK_BOT_TOKEN }}
+          payload: |
+            channel: opg-mlpa-dev
+            text: "Production Image Scan Findings"
+            blocks:
+              - type: "header"
+                text:
+                  type: "plain_text"
+                  text: ":exclamation: Production Image Scan Findings for ${{ matrix.ecr_repository }}"
+                  emoji: true
+              - type: "section"
+                text:
+                  type: "plain_text"
+                  text: "Critical or High severity vulnerabilities found in version *${{ needs.pull_tags.outputs.docker_tag }}*"
+                  emoji: true
+              - type: "actions"
+                block_id: action_1
+                elements:
+                - type: "button"
+                  text:
+                    type: "plain_text"
+                    text: "View Findings Here"
+                  url: "https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}"
