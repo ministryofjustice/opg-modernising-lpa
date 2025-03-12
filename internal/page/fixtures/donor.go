@@ -366,12 +366,7 @@ func updateLPAProgress(
 	}
 
 	if data.Progress >= slices.Index(progressValues, "addCorrespondent") {
-		donorDetails.AddCorrespondent = form.Yes
-		donorDetails.Correspondent = makeCorrespondent(Name{
-			Firstnames: "Jonathan",
-			Lastname:   "Ashfurlong",
-		})
-
+		donorDetails.AddCorrespondent = form.No
 		donorDetails.Tasks.AddCorrespondent = task.StateCompleted
 	}
 

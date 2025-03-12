@@ -3,77 +3,42 @@
 {{ define "pageTitle" }}Certificate provider fixtures{{ end }}
 
 {{ define "fixtures-main" }}
-  <p class="govuk-body">Starting this flow will send an email with reference code to the email entered below. If you don't care about seeing the email then leave the field blank.</p>
+    <p class="govuk-body">Starting this flow will send an email with reference code to the email entered below. If you don't care about seeing the email then leave the field blank.</p>
 
-  <div class="govuk-form-group">
-      <fieldset class="govuk-fieldset">
-          <legend class="govuk-fieldset__legend">
-              LPA type
-          </legend>
-          <div class="govuk-radios govuk-radios--inline" data-module="govuk-radios">
-              <div class="govuk-radios__item">
-                  <input class="govuk-radios__input" id="type" name="lpa-type" type="radio" value="property-and-affairs" checked>
-                  <label class="govuk-label govuk-radios__label" for="type">Property and affairs</label>
-              </div>
-              <div class="govuk-radios__item">
-                  <input class="govuk-radios__input" id="type-2" name="lpa-type" type="radio" value="personal-welfare">
-                  <label class="govuk-label govuk-radios__label" for="type-2">Personal welfare</label>
-              </div>
-          </div>
-      </fieldset>
-  </div>
+    {{ template "input" (input . "email" "Certificate provider email" "" "classes" "govuk-input--width-20" "type" "email" "spellcheck" "false" "autocomplete" "email") }}
 
-  {{ template "input" (input . "email" "email" "" "classes" "govuk-input--width-20" "type" "email" "spellcheck" "false" "autocomplete" "email") }}
+    {{ template "input" (input . "phone" "Certificate provider phone" "" "classes" "govuk-input--width-20" "type" "phone" "spellcheck" "false" "autocomplete" "phone") }}
 
-  {{ template "input" (input . "phone" "phone" "" "classes" "govuk-input--width-20" "type" "phone" "spellcheck" "false" "autocomplete" "phone") }}
-
-  {{ template "input" (input . "certificateProviderSub" "Certificate provider OneLogin sub" .Sub "classes" "govuk-input--width-20") }}
-  <div class="govuk-hint govuk-!-padding-bottom-2">
-    Copy this value or change to your own to log back in to an existing LPA from the <a class="govuk-link" href="{{ global.Paths.CertificateProviderStart.Format }}">start page</a>
-  </div>
-
-  {{ template "input" (input . "donorEmail" "Donor Email" .DonorEmail "classes" "govuk-input--width-20") }}
-
-  <div class="govuk-form-group">
-    <div class="govuk-checkboxes" data-module="govuk-checkboxes">
-      <div class="govuk-checkboxes__item">
-        <input class="govuk-checkboxes__input" id="f-uid" name="uid" type="checkbox" value="real">
-        <label class="govuk-label govuk-checkboxes__label" for="f-uid">
-          Real UID
-        </label>
-        <div class="govuk-hint govuk-checkboxes__hint">
-          You may need to wait a bit and refresh the dashboard to see the LPA as this requires events to be sent and received
-        </div>
-      </div>
-      <div class="govuk-checkboxes__item">
-        <input class="govuk-checkboxes__input" id="f-redirect" name="redirect" type="checkbox" value="/certificate-provider-start">
-        <label class="govuk-label govuk-checkboxes__label" for="f-redirect">From start page</label>
-      </div>
-      <div class="govuk-checkboxes__item">
-        <input class="govuk-checkboxes__input" id="f-relationship" name="relationship" type="checkbox" value="professional">
-        <label class="govuk-label govuk-checkboxes__label" for="f-relationship">As professional</label>
-      </div>
-      <div class="govuk-checkboxes__item">
-        <input class="govuk-checkboxes__input" id="f-is-supported" name="is-supported" type="checkbox" value="1">
-        <label class="govuk-label govuk-checkboxes__label" for="f-is-supported">Supported</label>
-      </div>
-      <div class="govuk-checkboxes__item">
-        <input class="govuk-checkboxes__input" id="f-paper-donor" name="donorChannel" type="checkbox" value="paper">
-        <label class="govuk-label govuk-checkboxes__label" for="f-paper-donor">Paper donor</label>
-      </div>
+    {{ template "input" (input . "certificateProviderSub" "Certificate provider OneLogin sub" .Sub "classes" "govuk-input--width-20" ) }}
+    <div class="govuk-hint govuk-!-padding-bottom-2">
+        Copy this value or change to your own to log back in to an existing LPA from the <a class="govuk-link" href="{{ global.Paths.CertificateProviderStart.Format }}">start page</a>
     </div>
-  </div>
 
-  <div class="govuk-form-group">
-    <fieldset class="govuk-fieldset">
-      <legend class="govuk-fieldset__legend">Progress</legend>
+    {{ template "input" (input . "donorEmail" "Donor Email" .DonorEmail "classes" "govuk-input--width-20") }}
 
-      {{ template "radios" (items . "progress" "paid"
+    <div class="govuk-form-group">
+        {{ template "checkboxes" (items . "options" nil
+            (item "uid" "Real UID" "hint" "You may need to wait a bit and refresh the dashboard to see the LPA as this requires events to be sent and received")
+            (item "from-start-page" "From start page")
+            (item "is-professional" "As professional")
+            (item "is-supported" "Supported")
+            (item "is-paper-donor" "Paper donor")) }}
+    </div>
+
+    {{ template "radios-fieldset" (fieldset . "lpa-type" "property-and-affairs"
+        (legend "LPA type")
+        (item "property-and-affairs" "Property and affairs")
+        (item "personal-welfare" "Personal welfare")) }}
+
+    {{ template "radios-fieldset" (fieldset . "lpa-language" "en"
+        (legend "LPA language")
+        (item "en" "English")
+        (item "cy" "Welsh")) }}
+
+    {{ template "radios-fieldset" (fieldset . "progress" "paid"
+        (legend "Progress")
         (item "paid" "Paid")
         (item "signedByDonor" "Signed by donor")
         (item "confirmYourDetails" "confirmYourDetails")
-        (item "confirmYourIdentity" "confirmYourIdentity")
-      ) }}
-    </fieldset>
-  </div>
+        (item "confirmYourIdentity" "confirmYourIdentity")) }}
 {{ end }}
