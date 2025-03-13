@@ -1,0 +1,50 @@
+{{ template "page" . }}
+
+{{ define "pageTitle" }}{{ tr .App "Contact the Office of the Public Guardian" }}{{ end }}
+
+{{ define "main" }}
+    <div class="govuk-grid-row">
+        {{ template "help-and-support-nav" . }}
+
+        <div class="govuk-grid-column-two-thirds" id="guidance-content">
+            <span class="govuk-caption-xl">{{ tr .App "Help and support" }}</span>
+            <h1 class="govuk-heading-xl">{{ tr .App "Contact the Office of the Public Guardian (OPG)" }}</h1>
+
+            <p class="govuk-body">If you cannot find the answer to your queries on these pages you can contact the OPG.</p>
+
+            <hr class="govuk-section-break govuk-section-break--m govuk-section-break--visible">
+
+            <p class="govuk-body">
+                <span class="govuk-!-font-weight-bold">Email</span><br/>
+                <a href="mailto:customerservices@publicguardian.gov.uk">customerservices@publicguardian.gov.uk</a>
+            </p>
+
+            <p class="govuk-body">
+                <span class="govuk-!-font-weight-bold">Office address</span><br/>
+                PO Box 16185<br/>
+                Birmingham<br/>
+                B2 2WH<br/>
+                United Kingdom
+            </p>
+
+            <p class="govuk-body">
+                <span class="govuk-!-font-weight-bold">Telephone</span><br/>
+                <a href="tel:0300 456 0300">0300 456 0300</a>
+            </p>
+
+            <p class="govuk-body">
+                <span class="govuk-!-font-weight-bold">Textphone</span><br/>
+                <a href="tel:0115 934 2778">0115 934 2778</a>
+            </p>
+
+            <p class="govuk-body">
+                <span class="govuk-!-font-weight-bold">Fax</span><br/>
+                <a href="tel:0870 739 5780">0870 739 5780</a>
+            </p>
+        </div>
+
+        <div class="govuk-grid-column-full app-back-to-top-mobile">
+            {{ template "back-to-top-link" . }}
+        </div>
+    </div>
+{{ end }}

@@ -1,0 +1,86 @@
+{{ template "page" . }}
+
+{{ define "pageTitle" }}{{ tr .App "Understanding mental capacity" }}{{ end }}
+
+{{ define "main" }}
+    <div class="govuk-grid-row">
+        {{ template "help-and-support-nav" . }}
+
+        <div class="govuk-grid-column-two-thirds" id="guidance-content">
+            <span class="govuk-caption-xl">{{ tr .App "Help and support" }}</span>
+            <h1 class="govuk-heading-xl">{{ tr .App "Understanding mental capacity" }}</h1>
+
+            <p class="govuk-body">A person with mental capacity is able to make a specific decision at the time it needs to be made. They will have at least some understanding of:</p>
+
+            <ul class="govuk-list govuk-list--bullet">
+                <li>the decision they need to make</li>
+                <li>why they need to make it</li>
+                <li>any information relevant to the decision</li>
+                <li>what is likely to happen when they make it</li>
+            </ul>
+
+            <p class="govuk-body">They should be able to communicate their decision through speech, signs or in other ways.</p>
+
+            <h2 class="govuk-heading-l">Mental capacity is not always fixed</h2>
+
+            <p class="govuk-body">A person may have the mental capacity to make some decisions but not others. For example, they may be able to decide what to buy for dinner but be unable to understand and arrange their home insurance.</p>
+            <p class="govuk-body">If someone’s condition changes day-to-day, there may be times when they have mental capacity to make a decision and times when they do not.</p>
+            <p class="govuk-body">A person can also temporarily lack mental capacity, for example if they are unconscious.</p>
+
+            <h2 class="govuk-heading-l">Assessing mental capacity</h2>
+
+            <p class="govuk-body">If you, as the donor, decide that your LPA can only be used when you lose mental capacity, this will need to be assessed by your attorneys, or more formally by a professional.</p>
+            <p class="govuk-body">To work out whether someone lacks the mental capacity to make a decision, they must be assessed at the time the particular decision needs to be made.</p>
+            <p class="govuk-body">The person assessing the donor’s mental capacity needs to answer ‘yes’ to two questions:</p>
+
+            <ul class="govuk-list govuk-list--bullet">
+                <li>Does the donor have a condition that affects the way their brain or mind works?</li>
+                <li>Does this mean they are unable to make a specific decision at the time it needs to be made?</li>
+            </ul>
+
+            <p class="govuk-body">Being ‘unable to make a specific decision’ means that the person can’t:</p>
+
+            <ul class="govuk-list govuk-list--bullet">
+                <li>understand relevant information about the decision that needs making</li>
+                <li>keep that information in their mind long enough to make the decision</li>
+                <li>weigh up the information in order to make the decision</li>
+                <li>communicate their decision – this could be by talking, using sign language, pictures or even just squeezing a hand or blinking</li>
+            </ul>
+
+            <h2 class="govuk-heading-l">The 5 principles of the Mental Capacity Act</h2>
+
+            <p class="govuk-body">When acting or making decisions on the donor’s behalf, attorneys must follow the 5 main principles of the Mental Capacity Act. They must:</p>
+
+            <ul class="govuk-list govuk-list--bullet">
+                <li>presume the donor has capacity to make decisions</li>
+                <li>support the donor to make decisions themselves</li>
+                <li>not assume that if the donor makes an unwise decision it means they lack mental capacity – everyone has the right to make decisions that others might think are unwise</li>
+                <li>act in the donor’s best interests</li>
+                <li>where possible, choose options that give the donor the more freedom or choice</li>
+            </ul>
+
+            <h2 class="govuk-heading-l">Examples of restrictions and conditions on assessing mental capacity</h2>
+
+            <p class="govuk-body">You, as the donor, can use restrictions and conditions to set out how your mental capacity should be assessed. However, these are optional. If you trust your attorneys to assess your mental capacity, you do not need to add restrictions.</p>
+            <p class="govuk-body">Remember that your restrictions and conditions cannot contradict other instructions. So, for example, if you’ve decided that your property and affairs LPA can be used as soon as it is registered, you cannot then set a restriction stating that it can only be used when you have lost mental capacity.</p>
+
+            <h3 class="govuk-heading-m">Examples of restrictions on how mental capacity should be assessed:</h3>
+
+            <div class="govuk-inset-text">
+                <p class="govuk-body">‘My attorneys shall only act under the power of this property and affairs LPA if they have obtained a written medical opinion stating that I am no longer mentally capable of managing and administering my property and financial affairs.’</p>
+            </div>
+
+            <div class="govuk-inset-text">
+                <p class="govuk-body">‘This personal welfare lasting power of attorney only applies if my GP or another doctor confirms in writing that I do not have capacity to make specific decisions about my medical treatment.’</p>
+            </div>
+
+            <h3 class="govuk-heading-m">The Mental Capacity Act Code of Practice</h3>
+
+            <p class="govuk-body">The <a href="#" class="govuk-link" target="_blank" rel="noreferrer noopener">Mental Capacity Act Code of Practice (opens in new tab)</a> has more information about caring for people who can’t make decisions for themselves.</p>
+        </div>
+
+        <div class="govuk-grid-column-full app-back-to-top-mobile">
+            {{ template "back-to-top-link" . }}
+        </div>
+    </div>
+{{ end }}
