@@ -219,6 +219,16 @@ func Progress(tmpl template.Template, lpaStoreResolvingService LpaStoreResolving
 			data.addInfo("weAreReviewingTheEvidenceYouSent", "ifYourEvidenceIsApprovedWillShowPaid")
 		}
 
+		if donor.Tasks.PayForLpa.IsApproved() && donor.FeeAmount() > 0 {
+			data.addInfo(
+				"thereIsFeeToPay",
+				appData.Localizer.Format(
+					"weContactedYouOnWithGuidanceAboutWhatToDoNext",
+					map[string]any{"ContactedDate": appData.Localizer.FormatDate(donor.ReducedFeeApprovedAt)},
+				),
+			)
+		}
+
 		if !donor.HasSeenReducedFeeApprovalNotification &&
 			!donor.ReducedFeeApprovedAt.IsZero() &&
 			donor.Tasks.PayForLpa.IsCompleted() {

@@ -516,6 +516,27 @@ func TestGetProgress(t *testing.T) {
 			},
 			setupDonorStore: donorStoreNoUpdate,
 		},
+		"approved other reduced fee": {
+			donor: &donordata.Provided{
+				Tasks: donordata.Tasks{
+					PayForLpa: task.PaymentStateApproved,
+				},
+				FeeType:              pay.HalfFee,
+				ReducedFeeApprovedAt: testNow,
+			},
+			lpa:                           &lpadata.Lpa{},
+			setupCertificateProviderStore: certificateProviderStoreNotFound,
+			infoNotifications: []progressNotification{
+				{Heading: "thereIsFeeToPay", Body: "B"},
+			},
+			setupLocalizer: func(t *testing.T) *mockLocalizer {
+				l := newMockLocalizer(t)
+				l.EXPECT().Format("weContactedYouOnWithGuidanceAboutWhatToDoNext", map[string]any{"ContactedDate": "translated date"}).Return("B")
+				l.EXPECT().FormatDate(testNow).Return("translated date")
+				return l
+			},
+			setupDonorStore: donorStoreNoUpdate,
+		},
 		"applying to court of protection and signed and paid": {
 			donor: &donordata.Provided{
 				Tasks: donordata.Tasks{
