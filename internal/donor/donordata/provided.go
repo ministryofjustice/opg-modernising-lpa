@@ -236,8 +236,8 @@ type Provided struct {
 	// confirmed banner
 	HasSeenCertificateProviderIdentityMismatchResolvedNotification bool `checkhash:"-"`
 
-	// ReducedFeeApprovedAt records when an exemption/remission was approved.
-	ReducedFeeApprovedAt time.Time `checkhash:"-"`
+	// ReducedFeeDecisionAt records when an exemption/remission was approved or denied
+	ReducedFeeDecisionAt time.Time `checkhash:"-"`
 
 	// IdentityDetailsCausedCheck is set when details are updated to match
 	// confirmed identity, and check and send hasn't been done with those new
