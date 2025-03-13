@@ -469,7 +469,7 @@ func TestGetProgress(t *testing.T) {
 			donor: &donordata.Provided{
 				LpaUID:               "lpa-uid",
 				Tasks:                donordata.Tasks{PayForLpa: task.PaymentStateCompleted},
-				ReducedFeeApprovedAt: testNow,
+				ReducedFeeDecisionAt: testNow,
 			},
 			lpa:                           &lpadata.Lpa{LpaUID: "lpa-uid"},
 			setupCertificateProviderStore: certificateProviderStoreNotFound,
@@ -484,7 +484,7 @@ func TestGetProgress(t *testing.T) {
 					Put(mock.Anything, &donordata.Provided{
 						LpaUID:                                "lpa-uid",
 						Tasks:                                 donordata.Tasks{PayForLpa: task.PaymentStateCompleted},
-						ReducedFeeApprovedAt:                  testNow,
+						ReducedFeeDecisionAt:                  testNow,
 						HasSeenReducedFeeApprovalNotification: true,
 					}).
 					Return(nil)
@@ -494,7 +494,7 @@ func TestGetProgress(t *testing.T) {
 			donor: &donordata.Provided{
 				LpaUID:                                "lpa-uid",
 				Tasks:                                 donordata.Tasks{PayForLpa: task.PaymentStateCompleted},
-				ReducedFeeApprovedAt:                  testNow,
+				ReducedFeeDecisionAt:                  testNow,
 				HasSeenReducedFeeApprovalNotification: true,
 			},
 			lpa:                           &lpadata.Lpa{LpaUID: "lpa-uid"},
@@ -513,6 +513,48 @@ func TestGetProgress(t *testing.T) {
 			setupCertificateProviderStore: certificateProviderStoreNotFound,
 			infoNotifications: []progressNotification{
 				{Heading: "weAreReviewingTheEvidenceYouSent", Body: "ifYourEvidenceIsApprovedWillShowPaid"},
+			},
+			setupDonorStore: donorStoreNoUpdate,
+		},
+		"denied reduced fee": {
+			donor: &donordata.Provided{
+				Tasks: donordata.Tasks{
+					PayForLpa: task.PaymentStateDenied,
+				},
+				FeeType:              pay.FullFee,
+				ReducedFeeDecisionAt: testNow,
+			},
+			lpa:                           &lpadata.Lpa{},
+			setupCertificateProviderStore: certificateProviderStoreNotFound,
+			infoNotifications: []progressNotification{
+				{Heading: "thereIsFeeToPay", Body: "B"},
+			},
+			setupLocalizer: func(t *testing.T) *mockLocalizer {
+				l := newMockLocalizer(t)
+				l.EXPECT().Format("weContactedYouToExplainWhyNotEligible", map[string]any{"ContactedDate": "translated date"}).Return("B")
+				l.EXPECT().FormatDate(testNow).Return("translated date")
+				return l
+			},
+			setupDonorStore: donorStoreNoUpdate,
+		},
+		"approved other reduced fee": {
+			donor: &donordata.Provided{
+				Tasks: donordata.Tasks{
+					PayForLpa: task.PaymentStateApproved,
+				},
+				FeeType:              pay.HalfFee,
+				ReducedFeeDecisionAt: testNow,
+			},
+			lpa:                           &lpadata.Lpa{},
+			setupCertificateProviderStore: certificateProviderStoreNotFound,
+			infoNotifications: []progressNotification{
+				{Heading: "thereIsFeeToPay", Body: "B"},
+			},
+			setupLocalizer: func(t *testing.T) *mockLocalizer {
+				l := newMockLocalizer(t)
+				l.EXPECT().Format("weContactedYouToExplainWhyNotEligibleNowPay", map[string]any{"ContactedDate": "translated date"}).Return("B")
+				l.EXPECT().FormatDate(testNow).Return("translated date")
+				return l
 			},
 			setupDonorStore: donorStoreNoUpdate,
 		},
@@ -998,7 +1040,7 @@ func TestGetProgressOnDonorStoreError(t *testing.T) {
 	err := Progress(nil, lpaStoreResolvingService, progressTracker, certificateProviderStore, nil, donorStore, time.Now)(testAppData, w, r, &donordata.Provided{
 		LpaUID:               "lpa-uid",
 		Tasks:                donordata.Tasks{PayForLpa: task.PaymentStateCompleted},
-		ReducedFeeApprovedAt: time.Now(),
+		ReducedFeeDecisionAt: time.Now(),
 	})
 
 	assert.ErrorContains(t, err, "failed to update donor: err")

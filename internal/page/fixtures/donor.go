@@ -422,7 +422,7 @@ func updateLPAProgress(
 				return nil, nil, err
 			}
 
-			donorDetails.ReducedFeeApprovedAt = testNow
+			donorDetails.ReducedFeeDecisionAt = testNow
 		} else {
 			donorDetails.FeeType = pay.FullFee
 		}
@@ -448,7 +448,7 @@ func updateLPAProgress(
 			}
 
 			if taskState.IsApproved() {
-				donorDetails.ReducedFeeApprovedAt = testNow
+				donorDetails.ReducedFeeDecisionAt = testNow
 			}
 		}
 	}
