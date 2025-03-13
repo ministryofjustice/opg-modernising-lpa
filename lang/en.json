@@ -321,7 +321,7 @@
     "atTheEndOfTheWaitingPeriodOpgWill": "At the end of the waiting period, OPG will contact you with guidance about getting your LPA reviewed by the Court of Protection.",
     "ifYourLpaIsSuccessfullyReviewed": "If your LPA is successfully reviewed by the Court of Protection, we’ll be able to register it, and it can then be used.",
     "ifTheCOPFindsYourLpaIsValid": "If the Court of Protection finds your LPA is valid, it will direct OPG to register it. Your LPA can then be used.",
-    "weWillEmailYou": "<p class=\"govuk-body\">We'll keep you updated about your LPA. If there are any problems, we’ll let you know.</p><p class=\"govuk-body\">You can also track the progress of your LPA by logging back into this service at any time.</p>",
+    "weWillEmailYou": "<p class=\"govuk-body\">We’ll keep you updated about your LPA. If there are any problems, we’ll let you know.</p><p class=\"govuk-body\">You can also track the progress of your LPA by logging back into this service at any time.</p>",
     "signByDeadlineWarning": "{{.SignatoriesNames}} must sign your LPA by {{.SigningDeadline}} so that it can be registered by OPG.",
     "copSignDeadlineWarning": {
         "one": "{{.CertificateProviderFirstNames}} and your attorney must sign your LPA by {{.SigningDeadline}}. After that, you have until {{.SubmissionDeadline}} to submit the LPA to the Court of Protection. If you miss this deadline, you’ll have to fill in a new LPA and pay another registration fee.",
