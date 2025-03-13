@@ -200,6 +200,11 @@ func run(ctx context.Context, logger *slog.Logger) error {
 		return err
 	}
 
+	guidanceTmpls, err := parseTemplates(webDir+"/template/guidance", layouts)
+	if err != nil {
+		return err
+	}
+
 	bundle, err := localize.NewBundle("lang/en.json", "lang/cy.json")
 	if err != nil {
 		return err
@@ -297,6 +302,7 @@ func run(ctx context.Context, logger *slog.Logger) error {
 		attorneyTmpls,
 		supporterTmpls,
 		voucherTmpls,
+		guidanceTmpls,
 		sessionStore,
 		lpasDynamoClient,
 		appPublicURL,
@@ -322,6 +328,7 @@ func run(ctx context.Context, logger *slog.Logger) error {
 		attorneyTmpls,
 		supporterTmpls,
 		voucherTmpls,
+		guidanceTmpls,
 		sessionStore,
 		lpasDynamoClient,
 		appPublicURL,

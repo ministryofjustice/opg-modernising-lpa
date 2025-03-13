@@ -130,6 +130,16 @@ type appPaths struct {
 	VoucherFixtures             page.Path
 	VoucherStart                page.Path
 
+	AddingRestrictionsAndConditions          page.Path
+	ContactTheOfficeOfThePublicGuardian      page.Path
+	HowDecisionsAreMadeWithMultipleAttorneys page.Path
+	HowToMakeAndRegisterYourLPA              page.Path
+	HowToSelectAttorneysForAnLPA             page.Path
+	ReplacementAttorneys                     page.Path
+	TheTwoTypesOfLPA                         page.Path
+	UnderstandingLifeSustainingTreatment     page.Path
+	UnderstandingMentalCapacity              page.Path
+
 	AboutPayment                                         donor.Path
 	AddCorrespondent                                     donor.Path
 	AreYouApplyingForFeeDiscountOrExemption              donor.Path
@@ -360,6 +370,16 @@ var paths = appPaths{
 	SupporterFixtures:           page.PathSupporterFixtures,
 	VoucherFixtures:             page.PathVoucherFixtures,
 	VoucherStart:                page.PathVoucherStart,
+
+	AddingRestrictionsAndConditions:          page.PathAddingRestrictionsAndConditions,
+	ContactTheOfficeOfThePublicGuardian:      page.PathContactTheOfficeOfThePublicGuardian,
+	HowDecisionsAreMadeWithMultipleAttorneys: page.PathHowDecisionsAreMadeWithMultipleAttorneys,
+	HowToMakeAndRegisterYourLPA:              page.PathHowToMakeAndRegisterYourLPA,
+	HowToSelectAttorneysForAnLPA:             page.PathHowToSelectAttorneysForAnLPA,
+	ReplacementAttorneys:                     page.PathReplacementAttorneys,
+	TheTwoTypesOfLPA:                         page.PathTheTwoTypesOfLPAPath,
+	UnderstandingLifeSustainingTreatment:     page.PathUnderstandingLifeSustainingTreatment,
+	UnderstandingMentalCapacity:              page.PathUnderstandingMentalCapacity,
 
 	AboutPayment:                                         donor.PathAboutPayment,
 	AddCorrespondent:                                     donor.PathAddCorrespondent,
