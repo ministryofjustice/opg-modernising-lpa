@@ -75,18 +75,22 @@ func Attorney(
 		acceptCookiesConsent(w)
 
 		var (
-			isReplacement      = r.FormValue("is-replacement") == "1"
-			isTrustCorporation = r.FormValue("is-trust-corporation") == "1"
-			isSupported        = r.FormValue("is-supported") == "1"
-			isPaperDonor       = r.FormValue("is-paper-donor") == "1"
-			hasPhoneNumber     = r.FormValue("has-phone-number") == "1"
-			lpaType            = r.FormValue("lpa-type")
-			progress           = slices.Index(progressValues, r.FormValue("progress"))
-			email              = r.FormValue("email")
-			redirect           = r.FormValue("redirect")
-			attorneySub        = r.FormValue("attorneySub")
-			shareCode          = r.FormValue("withShareCode")
-			useRealUID         = r.FormValue("uid") == "real"
+			lpaType     = r.FormValue("lpa-type")
+			lpaLanguage = r.FormValue("lpa-language")
+			email       = r.FormValue("email")
+			redirect    = r.FormValue("redirect")
+			attorneySub = r.FormValue("attorneySub")
+			shareCode   = r.FormValue("withShareCode")
+
+			progress = slices.Index(progressValues, r.FormValue("progress"))
+
+			options            = r.Form["options"]
+			useRealUID         = slices.Contains(options, "uid")
+			isReplacement      = slices.Contains(options, "is-replacement")
+			isTrustCorporation = slices.Contains(options, "is-trust-corporation")
+			isSupported        = slices.Contains(options, "is-supported")
+			isPaperDonor       = slices.Contains(options, "is-paper-donor")
+			hasPhoneNumber     = slices.Contains(options, "has-phone-number")
 		)
 
 		if attorneySub == "" {
@@ -179,6 +183,7 @@ func Attorney(
 		donorDetails.SignedAt = testNow
 		donorDetails.WitnessedByCertificateProviderAt = testNow
 		donorDetails.Donor = makeDonor(testEmail, "Sam", "Smith")
+		donorDetails.Donor.LpaLanguagePreference, _ = localize.ParseLang(lpaLanguage)
 
 		if lpaType == "personal-welfare" && !isTrustCorporation {
 			donorDetails.Type = lpadata.LpaTypePersonalWelfare

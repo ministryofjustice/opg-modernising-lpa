@@ -65,14 +65,14 @@
                         ) false) }}
                     {{ end }}
                 {{ end }}
-
-                {{ template "details" (details . "confirmYourIdentityAnotherWay" (trFormat .App "confirmYourIdentityAnotherWayContent" "VoucherFullName" .Donor.Voucher.FullName) false) }}
-
-                <div class="govuk-button-group">
-                    <a href="{{ global.Paths.TaskList.Format .App.LpaID }}" class="govuk-link govuk-button">{{ tr .App "returnToTaskList" }}</a>
-                    <a href="{{ global.Paths.WhatYouCanDoNow.Format .App.LpaID }}" class="govuk-link govuk-button govuk-button--secondary">{{ tr .App "confirmMyIdentityAnotherWay" }}</a>
-                </div>
             {{ end }}
+
+            {{ template "details" (details . "confirmYourIdentityAnotherWay" (trFormat .App "confirmYourIdentityAnotherWayContent" "VoucherFullName" .Donor.Voucher.FullName) false) }}
+
+            <div class="govuk-button-group">
+                <a href="{{ global.Paths.TaskList.Format .App.LpaID }}" class="govuk-link govuk-button">{{ tr .App "returnToTaskList" }}</a>
+                <a href="{{ global.Paths.WhatYouCanDoNow.Format .App.LpaID }}" class="govuk-link govuk-button govuk-button--secondary">{{ tr .App "confirmMyIdentityAnotherWay" }}</a>
+            </div>
         </div>
     </div>
 {{ end }}

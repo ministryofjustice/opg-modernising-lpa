@@ -1,31 +1,32 @@
 {{ template "page" . }}
 
 {{ define "main" }}
-  <div class="govuk-grid-row">
-    <div class="govuk-grid-column-two-thirds">
-      <ul class="govuk-list">
-        <li><a class="govuk-link govuk-link--no-visited-state" href="{{ link .App global.Paths.Fixtures.Format }}">Donor</a></li>
-        <li><a class="govuk-link govuk-link--no-visited-state" href="{{ link .App global.Paths.CertificateProviderFixtures.Format }}">Certificate provider</a></li>
-        <li><a class="govuk-link govuk-link--no-visited-state" href="{{ link .App global.Paths.AttorneyFixtures.Format }}">Attorney</a></li>
-        <li><a class="govuk-link govuk-link--no-visited-state" href="{{ link .App global.Paths.DashboardFixtures.Format }}">Dashboard</a></li>
-        <li><a class="govuk-link govuk-link--no-visited-state" href="{{ link .App global.Paths.SupporterFixtures.Format }}">Supporter</a></li>
-        <li><a class="govuk-link govuk-link--no-visited-state" href="{{ link .App global.Paths.VoucherFixtures.Format }}">Voucher</a></li>
-      </ul>
-
-      <form id="the-form" novalidate method="post">
-        <h1 class="govuk-heading-xl">{{ template "pageTitle" . }}</h1>
-
-        {{ template "fixtures-main" . }}
-        <button type="submit" class="govuk-button" data-module="govuk-button">Start</button>
-
-        <div class="govuk-inset-text">
-          <p id="the-link"></p>
+    <div class="govuk-grid-row">
+        <div class="govuk-grid-column-one-third">
+            <ul class="govuk-list govuk-list--spaced">
+                <li><a class="govuk-link govuk-link--no-underline govuk-link--no-visited-state {{ if eq .App.Page global.Paths.Fixtures.Format }}govuk-!-font-weight-bold{{ end }}" href="{{ link .App global.Paths.Fixtures.Format }}">Donor</a></li>
+                <li><a class="govuk-link govuk-link--no-underline govuk-link--no-visited-state {{ if eq .App.Page global.Paths.CertificateProviderFixtures.Format }}govuk-!-font-weight-bold{{ end }}" href="{{ link .App global.Paths.CertificateProviderFixtures.Format }}">Certificate provider</a></li>
+                <li><a class="govuk-link govuk-link--no-underline govuk-link--no-visited-state {{ if eq .App.Page global.Paths.AttorneyFixtures.Format }}govuk-!-font-weight-bold{{ end }}" href="{{ link .App global.Paths.AttorneyFixtures.Format }}">Attorney</a></li>
+                <li><a class="govuk-link govuk-link--no-underline govuk-link--no-visited-state {{ if eq .App.Page global.Paths.DashboardFixtures.Format }}govuk-!-font-weight-bold{{ end }}" href="{{ link .App global.Paths.DashboardFixtures.Format }}">Dashboard</a></li>
+                <li><a class="govuk-link govuk-link--no-underline govuk-link--no-visited-state {{ if eq .App.Page global.Paths.SupporterFixtures.Format }}govuk-!-font-weight-bold{{ end }}" href="{{ link .App global.Paths.SupporterFixtures.Format }}">Supporter</a></li>
+                <li><a class="govuk-link govuk-link--no-underline govuk-link--no-visited-state {{ if eq .App.Page global.Paths.VoucherFixtures.Format }}govuk-!-font-weight-bold{{ end }}" href="{{ link .App global.Paths.VoucherFixtures.Format }}">Voucher</a></li>
+            </ul>
         </div>
+        <div class="govuk-grid-column-two-thirds">
+            <form id="the-form" novalidate method="post">
+                <h1 class="govuk-heading-xl">{{ template "pageTitle" . }}</h1>
 
-        {{ template "csrf-field" . }}
-      </form>
+                {{ template "fixtures-main" . }}
+                <button type="submit" class="govuk-button" data-module="govuk-button">Start</button>
+
+                <div class="govuk-inset-text app-overflow-wrap-anywhere">
+                    <p id="the-link"></p>
+                </div>
+
+                {{ template "csrf-field" . }}
+            </form>
+        </div>
     </div>
-  </div>
 
-  <script type="module" async src="/static/javascript/fixtures.js?{{ global.StaticHash }}"></script>
+    <script type="module" async src="/static/javascript/fixtures.js?{{ global.StaticHash }}"></script>
 {{ end }}
