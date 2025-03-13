@@ -213,6 +213,7 @@ func Register(
 	scheduledStore ScheduledStore,
 	voucherStore VoucherStore,
 	bundle Bundle,
+	guidanceTmpls template.Templates,
 ) {
 	payer := Pay(logger, sessionStore, donorStore, payClient, appPublicURL)
 

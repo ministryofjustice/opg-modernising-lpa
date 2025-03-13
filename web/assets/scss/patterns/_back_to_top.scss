@@ -1,0 +1,29 @@
+@import "node_modules/govuk-frontend/dist/govuk/base";
+
+.app-back-to-top-desktop {
+    @include govuk-media-query($until: tablet) {
+        display: none;
+    }
+}
+
+.app-back-to-top {
+    position: sticky;
+    top: 20px;
+}
+
+.app-back-to-top-mobile {
+    display: none;
+
+    @include govuk-media-query($until: tablet) {
+        display: block;
+        margin-top: 20px;
+    }
+}
+
+.moj-side-navigation {
+    padding-top: 0;
+
+    @include govuk-media-query($until: tablet) {
+        margin-bottom: 20px;
+    }
+}
