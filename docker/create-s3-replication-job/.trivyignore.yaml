@@ -1,3 +1,7 @@
 misconfigurations:
   - id: AVD-DS-0002
     statement: Lambda creates a docker USER with least-privilege permissions.
+vulnerabilities:
+  - id: CVE-2022-49043
+    statement: Patched version of libxml2 unavailable in latest image
+    expired_at: 2025-03-30

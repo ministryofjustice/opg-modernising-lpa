@@ -190,7 +190,7 @@ func handleFeeApproved(
 		donor.Tasks.PayForLpa = task.PaymentStateApproved
 	}
 
-	donor.ReducedFeeApprovedAt = now()
+	donor.ReducedFeeDecisionAt = now()
 
 	if err := putDonor(ctx, donor, now, client); err != nil {
 		return fmt.Errorf("failed to update donor provided details: %w", err)
@@ -241,6 +241,7 @@ func handleFeeDenied(ctx context.Context, client dynamodbClient, event *events.C
 
 	donor.FeeType = pay.FullFee
 	donor.Tasks.PayForLpa = task.PaymentStateDenied
+	donor.ReducedFeeDecisionAt = now()
 
 	if err := putDonor(ctx, donor, now, client); err != nil {
 		return fmt.Errorf("failed to update LPA task status: %w", err)

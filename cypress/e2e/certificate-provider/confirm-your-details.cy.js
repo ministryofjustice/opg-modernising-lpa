@@ -29,7 +29,7 @@ describe('Confirm your details', () => {
         });
 
         it('professional certificate providers', () => {
-            cy.visit('/fixtures/certificate-provider?redirect=/enter-date-of-birth&relationship=professional');
+            cy.visit('/fixtures/certificate-provider?redirect=/enter-date-of-birth&options=is-professional');
 
             cy.get('#f-date-of-birth').invoke('val', '1');
             cy.get('#f-date-of-birth-month').invoke('val', '2');
@@ -73,7 +73,7 @@ describe('Confirm your details', () => {
         });
 
         it('contact number when donor acting on paper', () => {
-            cy.visit('/fixtures/certificate-provider?redirect=/confirm-your-details&donorChannel=paper');
+            cy.visit('/fixtures/certificate-provider?redirect=/confirm-your-details&options=is-paper-donor');
 
             cy.contains('Contact number').should('exist');
             cy.contains('Mobile number').should('not.exist');
@@ -82,7 +82,7 @@ describe('Confirm your details', () => {
 
     describe('hides', () => {
         it('phone when not provided', () => {
-            cy.visit('/fixtures/certificate-provider?redirect=/confirm-your-details&donorChannel=paper&phone=not-provided');
+            cy.visit('/fixtures/certificate-provider?redirect=/confirm-your-details&options=is-paper-donor&phone=not-provided');
 
             cy.contains('Contact number').should('not.exist');
             cy.contains('Mobile number').should('not.exist');

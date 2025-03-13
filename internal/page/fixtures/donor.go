@@ -93,7 +93,7 @@ type FixtureData struct {
 	DonorFirstNames           string
 	DonorLastName             string
 	IdStatus                  string
-	Voucher                   string
+	Voucher                   bool
 	VouchAttempts             string
 }
 
@@ -366,12 +366,7 @@ func updateLPAProgress(
 	}
 
 	if data.Progress >= slices.Index(progressValues, "addCorrespondent") {
-		donorDetails.AddCorrespondent = form.Yes
-		donorDetails.Correspondent = makeCorrespondent(Name{
-			Firstnames: "Jonathan",
-			Lastname:   "Ashfurlong",
-		})
-
+		donorDetails.AddCorrespondent = form.No
 		donorDetails.Tasks.AddCorrespondent = task.StateCompleted
 	}
 
@@ -427,7 +422,7 @@ func updateLPAProgress(
 				return nil, nil, err
 			}
 
-			donorDetails.ReducedFeeApprovedAt = testNow
+			donorDetails.ReducedFeeDecisionAt = testNow
 		} else {
 			donorDetails.FeeType = pay.FullFee
 		}
@@ -453,7 +448,7 @@ func updateLPAProgress(
 			}
 
 			if taskState.IsApproved() {
-				donorDetails.ReducedFeeApprovedAt = testNow
+				donorDetails.ReducedFeeDecisionAt = testNow
 			}
 		}
 	}
@@ -470,7 +465,7 @@ func updateLPAProgress(
 			donorDetails.WantVoucher = form.Yes
 		}
 
-		if data.Voucher == "1" {
+		if data.Voucher {
 			donorDetails.Voucher = makeVoucher(voucherName)
 			donorDetails.WantVoucher = form.Yes
 
@@ -748,6 +743,14 @@ func updateLPAProgress(
 }
 
 func setFixtureData(r *http.Request) FixtureData {
+	r.ParseForm()
+	options := r.Form["options"]
+
+	paymentTaskProgress := r.FormValue("paymentTaskProgress")
+	if slices.Contains(options, "paymentTaskInProgress") {
+		paymentTaskProgress = "InProgress"
+	}
+
 	return FixtureData{
 		LpaType:                   r.FormValue("lpa-type"),
 		Progress:                  slices.Index(progressValues, r.FormValue("progress")),
@@ -758,9 +761,9 @@ func setFixtureData(r *http.Request) FixtureData {
 		PeopleToNotify:            r.FormValue("peopleToNotify"),
 		ReplacementAttorneys:      r.FormValue("replacementAttorneys"),
 		FeeType:                   r.FormValue("feeType"),
-		PaymentTaskProgress:       r.FormValue("paymentTaskProgress"),
+		PaymentTaskProgress:       paymentTaskProgress,
 		WithVirus:                 r.FormValue("withVirus") == "1",
-		UseRealID:                 r.FormValue("uid") == "real",
+		UseRealID:                 slices.Contains(options, "uid"),
 		CertificateProviderEmail:  r.FormValue("certificateProviderEmail"),
 		CertificateProviderMobile: r.FormValue("certificateProviderMobile"),
 		DonorSub:                  r.FormValue("donorSub"),
@@ -769,7 +772,7 @@ func setFixtureData(r *http.Request) FixtureData {
 		DonorFirstNames:           r.FormValue("donorFirstNames"),
 		DonorLastName:             r.FormValue("donorLastName"),
 		IdStatus:                  r.FormValue("idStatus"),
-		Voucher:                   r.FormValue("voucher"),
+		Voucher:                   slices.Contains(options, "voucher"),
 		VouchAttempts:             r.FormValue("vouchAttempts"),
 	}
 }
