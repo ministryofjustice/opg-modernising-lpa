@@ -1614,5 +1614,6 @@
     "weSentYourVouchingCodeTo": "Welsh",
     "imHavingProblemWithVouchingCode": "Welsh",
     "imHavingProblemWithVouchingCodeContent:email": "<p class=\"govuk-body\">Welsh <a class=\"govuk-link\" href=\"{{.ResendLink}}\">Welsh</a> <a class=\"govuk-link\" href=\"{{.ChangeLink}}\">Welsh</a>.</p>",
-    "imHavingProblemWithVouchingCodeContent:sms": "<p class=\"govuk-body\">Welsh <a class=\"govuk-link\" href=\"{{.ResendLink}}\">Welsh</a> <a class=\"govuk-link\" href=\"{{.ChangeLink}}\">Welsh</a>.</p>"
+    "imHavingProblemWithVouchingCodeContent:sms": "<p class=\"govuk-body\">Welsh <a class=\"govuk-link\" href=\"{{.ResendLink}}\">Welsh</a> <a class=\"govuk-link\" href=\"{{.ChangeLink}}\">Welsh</a>.</p>",
+    "thereIsFeeToPay": "Welsh"
 }
