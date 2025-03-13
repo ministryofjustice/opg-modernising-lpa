@@ -1,0 +1,63 @@
+{{ template "page" . }}
+
+{{ define "pageTitle" }}{{ tr .App "Understanding life-sustaining treatment" }}{{ end }}
+
+{{ define "main" }}
+    <div class="govuk-grid-row">
+        {{ template "help-and-support-nav" . }}
+
+        <div class="govuk-grid-column-two-thirds" id="guidance-content">
+            <span class="govuk-caption-xl">{{ tr .App "Help and support" }}</span>
+            <h1 class="govuk-heading-xl">{{ tr .App "Understanding life-sustaining treatment" }}</h1>
+
+            <p class="govuk-body">The donor must choose whether their attorneys can give or refuse consent to life-sustaining treatment (LST) on their behalf.</p>
+
+            <p class="govuk-body">LST means care, surgery, medicine or other help from doctors that’s needed to keep someone alive. It could include:</p>
+
+            <ul class="govuk-list govuk-list--bullet">
+                <li>a serious operation, such as a heart bypass or organ transplant</li>
+                <li>cancer treatment</li>
+                <li>food or water given to you that you cannot take yourself</li>
+                <li>antibiotics for a life-threatening infection</li>
+            </ul>
+
+            <h2 class="govuk-heading-l">If the donor chooses to give their attorneys the authority to give or refuse consent to LST</h2>
+
+            <p class="govuk-body">If the donor chooses this option, their attorneys will be able to talk to medical professionals on their behalf as if they were the donor.</p>
+            <p class="govuk-body">The donor can add restrictions and conditions setting out when and if they receive LST and the attorneys can share these with doctors. However, medical professionals cannot be forced to adopt a particular treatment approach if they think it unsuitable.</p>
+            <p class="govuk-body">The donor does not have to add any restrictions and conditions for life-sustaining treatment – their attorneys can act in their best interests without them.</p>
+
+            <h3 class="govuk-heading-m">Examples of restrictions and conditions on life-sustaining treatment</h3>
+
+            <p class="govuk-body">Example of a restriction on life-sustaining treatment:</p>
+            <div class="govuk-inset-text">
+                <p class="govuk-body">‘My attorneys must consult my family when making decisions about life-sustaining treatment.’</p>
+            </div>
+
+            <p class="govuk-body">Example of a condition on life-sustaining treatment:</p>
+
+            <div class="govuk-inset-text">
+                <p class="govuk-body">‘If I were in the last days of a terminal illness, I would only want treatments to make me comfortable. I would not want treatments to prolong my life or that meant I could not die at home.’</p>
+            </div>
+
+            <p class="govuk-body"><a href="{{ link .App global.Paths.AddingRestrictionsAndConditions.Format }}" class="govuk-link" target="_blank" rel="noreferrer noopener">Learn more about restrictions and conditions (opens in a new tab).</a></p>
+
+            <h2 class="govuk-heading-l">If the donor chooses not to give their attorneys the authority to give or refuse consent to LST</h2>
+
+            <p class="govuk-body">If the donor chooses this option, their attorneys will not be able to talk to medical professionals on their behalf as if they were the donor.</p>
+            <p class="govuk-body">However, medical professionals will always act in the best interests of their patients, consulting their attorneys and family members to decide what is best for the individual.</p>
+            <p class="govuk-body">They will also take into account any <a href="https://www.nhs.uk/conditions/end-of-life-care/planning-ahead/advance-decision-to-refuse-treatment/" class="govuk-link" target="_blank" rel="noreferrer noopener">advance decision (opens in a new tab)</a> the donor has made.</p>
+
+            <h2 class="govuk-heading-l">If the donor has made an ‘advance decision’</h2>
+
+            <p class="govuk-body">An advance decision to refuse treatment is a legally binding written statement. It lets someone say what medical treatment they do not want to have in certain situations in the future. It’s sometimes called a ‘living will’.</p>
+            <p class="govuk-body">The donor can have an advance decision and an LPA. However, they may want to get legal advice to check these documents do not contradict each other.</p>
+            <p class="govuk-body">The NHS has <a href="#" class="govuk-link" target="_blank" rel="noreferrer noopener">more information about advance decisions (opens in new tab).</a></p>
+            <p class="govuk-body">There's more information about life-sustaining treatment, advance decisions and how health professionals must respond to someone's written wishes in chapter 9 of the <a href="#" class="govuk-link" target="_blank" rel="noreferrer noopener">Mental Capacity Act 2005 Code of Practice (opens in new tab)</a>.</p>
+        </div>
+
+        <div class="govuk-grid-column-full app-back-to-top-mobile">
+            {{ template "back-to-top-link" . }}
+        </div>
+    </div>
+{{ end }}
