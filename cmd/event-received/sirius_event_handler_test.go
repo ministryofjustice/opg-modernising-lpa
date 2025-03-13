@@ -188,7 +188,7 @@ func TestHandleFeeApproved(t *testing.T) {
 		})
 
 	updatedDonorProvided := completedDonorProvided
-	updatedDonorProvided.ReducedFeeApprovedAt = testNow
+	updatedDonorProvided.ReducedFeeDecisionAt = testNow
 	updatedDonorProvided.UpdateHash()
 	updatedDonorProvided.UpdatedAt = testNow
 
@@ -258,7 +258,7 @@ func TestHandleFeeApprovedWhenNotPaid(t *testing.T) {
 		})
 
 	updatedDonorProvided := completedDonorProvided
-	updatedDonorProvided.ReducedFeeApprovedAt = testNow
+	updatedDonorProvided.ReducedFeeDecisionAt = testNow
 	updatedDonorProvided.UpdateHash()
 	updatedDonorProvided.UpdatedAt = testNow
 
@@ -325,7 +325,7 @@ func TestHandleFeeApprovedWhenNotSigned(t *testing.T) {
 		})
 
 	updatedDonorProvided := donorProvided
-	updatedDonorProvided.ReducedFeeApprovedAt = testNow
+	updatedDonorProvided.ReducedFeeDecisionAt = testNow
 	updatedDonorProvided.Tasks.PayForLpa = task.PaymentStateCompleted
 	updatedDonorProvided.UpdateHash()
 	updatedDonorProvided.UpdatedAt = testNow
@@ -513,7 +513,7 @@ func TestHandleFeeApprovedWhenApprovedTypeDiffers(t *testing.T) {
 				})
 
 			updatedDonorProvided := *donorProvided
-			updatedDonorProvided.ReducedFeeApprovedAt = testNow
+			updatedDonorProvided.ReducedFeeDecisionAt = testNow
 			updatedDonorProvided.Tasks.PayForLpa = tc.updatedTaskState
 			updatedDonorProvided.FeeType = tc.approvedFeeType
 			updatedDonorProvided.UpdateHash()
@@ -546,7 +546,7 @@ func TestHandleFeeApprovedWhenVoucherSelected(t *testing.T) {
 	updatedDonor := *donor
 	updatedDonor.Tasks.PayForLpa = task.PaymentStateCompleted
 	updatedDonor.VoucherInvitedAt = testNow
-	updatedDonor.ReducedFeeApprovedAt = testNow
+	updatedDonor.ReducedFeeDecisionAt = testNow
 	updatedDonor.UpdateHash()
 	updatedDonor.UpdatedAt = testNow
 
@@ -887,7 +887,14 @@ func TestHandleFeeDenied(t *testing.T) {
 		Detail:     json.RawMessage(`{"uid":"M-1111-2222-3333"}`),
 	}
 
-	updated := &donordata.Provided{PK: dynamo.LpaKey("123"), SK: dynamo.LpaOwnerKey(dynamo.DonorKey("456")), Tasks: donordata.Tasks{PayForLpa: task.PaymentStateDenied}, FeeType: pay.FullFee, UpdatedAt: testNow}
+	updated := &donordata.Provided{
+		PK:                   dynamo.LpaKey("123"),
+		SK:                   dynamo.LpaOwnerKey(dynamo.DonorKey("456")),
+		Tasks:                donordata.Tasks{PayForLpa: task.PaymentStateDenied},
+		FeeType:              pay.FullFee,
+		ReducedFeeDecisionAt: testNow,
+		UpdatedAt:            testNow,
+	}
 	updated.UpdateHash()
 
 	client := newMockDynamodbClient(t)
