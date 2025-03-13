@@ -108,8 +108,8 @@ func TestGetTaskList(t *testing.T) {
 
 			localizer := newMockLocalizer(t)
 			localizer.EXPECT().
-				Format("verifyPersonDetails", map[string]any{"DonorFullName": "John Smith"}).
-				Return("verifyJohnSmithsDetails")
+				Format("verifyPersonIdentity", map[string]any{"DonorFullName": "John Smith"}).
+				Return("verifyJohnSmithsIdentity")
 
 			appData := testAppData
 			appData.Localizer = localizer
@@ -121,7 +121,7 @@ func TestGetTaskList(t *testing.T) {
 					Voucher: tc.voucher,
 					Items: tc.expected([]taskListItem{
 						{Name: "confirmYourName", Path: voucher.PathConfirmYourName},
-						{Name: "verifyJohnSmithsDetails", Path: voucher.PathVerifyDonorDetails},
+						{Name: "verifyJohnSmithsIdentity", Path: voucher.PathVerifyDonorDetails},
 						{Name: "confirmYourIdentity", Path: voucher.PathConfirmYourIdentity},
 						{Name: "signTheDeclaration", Path: voucher.PathSignTheDeclaration},
 					}),
