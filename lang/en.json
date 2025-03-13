@@ -1510,5 +1510,7 @@
     "weSentYourVouchingCodeTo": "We sent your vouching access code to:",
     "imHavingProblemWithVouchingCode": "I’m having a problem with the vouching access code",
     "imHavingProblemWithVouchingCodeContent:email": "<p class=\"govuk-body\">The vouching access code can take a few minutes to arrive. We can <a class=\"govuk-link\" href=\"{{.ResendLink}}\">send the code again</a> if it is not working or you did not receive it.</p><p class=\"govuk-body\">If the email address we have for you is incorrect, you can <a class=\"govuk-link\" href=\"{{.ChangeLink}}\">change it</a>.</p>",
-    "imHavingProblemWithVouchingCodeContent:sms": "<p class=\"govuk-body\">The vouching access code can take a few minutes to arrive. We can <a class=\"govuk-link\" href=\"{{.ResendLink}}\">send the code again</a> if it is not working or you did not receive it.</p><p class=\"govuk-body\">If the mobile number we have for you is incorrect, you can <a class=\"govuk-link\" href=\"{{.ChangeLink}}\">change it</a>.</p>"
+    "imHavingProblemWithVouchingCodeContent:sms": "<p class=\"govuk-body\">The vouching access code can take a few minutes to arrive. We can <a class=\"govuk-link\" href=\"{{.ResendLink}}\">send the code again</a> if it is not working or you did not receive it.</p><p class=\"govuk-body\">If the mobile number we have for you is incorrect, you can <a class=\"govuk-link\" href=\"{{.ChangeLink}}\">change it</a>.</p>",
+    "thereIsFeeToPay": "There is a fee to pay for your LPA",
+    "weContactedYouToExplainWhyNotEligible": "We contacted you on {{.ContactedDate}} to explain why you are not eligible to pay no fee or a reduced fee."
 }
