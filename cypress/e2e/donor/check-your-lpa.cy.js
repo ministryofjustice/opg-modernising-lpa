@@ -106,7 +106,7 @@ describe('Check the LPA', () => {
 
                 cy.url().should('contain', '/lpa-details-saved');
 
-                cy.get('div[data-module=govuk-notification-banner]').contains('We will text your certificate provider Charlie Cooper to let them know the LPA has been amended')
+                cy.get('div[data-module=govuk-notification-banner]').contains('We’ll text your certificate provider Charlie Cooper to let them know the LPA has been amended')
 
                 cy.contains('a', 'Return to task list').click();
 
@@ -135,7 +135,7 @@ describe('Check the LPA', () => {
 
                 cy.url().should('contain', '/lpa-details-saved');
 
-                cy.get('div[data-module=govuk-notification-banner]').contains('We will text your certificate provider Charlie Cooper to let them know the LPA has been amended')
+                cy.get('div[data-module=govuk-notification-banner]').contains('We’ll text your certificate provider Charlie Cooper to let them know the LPA has been amended')
 
                 cy.contains('a', 'Return to task list').click();
 
@@ -158,7 +158,7 @@ describe('Check the LPA', () => {
 
                 cy.url().should('contain', '/lpa-details-saved');
 
-                cy.get('div[data-module=govuk-notification-banner]').contains('We will also give Charlie an access code so they can read your LPA online and you can discuss it together')
+                cy.get('div[data-module=govuk-notification-banner]').contains('We’ll also give Charlie an access code so they can read your LPA online and you can discuss it together')
 
                 cy.contains('a', 'Return to task list').click();
 
@@ -187,7 +187,7 @@ describe('Check the LPA', () => {
 
                 cy.url().should('contain', '/lpa-details-saved');
 
-                cy.get('div[data-module=govuk-notification-banner]').contains('We will text your certificate provider Charlie Cooper to let them know the LPA has been amended')
+                cy.get('div[data-module=govuk-notification-banner]').contains('We’ll text your certificate provider Charlie Cooper to let them know the LPA has been amended')
 
                 cy.contains('a', 'Return to task list').click();
 
@@ -216,7 +216,7 @@ describe('Check the LPA', () => {
 
                 cy.url().should('contain', '/lpa-details-saved');
 
-                cy.get('div[data-module=govuk-notification-banner]').contains('We will text your certificate provider Charlie Cooper to let them know the LPA has been amended')
+                cy.get('div[data-module=govuk-notification-banner]').contains('We’ll text your certificate provider Charlie Cooper to let them know the LPA has been amended')
 
                 cy.contains('a', 'Return to task list').click();
 
