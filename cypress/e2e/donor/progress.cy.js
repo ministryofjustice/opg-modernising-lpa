@@ -109,7 +109,7 @@ describe('Progress', () => {
             cy.contains('You’ve submitted your LPA to the Office of the Public Guardian');
 
             cy.contains('You must pay for your LPA');
-            cy.contains('Return to your task list to pay for your LPA. We will then be able to contact Simone Sutherland to ask them to confirm your identity.');
+            cy.contains('Return to your task list to pay for your LPA. We’ll then be able to contact Simone Sutherland to ask them to confirm your identity.');
         });
 
         it('when a vouch attempt has been unsuccessful', () => {
