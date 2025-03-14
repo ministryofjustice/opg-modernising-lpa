@@ -20,14 +20,15 @@ resource "aws_sqs_queue" "event_bus_dead_letter_queue" {
   name                              = "${data.aws_default_tags.current.tags.environment-name}-event-bus-dead-letter-queue"
   kms_master_key_id                 = data.aws_kms_alias.sqs.target_key_id
   kms_data_key_reuse_period_seconds = 300
+  policy                            = data.aws_iam_policy_document.event_bus_dead_letter_queue.json
   provider                          = aws.region
 }
 
-resource "aws_sqs_queue_policy" "event_bus_dead_letter_queue_policy" {
-  queue_url = aws_sqs_queue.event_bus_dead_letter_queue.id
-  policy    = data.aws_iam_policy_document.event_bus_dead_letter_queue.json
-  provider  = aws.region
-}
+# resource "aws_sqs_queue_policy" "event_bus_dead_letter_queue_policy" {
+#   queue_url = aws_sqs_queue.event_bus_dead_letter_queue.id
+#   policy    = data.aws_iam_policy_document.event_bus_dead_letter_queue.json
+#   provider  = aws.region
+# }
 
 data "aws_iam_policy_document" "event_bus_dead_letter_queue" {
   statement {
