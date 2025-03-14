@@ -28,6 +28,23 @@ func TestToDonorOnly(t *testing.T) {
 	assert.False(t, to.ignore())
 }
 
+func TestToCorrespondent(t *testing.T) {
+	to := ToCorrespondent(&donordata.Provided{
+		Donor:         donordata.Donor{Mobile: "0777", Email: "a@b.c", ContactLanguagePreference: localize.Cy},
+		Correspondent: donordata.Correspondent{Phone: "0779", Email: "d@e.f"},
+	})
+
+	email, lang := to.toEmail()
+	assert.Equal(t, "d@e.f", email)
+	assert.Equal(t, localize.Cy, lang)
+
+	mobile, lang := to.toMobile()
+	assert.Equal(t, "0779", mobile)
+	assert.Equal(t, localize.Cy, lang)
+
+	assert.False(t, to.ignore())
+}
+
 func TestToDonor(t *testing.T) {
 	to := ToDonor(&donordata.Provided{
 		Donor: donordata.Donor{Mobile: "0777", Email: "a@b.c", ContactLanguagePreference: localize.Cy},
