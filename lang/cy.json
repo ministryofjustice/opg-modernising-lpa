@@ -1633,5 +1633,8 @@
     "understandingMentalCapacity": "Welsh",
     "understandingMentalCapacityContent": "<p class=\"govuk-body\">Welsh</p>",
     "glossary": "Welsh",
-    "backToTop": "Welsh"
+    "backToTop": "Welsh",
+    "thereIsFeeToPay": "Welsh",
+    "weContactedYouToExplainWhyNotEligible": "Welsh {{.ContactedDate}}",
+    "weContactedYouToExplainWhyNotEligibleNowPay": "Welsh {{.ContactedDate}}"
 }
