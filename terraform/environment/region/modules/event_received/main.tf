@@ -50,15 +50,15 @@ resource "aws_sqs_queue" "receive_events_queue" {
     deadLetterTargetArn = aws_sqs_queue.receive_events_deadletter.arn
     maxReceiveCount     = 3
   })
-  policy   = data.aws_iam_policy_document.receive_events_queue_policy.json
+  # policy   = data.aws_iam_policy_document.receive_events_queue_policy.json
   provider = aws.region
 }
 
-# resource "aws_sqs_queue_policy" "receive_events_queue_queue_policy" {
-#   queue_url = aws_sqs_queue.receive_events_queue.id
-#   policy    = data.aws_iam_policy_document.receive_events_queue_policy.json
-#   provider  = aws.region
-# }
+resource "aws_sqs_queue_policy" "receive_events_queue_queue_policy" {
+  queue_url = aws_sqs_queue.receive_events_queue.id
+  policy    = data.aws_iam_policy_document.receive_events_queue_policy.json
+  provider  = aws.region
+}
 
 data "aws_iam_policy_document" "receive_events_queue_policy" {
   statement {
@@ -71,7 +71,7 @@ data "aws_iam_policy_document" "receive_events_queue_policy" {
     }
 
     actions   = ["sqs:SendMessage"]
-    resources = ["*"]
+    resources = [aws_sqs_queue.receive_events_queue.arn]
 
     condition {
       test     = "ArnEquals"
