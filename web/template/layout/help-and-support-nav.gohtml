@@ -1,0 +1,44 @@
+{{ define "help-and-support-nav" }}
+    <div class="govuk-grid-column-one-third" id="guidance-nav">
+        <nav class="moj-side-navigation" aria-label="Side navigation">
+            <ul class="moj-side-navigation__list">
+                <li class="moj-side-navigation__item {{ if eq .App.Page global.Paths.HowToMakeAndRegisterYourLPA.Format }}moj-side-navigation__item--active{{ end }}">
+                    <a href="{{ link .App global.Paths.HowToMakeAndRegisterYourLPA.Format }}" aria-current="location">{{ tr .App "howToMakeAndRegisterYourLastingPowerOfAttorney" }}</a>
+                </li>
+                <li class="moj-side-navigation__item {{ if eq .App.Page global.Paths.TheTwoTypesOfLPA.Format }}moj-side-navigation__item--active{{ end }}">
+                    <a href="{{ link .App global.Paths.TheTwoTypesOfLPA.Format }}">{{ tr .App "theTwoTypesOfLPA" }}</a>
+                </li>
+                <li class="moj-side-navigation__item {{ if eq .App.Page global.Paths.UnderstandingMentalCapacity.Format }}moj-side-navigation__item--active{{ end }}">
+                    <a href="{{ link .App global.Paths.UnderstandingMentalCapacity.Format }}">{{ tr .App "understandingMentalCapacity" }}</a>
+                </li>
+                <li class="moj-side-navigation__item {{ if eq .App.Page global.Paths.HowToSelectAttorneysForAnLPA.Format }}moj-side-navigation__item--active{{ end }}">
+                    <a href="{{ link .App global.Paths.HowToSelectAttorneysForAnLPA.Format }}">{{ tr .App "howToSelectAttorneysForAnLPA" }}</a>
+                </li>
+                <li class="moj-side-navigation__item {{ if eq .App.Page global.Paths.UnderstandingLifeSustainingTreatment.Format }}moj-side-navigation__item--active{{ end }}">
+                    <a href="{{ link .App global.Paths.UnderstandingLifeSustainingTreatment.Format }}">{{ tr .App "understandingLifeSustainingTreatment" }}</a>
+                </li>
+                <li class="moj-side-navigation__item {{ if eq .App.Page global.Paths.HowDecisionsAreMadeWithMultipleAttorneys.Format }}moj-side-navigation__item--active{{ end }}">
+                    <a href="{{ link .App global.Paths.HowDecisionsAreMadeWithMultipleAttorneys.Format }}">{{ tr .App "howMultipleAttorneysMakeDecisions" }}</a>
+                </li>
+                <li class="moj-side-navigation__item {{ if eq .App.Page global.Paths.ReplacementAttorneys.Format }}moj-side-navigation__item--active{{ end }}">
+                    <a href="{{ link .App global.Paths.ReplacementAttorneys.Format }}">{{ tr .App "replacementAttorneys" }}</a>
+                </li>
+                <li class="moj-side-navigation__item {{ if eq .App.Page global.Paths.AddingRestrictionsAndConditions.Format }}moj-side-navigation__item--active{{ end }}">
+                    <a href="{{ link .App global.Paths.AddingRestrictionsAndConditions.Format }}">{{ tr .App "addingRestrictionsAndConditionsToTheLPA" }}</a>
+                </li>
+                <li class="moj-side-navigation__item {{ if eq .App.Page global.Paths.ContactTheOfficeOfThePublicGuardian.Format }}moj-side-navigation__item--active{{ end }}">
+                    <a href="{{ link .App global.Paths.ContactTheOfficeOfThePublicGuardian.Format }}">{{ tr .App "contactTheOPG" }}</a>
+                </li>
+                <li class="moj-side-navigation__item">
+                    <a href="#">{{ tr .App "glossary" }}</a>
+                </li>
+            </ul>
+        </nav>
+
+        <div class="app-back-to-top-desktop" id="back-to-top-link-wrapper">
+            <div class="app-back-to-top">
+                {{ template "back-to-top-link" . }}
+            </div>
+        </div>
+    </div>
+{{ end }}
