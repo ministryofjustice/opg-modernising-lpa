@@ -36,7 +36,7 @@ jobs:
           role-session-name: OPGModernisingLPATerraformGithubAction
       - uses: actions/setup-python@v5.4.0
         with:
-          python-version: '3.9'
+          python-version: '3.13'
           check-latest: true
       - name: remove_ingress
         run: |

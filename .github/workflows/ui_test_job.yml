@@ -108,7 +108,7 @@ jobs:
       - uses: actions/setup-python@v5.4.0
         if: inputs.run_against_image != true
         with:
-          python-version: '3.9'
+          python-version: '3.13'
           check-latest: true
       - run: pip install -r ./scripts/ci_ingress/requirements.txt
         if: inputs.run_against_image != true
