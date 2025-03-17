@@ -1,55 +1,56 @@
 {
-  "$schema": "https://docs.renovatebot.com/renovate-schema.json",
-  "extends": [
-    "config:recommended",
-    "schedule:earlyMondays"
-  ],
-  "branchPrefix": "renovate-",
-  "commitMessageAction": "Renovate Update",
-  "labels": [
-    "Dependencies",
-    "Renovate"
-  ],
-  "ignoreDeps": [
-    "github.com/ministryofjustice/opg-terraform-aws-moj-ip-allow-list"
-  ],
-  "prConcurrentLimit": 0,
-  "branchConcurrentLimit": 0,
-  "separateMultipleMajor": true,
-  "lockFileMaintenance": {
-    "enabled": false
-  },
-  "packageRules": [
-    {
-      "automerge": true,
-      "groupName": "Patch & Minor Updates",
-      "groupSlug": "all-minor-patch-updates",
-      "labels": [
+    "$schema": "https://docs.renovatebot.com/renovate-schema.json",
+    "extends": [
+        "config:recommended",
+        "schedule:earlyMondays",
+        "helpers:pinGitHubActionDigests"
+    ],
+    "branchPrefix": "renovate-",
+    "commitMessageAction": "Renovate Update",
+    "labels": [
         "Dependencies",
         "Renovate"
-      ],
-      "matchUpdateTypes": [
-        "minor",
-        "patch"
-      ],
-      "prCreation": "immediate",
-      "prPriority": 4,
-      "minimumReleaseAge": "3 days",
-      "matchPackageNames": [
-        "*"
-      ]
-    }
-  ],
-  "major": {
-    "automerge": false,
-    "labels": [
-      "Dependencies",
-      "Renovate"
     ],
-    "prCreation": "immediate",
-    "minimumReleaseAge": "3 days"
-  },
-  "vulnerabilityAlerts": {
-    "enabled": false
-  }
+    "ignoreDeps": [
+        "github.com/ministryofjustice/opg-terraform-aws-moj-ip-allow-list"
+    ],
+    "prConcurrentLimit": 0,
+    "branchConcurrentLimit": 0,
+    "separateMultipleMajor": true,
+    "lockFileMaintenance": {
+        "enabled": false
+    },
+    "packageRules": [
+        {
+            "automerge": true,
+            "groupName": "Patch & Minor Updates",
+            "groupSlug": "all-minor-patch-updates",
+            "labels": [
+                "Dependencies",
+                "Renovate"
+            ],
+            "matchUpdateTypes": [
+                "minor",
+                "patch"
+            ],
+            "prCreation": "immediate",
+            "prPriority": 4,
+            "minimumReleaseAge": "3 days",
+            "matchPackageNames": [
+                "*"
+            ]
+        }
+    ],
+    "major": {
+        "automerge": false,
+        "labels": [
+            "Dependencies",
+            "Renovate"
+        ],
+        "prCreation": "immediate",
+        "minimumReleaseAge": "3 days"
+    },
+    "vulnerabilityAlerts": {
+        "enabled": false
+    }
 }
