@@ -726,5 +726,20 @@ func (e InformDonorPaperCertificateProviderIdentityCheckFailed) emailID(isProduc
 		return "ee349ded-8cfb-4a28-beac-5a4fb90aa823"
 	}
 
-	return "26d337be-eef3-405f-96ed-cb2ed76002b3"
+	return "f724710b-7974-4c2f-806e-34cf23dd3680"
+}
+
+type CorrespondentInformedVouchingInProgress struct {
+	CorrespondentFullName   string
+	DonorFullName           string
+	DonorFullNamePossessive string
+	LpaType                 string
+}
+
+func (e CorrespondentInformedVouchingInProgress) emailID(isProduction bool, _ localize.Lang) string {
+	if isProduction {
+		return "6ece1746-e263-4135-85d7-04c6a598ecf9"
+	}
+
+	return "e12e8a5d-66c9-4529-962c-2bc8a4d251fa"
 }
