@@ -180,6 +180,17 @@ func (s *Sender) SendVoucherInvite(ctx context.Context, provided *donordata.Prov
 		return err
 	}
 
+	if provided.Correspondent.Email != "" {
+		if err := s.sendEmail(ctx, notify.ToCorrespondent(provided), provided.LpaUID, notify.CorrespondentInformedVouchingInProgress{
+			CorrespondentFullName:   provided.Correspondent.FullName(),
+			DonorFullName:           provided.Donor.FullName(),
+			DonorFullNamePossessive: appData.Localizer.Possessive(provided.Donor.FullName()),
+			LpaType:                 appData.Localizer.T(provided.Type.String()),
+		}); err != nil {
+			return err
+		}
+	}
+
 	return s.sendEmail(ctx, notify.ToVoucher(provided.Voucher), provided.LpaUID, notify.VoucherInviteEmail{
 		VoucherFullName:           provided.Voucher.FullName(),
 		DonorFullName:             provided.Donor.FullName(),
