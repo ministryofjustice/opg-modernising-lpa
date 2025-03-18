@@ -40,12 +40,20 @@
                         .Donor.Donor.FullName .Donor.CanChange true) }}
                 </dl>
 
-                {{ if .Donor.IdentityUserData.Status.IsConfirmed }}
+                {{ if and .Donor.IdentityUserData.Status.IsConfirmed (not .Donor.DetailsVerifiedByVoucher)  }}
                     <p class="govuk-inset-text">{{ tr .App "someOfTheseDetailsCanNoLongerBeChanged" }}</p>
                 {{ end }}
 
                 {{ if .Donor.DetailsVerifiedByVoucher }}
-                    <p class="govuk-inset-text">{{ tr .App "Placeholder text to show details cannot be updated while a voucher is confirming the donor’s identity" }}</p>
+                    <h2 class="govuk-heading-m">{{ tr .App "someOfYourDetailsCannotBeChanged" }}</h2>
+
+                    {{ trFormatHtml .App "voucherHasConfirmedDetailsCannotChange" "VoucherFullName" .Donor.Voucher.FullName }}
+
+                    {{ if .Donor.Tasks.ConfirmYourIdentity.IsCompleted }}
+                        {{ trFormatHtml .App "ifWantToChangeDetailsMakeNewLPA" }}
+                    {{ else }}
+                        {{ trFormatHtml .App "voucherMustConfirmTheirOwnDetails" "VoucherFullName" .Donor.Voucher.FullName }}
+                    {{ end }}
                 {{ end }}
 
                 {{ template "buttons" (button .App "continue" "link" (global.Paths.CanYouSignYourLpa.Format .App.LpaID))  }}
