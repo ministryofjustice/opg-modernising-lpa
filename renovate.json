@@ -3,7 +3,10 @@
     "extends": [
         "config:recommended",
         "schedule:earlyMondays",
-        "helpers:pinGitHubActionDigests"
+        "docker:pinDigests",
+        "helpers:pinGitHubActionDigests",
+        ":configMigration",
+        ":pinDevDependencies"
     ],
     "branchPrefix": "renovate-",
     "commitMessageAction": "Renovate Update",
