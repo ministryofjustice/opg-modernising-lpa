@@ -37,7 +37,8 @@ data "aws_iam_policy_document" "event_bus_dead_letter_queue" {
       type        = "Service"
       identifiers = ["events.amazonaws.com"]
     }
-    actions = ["sqs:SendMessage"]
+    resources = [aws_sqs_queue.event_bus_dead_letter_queue.arn]
+    actions   = ["sqs:SendMessage"]
 
     condition {
       test     = "ArnEquals"
