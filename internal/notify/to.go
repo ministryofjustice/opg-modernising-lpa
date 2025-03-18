@@ -44,6 +44,16 @@ func ToDonorOnly(donor *donordata.Provided) To {
 	}
 }
 
+// ToCorrespondent is only needed when we want to contact the correspondent,
+// normally we will use ToDonor.
+func ToCorrespondent(donor *donordata.Provided) To {
+	return to{
+		mobile: donor.Correspondent.Phone,
+		email:  donor.Correspondent.Email,
+		lang:   donor.Donor.ContactLanguagePreference,
+	}
+}
+
 func ToDonor(donor *donordata.Provided) To {
 	to := to{
 		mobile: donor.Donor.Mobile,
