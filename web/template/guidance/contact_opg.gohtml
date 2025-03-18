@@ -1,0 +1,20 @@
+{{ template "page" . }}
+
+{{ define "pageTitle" }}{{ tr .App "contactTheOPG" }}{{ end }}
+
+{{ define "main" }}
+    <div class="govuk-grid-row">
+        {{ template "help-and-support-nav" . }}
+
+        <div class="govuk-grid-column-two-thirds" id="guidance-content">
+            <span class="govuk-caption-xl">{{ tr .App "helpAndSupport" }}</span>
+            <h1 class="govuk-heading-xl">{{ tr .App "contactTheOPG" }}</h1>
+
+            {{ trHtml .App "contactTheOPGContent" }}
+        </div>
+
+        <div class="govuk-grid-column-full app-back-to-top-mobile">
+            {{ template "back-to-top-link" . }}
+        </div>
+    </div>
+{{ end }}
