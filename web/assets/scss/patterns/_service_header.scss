@@ -412,5 +412,9 @@ $govuk-header-link-underline-thickness: 3px;
   &:not(:hover) {
     text-decoration: none;
   }
+
+  &:last-of-type {
+      display: grid;
+  }
 }
 // end service navigation styles
