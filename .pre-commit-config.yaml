@@ -28,7 +28,7 @@ repos:
           - "--no-sort-keys"
           - "--no-ensure-ascii"
   - repo: https://github.com/antonbabenko/pre-commit-terraform
-    rev: v1.97.3
+    rev: v1.97.4
     hooks:
       - id: terraform_fmt
       - id: terraform_tflint
@@ -41,7 +41,7 @@ repos:
       - id: go-imports # Runs gofmt
       - id: go-mod-tidy # Tidies up and removes unused requires in go.mod using go mod tidy
   - repo: https://github.com/renovatebot/pre-commit-hooks
-    rev: 39.174.3
+    rev: 39.205.1
     hooks:
       - id: renovate-config-validator
   - repo: local
