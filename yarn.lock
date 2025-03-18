@@ -622,7 +622,7 @@ aws4@^1.8.0:
   resolved "https://registry.yarnpkg.com/aws4/-/aws4-1.13.0.tgz#d9b802e9bb9c248d7be5f7f5ef178dc3684e9dcc"
   integrity sha512-3AungXC4I8kKsS9PuS4JH2nc+0bVY/mjgrephHTIi8fpEeGsTHBUJeosp0Wc1myYMElmD0B3Oc4XL/HVJ4PV2g==
 
-axe-core@^4.6:
+axe-core@4.10.3:
   version "4.10.3"
   resolved "https://registry.yarnpkg.com/axe-core/-/axe-core-4.10.3.tgz#04145965ac7894faddbac30861e5d8f11bfd14fc"
   integrity sha512-Xm7bpRXnDSX2YE2YFfBk2FnF0ep6tmG7xPh8iHee8MIcrgq762Nkce856dYtJYLkuIoYZvGfTs/PbZhideTcEg==
@@ -883,17 +883,17 @@ cross-spawn@^7.0.0, cross-spawn@^7.0.3:
     shebang-command "^2.0.0"
     which "^2.0.1"
 
-cypress-axe@^1.4:
+cypress-axe@1.6.0:
   version "1.6.0"
   resolved "https://registry.yarnpkg.com/cypress-axe/-/cypress-axe-1.6.0.tgz#2d70475e15356dd243ebcbfefd5719526f7ca9bc"
   integrity sha512-C/ij50G8eebBrl/WsGT7E+T/SFyIsRZ3Epx9cRTLrPL9Y1GcxlQGFoAVdtSFWRrHSCWXq9HC6iJQMaI89O9yvQ==
 
-cypress-file-upload@^5.0.8:
+cypress-file-upload@5.0.8:
   version "5.0.8"
-  resolved "https://registry.npmjs.org/cypress-file-upload/-/cypress-file-upload-5.0.8.tgz"
+  resolved "https://registry.yarnpkg.com/cypress-file-upload/-/cypress-file-upload-5.0.8.tgz#d8824cbeaab798e44be8009769f9a6c9daa1b4a1"
   integrity sha512-+8VzNabRk3zG6x8f8BWArF/xA/W0VK4IZNx3MV0jFWrJS/qKn8eHfa5nU73P9fOQAgwHFJx7zjg4lwOnljMO8g==
 
-cypress-multi-reporters@^2.0.0:
+cypress-multi-reporters@2.0.5:
   version "2.0.5"
   resolved "https://registry.yarnpkg.com/cypress-multi-reporters/-/cypress-multi-reporters-2.0.5.tgz#2ef058ac7ea1f03adf368eee47c61d7d4f2644db"
   integrity sha512-5ReXlNE7C/9/rpDI3z0tAJbPXsTHK7P3ogvUtBntQlmctRQ+sSMts7dIQY5MTb0XfBSge3CuwvNvaoqtw90KSQ==
@@ -902,9 +902,9 @@ cypress-multi-reporters@^2.0.0:
     lodash "^4.17.21"
     semver "^7.6.3"
 
-cypress-parallel@^0.14.0:
+cypress-parallel@0.14.0:
   version "0.14.0"
-  resolved "https://registry.npmjs.org/cypress-parallel/-/cypress-parallel-0.14.0.tgz"
+  resolved "https://registry.yarnpkg.com/cypress-parallel/-/cypress-parallel-0.14.0.tgz#4b701ab19f97e0e0cd29cfa41c9d76055db2dd01"
   integrity sha512-Lsh28G70vxjL0cjR820BdaVQHnGc17Vvb+tYmjbRPmfC+XEzwvUzhcaD0E1zCztBSYhw+b1/1JLmW4Y0qE/EDA==
   dependencies:
     "@colors/colors" "^1.5.0"
@@ -917,7 +917,7 @@ cypress-parallel@^0.14.0:
     mocha "~9.2.0"
     yargs "15.3.1"
 
-cypress-real-events@^1.8.1:
+cypress-real-events@1.14.0:
   version "1.14.0"
   resolved "https://registry.yarnpkg.com/cypress-real-events/-/cypress-real-events-1.14.0.tgz#c5495db50a2bd247f4accde983af7153566945d3"
   integrity sha512-XmI8y3OZLh6cjRroPalzzS++iv+pGCaD9G9kfIbtspgv7GVsDt30dkZvSXfgZb4rAN+3pOkMVB7e0j4oXydW7Q==
@@ -2129,7 +2129,7 @@ sshpk@^1.18.0:
     safer-buffer "^2.0.2"
     tweetnacl "~0.14.0"
 
-stop-only@^3.3.2:
+stop-only@3.4.2:
   version "3.4.2"
   resolved "https://registry.yarnpkg.com/stop-only/-/stop-only-3.4.2.tgz#322b1c349908dd400e72fba42356277c52fbc540"
   integrity sha512-7LcP5ne7Tben9oCe/SMVubXQjhwcK+Ec44JNjNhX8txF/jS5XqYSpkn1Z9FAsS4y4biaqhV7SVckeTJrSTDCsw==
