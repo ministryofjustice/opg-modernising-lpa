@@ -59,6 +59,16 @@ const (
 	PathStart                       = Path("/start")
 	PathSupporterFixtures           = Path("/fixtures/supporter")
 	PathVoucherFixtures             = Path("/fixtures/voucher")
+
+	PathAddingRestrictionsAndConditions          = Path("/help-and-support/adding-restrictions-and-conditions")
+	PathContactTheOfficeOfThePublicGuardian      = Path("/help-and-support/contact-the-office-of-the-public-guardian")
+	PathHowDecisionsAreMadeWithMultipleAttorneys = Path("/help-and-support/how-decisions-are-made-with-multiple-attorneys")
+	PathHowToMakeAndRegisterYourLPA              = Path("/help-and-support/how-to-make-and-register-your-lasting-power-of-attorney")
+	PathHowToSelectAttorneysForAnLPA             = Path("/help-and-support/how-to-select-attorneys-for-a-lasting-power-of-attorney")
+	PathReplacementAttorneys                     = Path("/help-and-support/replacement-attorneys")
+	PathTheTwoTypesOfLPAPath                     = Path("/help-and-support/the-two-types-of-lasting-power-of-attorney")
+	PathUnderstandingLifeSustainingTreatment     = Path("/help-and-support/understanding-life-sustaining-treatment")
+	PathUnderstandingMentalCapacity              = Path("/help-and-support/understanding-mental-capacity")
 )
 
 type Path string
