@@ -23,18 +23,18 @@ jobs:
   remove_ingress:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
-      - uses: unfor19/install-aws-cli-action@v1
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4
+      - uses: unfor19/install-aws-cli-action@e8b481e524a99f37fbd39fdc1dcb3341ab091367 # v1
         name: Run Against Image/aws-cli-action
       - name: Manage Ingress/Configure AWS Credentials
-        uses: aws-actions/configure-aws-credentials@v4.1.0
+        uses: aws-actions/configure-aws-credentials@ececac1a45f3b08a01d2dd070d28d111c5fe6722 # v4.1.0
         with:
           aws-access-key-id: ${{ secrets.aws_access_key_id }}
           aws-secret-access-key: ${{ secrets.aws_secret_access_key }}
           aws-region: eu-west-1
           role-duration-seconds: 900
           role-session-name: OPGModernisingLPATerraformGithubAction
-      - uses: actions/setup-python@v5.4.0
+      - uses: actions/setup-python@42375524e23c412d93fb67b49958b491fce71c38 # v5.4.0
         with:
           python-version: '3.13'
           check-latest: true

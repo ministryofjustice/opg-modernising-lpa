@@ -20,7 +20,7 @@ jobs:
     if : ${{ inputs.changes_detected == 'true' }}
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4
         with:
           fetch-depth: '0'
       - name: Extract branch name
@@ -39,7 +39,7 @@ jobs:
           fi
       - name: Bump version
         id: bump_version
-        uses: anothrNick/github-tag-action@1.71.0
+        uses: anothrNick/github-tag-action@f278d49d30cdd8775cc3e7dd00b5ee11686ee297 # 1.71.0
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           INITIAL_VERSION: 0.0.0
@@ -78,7 +78,7 @@ jobs:
     ]
     steps:
       - name: Configure AWS Credentials
-        uses: aws-actions/configure-aws-credentials@v4.1.0
+        uses: aws-actions/configure-aws-credentials@ececac1a45f3b08a01d2dd070d28d111c5fe6722 # v4.1.0
         with:
           aws-region: us-east-1
           role-to-assume: arn:aws:iam::311462405659:role/modernising-lpa-github-actions-ssm-get-parameter
