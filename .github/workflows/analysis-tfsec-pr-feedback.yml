@@ -24,11 +24,11 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4
         with:
           fetch-depth: 2
       - name: tfsec with pr comments
-        uses: tfsec/tfsec-pr-commenter-action@v1.3.1
+        uses: tfsec/tfsec-pr-commenter-action@7a44c5dcde5dfab737363e391800629e27b6376b # v1.3.1
         with:
           # setting working_directory to empty string will run tfsec on all .tf files in the repo
           working_directory: ''

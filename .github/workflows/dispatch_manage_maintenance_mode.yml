@@ -41,8 +41,8 @@ jobs:
   manage_maintenance_mode:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
-      - uses: unfor19/install-aws-cli-action@v1
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4
+      - uses: unfor19/install-aws-cli-action@e8b481e524a99f37fbd39fdc1dcb3341ab091367 # v1
       - name: Determine role to use for maintenance mode
         id: determine_role
         run: |
@@ -57,7 +57,7 @@ jobs:
             echo "role=${{ secrets.DEVELOPMENT_MAINTENANCE_MODE_ROLE }}" >> $GITHUB_OUTPUT
           fi
       - name: Configure AWS credentials for maintenance mode
-        uses: aws-actions/configure-aws-credentials@v4.1.0
+        uses: aws-actions/configure-aws-credentials@ececac1a45f3b08a01d2dd070d28d111c5fe6722 # v4.1.0
         with:
           aws-region: ${{ github.event.inputs.region }}
           role-duration-seconds: 3600
