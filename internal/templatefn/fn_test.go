@@ -634,7 +634,3 @@ func TestFieldset(t *testing.T) {
 		Items:  items("top", "a-name", "a-value", anItem),
 	}, fieldset("top", "a-name", "a-value", aLegend, anItem))
 }
-
-func TestAlphabet(t *testing.T) {
-	assert.Equal(t, []string{"A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L", "M", "N", "O", "P", "Q", "R", "S", "T", "U", "V", "W", "X", "Y", "Z"}, alphabet())
-}
