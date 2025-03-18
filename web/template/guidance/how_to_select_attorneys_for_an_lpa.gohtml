@@ -1,0 +1,20 @@
+{{ template "page" . }}
+
+{{ define "pageTitle" }}{{ tr .App "howToSelectAttorneysForAnLPA" }}{{ end }}
+
+{{ define "main" }}
+    <div class="govuk-grid-row">
+        {{ template "help-and-support-nav" . }}
+
+        <div class="govuk-grid-column-two-thirds" id="guidance-content">
+            <span class="govuk-caption-xl">{{ tr .App "helpAndSupport" }}</span>
+            <h1 class="govuk-heading-xl">{{ tr .App "howToSelectAttorneysForAnLPA" }}</h1>
+
+            {{ trFormatHtml .App "howToSelectAttorneysForAnLPAContent" "UnderstandingMentalCapacityLink" (link .App global.Paths.UnderstandingMentalCapacity.Format) "ReplacementAttorneysLink" (link .App global.Paths.ReplacementAttorneys.Format) "AddingRestrictionsAndConditionsLink" (link .App global.Paths.AddingRestrictionsAndConditions.Format) }}
+        </div>
+
+        <div class="govuk-grid-column-full app-back-to-top-mobile">
+            {{ template "back-to-top-link" . }}
+        </div>
+    </div>
+{{ end }}
