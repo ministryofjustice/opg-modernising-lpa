@@ -1541,5 +1541,6 @@
     "someOfYourDetailsCannotBeChanged": "Some of your details cannot be changed",
     "voucherHasConfirmedDetailsCannotChange": "<p class=\"govuk-body\">{{ .VoucherFullName }} has confirmed your identity details match those you entered in your LPA. These cannot now be changed.</p>",
     "voucherMustConfirmTheirOwnDetails": "<p class=\"govuk-body\">{{ .VoucherFullName }} must confirm their own identity and sign a declaration. Their vouching role will then be complete.</p><p class=\"govuk-body\">If you want to change your identity details, you must either:</p><ul class=\"govuk-list govuk-list--bullet\"><li>confirm your identity another way</li><li>make a new LPA</li></ul>",
-    "ifWantToChangeDetailsMakeNewLPA": "<p class=\"govuk-body\">If you want to change your identity details, you must make a new LPA.</p>"
+    "ifWantToChangeDetailsMakeNewLPA": "<p class=\"govuk-body\">If you want to change your identity details, you must make a new LPA.</p>",
+    "opensInNewTab": "opens in new tab"
 }

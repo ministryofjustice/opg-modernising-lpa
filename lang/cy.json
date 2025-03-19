@@ -1645,5 +1645,6 @@
     "someOfYourDetailsCannotBeChanged": "Welsh",
     "voucherHasConfirmedDetailsCannotChange": "<p class=\"govuk-body\">{{ .VoucherFullName }} Welsh</p>",
     "voucherMustConfirmTheirOwnDetails": "<p class=\"govuk-body\">{{ .VoucherFullName }} Welsh</p><p class=\"govuk-body\">Welsh:</p><ul class=\"govuk-list govuk-list--bullet\"><li>Welsh</li><li>Welsh</li></ul>",
-    "ifWantToChangeDetailsMakeNewLPA": "<p class=\"govuk-body\">Welsh</p>"
+    "ifWantToChangeDetailsMakeNewLPA": "<p class=\"govuk-body\">Welsh</p>",
+    "opensInNewTab": "Welsh"
 }
