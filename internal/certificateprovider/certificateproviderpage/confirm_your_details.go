@@ -58,13 +58,19 @@ func ConfirmYourDetails(tmpl template.Template, certificateProviderStore Certifi
 
 		if lpa.Donor.Channel.IsPaper() {
 			data.PhoneNumberLabel = "contactNumber"
-		} else if lpa.CertificateProvider.Relationship.IsProfessionally() {
+		}
+
+		if lpa.CertificateProvider.Relationship.IsProfessionally() {
 			data.AddressLabel = "workAddress"
 			data.DetailComponentContent = "whatToDoIfAnyDetailsAreIncorrectCertificateProviderContentProfessional"
 
 			if !data.ShowPhone {
 				data.DetailComponentContent = "whatToDoIfAnyDetailsAreIncorrectCertificateProviderContentProfessionalMissingPhone"
 			}
+		}
+
+		if !lpa.SignedAt.IsZero() {
+			data.DetailComponentContent = "whatToDoInAnyDetailsAreIncorrectCertificateProviderSigned"
 		}
 
 		return tmpl(w, data)
