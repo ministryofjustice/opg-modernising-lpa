@@ -62,7 +62,7 @@
                     {{ template "address-summary-row" (summaryRow .App "address"
                         .Attorney.Address
                         ""
-                        $attorneyFullName false true ) }}            
+                        $attorneyFullName false true ) }}
                     {{ if and .DonorProvidedMobile (not .AttorneyProvidedDetails.PhoneSet) }}
                         {{ template "summary-row" (summaryRow .App "phoneNumber"
                             (formatPhone .DonorProvidedMobile)
@@ -74,9 +74,11 @@
                 {{ if and .DonorProvidedMobile (not .AttorneyProvidedDetails.PhoneSet) }}
                     {{ template "details" (details . "whatToDoIfAnyDetailsAreIncorrect" (trFormat .App "whatToDoIfAnyDetailsAreIncorrectAttorneyCanPhoneContent" "DonorFullName" .Lpa.Donor.FullName) false) }}
                 {{ else }}
-                    {{ template "details" (details . "whatToDoIfAnyDetailsAreIncorrect" (trFormat .App "whatToDoIfAnyDetailsAreIncorrectAttorneyContent" "DonorFullName" .Lpa.Donor.FullName) false) }}
+                    {{ template "details" (details . "whatToDoIfAnyDetailsAreIncorrect" (trFormat .App "whatToDoIfAnyDetailsAreIncorrectAttorneyContent"
+                        "DonorFullName" .Lpa.Donor.FullName
+                        "ContactLink" (link .App global.Paths.ContactTheOfficeOfThePublicGuardian.Format)) false) }}
                 {{ end }}
-                
+
                 {{ template "warning" (content .App "anyErrorsInYourDetailsCanMakeLpaDifficultToUse") }}
             {{ end }}
 
