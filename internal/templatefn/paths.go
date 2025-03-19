@@ -132,6 +132,7 @@ type appPaths struct {
 
 	AddingRestrictionsAndConditions          page.Path
 	ContactTheOfficeOfThePublicGuardian      page.Path
+	Glossary                                 page.Path
 	HowDecisionsAreMadeWithMultipleAttorneys page.Path
 	HowToMakeAndRegisterYourLPA              page.Path
 	HowToSelectAttorneysForAnLPA             page.Path
@@ -373,6 +374,7 @@ var paths = appPaths{
 
 	AddingRestrictionsAndConditions:          page.PathAddingRestrictionsAndConditions,
 	ContactTheOfficeOfThePublicGuardian:      page.PathContactTheOfficeOfThePublicGuardian,
+	Glossary:                                 page.PathGlossary,
 	HowDecisionsAreMadeWithMultipleAttorneys: page.PathHowDecisionsAreMadeWithMultipleAttorneys,
 	HowToMakeAndRegisterYourLPA:              page.PathHowToMakeAndRegisterYourLPA,
 	HowToSelectAttorneysForAnLPA:             page.PathHowToSelectAttorneysForAnLPA,
