@@ -24,6 +24,8 @@ describe('Confirm your details', () => {
             cy.contains('dt', 'Address').parent().contains('5 RICHMOND PLACE')
             cy.contains('07700 900 000');
 
+            cy.contains('If you notice a mistake in the name, address or mobile number the donor provided');
+
             cy.contains('button', 'Continue').click();
             cy.url().should('contain', '/your-role');
         });
@@ -86,9 +88,9 @@ describe('Confirm your details', () => {
 
             cy.contains('Contact number').should('not.exist');
             cy.contains('Mobile number').should('not.exist');
-            cy.contains('If you notice a mistake in the name, address or mobile number the donor provided').should('not.exist');
+            cy.contains('If you notice a mistake in the name, address or mobile number provided').should('not.exist');
 
-            cy.contains('If you notice a mistake in the name or address the donor provided').should('exist');
+            cy.contains('If you notice a mistake in the name or address provided').should('exist');
         })
     })
 });

@@ -1,16 +1,26 @@
 {{ template "page" . }}
 
 {{ define "main" }}
+    {{ $items := items nil "" nil
+        (item global.Paths.Fixtures.Format "Donor")
+        (item global.Paths.CertificateProviderFixtures.Format "Certificate provider")
+        (item global.Paths.AttorneyFixtures.Format "Attorney")
+        (item global.Paths.DashboardFixtures.Format "Dashboard")
+        (item global.Paths.SupporterFixtures.Format "Supporter")
+        (item global.Paths.VoucherFixtures.Format "Voucher")
+    }}
+
     <div class="govuk-grid-row">
         <div class="govuk-grid-column-one-third">
-            <ul class="govuk-list govuk-list--spaced">
-                <li><a class="govuk-link govuk-link--no-underline govuk-link--no-visited-state {{ if eq .App.Page global.Paths.Fixtures.Format }}govuk-!-font-weight-bold{{ end }}" href="{{ link .App global.Paths.Fixtures.Format }}">Donor</a></li>
-                <li><a class="govuk-link govuk-link--no-underline govuk-link--no-visited-state {{ if eq .App.Page global.Paths.CertificateProviderFixtures.Format }}govuk-!-font-weight-bold{{ end }}" href="{{ link .App global.Paths.CertificateProviderFixtures.Format }}">Certificate provider</a></li>
-                <li><a class="govuk-link govuk-link--no-underline govuk-link--no-visited-state {{ if eq .App.Page global.Paths.AttorneyFixtures.Format }}govuk-!-font-weight-bold{{ end }}" href="{{ link .App global.Paths.AttorneyFixtures.Format }}">Attorney</a></li>
-                <li><a class="govuk-link govuk-link--no-underline govuk-link--no-visited-state {{ if eq .App.Page global.Paths.DashboardFixtures.Format }}govuk-!-font-weight-bold{{ end }}" href="{{ link .App global.Paths.DashboardFixtures.Format }}">Dashboard</a></li>
-                <li><a class="govuk-link govuk-link--no-underline govuk-link--no-visited-state {{ if eq .App.Page global.Paths.SupporterFixtures.Format }}govuk-!-font-weight-bold{{ end }}" href="{{ link .App global.Paths.SupporterFixtures.Format }}">Supporter</a></li>
-                <li><a class="govuk-link govuk-link--no-underline govuk-link--no-visited-state {{ if eq .App.Page global.Paths.VoucherFixtures.Format }}govuk-!-font-weight-bold{{ end }}" href="{{ link .App global.Paths.VoucherFixtures.Format }}">Voucher</a></li>
-            </ul>
+            <nav class="moj-side-navigation">
+                <ul class="moj-side-navigation__list">
+                    {{ range $items.items }}
+                        <li class="moj-side-navigation__item {{ if eq $.App.Page .value }}moj-side-navigation__item--active{{ end }}">
+                            <a href="{{ link $.App .value }}">{{ .label }}</a>
+                        </li>
+                    {{ end }}
+                </ul>
+            </nav>
         </div>
         <div class="govuk-grid-column-two-thirds">
             <form id="the-form" novalidate method="post">
