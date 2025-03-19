@@ -35,7 +35,9 @@
         {{ end }}
       </dl>
 
-      {{ template "details" (details . "whatToDoIfAnyDetailsAreIncorrect" .DetailComponentContent false) }}
+      {{ template "details" (details . "whatToDoIfAnyDetailsAreIncorrect" (trFormat .App .DetailComponentContent
+          "DonorFullName" .Lpa.Donor.FullName
+          "ContactLink" (link .App global.Paths.ContactTheOfficeOfThePublicGuardian.Format)) false) }}
 
       {{ template "warning" (content .App "anyErrorsInYourDetailsCanDelay") }}
 
