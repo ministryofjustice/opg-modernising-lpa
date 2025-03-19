@@ -26,6 +26,7 @@ func TestGetConfirmYourDetails(t *testing.T) {
 		ShowHomeAddress                 bool
 		PhoneNumber                     string
 		HomeAddress                     place.Address
+		SignedAt                        time.Time
 	}{
 		"online donor": {
 			DonorChannel:            lpadata.ChannelOnline,
@@ -42,6 +43,15 @@ func TestGetConfirmYourDetails(t *testing.T) {
 			DetailsComponentContent: "whatToDoIfAnyDetailsAreIncorrectCertificateProviderContentLay",
 			PhoneNumber:             "123",
 			ShowPhone:               true,
+		},
+		"signed donor": {
+			DonorChannel:            lpadata.ChannelOnline,
+			PhoneNumberLabel:        "mobileNumber",
+			AddressLabel:            "address",
+			DetailsComponentContent: "whatToDoInAnyDetailsAreIncorrectCertificateProviderSigned",
+			PhoneNumber:             "123",
+			ShowPhone:               true,
+			SignedAt:                time.Now(),
 		},
 		"lay CP": {
 			CertificateProviderRelationship: lpadata.Personally,
@@ -86,6 +96,7 @@ func TestGetConfirmYourDetails(t *testing.T) {
 					Relationship: tc.CertificateProviderRelationship,
 					Phone:        tc.PhoneNumber,
 				},
+				SignedAt: tc.SignedAt,
 			}
 			certificateProvider := &certificateproviderdata.Provided{
 				HomeAddress: tc.HomeAddress,
