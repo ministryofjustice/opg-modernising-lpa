@@ -133,8 +133,8 @@
                   <li class="govuk-!-padding-top-9"></li>
                 {{ end }}
               {{ else }}
-                <li class="service-header__nav-list-item service-header__nav-list-item--active">
-                  <a class="service-header__nav-list-item-link" aria-current="page" href="{{ link .App global.Paths.Dashboard.Format }}">{{ tr .App "manageYourLpas" }}</a>
+                <li class="service-header__nav-list-item">
+                  <a class="service-header__nav-list-item-link" href="{{ link .App global.Paths.Dashboard.Format }}">{{ tr .App "manageYourLpas" }}</a>
                 </li>
                 <li class="service-header__nav-list-item">
                   <a class="service-header__nav-list-item-link" href="{{ link .App (global.Paths.HowToMakeAndRegisterYourLPA.Format ) }}">{{ tr .App "helpAndSupport" }}</a>
