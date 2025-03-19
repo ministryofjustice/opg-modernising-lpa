@@ -139,7 +139,7 @@
                             <h2 class="govuk-visually-hidden">{{ tr .App "supportLinks" }}</h2>
                             <ul class="govuk-footer__inline-list">
                                 <li class="govuk-footer__inline-list-item">
-                                    <a class="govuk-footer__link" href="#1">
+                                    <a class="govuk-footer__link" href="{{ link .App (global.Paths.HowToMakeAndRegisterYourLPA.Format ) }}">
                                         {{ tr .App "help" }}
                                     </a>
                                 </li>
@@ -149,7 +149,7 @@
                                     </a>
                                 </li>
                                 <li class="govuk-footer__inline-list-item">
-                                    <a class="govuk-footer__link" href="#3">
+                                    <a class="govuk-footer__link" href="{{ link .App global.Paths.ContactTheOfficeOfThePublicGuardian.Format }}">
                                         {{ tr .App "contact" }}
                                     </a>
                                 </li>
