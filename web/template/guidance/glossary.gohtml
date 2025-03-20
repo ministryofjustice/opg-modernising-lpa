@@ -1,0 +1,37 @@
+{{ template "page" . }}
+
+{{ define "pageTitle" }}{{ tr .App "glossary" }}{{ end }}
+
+{{ define "main" }}
+    <div class="govuk-grid-row">
+        {{ template "help-and-support-nav" . }}
+
+        <div class="govuk-grid-column-two-thirds" id="guidance-content">
+            <span class="govuk-caption-xl">{{ tr .App "helpAndSupport" }}</span>
+            <h1 class="govuk-heading-xl">{{ tr .App "glossary" }}</h1>
+
+            {{ trHtml .App "glossaryIntroContent" }}
+
+            <div class="govuk-!-padding-top-3 govuk-!-padding-bottom-3">
+                {{ range $letter := alphabet }}
+                    <a href="#{{ lowerFirst $letter }}-section" class="govuk-link govuk-!-font-size-24 govuk-!-padding-right-3">{{ $letter }}</a>
+                {{ end }}
+            </div>
+
+            <hr class="govuk-section-break govuk-section-break--l govuk-section-break--visible">
+
+            {{ range $letter := alphabet }}
+                <h2 class="govuk-heading-l" id="{{ lowerFirst $letter }}-section">{{ $letter }}</h2>
+
+                {{ $letterContentKey := printf "%s%s" "glossary:" $letter }}
+                {{ trFormatHtml $.App $letterContentKey "AdvanceDecisionLink" "#" "ChoosingAttorneysLink" (link $.App global.Paths.HowToSelectAttorneysForAnLPA.Format) "MultipleAttorneysDecisionsLink" (link $.App global.Paths.HowDecisionsAreMadeWithMultipleAttorneys.Format) "TwoTypesOfLPAsLink" (link $.App global.Paths.TheTwoTypesOfLPA.Format) "LifeSustainingTreatmentLink" (link $.App global.Paths.UnderstandingLifeSustainingTreatment.Format) "MentalCapacityLink" (link $.App global.Paths.UnderstandingMentalCapacity.Format) "ExternalMentalCapacityLink" "#" "OPGGovernanceLink" "#" }}
+
+                <hr class="govuk-section-break govuk-section-break--l govuk-section-break--visible">
+            {{ end }}
+        </div>
+
+        <div class="govuk-grid-column-full app-back-to-top-mobile">
+            {{ template "back-to-top-link" . }}
+        </div>
+    </div>
+{{ end }}

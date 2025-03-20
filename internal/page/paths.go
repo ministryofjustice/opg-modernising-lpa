@@ -62,6 +62,7 @@ const (
 
 	PathAddingRestrictionsAndConditions          = Path("/help-and-support/adding-restrictions-and-conditions")
 	PathContactTheOfficeOfThePublicGuardian      = Path("/help-and-support/contact-the-office-of-the-public-guardian")
+	PathGlossary                                 = Path("/help-and-support/glossary")
 	PathHowDecisionsAreMadeWithMultipleAttorneys = Path("/help-and-support/how-decisions-are-made-with-multiple-attorneys")
 	PathHowToMakeAndRegisterYourLPA              = Path("/help-and-support/how-to-make-and-register-your-lasting-power-of-attorney")
 	PathHowToSelectAttorneysForAnLPA             = Path("/help-and-support/how-to-select-attorneys-for-a-lasting-power-of-attorney")
