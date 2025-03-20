@@ -172,6 +172,8 @@ func App(
 		page.Guidance(guidanceTmpls.Get("adding_restrictions_and_conditions.gohtml")))
 	handleRoot(page.PathContactTheOfficeOfThePublicGuardian, RequireSession,
 		page.Guidance(guidanceTmpls.Get("contact_opg.gohtml")))
+	handleRoot(page.PathGlossary, RequireSession,
+		page.Guidance(guidanceTmpls.Get("glossary.gohtml")))
 	handleRoot(page.PathHowDecisionsAreMadeWithMultipleAttorneys, RequireSession,
 		page.Guidance(guidanceTmpls.Get("how_decisions_are_made_with_multiple_attorneys.gohtml")))
 	handleRoot(page.PathHowToMakeAndRegisterYourLPA, RequireSession,
