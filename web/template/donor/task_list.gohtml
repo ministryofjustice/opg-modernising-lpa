@@ -57,7 +57,8 @@
             {{ end }}
 
             {{ if .Donor.SignedAt.IsZero }}
-                {{ template "details" (details . "taskListHelp" "taskListHelpContent" false) }}
+                {{ $content := trFormat .App "taskListHelpContent" "HelpAndSupportLink" (link .App global.Paths.HowToMakeAndRegisterYourLPA.Format) }}
+                {{ template "details" (details . "taskListHelp" $content false) }}
             {{ else }}
                 <details class="govuk-details">
                     <summary class="govuk-details__summary">

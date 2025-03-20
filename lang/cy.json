@@ -121,7 +121,7 @@
     "makeYourTypeLpa": "Gwneud eich LPA {{lowerFirst .Type}}",
     "yourTaskList": "Eich rhestr o dasgau",
     "taskListHelp": "Help i wneud yr LPA hon",
-    "taskListHelpContent": "<p class=\"govuk-body\">Mae cymorth wedi’i gynnwys gyda phob cwestiwn, a gallwch hefyd ddarllen <a class=\"govuk-link\" href=\"#\">ein canllaw llawn ar wneud LPA</a>.</p> <p class=\"govuk-body\">Efallai hoffech edrych ar ein tudalen gymorth <a class=\"govuk-link\" href=\"#\">cyn i chi ddechrau</a>. Mae’n esbonio’r penderfyniadau y mae’n rhaid i chi eu gwneud am eich LPA a’r wybodaeth y bydd angen i chi ei rhoi.</p> <p class=\"govuk-body\">Byddwn yn arbed yr LPA wrth i chi symud ymlaen - nid oes angen ei chwblhau mewn un tro. Gallwch allgofnodi unrhyw bryd a dod yn ôl ato’n hwyrach. </p>",
+    "taskListHelpContent": "<p class=\"govuk-body\">Welsh</p> <a href=\"{{ .HelpAndSupportLink }}\" class=\"govuk-link\">Welsh</a> <a href=\"https://mainstreamcontent.modernising.opg.service.justice.gov.uk/register-lasting-power-of-attorney\" class=\"govuk-link\" target=\"_blank\" rel=\"noreferrer noopener\">Welsh</a>",
     "completed": "Wedi’i gwblhau",
     "inProgress": "Prosesu",
     "cannotStartYet": "Methu dechrau eto",
