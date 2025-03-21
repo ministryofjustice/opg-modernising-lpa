@@ -656,8 +656,6 @@
     "ifYouDoGiveAttorneysAuthority": "Os byddwch yn dewis rhoi awdurdod i’ch atwrneiod wneud y penderfyniadau hyn, gallwch gyfyngu ar sut maent yn gwneud hyn ar y dudalen nesaf.",
     "optionAHint": "Os byddwch chi’n dewis yr opsiwn hwn, gall y meddygon siarad â’r atwrneiod sy’n gweithredu ar eich rhan yn union fel pe baent yn siarad â chi.",
     "optionBHint": "Os byddwch chi’n dewis yr opsiwn hwn, ni all y meddygon siarad â’r atwrneiod sy’n gweithredu ar eich rhan fel pe baent yn siarad gyda chi. Bydd meddygon yn gwneud unrhyw benderfyniad am driniaeth cynnal bywyd. Fodd bynnag, mae’n bosibl y byddant yn dal i ystyried barn eich atwrneiod a phobl eraill sydd â diddordeb yn eich lles, yn ogystal ag unrhyw ddatganiad ysgrifenedig a wnaed gennych.",
-    "examplesOfLifeSustainingTreatment": "Enghreifftiau o driniaeth cynnal bywyd",
-    "examplesOfLifeSustainingTreatmentDetailsContent": "<p class=\"govuk-body\">Mae’r cwestiwn a yw triniaeth yn cynnal bywyd yn dibynnu ar y sefyllfa. Os oedd gennych niwmonia, gallai cwrs syml o wrthfiotigau fod yn driniaeth cynnal bywyd.</p><p class=\"govuk-body\">Mae enghreifftiau eraill yn cynnwys</p><ul class=\"govuk-list govuk-list--bullet\"><li>llawdriniaeth ddifrifol, megis llawdriniaeth ddargyfeiriol ar y galon neu drawsblaniad organ</li><li>triniaeth canser</li><li>maeth neu hydradiad artiffisial (bwyd neu ddŵr a roddir ar wahân i drwy’r geg)</li>",
     "doYouWantYourAttorneysToMakeDecisionsAboutLifeSustainingTreatment": "Ydych chi eisiau i’ch atwrneiod wneud penderfyniadau am driniaeth cynnal bywyd?",
     "iGiveMyAttorneysAuthorityLifeSustainingTreatment": "Rydw i’n rhoi awdurdod i fy atwrneiod roi neu wrthod caniatâd triniaeth cynnal bywyd ar fy rhan.",
     "iDoNotGiveMyAttorneysAuthorityLifeSustainingTreatment": "<span class=\"govuk-!-font-weight-bold\">Nid</span> wyf yn rhoi awdurdod i’m hatwrneiod roi neu wrthod caniatâd triniaeth cynnal bywyd ar fy rhan.",
@@ -1674,5 +1672,6 @@
     "glossary:W": "<p class=\"govuk-body\">Welsh</p>",
     "glossary:X": "<p class=\"govuk-body\">Welsh</p>",
     "glossary:Y": "<p class=\"govuk-body\">Welsh</p>",
-    "glossary:Z": "<p class=\"govuk-body\">Welsh</p>"
+    "glossary:Z": "<p class=\"govuk-body\">Welsh</p>",
+    "learnMoreAboutLstNewTab": "Welsh"
 }
