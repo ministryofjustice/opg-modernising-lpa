@@ -54,7 +54,7 @@
                             </div>
                             <div class="govuk-radios__conditional govuk-radios__conditional--hidden" id="decision-type-3-conditional-div">
                                 <div class="govuk-form-group govuk-!-margin-top-4 {{ if .Errors.Has "mixed-details" }}govuk-form-group--error{{ end }}">
-                                    <p class="govuk-body"><a class="govuk-link" href="#">{{ tr .App "readTheGuidanceToSeeSomeExamples" }}</a></p>
+                                    <p class="govuk-body"><a class="govuk-link" href="{{ (link .App global.Paths.HowDecisionsAreMadeWithMultipleAttorneys.Format) }}">{{ tr .App "readTheGuidanceToSeeSomeExamples" }}</a></p>
                                     <label class="govuk-label" for="f-mixed-details" {{ if .Errors.Has "mixed-details" }}aria-describedby="mixed-details-error"{{ end }}>
                                         {{ tr .App "enterDetailsOfDecisionsAttorneys" }}
                                     </label>
