@@ -16,7 +16,6 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/document"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor/donordata"
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/pay"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/validation"
 )
 
@@ -55,7 +54,7 @@ type uploadEvidenceData struct {
 	App                  appcontext.Data
 	Errors               validation.List
 	NumberOfAllowedFiles int
-	FeeType              pay.FeeType
+	RequiresPayment      bool
 	Documents            document.Documents
 	MimeTypes            []string
 	Deleted              string
@@ -76,7 +75,7 @@ func UploadEvidence(tmpl template.Template, logger Logger, payer Handler, docume
 		data := &uploadEvidenceData{
 			App:                  appData,
 			NumberOfAllowedFiles: numberOfAllowedFiles,
-			FeeType:              provided.FeeType,
+			RequiresPayment:      provided.FeeAmount() > 0,
 			Documents:            documents,
 			MimeTypes:            acceptedMimeTypes(),
 		}

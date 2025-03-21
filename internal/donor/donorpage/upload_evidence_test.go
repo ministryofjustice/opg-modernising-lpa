@@ -3,6 +3,7 @@ package donorpage
 import (
 	"bytes"
 	"crypto/rand"
+	"fmt"
 	"io"
 	"log/slog"
 	"mime/multipart"
@@ -24,30 +25,39 @@ import (
 )
 
 func TestGetUploadEvidence(t *testing.T) {
-	w := httptest.NewRecorder()
-	r, _ := http.NewRequest(http.MethodGet, "/", nil)
+	testcases := map[bool]pay.FeeType{
+		true:  pay.FullFee,
+		false: pay.NoFee,
+	}
 
-	documentStore := newMockDocumentStore(t)
-	documentStore.EXPECT().
-		GetAll(r.Context()).
-		Return(document.Documents{{Scanned: false}}, nil)
+	for requiresPayment, feeType := range testcases {
+		t.Run(fmt.Sprint(requiresPayment), func(t *testing.T) {
+			w := httptest.NewRecorder()
+			r, _ := http.NewRequest(http.MethodGet, "/", nil)
 
-	template := newMockTemplate(t)
-	template.EXPECT().
-		Execute(w, &uploadEvidenceData{
-			App:                  testAppData,
-			NumberOfAllowedFiles: 5,
-			FeeType:              pay.FullFee,
-			MimeTypes:            acceptedMimeTypes(),
-			Documents:            document.Documents{{Scanned: false}},
-		}).
-		Return(nil)
+			documentStore := newMockDocumentStore(t)
+			documentStore.EXPECT().
+				GetAll(r.Context()).
+				Return(document.Documents{{Scanned: false}}, nil)
 
-	err := UploadEvidence(template.Execute, nil, nil, documentStore)(testAppData, w, r, &donordata.Provided{FeeType: pay.FullFee})
-	resp := w.Result()
+			template := newMockTemplate(t)
+			template.EXPECT().
+				Execute(w, &uploadEvidenceData{
+					App:                  testAppData,
+					NumberOfAllowedFiles: 5,
+					MimeTypes:            acceptedMimeTypes(),
+					Documents:            document.Documents{{Scanned: false}},
+					RequiresPayment:      requiresPayment,
+				}).
+				Return(nil)
 
-	assert.Nil(t, err)
-	assert.Equal(t, http.StatusOK, resp.StatusCode)
+			err := UploadEvidence(template.Execute, nil, nil, documentStore)(testAppData, w, r, &donordata.Provided{FeeType: feeType})
+			resp := w.Result()
+
+			assert.Nil(t, err)
+			assert.Equal(t, http.StatusOK, resp.StatusCode)
+		})
+	}
 }
 
 func TestGetUploadEvidenceWhenTaskPending(t *testing.T) {
@@ -127,8 +137,8 @@ func TestPostUploadEvidenceWithUploadActionAcceptedFileTypes(t *testing.T) {
 					},
 					NumberOfAllowedFiles: 5,
 					MimeTypes:            acceptedMimeTypes(),
-					FeeType:              pay.HalfFee,
 					StartScan:            "1",
+					RequiresPayment:      true,
 				}).
 				Return(nil)
 
@@ -200,8 +210,8 @@ func TestPostUploadEvidenceWithUploadActionMultipleFiles(t *testing.T) {
 			},
 			NumberOfAllowedFiles: 5,
 			MimeTypes:            acceptedMimeTypes(),
-			FeeType:              pay.HalfFee,
 			StartScan:            "1",
+			RequiresPayment:      true,
 		}).
 		Return(nil)
 
@@ -257,8 +267,8 @@ func TestPostUploadEvidenceWithUploadActionFilenameSpecialCharactersAreEscaped(t
 			},
 			NumberOfAllowedFiles: 5,
 			MimeTypes:            acceptedMimeTypes(),
-			FeeType:              pay.HalfFee,
 			StartScan:            "1",
+			RequiresPayment:      true,
 		}).
 		Return(nil)
 
@@ -436,8 +446,8 @@ func TestPostUploadEvidenceWithScanResultsActionWithInfectedFiles(t *testing.T) 
 			Documents:            document.Documents{{Filename: "b", VirusDetected: false}},
 			NumberOfAllowedFiles: 5,
 			MimeTypes:            acceptedMimeTypes(),
-			FeeType:              pay.HalfFee,
 			Errors:               validation.With("upload", validation.FilesInfectedError{Label: "upload", Filenames: []string{"a", "c", "d"}}),
+			RequiresPayment:      true,
 		}).
 		Return(nil)
 
@@ -466,7 +476,7 @@ func TestPostUploadEvidenceWithScanResultsActionWithoutInfectedFiles(t *testing.
 			Documents:            document.Documents{{Filename: "a", VirusDetected: false}},
 			NumberOfAllowedFiles: 5,
 			MimeTypes:            acceptedMimeTypes(),
-			FeeType:              pay.HalfFee,
+			RequiresPayment:      true,
 		}).
 		Return(nil)
 
@@ -599,8 +609,8 @@ func TestPostUploadEvidenceWithScanResultsActionWithInfectedFilesWhenTemplateErr
 			Documents:            document.Documents{{Filename: "b", VirusDetected: false}},
 			NumberOfAllowedFiles: 5,
 			MimeTypes:            acceptedMimeTypes(),
-			FeeType:              pay.HalfFee,
 			Errors:               validation.With("upload", validation.FilesInfectedError{Label: "upload", Filenames: []string{"a", "c", "d"}}),
+			RequiresPayment:      true,
 		}).
 		Return(expectedError)
 
@@ -634,8 +644,8 @@ func TestPostUploadEvidenceWhenBadCsrfField(t *testing.T) {
 			NumberOfAllowedFiles: 5,
 			MimeTypes:            acceptedMimeTypes(),
 			Errors:               validation.With("upload", validation.CustomError{Label: "errorGenericUploadProblem"}),
-			FeeType:              pay.FullFee,
 			Documents:            document.Documents{},
+			RequiresPayment:      true,
 		}).
 		Return(nil)
 
@@ -674,8 +684,8 @@ func TestPostUploadEvidenceWhenBadActionField(t *testing.T) {
 			NumberOfAllowedFiles: 5,
 			MimeTypes:            acceptedMimeTypes(),
 			Errors:               validation.With("upload", validation.CustomError{Label: "errorGenericUploadProblem"}),
-			FeeType:              pay.FullFee,
 			Documents:            document.Documents{},
+			RequiresPayment:      true,
 		}).
 		Return(nil)
 
@@ -722,8 +732,8 @@ func TestPostUploadEvidenceNumberOfFilesLimitPassed(t *testing.T) {
 			NumberOfAllowedFiles: 5,
 			MimeTypes:            acceptedMimeTypes(),
 			Errors:               validation.With("upload", validation.CustomError{Label: "errorTooManyFiles"}),
-			FeeType:              pay.FullFee,
 			Documents:            document.Documents{},
+			RequiresPayment:      true,
 		}).
 		Return(nil)
 
@@ -807,8 +817,8 @@ func TestPostUploadEvidenceWhenBadUpload(t *testing.T) {
 					NumberOfAllowedFiles: 5,
 					MimeTypes:            acceptedMimeTypes(),
 					Errors:               validation.With("upload", tc.expectedError),
-					FeeType:              pay.FullFee,
 					Documents:            document.Documents{},
+					RequiresPayment:      true,
 				}).
 				Return(nil)
 
@@ -857,11 +867,11 @@ func TestGetUploadEvidenceDeleteEvidence(t *testing.T) {
 			App:                  testAppData,
 			NumberOfAllowedFiles: 5,
 			MimeTypes:            acceptedMimeTypes(),
-			FeeType:              pay.FullFee,
 			Documents: document.Documents{
 				{Key: "lpa-uid/evidence/another-uid", Filename: "dummy.png"},
 			},
-			Deleted: "dummy.pdf",
+			Deleted:         "dummy.pdf",
+			RequiresPayment: true,
 		}).
 		Return(nil)
 
@@ -902,11 +912,11 @@ func TestGetUploadEvidenceDeleteEvidenceWhenUnexpectedFieldName(t *testing.T) {
 			App:                  testAppData,
 			NumberOfAllowedFiles: 5,
 			MimeTypes:            acceptedMimeTypes(),
-			FeeType:              pay.FullFee,
 			Documents: document.Documents{
 				{Key: "lpa-uid/evidence/a-uid", Filename: "dummy.pdf"},
 			},
-			Errors: validation.With("delete", validation.CustomError{Label: "errorGenericUploadProblem"}),
+			Errors:          validation.With("delete", validation.CustomError{Label: "errorGenericUploadProblem"}),
+			RequiresPayment: true,
 		}).
 		Return(nil)
 
@@ -981,16 +991,7 @@ func TestGetUploadEvidenceDeleteEvidenceWhenTemplateError(t *testing.T) {
 
 	template := newMockTemplate(t)
 	template.EXPECT().
-		Execute(w, &uploadEvidenceData{
-			App:                  testAppData,
-			NumberOfAllowedFiles: 5,
-			MimeTypes:            acceptedMimeTypes(),
-			FeeType:              pay.FullFee,
-			Documents: document.Documents{
-				{Key: "lpa-uid/evidence/another-uid", Filename: "dummy.png"},
-			},
-			Deleted: "dummy.pdf",
-		}).
+		Execute(w, mock.Anything).
 		Return(expectedError)
 
 	err := UploadEvidence(template.Execute, nil, nil, documentStore)(testAppData, w, r, &donordata.Provided{})
@@ -1030,11 +1031,11 @@ func TestPostUploadEvidenceWithCloseConnectionAction(t *testing.T) {
 			App:                  testAppData,
 			NumberOfAllowedFiles: 5,
 			MimeTypes:            acceptedMimeTypes(),
-			FeeType:              pay.HalfFee,
 			Documents: document.Documents{
 				{Key: "lpa-uid/evidence/a-uid", Filename: "dummy.pdf", Scanned: true},
 			},
-			Errors: validation.With("upload", validation.CustomError{Label: "errorGenericUploadProblem"}),
+			Errors:          validation.With("upload", validation.CustomError{Label: "errorGenericUploadProblem"}),
+			RequiresPayment: true,
 		}).
 		Return(nil)
 
@@ -1113,11 +1114,11 @@ func TestPostUploadEvidenceWithCloseConnectionActionWhenTemplateError(t *testing
 			App:                  testAppData,
 			NumberOfAllowedFiles: 5,
 			MimeTypes:            acceptedMimeTypes(),
-			FeeType:              pay.HalfFee,
 			Documents: document.Documents{
 				{Key: "lpa-uid/evidence/a-uid", Filename: "dummy.pdf", Scanned: true},
 			},
-			Errors: validation.With("upload", validation.CustomError{Label: "errorGenericUploadProblem"}),
+			Errors:          validation.With("upload", validation.CustomError{Label: "errorGenericUploadProblem"}),
+			RequiresPayment: true,
 		}).
 		Return(expectedError)
 
@@ -1161,10 +1162,10 @@ func TestPostUploadEvidenceWithCancelUploadAction(t *testing.T) {
 			App:                  testAppData,
 			NumberOfAllowedFiles: 5,
 			MimeTypes:            acceptedMimeTypes(),
-			FeeType:              pay.HalfFee,
 			Documents: document.Documents{
 				{Key: "lpa-uid/evidence/a-uid", Filename: "dummy.pdf", Scanned: true},
 			},
+			RequiresPayment: true,
 		}).
 		Return(nil)
 

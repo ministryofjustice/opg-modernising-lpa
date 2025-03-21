@@ -13,7 +13,7 @@
 
       <form novalidate method="post">
         {{ $label := "continue" }}
-        {{ if or .FeeType.IsFullFee .FeeType.IsHalfFee }}
+        {{ if .RequiresPayment }}
           {{ $label = "continueToPayment" }}
         {{ end }}
 
