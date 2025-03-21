@@ -94,13 +94,13 @@
   <div class="service-header" data-one-login-header-nav>
     <div class="govuk-width-container">
       <div class="govuk-grid-row">
-        <div class="govuk-grid-column-two-thirds">
+        <div class="govuk-grid-column-one-half app-full-width-at-service-header-wrap">
           <h2 class="service-header__heading">{{ if .App.SupporterData }}{{ tr .App "helpSomeoneMakeLastingPowerOfAttorney" }}{{ else }}{{ tr .App "serviceName" }}{{ end }}</h2>
           {{ if and .App.SupporterData .App.SupporterData.OrganisationName }}
             <span class="govuk-caption-l app-service-header-caption">{{ .App.SupporterData.OrganisationName }}</span>
           {{ end }}
         </div>
-        <div class="govuk-grid-column-one-third app-hide-print {{ if and .App.SupporterData .App.SupporterData.OrganisationName }}app-padding-top-7-non-mobile{{ end }}">
+        <div class="govuk-grid-column-one-half app-full-width-at-service-header-wrap app-hide-print {{ if and .App.SupporterData .App.SupporterData.OrganisationName }}app-padding-top-7-non-mobile{{ end }}">
           <button type="button"
                   aria-controls="service-header__nav"
                   data-open-class="cross-service-header__button--open"
@@ -137,7 +137,7 @@
                   <a class="service-header__nav-list-item-link" href="{{ link .App global.Paths.Dashboard.Format }}">{{ tr .App "manageYourLpas" }}</a>
                 </li>
                 <li class="service-header__nav-list-item">
-                  <a class="service-header__nav-list-item-link" href="{{ link .App (global.Paths.HowToMakeAndRegisterYourLPA.Format ) }}">{{ tr .App "helpAndSupport" }}</a>
+                  <a class="service-header__nav-list-item-link" href="{{ link .App (global.Paths.HowToMakeAndRegisterYourLPA.Format ) }}">{{ tr .App "helpAndSupport" }} <span class="govuk-!-font-weight-regular">({{ tr .App "opensInNewTab" }})</span></a>
                 </li>
               {{ end }}
             </ul>
