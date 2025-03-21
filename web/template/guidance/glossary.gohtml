@@ -13,14 +13,14 @@
             {{ trHtml .App "glossaryIntroContent" }}
 
             <div class="govuk-!-padding-top-3 govuk-!-padding-bottom-3">
-                {{ range $letter := alphabet }}
+                {{ range $letter := .Alphabet }}
                     <a href="#{{ lowerFirst $letter }}-section" class="govuk-link govuk-!-font-size-24 govuk-!-padding-right-3">{{ $letter }}</a>
                 {{ end }}
             </div>
 
             <hr class="govuk-section-break govuk-section-break--l govuk-section-break--visible">
 
-            {{ range $letter := alphabet }}
+            {{ range $letter := .Alphabet }}
                 <h2 class="govuk-heading-l" id="{{ lowerFirst $letter }}-section">{{ $letter }}</h2>
 
                 {{ $letterContentKey := printf "%s%s" "glossary:" $letter }}

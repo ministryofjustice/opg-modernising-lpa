@@ -14,7 +14,7 @@ func TestGuidance(t *testing.T) {
 
 	template := newMockTemplate(t)
 	template.EXPECT().
-		Execute(w, &guidanceData{App: TestAppData}).
+		Execute(w, &guidanceData{App: TestAppData, Alphabet: alphabet}).
 		Return(nil)
 
 	err := Guidance(template.Execute)(TestAppData, w, r)
@@ -30,7 +30,7 @@ func TestGuidanceWhenTemplateErrors(t *testing.T) {
 
 	template := newMockTemplate(t)
 	template.EXPECT().
-		Execute(w, &guidanceData{App: TestAppData}).
+		Execute(w, &guidanceData{App: TestAppData, Alphabet: alphabet}).
 		Return(expectedError)
 
 	err := Guidance(template.Execute)(TestAppData, w, r)

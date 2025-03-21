@@ -1569,5 +1569,6 @@
     "glossary:X": "<p class=\"govuk-body\">No topics to view.</p>",
     "glossary:Y": "<p class=\"govuk-body\">No topics to view.</p>",
     "glossary:Z": "<p class=\"govuk-body\">No topics to view.</p>",
-    "learnMoreAboutLstNewTab": "Learn more about life-sustaining treatment (opens in new tab)"
+    "learnMoreAboutLstNewTab": "Learn more about life-sustaining treatment (opens in new tab)",
+    "opensInNewTab": "opens in new tab"
 }

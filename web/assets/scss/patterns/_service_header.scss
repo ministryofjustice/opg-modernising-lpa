@@ -13,6 +13,7 @@ $govuk-new-link-styles: true;
 
 // start mixins and variables
 $govuk-header-link-underline-thickness: 3px;
+$header-wrap-breakpoint: 974px;
 
 @mixin toggle-button-focus($default-text-colour) {
   color: $default-text-colour;
@@ -376,6 +377,16 @@ $govuk-header-link-underline-thickness: 3px;
     @include govuk-font($size: 16, $weight: bold);
     text-align: right;
   }
+
+  @include govuk-media-query ($until: $header-wrap-breakpoint) {
+      text-align: left;
+  }
+}
+
+.app-full-width-at-service-header-wrap {
+    @include govuk-media-query ($until: $header-wrap-breakpoint) {
+        width: 100%;
+    }
 }
 
 .service-header__nav-list-item {

@@ -91,7 +91,6 @@ func All(globals *Globals) map[string]any {
 		"legendHeading":      legendHeading,
 		"fieldset":           fieldset,
 		"htmlContent":        htmlContent,
-		"alphabet":           alphabet,
 	}
 }
 
@@ -571,14 +570,4 @@ func fieldset(top any, name string, value any, legend legendData, is ...any) fie
 		Legend: legend,
 		Items:  items(top, name, value, is...),
 	}
-}
-
-func alphabet() []string {
-	var a []string
-
-	for i := 'A'; i <= 'Z'; i++ {
-		a = append(a, string(i))
-	}
-
-	return a
 }
