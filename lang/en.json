@@ -118,7 +118,7 @@
     "makeYourTypeLpa": "Make your {{lowerFirst .Type}} LPA",
     "yourTaskList": "Your task list",
     "taskListHelp": "Help with making this LPA",
-    "taskListHelpContent": "<p>There’s help included with every question, and you can also read our <a href=\"#\" class=\"govuk-link\">full guide to making an LPA</a>.</p> <p>You may want to look at our <a href=\"#\" class=\"govuk-link\">before you begin help page</a>. It explains the decisions you have to make about your LPA and the information you’ll need to provide.</p> <p>We’ll save the LPA as you progress - you don’t need to complete it in one go. You can sign out at any time and come back later.</p>",
+    "taskListHelpContent": "<p class=\"govuk-body\">You’ll find links to guidance about making your LPA as you progress through your task list.</p> <p>Visit <a href=\"{{ .HelpAndSupportLink }}\" class=\"govuk-link\">Help and support</a> to see an index of all our guidance pages, a glossary, and contact details for the Office of the Public Guardian.</p> <p class=\"govuk-body\">For an overview of the whole process, visit <a href=\"https://mainstreamcontent.modernising.opg.service.justice.gov.uk/register-lasting-power-of-attorney\" class=\"govuk-link\" target=\"_blank\" rel=\"noreferrer noopener\">Register a lasting power of attorney</a></p>",
     "completed": "Completed",
     "inProgress": "In progress",
     "cannotStartYet": "Cannot start yet",
