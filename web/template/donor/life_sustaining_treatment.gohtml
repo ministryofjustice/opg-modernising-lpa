@@ -7,13 +7,15 @@
         <div class="govuk-grid-column-two-thirds">
             <h1 class="govuk-heading-xl">{{ tr .App "lifeSustainingTreatment" }}</h1>
 
-            {{ template "warning" (content .App "thisIsAnImportantDecision") }}
-
             {{ trHtml .App "lifeSustainingTreatmentContent" }}
 
-            {{ template "details" (details . "examplesOfLifeSustainingTreatment" "examplesOfLifeSustainingTreatmentDetailsContent" false) }}
+            {{ template "warning" (content .App "thisIsAnImportantDecision") }}
 
             <p class="govuk-body">{{ tr .App "ifYouDoGiveAttorneysAuthority" }}</p>
+
+            <p class="govuk-body">
+                <a href="{{ link .App global.Paths.UnderstandingLifeSustainingTreatment.Format }}" class="govuk-link" target="_blank">{{ tr .App "learnMoreAboutLstNewTab" }}</a>.
+            </p>
 
             <form novalidate method="post">
                 {{ template "radios-fieldset" (fieldset . .Form.FieldName .Form.Selected.String

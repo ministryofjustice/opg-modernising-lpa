@@ -579,13 +579,11 @@
     "personsAddress": "{{possessive .FullName}} address",
     "personsWorkAddress": "{{possessive .FullName}} work address",
     "personToNotify": "Person to notify",
-    "thisIsAnImportantDecision": "This is an important decision and should be thought about carefully.",
-    "lifeSustainingTreatmentContent": "<p class=\"govuk-body\">You must choose whether your attorneys can give or refuse consent to life-sustaining treatment on your behalf.</p><p class=\"govuk-body\">Life-sustaining treatment means care, surgery, medicine or other help from doctors that’s needed to keep you alive.</p><p class=\"govuk-body\">Decisions about life-sustaining treatment can be needed in unexpected circumstances, such as a routine operation that did not go as planned.</p>",
-    "ifYouDoGiveAttorneysAuthority": "If you do choose to give your attorneys the authority to make these decisions, you can restrict how they do this on the next page.",
-    "optionAHint": "If you choose this option, your attorneys can speak to doctors on your behalf as if they were you.",
-    "optionBHint": "If you choose this option, your attorneys cannot speak to doctors as if they were you. Doctors will make any decisions about life-sustaining treatment. However, they may still take into account the views of your attorneys and other people interested in your welfare, as well as any written statement you’ve made.",
-    "examplesOfLifeSustainingTreatment": "Examples of life-sustaining treatment",
-    "examplesOfLifeSustainingTreatmentDetailsContent": "<p class=\"govuk-body\">Whether a treatment is life-sustaining depends on the situation. If you had pneumonia, a simple course of antibiotics could be life-sustaining.</p><p class=\"govuk-body\">Other examples include:</p><ul class=\"govuk-list govuk-list--bullet\"><li>a serious operation, such as a heart bypass or organ transplant</li><li>cancer treatment</li><li>artificial nutrition or hydration (food or water given other than by mouth)</li>",
+    "thisIsAnImportantDecision": "Think carefully about this important decision",
+    "lifeSustainingTreatmentContent": "<p class=\"govuk-body\">You must choose whether your attorneys can give or refuse consent to life-sustaining treatment on your behalf.</p><p class=\"govuk-body\">Life-sustaining treatment means care, surgery, medicine or other help from doctors that’s needed to keep you alive.</p>",
+    "ifYouDoGiveAttorneysAuthority": "If you give your attorneys the authority to give or refuse consent to life-sustaining treatment, you can add restrictions and conditions to guide their decision-making.",
+    "optionAHint": "Your attorneys will be able to speak to doctors as if they were you",
+    "optionBHint": "Your attorneys will not be able to speak to doctors as if they were you",
     "doYouWantYourAttorneysToMakeDecisionsAboutLifeSustainingTreatment": "Do you want your attorneys to make decisions about life-sustaining treatment?",
     "iGiveMyAttorneysAuthorityLifeSustainingTreatment": "I give my attorneys authority to give or refuse consent to life-sustaining treatment on my behalf.",
     "iDoNotGiveMyAttorneysAuthorityLifeSustainingTreatment": "I <span class=\"govuk-!-font-weight-bold\">do not</span> give my attorneys the authority to give or refuse consent to life-sustaining treatment on my behalf.",
@@ -1570,5 +1568,6 @@
     "glossary:W": "<h3 class=\"govuk-heading-m\">Witness</h3><p class=\"govuk-body\">Witnesses are impartial people who watch the attorneys and any replacement attorneys sign the LPA. The witnesses must also sign the LPA to say they’ve seen the attorneys and replacement attorneys sign.</p>",
     "glossary:X": "<p class=\"govuk-body\">No topics to view.</p>",
     "glossary:Y": "<p class=\"govuk-body\">No topics to view.</p>",
-    "glossary:Z": "<p class=\"govuk-body\">No topics to view.</p>"
+    "glossary:Z": "<p class=\"govuk-body\">No topics to view.</p>",
+    "learnMoreAboutLstNewTab": "Learn more about life-sustaining treatment (opens in new tab)"
 }
