@@ -1,6 +1,7 @@
 // https://github.com/alphagov/di-govuk-one-login-service-header/blob/main/src/service-header.scss
 
 $govuk-new-link-styles: true;
+$header-wrap-breakpoint: 974px;
 
 // dependencies from GOVUK frontend
 // if this is throwing errors, check that you have govuk-frontend installed and that the load paths are correct
@@ -376,6 +377,16 @@ $govuk-header-link-underline-thickness: 3px;
     @include govuk-font($size: 16, $weight: bold);
     text-align: right;
   }
+
+  @include govuk-media-query ($until: $header-wrap-breakpoint) {
+      text-align: left;
+  }
+}
+
+.app-full-width-at-service-header-wrap {
+    @include govuk-media-query ($until: $header-wrap-breakpoint) {
+        width: 100%;
+    }
 }
 
 .service-header__nav-list-item {
