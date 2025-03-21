@@ -10,7 +10,7 @@
           {{ tr .App "restrictionsOnYourAttorneysPowerTitle" }}
         </h1>
 
-        {{ trFormatHtml .App "restrictionsOnYourAttorneysPowerContent" "AllAttorneysFirstNames" (concatAnd .App .Donor.Attorneys.FirstNames) }}
+        {{ trFormatHtml .App "restrictionsOnYourAttorneysPowerContent" "AllAttorneysFirstNames" (concatAnd .App .Donor.Attorneys.FirstNames) "RestrictionsAndConditionsHelpLink" (link .App global.Paths.AddingRestrictionsAndConditions.Format) }}
 
         {{ template "details" (details . "restrictionExamples" (printf "restrictionExamplesContent:%s" .Donor.Type.String) false) }}
 
