@@ -22,7 +22,7 @@
             <h1 class="govuk-heading-xl">{{ template "pageTitle" . }}</h1>
             
             {{ if .CanChange }}
-                {{ trHtml .App "whichTypeOfLpaToMakeContent" }}
+                {{ trFormatHtml .App "whichTypeOfLpaToMakeContent" "TwoTypesOfLPAHelpLink" (link .App global.Paths.TheTwoTypesOfLPA.Format) }}
 
                 <form novalidate method="post">
                     {{ template "radios-fieldset" (fieldset . "lpa-type" .Form.LpaType.String
