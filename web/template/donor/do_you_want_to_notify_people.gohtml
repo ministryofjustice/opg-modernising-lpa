@@ -19,8 +19,6 @@
         <li>{{ tr .App "whatToDoIfYouHaveConcerns" }}</li>
       </ul>
 
-      {{ trHtml .App "findOutMoreAboutPeopleToNotifyLink" }}
-
       <form novalidate method="post">
           {{ template "radios-fieldset" (fieldset . .Form.FieldName .Form.YesNo.String
               (legend "wantPeopleToNotify" "govuk-fieldset__legend--m")
