@@ -1,6 +1,7 @@
 package donorpage
 
 import (
+	"fmt"
 	"net/http"
 	"net/http/httptest"
 	"testing"
@@ -13,19 +14,28 @@ import (
 )
 
 func TestGetSendUsYourEvidenceByPost(t *testing.T) {
-	w := httptest.NewRecorder()
-	r, _ := http.NewRequest(http.MethodGet, "/about-payment", nil)
+	testcases := map[bool]pay.FeeType{
+		true:  pay.FullFee,
+		false: pay.NoFee,
+	}
 
-	template := newMockTemplate(t)
-	template.EXPECT().
-		Execute(w, &sendUsYourEvidenceByPostData{App: testAppData}).
-		Return(nil)
+	for requiresPayment, feeType := range testcases {
+		t.Run(fmt.Sprint(requiresPayment), func(t *testing.T) {
+			w := httptest.NewRecorder()
+			r, _ := http.NewRequest(http.MethodGet, "/about-payment", nil)
 
-	err := SendUsYourEvidenceByPost(template.Execute, nil, nil)(testAppData, w, r, &donordata.Provided{})
-	resp := w.Result()
+			template := newMockTemplate(t)
+			template.EXPECT().
+				Execute(w, &sendUsYourEvidenceByPostData{App: testAppData, RequiresPayment: requiresPayment}).
+				Return(nil)
 
-	assert.Nil(t, err)
-	assert.Equal(t, http.StatusOK, resp.StatusCode)
+			err := SendUsYourEvidenceByPost(template.Execute, nil, nil)(testAppData, w, r, &donordata.Provided{FeeType: feeType})
+			resp := w.Result()
+
+			assert.Nil(t, err)
+			assert.Equal(t, http.StatusOK, resp.StatusCode)
+		})
+	}
 }
 
 func TestGetSendUsYourEvidenceByPostWhenTemplateErrors(t *testing.T) {
@@ -34,7 +44,7 @@ func TestGetSendUsYourEvidenceByPostWhenTemplateErrors(t *testing.T) {
 
 	template := newMockTemplate(t)
 	template.EXPECT().
-		Execute(w, &sendUsYourEvidenceByPostData{App: testAppData}).
+		Execute(w, mock.Anything).
 		Return(expectedError)
 
 	err := SendUsYourEvidenceByPost(template.Execute, nil, nil)(testAppData, w, r, &donordata.Provided{})
