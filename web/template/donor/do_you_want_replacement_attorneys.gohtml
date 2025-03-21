@@ -19,7 +19,7 @@
 
                         <p class="govuk-body">{{ tr .App "replacementAttorneyRequirements" }}</p>
 
-                        {{ trHtml .App "findOutMoreAboutReplacementAttorneysContent" }}
+                        {{ trFormatHtml .App "findOutMoreAboutReplacementAttorneysContent" "ReplacementAttorneysHelpLink" (link .App global.Paths.ReplacementAttorneys.Format) }}
 
                         {{ if .Donor.AttorneyDecisions.How.IsJointly }}
                             {{ template "warning" (content .App "jointlyReplacementWarning") }}

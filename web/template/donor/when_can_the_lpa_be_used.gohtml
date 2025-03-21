@@ -9,7 +9,7 @@
         <div class="govuk-grid-column-two-thirds">
             <h1 class="govuk-heading-xl">{{ tr .App "whenYourAttorneysCanUseYourLpa" }}</h1>
 
-            {{ trHtml .App "whenYourAttorneysCanUseYourLpaContent" }}
+            {{ trFormatHtml .App "whenYourAttorneysCanUseYourLpaContent" "MentalCapacityHelpLink" (link .App global.Paths.UnderstandingMentalCapacity.Format) }}
 
             <form novalidate method="post">
                 {{ template "radios-fieldset" (fieldset . .Form.FieldName .Form.Selected.String
