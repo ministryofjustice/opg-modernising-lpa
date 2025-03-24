@@ -31,7 +31,7 @@ func Pay(
 				return donor.PathWhatHappensNextPostEvidence.Redirect(w, r, appData, provided)
 			}
 
-			return donor.PathEvidenceSuccessfullyUploaded.Redirect(w, r, appData, provided)
+			return donor.PathPendingPayment.Redirect(w, r, appData, provided)
 		}
 
 		createPaymentBody := pay.CreatePaymentBody{
