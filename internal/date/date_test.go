@@ -62,6 +62,12 @@ func TestToday(t *testing.T) {
 	assert.Equal(t, Today().String(), time.Now().Format(unpaddedDate))
 }
 
+func TestFromTimeAccountsForBST(t *testing.T) {
+	date := FromTime(time.Date(2025, 03, 25, 0, 0, 0, 0, time.Local)).AddDate(-18, 0, 1)
+
+	assert.Equal(t, time.Date(2007, 03, 26, 0, 0, 0, 0, time.UTC), date.Time())
+}
+
 func TestFromTime(t *testing.T) {
 	assert.Equal(t, New("2000", "01", "02"), FromTime(time.Date(2000, time.January, 2, 0, 0, 0, 0, time.UTC)))
 	assert.Equal(t, Date{}, FromTime(time.Time{}))

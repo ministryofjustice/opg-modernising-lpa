@@ -225,4 +225,37 @@ describe('what you can do now', () => {
             cy.url().should('contain', '/what-happens-next-registering-with-court-of-protection')
         });
     });
+
+    context('varies banner and content based on vouch status', () => {
+        it('voucher has entered access code only', () => {
+            cy.visit('/fixtures?redirect=/what-you-can-do-now&progress=confirmYourIdentity&idStatus=donor:voucher-entered-code')
+
+            cy.contains('Simone Sutherland has not started the process of confirming your identity');
+            cy.contains('you’ll be able to nominate 1 further person to vouch for you');
+        });
+
+        it('voucher has verified donor details', () => {
+            cy.visit('/fixtures?redirect=/what-you-can-do-now&progress=confirmYourIdentity&idStatus=donor:verified-not-vouched')
+
+            cy.contains('Simone Sutherland has not completed the process of confirming your identity');
+            cy.contains('you’ll have to find an alternative way to confirm your identity');
+        });
+
+        it('second voucher has entered access code only', () => {
+            cy.visit('/fixtures?redirect=/what-you-can-do-now&progress=confirmYourIdentity&idStatus=donor:voucher-entered-code&vouchAttempts=2')
+
+            cy.contains('Simone Sutherland has not started the process of confirming your identity');
+            cy.contains('you’ll be able to nominate 1 further person to vouch for you');
+        });
+
+        it('second voucher has verified donor details', () => {
+            cy.visit('/fixtures?redirect=/what-you-can-do-now&progress=confirmYourIdentity&idStatus=donor:verified-not-vouched&vouchAttempts=2')
+
+            cy.contains('Simone Sutherland has not completed the process of confirming your identity');
+            cy.contains('We suggest you contact Simone to remind them to complete their tasks');
+
+            cy.contains('h2', 'Confirming your identity through vouching').should('not.exist');
+            cy.contains('input[value=select-new-voucher]').should('not.exist');
+        });
+    });
 })
