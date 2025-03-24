@@ -23,44 +23,41 @@ func TestGetWhatYouCanDoNowExpired(t *testing.T) {
 		NewVoucherLabel       string
 		ProveOwnIdentityLabel string
 		CanHaveVoucher        bool
-		WantVoucher           form.YesNo
-		VouchAttemptCount     int
+		Donor                 *donordata.Provided
 	}{
 		"no failed vouches": {
 			BannerContent:         "yourConfirmedIdentityHasExpired",
 			NewVoucherLabel:       "iHaveSomeoneWhoCanVouch",
 			ProveOwnIdentityLabel: "iWillReturnToOneLogin",
 			CanHaveVoucher:        true,
+			Donor:                 &donordata.Provided{},
 		},
 		"no failed vouches - has selected vouch option": {
 			BannerContent:         "yourVouchedForIdentityHasExpired",
 			NewVoucherLabel:       "iHaveSomeoneWhoCanVouch",
 			ProveOwnIdentityLabel: "iWillGetOrFindID",
 			CanHaveVoucher:        true,
-			WantVoucher:           form.Yes,
+			Donor:                 &donordata.Provided{WantVoucher: form.Yes},
 		},
 		"one failed vouch - has not selected voucher option": {
 			BannerContent:         "yourVouchedForIdentityHasExpired",
 			NewVoucherLabel:       "iHaveSomeoneWhoCanVouch",
 			ProveOwnIdentityLabel: "iWillGetOrFindID",
 			CanHaveVoucher:        true,
-			WantVoucher:           form.YesNoUnknown,
-			VouchAttemptCount:     1,
+			Donor:                 &donordata.Provided{VouchAttempts: 1, WantVoucher: form.YesNoUnknown},
 		},
 		"one failed vouch - has selected voucher option": {
 			BannerContent:         "yourVouchedForIdentityHasExpired",
 			NewVoucherLabel:       "iHaveSomeoneWhoCanVouch",
 			ProveOwnIdentityLabel: "iWillGetOrFindID",
 			CanHaveVoucher:        true,
-			WantVoucher:           form.Yes,
-			VouchAttemptCount:     1,
+			Donor:                 &donordata.Provided{VouchAttempts: 1, WantVoucher: form.Yes},
 		},
 		"two failed vouches": {
 			BannerContent:         "yourVouchedForIdentityHasExpiredSecondAttempt",
 			NewVoucherLabel:       "iHaveSomeoneWhoCanVouch",
 			ProveOwnIdentityLabel: "iWillGetOrFindID",
-			WantVoucher:           form.Yes,
-			VouchAttemptCount:     2,
+			Donor:                 &donordata.Provided{VouchAttempts: 2, WantVoucher: form.Yes},
 		},
 	}
 
@@ -77,17 +74,14 @@ func TestGetWhatYouCanDoNowExpired(t *testing.T) {
 						Options:        donordata.NoVoucherDecisionValues,
 						CanHaveVoucher: tc.CanHaveVoucher,
 					},
-					VouchAttempts:         tc.VouchAttemptCount,
+					Donor:                 tc.Donor,
 					BannerContent:         tc.BannerContent,
 					NewVoucherLabel:       tc.NewVoucherLabel,
 					ProveOwnIdentityLabel: tc.ProveOwnIdentityLabel,
 				}).
 				Return(nil)
 
-			err := WhatYouCanDoNowExpired(template.Execute, nil)(testAppData, w, r, &donordata.Provided{
-				VouchAttempts: tc.VouchAttemptCount,
-				WantVoucher:   tc.WantVoucher,
-			})
+			err := WhatYouCanDoNowExpired(template.Execute, nil)(testAppData, w, r, tc.Donor)
 
 			assert.Nil(t, err)
 		})
