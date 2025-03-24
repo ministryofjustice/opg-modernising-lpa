@@ -135,7 +135,7 @@ func TestPayWhenPaymentNotRequired(t *testing.T) {
 
 			assert.Nil(t, err)
 			assert.Equal(t, http.StatusFound, resp.StatusCode)
-			assert.Equal(t, donor.PathEvidenceSuccessfullyUploaded.Format("lpa-id"), resp.Header.Get("Location"))
+			assert.Equal(t, donor.PathPendingPayment.Format("lpa-id"), resp.Header.Get("Location"))
 		})
 	}
 }
@@ -199,7 +199,7 @@ func TestPayWhenMoreEvidenceProvided(t *testing.T) {
 
 	assert.Nil(t, err)
 	assert.Equal(t, http.StatusFound, resp.StatusCode)
-	assert.Equal(t, donor.PathEvidenceSuccessfullyUploaded.Format("lpa-id"), resp.Header.Get("Location"))
+	assert.Equal(t, donor.PathPendingPayment.Format("lpa-id"), resp.Header.Get("Location"))
 }
 
 func TestPayWhenPaymentNotRequiredWhenDonorStorePutError(t *testing.T) {
