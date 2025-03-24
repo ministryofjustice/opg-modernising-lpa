@@ -145,7 +145,12 @@
 
                 <div class="govuk-button-group">
                     {{ if gt $scannedDocumentsNotSentCount 0 }}
-                        <button type="submit" class="govuk-button" id="continue-or-pay" data-module="govuk-button">{{ if or .FeeType.IsFullFee .FeeType.IsHalfFee }} {{ tr .App "continueToPayment" }} {{ else }} {{ tr .App "continue" }} {{ end }}</button>
+                        {{ $label := "continue" }}
+                        {{ if .RequiresPayment }}
+                            {{ $label = "continueToPayment" }}
+                        {{ end }}
+
+                        <button type="submit" class="govuk-button" id="continue-or-pay" data-module="govuk-button">{{ tr .App $label }}</button>
                     {{ end }}
                     <a href="{{ link .App (global.Paths.TaskList.Format .App.LpaID) }}" class="govuk-button govuk-button--secondary">{{ tr .App "returnToTaskList" }}</a>
                 </div>
