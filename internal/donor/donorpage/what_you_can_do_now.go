@@ -1,6 +1,8 @@
 package donorpage
 
 import (
+	"errors"
+	"fmt"
 	"net/http"
 	"net/url"
 
@@ -8,6 +10,7 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/appcontext"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor/donordata"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/dynamo"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/form"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/validation"
@@ -20,10 +23,11 @@ type whatYouCanDoNowData struct {
 	ProveOwnIdentityLabel string
 	NewVoucherLabel       string
 	BannerContent         string
-	VouchAttempts         int
+	VouchStatusContent    string
+	Donor                 *donordata.Provided
 }
 
-func WhatYouCanDoNow(tmpl template.Template, donorStore DonorStore) Handler {
+func WhatYouCanDoNow(tmpl template.Template, donorStore DonorStore, voucherStore VoucherStore) Handler {
 	return func(appData appcontext.Data, w http.ResponseWriter, r *http.Request, provided *donordata.Provided) error {
 		data := &whatYouCanDoNowData{
 			App: appData,
@@ -31,7 +35,7 @@ func WhatYouCanDoNow(tmpl template.Template, donorStore DonorStore) Handler {
 				Options:        donordata.NoVoucherDecisionValues,
 				CanHaveVoucher: provided.CanHaveVoucher(),
 			},
-			VouchAttempts: provided.VouchAttempts,
+			Donor: provided,
 		}
 
 		if r.Method == http.MethodPost {
@@ -56,7 +60,12 @@ func WhatYouCanDoNow(tmpl template.Template, donorStore DonorStore) Handler {
 			}
 		}
 
-		if !provided.Voucher.Allowed {
+		voucher, err := voucherStore.GetAny(r.Context())
+		if err != nil && !errors.Is(err, dynamo.NotFoundError{}) {
+			return fmt.Errorf("error getting voucher: %w", err)
+		}
+
+		if !provided.Voucher.Allowed && voucher == nil {
 			switch provided.VouchAttempts {
 			case 0:
 				data.BannerContent = "youHaveNotChosenAnyoneToVouchForYou"
@@ -64,15 +73,28 @@ func WhatYouCanDoNow(tmpl template.Template, donorStore DonorStore) Handler {
 				data.ProveOwnIdentityLabel = "iWillReturnToOneLogin"
 			case 1:
 				data.BannerContent = "thePersonYouAskedToVouchHasBeenUnableToContinue"
+				data.VouchStatusContent = "tryVouchingAgainContent"
 				data.NewVoucherLabel = "iHaveSomeoneElseWhoCanVouch"
 				data.ProveOwnIdentityLabel = "iWillGetOrFindID"
 			default:
 				data.BannerContent = "thePersonYouAskedToVouchHasBeenUnableToContinueSecondAttempt"
 				data.ProveOwnIdentityLabel = "iWillGetOrFindID"
 			}
-		} else {
+		} else if voucher != nil {
+			data.BannerContent = "voucherHasNotStartedTheProcess"
+			data.VouchStatusContent = "voucherHasNotStartedTheProcessContent"
 			data.NewVoucherLabel = "iHaveSomeoneElseWhoCanVouch"
 			data.ProveOwnIdentityLabel = "iWillGetOrFindID"
+
+			if provided.VouchAttempts == 1 && voucher.Tasks.VerifyDonorDetails.IsCompleted() {
+				data.BannerContent = "voucherHasNotCompletedTheProcess"
+				data.VouchStatusContent = "voucherHasNotCompletedTheProcessContent"
+			}
+
+			if provided.VouchAttempts > 1 && voucher.Tasks.VerifyDonorDetails.IsCompleted() {
+				data.BannerContent = "voucherHasNotCompletedTheProcessSuggestContactVoucher"
+				data.VouchStatusContent = ""
+			}
 		}
 
 		return tmpl(w, data)

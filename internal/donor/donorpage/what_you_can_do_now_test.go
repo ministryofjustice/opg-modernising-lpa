@@ -10,19 +10,23 @@ import (
 
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor/donordata"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/dynamo"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/form"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/identity"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/task"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/validation"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/voucher/voucherdata"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
 )
 
-func TestGetWhatYouCanDoNow(t *testing.T) {
+func TestGetWhatYouCanDoNowVouchNotStarted(t *testing.T) {
 	testcases := map[int]struct {
 		BannerContent         string
 		NewVoucherLabel       string
 		ProveOwnIdentityLabel string
+		VouchStatusContent    string
 		CanHaveVoucher        bool
 	}{
 		0: {
@@ -35,6 +39,7 @@ func TestGetWhatYouCanDoNow(t *testing.T) {
 			BannerContent:         "thePersonYouAskedToVouchHasBeenUnableToContinue",
 			NewVoucherLabel:       "iHaveSomeoneElseWhoCanVouch",
 			ProveOwnIdentityLabel: "iWillGetOrFindID",
+			VouchStatusContent:    "tryVouchingAgainContent",
 			CanHaveVoucher:        true,
 		},
 		2: {
@@ -48,6 +53,13 @@ func TestGetWhatYouCanDoNow(t *testing.T) {
 			w := httptest.NewRecorder()
 			r := httptest.NewRequest(http.MethodGet, "/", nil)
 
+			voucherStore := newMockVoucherStore(t)
+			voucherStore.EXPECT().
+				GetAny(r.Context()).
+				Return(nil, dynamo.NotFoundError{})
+
+			donorProvided := &donordata.Provided{VouchAttempts: vouchAttempts}
+
 			template := newMockTemplate(t)
 			template.EXPECT().
 				Execute(w, &whatYouCanDoNowData{
@@ -56,52 +68,140 @@ func TestGetWhatYouCanDoNow(t *testing.T) {
 						Options:        donordata.NoVoucherDecisionValues,
 						CanHaveVoucher: tc.CanHaveVoucher,
 					},
-					VouchAttempts:         vouchAttempts,
+					Donor:                 donorProvided,
 					BannerContent:         tc.BannerContent,
 					NewVoucherLabel:       tc.NewVoucherLabel,
 					ProveOwnIdentityLabel: tc.ProveOwnIdentityLabel,
+					VouchStatusContent:    tc.VouchStatusContent,
 				}).
 				Return(nil)
 
-			err := WhatYouCanDoNow(template.Execute, nil)(testAppData, w, r, &donordata.Provided{VouchAttempts: vouchAttempts})
+			err := WhatYouCanDoNow(template.Execute, nil, voucherStore)(testAppData, w, r, donorProvided)
 
 			assert.Nil(t, err)
 		})
 	}
 }
 
-func TestGetWhatYouCanDoNowWhenChangingVoucher(t *testing.T) {
+func TestGetWhatYouCanDoNowVouchStarted(t *testing.T) {
+	testcases := map[string]struct {
+		BannerContent         string
+		VouchStatusContent    string
+		ProveOwnIdentityLabel string
+		CanHaveVoucher        bool
+		Voucher               *voucherdata.Provided
+		VouchAttempts         int
+	}{
+		"entered code only": {
+			BannerContent:         "voucherHasNotStartedTheProcess",
+			VouchStatusContent:    "voucherHasNotStartedTheProcessContent",
+			ProveOwnIdentityLabel: "iWillGetOrFindID",
+			CanHaveVoucher:        true,
+			VouchAttempts:         0,
+			Voucher:               &voucherdata.Provided{Email: "a@example.com"},
+		},
+		"verified donor details": {
+			BannerContent:         "voucherHasNotCompletedTheProcess",
+			VouchStatusContent:    "voucherHasNotCompletedTheProcessContent",
+			ProveOwnIdentityLabel: "iWillGetOrFindID",
+			CanHaveVoucher:        true,
+			VouchAttempts:         1,
+			Voucher: &voucherdata.Provided{
+				Email: "a@example.com",
+				Tasks: voucherdata.Tasks{VerifyDonorDetails: task.StateCompleted},
+			},
+		},
+		"second voucher entered code only": {
+			BannerContent:         "voucherHasNotStartedTheProcess",
+			VouchStatusContent:    "voucherHasNotStartedTheProcessContent",
+			ProveOwnIdentityLabel: "iWillGetOrFindID",
+			CanHaveVoucher:        true,
+			VouchAttempts:         1,
+			Voucher: &voucherdata.Provided{
+				Email: "a@example.com",
+			},
+		},
+		"second voucher verified donor details": {
+			BannerContent:         "voucherHasNotCompletedTheProcessSuggestContactVoucher",
+			ProveOwnIdentityLabel: "iWillGetOrFindID",
+			CanHaveVoucher:        false,
+			VouchAttempts:         2,
+			Voucher: &voucherdata.Provided{
+				Email: "a@example.com",
+				Tasks: voucherdata.Tasks{VerifyDonorDetails: task.StateCompleted},
+			},
+		},
+	}
+
+	for name, tc := range testcases {
+		t.Run(name, func(t *testing.T) {
+			w := httptest.NewRecorder()
+			r := httptest.NewRequest(http.MethodGet, "/", nil)
+
+			voucherStore := newMockVoucherStore(t)
+			voucherStore.EXPECT().
+				GetAny(r.Context()).
+				Return(tc.Voucher, nil)
+
+			donorProvided := &donordata.Provided{
+				VouchAttempts: tc.VouchAttempts,
+				Voucher: donordata.Voucher{
+					Allowed: true, FirstNames: "a", LastName: "b",
+				},
+			}
+
+			template := newMockTemplate(t)
+			template.EXPECT().
+				Execute(w, &whatYouCanDoNowData{
+					App: testAppData,
+					Form: &whatYouCanDoNowForm{
+						Options:        donordata.NoVoucherDecisionValues,
+						CanHaveVoucher: tc.CanHaveVoucher,
+					},
+					BannerContent:         tc.BannerContent,
+					VouchStatusContent:    tc.VouchStatusContent,
+					NewVoucherLabel:       "iHaveSomeoneElseWhoCanVouch",
+					ProveOwnIdentityLabel: tc.ProveOwnIdentityLabel,
+					Donor:                 donorProvided,
+				}).
+				Return(nil)
+
+			err := WhatYouCanDoNow(template.Execute, nil, voucherStore)(testAppData, w, r, donorProvided)
+
+			assert.Nil(t, err)
+		})
+	}
+}
+
+func TestGetWhatYouCanDoNowWhenVoucherStoreError(t *testing.T) {
 	w := httptest.NewRecorder()
 	r := httptest.NewRequest(http.MethodGet, "/", nil)
 
-	template := newMockTemplate(t)
-	template.EXPECT().
-		Execute(w, &whatYouCanDoNowData{
-			App: testAppData,
-			Form: &whatYouCanDoNowForm{
-				Options:        donordata.NoVoucherDecisionValues,
-				CanHaveVoucher: true,
-			},
-			NewVoucherLabel:       "iHaveSomeoneElseWhoCanVouch",
-			ProveOwnIdentityLabel: "iWillGetOrFindID",
-		}).
-		Return(nil)
+	voucherStore := newMockVoucherStore(t)
+	voucherStore.EXPECT().
+		GetAny(mock.Anything).
+		Return(&voucherdata.Provided{}, expectedError)
 
-	err := WhatYouCanDoNow(template.Execute, nil)(testAppData, w, r, &donordata.Provided{Voucher: donordata.Voucher{Allowed: true}})
+	err := WhatYouCanDoNow(nil, nil, voucherStore)(testAppData, w, r, &donordata.Provided{})
 
-	assert.Nil(t, err)
+	assert.Error(t, err)
 }
 
 func TestGetWhatYouCanDoNowWhenTemplateError(t *testing.T) {
 	w := httptest.NewRecorder()
 	r := httptest.NewRequest(http.MethodGet, "/", nil)
 
+	voucherStore := newMockVoucherStore(t)
+	voucherStore.EXPECT().
+		GetAny(mock.Anything).
+		Return(&voucherdata.Provided{}, nil)
+
 	template := newMockTemplate(t)
 	template.EXPECT().
 		Execute(mock.Anything, mock.Anything).
 		Return(expectedError)
 
-	err := WhatYouCanDoNow(template.Execute, nil)(testAppData, w, r, &donordata.Provided{})
+	err := WhatYouCanDoNow(template.Execute, nil, voucherStore)(testAppData, w, r, &donordata.Provided{})
 
 	assert.Error(t, err)
 }
@@ -161,7 +261,7 @@ func TestPostWhatYouCanDoNow(t *testing.T) {
 				Put(r.Context(), tc.expectedDonor).
 				Return(nil)
 
-			err := WhatYouCanDoNow(nil, donorStore)(testAppData, w, r, &donordata.Provided{LpaID: "lpa-id", IdentityUserData: identity.UserData{Status: identity.StatusInsufficientEvidence}})
+			err := WhatYouCanDoNow(nil, donorStore, nil)(testAppData, w, r, &donordata.Provided{LpaID: "lpa-id", IdentityUserData: identity.UserData{Status: identity.StatusInsufficientEvidence}})
 			resp := w.Result()
 
 			assert.Nil(t, err)
@@ -189,7 +289,7 @@ func TestPostWhatYouCanDoNowWhenChangingVoucher(t *testing.T) {
 		}).
 		Return(nil)
 
-	err := WhatYouCanDoNow(nil, donorStore)(testAppData, w, r, &donordata.Provided{
+	err := WhatYouCanDoNow(nil, donorStore, nil)(testAppData, w, r, &donordata.Provided{
 		LpaID:            "lpa-id",
 		IdentityUserData: identity.UserData{Status: identity.StatusInsufficientEvidence},
 		Voucher:          donordata.Voucher{Allowed: true},
@@ -217,7 +317,7 @@ func TestPostWhatYouCanDoNowWhenDonorStoreError(t *testing.T) {
 		Put(mock.Anything, mock.Anything).
 		Return(expectedError)
 
-	err := WhatYouCanDoNow(nil, donorStore)(testAppData, w, r, &donordata.Provided{LpaID: "lpa-id"})
+	err := WhatYouCanDoNow(nil, donorStore, nil)(testAppData, w, r, &donordata.Provided{LpaID: "lpa-id"})
 	resp := w.Result()
 
 	assert.Error(t, err)
@@ -233,6 +333,11 @@ func TestPostWhatYouCanDoNowWhenValidationErrors(t *testing.T) {
 	r := httptest.NewRequest(http.MethodPost, "/", strings.NewReader(f.Encode()))
 	r.Header.Add("Content-Type", page.FormUrlEncoded)
 
+	voucherStore := newMockVoucherStore(t)
+	voucherStore.EXPECT().
+		GetAny(mock.Anything).
+		Return(&voucherdata.Provided{}, nil)
+
 	template := newMockTemplate(t)
 	template.EXPECT().
 		Execute(w, mock.MatchedBy(func(data *whatYouCanDoNowData) bool {
@@ -240,7 +345,7 @@ func TestPostWhatYouCanDoNowWhenValidationErrors(t *testing.T) {
 		})).
 		Return(nil)
 
-	err := WhatYouCanDoNow(template.Execute, nil)(testAppData, w, r, &donordata.Provided{LpaID: "lpa-id"})
+	err := WhatYouCanDoNow(template.Execute, nil, voucherStore)(testAppData, w, r, &donordata.Provided{LpaID: "lpa-id"})
 	resp := w.Result()
 
 	assert.Nil(t, err)
