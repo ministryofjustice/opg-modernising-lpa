@@ -1570,5 +1570,10 @@
     "glossary:Y": "<p class=\"govuk-body\">No topics to view.</p>",
     "glossary:Z": "<p class=\"govuk-body\">No topics to view.</p>",
     "learnMoreAboutLstNewTab": "Learn more about life-sustaining treatment (opens in new tab)",
-    "opensInNewTab": "opens in new tab"
+    "opensInNewTab": "opens in new tab",
+    "voucherHasNotStartedTheProcess": "<div class=\"govuk-notification-banner__content\"><p class=\"govuk-notification-banner__heading\">{{ .VoucherFullName }} has not started the process of confirming your identity</p></div>",
+    "voucherHasNotStartedTheProcessContent": "<h2 class=\"govuk-heading-m\">Confirming your identity through vouching</h2><p class=\"govuk-body\">{{ .VoucherFullName }} has not started the process of confirming your identity. We suggest you contact {{ .VoucherFirstNames }} to remind them to complete their tasks.</p> <p class=\"govuk-body\">Or, you can ask someone else to vouch for you. If that person does not successfully confirm your identity, you’ll be able to nominate 1 further person to vouch for you.</p>",
+    "voucherHasNotCompletedTheProcess": "<div class=\"govuk-notification-banner__content\"><p class=\"govuk-notification-banner__heading\">{{ .VoucherFullName }} has not completed the process of confirming your identity</p></div>",
+    "voucherHasNotCompletedTheProcessContent": "<h2 class=\"govuk-heading-m\">Confirming your identity through vouching</h2><p class=\"govuk-body\">{{ .VoucherFullName }} has not completed the process of confirming your identity. We suggest you contact {{ .VoucherFirstNames }} to remind them to complete their tasks.</p> <p class=\"govuk-body\">Or, you can ask someone else to vouch for you. If that person does not successfully confirm your identity, you’ll have to find an alternative way to confirm your identity.</p>",
+    "voucherHasNotCompletedTheProcessSuggestContactVoucher": "<div class=\"govuk-notification-banner__content\"><p class=\"govuk-notification-banner__heading\">{{ .VoucherFullName }} has not completed the process of confirming your identity.</p><p class=\"govuk-body\">We suggest you contact {{ .VoucherFirstNames }} to remind them to complete their tasks. If they don’t complete them, you’ll need to find an alternative way to confirm your identity.</p></div>"
 }
