@@ -94,7 +94,7 @@ type feeApprovedEvent struct {
 
 type dynamodbClient interface {
 	AllByKeys(ctx context.Context, keys []dynamo.Keys) ([]map[string]dynamodbtypes.AttributeValue, error)
-	AllByLpaUIDAndPartialSK(ctx context.Context, uid string, partialSK dynamo.SK, v any) error
+	AllByLpaUIDAndPartialSK(ctx context.Context, uid string, partialSK dynamo.SK) ([]dynamo.Keys, error)
 	AllByPartialSK(ctx context.Context, pk dynamo.PK, partialSK dynamo.SK, v any) error
 	AllBySK(ctx context.Context, sk dynamo.SK, v any) error
 	AllKeysByPK(ctx context.Context, pk dynamo.PK) ([]dynamo.Keys, error)
