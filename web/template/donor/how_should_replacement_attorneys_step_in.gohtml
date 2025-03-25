@@ -7,7 +7,7 @@
     <div class="govuk-grid-column-two-thirds">
       <h1 class="govuk-heading-xl">{{ tr .App "whenYourReplacementAttorneysStepIn" }}</h1>
 
-      {{ trHtml .App "howShouldReplacementAttorneysStepInDetailSomeOtherWay" }}
+      {{ trFormatHtml .App "howShouldReplacementAttorneysStepInDetailSomeOtherWay" "ReplacementAttorneysHelpLink" (link .App global.Paths.ReplacementAttorneys.Format) }}
 
       <form novalidate method="post">
         <div class="govuk-form-group {{ if .Errors.Has "when-to-step-in" }}govuk-form-group--error{{ end }}">
@@ -50,7 +50,7 @@
             </div>
           </fieldset>
         </div>
-        
+
         {{ template "buttons" (button .App "saveAndContinue") }}
         {{ template "csrf-field" . }}
       </form>

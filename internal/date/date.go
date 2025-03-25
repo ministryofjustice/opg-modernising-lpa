@@ -60,7 +60,7 @@ func FromTime(t time.Time) Date {
 		year:  t.Format("2006"),
 		month: t.Format("01"),
 		day:   t.Format("02"),
-		t:     t.Truncate(24 * time.Hour),
+		t:     t.Truncate(24 * time.Hour).UTC(),
 	}
 }
 
