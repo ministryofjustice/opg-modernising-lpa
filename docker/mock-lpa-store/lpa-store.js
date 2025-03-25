@@ -70,7 +70,13 @@ if (context.request.method == 'GET') {
             }
             case 'CERTIFICATE_PROVIDER_SIGN':
                 const signedAt = update.changes.find(x => x.key.includes('signedAt')).new;
+                const channel = update.changes.find(x => x.key.includes('channel'));
+
                 lpa.certificateProvider.signedAt = signedAt;
+
+                if (channel) {
+                    lpa.certificateProvider.channel = channel.new;
+                }
                 break;
 
             case 'STATUTORY_WAITING_PERIOD':

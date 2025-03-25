@@ -1678,5 +1678,8 @@
     "voucherHasNotCompletedTheProcess": "<p class=\"govuk-notification-banner__heading\">{{ .VoucherFullName }} Welsh</p>",
     "voucherHasNotCompletedTheProcessContent": "<h2 class=\"govuk-heading-m\">Welsh</h2><p class=\"govuk-body\">{{ .VoucherFullName }} Welsh {{ .VoucherFirstNames }} Welsh</p> <p class=\"govuk-body\">Welsh</p>",
     "voucherHasNotCompletedTheProcessSuggestContactVoucher": "<p class=\"govuk-notification-banner__heading\">{{ .VoucherFullName }} Welsh</p><p class=\"govuk-body\">Welsh {{ .VoucherFirstNames }} Welsh</p>",
-    "youHaveAddedMaxPeople": "<p class=\"govuk-notification-banner__heading\">Welsh</p>"
+    "youHaveAddedMaxPeople": "<p class=\"govuk-notification-banner__heading\">Welsh</p>",
+    "youHaveAlreadyProvidedTheCertificateForThisLpa": "Welsh",
+    "youHaveAlreadyProvidedTheCertificateForDonorsLpaNotification": "Welsh {{ possessive .DonorFullName}} {{ .LpaType }} Welsh",
+    "youHaveAlreadyProvidedTheCertificateForThisLpaContent": "<p class=\"govuk-body\">Welsh</p><p class=\"govuk-body\">Welsh</p>"
 }
