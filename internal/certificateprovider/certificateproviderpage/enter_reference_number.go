@@ -2,13 +2,16 @@ package certificateproviderpage
 
 import (
 	"errors"
+	"fmt"
 	"net/http"
+	"net/url"
 
 	"github.com/ministryofjustice/opg-go-common/template"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/appcontext"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/certificateprovider"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/dynamo"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/lpastore"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/sharecode/sharecodedata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/validation"
@@ -20,7 +23,7 @@ type enterReferenceNumberData struct {
 	Form   *enterReferenceNumberForm
 }
 
-func EnterReferenceNumber(tmpl template.Template, shareCodeStore ShareCodeStore, sessionStore SessionStore, certificateProviderStore CertificateProviderStore) page.Handler {
+func EnterReferenceNumber(tmpl template.Template, shareCodeStore ShareCodeStore, sessionStore SessionStore, certificateProviderStore CertificateProviderStore, lpaStoreClient LpaStoreClient) page.Handler {
 	return func(appData appcontext.Data, w http.ResponseWriter, r *http.Request) error {
 		data := enterReferenceNumberData{
 			App:  appData,
@@ -40,13 +43,30 @@ func EnterReferenceNumber(tmpl template.Template, shareCodeStore ShareCodeStore,
 						data.Errors.Add("reference-number", validation.CustomError{Label: "incorrectReferenceNumber"})
 						return tmpl(w, data)
 					} else {
-						return err
+						return fmt.Errorf("error getting shareCode: %w", err)
 					}
+				}
+
+				lpa, err := lpaStoreClient.Lpa(r.Context(), shareCode.LpaUID)
+				if err != nil && !errors.Is(err, lpastore.ErrNotFound) {
+					return fmt.Errorf("error getting LPA from LPA store: %w", err)
+				}
+
+				if lpa != nil && lpa.CertificateProvider.Channel.IsPaper() && !lpa.CertificateProvider.SignedAt.IsZero() {
+					redirectTo := page.PathCertificateProviderYouHaveAlreadyProvidedACertificate
+					if appData.SessionID != "" {
+						redirectTo = page.PathCertificateProviderYouHaveAlreadyProvidedACertificateLoggedIn
+					}
+
+					return redirectTo.RedirectQuery(w, r, appData, url.Values{
+						"donorFullName": {lpa.Donor.FullName()},
+						"lpaType":       {appData.Localizer.T(lpa.Type.String())},
+					})
 				}
 
 				session, err := sessionStore.Login(r)
 				if err != nil {
-					return err
+					return fmt.Errorf("error setting login session: %w", err)
 				}
 
 				ctx := appcontext.ContextWithSession(r.Context(), &appcontext.Session{
@@ -55,7 +75,7 @@ func EnterReferenceNumber(tmpl template.Template, shareCodeStore ShareCodeStore,
 				})
 
 				if _, err := certificateProviderStore.Create(ctx, shareCode, session.Email); err != nil {
-					return err
+					return fmt.Errorf("error creating certificate provider: %w", err)
 				}
 
 				appData.LpaID = shareCode.LpaKey.ID()

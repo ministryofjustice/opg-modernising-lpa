@@ -251,7 +251,7 @@ func Attorney(
 		donorDetails.HowShouldReplacementAttorneysStepIn = lpadata.ReplacementAttorneysStepInWhenAllCanNoLongerAct
 		donorDetails.Tasks.PayForLpa = task.PaymentStateCompleted
 
-		certificateProvider, err := createCertificateProvider(certificateProviderCtx, shareCodeStore, certificateProviderStore, donorDetails.CertificateProvider.UID, donorDetails.SK, donorDetails.CertificateProvider.Email)
+		certificateProvider, err := createCertificateProvider(certificateProviderCtx, shareCodeStore, certificateProviderStore, donorDetails)
 		if err != nil {
 			return err
 		}
