@@ -13,17 +13,25 @@
         Copy this value or change to your own to log back in to an existing LPA from the <a class="govuk-link" href="{{ global.Paths.Start.Format }}">start page</a>
     </div>
 
+    <hr class="govuk-section-break govuk-section-break--m govuk-section-break--visible">
+
+    {{ template "radios-fieldset" (fieldset . "certificateProviderChannel" "online"
+        (legend "Certificate provider channel")
+        (item "online" "Online")
+        (item "paper" "Paper")) }}
+
     {{ template "input" (input . "certificateProviderEmail" "Certificate provider email" "" "classes" "govuk-input--width-20" "type" "email" "spellcheck" "false" "autocomplete" "email") }}
     {{ template "input" (input . "certificateProviderMobile" "Certificate provider mobile" "" "classes" "govuk-input--width-20" "type" "tel" "spellcheck" "false" "autocomplete" "tel") }}
     <div class="govuk-hint govuk-!-padding-bottom-2">
         Email and mobile are set when selecting <span class="govuk-!-font-weight-bold">Choose your certificate provider</span> progress or later
     </div>
 
+    <hr class="govuk-section-break govuk-section-break--m govuk-section-break--visible">
+
     <div class="govuk-form-group">
         {{ template "checkboxes" (items . "options" nil
             (item "uid" "Real UID" "hint" "You may need to wait a bit and refresh the dashboard to see the LPA as this requires events to be sent and received")
-            (item "payment-in-progress" "Payment in progress")
-            (item "wants-voucher" "Wants voucher")) }}
+            (item "paymentTaskInProgress" "Payment in progress")) }}
     </div>
 
     <div class="govuk-form-group">
@@ -41,6 +49,8 @@
         (legend "LPA type")
         (item "property-and-affairs" "Property and affairs")
         (item "personal-welfare" "Personal welfare")) }}
+
+    <hr class="govuk-section-break govuk-section-break--m govuk-section-break--visible">
 
     {{ template "radios-fieldset" (fieldset . "progress" "provideYourDetails"
         (legend "Progress")

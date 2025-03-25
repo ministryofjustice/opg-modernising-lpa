@@ -69,6 +69,7 @@ type ShareCodeStore interface {
 type Template func(io.Writer, interface{}) error
 
 type SessionStore interface {
+	ClearLogin(r *http.Request, w http.ResponseWriter) error
 	Login(r *http.Request) (*sesh.LoginSession, error)
 	LpaData(r *http.Request) (*sesh.LpaDataSession, error)
 	OneLogin(r *http.Request) (*sesh.OneLoginSession, error)
@@ -100,6 +101,7 @@ type DashboardStore interface {
 }
 
 type LpaStoreClient interface {
+	Lpa(ctx context.Context, lpaUID string) (*lpadata.Lpa, error)
 	SendCertificateProvider(ctx context.Context, certificateProvider *certificateproviderdata.Provided, lpa *lpadata.Lpa) error
 	SendCertificateProviderConfirmIdentity(ctx context.Context, lpaUID string, certificateProvider *certificateproviderdata.Provided) error
 	SendCertificateProviderOptOut(ctx context.Context, lpaUID string, actorUID actoruid.UID) error
@@ -136,20 +138,24 @@ func Register(
 	scheduledStore ScheduledStore,
 	appPublicURL string,
 ) {
-	handleRoot := makeHandle(rootMux, errorHandler)
+	handleRoot := makeHandle(rootMux, errorHandler, sessionStore)
 
-	handleRoot(page.PathCertificateProviderLogin,
+	handleRoot(page.PathCertificateProviderLogin, page.None,
 		page.Login(oneLoginClient, sessionStore, random.String, page.PathCertificateProviderLoginCallback))
-	handleRoot(page.PathCertificateProviderLoginCallback,
+	handleRoot(page.PathCertificateProviderLoginCallback, page.None,
 		page.LoginCallback(logger, oneLoginClient, sessionStore, page.PathCertificateProviderEnterReferenceNumber, dashboardStore, actor.TypeCertificateProvider))
-	handleRoot(page.PathCertificateProviderEnterReferenceNumber,
-		EnterReferenceNumber(tmpls.Get("enter_reference_number.gohtml"), shareCodeStore, sessionStore, certificateProviderStore))
-	handleRoot(page.PathCertificateProviderEnterReferenceNumberOptOut,
+	handleRoot(page.PathCertificateProviderEnterReferenceNumber, page.RequireSession,
+		EnterReferenceNumber(tmpls.Get("enter_reference_number.gohtml"), shareCodeStore, sessionStore, certificateProviderStore, lpaStoreClient, dashboardStore))
+	handleRoot(page.PathCertificateProviderEnterReferenceNumberOptOut, page.None,
 		EnterReferenceNumberOptOut(tmpls.Get("enter_reference_number_opt_out.gohtml"), shareCodeStore, sessionStore))
-	handleRoot(page.PathCertificateProviderConfirmDontWantToBeCertificateProviderLoggedOut,
+	handleRoot(page.PathCertificateProviderConfirmDontWantToBeCertificateProviderLoggedOut, page.None,
 		ConfirmDontWantToBeCertificateProviderLoggedOut(tmpls.Get("confirm_dont_want_to_be_certificate_provider.gohtml"), shareCodeStore, lpaStoreResolvingService, lpaStoreClient, donorStore, sessionStore, notifyClient, appPublicURL))
-	handleRoot(page.PathCertificateProviderYouHaveDecidedNotToBeCertificateProvider,
+	handleRoot(page.PathCertificateProviderYouHaveDecidedNotToBeCertificateProvider, page.None,
 		page.Guidance(tmpls.Get("you_have_decided_not_to_be_a_certificate_provider.gohtml")))
+	handleRoot(page.PathCertificateProviderYouHaveAlreadyProvidedACertificate, page.None,
+		page.Guidance(tmpls.Get("you_have_already_provided_a_certificate_for_donors_lpa.gohtml")))
+	handleRoot(page.PathCertificateProviderYouHaveAlreadyProvidedACertificateLoggedIn, page.RequireSession,
+		page.Guidance(tmpls.Get("you_have_already_provided_a_certificate_for_donors_lpa.gohtml")))
 
 	handleCertificateProvider := makeCertificateProviderHandle(rootMux, sessionStore, errorHandler, certificateProviderStore, lpaStoreResolvingService)
 
@@ -195,12 +201,24 @@ func Register(
 		ConfirmDontWantToBeCertificateProvider(tmpls.Get("confirm_dont_want_to_be_certificate_provider.gohtml"), lpaStoreClient, donorStore, certificateProviderStore, notifyClient, appPublicURL))
 }
 
-func makeHandle(mux *http.ServeMux, errorHandler page.ErrorHandler) func(page.Path, page.Handler) {
-	return func(path page.Path, h page.Handler) {
+func makeHandle(mux *http.ServeMux, errorHandler page.ErrorHandler, sessionStore SessionStore) func(page.Path, page.HandleOpt, page.Handler) {
+	return func(path page.Path, opt page.HandleOpt, h page.Handler) {
 		mux.HandleFunc(path.String(), func(w http.ResponseWriter, r *http.Request) {
 			ctx := r.Context()
 
 			appData := appcontext.DataFromContext(ctx)
+
+			if opt&page.RequireSession != 0 {
+				loginSession, err := sessionStore.Login(r)
+				if err != nil {
+					http.Redirect(w, r, page.PathCertificateProviderStart.Format(), http.StatusFound)
+					return
+				}
+
+				appData.SessionID = loginSession.SessionID()
+				ctx = appcontext.ContextWithSession(ctx, &appcontext.Session{SessionID: appData.SessionID})
+			}
+
 			appData.ActorType = actor.TypeCertificateProvider
 			appData.Page = path.Format()
 
