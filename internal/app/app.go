@@ -52,7 +52,7 @@ type DynamoClient interface {
 	AllByKeys(ctx context.Context, keys []dynamo.Keys) ([]map[string]dynamodbtypes.AttributeValue, error)
 	AllByPartialSK(ctx context.Context, pk dynamo.PK, partialSK dynamo.SK, v interface{}) error
 	AllBySK(ctx context.Context, sk dynamo.SK, v interface{}) error
-	AllByLpaUIDAndPartialSK(ctx context.Context, uid string, partialSK dynamo.SK, v interface{}) error
+	AllByLpaUIDAndPartialSK(ctx context.Context, uid string, partialSK dynamo.SK) ([]dynamo.Keys, error)
 	AllKeysByPK(ctx context.Context, pk dynamo.PK) ([]dynamo.Keys, error)
 	AnyByPK(ctx context.Context, pk dynamo.PK, v interface{}) error
 	BatchPut(ctx context.Context, items []interface{}) error
@@ -66,7 +66,7 @@ type DynamoClient interface {
 	OneByPK(ctx context.Context, pk dynamo.PK, v interface{}) error
 	OneByPartialSK(ctx context.Context, pk dynamo.PK, partialSK dynamo.SK, v interface{}) error
 	OneBySK(ctx context.Context, sk dynamo.SK, v interface{}) error
-	OneByUID(ctx context.Context, uid string, v interface{}) error
+	OneByUID(ctx context.Context, uid string) (dynamo.Keys, error)
 	Put(ctx context.Context, v interface{}) error
 	Update(ctx context.Context, pk dynamo.PK, sk dynamo.SK, values map[string]dynamodbtypes.AttributeValue, expression string) error
 	WriteTransaction(ctx context.Context, transaction *dynamo.Transaction) error

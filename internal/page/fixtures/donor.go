@@ -38,7 +38,7 @@ import (
 )
 
 type DynamoClient interface {
-	OneByUID(ctx context.Context, uid string, v interface{}) error
+	OneByUID(ctx context.Context, uid string) (dynamo.Keys, error)
 	Create(ctx context.Context, v interface{}) error
 	WriteTransaction(ctx context.Context, transaction *dynamo.Transaction) error
 }
