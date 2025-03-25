@@ -110,7 +110,7 @@ type dynamodbClient interface {
 	OneByPK(ctx context.Context, pk dynamo.PK, v any) error
 	OneByPartialSK(ctx context.Context, pk dynamo.PK, partialSK dynamo.SK, v any) error
 	OneBySK(ctx context.Context, sk dynamo.SK, v any) error
-	OneByUID(ctx context.Context, uid string, v any) error
+	OneByUID(ctx context.Context, uid string) (dynamo.Keys, error)
 	Put(ctx context.Context, v any) error
 	Update(ctx context.Context, pk dynamo.PK, sk dynamo.SK, values map[string]dynamodbtypes.AttributeValue, expression string) error
 	WriteTransaction(ctx context.Context, transaction *dynamo.Transaction) error
