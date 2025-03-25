@@ -182,6 +182,15 @@ func TestClientSendCertificateProvider(t *testing.T) {
 	assert.Nil(t, err)
 }
 
+func TestDevOnlyFuncsDoNotWorkInProd(t *testing.T) {
+	prodClient := New("https://lpa-store.api.opg.service.justice.gov.uk", nil, "secret", nil)
+
+	assert.Error(t, prodClient.SendRegister(context.Background(), "a"))
+	assert.Error(t, prodClient.SendStatutoryWaitingPeriod(context.Background(), "a"))
+	assert.Error(t, prodClient.SendPaperCertificateProviderSign(context.Background(), "a", donordata.CertificateProvider{}))
+	assert.Error(t, prodClient.SendChangeStatus(context.Background(), "a", lpadata.StatusExpired, lpadata.StatusExpired))
+}
+
 func TestClientSendAttorney(t *testing.T) {
 	uid1, _ := actoruid.Parse("f887edc1-bc69-413f-9e5d-b7bcc5fa1c72")
 	uid2, _ := actoruid.Parse("846360af-304f-466b-bda1-df7bc47bbad6")
@@ -546,4 +555,50 @@ func TestClientSendAttorneyOptOut(t *testing.T) {
 			assert.Nil(t, err)
 		})
 	}
+}
+
+func TestClientSendPaperCertificateProviderSign(t *testing.T) {
+	json := `{"type":"CERTIFICATE_PROVIDER_SIGN","changes":[{"key":"/certificateProvider/signedAt","old":null,"new":"2000-01-02T03:04:05.000000006Z"},{"key":"/certificateProvider/contactLanguagePreference","old":null,"new":"en"},{"key":"/certificateProvider/address/line1","old":"5 RICHMOND PLACE","new":"5 RICHMOND PLACE"},{"key":"/certificateProvider/address/line2","old":"KINGS HEATH","new":"KINGS HEATH"},{"key":"/certificateProvider/address/line3","old":"WEST MIDLANDS","new":"WEST MIDLANDS"},{"key":"/certificateProvider/address/town","old":"BIRMINGHAM","new":"BIRMINGHAM"},{"key":"/certificateProvider/address/postcode","old":"B14 7ED","new":"B14 7ED"},{"key":"/certificateProvider/address/country","old":"GB","new":"GB"},{"key":"/certificateProvider/channel","old":"paper","new":"paper"}]}`
+
+	certificateProvider := donordata.CertificateProvider{
+		Address: place.Address{
+			Line1:      "5 RICHMOND PLACE",
+			Line2:      "KINGS HEATH",
+			Line3:      "WEST MIDLANDS",
+			TownOrCity: "BIRMINGHAM",
+			Postcode:   "B14 7ED",
+			Country:    "GB",
+		},
+		CarryOutBy: lpadata.ChannelPaper,
+	}
+
+	ctx := context.Background()
+
+	secretsClient := newMockSecretsClient(t)
+	secretsClient.EXPECT().
+		Secret(ctx, "secret").
+		Return("secret", nil)
+
+	var body []byte
+	doer := newMockDoer(t)
+	doer.EXPECT().
+		Do(mock.MatchedBy(func(req *http.Request) bool {
+			if body == nil {
+				body, _ = io.ReadAll(req.Body)
+			}
+
+			return assert.Equal(t, ctx, req.Context()) &&
+				assert.Equal(t, http.MethodPost, req.Method) &&
+				assert.Equal(t, "http://base/lpas/lpa-uid/updates", req.URL.String()) &&
+				assert.Equal(t, "application/json", req.Header.Get("Content-Type")) &&
+				assert.Equal(t, "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJvcGcucG9hcy5tYWtlcmVnaXN0ZXIiLCJzdWIiOiJ1cm46b3BnOnBvYXM6bWFrZXJlZ2lzdGVyOnVzZXJzOjAwMDAwMDAwLTAwMDAtNDAwMC0wMDAwLTAwMDAwMDAwMDAwMCIsImlhdCI6OTQ2NzgyMjQ1fQ.V7MxjZw7-K8ehujYn4e0gef7s23r2UDlTbyzQtpTKvo", req.Header.Get("X-Jwt-Authorization")) &&
+				assert.JSONEq(t, json, string(body))
+		})).
+		Return(&http.Response{StatusCode: http.StatusCreated, Body: io.NopCloser(strings.NewReader(""))}, nil)
+
+	client := New("http://base", secretsClient, "secret", doer)
+	client.now = func() time.Time { return time.Date(2000, time.January, 2, 3, 4, 5, 6, time.UTC) }
+	err := client.SendPaperCertificateProviderSign(ctx, "lpa-uid", certificateProvider)
+
+	assert.Nil(t, err)
 }

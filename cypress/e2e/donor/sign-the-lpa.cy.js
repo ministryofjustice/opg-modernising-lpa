@@ -117,7 +117,7 @@ describe('Sign the LPA', () => {
 
     describe('when certificate provider is acting on paper', () => {
         it('can be completed and paper forms are requested', () => {
-            cy.visit('/fixtures?redirect=/read-your-lpa&progress=confirmYourIdentity&certificateProvider=paper');
+            cy.visit('/fixtures?redirect=/read-your-lpa&progress=confirmYourIdentity&certificateProviderChannel=paper');
 
             cy.url().should('contain', '/read-your-lpa');
             cy.checkA11yApp();

@@ -19,7 +19,8 @@ describe('LPA type', () => {
 
         cy.contains('a', 'Continue').click();
 
-        cy.get('#f-selected').check({ force: true });
+        cy.get('[name="selected"]').check('Yes', { force: true })
+
         cy.contains('button', 'Save and continue').click();
 
         cy.get('[name="contact-language"]').check('en', { force: true })
@@ -29,9 +30,9 @@ describe('LPA type', () => {
 
         cy.contains('a', 'Continue').click();
 
-        cy.get('#f-lpa-type').check('property-and-affairs');
-
         cy.checkA11yApp();
+
+        cy.get('[name="lpa-type"]').check('property-and-affairs', { force: true })
 
         cy.contains('button', 'Save and continue').click();
         cy.url().should('contain', '/task-list');
