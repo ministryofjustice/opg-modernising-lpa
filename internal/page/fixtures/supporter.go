@@ -147,6 +147,7 @@ func Supporter(
 				shareCodeData := sharecodedata.Link{
 					LpaOwnerKey:  dynamo.LpaOwnerKey(org.PK),
 					LpaKey:       donor.PK,
+					LpaUID:       donor.LpaUID,
 					ActorUID:     donor.Donor.UID,
 					InviteSentTo: "email@example.com",
 				}

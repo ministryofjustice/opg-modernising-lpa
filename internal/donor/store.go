@@ -137,6 +137,7 @@ func (s *Store) Create(ctx context.Context) (*donordata.Provided, error) {
 		Create(dashboarddata.LpaLink{
 			PK:        dynamo.LpaKey(lpaID),
 			SK:        dynamo.SubKey(data.SessionID),
+			LpaUID:    donor.LpaUID,
 			DonorKey:  dynamo.LpaOwnerKey(dynamo.DonorKey(data.SessionID)),
 			UID:       donor.Donor.UID,
 			ActorType: actor.TypeDonor,
@@ -213,6 +214,7 @@ func (s *Store) Link(ctx context.Context, shareCode sharecodedata.Link, donorEma
 		Create(dashboarddata.LpaLink{
 			PK:        shareCode.LpaKey,
 			SK:        dynamo.SubKey(data.SessionID),
+			LpaUID:    shareCode.LpaUID,
 			DonorKey:  shareCode.LpaOwnerKey,
 			UID:       shareCode.ActorUID,
 			ActorType: actor.TypeDonor,
