@@ -7,7 +7,7 @@
         <div class="govuk-grid-column-two-thirds">
             <h1 class="govuk-heading-xl">{{ tr .App "yourLegalRightsAndResponsibilitiesIfYouMakeLpa" }}</h1>
 
-            {{ trHtml .App "yourLegalRightsAndResponsibilitiesIfYouMakeLpaContent" }}
+            {{ trFormatHtml .App "yourLegalRightsAndResponsibilitiesIfYouMakeLpaContent" "UnderstandingMentalCapacityHelpLink" (link .App global.Paths.UnderstandingMentalCapacity.Format)  }}
 
             {{ if .Donor.Type.Empty }}
                 {{ template "button" (button .App "continue" "link" (global.Paths.LpaType.Format .App.LpaID)) }}
