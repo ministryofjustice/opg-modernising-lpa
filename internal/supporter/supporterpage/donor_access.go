@@ -94,6 +94,7 @@ func DonorAccess(logger Logger, tmpl template.Template, donorStore DonorStore, s
 				shareCodeData := sharecodedata.Link{
 					LpaOwnerKey:  dynamo.LpaOwnerKey(organisation.PK),
 					LpaKey:       dynamo.LpaKey(appData.LpaID),
+					LpaUID:       donor.LpaUID,
 					ActorUID:     donor.Donor.UID,
 					InviteSentTo: data.Form.Email,
 				}

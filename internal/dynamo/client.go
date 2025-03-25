@@ -65,7 +65,7 @@ func (c *Client) One(ctx context.Context, pk PK, sk SK, v interface{}) error {
 	return attributevalue.UnmarshalMap(result.Item, v)
 }
 
-func (c *Client) OneByUID(ctx context.Context, uid string, v interface{}) error {
+func (c *Client) OneByUID(ctx context.Context, uid string) (Keys, error) {
 	response, err := c.svc.Query(ctx, &dynamodb.QueryInput{
 		TableName: aws.String(c.table),
 		IndexName: aws.String(lpaUIDIndex),
@@ -83,22 +83,24 @@ func (c *Client) OneByUID(ctx context.Context, uid string, v interface{}) error 
 		FilterExpression:       aws.String("begins_with(#PK, :PK) and begins_with(#SK, :SK)"),
 	})
 	if err != nil {
-		return fmt.Errorf("failed to query UID: %w", err)
+		return Keys{}, fmt.Errorf("failed to query UID: %w", err)
 	}
 	if len(response.Items) == 0 {
-		return NotFoundError{}
+		return Keys{}, NotFoundError{}
 	}
 
 	// limits are applied before filters so we need to manually handle > 1
 	// see https://docs.aws.amazon.com/amazondynamodb/latest/developerguide/Query.Other.html#Query.Limit
 	if len(response.Items) > 1 {
-		return fmt.Errorf("expected to resolve partial PK and SK with LpaUID %s but got %d items", uid, len(response.Items))
+		return Keys{}, fmt.Errorf("expected to resolve partial PK and SK with LpaUID %s but got %d items", uid, len(response.Items))
 	}
 
-	return attributevalue.UnmarshalMap(response.Items[0], v)
+	var keys Keys
+	err = attributevalue.UnmarshalMap(response.Items[0], &keys)
+	return keys, err
 }
 
-func (c *Client) AllByLpaUIDAndPartialSK(ctx context.Context, uid string, partialSK SK, v interface{}) error {
+func (c *Client) AllByLpaUIDAndPartialSK(ctx context.Context, uid string, partialSK SK) ([]Keys, error) {
 	response, err := c.svc.Query(ctx, &dynamodb.QueryInput{
 		TableName: aws.String(c.table),
 		IndexName: aws.String(lpaUIDIndex),
@@ -114,13 +116,15 @@ func (c *Client) AllByLpaUIDAndPartialSK(ctx context.Context, uid string, partia
 		FilterExpression:       aws.String("begins_with(#SK, :SK)"),
 	})
 	if err != nil {
-		return fmt.Errorf("failed to query scheduled event by UID: %w", err)
+		return nil, fmt.Errorf("failed to query UID: %w", err)
 	}
 	if len(response.Items) == 0 {
-		return NotFoundError{}
+		return nil, NotFoundError{}
 	}
 
-	return attributevalue.UnmarshalListOfMaps(response.Items, v)
+	var v []Keys
+	err = attributevalue.UnmarshalListOfMaps(response.Items, &v)
+	return v, err
 }
 
 func (c *Client) AllBySK(ctx context.Context, sk SK, v interface{}) error {

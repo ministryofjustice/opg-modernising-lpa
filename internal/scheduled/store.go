@@ -6,13 +6,16 @@ import (
 	"slices"
 	"time"
 
+	"github.com/aws/aws-sdk-go-v2/feature/dynamodb/attributevalue"
+	"github.com/aws/aws-sdk-go-v2/service/dynamodb/types"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/dynamo"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/random"
 )
 
 type DynamoClient interface {
-	AllByLpaUIDAndPartialSK(ctx context.Context, uid string, partialSK dynamo.SK, v interface{}) error
+	AllByLpaUIDAndPartialSK(ctx context.Context, uid string, partialSK dynamo.SK) ([]dynamo.Keys, error)
 	AnyByPK(ctx context.Context, pk dynamo.PK, v interface{}) error
+	AllByKeys(ctx context.Context, keys []dynamo.Keys) ([]map[string]types.AttributeValue, error)
 	Move(ctx context.Context, oldKeys dynamo.Keys, value any) error
 	DeleteKeys(ctx context.Context, keys []dynamo.Keys) error
 	WriteTransaction(ctx context.Context, transaction *dynamo.Transaction) error
@@ -63,37 +66,40 @@ func (s *Store) Create(ctx context.Context, rows ...Event) error {
 }
 
 func (s *Store) DeleteAllByUID(ctx context.Context, uid string) error {
-	var events []Event
-
-	if err := s.dynamoClient.AllByLpaUIDAndPartialSK(ctx, uid, dynamo.PartialScheduledKey(), &events); err != nil {
+	keys, err := s.dynamoClient.AllByLpaUIDAndPartialSK(ctx, uid, dynamo.PartialScheduledKey())
+	if err != nil {
 		return err
 	}
 
-	if len(events) == 0 {
+	if len(keys) == 0 {
 		return fmt.Errorf("no scheduled events found for UID %s", uid)
-	}
-
-	var keys []dynamo.Keys
-	for _, e := range events {
-		keys = append(keys, dynamo.Keys{PK: e.PK, SK: e.SK})
 	}
 
 	return s.dynamoClient.DeleteKeys(ctx, keys)
 }
 
 func (s *Store) DeleteAllActionByUID(ctx context.Context, actions []Action, uid string) error {
-	var events []Event
-
-	if err := s.dynamoClient.AllByLpaUIDAndPartialSK(ctx, uid, dynamo.PartialScheduledKey(), &events); err != nil {
+	keys, err := s.dynamoClient.AllByLpaUIDAndPartialSK(ctx, uid, dynamo.PartialScheduledKey())
+	if err != nil {
 		return err
 	}
 
-	var keys []dynamo.Keys
+	resolved, err := s.dynamoClient.AllByKeys(ctx, keys)
+	if err != nil {
+		return err
+	}
+
+	var events []Event
+	if err := attributevalue.UnmarshalListOfMaps(resolved, &events); err != nil {
+		return err
+	}
+
+	var toDelete []dynamo.Keys
 	for _, e := range events {
 		if slices.Contains(actions, e.Action) {
-			keys = append(keys, dynamo.Keys{PK: e.PK, SK: e.SK})
+			toDelete = append(toDelete, dynamo.Keys{PK: e.PK, SK: e.SK})
 		}
 	}
 
-	return s.dynamoClient.DeleteKeys(ctx, keys)
+	return s.dynamoClient.DeleteKeys(ctx, toDelete)
 }
