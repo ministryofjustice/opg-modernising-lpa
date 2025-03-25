@@ -22,6 +22,53 @@ func (_m *mockSessionStore) EXPECT() *mockSessionStore_Expecter {
 	return &mockSessionStore_Expecter{mock: &_m.Mock}
 }
 
+// ClearLogin provides a mock function with given fields: r, w
+func (_m *mockSessionStore) ClearLogin(r *http.Request, w http.ResponseWriter) error {
+	ret := _m.Called(r, w)
+
+	if len(ret) == 0 {
+		panic("no return value specified for ClearLogin")
+	}
+
+	var r0 error
+	if rf, ok := ret.Get(0).(func(*http.Request, http.ResponseWriter) error); ok {
+		r0 = rf(r, w)
+	} else {
+		r0 = ret.Error(0)
+	}
+
+	return r0
+}
+
+// mockSessionStore_ClearLogin_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'ClearLogin'
+type mockSessionStore_ClearLogin_Call struct {
+	*mock.Call
+}
+
+// ClearLogin is a helper method to define mock.On call
+//   - r *http.Request
+//   - w http.ResponseWriter
+func (_e *mockSessionStore_Expecter) ClearLogin(r interface{}, w interface{}) *mockSessionStore_ClearLogin_Call {
+	return &mockSessionStore_ClearLogin_Call{Call: _e.mock.On("ClearLogin", r, w)}
+}
+
+func (_c *mockSessionStore_ClearLogin_Call) Run(run func(r *http.Request, w http.ResponseWriter)) *mockSessionStore_ClearLogin_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		run(args[0].(*http.Request), args[1].(http.ResponseWriter))
+	})
+	return _c
+}
+
+func (_c *mockSessionStore_ClearLogin_Call) Return(_a0 error) *mockSessionStore_ClearLogin_Call {
+	_c.Call.Return(_a0)
+	return _c
+}
+
+func (_c *mockSessionStore_ClearLogin_Call) RunAndReturn(run func(*http.Request, http.ResponseWriter) error) *mockSessionStore_ClearLogin_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
 // Login provides a mock function with given fields: r
 func (_m *mockSessionStore) Login(r *http.Request) (*sesh.LoginSession, error) {
 	ret := _m.Called(r)

@@ -13,7 +13,11 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/appcontext"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/certificateprovider"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/certificateprovider/certificateproviderdata"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/dashboard/dashboarddata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/dynamo"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/localize"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/lpastore"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/lpastore/lpadata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/sesh"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/sharecode/sharecodedata"
@@ -23,24 +27,68 @@ import (
 )
 
 func TestGetEnterReferenceNumber(t *testing.T) {
+	testcases := map[string]struct {
+		SessionID string
+		Results   dashboarddata.Results
+	}{
+		"with LPAs": {
+			Results: dashboarddata.Results{
+				Donor: []dashboarddata.Actor{{}},
+			},
+			SessionID: "session-id",
+		},
+		"without LPAs": {},
+	}
+
+	for name, tc := range testcases {
+		t.Run(name, func(t *testing.T) {
+			w := httptest.NewRecorder()
+			r, _ := http.NewRequest(http.MethodGet, "/", nil)
+
+			appData := appcontext.Data{
+				SessionID: tc.SessionID,
+				LpaID:     "lpa-id",
+				Lang:      localize.En,
+			}
+			data := enterReferenceNumberData{
+				App:  appData,
+				Form: &enterReferenceNumberForm{},
+			}
+
+			dashboardStore := newMockDashboardStore(t)
+			dashboardStore.EXPECT().
+				GetAll(r.Context()).
+				Return(tc.Results, nil)
+
+			template := newMockTemplate(t)
+			template.EXPECT().
+				Execute(w, data).
+				Return(nil)
+
+			err := EnterReferenceNumber(template.Execute, newMockShareCodeStore(t), nil, nil, nil, dashboardStore)(appData, w, r)
+
+			resp := w.Result()
+
+			assert.Nil(t, err)
+			assert.Equal(t, http.StatusOK, resp.StatusCode)
+		})
+	}
+}
+
+func TestGetEnterReferenceNumberOnDashboardStoreError(t *testing.T) {
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest(http.MethodGet, "/", nil)
 
-	data := enterReferenceNumberData{
-		App:  testAppData,
-		Form: &enterReferenceNumberForm{},
-	}
+	dashboardStore := newMockDashboardStore(t)
+	dashboardStore.EXPECT().
+		GetAll(r.Context()).
+		Return(dashboarddata.Results{}, expectedError)
 
-	template := newMockTemplate(t)
-	template.EXPECT().
-		Execute(w, data).
-		Return(nil)
-
-	err := EnterReferenceNumber(template.Execute, newMockShareCodeStore(t), nil, nil)(testAppData, w, r)
+	err := EnterReferenceNumber(nil, newMockShareCodeStore(t), nil, nil, nil, dashboardStore)(testAppData, w, r)
 
 	resp := w.Result()
 
-	assert.Nil(t, err)
+	assert.ErrorContains(t, err, "error getting dashboard results: err")
 	assert.Equal(t, http.StatusOK, resp.StatusCode)
 }
 
@@ -53,12 +101,19 @@ func TestGetEnterReferenceNumberOnTemplateError(t *testing.T) {
 		Form: &enterReferenceNumberForm{},
 	}
 
+	dashboardStore := newMockDashboardStore(t)
+	dashboardStore.EXPECT().
+		GetAll(r.Context()).
+		Return(dashboarddata.Results{
+			Donor: []dashboarddata.Actor{{}},
+		}, nil)
+
 	template := newMockTemplate(t)
 	template.EXPECT().
 		Execute(w, data).
 		Return(expectedError)
 
-	err := EnterReferenceNumber(template.Execute, newMockShareCodeStore(t), nil, nil)(testAppData, w, r)
+	err := EnterReferenceNumber(template.Execute, newMockShareCodeStore(t), nil, nil, nil, dashboardStore)(testAppData, w, r)
 
 	resp := w.Result()
 
@@ -76,11 +131,23 @@ func TestPostEnterReferenceNumber(t *testing.T) {
 	r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(form.Encode()))
 	r.Header.Add("Content-Type", page.FormUrlEncoded)
 
-	shareCodeData := sharecodedata.Link{LpaKey: dynamo.LpaKey("lpa-id"), LpaOwnerKey: dynamo.LpaOwnerKey(dynamo.DonorKey("session-id")), ActorUID: uid}
+	dashboardStore := newMockDashboardStore(t)
+	dashboardStore.EXPECT().
+		GetAll(r.Context()).
+		Return(dashboarddata.Results{
+			Donor: []dashboarddata.Actor{{}},
+		}, nil)
+
+	shareCodeData := sharecodedata.Link{LpaKey: dynamo.LpaKey("lpa-id"), LpaOwnerKey: dynamo.LpaOwnerKey(dynamo.DonorKey("session-id")), ActorUID: uid, LpaUID: "lpa-uid"}
 	shareCodeStore := newMockShareCodeStore(t)
 	shareCodeStore.EXPECT().
 		Get(r.Context(), actor.TypeCertificateProvider, sharecodedata.HashedFromString("abcdef123456")).
 		Return(shareCodeData, nil)
+
+	lpaStoreClient := newMockLpaStoreClient(t)
+	lpaStoreClient.EXPECT().
+		Lpa(r.Context(), "lpa-uid").
+		Return(nil, lpastore.ErrNotFound)
 
 	sessionStore := newMockSessionStore(t)
 	sessionStore.EXPECT().
@@ -96,13 +163,86 @@ func TestPostEnterReferenceNumber(t *testing.T) {
 		}), shareCodeData, "a@b.com").
 		Return(&certificateproviderdata.Provided{}, nil)
 
-	err := EnterReferenceNumber(nil, shareCodeStore, sessionStore, certificateProviderStore)(testAppData, w, r)
+	err := EnterReferenceNumber(nil, shareCodeStore, sessionStore, certificateProviderStore, lpaStoreClient, dashboardStore)(testAppData, w, r)
 
 	resp := w.Result()
 
 	assert.Nil(t, err)
 	assert.Equal(t, http.StatusFound, resp.StatusCode)
 	assert.Equal(t, certificateprovider.PathWhoIsEligible.Format("lpa-id"), resp.Header.Get("Location"))
+}
+
+func TestPostEnterReferenceNumberWhenPaperCertificateExists(t *testing.T) {
+	testcases := map[string]struct {
+		donorResults []dashboarddata.Actor
+		redirectURL  string
+	}{
+		"with LPAs": {
+			donorResults: []dashboarddata.Actor{{}},
+			redirectURL:  page.PathCertificateProviderYouHaveAlreadyProvidedACertificateLoggedIn.Format() + "?donorFullName=a+b&lpaType=c",
+		},
+		"without LPAs": {
+			redirectURL: page.PathCertificateProviderYouHaveAlreadyProvidedACertificate.Format() + "?donorFullName=a+b&lpaType=c",
+		},
+	}
+
+	for name, tc := range testcases {
+		t.Run(name, func(t *testing.T) {
+			form := url.Values{
+				"reference-number": {"abcdef 123-456"},
+			}
+
+			w := httptest.NewRecorder()
+			r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(form.Encode()))
+			r.Header.Add("Content-Type", page.FormUrlEncoded)
+
+			dashboardStore := newMockDashboardStore(t)
+			dashboardStore.EXPECT().
+				GetAll(r.Context()).
+				Return(dashboarddata.Results{Donor: tc.donorResults}, nil)
+
+			uid := actoruid.New()
+
+			shareCodeStore := newMockShareCodeStore(t)
+			shareCodeStore.EXPECT().
+				Get(mock.Anything, mock.Anything, mock.Anything).
+				Return(sharecodedata.Link{LpaKey: dynamo.LpaKey("lpa-id"), LpaOwnerKey: dynamo.LpaOwnerKey(dynamo.DonorKey("session-id")), ActorUID: uid, LpaUID: "lpa-uid"}, nil)
+
+			lpaStoreClient := newMockLpaStoreClient(t)
+			lpaStoreClient.EXPECT().
+				Lpa(r.Context(), "lpa-uid").
+				Return(&lpadata.Lpa{
+					Donor:               lpadata.Donor{FirstNames: "a", LastName: "b"},
+					CertificateProvider: lpadata.CertificateProvider{Channel: lpadata.ChannelPaper, SignedAt: &testNow},
+					Type:                lpadata.LpaTypePropertyAndAffairs,
+				}, nil)
+
+			localizer := newMockLocalizer(t)
+			localizer.EXPECT().
+				T("property-and-affairs").
+				Return("c")
+			appData := appcontext.Data{
+				SessionID: "session-id",
+				LpaID:     "lpa-id",
+				Lang:      localize.En,
+			}
+			appData.Localizer = localizer
+
+			sessionStore := newMockSessionStore(t)
+			if len(tc.donorResults) == 0 {
+				sessionStore.EXPECT().
+					ClearLogin(r, w).
+					Return(nil)
+			}
+
+			err := EnterReferenceNumber(nil, shareCodeStore, sessionStore, nil, lpaStoreClient, dashboardStore)(appData, w, r)
+			resp := w.Result()
+
+			assert.Nil(t, err)
+			assert.Equal(t, http.StatusFound, resp.StatusCode)
+			assert.Equal(t, tc.redirectURL, resp.Header.Get("Location"))
+		})
+	}
 }
 
 func TestPostEnterReferenceNumberOnShareCodeStoreError(t *testing.T) {
@@ -114,16 +254,21 @@ func TestPostEnterReferenceNumberOnShareCodeStoreError(t *testing.T) {
 	r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(form.Encode()))
 	r.Header.Add("Content-Type", page.FormUrlEncoded)
 
+	dashboardStore := newMockDashboardStore(t)
+	dashboardStore.EXPECT().
+		GetAll(mock.Anything).
+		Return(dashboarddata.Results{}, nil)
+
 	shareCodeStore := newMockShareCodeStore(t)
 	shareCodeStore.EXPECT().
-		Get(r.Context(), actor.TypeCertificateProvider, sharecodedata.HashedFromString("abcdef123456")).
+		Get(mock.Anything, mock.Anything, mock.Anything).
 		Return(sharecodedata.Link{LpaKey: dynamo.LpaKey("lpa-id"), LpaOwnerKey: dynamo.LpaOwnerKey(dynamo.DonorKey("session-id"))}, expectedError)
 
-	err := EnterReferenceNumber(nil, shareCodeStore, nil, nil)(testAppData, w, r)
+	err := EnterReferenceNumber(nil, shareCodeStore, nil, nil, nil, dashboardStore)(testAppData, w, r)
 
 	resp := w.Result()
 
-	assert.Equal(t, expectedError, err)
+	assert.ErrorContains(t, err, "error getting shareCode: err")
 	assert.Equal(t, http.StatusOK, resp.StatusCode)
 }
 
@@ -142,6 +287,11 @@ func TestPostEnterReferenceNumberOnShareCodeStoreNotFoundError(t *testing.T) {
 		Errors: validation.With("reference-number", validation.CustomError{Label: "incorrectReferenceNumber"}),
 	}
 
+	dashboardStore := newMockDashboardStore(t)
+	dashboardStore.EXPECT().
+		GetAll(mock.Anything).
+		Return(dashboarddata.Results{}, nil)
+
 	template := newMockTemplate(t)
 	template.EXPECT().
 		Execute(w, data).
@@ -149,14 +299,85 @@ func TestPostEnterReferenceNumberOnShareCodeStoreNotFoundError(t *testing.T) {
 
 	shareCodeStore := newMockShareCodeStore(t)
 	shareCodeStore.EXPECT().
-		Get(r.Context(), actor.TypeCertificateProvider, sharecodedata.HashedFromString("abcdef123456")).
+		Get(mock.Anything, mock.Anything, mock.Anything).
 		Return(sharecodedata.Link{LpaKey: dynamo.LpaKey("lpa-id"), LpaOwnerKey: dynamo.LpaOwnerKey(dynamo.DonorKey("session-id"))}, dynamo.NotFoundError{})
 
-	err := EnterReferenceNumber(template.Execute, shareCodeStore, nil, nil)(testAppData, w, r)
+	err := EnterReferenceNumber(template.Execute, shareCodeStore, nil, nil, nil, dashboardStore)(testAppData, w, r)
 
 	resp := w.Result()
 
 	assert.Nil(t, err)
+	assert.Equal(t, http.StatusOK, resp.StatusCode)
+}
+
+func TestPostEnterReferenceNumberWhenLpaStoreClientError(t *testing.T) {
+	form := url.Values{
+		"reference-number": {"abcdef 123-456"},
+	}
+
+	uid := actoruid.New()
+	w := httptest.NewRecorder()
+	r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(form.Encode()))
+	r.Header.Add("Content-Type", page.FormUrlEncoded)
+
+	dashboardStore := newMockDashboardStore(t)
+	dashboardStore.EXPECT().
+		GetAll(mock.Anything).
+		Return(dashboarddata.Results{}, nil)
+
+	shareCodeStore := newMockShareCodeStore(t)
+	shareCodeStore.EXPECT().
+		Get(mock.Anything, mock.Anything, mock.Anything).
+		Return(sharecodedata.Link{LpaKey: dynamo.LpaKey("lpa-id"), LpaOwnerKey: dynamo.LpaOwnerKey(dynamo.DonorKey("session-id")), ActorUID: uid}, nil)
+
+	lpaStoreClient := newMockLpaStoreClient(t)
+	lpaStoreClient.EXPECT().
+		Lpa(mock.Anything, mock.Anything).
+		Return(nil, expectedError)
+
+	err := EnterReferenceNumber(nil, shareCodeStore, nil, nil, lpaStoreClient, dashboardStore)(testAppData, w, r)
+	assert.ErrorContains(t, err, "error getting LPA from LPA store: err")
+}
+
+func TestPostEnterReferenceNumberWhenClearLoginError(t *testing.T) {
+	form := url.Values{
+		"reference-number": {"abcdef 123-456"},
+	}
+
+	w := httptest.NewRecorder()
+	r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(form.Encode()))
+	r.Header.Add("Content-Type", page.FormUrlEncoded)
+
+	dashboardStore := newMockDashboardStore(t)
+	dashboardStore.EXPECT().
+		GetAll(r.Context()).
+		Return(dashboarddata.Results{}, nil)
+
+	uid := actoruid.New()
+
+	shareCodeStore := newMockShareCodeStore(t)
+	shareCodeStore.EXPECT().
+		Get(mock.Anything, mock.Anything, mock.Anything).
+		Return(sharecodedata.Link{LpaKey: dynamo.LpaKey("lpa-id"), LpaOwnerKey: dynamo.LpaOwnerKey(dynamo.DonorKey("session-id")), ActorUID: uid, LpaUID: "lpa-uid"}, nil)
+
+	lpaStoreClient := newMockLpaStoreClient(t)
+	lpaStoreClient.EXPECT().
+		Lpa(mock.Anything, mock.Anything).
+		Return(&lpadata.Lpa{
+			Donor:               lpadata.Donor{FirstNames: "a", LastName: "b"},
+			CertificateProvider: lpadata.CertificateProvider{Channel: lpadata.ChannelPaper, SignedAt: &testNow},
+			Type:                lpadata.LpaTypePropertyAndAffairs,
+		}, nil)
+
+	sessionStore := newMockSessionStore(t)
+	sessionStore.EXPECT().
+		ClearLogin(mock.Anything, mock.Anything).
+		Return(expectedError)
+
+	err := EnterReferenceNumber(nil, shareCodeStore, sessionStore, nil, lpaStoreClient, dashboardStore)(testAppData, w, r)
+	resp := w.Result()
+
+	assert.ErrorContains(t, err, "error clearing login session: err")
 	assert.Equal(t, http.StatusOK, resp.StatusCode)
 }
 
@@ -170,23 +391,35 @@ func TestPostEnterReferenceNumberWhenCreateError(t *testing.T) {
 	r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(form.Encode()))
 	r.Header.Add("Content-Type", page.FormUrlEncoded)
 
+	dashboardStore := newMockDashboardStore(t)
+	dashboardStore.EXPECT().
+		GetAll(mock.Anything).
+		Return(dashboarddata.Results{}, nil)
+
 	shareCodeStore := newMockShareCodeStore(t)
 	shareCodeStore.EXPECT().
-		Get(r.Context(), actor.TypeCertificateProvider, sharecodedata.HashedFromString("abcdef123456")).
-		Return(sharecodedata.Link{LpaKey: dynamo.LpaKey("lpa-id"), LpaOwnerKey: dynamo.LpaOwnerKey(dynamo.DonorKey("session-id")), ActorUID: uid}, nil)
+		Get(mock.Anything, mock.Anything, mock.Anything).
+		Return(sharecodedata.Link{LpaKey: dynamo.LpaKey("lpa-id"), LpaOwnerKey: dynamo.LpaOwnerKey(dynamo.DonorKey("session-id")), ActorUID: uid, LpaUID: "lpa-uid"}, nil)
 
 	sessionStore := newMockSessionStore(t)
 	sessionStore.EXPECT().
-		Login(r).
+		Login(mock.Anything).
 		Return(&sesh.LoginSession{Sub: "hey", Email: "a@b.com"}, nil)
+
+	lpaStoreClient := newMockLpaStoreClient(t)
+	lpaStoreClient.EXPECT().
+		Lpa(mock.Anything, mock.Anything).
+		Return(nil, lpastore.ErrNotFound)
 
 	certificateProviderStore := newMockCertificateProviderStore(t)
 	certificateProviderStore.EXPECT().
 		Create(mock.Anything, mock.Anything, mock.Anything).
 		Return(nil, expectedError)
 
-	err := EnterReferenceNumber(nil, shareCodeStore, sessionStore, certificateProviderStore)(testAppData, w, r)
-	assert.Equal(t, expectedError, err)
+	testAppData.SessionID = ""
+
+	err := EnterReferenceNumber(nil, shareCodeStore, sessionStore, certificateProviderStore, lpaStoreClient, dashboardStore)(testAppData, w, r)
+	assert.ErrorContains(t, err, "error creating certificate provider: err")
 }
 
 func TestPostEnterReferenceNumberOnValidationError(t *testing.T) {
@@ -204,12 +437,17 @@ func TestPostEnterReferenceNumberOnValidationError(t *testing.T) {
 		Errors: validation.With("reference-number", validation.EnterError{Label: "twelveCharactersReferenceNumber"}),
 	}
 
+	dashboardStore := newMockDashboardStore(t)
+	dashboardStore.EXPECT().
+		GetAll(mock.Anything).
+		Return(dashboarddata.Results{Donor: []dashboarddata.Actor{{}}}, nil)
+
 	template := newMockTemplate(t)
 	template.EXPECT().
 		Execute(w, data).
 		Return(nil)
 
-	err := EnterReferenceNumber(template.Execute, nil, nil, nil)(testAppData, w, r)
+	err := EnterReferenceNumber(template.Execute, nil, nil, nil, nil, dashboardStore)(testAppData, w, r)
 
 	resp := w.Result()
 

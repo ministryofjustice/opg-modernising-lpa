@@ -20,6 +20,8 @@ const (
 	PathCertificateProviderEnterReferenceNumberOptOut                      = Path("/certificate-provider-enter-reference-number-opt-out")
 	PathCertificateProviderLogin                                           = Path("/certificate-provider-login")
 	PathCertificateProviderLoginCallback                                   = Path("/certificate-provider-login-callback")
+	PathCertificateProviderYouHaveAlreadyProvidedACertificate              = Path("/you-have-already-provided-a-certificate")
+	PathCertificateProviderYouHaveAlreadyProvidedACertificateLoggedIn      = Path("/you-have-already-provided-a-certificate-logged-in")
 	PathCertificateProviderYouHaveDecidedNotToBeCertificateProvider        = Path("/you-have-decided-not-to-be-a-certificate-provider")
 	PathHealthCheckDependency                                              = Path("/health-check/dependency")
 	PathHealthCheckService                                                 = Path("/health-check/service")
