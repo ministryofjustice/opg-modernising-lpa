@@ -1579,5 +1579,8 @@
     "whyCantIChangeMyLpaType": "Why can’t I change my LPA type?",
     "property-and-affairs:covers": "This type of LPA covers decisions about your money, bills, benefits and home ownership.",
     "personal-welfare:covers": "This type of LPA covers decisions about your health care, medical treatment and personal welfare.",
-    "findOutMoreAboutTwoTypesOfLpa": "Find out more about the 2 types of LPA."
+    "findOutMoreAboutTwoTypesOfLpa": "Find out more about the 2 types of LPA.",
+    "youHaveAlreadyProvidedTheCertificateForThisLpa": "You have already provided a certificate for this LPA",
+    "youHaveAlreadyProvidedTheCertificateForDonorsLpaNotification": "You have already provided a certificate for {{ possessive .DonorFullName}} {{ .LpaType }} LPA",
+    "youHaveAlreadyProvidedTheCertificateForThisLpaContent": "<p class=\"govuk-body\">You submitted a paper certificate to the Office of the Public Guardian (OPG).</p><p class=\"govuk-body\">Your role as certificate provider is now complete. You will not be able to access this LPA online.</p>"
 }
