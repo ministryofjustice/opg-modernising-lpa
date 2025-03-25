@@ -91,6 +91,9 @@ func TestOneWhenNotFound(t *testing.T) {
 }
 
 func TestOneByUID(t *testing.T) {
+	keys := Keys{PK: LpaKey("123"), SK: DonorKey("abc")}
+	item, _ := attributevalue.MarshalMap(keys)
+
 	dynamoDB := newMockDynamoDB(t)
 	dynamoDB.EXPECT().
 		Query(ctx, &dynamodb.QueryInput{
@@ -106,19 +109,14 @@ func TestOneByUID(t *testing.T) {
 			FilterExpression:       aws.String("begins_with(#PK, :PK) and begins_with(#SK, :SK)"),
 		}).
 		Return(&dynamodb.QueryOutput{
-			Items: []map[string]types.AttributeValue{{
-				"PK":     &types.AttributeValueMemberS{Value: "LPA#123"},
-				"LpaUID": &types.AttributeValueMemberS{Value: "M-1111-2222-3333"},
-			}},
+			Items: []map[string]types.AttributeValue{item},
 		}, nil)
 
 	c := &Client{table: "this", svc: dynamoDB}
 
-	var v map[string]any
-	err := c.OneByUID(ctx, "M-1111-2222-3333", &v)
-
+	result, err := c.OneByUID(ctx, "M-1111-2222-3333")
 	assert.Nil(t, err)
-	assert.Equal(t, map[string]any{"PK": "LPA#123", "LpaUID": "M-1111-2222-3333"}, v)
+	assert.Equal(t, keys, result)
 }
 
 func TestOneByUIDWhenQueryError(t *testing.T) {
@@ -129,8 +127,7 @@ func TestOneByUIDWhenQueryError(t *testing.T) {
 
 	c := &Client{table: "this", svc: dynamoDB}
 
-	err := c.OneByUID(ctx, "M-1111-2222-3333", mock.Anything)
-
+	_, err := c.OneByUID(ctx, "M-1111-2222-3333")
 	assert.Equal(t, fmt.Errorf("failed to query UID: %w", expectedError), err)
 }
 
@@ -140,22 +137,14 @@ func TestOneByUIDWhenMultipleItems(t *testing.T) {
 		Query(ctx, mock.Anything).
 		Return(&dynamodb.QueryOutput{
 			Items: []map[string]types.AttributeValue{
-				{
-					"PK":     &types.AttributeValueMemberS{Value: "LPA#123"},
-					"LpaUID": &types.AttributeValueMemberS{Value: "M-1111-2222-3333"},
-				},
-				{
-					"PK":     &types.AttributeValueMemberS{Value: "LPA#123"},
-					"LpaUID": &types.AttributeValueMemberS{Value: "M-1111-2222-3333"},
-				},
+				{"PK": &types.AttributeValueMemberS{Value: "LPA#123"}},
+				{"PK": &types.AttributeValueMemberS{Value: "LPA#123"}},
 			},
 		}, nil)
 
 	c := &Client{table: "this", svc: dynamoDB}
 
-	var v map[string]any
-	err := c.OneByUID(ctx, "M-1111-2222-3333", &v)
-
+	_, err := c.OneByUID(ctx, "M-1111-2222-3333")
 	assert.ErrorContains(t, err, "expected to resolve partial PK and SK with LpaUID M-1111-2222-3333 but got 2 items")
 }
 
@@ -167,28 +156,8 @@ func TestOneByUIDWhenNoItems(t *testing.T) {
 
 	c := &Client{table: "this", svc: dynamoDB}
 
-	err := c.OneByUID(ctx, "M-1111-2222-3333", mock.Anything)
+	_, err := c.OneByUID(ctx, "M-1111-2222-3333")
 	assert.ErrorIs(t, err, NotFoundError{})
-}
-
-func TestOneByUIDWhenUnmarshalError(t *testing.T) {
-	dynamoDB := newMockDynamoDB(t)
-	dynamoDB.EXPECT().
-		Query(ctx, mock.Anything).
-		Return(&dynamodb.QueryOutput{
-			Items: []map[string]types.AttributeValue{
-				{
-					"PK":     &types.AttributeValueMemberS{Value: "LPA#123"},
-					"LpaUID": &types.AttributeValueMemberS{Value: "M-1111-2222-3333"},
-				},
-			},
-		}, nil)
-
-	c := &Client{table: "this", svc: dynamoDB}
-
-	err := c.OneByUID(ctx, "M-1111-2222-3333", "not an lpa")
-
-	assert.IsType(t, &attributevalue.InvalidUnmarshalError{}, err)
 }
 
 func TestOneByPK(t *testing.T) {
@@ -987,8 +956,8 @@ func TestAnyByPKWhenNotFound(t *testing.T) {
 	assert.Equal(t, NotFoundError{}, err)
 }
 
-func TestAllScheduledEventsByUID(t *testing.T) {
-	expected := []map[string]string{{"Col": "Val"}, {"Other": "Thing"}}
+func TestAllByLpaUIDAndPartialSK(t *testing.T) {
+	expected := []Keys{{PK: LpaKey("a"), SK: CertificateProviderKey("X")}, {PK: LpaKey("b"), SK: AttorneyKey("Y")}}
 	data, _ := attributevalue.MarshalMap(expected[0])
 	data2, _ := attributevalue.MarshalMap(expected[1])
 
@@ -1012,12 +981,12 @@ func TestAllScheduledEventsByUID(t *testing.T) {
 
 	c := &Client{table: "this", svc: dynamoDB}
 
-	var v []map[string]string
-	err := c.AllByLpaUIDAndPartialSK(ctx, "lpa-uid", testSK("a-partial-sk"), &v)
+	keys, err := c.AllByLpaUIDAndPartialSK(ctx, "lpa-uid", testSK("a-partial-sk"))
 	assert.Nil(t, err)
+	assert.Equal(t, expected, keys)
 }
 
-func TestAllScheduledEventsByUIDWhenQueryError(t *testing.T) {
+func TestAllByLpaUIDAndPartialSKWhenQueryError(t *testing.T) {
 	dynamoDB := newMockDynamoDB(t)
 	dynamoDB.EXPECT().
 		Query(ctx, mock.Anything).
@@ -1025,12 +994,11 @@ func TestAllScheduledEventsByUIDWhenQueryError(t *testing.T) {
 
 	c := &Client{table: "this", svc: dynamoDB}
 
-	var v []map[string]string
-	err := c.AllByLpaUIDAndPartialSK(ctx, "lpa-uid", testSK("a-partial-sk"), &v)
-	assert.Equal(t, fmt.Errorf("failed to query scheduled event by UID: %w", expectedError), err)
+	_, err := c.AllByLpaUIDAndPartialSK(ctx, "lpa-uid", testSK("a-partial-sk"))
+	assert.Equal(t, fmt.Errorf("failed to query UID: %w", expectedError), err)
 }
 
-func TestAllScheduledEventsByUIDWhenNoResults(t *testing.T) {
+func TestAllByLpaUIDAndPartialSKWhenNoResults(t *testing.T) {
 	dynamoDB := newMockDynamoDB(t)
 	dynamoDB.EXPECT().
 		Query(ctx, mock.Anything).
@@ -1038,12 +1006,11 @@ func TestAllScheduledEventsByUIDWhenNoResults(t *testing.T) {
 
 	c := &Client{table: "this", svc: dynamoDB}
 
-	var v []map[string]string
-	err := c.AllByLpaUIDAndPartialSK(ctx, "lpa-uid", testSK("a-partial-sk"), &v)
+	_, err := c.AllByLpaUIDAndPartialSK(ctx, "lpa-uid", testSK("a-partial-sk"))
 	assert.Equal(t, NotFoundError{}, err)
 }
 
-func TestAllScheduledEventsByUIDWhenUnmarshalError(t *testing.T) {
+func TestAllByLpaUIDAndPartialSKWhenUnmarshalError(t *testing.T) {
 	expected := []map[string]string{{"Col": "Val"}}
 	data, _ := attributevalue.MarshalMap(expected[0])
 
@@ -1054,7 +1021,6 @@ func TestAllScheduledEventsByUIDWhenUnmarshalError(t *testing.T) {
 
 	c := &Client{table: "this", svc: dynamoDB}
 
-	var v []map[string]string
-	err := c.AllByLpaUIDAndPartialSK(ctx, "lpa-uid", testSK("a-partial-sk"), v)
+	_, err := c.AllByLpaUIDAndPartialSK(ctx, "lpa-uid", testSK("a-partial-sk"))
 	assert.Error(t, err)
 }
