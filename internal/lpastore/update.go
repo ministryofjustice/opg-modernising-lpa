@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"context"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"io"
 	"net/http"
@@ -13,6 +14,7 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/attorney/attorneydata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/certificateprovider/certificateproviderdata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor/donordata"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/localize"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/lpastore/lpadata"
 )
 
@@ -62,6 +64,10 @@ func (c *Client) sendUpdate(ctx context.Context, lpaUID string, actorUID actorui
 }
 
 func (c *Client) SendRegister(ctx context.Context, lpaUID string) error {
+	if c.baseURL == "https://lpa-store.api.opg.service.justice.gov.uk" {
+		return errors.New("SendRegister cannot be used against production lpa store")
+	}
+
 	body := updateRequest{
 		Type: "REGISTER",
 	}
@@ -70,8 +76,33 @@ func (c *Client) SendRegister(ctx context.Context, lpaUID string) error {
 }
 
 func (c *Client) SendStatutoryWaitingPeriod(ctx context.Context, lpaUID string) error {
+	if c.baseURL == "https://lpa-store.api.opg.service.justice.gov.uk" {
+		return errors.New("SendStatutoryWaitingPeriod cannot be used against production lpa store")
+	}
+
 	body := updateRequest{
 		Type: "STATUTORY_WAITING_PERIOD",
+	}
+
+	return c.sendUpdate(ctx, lpaUID, actoruid.Service, body)
+}
+
+func (c *Client) SendPaperCertificateProviderSign(ctx context.Context, lpaUID string) error {
+	if c.baseURL == "https://lpa-store.api.opg.service.justice.gov.uk" {
+		return errors.New("SendPaperCertificateProviderSign cannot be used against production lpa store")
+	}
+
+	body := updateRequest{
+		Type: "CERTIFICATE_PROVIDER_SIGN",
+		Changes: []updateRequestChange{
+			{Key: "/certificateProvider/signedAt", New: c.now()},
+			{Key: "/certificateProvider/contactLanguagePreference", New: localize.En.String()},
+			{Key: "/certificateProvider/address/line1", New: "Line 1"},
+			{Key: "/certificateProvider/address/town", New: "Town"},
+			{Key: "/certificateProvider/address/postcode", New: "B14 7ED"},
+			{Key: "/certificateProvider/address/country", New: "GB"},
+			{Key: "/certificateProvider/channel", New: lpadata.ChannelPaper},
+		},
 	}
 
 	return c.sendUpdate(ctx, lpaUID, actoruid.Service, body)
@@ -208,6 +239,10 @@ func (c *Client) SendCertificateProviderOptOut(ctx context.Context, lpaUID strin
 }
 
 func (c *Client) SendChangeStatus(ctx context.Context, lpaUID string, oldStatus, newStatus lpadata.Status) error {
+	if c.baseURL == "https://lpa-store.api.opg.service.justice.gov.uk" {
+		return errors.New("SendChangeStatus cannot be used against production lpa store")
+	}
+
 	body := updateRequest{
 		Type: "OPG_STATUS_CHANGE",
 		Changes: []updateRequestChange{

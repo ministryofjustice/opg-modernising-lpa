@@ -37,8 +37,11 @@ type certificateProviderPaths struct {
 	Login                                           page.Path
 	LoginCallback                                   page.Path
 	EnterReferenceNumber                            page.Path
+	EnterReferenceNumberLoggedIn                    page.Path
 	EnterReferenceNumberOptOut                      page.Path
 	ConfirmDontWantToBeCertificateProviderLoggedOut page.Path
+	YouHaveAlreadyProvidedACertificate              page.Path
+	YouHaveAlreadyProvidedACertificateLoggedIn      page.Path
 	YouHaveDecidedNotToBeCertificateProvider        page.Path
 
 	CertificateProvided                    certificateprovider.Path
@@ -262,9 +265,12 @@ var paths = appPaths{
 	CertificateProvider: certificateProviderPaths{
 		ConfirmDontWantToBeCertificateProviderLoggedOut: page.PathCertificateProviderConfirmDontWantToBeCertificateProviderLoggedOut,
 		EnterReferenceNumber:                            page.PathCertificateProviderEnterReferenceNumber,
+		EnterReferenceNumberLoggedIn:                    page.PathCertificateProviderEnterReferenceNumberLoggedIn,
 		EnterReferenceNumberOptOut:                      page.PathCertificateProviderEnterReferenceNumberOptOut,
 		Login:                                           page.PathCertificateProviderLogin,
 		LoginCallback:                                   page.PathCertificateProviderLoginCallback,
+		YouHaveAlreadyProvidedACertificate:              page.PathCertificateProviderYouHaveAlreadyProvidedACertificate,
+		YouHaveAlreadyProvidedACertificateLoggedIn:      page.PathCertificateProviderYouHaveAlreadyProvidedACertificateLoggedIn,
 		YouHaveDecidedNotToBeCertificateProvider:        page.PathCertificateProviderYouHaveDecidedNotToBeCertificateProvider,
 
 		CertificateProvided:                    certificateprovider.PathCertificateProvided,
