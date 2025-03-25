@@ -444,7 +444,7 @@ func Register(
 	handleWithDonor(donor.PathWeHaveContactedVoucher, page.None,
 		Guidance(tmpls.Get("we_have_contacted_voucher.gohtml")))
 	handleWithDonor(donor.PathWhatYouCanDoNow, page.CanGoBack,
-		WhatYouCanDoNow(tmpls.Get("what_you_can_do_now.gohtml"), donorStore))
+		WhatYouCanDoNow(tmpls.Get("what_you_can_do_now.gohtml"), donorStore, voucherStore))
 	handleWithDonor(donor.PathWhatYouCanDoNowExpired, page.CanGoBack,
 		WhatYouCanDoNowExpired(tmpls.Get("what_you_can_do_now_expired.gohtml"), donorStore))
 	handleWithDonor(donor.PathWhatHappensNextRegisteringWithCourtOfProtection, page.None,

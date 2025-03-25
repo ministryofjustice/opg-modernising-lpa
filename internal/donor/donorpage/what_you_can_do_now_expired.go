@@ -16,7 +16,7 @@ func WhatYouCanDoNowExpired(tmpl template.Template, donorStore DonorStore) Handl
 				Options:        donordata.NoVoucherDecisionValues,
 				CanHaveVoucher: provided.CanHaveVoucher(),
 			},
-			VouchAttempts: provided.VouchAttempts,
+			Donor: provided,
 		}
 
 		if r.Method == http.MethodPost {

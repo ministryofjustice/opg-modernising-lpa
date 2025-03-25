@@ -6,14 +6,17 @@
     <div class="govuk-grid-row">
         <div class="govuk-grid-column-two-thirds">
             {{ if .BannerContent }}
-                {{ template "notification-banner" ( notificationBanner .App "important" (trHtml .App .BannerContent) "contents" "1" ) }}
+                {{ $content := trFormatHtml .App .BannerContent "VoucherFullName" .Donor.Voucher.FullName "VoucherFirstNames" .Donor.Voucher.FirstNames }}
+                {{ template "notification-banner" ( notificationBanner .App "important" $content "contents" ) }}
             {{ end }}
 
             <h1 class="govuk-heading-xl">{{ tr .App "whatYouCanDoNow" }}</h1>
 
             {{ trHtml .App "whatYouCanDoNowContent" }}
             {{ trHtml .App "replaceFindOrGetNewIDContent" }}
-            {{ if eq 1 .VouchAttempts }} {{ trHtml .App "tryVouchingAgainContent" }} {{ end }}
+            {{ if .VouchStatusContent }}
+                {{ trFormatHtml .App .VouchStatusContent "VoucherFullName" .Donor.Voucher.FullName "VoucherFirstNames" .Donor.Voucher.FirstNames }}
+            {{ end }}
             {{ trHtml .App "registerYourLPAThroughTheCOPContent" }}
 
             {{ template "warning" (content .App "onceYouSelectThisOptionYouCannotChangeYourMindWarning") }}
