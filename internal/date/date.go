@@ -37,9 +37,6 @@ type TimeOrDate interface {
 
 func New(year, month, day string) Date {
 	t, err := time.Parse(unpaddedDate, year+"-"+month+"-"+day)
-	if err == nil {
-		t = t.UTC()
-	}
 
 	return Date{
 		year:  year,
