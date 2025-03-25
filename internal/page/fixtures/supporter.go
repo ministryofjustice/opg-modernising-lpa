@@ -18,6 +18,7 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/event"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/lpastore"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/lpastore/lpadata"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/notify"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/random"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/search"
@@ -55,6 +56,7 @@ func Supporter(
 	eventClient *event.Client,
 	lpaStoreClient *lpastore.Client,
 	voucherStore *voucher.Store,
+	notifyClient *notify.Client,
 ) page.Handler {
 	return func(appData appcontext.Data, w http.ResponseWriter, r *http.Request) error {
 		acceptCookiesConsent(w)
@@ -190,7 +192,7 @@ func Supporter(
 
 					var fns []func(context.Context, *lpastore.Client, *lpadata.Lpa) error
 					if setLPAProgress {
-						donor, fns, err = updateLPAProgress(donorFixtureData, donor, random.String(16), r, certificateProviderStore, attorneyStore, documentStore, eventClient, shareCodeStore, voucherStore)
+						donor, fns, err = updateLPAProgress(donorFixtureData, donor, random.String(16), r, certificateProviderStore, attorneyStore, documentStore, eventClient, shareCodeStore, voucherStore, notifyClient)
 						if err != nil {
 							return fmt.Errorf("error updating lpa progress: %w", err)
 						}
