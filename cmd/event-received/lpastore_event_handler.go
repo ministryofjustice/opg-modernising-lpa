@@ -8,6 +8,7 @@ import (
 	"time"
 
 	"github.com/aws/aws-lambda-go/events"
+	"github.com/aws/aws-sdk-go-v2/feature/dynamodb/attributevalue"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/dashboard/dashboarddata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/dynamo"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/event"
@@ -174,8 +175,18 @@ func handleRegister(ctx context.Context, client dynamodbClient, lpaStoreClient L
 		return fmt.Errorf("error getting lpa: %w", err)
 	}
 
+	keys, err := client.AllByLpaUIDAndPartialSK(ctx, v.UID, dynamo.SubKey(""))
+	if err != nil {
+		return fmt.Errorf("error getting all subs for uid: %w", err)
+	}
+
+	resolved, err := client.AllByKeys(ctx, keys)
+	if err != nil {
+		return fmt.Errorf("error resolving keys: %w", err)
+	}
+
 	var links []dashboarddata.LpaLink
-	if err := client.AllByLpaUIDAndPartialSK(ctx, v.UID, dynamo.SubKey(""), &links); err != nil {
+	if err := attributevalue.UnmarshalListOfMaps(resolved, &links); err != nil {
 		return fmt.Errorf("error getting all subs for uid: %w", err)
 	}
 
