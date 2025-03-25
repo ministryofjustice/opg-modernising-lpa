@@ -66,7 +66,7 @@ describe('Check the LPA', () => {
     describe('CP acting on paper', () => {
         describe('on first check', () => {
             it('content is tailored for paper CPs, a details component is shown and nav redirects to payment', () => {
-                cy.visit('/fixtures?redirect=/check-your-lpa&progress=addCorrespondent&certificateProvider=paper');
+                cy.visit('/fixtures?redirect=/check-your-lpa&progress=addCorrespondent&certificateProviderChannel=paper');
 
                 cy.url().should('contain', '/check-your-lpa');
                 cy.get('label[for=f-checked-and-happy]').contains('I’ve checked this LPA and I’m happy to show it to my certificate provider, Charlie Cooper')
@@ -87,7 +87,7 @@ describe('Check the LPA', () => {
 
         describe('on subsequent check when LPA has not been paid for', () => {
             it('content is tailored for paper CPs, a warning component is shown and nav redirects to payment', () => {
-                cy.visit('/fixtures?redirect=/task-list&progress=checkAndSendToYourCertificateProvider&certificateProvider=paper');
+                cy.visit('/fixtures?redirect=/task-list&progress=checkAndSendToYourCertificateProvider&certificateProviderChannel=paper');
 
                 cy.contains('li', 'Choose when your LPA can be used').should('contain', 'Completed').click();
 
@@ -116,7 +116,7 @@ describe('Check the LPA', () => {
 
         describe('on subsequent check when LPA has been paid for', () => {
             it('content is tailored for paper CPs, a warning component is shown and nav redirects to dashboard', () => {
-                cy.visit('/fixtures?redirect=/task-list&progress=payForTheLpa&certificateProvider=paper');
+                cy.visit('/fixtures?redirect=/task-list&progress=payForTheLpa&certificateProviderChannel=paper');
 
                 cy.contains('li', 'Choose when your LPA can be used').should('contain', 'Completed').click();
 
