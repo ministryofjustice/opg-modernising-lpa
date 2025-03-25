@@ -17,6 +17,8 @@ type Link struct {
 	LpaKey dynamo.LpaKeyType
 	// LpaOwnerKey is the key for the owner of the LPA that will be accessed
 	LpaOwnerKey dynamo.LpaOwnerKeyType
+	// LpaUID is the UID for the LPA that will be accessed
+	LpaUID string
 	// ActorUID is the UID of the actor being given access to the LPA
 	ActorUID actoruid.UID
 	// IsReplacementAttorney is true when the actor being given access is being

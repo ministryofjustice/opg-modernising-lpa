@@ -18,7 +18,7 @@ func TestGetYouMustBeOver18ToComplete(t *testing.T) {
 	donor := &donordata.Provided{
 		LpaID: "lpa-id",
 		Donor: donordata.Donor{
-			DateOfBirth: date.Today().AddDate(-18, 0, 1),
+			DateOfBirth: date.Today().AddDate(-18, 0, 2),
 		},
 	}
 

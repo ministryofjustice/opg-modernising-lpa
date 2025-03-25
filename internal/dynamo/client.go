@@ -98,7 +98,7 @@ func (c *Client) OneByUID(ctx context.Context, uid string, v interface{}) error 
 	return attributevalue.UnmarshalMap(response.Items[0], v)
 }
 
-func (c *Client) AllByLpaUIDAndPartialSK(ctx context.Context, uid string, partialSK SK, v interface{}) error {
+func (c *Client) AllByLpaUIDAndPartialSK(ctx context.Context, uid string, partialSK SK) ([]Keys, error) {
 	response, err := c.svc.Query(ctx, &dynamodb.QueryInput{
 		TableName: aws.String(c.table),
 		IndexName: aws.String(lpaUIDIndex),
@@ -114,13 +114,15 @@ func (c *Client) AllByLpaUIDAndPartialSK(ctx context.Context, uid string, partia
 		FilterExpression:       aws.String("begins_with(#SK, :SK)"),
 	})
 	if err != nil {
-		return fmt.Errorf("failed to query scheduled event by UID: %w", err)
+		return nil, fmt.Errorf("failed to query UID: %w", err)
 	}
 	if len(response.Items) == 0 {
-		return NotFoundError{}
+		return nil, NotFoundError{}
 	}
 
-	return attributevalue.UnmarshalListOfMaps(response.Items, v)
+	var v []Keys
+	err = attributevalue.UnmarshalListOfMaps(response.Items, &v)
+	return v, err
 }
 
 func (c *Client) AllBySK(ctx context.Context, sk SK, v interface{}) error {
