@@ -1678,5 +1678,8 @@
     "voucherHasNotStartedTheProcessContent": "<h2 class=\"govuk-heading-m\">Welsh</h2><p class=\"govuk-body\">{{ .VoucherFullName }} Welsh {{ .VoucherFirstNames }} Welsh</p> <p class=\"govuk-body\">Welsh</p>",
     "voucherHasNotCompletedTheProcess": "<div class=\"govuk-notification-banner__content\"><p class=\"govuk-notification-banner__heading\">{{ .VoucherFullName }} Welsh</p></div>",
     "voucherHasNotCompletedTheProcessContent": "<h2 class=\"govuk-heading-m\">Welsh</h2><p class=\"govuk-body\">{{ .VoucherFullName }} Welsh {{ .VoucherFirstNames }} Welsh</p> <p class=\"govuk-body\">Welsh</p>",
-    "voucherHasNotCompletedTheProcessSuggestContactVoucher": "<div class=\"govuk-notification-banner__content\"><p class=\"govuk-notification-banner__heading\">{{ .VoucherFullName }} Welsh</p><p class=\"govuk-body\">Welsh {{ .VoucherFirstNames }} Welsh</p></div>"
+    "voucherHasNotCompletedTheProcessSuggestContactVoucher": "<div class=\"govuk-notification-banner__content\"><p class=\"govuk-notification-banner__heading\">{{ .VoucherFullName }} Welsh</p><p class=\"govuk-body\">Welsh {{ .VoucherFirstNames }} Welsh</p></div>",
+    "youHaveAlreadyProvidedTheCertificateForThisLpa": "Welsh",
+    "youHaveAlreadyProvidedTheCertificateForDonorsLpaNotification": "Welsh {{ possessive .DonorFullName}} {{ .LpaType }} Welsh",
+    "youHaveAlreadyProvidedTheCertificateForThisLpaContent": "<p class=\"govuk-body\">Welsh</p><p class=\"govuk-body\">Welsh</p>"
 }
