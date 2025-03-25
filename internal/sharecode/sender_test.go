@@ -74,6 +74,7 @@ func TestShareCodeSenderSendCertificateProviderInvite(t *testing.T) {
 		Put(ctx, actor.TypeCertificateProvider, testHashedCode, sharecodedata.Link{
 			LpaKey:      dynamo.LpaKey("lpa"),
 			LpaOwnerKey: dynamo.LpaOwnerKey(dynamo.DonorKey("donor")),
+			LpaUID:      "lpa-uid",
 		}).
 		Return(nil)
 
@@ -164,6 +165,7 @@ func TestShareCodeSenderSendCertificateProviderInviteWithTestCode(t *testing.T) 
 				Put(ctx, actor.TypeCertificateProvider, sharecodedata.HashedFromString(tc.expectedTestCode), sharecodedata.Link{
 					LpaKey:      dynamo.LpaKey("lpa"),
 					LpaOwnerKey: dynamo.LpaOwnerKey(dynamo.DonorKey("donor")),
+					LpaUID:      "lpa-uid",
 				}).
 				Once().
 				Return(nil)
@@ -171,6 +173,7 @@ func TestShareCodeSenderSendCertificateProviderInviteWithTestCode(t *testing.T) 
 				Put(ctx, actor.TypeCertificateProvider, testHashedCode, sharecodedata.Link{
 					LpaKey:      dynamo.LpaKey("lpa"),
 					LpaOwnerKey: dynamo.LpaOwnerKey(dynamo.DonorKey("donor")),
+					LpaUID:      "lpa-uid",
 				}).
 				Once().
 				Return(nil)
@@ -359,6 +362,7 @@ func TestShareCodeSenderSendCertificateProviderPromptOnline(t *testing.T) {
 		Put(ctx, actor.TypeCertificateProvider, testHashedCode, sharecodedata.Link{
 			LpaKey:      dynamo.LpaKey("lpa"),
 			LpaOwnerKey: dynamo.LpaOwnerKey(dynamo.DonorKey("donor")),
+			LpaUID:      "lpa-uid",
 		}).
 		Return(nil)
 
@@ -427,6 +431,7 @@ func TestShareCodeSenderSendCertificateProviderPromptOnlineWhenStarted(t *testin
 		Put(ctx, actor.TypeCertificateProvider, testHashedCode, sharecodedata.Link{
 			LpaKey:      dynamo.LpaKey("lpa"),
 			LpaOwnerKey: dynamo.LpaOwnerKey(dynamo.DonorKey("donor")),
+			LpaUID:      "lpa-uid",
 		}).
 		Return(nil)
 
@@ -475,6 +480,7 @@ func TestShareCodeSenderSendCertificateProviderPromptPaper(t *testing.T) {
 		Put(ctx, actor.TypeCertificateProvider, testHashedCode, sharecodedata.Link{
 			LpaOwnerKey: dynamo.LpaOwnerKey(dynamo.DonorKey("donor")),
 			LpaKey:      dynamo.LpaKey("lpa"),
+			LpaUID:      "lpa-uid",
 			ActorUID:    actorUID,
 		}).
 		Return(nil)
@@ -548,14 +554,15 @@ func TestShareCodeSenderSendCertificateProviderPromptWithTestCode(t *testing.T) 
 				Put(ctx, actor.TypeCertificateProvider, sharecodedata.HashedFromString(tc.expectedTestCode), sharecodedata.Link{
 					LpaKey:      dynamo.LpaKey("lpa"),
 					LpaOwnerKey: dynamo.LpaOwnerKey(dynamo.DonorKey("donor")),
+					LpaUID:      "lpa-uid",
 				}).
 				Once().
 				Return(nil)
-
 			shareCodeStore.EXPECT().
 				Put(ctx, actor.TypeCertificateProvider, testHashedCode, sharecodedata.Link{
 					LpaKey:      dynamo.LpaKey("lpa"),
 					LpaOwnerKey: dynamo.LpaOwnerKey(dynamo.DonorKey("donor")),
+					LpaUID:      "lpa-uid",
 				}).
 				Once().
 				Return(nil)
@@ -827,25 +834,25 @@ func TestShareCodeSenderSendAttorneys(t *testing.T) {
 
 	shareCodeStore := newMockShareCodeStore(t)
 	shareCodeStore.EXPECT().
-		Put(ctx, actor.TypeTrustCorporation, testHashedCode, sharecodedata.Link{LpaOwnerKey: dynamo.LpaOwnerKey(dynamo.DonorKey("donor")), LpaKey: dynamo.LpaKey("lpa"), ActorUID: trustCorporationUID, IsTrustCorporation: true}).
+		Put(ctx, actor.TypeTrustCorporation, testHashedCode, sharecodedata.Link{LpaOwnerKey: dynamo.LpaOwnerKey(dynamo.DonorKey("donor")), LpaKey: dynamo.LpaKey("lpa"), LpaUID: "lpa-uid", ActorUID: trustCorporationUID, IsTrustCorporation: true}).
 		Return(nil)
 	shareCodeStore.EXPECT().
-		Put(ctx, actor.TypeReplacementTrustCorporation, testHashedCode, sharecodedata.Link{LpaOwnerKey: dynamo.LpaOwnerKey(dynamo.DonorKey("donor")), LpaKey: dynamo.LpaKey("lpa"), ActorUID: replacementTrustCorporationUID, IsTrustCorporation: true, IsReplacementAttorney: true}).
+		Put(ctx, actor.TypeReplacementTrustCorporation, testHashedCode, sharecodedata.Link{LpaOwnerKey: dynamo.LpaOwnerKey(dynamo.DonorKey("donor")), LpaKey: dynamo.LpaKey("lpa"), LpaUID: "lpa-uid", ActorUID: replacementTrustCorporationUID, IsTrustCorporation: true, IsReplacementAttorney: true}).
 		Return(nil)
 	shareCodeStore.EXPECT().
-		Put(ctx, actor.TypeAttorney, testHashedCode, sharecodedata.Link{LpaOwnerKey: dynamo.LpaOwnerKey(dynamo.DonorKey("donor")), LpaKey: dynamo.LpaKey("lpa"), ActorUID: attorney1UID}).
+		Put(ctx, actor.TypeAttorney, testHashedCode, sharecodedata.Link{LpaOwnerKey: dynamo.LpaOwnerKey(dynamo.DonorKey("donor")), LpaKey: dynamo.LpaKey("lpa"), LpaUID: "lpa-uid", ActorUID: attorney1UID}).
 		Return(nil)
 	shareCodeStore.EXPECT().
-		Put(ctx, actor.TypeAttorney, testHashedCode, sharecodedata.Link{LpaOwnerKey: dynamo.LpaOwnerKey(dynamo.DonorKey("donor")), LpaKey: dynamo.LpaKey("lpa"), ActorUID: attorney2UID}).
+		Put(ctx, actor.TypeAttorney, testHashedCode, sharecodedata.Link{LpaOwnerKey: dynamo.LpaOwnerKey(dynamo.DonorKey("donor")), LpaKey: dynamo.LpaKey("lpa"), LpaUID: "lpa-uid", ActorUID: attorney2UID}).
 		Return(nil)
 	shareCodeStore.EXPECT().
-		Put(ctx, actor.TypeAttorney, testHashedCode, sharecodedata.Link{LpaOwnerKey: dynamo.LpaOwnerKey(dynamo.DonorKey("donor")), LpaKey: dynamo.LpaKey("lpa"), ActorUID: attorney3UID}).
+		Put(ctx, actor.TypeAttorney, testHashedCode, sharecodedata.Link{LpaOwnerKey: dynamo.LpaOwnerKey(dynamo.DonorKey("donor")), LpaKey: dynamo.LpaKey("lpa"), LpaUID: "lpa-uid", ActorUID: attorney3UID}).
 		Return(nil)
 	shareCodeStore.EXPECT().
-		Put(ctx, actor.TypeReplacementAttorney, testHashedCode, sharecodedata.Link{LpaOwnerKey: dynamo.LpaOwnerKey(dynamo.DonorKey("donor")), LpaKey: dynamo.LpaKey("lpa"), ActorUID: replacement1UID, IsReplacementAttorney: true}).
+		Put(ctx, actor.TypeReplacementAttorney, testHashedCode, sharecodedata.Link{LpaOwnerKey: dynamo.LpaOwnerKey(dynamo.DonorKey("donor")), LpaKey: dynamo.LpaKey("lpa"), LpaUID: "lpa-uid", ActorUID: replacement1UID, IsReplacementAttorney: true}).
 		Return(nil)
 	shareCodeStore.EXPECT().
-		Put(ctx, actor.TypeReplacementAttorney, testHashedCode, sharecodedata.Link{LpaOwnerKey: dynamo.LpaOwnerKey(dynamo.DonorKey("donor")), LpaKey: dynamo.LpaKey("lpa"), ActorUID: replacement2UID, IsReplacementAttorney: true}).
+		Put(ctx, actor.TypeReplacementAttorney, testHashedCode, sharecodedata.Link{LpaOwnerKey: dynamo.LpaOwnerKey(dynamo.DonorKey("donor")), LpaKey: dynamo.LpaKey("lpa"), LpaUID: "lpa-uid", ActorUID: replacement2UID, IsReplacementAttorney: true}).
 		Return(nil)
 
 	notifyClient := newMockNotifyClient(t)
@@ -1023,6 +1030,7 @@ func TestShareCodeSenderSendAttorneysTrustCorporationsNoEmail(t *testing.T) {
 		Put(ctx, actor.TypeTrustCorporation, testHashedCode, sharecodedata.Link{
 			LpaOwnerKey:        dynamo.LpaOwnerKey(dynamo.DonorKey("donor")),
 			LpaKey:             dynamo.LpaKey("lpa"),
+			LpaUID:             "lpa-uid",
 			ActorUID:           uid1,
 			IsTrustCorporation: true,
 		}).
@@ -1031,6 +1039,7 @@ func TestShareCodeSenderSendAttorneysTrustCorporationsNoEmail(t *testing.T) {
 		Put(ctx, actor.TypeReplacementTrustCorporation, testHashedCode, sharecodedata.Link{
 			LpaOwnerKey:           dynamo.LpaOwnerKey(dynamo.DonorKey("donor")),
 			LpaKey:                dynamo.LpaKey("lpa"),
+			LpaUID:                "lpa-uid",
 			ActorUID:              uid2,
 			IsTrustCorporation:    true,
 			IsReplacementAttorney: true,
@@ -1139,12 +1148,14 @@ func TestShareCodeSenderSendAttorneysWithTestCode(t *testing.T) {
 			shareCodeStore.EXPECT().
 				Put(ctx, actor.TypeAttorney, sharecodedata.HashedFromString(tc.expectedTestCode), sharecodedata.Link{
 					LpaOwnerKey: dynamo.LpaOwnerKey(dynamo.DonorKey("donor")), LpaKey: dynamo.LpaKey("lpa"),
+					LpaUID:   "lpa-uid",
 					ActorUID: uid,
 				}).
 				Return(nil)
 			shareCodeStore.EXPECT().
 				Put(ctx, actor.TypeAttorney, testHashedCode, sharecodedata.Link{
 					LpaOwnerKey: dynamo.LpaOwnerKey(dynamo.DonorKey("donor")), LpaKey: dynamo.LpaKey("lpa"),
+					LpaUID:   "lpa-uid",
 					ActorUID: uid,
 				}).
 				Return(nil)
@@ -1564,6 +1575,7 @@ func TestSendVoucherInvite(t *testing.T) {
 				Put(ctx, actor.TypeVoucher, testHashedCode, sharecodedata.Link{
 					LpaKey:      dynamo.LpaKey("lpa"),
 					LpaOwnerKey: dynamo.LpaOwnerKey(dynamo.DonorKey("donor")),
+					LpaUID:      "lpa-uid",
 					ActorUID:    uid,
 				}).
 				Return(nil)

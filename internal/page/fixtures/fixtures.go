@@ -273,6 +273,7 @@ func createVoucher(ctx context.Context, shareCodeStore *sharecode.Store, voucher
 	shareCodeData := sharecodedata.Link{
 		PK:          dynamo.ShareKey(dynamo.VoucherShareKey(hashedCode.String())),
 		SK:          dynamo.ShareSortKey(dynamo.MetadataKey(hashedCode.String())),
+		LpaUID:      donor.LpaUID,
 		ActorUID:    donor.Voucher.UID,
 		LpaOwnerKey: donor.SK,
 		LpaKey:      donor.PK,

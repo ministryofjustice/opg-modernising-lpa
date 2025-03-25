@@ -15,6 +15,8 @@ type LpaLink struct {
 	PK dynamo.LpaKeyType
 	// SK is the subKey for the current user
 	SK dynamo.SubKeyType
+	// LpaUID is same as the LpaUID for the LPA
+	LpaUID string
 	// DonorKey is the donorKey for the donor
 	DonorKey dynamo.LpaOwnerKeyType
 	// UID is the UID for the linked actor

@@ -17,7 +17,7 @@ import (
 
 type DynamoClient interface {
 	AllByKeys(ctx context.Context, keys []dynamo.Keys) ([]map[string]dynamodbtypes.AttributeValue, error)
-	AllByLpaUIDAndPartialSK(ctx context.Context, uid string, partialSK dynamo.SK, v interface{}) error
+	AllByLpaUIDAndPartialSK(ctx context.Context, uid string, partialSK dynamo.SK) ([]dynamo.Keys, error)
 	AllByPartialSK(ctx context.Context, pk dynamo.PK, partialSK dynamo.SK, v interface{}) error
 	AllBySK(ctx context.Context, sk dynamo.SK, v interface{}) error
 	AllKeysByPK(ctx context.Context, pk dynamo.PK) ([]dynamo.Keys, error)
@@ -71,6 +71,7 @@ func (s *Store) Create(ctx context.Context, shareCode sharecodedata.Link, email 
 		Create(dashboarddata.LpaLink{
 			PK:        dynamo.LpaKey(data.LpaID),
 			SK:        dynamo.SubKey(data.SessionID),
+			LpaUID:    shareCode.LpaUID,
 			UID:       shareCode.ActorUID,
 			DonorKey:  shareCode.LpaOwnerKey,
 			ActorType: actor.TypeAttorney,
