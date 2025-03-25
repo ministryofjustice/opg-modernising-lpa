@@ -125,7 +125,7 @@ func Supporter(
 			if accessCode != "" {
 				donor, err := organisationStore.CreateLPA(organisationCtx)
 				if err != nil {
-					return err
+					return fmt.Errorf("error creating organisation: %w", err)
 				}
 				donorCtx := appcontext.ContextWithSession(r.Context(), &appcontext.Session{OrganisationID: org.ID, LpaID: donor.LpaID, SessionID: random.String(12)})
 
@@ -141,24 +141,20 @@ func Supporter(
 				donor.Tasks.CertificateProvider = task.StateCompleted
 
 				if err := donorStore.Put(donorCtx, donor); err != nil {
-					return err
+					return fmt.Errorf("error putting donor: %w", err)
 				}
 
 				shareCodeData := sharecodedata.Link{
 					LpaOwnerKey:  dynamo.LpaOwnerKey(org.PK),
 					LpaKey:       donor.PK,
+					LpaUID:       donor.LpaUID,
 					ActorUID:     donor.Donor.UID,
 					InviteSentTo: "email@example.com",
 				}
 
-				if err != nil {
-					return err
-				}
-
 				hashedCode := sharecodedata.HashedFromString(accessCode)
-
 				if err := shareCodeStore.PutDonor(r.Context(), hashedCode, shareCodeData); err != nil {
-					return err
+					return fmt.Errorf("error putting sharecode for donor: %w", err)
 				}
 
 				if linkDonor {
@@ -167,7 +163,7 @@ func Supporter(
 					shareCodeData.UpdatedAt = time.Now()
 
 					if err := donorStore.Link(donorCtx, shareCodeData, donor.Donor.Email); err != nil {
-						return err
+						return fmt.Errorf("error linking: %w", err)
 					}
 
 					waitForLPAIndex(searchClient, organisationCtx)
@@ -180,7 +176,7 @@ func Supporter(
 				for range lpaCount {
 					donor, err := organisationStore.CreateLPA(organisationCtx)
 					if err != nil {
-						return err
+						return fmt.Errorf("error creating lpa for organisation: %w", err)
 					}
 					donorCtx := appcontext.ContextWithSession(r.Context(), &appcontext.Session{OrganisationID: org.ID, LpaID: donor.LpaID})
 
@@ -196,12 +192,12 @@ func Supporter(
 					if setLPAProgress {
 						donor, fns, err = updateLPAProgress(donorFixtureData, donor, random.String(16), r, certificateProviderStore, attorneyStore, documentStore, eventClient, shareCodeStore, voucherStore)
 						if err != nil {
-							return err
+							return fmt.Errorf("error updating lpa progress: %w", err)
 						}
 					}
 
 					if err := donorStore.Put(donorCtx, donor); err != nil {
-						return err
+						return fmt.Errorf("error putting donor: %w", err)
 					}
 					if !donor.SignedAt.IsZero() && donor.LpaUID != "" {
 						if err := lpaStoreClient.SendLpa(donorCtx, donor.LpaUID, lpastore.CreateLpaFromDonorProvided(donor)); err != nil {

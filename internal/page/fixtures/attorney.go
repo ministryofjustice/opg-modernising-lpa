@@ -168,6 +168,7 @@ func Attorney(
 				if err := donorStore.Link(appcontext.ContextWithSession(r.Context(), createSession), sharecodedata.Link{
 					LpaKey:      donorDetails.PK,
 					LpaOwnerKey: donorDetails.SK,
+					LpaUID:      donorDetails.LpaUID,
 				}, donorDetails.Donor.Email); err != nil {
 					return err
 				}

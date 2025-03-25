@@ -738,11 +738,20 @@ func TestLpaStoreEventHandlerHandleLpaUpdatedRegister(t *testing.T) {
 	attorneyUID := actoruid.New()
 	replacementTrustCorporationUID := actoruid.New()
 
+	keys := []dynamo.Keys{
+		{SK: dynamo.SubKey(base64.StdEncoding.EncodeToString([]byte("donor-sub")))},
+		{SK: dynamo.SubKey(base64.StdEncoding.EncodeToString([]byte("attorney-sub")))},
+		{SK: dynamo.SubKey(base64.StdEncoding.EncodeToString([]byte("certificate-provided-sub")))},
+		{SK: dynamo.SubKey(base64.StdEncoding.EncodeToString([]byte("replacement-trust-sub")))},
+	}
+
 	client := newMockDynamodbClient(t)
 	client.EXPECT().
-		AllByLpaUIDAndPartialSK(ctx, "M-1111-2222-3333", dynamo.SubKey(""), mock.Anything).
-		Return(nil).
-		SetData([]dashboarddata.LpaLink{{
+		AllByLpaUIDAndPartialSK(ctx, "M-1111-2222-3333", dynamo.SubKey("")).
+		Return(keys, nil)
+	client.EXPECT().
+		AllByKeys(ctx, keys).
+		Return(marshalListOfMaps([]dashboarddata.LpaLink{{
 			SK:        dynamo.SubKey(base64.StdEncoding.EncodeToString([]byte("donor-sub"))),
 			UID:       donorUID,
 			ActorType: actor.TypeDonor,
@@ -758,7 +767,7 @@ func TestLpaStoreEventHandlerHandleLpaUpdatedRegister(t *testing.T) {
 			SK:        dynamo.SubKey(base64.StdEncoding.EncodeToString([]byte("replacement-trust-sub"))),
 			UID:       replacementTrustCorporationUID,
 			ActorType: actor.TypeReplacementTrustCorporation,
-		}})
+		}}), nil)
 
 	eventClient := newMockEventClient(t)
 	eventClient.EXPECT().
@@ -822,8 +831,26 @@ func TestLpaStoreEventHandlerHandleLpaUpdatedRegisterWhenDynamoErrors(t *testing
 
 	client := newMockDynamodbClient(t)
 	client.EXPECT().
-		AllByLpaUIDAndPartialSK(mock.Anything, mock.Anything, mock.Anything, mock.Anything).
-		Return(expectedError)
+		AllByLpaUIDAndPartialSK(mock.Anything, mock.Anything, mock.Anything).
+		Return(nil, expectedError)
+
+	err := handleRegister(ctx, client, lpaStoreClient, nil, lpaUpdatedEvent{})
+	assert.ErrorIs(t, err, expectedError)
+}
+
+func TestLpaStoreEventHandlerHandleLpaUpdatedRegisterWhenAllByKeysErrors(t *testing.T) {
+	lpaStoreClient := newMockLpaStoreClient(t)
+	lpaStoreClient.EXPECT().
+		Lpa(mock.Anything, mock.Anything).
+		Return(&lpadata.Lpa{}, nil)
+
+	client := newMockDynamodbClient(t)
+	client.EXPECT().
+		AllByLpaUIDAndPartialSK(mock.Anything, mock.Anything, mock.Anything).
+		Return([]dynamo.Keys{}, nil)
+	client.EXPECT().
+		AllByKeys(mock.Anything, mock.Anything).
+		Return(nil, expectedError)
 
 	err := handleRegister(ctx, client, lpaStoreClient, nil, lpaUpdatedEvent{})
 	assert.ErrorIs(t, err, expectedError)
@@ -837,9 +864,11 @@ func TestLpaStoreEventHandlerHandleLpaUpdatedRegisterWhenEventClientErrors(t *te
 
 	client := newMockDynamodbClient(t)
 	client.EXPECT().
-		AllByLpaUIDAndPartialSK(mock.Anything, mock.Anything, mock.Anything, mock.Anything).
-		Return(nil).
-		SetData([]dashboarddata.LpaLink{})
+		AllByLpaUIDAndPartialSK(mock.Anything, mock.Anything, mock.Anything).
+		Return([]dynamo.Keys{}, nil)
+	client.EXPECT().
+		AllByKeys(mock.Anything, mock.Anything).
+		Return(marshalListOfMaps([]any{}), nil)
 
 	eventClient := newMockEventClient(t)
 	eventClient.EXPECT().

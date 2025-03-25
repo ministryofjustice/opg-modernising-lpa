@@ -52,6 +52,9 @@ func TestTransactWriteItems(t *testing.T) {
 				"SK": &types.AttributeValueMemberS{Value: "SK-2"},
 			}, TableName: aws.String("this")},
 		},
+		{
+			Update: &types.Update{TableName: aws.String("this")},
+		},
 	}
 
 	dynamoDB := newMockDynamoDB(t)
@@ -75,6 +78,7 @@ func TestTransactWriteItems(t *testing.T) {
 			{PK: testPK("PK-1"), SK: testSK("SK-1")},
 			{PK: testPK("PK-2"), SK: testSK("SK-2")},
 		},
+		Updates: []*types.Update{{}},
 	})
 
 	assert.Nil(t, err)
@@ -195,4 +199,25 @@ func TestTransactionCreate(t *testing.T) {
 		Create(putB)
 
 	assert.Equal(t, []any{putA, putB}, transaction.Creates)
+}
+
+func TestTransactionUpdateValue(t *testing.T) {
+	transaction := NewTransaction().
+		UpdateValue(testPK("A"), testSK("b"), "something", "this")
+
+	assert.Equal(t, &Transaction{
+		Updates: []*types.Update{{
+			Key: map[string]types.AttributeValue{
+				"PK": &types.AttributeValueMemberS{Value: "A"},
+				"SK": &types.AttributeValueMemberS{Value: "b"},
+			},
+			UpdateExpression: aws.String("SET #Field = :Value"),
+			ExpressionAttributeValues: map[string]types.AttributeValue{
+				":Value": &types.AttributeValueMemberS{Value: "this"},
+			},
+			ExpressionAttributeNames: map[string]string{
+				"#Field": "something",
+			},
+		}},
+	}, transaction)
 }

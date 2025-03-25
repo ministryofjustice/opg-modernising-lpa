@@ -141,6 +141,10 @@ func TestShareSortKeyTypes(t *testing.T) {
 	}
 }
 
+func TestDonorKeyTypeToSub(t *testing.T) {
+	assert.Equal(t, SubKey("xyz"), DonorKey("xyz").ToSub())
+}
+
 func TestScheduledDayKeyTypeHandled(t *testing.T) {
 	key := ScheduledDayKey(time.Now())
 

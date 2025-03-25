@@ -83,22 +83,34 @@ func (_c *mockDynamodbClient_AllByKeys_Call) RunAndReturn(run func(context.Conte
 	return _c
 }
 
-// AllByLpaUIDAndPartialSK provides a mock function with given fields: ctx, uid, partialSK, v
-func (_m *mockDynamodbClient) AllByLpaUIDAndPartialSK(ctx context.Context, uid string, partialSK dynamo.SK, v interface{}) error {
-	ret := _m.Called(ctx, uid, partialSK, v)
+// AllByLpaUIDAndPartialSK provides a mock function with given fields: ctx, uid, partialSK
+func (_m *mockDynamodbClient) AllByLpaUIDAndPartialSK(ctx context.Context, uid string, partialSK dynamo.SK) ([]dynamo.Keys, error) {
+	ret := _m.Called(ctx, uid, partialSK)
 
 	if len(ret) == 0 {
 		panic("no return value specified for AllByLpaUIDAndPartialSK")
 	}
 
-	var r0 error
-	if rf, ok := ret.Get(0).(func(context.Context, string, dynamo.SK, interface{}) error); ok {
-		r0 = rf(ctx, uid, partialSK, v)
+	var r0 []dynamo.Keys
+	var r1 error
+	if rf, ok := ret.Get(0).(func(context.Context, string, dynamo.SK) ([]dynamo.Keys, error)); ok {
+		return rf(ctx, uid, partialSK)
+	}
+	if rf, ok := ret.Get(0).(func(context.Context, string, dynamo.SK) []dynamo.Keys); ok {
+		r0 = rf(ctx, uid, partialSK)
 	} else {
-		r0 = ret.Error(0)
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).([]dynamo.Keys)
+		}
 	}
 
-	return r0
+	if rf, ok := ret.Get(1).(func(context.Context, string, dynamo.SK) error); ok {
+		r1 = rf(ctx, uid, partialSK)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
 }
 
 // mockDynamodbClient_AllByLpaUIDAndPartialSK_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'AllByLpaUIDAndPartialSK'
@@ -110,24 +122,23 @@ type mockDynamodbClient_AllByLpaUIDAndPartialSK_Call struct {
 //   - ctx context.Context
 //   - uid string
 //   - partialSK dynamo.SK
-//   - v interface{}
-func (_e *mockDynamodbClient_Expecter) AllByLpaUIDAndPartialSK(ctx interface{}, uid interface{}, partialSK interface{}, v interface{}) *mockDynamodbClient_AllByLpaUIDAndPartialSK_Call {
-	return &mockDynamodbClient_AllByLpaUIDAndPartialSK_Call{Call: _e.mock.On("AllByLpaUIDAndPartialSK", ctx, uid, partialSK, v)}
+func (_e *mockDynamodbClient_Expecter) AllByLpaUIDAndPartialSK(ctx interface{}, uid interface{}, partialSK interface{}) *mockDynamodbClient_AllByLpaUIDAndPartialSK_Call {
+	return &mockDynamodbClient_AllByLpaUIDAndPartialSK_Call{Call: _e.mock.On("AllByLpaUIDAndPartialSK", ctx, uid, partialSK)}
 }
 
-func (_c *mockDynamodbClient_AllByLpaUIDAndPartialSK_Call) Run(run func(ctx context.Context, uid string, partialSK dynamo.SK, v interface{})) *mockDynamodbClient_AllByLpaUIDAndPartialSK_Call {
+func (_c *mockDynamodbClient_AllByLpaUIDAndPartialSK_Call) Run(run func(ctx context.Context, uid string, partialSK dynamo.SK)) *mockDynamodbClient_AllByLpaUIDAndPartialSK_Call {
 	_c.Call.Run(func(args mock.Arguments) {
-		run(args[0].(context.Context), args[1].(string), args[2].(dynamo.SK), args[3].(interface{}))
+		run(args[0].(context.Context), args[1].(string), args[2].(dynamo.SK))
 	})
 	return _c
 }
 
-func (_c *mockDynamodbClient_AllByLpaUIDAndPartialSK_Call) Return(_a0 error) *mockDynamodbClient_AllByLpaUIDAndPartialSK_Call {
-	_c.Call.Return(_a0)
+func (_c *mockDynamodbClient_AllByLpaUIDAndPartialSK_Call) Return(_a0 []dynamo.Keys, _a1 error) *mockDynamodbClient_AllByLpaUIDAndPartialSK_Call {
+	_c.Call.Return(_a0, _a1)
 	return _c
 }
 
-func (_c *mockDynamodbClient_AllByLpaUIDAndPartialSK_Call) RunAndReturn(run func(context.Context, string, dynamo.SK, interface{}) error) *mockDynamodbClient_AllByLpaUIDAndPartialSK_Call {
+func (_c *mockDynamodbClient_AllByLpaUIDAndPartialSK_Call) RunAndReturn(run func(context.Context, string, dynamo.SK) ([]dynamo.Keys, error)) *mockDynamodbClient_AllByLpaUIDAndPartialSK_Call {
 	_c.Call.Return(run)
 	return _c
 }

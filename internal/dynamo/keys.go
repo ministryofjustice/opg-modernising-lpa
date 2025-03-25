@@ -114,6 +114,11 @@ type DonorKeyType string
 func (t DonorKeyType) SK() string { return string(t) }
 func (t DonorKeyType) lpaOwner()  {} // mark as usable with LpaOwnerKey
 
+func (t DonorKeyType) ToSub() SubKeyType {
+	_, after, _ := strings.Cut(t.SK(), "#")
+	return SubKey(after)
+}
+
 // DonorKey is used as the SK (with LpaKey as PK) for donor entered
 // information. It is set to PAPER when the donor information has been provided
 // from paper forms.

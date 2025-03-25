@@ -987,8 +987,8 @@ func TestAnyByPKWhenNotFound(t *testing.T) {
 	assert.Equal(t, NotFoundError{}, err)
 }
 
-func TestAllScheduledEventsByUID(t *testing.T) {
-	expected := []map[string]string{{"Col": "Val"}, {"Other": "Thing"}}
+func TestAllByLpaUIDAndPartialSK(t *testing.T) {
+	expected := []Keys{{PK: LpaKey("a"), SK: CertificateProviderKey("X")}, {PK: LpaKey("b"), SK: AttorneyKey("Y")}}
 	data, _ := attributevalue.MarshalMap(expected[0])
 	data2, _ := attributevalue.MarshalMap(expected[1])
 
@@ -1012,12 +1012,12 @@ func TestAllScheduledEventsByUID(t *testing.T) {
 
 	c := &Client{table: "this", svc: dynamoDB}
 
-	var v []map[string]string
-	err := c.AllByLpaUIDAndPartialSK(ctx, "lpa-uid", testSK("a-partial-sk"), &v)
+	keys, err := c.AllByLpaUIDAndPartialSK(ctx, "lpa-uid", testSK("a-partial-sk"))
 	assert.Nil(t, err)
+	assert.Equal(t, expected, keys)
 }
 
-func TestAllScheduledEventsByUIDWhenQueryError(t *testing.T) {
+func TestAllByLpaUIDAndPartialSKWhenQueryError(t *testing.T) {
 	dynamoDB := newMockDynamoDB(t)
 	dynamoDB.EXPECT().
 		Query(ctx, mock.Anything).
@@ -1025,12 +1025,11 @@ func TestAllScheduledEventsByUIDWhenQueryError(t *testing.T) {
 
 	c := &Client{table: "this", svc: dynamoDB}
 
-	var v []map[string]string
-	err := c.AllByLpaUIDAndPartialSK(ctx, "lpa-uid", testSK("a-partial-sk"), &v)
-	assert.Equal(t, fmt.Errorf("failed to query scheduled event by UID: %w", expectedError), err)
+	_, err := c.AllByLpaUIDAndPartialSK(ctx, "lpa-uid", testSK("a-partial-sk"))
+	assert.Equal(t, fmt.Errorf("failed to query UID: %w", expectedError), err)
 }
 
-func TestAllScheduledEventsByUIDWhenNoResults(t *testing.T) {
+func TestAllByLpaUIDAndPartialSKWhenNoResults(t *testing.T) {
 	dynamoDB := newMockDynamoDB(t)
 	dynamoDB.EXPECT().
 		Query(ctx, mock.Anything).
@@ -1038,12 +1037,11 @@ func TestAllScheduledEventsByUIDWhenNoResults(t *testing.T) {
 
 	c := &Client{table: "this", svc: dynamoDB}
 
-	var v []map[string]string
-	err := c.AllByLpaUIDAndPartialSK(ctx, "lpa-uid", testSK("a-partial-sk"), &v)
+	_, err := c.AllByLpaUIDAndPartialSK(ctx, "lpa-uid", testSK("a-partial-sk"))
 	assert.Equal(t, NotFoundError{}, err)
 }
 
-func TestAllScheduledEventsByUIDWhenUnmarshalError(t *testing.T) {
+func TestAllByLpaUIDAndPartialSKWhenUnmarshalError(t *testing.T) {
 	expected := []map[string]string{{"Col": "Val"}}
 	data, _ := attributevalue.MarshalMap(expected[0])
 
@@ -1054,7 +1052,6 @@ func TestAllScheduledEventsByUIDWhenUnmarshalError(t *testing.T) {
 
 	c := &Client{table: "this", svc: dynamoDB}
 
-	var v []map[string]string
-	err := c.AllByLpaUIDAndPartialSK(ctx, "lpa-uid", testSK("a-partial-sk"), v)
+	_, err := c.AllByLpaUIDAndPartialSK(ctx, "lpa-uid", testSK("a-partial-sk"))
 	assert.Error(t, err)
 }
