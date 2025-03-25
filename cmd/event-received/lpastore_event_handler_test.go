@@ -64,12 +64,11 @@ func TestLpaStoreEventHandlerHandleLpaUpdatedCreate(t *testing.T) {
 
 	client := newMockDynamodbClient(t)
 	client.EXPECT().
-		OneByUID(ctx, "M-1111-2222-3333", mock.Anything).
-		Return(nil).
-		SetData(&donordata.Provided{
+		OneByUID(ctx, "M-1111-2222-3333").
+		Return(dynamo.Keys{
 			PK: dynamo.LpaKey("an-lpa"),
-			SK: dynamo.LpaOwnerKey(dynamo.DonorKey("a-donor")),
-		})
+			SK: dynamo.DonorKey("a-donor"),
+		}, nil)
 	client.EXPECT().
 		One(ctx, dynamo.LpaKey("an-lpa"), dynamo.DonorKey("a-donor"), mock.Anything).
 		Return(nil).
@@ -275,17 +274,16 @@ func TestLpaStoreEventHandlerHandleLpaUpdatedCreateWhenDonorStoreErrors(t *testi
 	testcases := map[string]func(*mockDynamodbClient){
 		"first": func(client *mockDynamodbClient) {
 			client.EXPECT().
-				OneByUID(mock.Anything, mock.Anything, mock.Anything).
-				Return(expectedError)
+				OneByUID(mock.Anything, mock.Anything).
+				Return(dynamo.Keys{}, expectedError)
 		},
 		"second": func(client *mockDynamodbClient) {
 			client.EXPECT().
-				OneByUID(mock.Anything, mock.Anything, mock.Anything).
-				Return(nil).
-				SetData(&donordata.Provided{
+				OneByUID(mock.Anything, mock.Anything).
+				Return(dynamo.Keys{
 					PK: dynamo.LpaKey("an-lpa"),
 					SK: dynamo.LpaOwnerKey(dynamo.DonorKey("a-donor")),
-				})
+				}, nil)
 			client.EXPECT().
 				One(mock.Anything, mock.Anything, mock.Anything, mock.Anything).
 				Return(expectedError)
@@ -341,12 +339,11 @@ func TestLpaStoreEventHandlerHandleLpaUpdatedCreateWhenNotifyErrors(t *testing.T
 
 	client := newMockDynamodbClient(t)
 	client.EXPECT().
-		OneByUID(mock.Anything, mock.Anything, mock.Anything).
-		Return(nil).
-		SetData(&donordata.Provided{
+		OneByUID(mock.Anything, mock.Anything).
+		Return(dynamo.Keys{
 			PK: dynamo.LpaKey("an-lpa"),
 			SK: dynamo.LpaOwnerKey(dynamo.DonorKey("a-donor")),
-		})
+		}, nil)
 	client.EXPECT().
 		One(mock.Anything, mock.Anything, mock.Anything, mock.Anything).
 		Return(nil).
@@ -403,12 +400,11 @@ func TestLpaStoreEventHandlerHandleLpaUpdatedCertificateProviderSign(t *testing.
 
 	client := newMockDynamodbClient(t)
 	client.EXPECT().
-		OneByUID(ctx, "M-1111-2222-3333", mock.Anything).
-		Return(nil).
-		SetData(&donordata.Provided{
+		OneByUID(ctx, "M-1111-2222-3333").
+		Return(dynamo.Keys{
 			PK: dynamo.LpaKey("an-lpa"),
-			SK: dynamo.LpaOwnerKey(dynamo.DonorKey("a-donor")),
-		})
+			SK: dynamo.DonorKey("a-donor"),
+		}, nil)
 	client.EXPECT().
 		One(ctx, dynamo.LpaKey("an-lpa"), dynamo.DonorKey("a-donor"), mock.Anything).
 		Return(nil).
@@ -624,17 +620,16 @@ func TestLpaStoreEventHandlerHandleLpaUpdatedCertificateProviderSignWhenDonorSto
 	testcases := map[string]func(*mockDynamodbClient){
 		"first": func(client *mockDynamodbClient) {
 			client.EXPECT().
-				OneByUID(mock.Anything, mock.Anything, mock.Anything).
-				Return(expectedError)
+				OneByUID(mock.Anything, mock.Anything).
+				Return(dynamo.Keys{}, expectedError)
 		},
 		"second": func(client *mockDynamodbClient) {
 			client.EXPECT().
-				OneByUID(mock.Anything, mock.Anything, mock.Anything).
-				Return(nil).
-				SetData(&donordata.Provided{
+				OneByUID(mock.Anything, mock.Anything).
+				Return(dynamo.Keys{
 					PK: dynamo.LpaKey("an-lpa"),
 					SK: dynamo.LpaOwnerKey(dynamo.DonorKey("a-donor")),
-				})
+				}, nil)
 			client.EXPECT().
 				One(mock.Anything, mock.Anything, mock.Anything, mock.Anything).
 				Return(expectedError)
@@ -690,12 +685,11 @@ func TestLpaStoreEventHandlerHandleLpaUpdatedCertificateProviderSignWhenNotifyEr
 
 	client := newMockDynamodbClient(t)
 	client.EXPECT().
-		OneByUID(mock.Anything, mock.Anything, mock.Anything).
-		Return(nil).
-		SetData(&donordata.Provided{
+		OneByUID(mock.Anything, mock.Anything).
+		Return(dynamo.Keys{
 			PK: dynamo.LpaKey("an-lpa"),
 			SK: dynamo.LpaOwnerKey(dynamo.DonorKey("a-donor")),
-		})
+		}, nil)
 	client.EXPECT().
 		One(mock.Anything, mock.Anything, mock.Anything, mock.Anything).
 		Return(nil).
@@ -895,9 +889,8 @@ func TestLpaStoreEventHandlerHandleLpaUpdatedStatutoryWaitingPeriod(t *testing.T
 
 	client := newMockDynamodbClient(t)
 	client.EXPECT().
-		OneByUID(ctx, "M-1111-2222-3333", mock.Anything).
-		Return(nil).
-		SetData(dynamo.Keys{PK: dynamo.LpaKey("123"), SK: dynamo.DonorKey("456")})
+		OneByUID(ctx, "M-1111-2222-3333").
+		Return(dynamo.Keys{PK: dynamo.LpaKey("123"), SK: dynamo.DonorKey("456")}, nil)
 	client.EXPECT().
 		One(ctx, dynamo.LpaKey("123"), dynamo.DonorKey("456"), mock.Anything).
 		Return(nil).
@@ -933,8 +926,8 @@ func TestHandleStatutoryWaitingPeriodWhenDynamoErrors(t *testing.T) {
 			dynamoClient: func() *mockDynamodbClient {
 				client := newMockDynamodbClient(t)
 				client.EXPECT().
-					OneByUID(ctx, mock.Anything, mock.Anything).
-					Return(expectedError)
+					OneByUID(ctx, mock.Anything).
+					Return(dynamo.Keys{}, expectedError)
 
 				return client
 			},
@@ -944,9 +937,8 @@ func TestHandleStatutoryWaitingPeriodWhenDynamoErrors(t *testing.T) {
 			dynamoClient: func() *mockDynamodbClient {
 				client := newMockDynamodbClient(t)
 				client.EXPECT().
-					OneByUID(mock.Anything, mock.Anything, mock.Anything).
-					Return(nil).
-					SetData(dynamo.Keys{PK: dynamo.LpaKey("pk"), SK: dynamo.DonorKey("sk")})
+					OneByUID(mock.Anything, mock.Anything).
+					Return(dynamo.Keys{PK: dynamo.LpaKey("pk"), SK: dynamo.DonorKey("sk")}, nil)
 				client.EXPECT().
 					One(mock.Anything, mock.Anything, mock.Anything, mock.Anything).
 					Return(expectedError)
@@ -959,9 +951,8 @@ func TestHandleStatutoryWaitingPeriodWhenDynamoErrors(t *testing.T) {
 			dynamoClient: func() *mockDynamodbClient {
 				client := newMockDynamodbClient(t)
 				client.EXPECT().
-					OneByUID(mock.Anything, mock.Anything, mock.Anything).
-					Return(nil).
-					SetData(dynamo.Keys{PK: dynamo.LpaKey("pk"), SK: dynamo.DonorKey("sk")})
+					OneByUID(mock.Anything, mock.Anything).
+					Return(dynamo.Keys{PK: dynamo.LpaKey("pk"), SK: dynamo.DonorKey("sk")}, nil)
 				client.EXPECT().
 					One(mock.Anything, mock.Anything, mock.Anything, mock.Anything).
 					Return(nil).
@@ -1040,9 +1031,8 @@ func TestLpaStoreEventHandlerHandleLpaUpdatedOpgStatusChange(t *testing.T) {
 
 	client := newMockDynamodbClient(t)
 	client.EXPECT().
-		OneByUID(ctx, "M-1111-2222-3333", mock.Anything).
-		Return(nil).
-		SetData(dynamo.Keys{PK: dynamo.LpaKey("123"), SK: dynamo.DonorKey("456")})
+		OneByUID(ctx, "M-1111-2222-3333").
+		Return(dynamo.Keys{PK: dynamo.LpaKey("123"), SK: dynamo.DonorKey("456")}, nil)
 	client.EXPECT().
 		One(ctx, dynamo.LpaKey("123"), dynamo.DonorKey("456"), mock.Anything).
 		Return(nil).
@@ -1085,9 +1075,8 @@ func TestLpaStoreEventHandlerHandleLpaUpdatedOpgStatusChangeWhenFactoryErrors(t 
 func TestOpgStatusChangeWhenNotDoNotRegister(t *testing.T) {
 	dynamodbClient := newMockDynamodbClient(t)
 	dynamodbClient.EXPECT().
-		OneByUID(mock.Anything, mock.Anything, mock.Anything).
-		Return(nil).
-		SetData(dynamo.Keys{PK: dynamo.LpaKey("pk"), SK: dynamo.DonorKey("sk")})
+		OneByUID(mock.Anything, mock.Anything).
+		Return(dynamo.Keys{PK: dynamo.LpaKey("pk"), SK: dynamo.DonorKey("sk")}, nil)
 	dynamodbClient.EXPECT().
 		One(mock.Anything, mock.Anything, mock.Anything, mock.Anything).
 		Return(nil)
@@ -1116,8 +1105,8 @@ func TestOpgStatusChangeWhenErrors(t *testing.T) {
 			dynamoClient: func(t *testing.T) *mockDynamodbClient {
 				client := newMockDynamodbClient(t)
 				client.EXPECT().
-					OneByUID(ctx, mock.Anything, mock.Anything).
-					Return(expectedError)
+					OneByUID(ctx, mock.Anything).
+					Return(dynamo.Keys{}, expectedError)
 
 				return client
 			},
@@ -1128,9 +1117,8 @@ func TestOpgStatusChangeWhenErrors(t *testing.T) {
 			dynamoClient: func(t *testing.T) *mockDynamodbClient {
 				client := newMockDynamodbClient(t)
 				client.EXPECT().
-					OneByUID(mock.Anything, mock.Anything, mock.Anything).
-					Return(nil).
-					SetData(dynamo.Keys{PK: dynamo.LpaKey("pk"), SK: dynamo.DonorKey("sk")})
+					OneByUID(mock.Anything, mock.Anything).
+					Return(dynamo.Keys{PK: dynamo.LpaKey("pk"), SK: dynamo.DonorKey("sk")}, nil)
 				client.EXPECT().
 					One(mock.Anything, mock.Anything, mock.Anything, mock.Anything).
 					Return(expectedError)
@@ -1144,9 +1132,8 @@ func TestOpgStatusChangeWhenErrors(t *testing.T) {
 			dynamoClient: func(t *testing.T) *mockDynamodbClient {
 				client := newMockDynamodbClient(t)
 				client.EXPECT().
-					OneByUID(mock.Anything, mock.Anything, mock.Anything).
-					Return(nil).
-					SetData(dynamo.Keys{PK: dynamo.LpaKey("pk"), SK: dynamo.DonorKey("sk")})
+					OneByUID(mock.Anything, mock.Anything).
+					Return(dynamo.Keys{PK: dynamo.LpaKey("pk"), SK: dynamo.DonorKey("sk")}, nil)
 				client.EXPECT().
 					One(mock.Anything, mock.Anything, mock.Anything, mock.Anything).
 					Return(nil)
@@ -1167,9 +1154,8 @@ func TestOpgStatusChangeWhenErrors(t *testing.T) {
 			dynamoClient: func(t *testing.T) *mockDynamodbClient {
 				client := newMockDynamodbClient(t)
 				client.EXPECT().
-					OneByUID(mock.Anything, mock.Anything, mock.Anything).
-					Return(nil).
-					SetData(dynamo.Keys{PK: dynamo.LpaKey("pk"), SK: dynamo.DonorKey("sk")})
+					OneByUID(mock.Anything, mock.Anything).
+					Return(dynamo.Keys{PK: dynamo.LpaKey("pk"), SK: dynamo.DonorKey("sk")}, nil)
 				client.EXPECT().
 					One(mock.Anything, mock.Anything, mock.Anything, mock.Anything).
 					Return(nil)
