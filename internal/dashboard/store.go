@@ -62,7 +62,7 @@ func (s *Store) GetAll(ctx context.Context) (results dashboarddata.Results, err 
 	}
 
 	if data.SessionID == "" {
-		return results, errors.New("donorStore.GetAll requires SessionID")
+		return results, errors.New("dashboardStore.GetAll requires SessionID")
 	}
 
 	var links []dashboarddata.LpaLink
