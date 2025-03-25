@@ -47,7 +47,7 @@ type DynamoClient interface {
 	Update(ctx context.Context, pk dynamo.PK, sk dynamo.SK, values map[string]dynamodbtypes.AttributeValue, expression string) error
 	BatchPut(ctx context.Context, items []interface{}) error
 	OneBySK(ctx context.Context, sk dynamo.SK, v interface{}) error
-	OneByUID(ctx context.Context, uid string, v interface{}) error
+	OneByUID(ctx context.Context, uid string) (dynamo.Keys, error)
 	WriteTransaction(ctx context.Context, transaction *dynamo.Transaction) error
 }
 
@@ -137,7 +137,6 @@ func (s *Store) Create(ctx context.Context) (*donordata.Provided, error) {
 		Create(dashboarddata.LpaLink{
 			PK:        dynamo.LpaKey(lpaID),
 			SK:        dynamo.SubKey(data.SessionID),
-			LpaUID:    donor.LpaUID,
 			DonorKey:  dynamo.LpaOwnerKey(dynamo.DonorKey(data.SessionID)),
 			UID:       donor.Donor.UID,
 			ActorType: actor.TypeDonor,

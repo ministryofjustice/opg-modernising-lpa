@@ -31,7 +31,7 @@ type DynamoClient interface {
 	Update(ctx context.Context, pk dynamo.PK, sk dynamo.SK, values map[string]dynamodbtypes.AttributeValue, expression string) error
 	BatchPut(ctx context.Context, items []interface{}) error
 	OneBySK(ctx context.Context, sk dynamo.SK, v interface{}) error
-	OneByUID(ctx context.Context, uid string, v interface{}) error
+	OneByUID(ctx context.Context, uid string) (dynamo.Keys, error)
 	WriteTransaction(ctx context.Context, transaction *dynamo.Transaction) error
 }
 
@@ -123,8 +123,8 @@ func (s *Store) One(ctx context.Context, pk dynamo.LpaKeyType) (*certificateprov
 }
 
 func (s *Store) OneByUID(ctx context.Context, uid string) (*certificateproviderdata.Provided, error) {
-	var key dynamo.Keys
-	if err := s.dynamoClient.OneByUID(ctx, uid, &key); err != nil {
+	key, err := s.dynamoClient.OneByUID(ctx, uid)
+	if err != nil {
 		return nil, fmt.Errorf("failed to resolve uid: %w", err)
 	}
 
