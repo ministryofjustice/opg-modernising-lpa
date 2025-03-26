@@ -200,9 +200,8 @@ func TestStoreOneByUID(t *testing.T) {
 
 	dynamoClient := newMockDynamoClient(t)
 	dynamoClient.EXPECT().
-		OneByUID(ctx, "M-1111-2222-3333", mock.Anything).
-		Return(nil).
-		SetData(dynamo.Keys{PK: dynamo.LpaKey("lpa-id")})
+		OneByUID(ctx, "M-1111-2222-3333").
+		Return(dynamo.Keys{PK: dynamo.LpaKey("lpa-id")}, nil)
 	dynamoClient.EXPECT().
 		OneByPartialSK(ctx, dynamo.LpaKey("lpa-id"), dynamo.CertificateProviderKey(""), mock.Anything).
 		Return(nil).
@@ -218,8 +217,8 @@ func TestStoreOneByUID(t *testing.T) {
 func TestStoreOneByUIDWhenNotFound(t *testing.T) {
 	dynamoClient := newMockDynamoClient(t)
 	dynamoClient.EXPECT().
-		OneByUID(ctx, "M-1111-2222-3333", mock.Anything).
-		Return(nil)
+		OneByUID(ctx, "M-1111-2222-3333").
+		Return(dynamo.Keys{}, nil)
 
 	store := &Store{dynamoClient: dynamoClient}
 
@@ -230,8 +229,8 @@ func TestStoreOneByUIDWhenNotFound(t *testing.T) {
 func TestStoreOneByUIDWhenError(t *testing.T) {
 	dynamoClient := newMockDynamoClient(t)
 	dynamoClient.EXPECT().
-		OneByUID(ctx, "M-1111-2222-3333", mock.Anything).
-		Return(expectedError)
+		OneByUID(ctx, "M-1111-2222-3333").
+		Return(dynamo.Keys{}, expectedError)
 
 	store := &Store{dynamoClient: dynamoClient}
 

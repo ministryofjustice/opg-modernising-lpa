@@ -118,8 +118,8 @@ func handleEvidenceReceived(ctx context.Context, client dynamodbClient, event *e
 		return fmt.Errorf("failed to unmarshal detail: %w", err)
 	}
 
-	var key dynamo.Keys
-	if err := client.OneByUID(ctx, v.UID, &key); err != nil {
+	key, err := client.OneByUID(ctx, v.UID)
+	if err != nil {
 		return fmt.Errorf("failed to resolve uid: %w", err)
 	}
 
