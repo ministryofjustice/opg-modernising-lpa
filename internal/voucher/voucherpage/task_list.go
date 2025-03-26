@@ -53,7 +53,7 @@ func TaskList(tmpl template.Template, lpaStoreResolvingService LpaStoreResolving
 				State: provided.Tasks.ConfirmYourName,
 			},
 			{
-				Name: appData.Localizer.Format("verifyPersonDetails", map[string]any{
+				Name: appData.Localizer.Format("verifyPersonIdentity", map[string]any{
 					"DonorFullName": lpa.Donor.FullName(),
 				}),
 				Path:  voucher.PathVerifyDonorDetails,

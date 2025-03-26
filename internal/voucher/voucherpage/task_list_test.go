@@ -108,7 +108,7 @@ func TestGetTaskList(t *testing.T) {
 
 			localizer := newMockLocalizer(t)
 			localizer.EXPECT().
-				Format("verifyPersonDetails", map[string]any{"DonorFullName": "John Smith"}).
+				Format("verifyPersonIdentity", map[string]any{"DonorFullName": "John Smith"}).
 				Return("verifyJohnSmithsDetails")
 
 			appData := testAppData

@@ -113,7 +113,7 @@ describe('Progress', () => {
         });
 
         it('when a vouch attempt has been unsuccessful', () => {
-            cy.visit('/fixtures?redirect=/progress&progress=signTheLpa&options=voucher&vouchAttempts=1&idStatus=donor:insufficient-evidence');
+            cy.visit('/fixtures?redirect=/progress&progress=signTheLpa&options=voucher&vouchAttempts=1&idStatus=donor:vouch-failed');
             cy.checkA11yApp();
             cy.contains('Important: 2 notifications from OPG')
 

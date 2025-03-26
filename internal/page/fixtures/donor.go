@@ -135,8 +135,10 @@ func Donor(
 					identity.StatusExpired.String(),
 					"post-office",
 					"mismatch",
+					"voucher-entered-code",
 					"verified-not-vouched",
 					"vouched",
+					"vouch-failed",
 				},
 			})
 		}
@@ -499,10 +501,16 @@ func updateLPAProgress(
 		case "post-office":
 			userData = identity.UserData{}
 			donorDetails.Tasks.ConfirmYourIdentity = task.IdentityStatePending
-		case "vouched":
+		case "voucher-entered-code", "verified-not-vouched", "vouched":
+			userData = identity.UserData{
+				Status:    identity.StatusInsufficientEvidence,
+				CheckedAt: time.Now(),
+			}
+
 			donorDetails.Voucher = makeVoucher(voucherName)
 			donorDetails.WantVoucher = form.Yes
-			donorDetails.DetailsVerifiedByVoucher = true
+			donorDetails.Voucher.Allowed = true
+			donorDetails.Tasks.ConfirmYourIdentity = task.IdentityStateInProgress
 
 			ctx := appcontext.ContextWithSession(r.Context(), &appcontext.Session{SessionID: random.String(16), LpaID: donorDetails.LpaID})
 
@@ -513,27 +521,55 @@ func updateLPAProgress(
 
 			voucherDetails.FirstNames = donorDetails.Voucher.FirstNames
 			voucherDetails.LastName = donorDetails.Voucher.LastName
-			voucherDetails.SignedAt = time.Now()
-			voucherDetails.IdentityUserData = identity.UserData{
-				Status:      identity.StatusConfirmed,
-				FirstNames:  voucherDetails.FirstNames,
-				LastName:    voucherDetails.LastName,
-				DateOfBirth: donorDetails.Donor.DateOfBirth,
-				CheckedAt:   time.Now(),
+
+			if idStatus == "verified-not-vouched" || idStatus == "vouched" {
+				donorDetails.DetailsVerifiedByVoucher = true
+				donorDetails.VouchAttempts = 1
+
+				voucherDetails.Tasks.ConfirmYourName = task.StateCompleted
+				voucherDetails.Tasks.VerifyDonorDetails = task.StateCompleted
 			}
 
-			userData = identity.UserData{
-				Status:         identity.StatusConfirmed,
-				FirstNames:     donorDetails.Donor.FirstNames,
-				LastName:       donorDetails.Donor.LastName,
-				DateOfBirth:    donorDetails.Donor.DateOfBirth,
-				CurrentAddress: donorDetails.Donor.Address,
-				CheckedAt:      time.Now(),
+			if idStatus == "vouched" {
+				donorDetails.Tasks.ConfirmYourIdentity = task.IdentityStateCompleted
+
+				voucherDetails.Tasks.ConfirmYourIdentity = task.IdentityStateCompleted
+				voucherDetails.Tasks.SignTheDeclaration = task.StateCompleted
+				voucherDetails.SignedAt = time.Now()
+				voucherDetails.IdentityUserData = identity.UserData{
+					Status:      identity.StatusConfirmed,
+					FirstNames:  voucherDetails.FirstNames,
+					LastName:    voucherDetails.LastName,
+					DateOfBirth: donorDetails.Donor.DateOfBirth,
+					CheckedAt:   time.Now(),
+				}
+
+				userData = identity.UserData{
+					Status:         identity.StatusConfirmed,
+					FirstNames:     donorDetails.Donor.FirstNames,
+					LastName:       donorDetails.Donor.LastName,
+					DateOfBirth:    donorDetails.Donor.DateOfBirth,
+					CurrentAddress: donorDetails.Donor.Address,
+					CheckedAt:      time.Now(),
+				}
 			}
 
 			if err = voucherStore.Put(r.Context(), voucherDetails); err != nil {
 				return nil, nil, fmt.Errorf("error persisting voucher: %v", err)
 			}
+		case "vouch-failed":
+			donorDetails.WantVoucher = form.YesNoUnknown
+			donorDetails.FailedVoucher = donorDetails.Voucher
+			donorDetails.FailedVoucher.FailedAt = testNow
+			donorDetails.Voucher = donordata.Voucher{}
+			donorDetails.VoucherInvitedAt = time.Time{}
+
+			userData = identity.UserData{
+				Status:    identity.StatusInsufficientEvidence,
+				CheckedAt: time.Now(),
+			}
+
+			donorDetails.Tasks.ConfirmYourIdentity = task.IdentityStateInProgress
 		case "mismatch":
 			userData = identity.UserData{
 				Status:      identity.StatusConfirmed,
@@ -544,16 +580,6 @@ func updateLPAProgress(
 			}
 			donorDetails.Tasks.ConfirmYourIdentity = task.IdentityStatePending
 			donorDetails.ContinueWithMismatchedIdentity = true
-		case "verified-not-vouched":
-			userData = identity.UserData{
-				Status:    identity.StatusInsufficientEvidence,
-				CheckedAt: time.Now(),
-			}
-
-			donorDetails.Voucher = makeVoucher(voucherName)
-			donorDetails.WantVoucher = form.Yes
-			donorDetails.Tasks.ConfirmYourIdentity = task.IdentityStateInProgress
-			donorDetails.DetailsVerifiedByVoucher = true
 		default:
 			userData = identity.UserData{
 				Status:      identity.StatusConfirmed,
@@ -564,18 +590,14 @@ func updateLPAProgress(
 			}
 		}
 
-		attempts, err := strconv.Atoi(data.VouchAttempts)
-		if err != nil && data.VouchAttempts != "" {
-			return nil, nil, fmt.Errorf("invalid value for vouchAttempts: %s", err.Error())
-		}
+		if data.VouchAttempts != "" {
+			attempts, err := strconv.Atoi(data.VouchAttempts)
 
-		donorDetails.VouchAttempts = attempts
-		if attempts > 0 {
-			donorDetails.WantVoucher = form.YesNoUnknown
-			donorDetails.FailedVoucher = donorDetails.Voucher
-			donorDetails.FailedVoucher.FailedAt = testNow
-			donorDetails.Voucher = donordata.Voucher{}
-			donorDetails.VoucherInvitedAt = time.Time{}
+			if err != nil {
+				return nil, nil, fmt.Errorf("invalid value for vouchAttempts: %s", err.Error())
+			}
+
+			donorDetails.VouchAttempts = attempts
 		}
 
 		donorDetails.IdentityUserData = userData
