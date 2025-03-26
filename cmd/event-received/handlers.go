@@ -8,7 +8,6 @@ import (
 
 	"github.com/aws/aws-lambda-go/events"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor/donordata"
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/dynamo"
 )
 
 func handleObjectTagsAdded(ctx context.Context, dynamodbClient dynamodbClient, event *events.S3Event, s3Client s3Client, documentStore DocumentStore) error {
@@ -62,8 +61,8 @@ func putDonor(ctx context.Context, donor *donordata.Provided, now func() time.Ti
 }
 
 func getDonorByLpaUID(ctx context.Context, client dynamodbClient, uid string) (*donordata.Provided, error) {
-	var key dynamo.Keys
-	if err := client.OneByUID(ctx, uid, &key); err != nil {
+	key, err := client.OneByUID(ctx, uid)
+	if err != nil {
 		return nil, fmt.Errorf("failed to resolve uid: %w", err)
 	}
 

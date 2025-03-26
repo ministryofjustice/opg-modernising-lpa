@@ -89,7 +89,7 @@ type CertificateProviderInvite struct {
 }
 
 func (s *Sender) SendCertificateProviderInvite(ctx context.Context, appData appcontext.Data, invite CertificateProviderInvite, to notify.ToEmail) error {
-	shareCode, err := s.createShareCode(ctx, invite.LpaKey, invite.LpaOwnerKey, invite.CertificateProviderUID, actor.TypeCertificateProvider)
+	shareCode, err := s.createShareCode(ctx, invite.LpaKey, invite.LpaOwnerKey, invite.LpaUID, invite.CertificateProviderUID, actor.TypeCertificateProvider)
 	if err != nil {
 		return err
 	}
@@ -113,7 +113,7 @@ func (s *Sender) SendCertificateProviderInvite(ctx context.Context, appData appc
 }
 
 func (s *Sender) SendCertificateProviderPrompt(ctx context.Context, appData appcontext.Data, donor *donordata.Provided) error {
-	shareCode, err := s.createShareCode(ctx, donor.PK, donor.SK, donor.CertificateProvider.UID, actor.TypeCertificateProvider)
+	shareCode, err := s.createShareCode(ctx, donor.PK, donor.SK, donor.LpaUID, donor.CertificateProvider.UID, actor.TypeCertificateProvider)
 	if err != nil {
 		return err
 	}
@@ -202,7 +202,7 @@ func (s *Sender) SendVoucherInvite(ctx context.Context, provided *donordata.Prov
 }
 
 func (s *Sender) SendVoucherAccessCode(ctx context.Context, provided *donordata.Provided, appData appcontext.Data) error {
-	shareCode, err := s.createShareCode(ctx, provided.PK, provided.SK, provided.Voucher.UID, actor.TypeVoucher)
+	shareCode, err := s.createShareCode(ctx, provided.PK, provided.SK, provided.LpaUID, provided.Voucher.UID, actor.TypeVoucher)
 	if err != nil {
 		return err
 	}
@@ -240,7 +240,7 @@ func (s *Sender) SendVoucherAccessCode(ctx context.Context, provided *donordata.
 }
 
 func (s *Sender) sendOriginalAttorney(ctx context.Context, appData appcontext.Data, lpa *lpadata.Lpa, attorney lpadata.Attorney) error {
-	shareCode, err := s.createShareCode(ctx, lpa.LpaKey, lpa.LpaOwnerKey, attorney.UID, actor.TypeAttorney)
+	shareCode, err := s.createShareCode(ctx, lpa.LpaKey, lpa.LpaOwnerKey, lpa.LpaUID, attorney.UID, actor.TypeAttorney)
 	if err != nil {
 		return err
 	}
@@ -267,7 +267,7 @@ func (s *Sender) sendOriginalAttorney(ctx context.Context, appData appcontext.Da
 }
 
 func (s *Sender) sendReplacementAttorney(ctx context.Context, appData appcontext.Data, lpa *lpadata.Lpa, attorney lpadata.Attorney) error {
-	shareCode, err := s.createShareCode(ctx, lpa.LpaKey, lpa.LpaOwnerKey, attorney.UID, actor.TypeReplacementAttorney)
+	shareCode, err := s.createShareCode(ctx, lpa.LpaKey, lpa.LpaOwnerKey, lpa.LpaUID, attorney.UID, actor.TypeReplacementAttorney)
 	if err != nil {
 		return err
 	}
@@ -298,7 +298,7 @@ func (s *Sender) sendTrustCorporation(ctx context.Context, appData appcontext.Da
 		return nil
 	}
 
-	shareCode, err := s.createShareCode(ctx, lpa.LpaKey, lpa.LpaOwnerKey, trustCorporation.UID, actor.TypeTrustCorporation)
+	shareCode, err := s.createShareCode(ctx, lpa.LpaKey, lpa.LpaOwnerKey, lpa.LpaUID, trustCorporation.UID, actor.TypeTrustCorporation)
 	if err != nil {
 		return err
 	}
@@ -329,7 +329,7 @@ func (s *Sender) sendReplacementTrustCorporation(ctx context.Context, appData ap
 		return nil
 	}
 
-	shareCode, err := s.createShareCode(ctx, lpa.LpaKey, lpa.LpaOwnerKey, trustCorporation.UID, actor.TypeReplacementTrustCorporation)
+	shareCode, err := s.createShareCode(ctx, lpa.LpaKey, lpa.LpaOwnerKey, lpa.LpaUID, trustCorporation.UID, actor.TypeReplacementTrustCorporation)
 	if err != nil {
 		return err
 	}
@@ -355,7 +355,7 @@ func (s *Sender) sendReplacementTrustCorporation(ctx context.Context, appData ap
 		})
 }
 
-func (s *Sender) createShareCode(ctx context.Context, lpaKey dynamo.LpaKeyType, lpaOwnerKey dynamo.LpaOwnerKeyType, actorUID actoruid.UID, actorType actor.Type) (sharecodedata.PlainText, error) {
+func (s *Sender) createShareCode(ctx context.Context, lpaKey dynamo.LpaKeyType, lpaOwnerKey dynamo.LpaOwnerKeyType, lpaUID string, actorUID actoruid.UID, actorType actor.Type) (sharecodedata.PlainText, error) {
 	plainCode, hashedCode := s.generate()
 
 	if s.testCode != "" {
@@ -367,6 +367,7 @@ func (s *Sender) createShareCode(ctx context.Context, lpaKey dynamo.LpaKeyType, 
 	shareCodeData := sharecodedata.Link{
 		LpaKey:                lpaKey,
 		LpaOwnerKey:           lpaOwnerKey,
+		LpaUID:                lpaUID,
 		ActorUID:              actorUID,
 		IsReplacementAttorney: actorType == actor.TypeReplacementAttorney || actorType == actor.TypeReplacementTrustCorporation,
 		IsTrustCorporation:    actorType == actor.TypeTrustCorporation || actorType == actor.TypeReplacementTrustCorporation,

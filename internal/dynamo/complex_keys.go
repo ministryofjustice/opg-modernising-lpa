@@ -3,6 +3,7 @@ package dynamo
 import (
 	"encoding/json"
 	"errors"
+	"strings"
 
 	"github.com/aws/aws-sdk-go-v2/feature/dynamodb/attributevalue"
 	"github.com/aws/aws-sdk-go-v2/service/dynamodb/types"
@@ -126,6 +127,11 @@ func (k LpaOwnerKeyType) SK() string {
 	}
 
 	return k.sk.SK()
+}
+
+func (k LpaOwnerKeyType) ToSub() SubKeyType {
+	_, after, _ := strings.Cut(k.sk.SK(), "#")
+	return SubKey(after)
 }
 
 func (k LpaOwnerKeyType) Organisation() (OrganisationKeyType, bool) {
