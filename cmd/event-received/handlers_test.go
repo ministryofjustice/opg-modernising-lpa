@@ -39,13 +39,9 @@ func TestHandleObjectTagsAdded(t *testing.T) {
 				}, nil)
 
 			dynamoClient := newMockDynamodbClient(t)
-			dynamoClient.
-				On("OneByUID", ctx, "M-1111-2222-3333", mock.Anything).
-				Return(func(ctx context.Context, uid string, v interface{}) error {
-					b, _ := json.Marshal(dynamo.Keys{PK: dynamo.LpaKey("123"), SK: dynamo.DonorKey("456")})
-					json.Unmarshal(b, v)
-					return nil
-				})
+			dynamoClient.EXPECT().
+				OneByUID(ctx, "M-1111-2222-3333").
+				Return(dynamo.Keys{PK: dynamo.LpaKey("123"), SK: dynamo.DonorKey("456")}, nil)
 			dynamoClient.
 				On("One", ctx, dynamo.LpaKey("123"), dynamo.DonorKey("456"), mock.Anything).
 				Return(func(ctx context.Context, pk dynamo.PK, sk dynamo.SK, v interface{}) error {
@@ -125,13 +121,9 @@ func TestHandleObjectTagsAddedWhenDynamoClientOneByUIDError(t *testing.T) {
 		}, nil)
 
 	dynamoClient := newMockDynamodbClient(t)
-	dynamoClient.
-		On("OneByUID", ctx, "M-1111-2222-3333", mock.Anything).
-		Return(func(ctx context.Context, uid string, v interface{}) error {
-			b, _ := json.Marshal(dynamo.Keys{PK: dynamo.LpaKey("123"), SK: dynamo.DonorKey("456")})
-			json.Unmarshal(b, v)
-			return nil
-		})
+	dynamoClient.EXPECT().
+		OneByUID(ctx, "M-1111-2222-3333").
+		Return(dynamo.Keys{PK: dynamo.LpaKey("123"), SK: dynamo.DonorKey("456")}, nil)
 	dynamoClient.
 		On("One", ctx, dynamo.LpaKey("123"), dynamo.DonorKey("456"), mock.Anything).
 		Return(func(ctx context.Context, pk dynamo.PK, sk dynamo.SK, v interface{}) error {
@@ -159,13 +151,9 @@ func TestHandleObjectTagsAddedWhenDocumentStoreUpdateScanResultsError(t *testing
 		}, nil)
 
 	dynamoClient := newMockDynamodbClient(t)
-	dynamoClient.
-		On("OneByUID", ctx, "M-1111-2222-3333", mock.Anything).
-		Return(func(ctx context.Context, uid string, v interface{}) error {
-			b, _ := json.Marshal(dynamo.Keys{PK: dynamo.LpaKey("123"), SK: dynamo.DonorKey("456")})
-			json.Unmarshal(b, v)
-			return nil
-		})
+	dynamoClient.EXPECT().
+		OneByUID(ctx, "M-1111-2222-3333").
+		Return(dynamo.Keys{PK: dynamo.LpaKey("123"), SK: dynamo.DonorKey("456")}, nil)
 	dynamoClient.
 		On("One", ctx, dynamo.LpaKey("123"), dynamo.DonorKey("456"), mock.Anything).
 		Return(func(ctx context.Context, pk dynamo.PK, sk dynamo.SK, v interface{}) error {
@@ -188,9 +176,8 @@ func TestGetDonorByLpaUID(t *testing.T) {
 
 	client := newMockDynamodbClient(t)
 	client.EXPECT().
-		OneByUID(ctx, "M-1111-2222-3333", mock.Anything).
-		Return(nil).
-		SetData(dynamo.Keys{PK: dynamo.LpaKey("123"), SK: dynamo.DonorKey("456")})
+		OneByUID(ctx, "M-1111-2222-3333").
+		Return(dynamo.Keys{PK: dynamo.LpaKey("123"), SK: dynamo.DonorKey("456")}, nil)
 	client.EXPECT().
 		One(ctx, dynamo.LpaKey("123"), dynamo.DonorKey("456"), mock.Anything).
 		Return(nil).
@@ -205,8 +192,8 @@ func TestGetDonorByLpaUID(t *testing.T) {
 func TestGetDonorByLpaUIDWhenClientOneByUidError(t *testing.T) {
 	client := newMockDynamodbClient(t)
 	client.EXPECT().
-		OneByUID(ctx, "M-1111-2222-3333", mock.Anything).
-		Return(expectedError)
+		OneByUID(ctx, "M-1111-2222-3333").
+		Return(dynamo.Keys{}, expectedError)
 
 	lpa, err := getDonorByLpaUID(ctx, client, "M-1111-2222-3333")
 
@@ -217,9 +204,8 @@ func TestGetDonorByLpaUIDWhenClientOneByUidError(t *testing.T) {
 func TestGetDonorByLpaUIDWhenPKMissing(t *testing.T) {
 	client := newMockDynamodbClient(t)
 	client.EXPECT().
-		OneByUID(ctx, "M-1111-2222-3333", mock.Anything).
-		Return(nil).
-		SetData(dynamo.Keys{SK: dynamo.DonorKey("456")})
+		OneByUID(ctx, "M-1111-2222-3333").
+		Return(dynamo.Keys{SK: dynamo.DonorKey("456")}, nil)
 
 	donor, err := getDonorByLpaUID(ctx, client, "M-1111-2222-3333")
 
@@ -230,9 +216,8 @@ func TestGetDonorByLpaUIDWhenPKMissing(t *testing.T) {
 func TestGetDonorByLpaUIDWhenClientOneError(t *testing.T) {
 	client := newMockDynamodbClient(t)
 	client.EXPECT().
-		OneByUID(ctx, "M-1111-2222-3333", mock.Anything).
-		Return(nil).
-		SetData(dynamo.Keys{PK: dynamo.LpaKey("123"), SK: dynamo.DonorKey("456")})
+		OneByUID(ctx, "M-1111-2222-3333").
+		Return(dynamo.Keys{PK: dynamo.LpaKey("123"), SK: dynamo.DonorKey("456")}, nil)
 	client.EXPECT().
 		One(ctx, dynamo.LpaKey("123"), dynamo.DonorKey("456"), mock.Anything).
 		Return(expectedError)

@@ -120,6 +120,16 @@ func TestLpaOwnerKey(t *testing.T) {
 		assert.False(t, LpaOwnerKey(nil).Equals(DonorKey("")))
 	})
 
+	t.Run("Donor", func(t *testing.T) {
+		key, ok := LpaOwnerKey(DonorKey("a")).Donor()
+		assert.Equal(t, DonorKey("a"), key)
+		assert.True(t, ok)
+		_, ok = LpaOwnerKey(OrganisationKey("")).Donor()
+		assert.False(t, ok)
+		_, ok = LpaOwnerKey(nil).Donor()
+		assert.False(t, ok)
+	})
+
 	t.Run("Organisation", func(t *testing.T) {
 		key, ok := LpaOwnerKey(OrganisationKey("a")).Organisation()
 		assert.Equal(t, OrganisationKey("a"), key)

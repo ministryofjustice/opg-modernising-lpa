@@ -128,6 +128,11 @@ func (k LpaOwnerKeyType) SK() string {
 	return k.sk.SK()
 }
 
+func (k LpaOwnerKeyType) Donor() (DonorKeyType, bool) {
+	v, ok := k.sk.(DonorKeyType)
+	return v, ok
+}
+
 func (k LpaOwnerKeyType) Organisation() (OrganisationKeyType, bool) {
 	v, ok := k.sk.(OrganisationKeyType)
 	return v, ok

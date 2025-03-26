@@ -47,6 +47,10 @@ func (s *uidStore) Set(ctx context.Context, provided *donordata.Provided, uid st
 		Put(provided).
 		Create(dynamo.Keys{PK: dynamo.UIDKey(uid), SK: dynamo.MetadataKey("")})
 
+	if donorSK, ok := provided.SK.Donor(); ok {
+		transaction.UpdateValue(provided.PK, donorSK.ToSub(), "LpaUID", uid)
+	}
+
 	if err := s.dynamoClient.WriteTransaction(ctx, transaction); err != nil {
 		return fmt.Errorf("uidStore update failed: %w", err)
 	}
