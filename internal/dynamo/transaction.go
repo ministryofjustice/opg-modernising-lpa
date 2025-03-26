@@ -42,6 +42,11 @@ func (c *Client) WriteTransaction(ctx context.Context, transaction *Transaction)
 		}})
 	}
 
+	for _, u := range transaction.Updates {
+		u.TableName = aws.String(c.table)
+		items = append(items, types.TransactWriteItem{Update: u})
+	}
+
 	for _, d := range transaction.Deletes {
 		items = append(items, types.TransactWriteItem{Delete: &types.Delete{
 			TableName: aws.String(c.table),
@@ -71,6 +76,7 @@ func (c *Client) WriteTransaction(ctx context.Context, transaction *Transaction)
 type Transaction struct {
 	Creates []any
 	Puts    []any
+	Updates []*types.Update
 	Deletes []Keys
 }
 
@@ -85,6 +91,26 @@ func (t *Transaction) Create(v interface{}) *Transaction {
 
 func (t *Transaction) Put(v interface{}) *Transaction {
 	t.Puts = append(t.Puts, v)
+	return t
+}
+
+func (t *Transaction) UpdateValue(pk PK, sk SK, field string, value any) *Transaction {
+	attributeValue, _ := attributevalue.Marshal(value)
+
+	t.Updates = append(t.Updates, &types.Update{
+		Key: map[string]types.AttributeValue{
+			"PK": &types.AttributeValueMemberS{Value: pk.PK()},
+			"SK": &types.AttributeValueMemberS{Value: sk.SK()},
+		},
+		UpdateExpression: aws.String("#Field = :Value"),
+		ExpressionAttributeValues: map[string]types.AttributeValue{
+			":Value": attributeValue,
+		},
+		ExpressionAttributeNames: map[string]string{
+			"#Field": field,
+		},
+	})
+
 	return t
 }
 

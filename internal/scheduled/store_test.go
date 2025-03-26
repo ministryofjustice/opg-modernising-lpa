@@ -115,12 +115,11 @@ func TestDeleteAllByUID(t *testing.T) {
 
 	dynamoClient := newMockDynamoClient(t)
 	dynamoClient.EXPECT().
-		AllByLpaUIDAndPartialSK(ctx, "lpa-uid", dynamo.PartialScheduledKey(), mock.Anything).
-		Return(nil).
-		SetData([]Event{
-			{LpaUID: "lpa-uid", PK: dynamo.ScheduledDayKey(now), SK: dynamo.ScheduledKey(now, testUuidString)},
-			{LpaUID: "lpa-uid", PK: dynamo.ScheduledDayKey(yesterday), SK: dynamo.ScheduledKey(yesterday, testUuidString)},
-		})
+		AllByLpaUIDAndPartialSK(ctx, "lpa-uid", dynamo.PartialScheduledKey()).
+		Return([]dynamo.Keys{
+			{PK: dynamo.ScheduledDayKey(now), SK: dynamo.ScheduledKey(now, testUuidString)},
+			{PK: dynamo.ScheduledDayKey(yesterday), SK: dynamo.ScheduledKey(yesterday, testUuidString)},
+		}, nil)
 	dynamoClient.EXPECT().
 		DeleteKeys(ctx, []dynamo.Keys{
 			{PK: dynamo.ScheduledDayKey(now), SK: dynamo.ScheduledKey(now, testUuidString)},
@@ -137,8 +136,8 @@ func TestDeleteAllByUID(t *testing.T) {
 func TestDeleteAllByUIDWhenAllByLpaUIDAndPartialSKErrors(t *testing.T) {
 	dynamoClient := newMockDynamoClient(t)
 	dynamoClient.EXPECT().
-		AllByLpaUIDAndPartialSK(ctx, mock.Anything, mock.Anything, mock.Anything).
-		Return(expectedError)
+		AllByLpaUIDAndPartialSK(ctx, mock.Anything, mock.Anything).
+		Return(nil, expectedError)
 
 	store := &Store{dynamoClient: dynamoClient, now: testNowFn}
 	err := store.DeleteAllByUID(ctx, "lpa-uid")
@@ -149,9 +148,8 @@ func TestDeleteAllByUIDWhenAllByLpaUIDAndPartialSKErrors(t *testing.T) {
 func TestDeleteAllByUIDWhenNoEventsFound(t *testing.T) {
 	dynamoClient := newMockDynamoClient(t)
 	dynamoClient.EXPECT().
-		AllByLpaUIDAndPartialSK(ctx, mock.Anything, mock.Anything, mock.Anything).
-		Return(nil).
-		SetData([]Event{})
+		AllByLpaUIDAndPartialSK(ctx, mock.Anything, mock.Anything).
+		Return(nil, nil)
 
 	store := &Store{dynamoClient: dynamoClient, now: testNowFn}
 	err := store.DeleteAllByUID(ctx, "lpa-uid")
@@ -162,9 +160,8 @@ func TestDeleteAllByUIDWhenNoEventsFound(t *testing.T) {
 func TestDeleteAllByUIDWhenDeleteKeysErrors(t *testing.T) {
 	dynamoClient := newMockDynamoClient(t)
 	dynamoClient.EXPECT().
-		AllByLpaUIDAndPartialSK(ctx, mock.Anything, mock.Anything, mock.Anything).
-		Return(nil).
-		SetData([]Event{{LpaUID: "lpa-uid"}})
+		AllByLpaUIDAndPartialSK(ctx, mock.Anything, mock.Anything).
+		Return([]dynamo.Keys{{}}, nil)
 	dynamoClient.EXPECT().
 		DeleteKeys(mock.Anything, mock.Anything).
 		Return(expectedError)
@@ -179,14 +176,23 @@ func TestDeleteAllActionByUID(t *testing.T) {
 	now := time.Now()
 	yesterday := now.Add(-24 * time.Hour)
 
+	keys := []dynamo.Keys{
+		{PK: dynamo.ScheduledDayKey(now), SK: dynamo.ScheduledKey(now, testUuidString)},
+		{PK: dynamo.ScheduledDayKey(yesterday), SK: dynamo.ScheduledKey(yesterday, testUuidString)},
+	}
+
+	expected := []Event{
+		{LpaUID: "lpa-uid", Action: ActionRemindAttorneyToComplete, PK: dynamo.ScheduledDayKey(now), SK: dynamo.ScheduledKey(now, testUuidString)},
+		{LpaUID: "lpa-uid", Action: ActionExpireDonorIdentity, PK: dynamo.ScheduledDayKey(yesterday), SK: dynamo.ScheduledKey(yesterday, testUuidString)},
+	}
+
 	dynamoClient := newMockDynamoClient(t)
 	dynamoClient.EXPECT().
-		AllByLpaUIDAndPartialSK(ctx, "lpa-uid", dynamo.PartialScheduledKey(), mock.Anything).
-		Return(nil).
-		SetData([]Event{
-			{LpaUID: "lpa-uid", Action: ActionRemindAttorneyToComplete, PK: dynamo.ScheduledDayKey(now), SK: dynamo.ScheduledKey(now, testUuidString)},
-			{LpaUID: "lpa-uid", Action: ActionExpireDonorIdentity, PK: dynamo.ScheduledDayKey(yesterday), SK: dynamo.ScheduledKey(yesterday, testUuidString)},
-		})
+		AllByLpaUIDAndPartialSK(ctx, "lpa-uid", dynamo.PartialScheduledKey()).
+		Return(keys, nil)
+	dynamoClient.EXPECT().
+		AllByKeys(ctx, keys).
+		Return(marshalListOfMaps(expected), nil)
 	dynamoClient.EXPECT().
 		DeleteKeys(ctx, []dynamo.Keys{
 			{PK: dynamo.ScheduledDayKey(yesterday), SK: dynamo.ScheduledKey(yesterday, testUuidString)},
@@ -202,8 +208,23 @@ func TestDeleteAllActionByUID(t *testing.T) {
 func TestDeleteAllActionByUIDWhenAllByLpaUIDAndPartialSKErrors(t *testing.T) {
 	dynamoClient := newMockDynamoClient(t)
 	dynamoClient.EXPECT().
-		AllByLpaUIDAndPartialSK(ctx, mock.Anything, mock.Anything, mock.Anything).
-		Return(expectedError)
+		AllByLpaUIDAndPartialSK(ctx, mock.Anything, mock.Anything).
+		Return(nil, expectedError)
+
+	store := &Store{dynamoClient: dynamoClient, now: testNowFn}
+	err := store.DeleteAllActionByUID(ctx, []Action{}, "lpa-uid")
+
+	assert.Equal(t, expectedError, err)
+}
+
+func TestDeleteAllActionByUIDWhenAllByKeysErrors(t *testing.T) {
+	dynamoClient := newMockDynamoClient(t)
+	dynamoClient.EXPECT().
+		AllByLpaUIDAndPartialSK(mock.Anything, mock.Anything, mock.Anything).
+		Return([]dynamo.Keys{{}}, nil)
+	dynamoClient.EXPECT().
+		AllByKeys(mock.Anything, mock.Anything).
+		Return(nil, expectedError)
 
 	store := &Store{dynamoClient: dynamoClient, now: testNowFn}
 	err := store.DeleteAllActionByUID(ctx, []Action{}, "lpa-uid")
@@ -214,9 +235,11 @@ func TestDeleteAllActionByUIDWhenAllByLpaUIDAndPartialSKErrors(t *testing.T) {
 func TestDeleteAllActionByUIDWhenDeleteKeysErrors(t *testing.T) {
 	dynamoClient := newMockDynamoClient(t)
 	dynamoClient.EXPECT().
-		AllByLpaUIDAndPartialSK(ctx, mock.Anything, mock.Anything, mock.Anything).
-		Return(nil).
-		SetData([]Event{{LpaUID: "lpa-uid"}})
+		AllByLpaUIDAndPartialSK(mock.Anything, mock.Anything, mock.Anything).
+		Return([]dynamo.Keys{{}}, nil)
+	dynamoClient.EXPECT().
+		AllByKeys(mock.Anything, mock.Anything).
+		Return(marshalListOfMaps([]any{}), nil)
 	dynamoClient.EXPECT().
 		DeleteKeys(mock.Anything, mock.Anything).
 		Return(expectedError)

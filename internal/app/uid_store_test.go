@@ -3,6 +3,8 @@ package app
 import (
 	"testing"
 
+	"github.com/aws/aws-sdk-go-v2/aws"
+	"github.com/aws/aws-sdk-go-v2/service/dynamodb/types"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor/donordata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/dynamo"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/search"
@@ -32,6 +34,19 @@ func TestUidStoreSet(t *testing.T) {
 					UpdatedAt: testNow,
 				},
 			},
+			Updates: []*types.Update{{
+				Key: map[string]types.AttributeValue{
+					"PK": &types.AttributeValueMemberS{Value: "LPA#lpa-id"},
+					"SK": &types.AttributeValueMemberS{Value: "SUB#a-donor"},
+				},
+				UpdateExpression: aws.String("#Field = :Value"),
+				ExpressionAttributeValues: map[string]types.AttributeValue{
+					":Value": &types.AttributeValueMemberS{Value: "uid"},
+				},
+				ExpressionAttributeNames: map[string]string{
+					"#Field": "LpaUID",
+				},
+			}},
 			Creates: []any{dynamo.Keys{PK: dynamo.UIDKey("uid"), SK: dynamo.MetadataKey("")}},
 		}).
 		Return(nil)
@@ -59,7 +74,9 @@ func TestUidStoreSetWhenDynamoClientError(t *testing.T) {
 
 	uidStore := NewUidStore(dynamoClient, searchClient, testNowFn)
 
-	err := uidStore.Set(ctx, &donordata.Provided{}, "uid")
+	err := uidStore.Set(ctx, &donordata.Provided{
+		SK: dynamo.LpaOwnerKey(dynamo.DonorKey("a-donor")),
+	}, "uid")
 	assert.ErrorIs(t, err, expectedError)
 }
 
