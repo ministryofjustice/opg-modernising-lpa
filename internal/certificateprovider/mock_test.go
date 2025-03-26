@@ -45,10 +45,3 @@ func (c *mockDynamoClient_OneByPartialSK_Call) SetData(data any) {
 		attributevalue.Unmarshal(b, v)
 	})
 }
-
-func (c *mockDynamoClient_OneByUID_Call) SetData(data any) {
-	c.Run(func(_ context.Context, _ string, v any) {
-		b, _ := attributevalue.Marshal(data)
-		attributevalue.Unmarshal(b, v)
-	})
-}
