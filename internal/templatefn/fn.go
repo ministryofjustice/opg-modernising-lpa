@@ -45,52 +45,54 @@ func All(globals *Globals) map[string]any {
 	globals.Paths = paths
 
 	return map[string]any{
-		"global":             func() *Globals { return globals },
-		"isEnglish":          isEnglish,
-		"isWelsh":            isWelsh,
-		"input":              input,
-		"button":             button,
-		"items":              items,
-		"item":               item,
-		"fieldID":            fieldID,
-		"errorMessage":       errorMessage,
-		"details":            details,
-		"inc":                inc,
-		"link":               link,
-		"fromLink":           fromLink,
-		"fromLinkActor":      fromLinkActor,
-		"stringContains":     strings.Contains,
-		"tr":                 tr,
-		"trFormat":           trFormat,
-		"trFormatHtml":       trFormatHtml,
-		"trHtml":             trHtml,
-		"trCount":            trCount,
-		"trFormatCount":      trFormatCount,
-		"now":                now,
-		"addDays":            addDays,
-		"formatDate":         formatDate,
-		"formatTime":         formatTime,
-		"formatDateTime":     formatDateTime,
-		"formatPhone":        formatPhone,
-		"lowerFirst":         localize.LowerFirst,
-		"listAttorneys":      listAttorneys,
-		"listPeopleToNotify": listPeopleToNotify,
-		"possessive":         possessive,
-		"card":               card,
-		"printStruct":        printStruct,
-		"concatAnd":          concatAnd,
-		"concatOr":           concatOr,
-		"concatComma":        concatComma,
-		"content":            content,
-		"notificationBanner": notificationBanner,
-		"checkboxEq":         checkboxEq,
-		"lpaDecisions":       lpaDecisions,
-		"summaryRow":         summaryRow,
-		"staticSummaryRow":   staticSummaryRow,
-		"legend":             legend,
-		"legendHeading":      legendHeading,
-		"fieldset":           fieldset,
-		"htmlContent":        htmlContent,
+		"global":                     func() *Globals { return globals },
+		"isEnglish":                  isEnglish,
+		"isWelsh":                    isWelsh,
+		"input":                      input,
+		"button":                     button,
+		"items":                      items,
+		"item":                       item,
+		"fieldID":                    fieldID,
+		"errorMessage":               errorMessage,
+		"details":                    details,
+		"inc":                        inc,
+		"link":                       link,
+		"fromLink":                   fromLink,
+		"fromLinkActor":              fromLinkActor,
+		"stringContains":             strings.Contains,
+		"tr":                         tr,
+		"trFormat":                   trFormat,
+		"trFormatHtml":               trFormatHtml,
+		"trHtml":                     trHtml,
+		"trCount":                    trCount,
+		"trFormatCount":              trFormatCount,
+		"now":                        now,
+		"addDays":                    addDays,
+		"formatDate":                 formatDate,
+		"formatTime":                 formatTime,
+		"formatDateTime":             formatDateTime,
+		"formatPhone":                formatPhone,
+		"lowerFirst":                 localize.LowerFirst,
+		"listAttorneys":              listAttorneys,
+		"listPeopleToNotify":         listPeopleToNotify,
+		"possessive":                 possessive,
+		"card":                       card,
+		"printStruct":                printStruct,
+		"concatAnd":                  concatAnd,
+		"concatOr":                   concatOr,
+		"concatComma":                concatComma,
+		"content":                    content,
+		"notificationBanner":         notificationBanner,
+		"notificationBanner2":        notificationBanner2,
+		"notificationBanner2Heading": notificationBanner2Heading,
+		"checkboxEq":                 checkboxEq,
+		"lpaDecisions":               lpaDecisions,
+		"summaryRow":                 summaryRow,
+		"staticSummaryRow":           staticSummaryRow,
+		"legend":                     legend,
+		"legendHeading":              legendHeading,
+		"fieldset":                   fieldset,
+		"htmlContent":                htmlContent,
 	}
 }
 
@@ -471,6 +473,7 @@ func htmlContent(app appcontext.Data, content template.HTML) contentData {
 }
 
 type notificationBannerData struct {
+	V2       bool
 	App      appcontext.Data
 	Title    string
 	Content  template.HTML
@@ -487,6 +490,34 @@ func notificationBanner(app appcontext.Data, title string, content template.HTML
 		Heading:  slices.Contains(options, "heading"),
 		Success:  slices.Contains(options, "success"),
 		Contents: slices.Contains(options, "contents"),
+	}
+}
+
+type notificationBannerData2 struct {
+	V2      bool
+	App     appcontext.Data
+	Title   string
+	Heading string
+	Body    string
+	Success bool
+}
+
+func notificationBanner2(app appcontext.Data, title string, heading, body string) notificationBannerData2 {
+	return notificationBannerData2{
+		V2:      true,
+		App:     app,
+		Title:   title,
+		Heading: heading,
+		Body:    body,
+	}
+}
+
+func notificationBanner2Heading(app appcontext.Data, title string, heading string) notificationBannerData2 {
+	return notificationBannerData2{
+		V2:      true,
+		App:     app,
+		Title:   title,
+		Heading: heading,
 	}
 }
 
