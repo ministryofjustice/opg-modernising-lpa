@@ -493,10 +493,6 @@ func TestSigningDeadline(t *testing.T) {
 
 	expected := time.Date(2022, time.January, 2, 3, 4, 5, 6, time.UTC)
 	assert.Equal(t, expected, donor.SigningDeadline())
-
-	donor.RegisteringWithCourtOfProtection = true
-	expected = time.Date(2020, time.May, 16, 3, 4, 5, 6, time.UTC)
-	assert.Equal(t, expected, donor.SigningDeadline())
 }
 
 func TestDonorSigningDeadline(t *testing.T) {
@@ -512,15 +508,6 @@ func TestDonorSigningDeadline(t *testing.T) {
 
 	donor.IdentityUserData.Status = identity.StatusFailed
 	assert.True(t, donor.DonorSigningDeadline().IsZero())
-}
-
-func TestCourtOfProtectionSubmissionDeadline(t *testing.T) {
-	donor := Provided{
-		SignedAt: time.Date(2020, time.January, 2, 3, 4, 5, 6, time.UTC),
-	}
-
-	expected := time.Date(2020, time.July, 2, 3, 4, 5, 6, time.UTC)
-	assert.Equal(t, expected, donor.CourtOfProtectionSubmissionDeadline())
 }
 
 func TestCertificateProviderDeadline(t *testing.T) {
