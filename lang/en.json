@@ -403,7 +403,6 @@
     "whoWouldYouLikeNotify": "Add a person to notify about your LPA",
     "weCanNotifyUpTo5PeopleContent": "<p class=\"govuk-body\">We can notify up to 5 people about your LPA on your behalf.</p>",
     "doYouWantToAddAnotherPersonToNotify": "Do you want to add another person to notify?",
-    "addedMaxPeople": "You’ve now added the maximum number of people we can notify about your LPA. If you want to add someone else, you must remove a person you’ve already added.",
     "yesToAddAnotherPersonToNotify": "yes to add another person to notify",
     "yesToRemoveThisPerson": "yes to remove this person",
     "yourCertificateProviderMustBeWithYou": "{{.CertificateProviderName}}, your certificate provider, must be with you in person when you discuss and sign your LPA.",
@@ -808,7 +807,7 @@
     "independentWitness": "Independent witness",
     "contactPreference": "Contact preference",
     "certificateProviderEmail": "certificate provider email",
-    "youHaveDeletedFile": "You have deleted file {{ .Filename }}",
+    "youHaveDeletedFile": "You have deleted file: <span class=\"app-unbold\">{{ .Filename }}</span>",
     "confirmYourIdentity": "Confirm your identity",
     "confirmYourIdentityContent": "<p class=\"govuk-body\">Use the GOV.UK One Login service to confirm your identity either online, or at a Post Office. You will need an identity document, for example:</p><ul class=\"govuk-list govuk-list--bullet\"><li>your payslip, P60 or a benefits letter</li><li>a UK passport</li><li>a UK driving licence</li></ul><p class=\"govuk-body\">If you are unable to confirm your identity using GOV.UK One Login, you’ll be given guidance on what to do next.</p>",
     "beforeYouSignYourLpa": "Before you sign your LPA, you must confirm your identity.",
@@ -1154,7 +1153,7 @@
     "yourLpaMustBeReviewedByCOP": "<div class=\"govuk-notification-banner__content\"><p class=\"govuk-notification-banner__heading\"> Your LPA must be reviewed by the Court of Protection </p><p class=\"govuk-body\">You have not been able to confirm your identity using our services, so the Office of the Public Guardian (OPG) cannot register your LPA unless we are directed to do so by the Court of Protection.</p></div>",
     "yourConfirmedIdentityDetails": "Your confirmed identity details",
     "theDetailsOnYourLPA": "The details on your LPA",
-    "someDetailsDoNotMatchIdentityDetailsWarning": "Some of the details on your LPA do not match your confirmed identity details",
+    "someDetailsDoNotMatchIdentityDetailsWarning": "Some of the details on your LPA do not match your confirmed identity details.",
     "yourLPADetailsHaveBeenUpdatedToMatchIdentitySuccess": "Your LPA details have been updated to match your confirmed identity",
     "doesNotMatch": "Does not match",
     "updateMyLPADetailsToMatchIdentityHint": "Update your details and continue to sign your LPA",
@@ -1574,5 +1573,6 @@
     "voucherHasNotStartedTheProcessContent": "<h2 class=\"govuk-heading-m\">Confirming your identity through vouching</h2><p class=\"govuk-body\">{{ .VoucherFullName }} has not started the process of confirming your identity. We suggest you contact {{ .VoucherFirstNames }} to remind them to complete their tasks.</p> <p class=\"govuk-body\">Or, you can ask someone else to vouch for you. If that person does not successfully confirm your identity, you’ll be able to nominate 1 further person to vouch for you.</p>",
     "voucherHasNotCompletedTheProcess": "<div class=\"govuk-notification-banner__content\"><p class=\"govuk-notification-banner__heading\">{{ .VoucherFullName }} has not completed the process of confirming your identity</p></div>",
     "voucherHasNotCompletedTheProcessContent": "<h2 class=\"govuk-heading-m\">Confirming your identity through vouching</h2><p class=\"govuk-body\">{{ .VoucherFullName }} has not completed the process of confirming your identity. We suggest you contact {{ .VoucherFirstNames }} to remind them to complete their tasks.</p> <p class=\"govuk-body\">Or, you can ask someone else to vouch for you. If that person does not successfully confirm your identity, you’ll have to find an alternative way to confirm your identity.</p>",
-    "voucherHasNotCompletedTheProcessSuggestContactVoucher": "<div class=\"govuk-notification-banner__content\"><p class=\"govuk-notification-banner__heading\">{{ .VoucherFullName }} has not completed the process of confirming your identity.</p><p class=\"govuk-body\">We suggest you contact {{ .VoucherFirstNames }} to remind them to complete their tasks. If they don’t complete them, you’ll need to find an alternative way to confirm your identity.</p></div>"
+    "voucherHasNotCompletedTheProcessSuggestContactVoucher": "<div class=\"govuk-notification-banner__content\"><p class=\"govuk-notification-banner__heading\">{{ .VoucherFullName }} has not completed the process of confirming your identity.</p><p class=\"govuk-body\">We suggest you contact {{ .VoucherFirstNames }} to remind them to complete their tasks. If they don’t complete them, you’ll need to find an alternative way to confirm your identity.</p></div>",
+    "youHaveAddedMaxPeople": "<div class=\"govuk-notification-banner__content\"><p class=\"govuk-notification-banner__heading\">You’ve now added the maximum number of people we can notify about your LPA.</p><p class=\"govuk-body\">If you want to add somebody else, you must remove a person you have already added.</p></div>"
 }
