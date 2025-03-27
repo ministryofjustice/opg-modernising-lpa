@@ -397,10 +397,6 @@ func (p *Provided) AttorneysNames(localizer Localizer) []string {
 // SigningDeadline gives the date at which the LPA should be signed by the
 // certificate provider and attorneys.
 func (p *Provided) SigningDeadline() time.Time {
-	if p.RegisteringWithCourtOfProtection {
-		return p.SignedAt.AddDate(0, 4, 14)
-	}
-
 	return p.SignedAt.AddDate(2, 0, 0)
 }
 
@@ -422,13 +418,6 @@ func (p *Provided) IdentityDeadline() time.Time {
 	}
 
 	return p.WitnessedByCertificateProviderAt.AddDate(0, 6, 0)
-}
-
-// CourtOfProtectionSubmissionDeadline gives the date at which the signed LPA
-// must be submitted to the Court of Protection, if registering through this
-// route.
-func (p *Provided) CourtOfProtectionSubmissionDeadline() time.Time {
-	return p.SignedAt.AddDate(0, 6, 0)
 }
 
 // CertificateProviderDeadline gives the date at which the certificate provider
