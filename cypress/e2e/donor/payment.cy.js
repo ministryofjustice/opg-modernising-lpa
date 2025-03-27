@@ -309,7 +309,7 @@ describe('Pay for LPA', { pageLoadTimeout: 8000 }, () => {
         cy.url().should('contain', '/upload-evidence');
         cy.checkA11yApp();
 
-        cy.get('.moj-banner').within(() => {
+        cy.get('.govuk-notification-banner').within(() => {
             cy.contains('supporting-evidence.png');
         });
     });
