@@ -323,10 +323,7 @@
     "ifTheCOPFindsYourLpaIsValid": "If the Court of Protection finds your LPA is valid, it will direct OPG to register it. Your LPA can then be used.",
     "weWillEmailYou": "<p class=\"govuk-body\">We’ll keep you updated about your LPA. If there are any problems, we’ll let you know.</p><p class=\"govuk-body\">You can also track the progress of your LPA by logging back into this service at any time.</p>",
     "signByDeadlineWarning": "{{.SignatoriesNames}} must sign your LPA by {{.SigningDeadline}} so that it can be registered by OPG.",
-    "copSignDeadlineWarning": {
-        "one": "{{.CertificateProviderFirstNames}} and your attorney must sign your LPA by {{.SigningDeadline}}. After that, you have until {{.SubmissionDeadline}} to submit the LPA to the Court of Protection. If you miss this deadline, you’ll have to fill in a new LPA and pay another registration fee.",
-        "other": "{{.CertificateProviderFirstNames}} and your attorneys must sign your LPA by {{.SigningDeadline}}. After that, you have until {{.SubmissionDeadline}} to submit the LPA to the Court of Protection. If you miss this deadline, you’ll have to fill in a new LPA and pay another registration fee."
-    },
+    "copSignDeadlineWarning": "{{.SignatoriesNames}}  must sign and return your LPA to OPG by {{.SigningDeadline}}. You can then send it to the Court of Protection for review.",
     "myLastingPowersOfAttorney": "My lasting powers of attorney",
     "options": "Options",
     "howShouldAttorneysMakeDecisions": "How should your attorneys make decisions?",
@@ -1300,7 +1297,7 @@
     "youHaveSuccessfullyConfirmedYourIdentitySuccess:certificate-provider": "<h2 class=\"govuk-notification-banner__heading\">You have successfully confirmed your identity</h2><p class=\"govuk-body\">Thank you for confirming your identity using GOV.UK One Login. Your details match those entered in {{possessive .DonorFullName }} LPA.</p>",
     "youHaveSuccessfullyConfirmedYourIdentitySuccess:voucher": "<h2 class=\"govuk-notification-banner__heading\">You have successfully confirmed your identity</h2><p class=\"govuk-body\">Thank you for confirming your identity using GOV.UK One Login.</p>",
     "thanksWeCannotRegisterUntilCourtOfProtection": "Thanks for signing and submitting your LPA. We cannot register your LPA until it has been successfully reviewed by the Court of Protection.",
-    "youCanTrackTheProgressByLoggingBackIn": "You can track the progress of your LPA by logging back into the service at any time.",
+    "youCanTrackTheProgressByLoggingBackIn": "<p class=\"govuk-body\">We will keep you updated about your LPA. If there are any problems, we’ll let you know.</p><p class=\"govuk-body\">You can also check the progress of your LPA by logging back into this service at any time.</p>",
     "signYourLpaSoCanSubmitToCOP": "Sign your LPA – this will allow OPG to complete checks on the LPA so you can submit it to the Court of Protection.",
     "opgWillCompleteOurChecks": "OPG will complete our checks on your LPA so you can submit it to the Court of Protection.",
     "youCanTrackTheProgressAnyTime": "You can track the progress of your LPA at any time.",
@@ -1579,5 +1576,6 @@
     "whyCantIChangeMyLpaType": "Why can’t I change my LPA type?",
     "property-and-affairs:covers": "This type of LPA covers decisions about your money, bills, benefits and home ownership.",
     "personal-welfare:covers": "This type of LPA covers decisions about your health care, medical treatment and personal welfare.",
-    "findOutMoreAboutTwoTypesOfLpa": "Find out more about the 2 types of LPA."
+    "findOutMoreAboutTwoTypesOfLpa": "Find out more about the 2 types of LPA.",
+    "youCanThenSendYourLpaToTheCourtOfProtection": "You can then send your LPA to the Court of Protection. We cannot register your LPA until it has been successfully reviewed by the Court of Protection."
 }
