@@ -8,7 +8,7 @@
     <div class="govuk-grid-row">
         <div class="govuk-grid-column-two-thirds">
             {{ if .Provided.ContinueWithMismatchedIdentity }}
-                {{ template "notification-banner" (notificationBanner .App "important" (trHtml .App "theOpgIsCheckingYourMismatchedIdentityDetails") "heading") }}
+                {{ template "notification-banner" (notificationBanner2Heading .App "important" "theOpgIsCheckingYourMismatchedIdentityDetails") }}
             {{ else if .DetailsMatch }}
                 {{ if .Provided.WantVoucher.IsYes }}
                     {{ template "notification-banner" (notificationBanner .App "success" (trFormatHtml .App "voucherHasSuccessfullyConfirmedYourIdentity" "VoucherFullName" .Provided.Voucher.FullName) "success" "contents" ) }}
@@ -16,7 +16,7 @@
                     {{ template "notification-banner" (notificationBanner .App "success" (trHtml .App "youHaveSuccessfullyConfirmedYourIdentitySuccess:donor") "success" "contents" ) }}
                 {{ end }}
             {{ else if .Provided.CanChange }}
-                {{ template "warning-banner" (content .App "someDetailsDoNotMatchIdentityDetailsWarning") }}
+                {{ template "notification-banner" (notificationBanner .App "important" (trHtml .App "someDetailsDoNotMatchIdentityDetailsWarning") "heading") }}
             {{ else }}
                 {{ template "notification-banner" (notificationBanner .App "important" (trHtml .App "theDetailsOnYourLpaDoNotMatch") "heading") }}
             {{ end}}
