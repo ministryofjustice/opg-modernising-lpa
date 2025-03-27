@@ -451,7 +451,6 @@
     "whoWouldYouLikeNotify": "Ychwanegu person i’w hysbysu ynglŷn â’ch LPA",
     "doYouWantToAddAnotherPersonToNotify": "Ydych chi am ychwanegu person arall i’w hysbysu?",
     "weCanNotifyUpTo5PeopleContent": "<p class=\"govuk-body\">Gallwn hysbysu hyd at 5 o bobl ynglŷn â’ch LPA ar eich rhan.</p>",
-    "addedMaxPeople": "Rydych nawr wedi ychwanegu’r nifer mwyaf o bobl y gallwn eu hysbysu am eich LPA. Os ydych am ychwanegu rhywun arall, rhaid i chi ddileu person rydych eisoes wedi’i ychwanegu.",
     "yesToAddAnotherPersonToNotify": "ydw i ychwanegu person arall i’w hysbysu",
     "yesToRemoveThisPerson": "ydw i ddileu’r person hwn",
     "yourCertificateProviderMustBeWithYou": "Rhaid i {{.CertificateProviderName}}, eich darparwr tystysgrif, fod gyda chi yn bersonol pan fyddwch yn trafod ac yn llofnodi eich LPA.",
@@ -1250,7 +1249,7 @@
     "whatYouWouldLikeToDo": "beth hoffech chi ei wneud",
     "yourConfirmedIdentityDetails": "Eich manylion adnabod wedi’u cadarnhau",
     "theDetailsOnYourLPA": "Y manylion ar eich LPA",
-    "someDetailsDoNotMatchIdentityDetailsWarning": "Nid yw rhai o’r manylion ar eich LPA yn cyfateb i’ch manylion adnabod a gadarnhawyd",
+    "someDetailsDoNotMatchIdentityDetailsWarning": "Nid yw rhai o’r manylion ar eich LPA yn cyfateb i’ch manylion adnabod a gadarnhawyd.",
     "yourLPADetailsHaveBeenUpdatedToMatchIdentitySuccess": "Mae manylion eich LPA wedi cael eu diweddaru i gyfateb â’r manylion adnabod sydd wedi’u cadarnhau",
     "doesNotMatch": "Ddim yn cyfateb",
     "updateMyLPADetailsToMatchIdentityHint": "Diweddaru manylion fy LPA i gyfateb i fy manylion adnabod sydd wedi’u cadarnhau.",
@@ -1678,5 +1677,6 @@
     "voucherHasNotStartedTheProcessContent": "<h2 class=\"govuk-heading-m\">Welsh</h2><p class=\"govuk-body\">{{ .VoucherFullName }} Welsh {{ .VoucherFirstNames }} Welsh</p> <p class=\"govuk-body\">Welsh</p>",
     "voucherHasNotCompletedTheProcess": "<div class=\"govuk-notification-banner__content\"><p class=\"govuk-notification-banner__heading\">{{ .VoucherFullName }} Welsh</p></div>",
     "voucherHasNotCompletedTheProcessContent": "<h2 class=\"govuk-heading-m\">Welsh</h2><p class=\"govuk-body\">{{ .VoucherFullName }} Welsh {{ .VoucherFirstNames }} Welsh</p> <p class=\"govuk-body\">Welsh</p>",
-    "voucherHasNotCompletedTheProcessSuggestContactVoucher": "<div class=\"govuk-notification-banner__content\"><p class=\"govuk-notification-banner__heading\">{{ .VoucherFullName }} Welsh</p><p class=\"govuk-body\">Welsh {{ .VoucherFirstNames }} Welsh</p></div>"
+    "voucherHasNotCompletedTheProcessSuggestContactVoucher": "<div class=\"govuk-notification-banner__content\"><p class=\"govuk-notification-banner__heading\">{{ .VoucherFullName }} Welsh</p><p class=\"govuk-body\">Welsh {{ .VoucherFirstNames }} Welsh</p></div>",
+    "youHaveAddedMaxPeople": "<div class=\"govuk-notification-banner__content\"><p class=\"govuk-notification-banner__heading\">Welsh</p></div>"
 }

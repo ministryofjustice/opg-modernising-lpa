@@ -5,23 +5,22 @@
 {{ define "main" }}
     <div class="govuk-grid-row">
         <div class="govuk-grid-column-two-thirds">
+            {{ if eq 5 (len .Donor.PeopleToNotify) }}
+                {{ template "notification-banner" (notificationBanner .App "important" (trHtml .App "youHaveAddedMaxPeople") "contents") }}
+            {{ end }}
+
             <h1 class="govuk-heading-xl">{{ tr .App "peopleToNotifyAboutYourLpa" }}</h1>
 
             {{ trHtml .App "weCanNotifyUpTo5PeopleContent" }}
 
             {{ template "people-to-notify-summary" (listPeopleToNotify .App .Donor.PeopleToNotify 2 .Donor.CanChange) }}
 
-            {{ if eq 5 (len .Donor.PeopleToNotify) }}
-                {{ template "information-banner" (content .App "addedMaxPeople") }}
-
-                <form novalidate method="post">
+            <form novalidate method="post">
+                {{ if eq 5 (len .Donor.PeopleToNotify) }}
                     <input type="hidden" name="{{ .Form.FieldName }}" value="{{ .Form.Options.No.String }}">
 
                     {{ template "buttons" (button .App "continue") }}
-                    {{ template "csrf-field" . }}
-                </form>
-            {{ else }}
-                <form novalidate method="post">
+                {{ else }}
                     {{ template "radios-fieldset" (fieldset . .Form.FieldName ""
                         (legend "doYouWantToAddAnotherPersonToNotify" "govuk-fieldset__legend--l")
                         (item .Form.Options.Yes.String "yes")
@@ -29,9 +28,10 @@
                         ) }}
 
                     {{ template "buttons" (button .App "saveAndContinue") }}
-                    {{ template "csrf-field" . }}
-                </form>
-            {{ end }}
+                {{ end }}
+
+                {{ template "csrf-field" . }}
+            </form>
         </div>
     </div>
 {{ end }}
