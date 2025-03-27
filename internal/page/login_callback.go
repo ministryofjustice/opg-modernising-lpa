@@ -66,7 +66,7 @@ func LoginCallback(logger Logger, oneLoginClient LoginCallbackOneLoginClient, se
 			}
 
 			if exists {
-				redirect = PathDashboard
+				return appData.Redirect(w, r, PathDashboard.Format())
 			}
 		}
 
