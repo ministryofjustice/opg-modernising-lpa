@@ -5,6 +5,7 @@ import (
 	"encoding/base64"
 	"encoding/json"
 	"fmt"
+	"log/slog"
 	"time"
 
 	"github.com/aws/aws-lambda-go/events"
@@ -210,6 +211,8 @@ func handleRegister(ctx context.Context, client dynamodbClient, lpaStoreClient L
 		})
 	}
 
+	body, _ := json.Marshal(data)
+	logger.InfoContext(ctx, "sending lpa-access-granted", slog.String("data", string(body)))
 	return eventClient.SendLpaAccessGranted(ctx, data)
 }
 
