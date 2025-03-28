@@ -323,10 +323,7 @@
     "ifTheCOPFindsYourLpaIsValid": "If the Court of Protection finds your LPA is valid, it will direct OPG to register it. Your LPA can then be used.",
     "weWillEmailYou": "<p class=\"govuk-body\">We’ll keep you updated about your LPA. If there are any problems, we’ll let you know.</p><p class=\"govuk-body\">You can also track the progress of your LPA by logging back into this service at any time.</p>",
     "signByDeadlineWarning": "{{.SignatoriesNames}} must sign your LPA by {{.SigningDeadline}} so that it can be registered by OPG.",
-    "copSignDeadlineWarning": {
-        "one": "{{.CertificateProviderFirstNames}} and your attorney must sign your LPA by {{.SigningDeadline}}. After that, you have until {{.SubmissionDeadline}} to submit the LPA to the Court of Protection. If you miss this deadline, you’ll have to fill in a new LPA and pay another registration fee.",
-        "other": "{{.CertificateProviderFirstNames}} and your attorneys must sign your LPA by {{.SigningDeadline}}. After that, you have until {{.SubmissionDeadline}} to submit the LPA to the Court of Protection. If you miss this deadline, you’ll have to fill in a new LPA and pay another registration fee."
-    },
+    "copSignDeadlineWarning": "{{.SignatoriesNames}}  must sign and return your LPA to OPG by {{.SigningDeadline}}. You can then send it to the Court of Protection for review.",
     "myLastingPowersOfAttorney": "My lasting powers of attorney",
     "options": "Options",
     "howShouldAttorneysMakeDecisions": "How should your attorneys make decisions?",
@@ -1300,7 +1297,7 @@
     "youHaveSuccessfullyConfirmedYourIdentitySuccess:certificate-provider": "<h2 class=\"govuk-notification-banner__heading\">You have successfully confirmed your identity</h2><p class=\"govuk-body\">Thank you for confirming your identity using GOV.UK One Login. Your details match those entered in {{possessive .DonorFullName }} LPA.</p>",
     "youHaveSuccessfullyConfirmedYourIdentitySuccess:voucher": "<h2 class=\"govuk-notification-banner__heading\">You have successfully confirmed your identity</h2><p class=\"govuk-body\">Thank you for confirming your identity using GOV.UK One Login.</p>",
     "thanksWeCannotRegisterUntilCourtOfProtection": "Thanks for signing and submitting your LPA. We cannot register your LPA until it has been successfully reviewed by the Court of Protection.",
-    "youCanTrackTheProgressByLoggingBackIn": "You can track the progress of your LPA by logging back into the service at any time.",
+    "youCanTrackTheProgressByLoggingBackIn": "<p class=\"govuk-body\">We will keep you updated about your LPA. If there are any problems, we’ll let you know.</p><p class=\"govuk-body\">You can also check the progress of your LPA by logging back into this service at any time.</p>",
     "signYourLpaSoCanSubmitToCOP": "Sign your LPA – this will allow OPG to complete checks on the LPA so you can submit it to the Court of Protection.",
     "opgWillCompleteOurChecks": "OPG will complete our checks on your LPA so you can submit it to the Court of Protection.",
     "youCanTrackTheProgressAnyTime": "You can track the progress of your LPA at any time.",
@@ -1574,5 +1571,6 @@
     "voucherHasNotCompletedTheProcess": "<p class=\"govuk-notification-banner__heading\">{{ .VoucherFullName }} has not completed the process of confirming your identity</p>",
     "voucherHasNotCompletedTheProcessContent": "<h2 class=\"govuk-heading-m\">Confirming your identity through vouching</h2><p class=\"govuk-body\">{{ .VoucherFullName }} has not completed the process of confirming your identity. We suggest you contact {{ .VoucherFirstNames }} to remind them to complete their tasks.</p> <p class=\"govuk-body\">Or, you can ask someone else to vouch for you. If that person does not successfully confirm your identity, you’ll have to find an alternative way to confirm your identity.</p>",
     "voucherHasNotCompletedTheProcessSuggestContactVoucher": "<p class=\"govuk-notification-banner__heading\">{{ .VoucherFullName }} has not completed the process of confirming your identity.</p><p class=\"govuk-body\">We suggest you contact {{ .VoucherFirstNames }} to remind them to complete their tasks. If they don’t complete them, you’ll need to find an alternative way to confirm your identity.</p>",
-    "youHaveAddedMaxPeople": "<p class=\"govuk-notification-banner__heading\">You’ve now added the maximum number of people we can notify about your LPA.</p><p class=\"govuk-body\">If you want to add somebody else, you must remove a person you have already added.</p>"
+    "youHaveAddedMaxPeople": "<p class=\"govuk-notification-banner__heading\">You’ve now added the maximum number of people we can notify about your LPA.</p><p class=\"govuk-body\">If you want to add somebody else, you must remove a person you have already added.</p>",
+    "youCanThenSendYourLpaToTheCourtOfProtection": "You can then send your LPA to the Court of Protection. We cannot register your LPA until it has been successfully reviewed by the Court of Protection."
 }
