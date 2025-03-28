@@ -250,11 +250,12 @@ data "aws_iam_policy_document" "event_received" {
     sid = "${local.policy_region_prefix}Allow"
 
     actions = [
+      "dynamodb:BatchGetItem",
+      "dynamodb:DeleteItem",
+      "dynamodb:GetItem",
       "dynamodb:PutItem",
       "dynamodb:Query",
-      "dynamodb:GetItem",
       "dynamodb:UpdateItem",
-      "dynamodb:DeleteItem",
     ]
 
     resources = [
