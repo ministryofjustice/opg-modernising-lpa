@@ -4,23 +4,15 @@
     {{ if .CanChange }}
         {{ tr .App "chooseWhichTypeOfLpaToMake" }}
     {{ else }}
-        {{ tr .App "changingYourLpaType" }}
+        {{ tr .App "yourChosenLpaType" }}
     {{ end }}
 {{ end }}
 
 {{ define "main" }}
     <div class="govuk-grid-row">
         <div class="govuk-grid-column-two-thirds">
-            {{ if not .CanChange }}
-                {{ if .Form.LpaType.IsPropertyAndAffairs }}
-                    {{ template "warning-banner" (content .App "yourPropertyAndAffairsLpaTypeCannotBeChanged") }}
-                {{ else }}
-                    {{ template "warning-banner" (content .App "yourPersonalWelfareLpaTypeCannotBeChanged") }}
-                {{ end }}
-            {{ end }}
-
             <h1 class="govuk-heading-xl">{{ template "pageTitle" . }}</h1>
-            
+
             {{ if .CanChange }}
                 {{ trFormatHtml .App "whichTypeOfLpaToMakeContent" "TwoTypesOfLPAHelpLink" (link .App global.Paths.TheTwoTypesOfLPA.Format) }}
 
@@ -40,12 +32,23 @@
                     {{ template "csrf-field" . }}
                 </form>
             {{ else }}
-                {{ trFormatHtml .App "changingYourLpaTypeContent" "TypeLpa" (trFormat .App "typeLpa" "Type" (tr .App .Form.LpaType.String | lowerFirst)) }}
-
-                <div class="govuk-button-group">
-                    <a href="{{ link .App (global.Paths.TaskList.Format .App.LpaID) }}" class="govuk-button">{{ tr .App "returnToTaskList" }}</a>
-                    <a href="{{ link .App global.Paths.Dashboard.Format }}" class="govuk-button govuk-button--secondary">{{ tr .App "manageYourLpas" }}</a>
+                <div class="govuk-inset-text">
+                    <p class="govuk-body"><strong>{{ tr .App .Form.LpaType.String }}</strong></p>
+                    <p class="govuk-body">{{ printf "%s:covers" .Form.LpaType.String | tr .App }}</p>
                 </div>
+
+                {{ $otherType := "property-and-affairs" }}
+                {{ if .Form.LpaType.IsPropertyAndAffairs }}
+                    {{ $otherType = "personal-welfare" }}
+                {{ end }}
+
+                {{ template "details" (details . "whyCantIChangeMyLpaType" (trFormat .App "changingYourLpaTypeContent" "TypeLpa" (trFormat .App "typeLpa" "Type" (tr .App $otherType | lowerFirst))) false) }}
+
+                <p class="govuk-body">
+                    <a href="{{ link .App global.Paths.TheTwoTypesOfLPA.Format }}" class="govuk-link">{{ tr .App "findOutMoreAboutTwoTypesOfLpa" }}</a>
+                </p>
+
+                {{ template "buttons" (button .App "continue" "link" (global.Paths.TaskList.Format .App.LpaID)) }}
             {{ end }}
         </div>
     </div>
