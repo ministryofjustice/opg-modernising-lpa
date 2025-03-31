@@ -13,6 +13,7 @@ import (
 	"time"
 
 	"github.com/ministryofjustice/opg-go-common/template"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor/actoruid"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/appcontext"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/attorney/attorneydata"
@@ -26,12 +27,14 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/localize"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/lpastore"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/lpastore/lpadata"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/notify"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/pay"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/place"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/random"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/sesh"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/sharecode"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/sharecode/sharecodedata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/task"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/uid"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/voucher"
@@ -73,28 +76,28 @@ var progressValues = []string{
 }
 
 type FixtureData struct {
-	LpaType                   string
-	Progress                  int
-	Redirect                  string
-	Donor                     string
-	CertificateProvider       string
-	Attorneys                 string
-	PeopleToNotify            string
-	ReplacementAttorneys      string
-	FeeType                   string
-	PaymentTaskProgress       string
-	WithVirus                 bool
-	UseRealID                 bool
-	CertificateProviderEmail  string
-	CertificateProviderMobile string
-	DonorSub                  string
-	DonorEmail                string
-	DonorMobile               string
-	DonorFirstNames           string
-	DonorLastName             string
-	IdStatus                  string
-	Voucher                   bool
-	VouchAttempts             string
+	LpaType                    string
+	Progress                   int
+	Redirect                   string
+	Donor                      string
+	Attorneys                  string
+	PeopleToNotify             string
+	ReplacementAttorneys       string
+	FeeType                    string
+	PaymentTaskProgress        string
+	WithVirus                  bool
+	UseRealID                  bool
+	CertificateProviderEmail   string
+	CertificateProviderMobile  string
+	CertificateProviderChannel string
+	DonorSub                   string
+	DonorEmail                 string
+	DonorMobile                string
+	DonorFirstNames            string
+	DonorLastName              string
+	IdStatus                   string
+	Voucher                    bool
+	VouchAttempts              string
 }
 
 func Donor(
@@ -108,6 +111,7 @@ func Donor(
 	lpaStoreClient *lpastore.Client,
 	shareCodeStore *sharecode.Store,
 	voucherStore *voucher.Store,
+	notifyClient *notify.Client,
 ) page.Handler {
 	return func(appData appcontext.Data, w http.ResponseWriter, r *http.Request) error {
 		acceptCookiesConsent(w)
@@ -116,6 +120,14 @@ func Donor(
 
 		if data.DonorEmail == "" {
 			data.DonorEmail = testEmail
+		}
+
+		if data.CertificateProviderChannel == "" {
+			data.CertificateProviderChannel = "online"
+		}
+
+		if data.CertificateProviderEmail == "" && data.CertificateProviderChannel == "online" {
+			data.CertificateProviderEmail = testEmail
 		}
 
 		if data.DonorSub == "" {
@@ -155,7 +167,7 @@ func Donor(
 		}
 
 		var fns []func(context.Context, *lpastore.Client, *lpadata.Lpa) error
-		donorDetails, fns, err = updateLPAProgress(data, donorDetails, donorSessionID, r, certificateProviderStore, attorneyStore, documentStore, eventClient, shareCodeStore, voucherStore)
+		donorDetails, fns, err = updateLPAProgress(data, donorDetails, donorSessionID, r, certificateProviderStore, attorneyStore, documentStore, eventClient, shareCodeStore, voucherStore, notifyClient)
 		if err != nil {
 			return err
 		}
@@ -213,6 +225,7 @@ func updateLPAProgress(
 	eventClient *event.Client,
 	shareCodeStore *sharecode.Store,
 	voucherStore *voucher.Store,
+	notifyClient *notify.Client,
 ) (*donordata.Provided, []func(context.Context, *lpastore.Client, *lpadata.Lpa) error, error) {
 	var fns []func(context.Context, *lpastore.Client, *lpadata.Lpa) error
 	if data.Progress >= slices.Index(progressValues, "provideYourDetails") {
@@ -338,11 +351,12 @@ func updateLPAProgress(
 
 	if data.Progress >= slices.Index(progressValues, "chooseYourCertificateProvider") {
 		donorDetails.CertificateProvider = makeCertificateProvider()
-		if data.CertificateProvider == "paper" {
+		if data.CertificateProviderChannel == "paper" {
 			donorDetails.CertificateProvider.CarryOutBy = lpadata.ChannelPaper
+			donorDetails.CertificateProvider.Email = ""
 		}
 
-		if data.CertificateProviderEmail != "" {
+		if data.CertificateProviderEmail != "" && data.CertificateProviderChannel == "online" {
 			donorDetails.CertificateProvider.Email = data.CertificateProviderEmail
 		}
 
@@ -582,11 +596,12 @@ func updateLPAProgress(
 			donorDetails.ContinueWithMismatchedIdentity = true
 		default:
 			userData = identity.UserData{
-				Status:      identity.StatusConfirmed,
-				CheckedAt:   time.Now(),
-				FirstNames:  donorDetails.Donor.FirstNames,
-				LastName:    donorDetails.Donor.LastName,
-				DateOfBirth: donorDetails.Donor.DateOfBirth,
+				Status:         identity.StatusConfirmed,
+				CheckedAt:      time.Now(),
+				FirstNames:     donorDetails.Donor.FirstNames,
+				LastName:       donorDetails.Donor.LastName,
+				DateOfBirth:    donorDetails.Donor.DateOfBirth,
+				CurrentAddress: donorDetails.Donor.Address,
 			}
 		}
 
@@ -623,34 +638,68 @@ func updateLPAProgress(
 
 	var certificateProviderUID actoruid.UID
 
+	if data.Progress >= slices.Index(progressValues, "signedByCertificateProvider") {
+		ctx := appcontext.ContextWithSession(r.Context(), &appcontext.Session{SessionID: random.String(16), LpaID: donorDetails.LpaID})
+
+		if donorDetails.CertificateProvider.CarryOutBy.IsOnline() {
+			certificateProvider, err := createCertificateProvider(ctx, shareCodeStore, certificateProviderStore, donorDetails)
+			if err != nil {
+				return nil, nil, err
+			}
+
+			certificateProvider.ContactLanguagePreference = localize.En
+			certificateProvider.SignedAt = donorDetails.SignedAt.AddDate(0, 0, 3)
+
+			if err := certificateProviderStore.Put(ctx, certificateProvider); err != nil {
+				return nil, nil, err
+			}
+
+			certificateProviderUID = certificateProvider.UID
+
+			fns = append(fns, func(ctx context.Context, client *lpastore.Client, lpa *lpadata.Lpa) error {
+				return client.SendCertificateProvider(ctx, certificateProvider, lpa)
+			})
+		} else {
+			plainCode, hashedCode := sharecodedata.Generate()
+			shareCodeData := sharecodedata.Link{
+				PK:          dynamo.ShareKey(dynamo.CertificateProviderShareKey(hashedCode.String())),
+				SK:          dynamo.ShareSortKey(dynamo.MetadataKey(hashedCode.String())),
+				ActorUID:    donorDetails.CertificateProvider.UID,
+				LpaOwnerKey: donorDetails.SK,
+				LpaUID:      donorDetails.LpaUID,
+			}
+
+			err := shareCodeStore.Put(ctx, actor.TypeCertificateProvider, hashedCode, shareCodeData)
+			if err != nil {
+				return nil, nil, err
+			}
+
+			if err := notifyClient.SendEmail(ctx, notify.ToCustomEmail(localize.En, data.CertificateProviderEmail), notify.CertificateProviderInviteEmail{
+				DonorFullName:                donorDetails.Donor.FullName(),
+				LpaType:                      "Property and affairs",
+				CertificateProviderFullName:  donorDetails.CertificateProvider.FullName(),
+				DonorFirstNames:              donorDetails.Donor.FirstNames,
+				DonorFirstNamesPossessive:    donorDetails.Donor.FirstNames + "’s",
+				WhatLpaCovers:                "money, finances and any property they might own",
+				CertificateProviderStartURL:  "/certificate-provider-start",
+				ShareCode:                    plainCode.Plain(),
+				CertificateProviderOptOutURL: "/certificate-provider-opt-out",
+			}); err != nil {
+				return nil, nil, err
+			}
+
+			fns = append(fns, func(ctx context.Context, client *lpastore.Client, lpa *lpadata.Lpa) error {
+				return client.SendPaperCertificateProviderSign(ctx, lpa.LpaUID, donorDetails.CertificateProvider)
+			})
+		}
+	}
+
 	if data.Progress == slices.Index(progressValues, "certificateProviderOptedOut") {
 		fns = append(fns, func(ctx context.Context, client *lpastore.Client, _ *lpadata.Lpa) error {
 			return client.SendCertificateProviderOptOut(ctx, donorDetails.LpaUID, certificateProviderUID)
 		})
 
 		return donorDetails, fns, nil
-	}
-
-	if data.Progress >= slices.Index(progressValues, "signedByCertificateProvider") {
-		ctx := appcontext.ContextWithSession(r.Context(), &appcontext.Session{SessionID: random.String(16), LpaID: donorDetails.LpaID})
-
-		certificateProvider, err := createCertificateProvider(ctx, shareCodeStore, certificateProviderStore, donorDetails.CertificateProvider.UID, donorDetails.SK, donorDetails.CertificateProvider.Email)
-		if err != nil {
-			return nil, nil, err
-		}
-
-		certificateProvider.ContactLanguagePreference = localize.En
-		certificateProvider.SignedAt = donorDetails.SignedAt.AddDate(0, 0, 3)
-
-		if err := certificateProviderStore.Put(ctx, certificateProvider); err != nil {
-			return nil, nil, err
-		}
-
-		certificateProviderUID = certificateProvider.UID
-
-		fns = append(fns, func(ctx context.Context, client *lpastore.Client, lpa *lpadata.Lpa) error {
-			return client.SendCertificateProvider(ctx, certificateProvider, lpa)
-		})
 	}
 
 	if data.Progress >= slices.Index(progressValues, "signedByAttorneys") {
@@ -774,27 +823,27 @@ func setFixtureData(r *http.Request) FixtureData {
 	}
 
 	return FixtureData{
-		LpaType:                   r.FormValue("lpa-type"),
-		Progress:                  slices.Index(progressValues, r.FormValue("progress")),
-		Redirect:                  r.FormValue("redirect"),
-		Donor:                     r.FormValue("donor"),
-		CertificateProvider:       r.FormValue("certificateProvider"),
-		Attorneys:                 r.FormValue("attorneys"),
-		PeopleToNotify:            r.FormValue("peopleToNotify"),
-		ReplacementAttorneys:      r.FormValue("replacementAttorneys"),
-		FeeType:                   r.FormValue("feeType"),
-		PaymentTaskProgress:       paymentTaskProgress,
-		WithVirus:                 r.FormValue("withVirus") == "1",
-		UseRealID:                 slices.Contains(options, "uid"),
-		CertificateProviderEmail:  r.FormValue("certificateProviderEmail"),
-		CertificateProviderMobile: r.FormValue("certificateProviderMobile"),
-		DonorSub:                  r.FormValue("donorSub"),
-		DonorEmail:                r.FormValue("donorEmail"),
-		DonorMobile:               r.FormValue("donorMobile"),
-		DonorFirstNames:           r.FormValue("donorFirstNames"),
-		DonorLastName:             r.FormValue("donorLastName"),
-		IdStatus:                  r.FormValue("idStatus"),
-		Voucher:                   slices.Contains(options, "voucher"),
-		VouchAttempts:             r.FormValue("vouchAttempts"),
+		LpaType:                    r.FormValue("lpa-type"),
+		Progress:                   slices.Index(progressValues, r.FormValue("progress")),
+		Redirect:                   r.FormValue("redirect"),
+		Donor:                      r.FormValue("donor"),
+		Attorneys:                  r.FormValue("attorneys"),
+		PeopleToNotify:             r.FormValue("peopleToNotify"),
+		ReplacementAttorneys:       r.FormValue("replacementAttorneys"),
+		FeeType:                    r.FormValue("feeType"),
+		PaymentTaskProgress:        paymentTaskProgress,
+		WithVirus:                  r.FormValue("withVirus") == "1",
+		UseRealID:                  slices.Contains(options, "uid"),
+		CertificateProviderEmail:   r.FormValue("certificateProviderEmail"),
+		CertificateProviderMobile:  r.FormValue("certificateProviderMobile"),
+		CertificateProviderChannel: r.FormValue("certificateProviderChannel"),
+		DonorSub:                   r.FormValue("donorSub"),
+		DonorEmail:                 r.FormValue("donorEmail"),
+		DonorMobile:                r.FormValue("donorMobile"),
+		DonorFirstNames:            r.FormValue("donorFirstNames"),
+		DonorLastName:              r.FormValue("donorLastName"),
+		IdStatus:                   r.FormValue("idStatus"),
+		Voucher:                    slices.Contains(options, "voucher"),
+		VouchAttempts:              r.FormValue("vouchAttempts"),
 	}
 }
