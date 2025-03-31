@@ -190,3 +190,9 @@ variable "ecs_aws_otel_collector_version" {
   type        = string
   description = "semver tag for the public ecr tag of the aws-otel-collector image"
 }
+
+variable "log_emitted_events" {
+  type        = bool
+  description = "Log events emitted to /aws/events/{env}-emitted"
+  default     = false
+}
