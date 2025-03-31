@@ -251,13 +251,14 @@ func createAttorney(ctx context.Context, shareCodeStore *sharecode.Store, attorn
 	return attorneyStore.Create(ctx, shareCodeData, email)
 }
 
-func createCertificateProvider(ctx context.Context, shareCodeStore *sharecode.Store, certificateProviderStore CertificateProviderStore, actorUID actoruid.UID, lpaOwnerKey dynamo.LpaOwnerKeyType, email string) (*certificateproviderdata.Provided, error) {
+func createCertificateProvider(ctx context.Context, shareCodeStore *sharecode.Store, certificateProviderStore CertificateProviderStore, donor *donordata.Provided) (*certificateproviderdata.Provided, error) {
 	_, hashedCode := sharecodedata.Generate()
 	shareCodeData := sharecodedata.Link{
 		PK:          dynamo.ShareKey(dynamo.CertificateProviderShareKey(hashedCode.String())),
 		SK:          dynamo.ShareSortKey(dynamo.MetadataKey(hashedCode.String())),
-		ActorUID:    actorUID,
-		LpaOwnerKey: lpaOwnerKey,
+		ActorUID:    donor.CertificateProvider.UID,
+		LpaOwnerKey: donor.SK,
+		LpaUID:      donor.LpaUID,
 	}
 
 	err := shareCodeStore.Put(ctx, actor.TypeCertificateProvider, hashedCode, shareCodeData)
@@ -265,7 +266,7 @@ func createCertificateProvider(ctx context.Context, shareCodeStore *sharecode.St
 		return nil, err
 	}
 
-	return certificateProviderStore.Create(ctx, shareCodeData, email)
+	return certificateProviderStore.Create(ctx, shareCodeData, donor.CertificateProvider.Email)
 }
 
 func createVoucher(ctx context.Context, shareCodeStore *sharecode.Store, voucherStore *voucher.Store, donor *donordata.Provided) (*voucherdata.Provided, error) {
