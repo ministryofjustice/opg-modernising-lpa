@@ -118,7 +118,7 @@ services:
       timeout: 5s
 
   mock-lpa-store:
-    image: outofcoffee/imposter:latest@sha256:ac18edecb48acd5e40f137cd3c0ebe857942db1dd86aa232e731b5d2d8032289
+    image: outofcoffee/imposter:latest@sha256:7e447fdc0fef64f746670fd6af2d459ef8c4b72e6aad758dec946b71fd514ec9
     volumes:
       - ./mock-lpa-store/:/opt/imposter/config/
     container_name: mock-lpa-store
@@ -157,7 +157,7 @@ services:
     container_name: mock-pay
 
   mock-uid:
-    image: outofcoffee/imposter:latest@sha256:ac18edecb48acd5e40f137cd3c0ebe857942db1dd86aa232e731b5d2d8032289
+    image: outofcoffee/imposter:latest@sha256:7e447fdc0fef64f746670fd6af2d459ef8c4b72e6aad758dec946b71fd514ec9
     volumes:
       - ./mock-uid/:/opt/imposter/config/
     container_name: mock-uid
