@@ -45,7 +45,8 @@ describe('LPA type', () => {
 
         cy.visit('/dashboard')
 
-        cy.contains('.govuk-body-s', 'Reference number:')
+        cy.waitForTextByReloading('.govuk-body-s', 'M-');
+        cy.contains('.govuk-body-s', 'Reference number: M-')
             .invoke('text')
             .then((text) => {
                 const uid = text.split(':')[1].trim();
