@@ -13,3 +13,9 @@ variable "receive_account_ids" {
   description = "IDs of accounts to receive messages from"
   default     = []
 }
+
+variable "log_emitted_events" {
+  type        = bool
+  description = "Log events emitted to /aws/events/{env}-emitted"
+  default     = false
+}
