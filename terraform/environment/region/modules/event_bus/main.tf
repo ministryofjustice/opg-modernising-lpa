@@ -75,7 +75,6 @@ resource "aws_sns_topic" "event_bus_dead_letter_queue" {
   provider                                 = aws.region
 }
 
-
 resource "aws_cloudwatch_metric_alarm" "event_bus_dead_letter_queue" {
   alarm_name          = "${data.aws_default_tags.current.tags.environment-name}-event-bus-dead-letter-queue"
   comparison_operator = "GreaterThanOrEqualToThreshold"
@@ -136,6 +135,50 @@ resource "aws_cloudwatch_event_target" "cross_account_put" {
   rule     = aws_cloudwatch_event_rule.cross_account_put.name
   role_arn = var.iam_role.arn
   provider = aws.region
+}
+
+data "aws_iam_policy_document" "events_emitted" {
+  statement {
+    effect = "Allow"
+    actions = [
+      "logs:CreateLogStream",
+      "logs:PutLogEvents",
+    ]
+    resources = [
+      "arn:aws:logs:${data.aws_region.current.name}:${data.aws_caller_identity.current.account_id}:log-group:/aws/events/*:*"
+    ]
+
+    principals {
+      type = "Service"
+      identifiers = [
+        "events.amazonaws.com",
+        "delivery.logs.amazonaws.com",
+      ]
+    }
+  }
+}
+
+resource "aws_cloudwatch_log_resource_policy" "events_emitted" {
+  count           = var.log_emitted_events ? 1 : 0
+  policy_document = data.aws_iam_policy_document.events_emitted.json
+  policy_name     = "${data.aws_default_tags.current.tags.environment-name}-events-emitted"
+  provider        = aws.region
+}
+
+resource "aws_cloudwatch_log_group" "events_emitted" {
+  count             = var.log_emitted_events ? 1 : 0
+  name              = "/aws/events/${data.aws_default_tags.current.tags.environment-name}-emitted"
+  retention_in_days = 5
+  provider          = aws.region
+}
+
+resource "aws_cloudwatch_event_target" "events_emitted" {
+  count          = var.log_emitted_events ? 1 : 0
+  target_id      = "${data.aws_default_tags.current.tags.environment-name}-events-emitted-target"
+  event_bus_name = aws_cloudwatch_event_bus.main.name
+  rule           = aws_cloudwatch_event_rule.cross_account_put.name
+  arn            = aws_cloudwatch_log_group.events_emitted.arn
+  provider       = aws.region
 }
 
 # Allow other accounts to send messages
