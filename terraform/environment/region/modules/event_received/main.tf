@@ -103,11 +103,12 @@ resource "aws_sqs_queue_redrive_allow_policy" "receive_events_redrive_allow_poli
 }
 
 resource "aws_lambda_event_source_mapping" "reveive_events_mapping" {
-  event_source_arn = aws_sqs_queue.receive_events_queue.arn
-  enabled          = true
-  function_name    = module.event_received.lambda.arn
-  batch_size       = 10
-  provider         = aws.region
+  event_source_arn        = aws_sqs_queue.receive_events_queue.arn
+  enabled                 = true
+  function_name           = module.event_received.lambda.arn
+  batch_size              = 10
+  function_response_types = ["ReportBatchItemFailures"]
+  provider                = aws.region
 }
 
 data "aws_iam_policy_document" "api_access_policy" {
