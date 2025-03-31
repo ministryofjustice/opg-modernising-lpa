@@ -9,29 +9,29 @@ require (
 	github.com/MicahParks/keyfunc/v3 v3.3.10
 	github.com/aws/aws-lambda-go v1.47.0
 	github.com/aws/aws-sdk-go-v2 v1.36.3
-	github.com/aws/aws-sdk-go-v2/config v1.29.9
-	github.com/aws/aws-sdk-go-v2/credentials v1.17.62
+	github.com/aws/aws-sdk-go-v2/config v1.29.12
+	github.com/aws/aws-sdk-go-v2/credentials v1.17.65
 	github.com/aws/aws-sdk-go-v2/feature/dynamodb/attributevalue v1.18.8
 	github.com/aws/aws-sdk-go-v2/service/cloudwatch v1.44.1
 	github.com/aws/aws-sdk-go-v2/service/dynamodb v1.42.0
-	github.com/aws/aws-sdk-go-v2/service/eventbridge v1.37.1
+	github.com/aws/aws-sdk-go-v2/service/eventbridge v1.37.2
 	github.com/aws/aws-sdk-go-v2/service/s3 v1.78.2
 	github.com/aws/aws-sdk-go-v2/service/s3control v1.55.0
 	github.com/aws/aws-sdk-go-v2/service/secretsmanager v1.35.2
-	github.com/aws/aws-sdk-go-v2/service/sqs v1.38.1
-	github.com/aws/aws-sdk-go-v2/service/ssm v1.57.2
+	github.com/aws/aws-sdk-go-v2/service/sqs v1.38.3
+	github.com/aws/aws-sdk-go-v2/service/ssm v1.58.0
 	github.com/aws/smithy-go v1.22.3
 	github.com/felixge/httpsnoop v1.0.4
 	github.com/gabriel-vasile/mimetype v1.4.8
-	github.com/golang-jwt/jwt/v5 v5.2.1
+	github.com/golang-jwt/jwt/v5 v5.2.2
 	github.com/google/uuid v1.6.0
 	github.com/gorilla/handlers v1.5.2
 	github.com/gorilla/securecookie v1.1.2
 	github.com/gorilla/sessions v1.4.0
-	github.com/ministryofjustice/opg-go-common v1.83.0
+	github.com/ministryofjustice/opg-go-common v1.84.0
 	github.com/mitchellh/hashstructure/v2 v2.0.2
 	github.com/opensearch-project/opensearch-go/v4 v4.4.0
-	github.com/pact-foundation/pact-go/v2 v2.3.0
+	github.com/pact-foundation/pact-go/v2 v2.4.1
 	github.com/stretchr/testify v1.10.0
 	github.com/xeipuuv/gojsonschema v1.2.0
 	go.opentelemetry.io/contrib/detectors/aws/ecs v1.35.0
@@ -63,8 +63,8 @@ require (
 	github.com/aws/aws-sdk-go-v2/service/internal/presigned-url v1.12.15 // indirect
 	github.com/aws/aws-sdk-go-v2/service/internal/s3shared v1.18.15 // indirect
 	github.com/aws/aws-sdk-go-v2/service/sns v1.34.1 // indirect
-	github.com/aws/aws-sdk-go-v2/service/sso v1.25.1 // indirect
-	github.com/aws/aws-sdk-go-v2/service/ssooidc v1.29.1 // indirect
+	github.com/aws/aws-sdk-go-v2/service/sso v1.25.2 // indirect
+	github.com/aws/aws-sdk-go-v2/service/ssooidc v1.30.0 // indirect
 	github.com/aws/aws-sdk-go-v2/service/sts v1.33.17 // indirect
 	github.com/brunoscheufler/aws-ecs-metadata-go v0.0.0-20221221133751-67e37ae746cd // indirect
 	github.com/cenkalti/backoff/v4 v4.3.0 // indirect
