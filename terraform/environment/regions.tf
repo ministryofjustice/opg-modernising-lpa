@@ -86,6 +86,7 @@ module "eu_west_1" {
   search_collection_arn                   = data.aws_opensearchserverless_collection.lpas_collection.arn
   real_user_monitoring_cw_logs_enabled    = local.environment.app.real_user_monitoring_cw_logs_enabled
   ecs_aws_otel_collector_version          = var.ecs_aws_otel_collector_version
+  log_emitted_events                      = local.environment.log_emitted_events
   providers = {
     aws.region            = aws.eu_west_1
     aws.global            = aws.global
@@ -157,6 +158,7 @@ module "eu_west_2" {
   search_collection_arn                   = null
   real_user_monitoring_cw_logs_enabled    = local.environment.app.real_user_monitoring_cw_logs_enabled
   ecs_aws_otel_collector_version          = var.ecs_aws_otel_collector_version
+  log_emitted_events                      = local.environment.log_emitted_events
   providers = {
     aws.region            = aws.eu_west_2
     aws.global            = aws.global
