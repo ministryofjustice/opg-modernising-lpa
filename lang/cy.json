@@ -1683,5 +1683,8 @@
     "whyCantIChangeMyLpaType": "Welsh",
     "property-and-affairs:covers": "Welsh",
     "personal-welfare:covers": "Welsh",
-    "findOutMoreAboutTwoTypesOfLpa": "Welsh"
+    "findOutMoreAboutTwoTypesOfLpa": "Welsh",
+    "youHaveAlreadyProvidedTheCertificateForThisLpa": "Welsh",
+    "youHaveAlreadyProvidedTheCertificateForDonorsLpaNotification": "Welsh {{ possessive .DonorFullName}} {{ .LpaType }} Welsh",
+    "youHaveAlreadyProvidedTheCertificateForThisLpaContent": "<p class=\"govuk-body\">Welsh</p><p class=\"govuk-body\">Welsh</p>"
 }
