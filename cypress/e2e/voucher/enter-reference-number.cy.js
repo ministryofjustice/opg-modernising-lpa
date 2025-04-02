@@ -1,4 +1,4 @@
-const { TestEmail, randomShareCode } = require("../../support/e2e");
+const { randomShareCode } = require("../../support/e2e");
 
 describe('Enter access code', () => {
     let shareCode = ''
@@ -9,7 +9,6 @@ describe('Enter access code', () => {
 
         cy.contains('a', 'Start').click()
         cy.origin('http://localhost:7012', () => {
-            cy.contains('label', 'Random value').click();
             cy.contains('button', 'Continue').click();
         });
         cy.url().should('contain', '/voucher-enter-reference-number')

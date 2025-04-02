@@ -9,7 +9,6 @@ describe('Enter access code', () => {
 
         cy.contains('a', 'Start').click()
         cy.origin('http://localhost:7012', () => {
-            cy.contains('label', 'Random value').click();
             cy.contains('button', 'Continue').click();
         });
         cy.url().should('contain', '/certificate-provider-enter-reference-number')
