@@ -98,6 +98,7 @@ variable "environments" {
         destination_account_id                    = string
         enable_s3_batch_job_replication_scheduler = bool
       })
+      log_emitted_events = bool
     })
   )
 }
