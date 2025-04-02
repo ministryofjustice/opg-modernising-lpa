@@ -51,7 +51,7 @@ jobs:
 
   deploy:
       name: ur Environment Deploy
-      needs: [ui_tests_image, fetch_s3_av_version]
+      needs: [ui_tests_image]
       uses: ./.github/workflows/terraform_environment_job.yml
       with:
         workspace_name: ur
