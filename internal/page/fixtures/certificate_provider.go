@@ -3,6 +3,7 @@ package fixtures
 import (
 	"cmp"
 	"encoding/base64"
+	"errors"
 	"net/http"
 	"slices"
 	"time"
@@ -71,9 +72,10 @@ func CertificateProvider(
 
 			progress = slices.Index(progressValues, r.FormValue("progress"))
 
-			redirect  = r.FormValue("redirect")
-			shareCode = r.FormValue("withShareCode")
-			idStatus  = r.FormValue("idStatus")
+			redirect                   = r.FormValue("redirect")
+			shareCode                  = r.FormValue("withShareCode")
+			idStatus                   = r.FormValue("idStatus")
+			certificateProviderChannel = r.FormValue("certificateProviderChannel")
 		)
 
 		if lpaLanguage.Empty() {
@@ -103,6 +105,14 @@ func CertificateProvider(
 		err := sessionStore.SetLogin(r, w, &sesh.LoginSession{Sub: certificateProviderSub, Email: testEmail})
 		if err != nil {
 			return err
+		}
+
+		channel := lpadata.ChannelOnline
+		if certificateProviderChannel != "" {
+			channel, err = lpadata.ParseChannel(certificateProviderChannel)
+			if err != nil {
+				return errors.New("invalid format for certificateProviderChannel")
+			}
 		}
 
 		var donorDetails *donordata.Provided
@@ -214,12 +224,17 @@ func CertificateProvider(
 						TownOrCity: "Mahhhhhhhhhh",
 						Country:    "GB",
 					},
-					Channel: lpadata.ChannelOnline,
+					Channel: channel,
 					Email:   "a@example.com",
 					Phone:   phone,
 				},
 				SignedAt:                         time.Now(),
 				WitnessedByCertificateProviderAt: time.Now(),
+			}
+
+			if channel.IsPaper() {
+				now := time.Now()
+				createLpa.CertificateProvider.SignedAt = &now
 			}
 
 			if lpaType == "personal-welfare" {
@@ -377,7 +392,7 @@ func CertificateProvider(
 			return nil
 		}
 
-		certificateProvider, err := createCertificateProvider(certificateProviderCtx, shareCodeStore, certificateProviderStore, donorDetails.CertificateProvider.UID, donorDetails.SK, donorDetails.CertificateProvider.Email)
+		certificateProvider, err := createCertificateProvider(certificateProviderCtx, shareCodeStore, certificateProviderStore, donorDetails)
 		if err != nil {
 			return err
 		}
