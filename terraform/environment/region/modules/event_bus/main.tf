@@ -209,8 +209,9 @@ resource "aws_cloudwatch_event_bus_policy" "cross_account_receive" {
 }
 
 resource "aws_cloudwatch_query_definition" "events_emitted" {
+  count           = var.log_emitted_events ? 1 : 0
   name            = "${data.aws_default_tags.current.tags.environment-name}/emitted-events"
-  log_group_names = [aws_cloudwatch_log_group.events_emitted.name]
+  log_group_names = [aws_cloudwatch_log_group.events_emitted[0].name]
 
   query_string = <<EOF
 fields @timestamp, @message, @logStream, @log
