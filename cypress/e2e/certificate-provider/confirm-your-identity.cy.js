@@ -57,7 +57,7 @@ describe('confirm your identity', () => {
     it('can see next steps when failing', () => {
         cy.contains('button', 'Continue').click()
         cy.origin('http://localhost:7012', () => {
-            cy.get('[name="return-code"]').check('T', { force: true })
+            cy.contains('(T)').click({ force: true })
             cy.contains('button', 'Continue').click()
         });
 
@@ -76,7 +76,7 @@ describe('confirm your identity', () => {
     it('can see next steps when has insufficient evidence', () => {
         cy.contains('button', 'Continue').click()
         cy.origin('http://localhost:7012', () => {
-            cy.get('[name="return-code"]').check('X', { force: true })
+            cy.contains('(X)').click({ force: true })
             cy.contains('button', 'Continue').click()
         })
 
