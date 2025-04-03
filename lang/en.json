@@ -109,7 +109,7 @@
     "phone": "Phone",
     "post": "Post",
     "whichTypeOfLpaToMake": "Which type of LPA do you want to make?",
-    "whichTypeOfLpaToMakeContent": "<p class=\"govuk-body\">There are 2 types of LPA. You can make an LPA that covers decisions about your:</p><ul class=\"govuk-list govuk-list--bullet\"><li>money, finances and any property you own</li><li>health care, medical treatment and personal welfare</li></ul><p class=\"govuk-body\">You can have one or both types of LPA.</p><p class=\"govuk-body\">They do not have to be made at the same time. You can reuse any information you enter to make other LPAs later.</p><p class=\"govuk-body\">You can choose different people to be your attorneys for each LPA.</p><p class=\"govuk-body\"><a class=\"govuk-link\" href=\"{{ .TwoTypesOfLPAHelpLink }}\">Find out more about the 2 types of LPAs.</a></p>",
+    "whichTypeOfLpaToMakeContent": "<p class=\"govuk-body\">You can have one or both types of LPA. They do not have to be made at the same time. You can choose different people to be your attorneys for each LPA.</p><h2 class=\"govuk-heading-m\">Property and affairs LPA</h2><p class=\"govuk-body\">This covers decisions about your money, bills, benefits and home ownership. It can be used as soon as it is registered by the Office of the Public Guardian (OPG), if this is what you decide, even if you still have <a href=\"{{.UnderstandingMentalCapacityLink}}\" class=\"govuk-link\">mental capacity</a>.</p><h2 class=\"govuk-heading-m\">Personal welfare LPA</h2><p class=\"govuk-body\">This covers decisions about your day-to-day needs, health care, where you live, and your medical treatment. By law, it can only be used when you have lost <a href=\"{{.UnderstandingMentalCapacityLink}}\" class=\"govuk-link\">mental capacity</a>.</p><p class=\"govuk-body\"><a class=\"govuk-link\" href=\"{{.TwoTypesOfLPAHelpLink}}\">Learn more about the 2 types of LPA.</a></p>",
     "theTypeOfLpaToMake": "the type of LPA to make",
     "property-and-affairs": "Property and affairs",
     "propertyAndAffairsHint": "This covers decisions about your money, finances and property.",
@@ -1577,5 +1577,6 @@
     "property-and-affairs:covers": "This type of LPA covers decisions about your money, bills, benefits and home ownership.",
     "personal-welfare:covers": "This type of LPA covers decisions about your health care, medical treatment and personal welfare.",
     "findOutMoreAboutTwoTypesOfLpa": "Find out more about the 2 types of LPA.",
+    "onceSelectedLpaTypeCannotBeAltered": "Once selected, your LPA type cannot be altered. If, in future, you decide on a different type of LPA, you can delete this LPA and create a new one.",
     "youCanThenSendYourLpaToTheCourtOfProtection": "You can then send your LPA to the Court of Protection. We cannot register your LPA until it has been successfully reviewed by the Court of Protection."
 }
