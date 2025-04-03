@@ -11,8 +11,14 @@
 
             <h2 class="govuk-heading-l">{{ tr .App "whatHappensNext" }}</h2>
 
+            <p class="govuk-body">{{ tr .App "nowYouHaveSubmittedMustBeSignedWithinTwoYears" }}</p>
+
+            <div class="govuk-inset-text">
+                <p class="govuk-body govuk-!-font-weight-bold">{{ formatDate .App .Donor.SigningDeadline }}</p>
+            </div>
+
             {{ if .Donor.RegisteringWithCourtOfProtection }}
-                <p class="govuk-body">{{ tr .App "thanksWeCannotRegisterUntilCourtOfProtection" }}</p>
+                <p class="govuk-body">{{ tr .App "youCanThenSendYourLpaToTheCourtOfProtection" }}</p>
 
                 <ol class="govuk-list govuk-list--number govuk-list--spaced">
                     <li>{{ trFormat .App "weWillContactYourCertificateProvider" "FirstNames" .Donor.CertificateProvider.FirstNames }}</li>
@@ -22,20 +28,13 @@
                     <li>{{ tr .App "ifYourLpaIsSuccessfullyReviewed" }}</li>
                 </ol>
 
-                <p class="govuk-body">{{ tr .App "youCanTrackTheProgressByLoggingBackIn" }}</p>
+                {{ trHtml .App "weWillEmailYou" }}
 
-                {{ template "warning" (content .App (trFormatCount .App "copSignDeadlineWarning" .Donor.Attorneys.Len
-                    "CertificateProviderFirstNames" .Donor.CertificateProvider.FirstNames
-                    "SigningDeadline" (formatDate .App .Donor.SigningDeadline)
-                    "SubmissionDeadline" (formatDate .App .Donor.CourtOfProtectionSubmissionDeadline))) }}
+                {{ template "warning" (content .App (trFormat .App "copSignDeadlineWarning"
+                    "SignatoriesNames" (concatAnd .App (.Donor.SignatoriesNames .App.Localizer))
+                    "SigningDeadline" (formatDate .App .Donor.SigningDeadline))) }}
 
             {{ else }}
-                <p class="govuk-body">{{ tr .App "nowYouHaveSubmittedMustBeSignedWithinTwoYears" }}</p>
-
-                <div class="govuk-inset-text">
-                    <p class="govuk-body govuk-!-font-weight-bold">{{ formatDate .App .Donor.SigningDeadline }}</p>
-                </div>
-
                 <ol class="govuk-list govuk-list--number govuk-list--spaced">
                     {{ if not .Donor.Tasks.ConfirmYourIdentity.IsCompleted }}
                         <li>{{ tr .App "confirmYourIdentityByReturning" }}</li>
