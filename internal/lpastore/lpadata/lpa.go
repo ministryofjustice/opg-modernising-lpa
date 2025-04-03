@@ -118,12 +118,16 @@ func (l Lpa) AllAttorneysSigned() bool {
 
 	for _, attorneys := range []Attorneys{l.Attorneys, l.ReplacementAttorneys} {
 		for _, a := range attorneys.Attorneys {
-			if a.SignedAt == nil || a.SignedAt.IsZero() {
+			if !a.Removed && (a.SignedAt == nil || a.SignedAt.IsZero()) {
 				return false
 			}
 		}
 
 		if t := attorneys.TrustCorporation; t.Name != "" {
+			if t.Removed {
+				continue
+			}
+
 			if len(t.Signatories) == 0 {
 				return false
 			}
