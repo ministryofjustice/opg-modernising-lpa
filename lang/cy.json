@@ -112,7 +112,7 @@
     "phone": "Ffôn",
     "post": "Post",
     "whichTypeOfLpaToMake": "Pa fath o LPA ydych chi eisiau ei gwneud?",
-    "whichTypeOfLpaToMakeContent": "<p class=\"govuk-body\">Ceir 2 fath o LPA. Gallwch wneud LPA sy’n cynnwys penderfyniadau ynglŷn â’ch:</p><ul class=\"govuk-list govuk-list--bullet\"><li>arian, cyllid ac unrhyw eiddo sydd gennych chi</li><li>gofal iechyd, triniaeth feddygol a lles personol</li></ul><p class=\"govuk-body\">Gallwch gael un neu’r ddau fath o LPA.</p><p class=\"govuk-body\">Nid oes rhaid eu gwneud ar yr un pryd. Gallwch ailddefnyddio unrhyw wybodaeth a roddwch i wneud LPA arall nes ymlaen.</p><p class=\"govuk-body\">Gallwch ddewis gwahanol bobl i fod yn atwrneiod i chi ar gyfer pob LPA.</p><p class=\"govuk-body\"><a class=\"govuk-link\" href=\"{{ .TwoTypesOfLPAHelpLink }}\">Darllenwch fwy am y 2 fath o LPA.</a></p>",
+    "whichTypeOfLpaToMakeContent": "<p class=\"govuk-body\">Welsh {{.TwoTypesOfLPAHelpLink}} {{.UnderstandingMentalCapacityLink}} {{.UnderstandingMentalCapacityLink}}</p>",
     "theTypeOfLpaToMake": "pa fath o LPA ydych chi eisiau ei gwneud",
     "property-and-affairs": "Eiddo a materion ariannol",
     "propertyAndAffairsHint": "Mae hyn yn cwmpasu penderfyniadau am eich arian, cyllid ac eiddo.",
@@ -1677,5 +1677,6 @@
     "property-and-affairs:covers": "Welsh",
     "personal-welfare:covers": "Welsh",
     "findOutMoreAboutTwoTypesOfLpa": "Welsh",
+    "onceSelectedLpaTypeCannotBeAltered": "Welsh",
     "youCanThenSendYourLpaToTheCourtOfProtection": "Welsh"
 }

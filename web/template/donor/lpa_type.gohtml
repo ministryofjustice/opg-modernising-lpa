@@ -14,13 +14,17 @@
             <h1 class="govuk-heading-xl">{{ template "pageTitle" . }}</h1>
 
             {{ if .CanChange }}
-                {{ trFormatHtml .App "whichTypeOfLpaToMakeContent" "TwoTypesOfLPAHelpLink" (link .App global.Paths.TheTwoTypesOfLPA.Format) }}
+                {{ trFormatHtml .App "whichTypeOfLpaToMakeContent"
+                    "UnderstandingMentalCapacityLink" (link .App global.Paths.UnderstandingMentalCapacity.Format)
+                    "TwoTypesOfLPAHelpLink" (link .App global.Paths.TheTwoTypesOfLPA.Format) }}
+
+                {{ template "warning" (content .App "onceSelectedLpaTypeCannotBeAltered") }}
 
                 <form novalidate method="post">
                     {{ template "radios-fieldset" (fieldset . "lpa-type" .Form.LpaType.String
                         (legend "whichTypeOfLpaToMake" "govuk-fieldset__legend--m")
-                        (item .Options.PropertyAndAffairs.String .Options.PropertyAndAffairs.String "hint" "propertyAndAffairsHint")
-                        (item .Options.PersonalWelfare.String .Options.PersonalWelfare.String "hint" "personalWelfareHint")
+                        (item .Options.PropertyAndAffairs.String (tr .App .Options.PropertyAndAffairs.String | trFormat .App "typeLpa" "Type"))
+                        (item .Options.PersonalWelfare.String (tr .App .Options.PersonalWelfare.String | trFormat .App "typeLpa" "Type"))
                         ) }}
 
                     {{ if .CanTaskList }}
