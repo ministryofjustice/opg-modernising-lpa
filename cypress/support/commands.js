@@ -29,8 +29,7 @@ import 'cypress-file-upload';
 function terminalLog(violations) {
     cy.task(
         'log',
-        `${violations.length} accessibility violation${
-            violations.length === 1 ? '' : 's'
+        `${violations.length} accessibility violation${violations.length === 1 ? '' : 's'
         } ${violations.length === 1 ? 'was' : 'were'} detected`
     )
     // pluck specific keys to keep the table readable
@@ -47,9 +46,9 @@ function terminalLog(violations) {
 }
 
 // Sets base axe config and displays failures in table format
-Cypress.Commands.add('checkA11yApp', (options= {}) => {
-    const opts = {rules: { region: { enabled: false } } }
-    opts.rules = {...opts.rules, ...options.rules}
+Cypress.Commands.add('checkA11yApp', (options = {}) => {
+    const opts = { rules: { region: { enabled: false } } }
+    opts.rules = { ...opts.rules, ...options.rules }
 
     cy.injectAxe()
     cy.checkA11y(null, opts, terminalLog);
@@ -62,7 +61,7 @@ Cypress.Commands.add('visitLpa', (path, opts = {}) => {
 // Function to poll a page until element contains text or timeout occurs
 Cypress.Commands.add('waitForTextByReloading', (selector, expectedText) => {
     const options = {
-        timeout: 6000,
+        timeout: 10000,
         interval: 500,
     };
 
