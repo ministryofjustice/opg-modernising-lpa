@@ -15,6 +15,10 @@ type Results struct {
 	Voucher             []Actor
 }
 
+func (r Results) Empty() bool {
+	return len(r.Donor) == 0 && len(r.CertificateProvider) == 0 && len(r.Attorney) == 0 && len(r.Voucher) == 0
+}
+
 type Actor struct {
 	Lpa                 *lpadata.Lpa
 	Donor               *donordata.Provided
