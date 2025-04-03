@@ -165,7 +165,6 @@ resource "aws_cloudwatch_log_resource_policy" "events_emitted" {
   provider        = aws.region
 }
 
-#tfsec:ignore:aws-cloudwatch-log-group-customer-key
 resource "aws_cloudwatch_log_group" "events_emitted" {
   count             = var.log_emitted_events ? 1 : 0
   name              = "/aws/events/${data.aws_default_tags.current.tags.environment-name}-emitted"
