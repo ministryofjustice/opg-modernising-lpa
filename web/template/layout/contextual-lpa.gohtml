@@ -260,21 +260,21 @@
 
     <dl class="govuk-summary-list app-stacked-summary-list">
         {{ if .Lpa.AttorneyDecisions.How.IsJointlyForSomeSeverallyForOthers }}
-            {{ template "summary-row" (staticSummaryRow .App "decisionsAttorneysMustMakeJointly"
-                (trHtml .App .Lpa.AttorneyDecisions.Details)) }}
+            {{ template "text-summary-row" (staticSummaryRow .App "decisionsAttorneysMustMakeJointly"
+                .Lpa.AttorneyDecisions.Details) }}
         {{ end }}
 
         {{ if .Lpa.HowShouldReplacementAttorneysStepInDetails }}
-            {{ template "summary-row" (staticSummaryRow .App "howReplacementAttorneysShouldStepIn"
+            {{ template "text-summary-row" (staticSummaryRow .App "howReplacementAttorneysShouldStepIn"
                 .Lpa.HowShouldReplacementAttorneysStepInDetails) }}
         {{ end }}
 
         {{ if .Lpa.ReplacementAttorneyDecisions.How.IsJointlyForSomeSeverallyForOthers }}
-            {{ template "summary-row" (staticSummaryRow .App "decisionsReplacementAttorneysMustMakeJointly"
-                (trHtml .App .Lpa.ReplacementAttorneyDecisions.Details)) }}
+            {{ template "text-summary-row" (staticSummaryRow .App "decisionsReplacementAttorneysMustMakeJointly"
+                .Lpa.ReplacementAttorneyDecisions.Details) }}
         {{ end }}
 
-        {{ template "summary-row" (staticSummaryRow .App "restrictions"
+        {{ template "text-summary-row" (staticSummaryRow .App "restrictions"
             .Lpa.Restrictions) }}
     </dl>
 

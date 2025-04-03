@@ -112,7 +112,7 @@
     "phone": "Ffôn",
     "post": "Post",
     "whichTypeOfLpaToMake": "Pa fath o LPA ydych chi eisiau ei gwneud?",
-    "whichTypeOfLpaToMakeContent": "<p class=\"govuk-body\">Ceir 2 fath o LPA. Gallwch wneud LPA sy’n cynnwys penderfyniadau ynglŷn â’ch:</p><ul class=\"govuk-list govuk-list--bullet\"><li>arian, cyllid ac unrhyw eiddo sydd gennych chi</li><li>gofal iechyd, triniaeth feddygol a lles personol</li></ul><p class=\"govuk-body\">Gallwch gael un neu’r ddau fath o LPA.</p><p class=\"govuk-body\">Nid oes rhaid eu gwneud ar yr un pryd. Gallwch ailddefnyddio unrhyw wybodaeth a roddwch i wneud LPA arall nes ymlaen.</p><p class=\"govuk-body\">Gallwch ddewis gwahanol bobl i fod yn atwrneiod i chi ar gyfer pob LPA.</p><p class=\"govuk-body\"><a class=\"govuk-link\" href=\"{{ .TwoTypesOfLPAHelpLink }}\">Darllenwch fwy am y 2 fath o LPA.</a></p>",
+    "whichTypeOfLpaToMakeContent": "<p class=\"govuk-body\">Welsh {{.TwoTypesOfLPAHelpLink}} {{.UnderstandingMentalCapacityLink}} {{.UnderstandingMentalCapacityLink}}</p>",
     "theTypeOfLpaToMake": "pa fath o LPA ydych chi eisiau ei gwneud",
     "property-and-affairs": "Eiddo a materion ariannol",
     "propertyAndAffairsHint": "Mae hyn yn cwmpasu penderfyniadau am eich arian, cyllid ac eiddo.",
@@ -326,14 +326,7 @@
     "ifTheCOPFindsYourLpaIsValid": "Os bydd y Llys Gwarchod yn pennu bod eich LPA yn ddilys, bydd yn cyfarwyddo Swyddfa’r Gwarcheidwad Cyhoeddus i’w chofrestru. Yna gellir defnyddio’ch LPA.",
     "weWillEmailYou": "<p class=\"govuk-body\">Byddwn yn anfon e-bost atoch i roi’r wybodaeth ddiweddaraf i chi am gofrestriad eich LPA. Os oes unrhyw broblemau, byddwn yn rhoi gwybod i chi.</p><p class=\"govuk-body\">Gallwch hefyd gadw golwg ar gynnydd eich LPA drwy fewngofnodi i’r gwasanaeth hwn unrhyw bryd.</p>",
     "signByDeadlineWarning": "Mae’n rhaid i {{.SignatoriesNames}} lofnodi eich LPA erbyn {{.SigningDeadline}} er mwyn iddi gael ei chofrestru gan Swyddfa'r Gwarcheidwad Cyhoeddus.",
-    "copSignDeadlineWarning": {
-        "zero": "Rhaid i {{.CertificateProviderFirstNames}} a’ch atwrnai lofnodi’ch LPA erbyn {{.SigningDeadline}}. Ar ôl hynny, mae gennych tan {{.SubmissionDeadline}} i gyflwyno’r LPA i’r Llys Gwarchod. Os byddwch yn methu’r dyddiad hwn, bydd yn rhaid i chi lenwi LPA newydd a thalu ffi gofrestru arall.",
-        "one": "Rhaid i {{.CertificateProviderFirstNames}} a’ch atwrnai lofnodi’ch LPA erbyn {{.SigningDeadline}}. Ar ôl hynny, mae gennych tan {{.SubmissionDeadline}} i gyflwyno’r LPA i’r Llys Gwarchod. Os byddwch yn methu’r dyddiad hwn, bydd yn rhaid i chi lenwi LPA newydd a thalu ffi gofrestru arall.",
-        "two": "Rhaid i {{.CertificateProviderFirstNames}} a’ch atwrneiod lofnodi’ch LPA erbyn {{.SigningDeadline}}. Ar ôl hynny, mae gennych tan {{.SubmissionDeadline}} i gyflwyno’r LPA i’r Llys Gwarchod. Os byddwch yn methu’r dyddiad hwn, bydd yn rhaid i chi lenwi LPA newydd a thalu ffi gofrestru arall.",
-        "few": "Rhaid i {{.CertificateProviderFirstNames}} a’ch atwrneiod lofnodi’ch LPA erbyn {{.SigningDeadline}}. Ar ôl hynny, mae gennych tan {{.SubmissionDeadline}} i gyflwyno’r LPA i’r Llys Gwarchod. Os byddwch yn methu’r dyddiad hwn, bydd yn rhaid i chi lenwi LPA newydd a thalu ffi gofrestru arall.",
-        "many": "Rhaid i {{.CertificateProviderFirstNames}} a’ch atwrneiod lofnodi’ch LPA erbyn {{.SigningDeadline}}. Ar ôl hynny, mae gennych tan {{.SubmissionDeadline}} i gyflwyno’r LPA i’r Llys Gwarchod. Os byddwch yn methu’r dyddiad hwn, bydd yn rhaid i chi lenwi LPA newydd a thalu ffi gofrestru arall.",
-        "other": "Rhaid i {{.CertificateProviderFirstNames}} a’ch atwrneiod lofnodi’ch LPA erbyn {{.SigningDeadline}}. Ar ôl hynny, mae gennych tan {{.SubmissionDeadline}} i gyflwyno’r LPA i’r Llys Gwarchod. Os byddwch yn methu’r dyddiad hwn, bydd yn rhaid i chi lenwi LPA newydd a thalu ffi gofrestru arall."
-    },
+    "copSignDeadlineWarning": "Welsh {{.SignatoriesNames}} {{.SigningDeadline}}",
     "signYourLpa": "Llofnodwch eich LPA",
     "signingYourLpaIsAnImportant": "Mae llofnodi eich LPA yn gam cyfreithiol pwysig a phwerus.",
     "bySigningIConfirm": "Drwy lofnodi fy LPA {{lowerFirst .LpaType}}, rwy’n cadarnhau pob un o’r canlynol:",
@@ -1511,7 +1504,7 @@
     "voucherHasBeenUnableToConfirmYourIdentity": "Nid yw {{.VoucherFullName}} wedi gallu cadarnhau eich hunaniaeth",
     "thereIsAProblemWithYourLpa": "Mae problem gyda’ch LPA",
     "certificateProviderHasBeenUnableToConfirmIdentity": "Nid yw {{.CertificateProviderFullName}} wedi gallu cadarnhau eu hunaniaeth",
-    "voucherHasConfirmedYourIdentity": "Mae ((VoucherFullName)) wedi cadarnhau eich hunaniaeth",
+    "voucherHasConfirmedYourIdentity": "Mae {{.VoucherFullName}} wedi cadarnhau eich hunaniaeth",
     "returnToYourTaskListForInformationAboutWhatToDoNext": "Ewch yn ôl i’ch rhestr tasgau i gael gwybodaeth am beth i’w wneud nesaf.",
     "weAreReviewingTheEvidenceYouSent": "Rydym yn adolygu’r dystiolaeth rydych chi wedi’i hanfon am ffi eich LPA",
     "ifYourEvidenceIsApprovedWillShowPaid": "Os caiff eich tystiolaeth ei chymeradwyo, bydd eich LPA yn dangos ei bod wedi’i thalu.",
@@ -1683,5 +1676,7 @@
     "whyCantIChangeMyLpaType": "Welsh",
     "property-and-affairs:covers": "Welsh",
     "personal-welfare:covers": "Welsh",
-    "findOutMoreAboutTwoTypesOfLpa": "Welsh"
+    "findOutMoreAboutTwoTypesOfLpa": "Welsh",
+    "onceSelectedLpaTypeCannotBeAltered": "Welsh",
+    "youCanThenSendYourLpaToTheCourtOfProtection": "Welsh"
 }
