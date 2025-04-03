@@ -436,21 +436,53 @@ func TestDashboardStoreGetAllWhenReferenceGetErrors(t *testing.T) {
 
 func TestDashboardStoreSubExists(t *testing.T) {
 	testCases := map[string]struct {
-		lpas           []dashboarddata.LpaLink
+		links          []dashboarddata.LpaLink
+		keys           []dynamo.Keys
+		donor          *donordata.Provided
+		lpas           []*lpadata.Lpa
 		expectedExists bool
 		actorType      actor.Type
 	}{
 		"lpas exist - correct actor": {
-			lpas:           []dashboarddata.LpaLink{{PK: dynamo.LpaKey("123"), SK: dynamo.SubKey("a-sub-id"), DonorKey: dynamo.LpaOwnerKey(dynamo.DonorKey("an-id")), ActorType: actor.TypeDonor}},
+			links: []dashboarddata.LpaLink{{PK: dynamo.LpaKey("123"), SK: dynamo.SubKey("a-sub-id"), DonorKey: dynamo.LpaOwnerKey(dynamo.DonorKey("an-id")), ActorType: actor.TypeDonor}},
+			keys:  []dynamo.Keys{{PK: dynamo.LpaKey("123"), SK: dynamo.LpaOwnerKey(dynamo.DonorKey("an-id"))}},
+			donor: &donordata.Provided{
+				PK:     dynamo.LpaKey("123"),
+				SK:     dynamo.LpaOwnerKey(dynamo.DonorKey("abc")),
+				LpaID:  "123",
+				LpaUID: "M-0",
+			},
+			lpas: []*lpadata.Lpa{{
+				LpaID: "123",
+			}},
 			expectedExists: true,
 			actorType:      actor.TypeDonor,
 		},
 		"lpas exist - incorrect actor": {
-			lpas:           []dashboarddata.LpaLink{{PK: dynamo.LpaKey("123"), SK: dynamo.SubKey("a-sub-id"), DonorKey: dynamo.LpaOwnerKey(dynamo.DonorKey("an-id")), ActorType: actor.TypeDonor}},
+			links: []dashboarddata.LpaLink{{PK: dynamo.LpaKey("123"), SK: dynamo.SubKey("a-sub-id"), DonorKey: dynamo.LpaOwnerKey(dynamo.DonorKey("an-id")), ActorType: actor.TypeDonor}},
+			keys:  []dynamo.Keys{{PK: dynamo.LpaKey("123"), SK: dynamo.LpaOwnerKey(dynamo.DonorKey("an-id"))}},
+			donor: &donordata.Provided{
+				PK:     dynamo.LpaKey("123"),
+				SK:     dynamo.LpaOwnerKey(dynamo.DonorKey("abc")),
+				LpaID:  "123",
+				LpaUID: "M-0",
+			},
+			lpas: []*lpadata.Lpa{{
+				LpaID: "123",
+			}},
 			expectedExists: false,
 			actorType:      actor.TypeAttorney,
 		},
 		"lpas do not exist": {
+			links: []dashboarddata.LpaLink{{PK: dynamo.LpaKey("123"), SK: dynamo.SubKey("a-sub-id"), DonorKey: dynamo.LpaOwnerKey(dynamo.DonorKey("an-id")), ActorType: actor.TypeDonor}},
+			keys:  []dynamo.Keys{{PK: dynamo.LpaKey("123"), SK: dynamo.LpaOwnerKey(dynamo.DonorKey("an-id"))}},
+			donor: &donordata.Provided{
+				PK:     dynamo.LpaKey("123"),
+				SK:     dynamo.LpaOwnerKey(dynamo.DonorKey("abc")),
+				LpaID:  "123",
+				LpaUID: "M-0",
+			},
+			lpas:           []*lpadata.Lpa{},
 			expectedExists: false,
 		},
 	}
@@ -459,9 +491,19 @@ func TestDashboardStoreSubExists(t *testing.T) {
 		t.Run(name, func(t *testing.T) {
 			dynamoClient := newMockDynamoClient(t)
 			dynamoClient.ExpectAllBySK(context.Background(), dynamo.SubKey("a-sub-id"),
-				tc.lpas, nil)
+				tc.links, nil)
+			dynamoClient.EXPECT().
+				AllByKeys(context.Background(), tc.keys).
+				Return([]map[string]types.AttributeValue{
+					makeAttributeValueMap(tc.donor),
+				}, nil)
 
-			dashboardStore := &Store{dynamoClient: dynamoClient}
+			lpaStoreResolvingService := newMockLpaStoreResolvingService(t)
+			lpaStoreResolvingService.EXPECT().
+				ResolveList(context.Background(), []*donordata.Provided{tc.donor}).
+				Return(tc.lpas, nil)
+
+			dashboardStore := &Store{dynamoClient: dynamoClient, lpaStoreResolvingService: lpaStoreResolvingService}
 			exists, err := dashboardStore.SubExistsForActorType(context.Background(), "a-sub-id", tc.actorType)
 
 			assert.Nil(t, err)
