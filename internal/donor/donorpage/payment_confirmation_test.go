@@ -37,7 +37,7 @@ func TestGetPaymentConfirmationFullFee(t *testing.T) {
 		},
 		"post": {
 			evidenceDelivery: pay.Post,
-			nextPage:         donor.PathWhatHappensNextPostEvidence,
+			nextPage:         donor.PathPendingPayment,
 		},
 	}
 
@@ -206,7 +206,7 @@ func TestGetPaymentConfirmationRepeatApplicationFee(t *testing.T) {
 		},
 		"post": {
 			evidenceDelivery: pay.Post,
-			nextPage:         donor.PathWhatHappensNextPostEvidence,
+			nextPage:         donor.PathPendingPayment,
 		},
 	}
 

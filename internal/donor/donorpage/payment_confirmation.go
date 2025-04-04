@@ -67,7 +67,7 @@ func PaymentConfirmation(logger Logger, payClient PayClient, donorStore DonorSto
 		if provided.EvidenceDelivery.IsUpload() {
 			nextPage = donor.PathEvidenceSuccessfullyUploaded
 		} else if provided.EvidenceDelivery.IsPost() {
-			nextPage = donor.PathWhatHappensNextPostEvidence
+			nextPage = donor.PathPendingPayment
 		} else if provided.FeeType.IsRepeatApplicationFee() {
 			nextPage = donor.PathEvidenceSuccessfullyUploaded
 		}
