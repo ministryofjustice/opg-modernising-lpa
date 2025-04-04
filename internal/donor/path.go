@@ -110,7 +110,6 @@ const (
 	PathWeHaveInformedVoucherNoLongerNeeded                  = Path("/we-have-informed-voucher-no-longer-needed")
 	PathWeHaveUpdatedYourDetails                             = Path("/we-have-updated-your-details")
 	PathWhatACertificateProviderDoes                         = Path("/what-a-certificate-provider-does")
-	PathWhatHappensNextPostEvidence                          = Path("/what-happens-next-post-evidence")
 	PathWhatHappensNextRegisteringWithCourtOfProtection      = Path("/what-happens-next-registering-with-court-of-protection")
 	PathWhatHappensNextRepeatApplicationNoFee                = Path("/what-happens-next-repeat-application-no-fee")
 	PathWhatYouCanDoNow                                      = Path("/what-you-can-do-now")
@@ -186,7 +185,7 @@ func (p Path) CanGoTo(donor *donordata.Provided) bool {
 		case PathAboutPayment, PathAreYouApplyingForFeeDiscountOrExemption, PathWhichFeeTypeAreYouApplyingFor,
 			PathPreviousApplicationNumber, PathPreviousFee, PathCostOfRepeatApplication, PathEvidenceRequired,
 			PathHowWouldYouLikeToSendEvidence, PathUploadEvidence, PathSendUsYourEvidenceByPost, PathPayFee,
-			PathPaymentConfirmation, PathPaymentSuccessful, PathEvidenceSuccessfullyUploaded, PathWhatHappensNextPostEvidence,
+			PathPaymentConfirmation, PathPaymentSuccessful, PathEvidenceSuccessfullyUploaded,
 			PathWhatHappensNextRepeatApplicationNoFee, PathPendingPayment, PathUploadEvidenceSSE:
 			return !donor.Tasks.PayForLpa.IsCompleted()
 
