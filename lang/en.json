@@ -1578,5 +1578,8 @@
     "personal-welfare:covers": "This type of LPA covers decisions about your health care, medical treatment and personal welfare.",
     "findOutMoreAboutTwoTypesOfLpa": "Find out more about the 2 types of LPA.",
     "onceSelectedLpaTypeCannotBeAltered": "Once selected, your LPA type cannot be altered. If, in future, you decide on a different type of LPA, you can delete this LPA and create a new one.",
-    "youCanThenSendYourLpaToTheCourtOfProtection": "You can then send your LPA to the Court of Protection. We cannot register your LPA until it has been successfully reviewed by the Court of Protection."
+    "youCanThenSendYourLpaToTheCourtOfProtection": "You can then send your LPA to the Court of Protection. We cannot register your LPA until it has been successfully reviewed by the Court of Protection.",
+    "youHaveAlreadyProvidedTheCertificateForThisLpa": "You have already provided a certificate for this LPA",
+    "youHaveAlreadyProvidedTheCertificateForDonorsLpaNotification": "You have already provided a certificate for {{ possessive .DonorFullName}} {{ .LpaType }} LPA",
+    "youHaveAlreadyProvidedTheCertificateForThisLpaContent": "<p class=\"govuk-body\">You submitted a paper certificate to the Office of the Public Guardian (OPG).</p><p class=\"govuk-body\">Your role as certificate provider is now complete. You will not be able to access this LPA online.</p>"
 }

@@ -1678,5 +1678,8 @@
     "personal-welfare:covers": "Welsh",
     "findOutMoreAboutTwoTypesOfLpa": "Welsh",
     "onceSelectedLpaTypeCannotBeAltered": "Welsh",
-    "youCanThenSendYourLpaToTheCourtOfProtection": "Welsh"
+    "youCanThenSendYourLpaToTheCourtOfProtection": "Welsh",
+    "youHaveAlreadyProvidedTheCertificateForThisLpa": "Welsh",
+    "youHaveAlreadyProvidedTheCertificateForDonorsLpaNotification": "Welsh {{ possessive .DonorFullName}} {{ .LpaType }} Welsh",
+    "youHaveAlreadyProvidedTheCertificateForThisLpaContent": "<p class=\"govuk-body\">Welsh</p><p class=\"govuk-body\">Welsh</p>"
 }
