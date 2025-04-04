@@ -70,8 +70,8 @@ func TestAllAttorneysSigned(t *testing.T) {
 		},
 		"all attorneys signed": {
 			lpa: Lpa{
-				Attorneys:            Attorneys{Attorneys: []Attorney{{SignedAt: &attorneySigned}, {SignedAt: &attorneySigned}}},
-				ReplacementAttorneys: Attorneys{Attorneys: []Attorney{{SignedAt: &attorneySigned}}},
+				Attorneys:            Attorneys{Attorneys: []Attorney{{SignedAt: &attorneySigned}, {SignedAt: &attorneySigned}, {Removed: true}}},
+				ReplacementAttorneys: Attorneys{Attorneys: []Attorney{{SignedAt: &attorneySigned}, {Removed: true}}},
 			},
 			expected: true,
 		},
@@ -98,6 +98,13 @@ func TestAllAttorneysSigned(t *testing.T) {
 			lpa: Lpa{
 				Attorneys:            Attorneys{TrustCorporation: TrustCorporation{Name: "a", Signatories: []TrustCorporationSignatory{{SignedAt: attorneySigned}, {SignedAt: attorneySigned}}}},
 				ReplacementAttorneys: Attorneys{TrustCorporation: TrustCorporation{Name: "r", Signatories: []TrustCorporationSignatory{{SignedAt: attorneySigned}}}},
+			},
+			expected: true,
+		},
+		"trust corporations removed but attorney signed": {
+			lpa: Lpa{
+				Attorneys:            Attorneys{TrustCorporation: TrustCorporation{Name: "a", Removed: true}, Attorneys: []Attorney{{SignedAt: &attorneySigned}}},
+				ReplacementAttorneys: Attorneys{TrustCorporation: TrustCorporation{Name: "r", Removed: true}},
 			},
 			expected: true,
 		},
