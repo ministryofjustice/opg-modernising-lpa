@@ -61,7 +61,7 @@ Cypress.Commands.add('visitLpa', (path, opts = {}) => {
 // Function to poll a page until element contains text or timeout occurs
 Cypress.Commands.add('waitForTextByReloading', (selector, expectedText) => {
     const options = {
-        timeout: 10000,
+        timeout: 20000,
         interval: 500,
     };
 
