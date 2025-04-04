@@ -407,8 +407,6 @@ func Register(
 		Guidance(tmpls.Get("payment_successful.gohtml")))
 	handleWithDonor(donor.PathEvidenceSuccessfullyUploaded, page.None,
 		Guidance(tmpls.Get("evidence_successfully_uploaded.gohtml")))
-	handleWithDonor(donor.PathWhatHappensNextPostEvidence, page.None,
-		Guidance(tmpls.Get("what_happens_next_post_evidence.gohtml")))
 	handleWithDonor(donor.PathWhatHappensNextRepeatApplicationNoFee, page.None,
 		Guidance(tmpls.Get("what_happens_next_repeat_application_no_fee.gohtml")))
 	handleWithDonor(donor.PathPendingPayment, page.None,
