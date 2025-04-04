@@ -134,13 +134,13 @@ func App(
 
 	if devMode {
 		handleRoot(page.PathFixtures, None,
-			fixtures.Donor(tmpls.Get("fixtures.gohtml"), sessionStore, donorStore, certificateProviderStore, attorneyStore, documentStore, eventClient, lpaStoreClient, shareCodeStore, voucherStore))
+			fixtures.Donor(tmpls.Get("fixtures.gohtml"), sessionStore, donorStore, certificateProviderStore, attorneyStore, documentStore, eventClient, lpaStoreClient, shareCodeStore, voucherStore, notifyClient, appPublicURL))
 		handleRoot(page.PathCertificateProviderFixtures, None,
 			fixtures.CertificateProvider(tmpls.Get("certificate_provider_fixtures.gohtml"), sessionStore, shareCodeSender, donorStore, certificateProviderStore, eventClient, lpaStoreClient, lpaDynamoClient, organisationStore, memberStore, shareCodeStore))
 		handleRoot(page.PathAttorneyFixtures, None,
 			fixtures.Attorney(tmpls.Get("attorney_fixtures.gohtml"), sessionStore, shareCodeSender, donorStore, certificateProviderStore, attorneyStore, eventClient, lpaStoreClient, organisationStore, memberStore, shareCodeStore, lpaDynamoClient))
 		handleRoot(page.PathSupporterFixtures, None,
-			fixtures.Supporter(tmpls.Get("supporter_fixtures.gohtml"), sessionStore, organisationStore, donorStore, memberStore, lpaDynamoClient, searchClient, shareCodeStore, certificateProviderStore, attorneyStore, documentStore, eventClient, lpaStoreClient, voucherStore))
+			fixtures.Supporter(tmpls.Get("supporter_fixtures.gohtml"), sessionStore, organisationStore, donorStore, memberStore, lpaDynamoClient, searchClient, shareCodeStore, certificateProviderStore, attorneyStore, documentStore, eventClient, lpaStoreClient, voucherStore, notifyClient, appPublicURL))
 		handleRoot(page.PathVoucherFixtures, None,
 			fixtures.Voucher(tmpls.Get("voucher_fixtures.gohtml"), sessionStore, shareCodeStore, shareCodeSender, donorStore, voucherStore, lpaStoreClient))
 		handleRoot(page.PathDashboardFixtures, None,
