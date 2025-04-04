@@ -363,7 +363,7 @@ describe('Pay for LPA', { pageLoadTimeout: 8000 }, () => {
 
         cy.contains('button', 'Continue').click()
 
-        cy.url().should('contain', '/what-happens-next-post-evidence');
+        cy.url().should('contain', '/pending-payment');
         cy.checkA11yApp();
 
         cy.visit('/dashboard');

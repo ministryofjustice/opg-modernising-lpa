@@ -27,10 +27,6 @@ func Pay(
 				return err
 			}
 
-			if provided.EvidenceDelivery.IsPost() {
-				return donor.PathWhatHappensNextPostEvidence.Redirect(w, r, appData, provided)
-			}
-
 			return donor.PathPendingPayment.Redirect(w, r, appData, provided)
 		}
 

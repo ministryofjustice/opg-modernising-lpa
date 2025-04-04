@@ -7,6 +7,8 @@
         <div class="govuk-grid-column-two-thirds">
             {{ if .Donor.Tasks.PayForLpa.IsMoreEvidenceRequired }}
                 {{ template "notification-banner" (notificationBanner .App "important" (trHtml .App "weContactYouToAskForMoreEvidence") "heading") }}
+            {{ else if .Donor.EvidenceDelivery.IsPost }}
+                {{ template "notification-banner" (notificationBanner .App "important" (trHtml .App "weWillReviewTheEvidenceYouSend") "heading") }}
             {{ else }}
                 {{ template "notification-banner" (notificationBanner .App "important" (trHtml .App "weAreReviewingTheEvidenceYouSent") "heading") }}
             {{ end }}
