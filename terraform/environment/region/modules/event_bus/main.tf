@@ -165,10 +165,10 @@ resource "aws_cloudwatch_log_resource_policy" "events_emitted" {
   provider        = aws.region
 }
 
-#tfsec:ignore:aws-cloudwatch-log-group-customer-key
 resource "aws_cloudwatch_log_group" "events_emitted" {
   count             = var.log_emitted_events ? 1 : 0
   name              = "/aws/events/${data.aws_default_tags.current.tags.environment-name}-emitted"
+  kms_key_id        = data.aws_kms_alias.cloudwatch_application_logs_encryption.target_key_arn
   retention_in_days = 5
   provider          = aws.region
 }
