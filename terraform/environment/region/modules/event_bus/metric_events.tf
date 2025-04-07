@@ -5,7 +5,7 @@ resource "aws_cloudwatch_event_rule" "metric_events" {
 
   event_pattern = jsonencode({
     source      = ["opg.poas.makeregister"]
-    detail-type = "metric*"
+    detail-type = ["metric*"]
   })
   provider = aws.region
 }
