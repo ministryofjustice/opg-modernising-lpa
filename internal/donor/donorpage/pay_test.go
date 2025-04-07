@@ -170,7 +170,7 @@ func TestPayWhenPostingEvidence(t *testing.T) {
 
 			assert.Nil(t, err)
 			assert.Equal(t, http.StatusFound, resp.StatusCode)
-			assert.Equal(t, donor.PathWhatHappensNextPostEvidence.Format("lpa-id"), resp.Header.Get("Location"))
+			assert.Equal(t, donor.PathPendingPayment.Format("lpa-id"), resp.Header.Get("Location"))
 		})
 	}
 }
