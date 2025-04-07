@@ -41,18 +41,20 @@ func NewStore(dynamoClient DynamoClient, lpaStoreResolvingService LpaStoreResolv
 }
 
 func (s *Store) SubExistsForActorType(ctx context.Context, sub string, actorType actor.Type) (bool, error) {
-	var links []dashboarddata.LpaLink
-	if err := s.dynamoClient.AllBySK(ctx, dynamo.SubKey(sub), &links); err != nil {
-		return false, err
+	results, err := s.getAllForSub(ctx, sub)
+
+	switch actorType {
+	case actor.TypeDonor:
+		return len(results.Donor) > 0, err
+	case actor.TypeCertificateProvider:
+		return len(results.CertificateProvider) > 0, err
+	case actor.TypeAttorney:
+		return len(results.Attorney) > 0, err
+	case actor.TypeVoucher:
+		return len(results.Voucher) > 0, err
 	}
 
-	for _, link := range links {
-		if link.ActorType == actorType {
-			return true, nil
-		}
-	}
-
-	return false, nil
+	return false, err
 }
 
 func (s *Store) GetAll(ctx context.Context) (results dashboarddata.Results, err error) {
@@ -62,11 +64,15 @@ func (s *Store) GetAll(ctx context.Context) (results dashboarddata.Results, err 
 	}
 
 	if data.SessionID == "" {
-		return results, errors.New("donorStore.GetAll requires SessionID")
+		return results, errors.New("dashboardStore.GetAll requires SessionID")
 	}
 
+	return s.getAllForSub(ctx, data.SessionID)
+}
+
+func (s *Store) getAllForSub(ctx context.Context, sub string) (results dashboarddata.Results, err error) {
 	var links []dashboarddata.LpaLink
-	if err := s.dynamoClient.AllBySK(ctx, dynamo.SubKey(data.SessionID), &links); err != nil {
+	if err := s.dynamoClient.AllBySK(ctx, dynamo.SubKey(sub), &links); err != nil {
 		return results, err
 	}
 
@@ -76,15 +82,15 @@ func (s *Store) GetAll(ctx context.Context) (results dashboarddata.Results, err 
 		searchKeys = append(searchKeys, dynamo.Keys{PK: key.PK, SK: key.DonorKey})
 
 		if key.ActorType == actor.TypeAttorney {
-			searchKeys = append(searchKeys, dynamo.Keys{PK: key.PK, SK: dynamo.AttorneyKey(data.SessionID)})
+			searchKeys = append(searchKeys, dynamo.Keys{PK: key.PK, SK: dynamo.AttorneyKey(sub)})
 		}
 
 		if key.ActorType == actor.TypeCertificateProvider {
-			searchKeys = append(searchKeys, dynamo.Keys{PK: key.PK, SK: dynamo.CertificateProviderKey(data.SessionID)})
+			searchKeys = append(searchKeys, dynamo.Keys{PK: key.PK, SK: dynamo.CertificateProviderKey(sub)})
 		}
 
 		if key.ActorType == actor.TypeVoucher {
-			searchKeys = append(searchKeys, dynamo.Keys{PK: key.PK, SK: dynamo.VoucherKey(data.SessionID)})
+			searchKeys = append(searchKeys, dynamo.Keys{PK: key.PK, SK: dynamo.VoucherKey(sub)})
 		}
 
 		_, id, _ := strings.Cut(key.PK.PK(), "#")
