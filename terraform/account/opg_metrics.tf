@@ -28,9 +28,8 @@ resource "aws_cloudwatch_event_connection" "opg_metrics" {
 }
 
 resource "aws_cloudwatch_event_api_destination" "opg_metrics_put" {
-  name        = "opg-metrics metrics PUT"
-  description = "Account level - an endpoint to push metrics to"
-  # only the development metrics service exists at this time
+  name                             = "opg-metrics metrics PUT"
+  description                      = "Account level - an endpoint to push metrics to"
   invocation_endpoint              = "${local.account.opg_metrics_endpoint}/metrics"
   http_method                      = "PUT"
   invocation_rate_limit_per_second = 300

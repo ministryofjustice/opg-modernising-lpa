@@ -88,7 +88,6 @@ provider "aws" {
   }
 }
 
-# make these roles in org infra
 provider "aws" {
   alias  = "shared_eu_west_1"
   region = "eu-west-1"
