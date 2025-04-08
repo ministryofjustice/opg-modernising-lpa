@@ -175,6 +175,7 @@ type appPaths struct {
 	ConfirmPersonAllowedToVouch                          donor.Path
 	ConfirmYourCertificateProviderIsNotRelated           donor.Path
 	DeleteThisLpa                                        donor.Path
+	DoYouLiveInTheUK                                     donor.Path
 	DoYouWantReplacementAttorneys                        donor.Path
 	DoYouWantToNotifyPeople                              donor.Path
 	EnterCorrespondentAddress                            donor.Path
@@ -234,6 +235,7 @@ type appPaths struct {
 	WeHaveContactedVoucher                               donor.Path
 	WeHaveUpdatedYourDetails                             donor.Path
 	WhatACertificateProviderDoes                         donor.Path
+	WhatCountryDoYouLiveIn                               donor.Path
 	WhatHappensNextRegisteringWithCourtOfProtection      donor.Path
 	WhatYouCanDoNow                                      donor.Path
 	WhenCanTheLpaBeUsed                                  donor.Path
@@ -256,6 +258,7 @@ type appPaths struct {
 	YourLpaLanguage                                      donor.Path
 	YourMobile                                           donor.Path
 	YourName                                             donor.Path
+	YourNonUKAddress                                     donor.Path
 	YourPreferredLanguage                                donor.Path
 }
 
@@ -418,6 +421,7 @@ var paths = appPaths{
 	ConfirmPersonAllowedToVouch:                          donor.PathConfirmPersonAllowedToVouch,
 	ConfirmYourCertificateProviderIsNotRelated:           donor.PathConfirmYourCertificateProviderIsNotRelated,
 	DeleteThisLpa:                                        donor.PathDeleteThisLpa,
+	DoYouLiveInTheUK:                                     donor.PathDoYouLiveInTheUK,
 	DoYouWantReplacementAttorneys:                        donor.PathDoYouWantReplacementAttorneys,
 	DoYouWantToNotifyPeople:                              donor.PathDoYouWantToNotifyPeople,
 	EnterCorrespondentAddress:                            donor.PathEnterCorrespondentAddress,
@@ -477,6 +481,7 @@ var paths = appPaths{
 	WeHaveContactedVoucher:                               donor.PathWeHaveContactedVoucher,
 	WeHaveUpdatedYourDetails:                             donor.PathWeHaveUpdatedYourDetails,
 	WhatACertificateProviderDoes:                         donor.PathWhatACertificateProviderDoes,
+	WhatCountryDoYouLiveIn:                               donor.PathWhatCountryDoYouLiveIn,
 	WhatHappensNextRegisteringWithCourtOfProtection:      donor.PathWhatHappensNextRegisteringWithCourtOfProtection,
 	WhatYouCanDoNow:                                      donor.PathWhatYouCanDoNow,
 	WhenCanTheLpaBeUsed:                                  donor.PathWhenCanTheLpaBeUsed,
@@ -499,5 +504,6 @@ var paths = appPaths{
 	YourLpaLanguage:                                      donor.PathYourLpaLanguage,
 	YourMobile:                                           donor.PathYourMobile,
 	YourName:                                             donor.PathYourName,
+	YourNonUKAddress:                                     donor.PathYourNonUKAddress,
 	YourPreferredLanguage:                                donor.PathYourPreferredLanguage,
 }
