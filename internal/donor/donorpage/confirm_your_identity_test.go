@@ -7,27 +7,42 @@ import (
 
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor/donordata"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/place"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/task"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
 )
 
 func TestGetConfirmYourIdentity(t *testing.T) {
-	w := httptest.NewRecorder()
-	r, _ := http.NewRequest(http.MethodGet, "/", nil)
+	for country, nonUK := range map[string]bool{
+		"GB":    false,
+		"Other": true,
+	} {
+		t.Run(country, func(t *testing.T) {
+			w := httptest.NewRecorder()
+			r, _ := http.NewRequest(http.MethodGet, "/", nil)
 
-	template := newMockTemplate(t)
-	template.EXPECT().
-		Execute(w, &confirmYourIdentityData{
-			App: testAppData,
-		}).
-		Return(nil)
+			template := newMockTemplate(t)
+			template.EXPECT().
+				Execute(w, &confirmYourIdentityData{
+					App:   testAppData,
+					NonUK: nonUK,
+				}).
+				Return(nil)
 
-	err := ConfirmYourIdentity(template.Execute, nil)(testAppData, w, r, &donordata.Provided{})
-	resp := w.Result()
+			err := ConfirmYourIdentity(template.Execute, nil)(testAppData, w, r, &donordata.Provided{
+				Donor: donordata.Donor{
+					Address: place.Address{
+						Country: country,
+					},
+				},
+			})
+			resp := w.Result()
 
-	assert.Nil(t, err)
-	assert.Equal(t, http.StatusOK, resp.StatusCode)
+			assert.Nil(t, err)
+			assert.Equal(t, http.StatusOK, resp.StatusCode)
+		})
+	}
 }
 
 func TestGetConfirmYourIdentityWhenTemplateErrors(t *testing.T) {

@@ -21,34 +21,47 @@ import (
 )
 
 func TestGetChooseAttorneysAddress(t *testing.T) {
-	uid := actoruid.New()
-	w := httptest.NewRecorder()
-	r, _ := http.NewRequest(http.MethodGet, "/?id="+uid.String(), nil)
+	testcases := map[string]string{
+		"GB": "",
+		"FR": "postcode",
+	}
 
-	template := newMockTemplate(t)
-	template.EXPECT().
-		Execute(w, &chooseAddressData{
-			App:        testAppData,
-			Form:       form.NewAddressForm(),
-			UID:        uid,
-			FullName:   "John Smith",
-			ActorLabel: "attorney",
-			TitleKeys:  testTitleKeys,
-		}).
-		Return(nil)
+	for country, action := range testcases {
+		t.Run(country, func(t *testing.T) {
+			uid := actoruid.New()
+			w := httptest.NewRecorder()
+			r, _ := http.NewRequest(http.MethodGet, "/?id="+uid.String(), nil)
 
-	err := ChooseAttorneysAddress(nil, template.Execute, nil, nil)(testAppData, w, r, &donordata.Provided{
-		Attorneys: donordata.Attorneys{Attorneys: []donordata.Attorney{{
-			UID:        uid,
-			FirstNames: "John",
-			LastName:   "Smith",
-			Address:    place.Address{},
-		}}},
-	})
-	resp := w.Result()
+			f := form.NewAddressForm()
+			f.Action = action
 
-	assert.Nil(t, err)
-	assert.Equal(t, http.StatusOK, resp.StatusCode)
+			template := newMockTemplate(t)
+			template.EXPECT().
+				Execute(w, &chooseAddressData{
+					App:        testAppData,
+					Form:       f,
+					UID:        uid,
+					FullName:   "John Smith",
+					ActorLabel: "attorney",
+					TitleKeys:  testTitleKeys,
+				}).
+				Return(nil)
+
+			err := ChooseAttorneysAddress(nil, template.Execute, nil, nil)(testAppData, w, r, &donordata.Provided{
+				Donor: donordata.Donor{Address: place.Address{Line1: "abc", Country: country}},
+				Attorneys: donordata.Attorneys{Attorneys: []donordata.Attorney{{
+					UID:        uid,
+					FirstNames: "John",
+					LastName:   "Smith",
+					Address:    place.Address{},
+				}}},
+			})
+			resp := w.Result()
+
+			assert.Nil(t, err)
+			assert.Equal(t, http.StatusOK, resp.StatusCode)
+		})
+	}
 }
 
 func TestGetChooseAttorneysAddressFromStore(t *testing.T) {
@@ -78,6 +91,7 @@ func TestGetChooseAttorneysAddressFromStore(t *testing.T) {
 		Return(nil)
 
 	err := ChooseAttorneysAddress(nil, template.Execute, nil, nil)(testAppData, w, r, &donordata.Provided{
+		Donor:     donordata.Donor{Address: place.Address{Line1: "abc", Country: "GB"}},
 		Attorneys: donordata.Attorneys{Attorneys: []donordata.Attorney{attorney}},
 	})
 	resp := w.Result()
@@ -123,14 +137,7 @@ func TestGetChooseAttorneysAddressWhenTemplateErrors(t *testing.T) {
 
 	template := newMockTemplate(t)
 	template.EXPECT().
-		Execute(w, &chooseAddressData{
-			App:        testAppData,
-			Form:       form.NewAddressForm(),
-			UID:        uid,
-			FullName:   " ",
-			ActorLabel: "attorney",
-			TitleKeys:  testTitleKeys,
-		}).
+		Execute(mock.Anything, mock.Anything).
 		Return(expectedError)
 
 	err := ChooseAttorneysAddress(nil, template.Execute, nil, nil)(testAppData, w, r, &donordata.Provided{
@@ -639,13 +646,13 @@ func TestPostChooseAttorneysAddressReuse(t *testing.T) {
 			UID:        uid,
 			FullName:   " ",
 			ActorLabel: "attorney",
-			Addresses:  []place.Address{{Line1: "donor lane"}},
+			Addresses:  []place.Address{{Line1: "donor lane", Country: "GB"}},
 			TitleKeys:  testTitleKeys,
 		}).
 		Return(nil)
 
 	err := ChooseAttorneysAddress(nil, template.Execute, nil, nil)(testAppData, w, r, &donordata.Provided{
-		Donor:     donordata.Donor{Address: place.Address{Line1: "donor lane"}},
+		Donor:     donordata.Donor{Address: place.Address{Line1: "donor lane", Country: "GB"}},
 		Attorneys: donordata.Attorneys{Attorneys: []donordata.Attorney{{UID: uid}}},
 	})
 	resp := w.Result()
@@ -715,7 +722,7 @@ func TestPostChooseAttorneysAddressReuseSelectWhenValidationError(t *testing.T) 
 				Action:     "reuse-select",
 				FieldNames: form.FieldNames.Address,
 			},
-			Addresses:  []place.Address{{Line1: "donor lane"}},
+			Addresses:  []place.Address{{Line1: "donor lane", Country: "GB"}},
 			Errors:     validation.With("select-address", validation.SelectError{Label: "anAddressFromTheList"}),
 			UID:        uid,
 			FullName:   " ",
@@ -725,7 +732,7 @@ func TestPostChooseAttorneysAddressReuseSelectWhenValidationError(t *testing.T) 
 		Return(nil)
 
 	err := ChooseAttorneysAddress(nil, template.Execute, nil, nil)(testAppData, w, r, &donordata.Provided{
-		Donor:     donordata.Donor{Address: place.Address{Line1: "donor lane"}},
+		Donor:     donordata.Donor{Address: place.Address{Line1: "donor lane", Country: "GB"}},
 		Attorneys: donordata.Attorneys{Attorneys: []donordata.Attorney{{UID: uid}}},
 	})
 	resp := w.Result()

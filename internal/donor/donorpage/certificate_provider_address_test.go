@@ -644,13 +644,13 @@ func TestPostCertificateProviderAddressReuse(t *testing.T) {
 			},
 			FullName:   " ",
 			ActorLabel: "certificateProvider",
-			Addresses:  []place.Address{{Line1: "donor lane"}},
+			Addresses:  []place.Address{{Line1: "donor lane", Country: "GB"}},
 			TitleKeys:  testTitleKeys,
 		}).
 		Return(nil)
 
 	err := CertificateProviderAddress(nil, template.Execute, nil, nil)(testAppData, w, r, &donordata.Provided{
-		Donor: donordata.Donor{Address: place.Address{Line1: "donor lane"}},
+		Donor: donordata.Donor{Address: place.Address{Line1: "donor lane", Country: "GB"}},
 	})
 	resp := w.Result()
 
@@ -711,7 +711,7 @@ func TestPostCertificateProviderAddressReuseSelectWhenValidationError(t *testing
 				Action:     "reuse-select",
 				FieldNames: form.FieldNames.Address,
 			},
-			Addresses:  []place.Address{{Line1: "donor lane"}},
+			Addresses:  []place.Address{{Line1: "donor lane", Country: "GB"}},
 			Errors:     validation.With("select-address", validation.SelectError{Label: "anAddressFromTheList"}),
 			FullName:   " ",
 			ActorLabel: "certificateProvider",
@@ -720,7 +720,7 @@ func TestPostCertificateProviderAddressReuseSelectWhenValidationError(t *testing
 		Return(nil)
 
 	err := CertificateProviderAddress(nil, template.Execute, nil, nil)(testAppData, w, r, &donordata.Provided{
-		Donor: donordata.Donor{Address: place.Address{Line1: "donor lane"}},
+		Donor: donordata.Donor{Address: place.Address{Line1: "donor lane", Country: "GB"}},
 	})
 	resp := w.Result()
 

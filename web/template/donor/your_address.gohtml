@@ -15,6 +15,13 @@
 {{ end }}
 
 {{ define "main" }}
+    {{ $whatCountryLink := link .App (global.Paths.WhatCountryDoYouLiveIn.Format .App.LpaID) }}
+    {{ if .App.Query.Has "from" }}
+        {{ $whatCountryLink = printf "%s?next=%s" $whatCountryLink (.App.Query.Get "from") }}
+    {{ else if .App.Query.Has "makingAnotherLPA" }}
+        {{ $whatCountryLink = printf "%s?makingAnotherLPA=%s" $whatCountryLink (.App.Query.Get "makingAnotherLPA") }}
+    {{ end }}
+
     <div class="govuk-grid-row">
         <div class="govuk-grid-column-two-thirds">
             <form novalidate method="post">
@@ -38,11 +45,13 @@
                             {{ trHtml .App "youMustUsuallyBeResidentContent" }}
                         </div>
 
-                        {{ if .CanTaskList }}
-                            {{ template "buttons" (button .App "saveAndContinue") }}
-                        {{ else }}
+                        <div class="govuk-button-group">
                             {{ template "button" (button .App "saveAndContinue") }}
-                        {{ end }}
+                            <a href="{{ $whatCountryLink }}" class="govuk-button govuk-button--secondary" data-module="govuk-button">{{ tr .App "iDoNotLiveInTheUk" }}</a>
+                            {{ if .CanTaskList }}
+                                <a id="return-to-tasklist-btn" href="{{ link .App (global.Paths.TaskList.Format .App.LpaID) }}" class="govuk-button govuk-button--secondary">{{ tr .App "returnToTaskList" }}</a>
+                            {{ end }}
+                        </div>
                         <input type="hidden" name="{{ .Form.FieldNames.Action }}" value="manual" />
 
                     {{ else if eq .Form.Action "postcode-select" "postcode-lookup" }}
@@ -67,7 +76,10 @@
                             </a>
                         </p>
 
-                        {{ template "button" (button .App "continue") }}
+                        <div class="govuk-button-group">
+                            {{ template "button" (button .App "continue") }}
+                            <a href="{{ $whatCountryLink }}" class="govuk-button govuk-button--secondary" data-module="govuk-button">{{ tr .App "iDoNotLiveInTheUk" }}</a>
+                        </div>
                         <input type="hidden" name="{{ .Form.FieldNames.Action }}" value="postcode-select" />
 
                     {{ else }}
@@ -85,7 +97,10 @@
                             </a>
                         </p>
 
-                        {{ template "button" (button .App "findAddress") }}
+                        <div class="govuk-button-group">
+                            {{ template "button" (button .App "findAddress") }}
+                            <a href="{{ $whatCountryLink }}" class="govuk-button govuk-button--secondary" data-module="govuk-button">{{ tr .App "iDoNotLiveInTheUk" }}</a>
+                        </div>
                         <input type="hidden" name="{{ .Form.FieldNames.Action }}" value="postcode-lookup" />
                     {{ end }}
                 </fieldset>

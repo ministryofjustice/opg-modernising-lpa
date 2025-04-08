@@ -619,13 +619,13 @@ func TestPostChooseReplacementAttorneysAddressReuse(t *testing.T) {
 			UID:        uid,
 			FullName:   " ",
 			ActorLabel: "replacementAttorney",
-			Addresses:  []place.Address{{Line1: "donor lane"}},
+			Addresses:  []place.Address{{Line1: "donor lane", Country: "GB"}},
 			TitleKeys:  testTitleKeys,
 		}).
 		Return(nil)
 
 	err := ChooseReplacementAttorneysAddress(nil, template.Execute, nil, nil)(testAppData, w, r, &donordata.Provided{
-		Donor:                donordata.Donor{Address: place.Address{Line1: "donor lane"}},
+		Donor:                donordata.Donor{Address: place.Address{Line1: "donor lane", Country: "GB"}},
 		ReplacementAttorneys: donordata.Attorneys{Attorneys: []donordata.Attorney{{UID: uid}}},
 	})
 	resp := w.Result()
@@ -695,7 +695,7 @@ func TestPostChooseReplacementAttorneysAddressReuseSelectWhenValidationError(t *
 				Action:     "reuse-select",
 				FieldNames: form.FieldNames.Address,
 			},
-			Addresses:  []place.Address{{Line1: "donor lane"}},
+			Addresses:  []place.Address{{Line1: "donor lane", Country: "GB"}},
 			Errors:     validation.With("select-address", validation.SelectError{Label: "anAddressFromTheList"}),
 			UID:        uid,
 			FullName:   " ",
@@ -705,7 +705,7 @@ func TestPostChooseReplacementAttorneysAddressReuseSelectWhenValidationError(t *
 		Return(nil)
 
 	err := ChooseReplacementAttorneysAddress(nil, template.Execute, nil, nil)(testAppData, w, r, &donordata.Provided{
-		Donor:                donordata.Donor{Address: place.Address{Line1: "donor lane"}},
+		Donor:                donordata.Donor{Address: place.Address{Line1: "donor lane", Country: "GB"}},
 		ReplacementAttorneys: donordata.Attorneys{Attorneys: []donordata.Attorney{{UID: uid}}},
 	})
 	resp := w.Result()

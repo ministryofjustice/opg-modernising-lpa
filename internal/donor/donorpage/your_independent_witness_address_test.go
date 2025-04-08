@@ -651,7 +651,7 @@ func TestPostYourIndependentWitnessAddressReuseSelectWhenValidationError(t *test
 				Action:     "reuse-select",
 				FieldNames: form.FieldNames.Address,
 			},
-			Addresses:  []place.Address{{Line1: "donor lane"}},
+			Addresses:  []place.Address{{Line1: "donor lane", Country: "GB"}},
 			Errors:     validation.With("select-address", validation.SelectError{Label: "anAddressFromTheList"}),
 			FullName:   " ",
 			ActorLabel: "independentWitness",
@@ -660,7 +660,7 @@ func TestPostYourIndependentWitnessAddressReuseSelectWhenValidationError(t *test
 		Return(nil)
 
 	err := YourIndependentWitnessAddress(nil, template.Execute, nil, nil)(testAppData, w, r, &donordata.Provided{
-		Donor: donordata.Donor{Address: place.Address{Line1: "donor lane"}},
+		Donor: donordata.Donor{Address: place.Address{Line1: "donor lane", Country: "GB"}},
 	})
 	resp := w.Result()
 
