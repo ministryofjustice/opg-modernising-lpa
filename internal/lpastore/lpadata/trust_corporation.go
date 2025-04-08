@@ -26,3 +26,15 @@ type TrustCorporation struct {
 
 	Removed bool `json:"-"`
 }
+
+// Signed checks if any signatory has signed. If there are multiple Signatories
+// they always sign together online or on paper.
+func (t TrustCorporation) Signed() bool {
+	for _, signatory := range t.Signatories {
+		if !signatory.SignedAt.IsZero() {
+			return true
+		}
+	}
+
+	return false
+}
