@@ -26,3 +26,20 @@ type TrustCorporation struct {
 
 	Removed bool `json:"-"`
 }
+
+// Signed checks if all signatories have signed.
+func (t TrustCorporation) Signed() bool {
+	if len(t.Signatories) == 0 {
+		return false
+	}
+
+	signed := true
+
+	for _, signatory := range t.Signatories {
+		if signatory.SignedAt.IsZero() {
+			signed = false
+		}
+	}
+
+	return signed
+}

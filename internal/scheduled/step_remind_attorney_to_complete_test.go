@@ -629,6 +629,100 @@ func TestRunnerRemindAttorneyToCompleteWhenAttorneysOnPaper(t *testing.T) {
 	assert.Nil(t, err)
 }
 
+func TestRunnerRemindAttorneyToCompleteWhenAttorneysOnPaperAndAllSigned(t *testing.T) {
+	donorUID := actoruid.New()
+	attorneyUID := actoruid.New()
+	replacementAttorneyUID := actoruid.New()
+	trustCorporationUID := actoruid.New()
+	replacementTrustCorporationUID := actoruid.New()
+
+	signedAt := testNow.AddDate(0, -3, 0).Add(-time.Second)
+	attorneysInvitedAt := testNow.AddDate(0, -3, -1).Add(-time.Second)
+
+	lpa := &lpadata.Lpa{
+		LpaUID: "lpa-uid",
+		Type:   lpadata.LpaTypePersonalWelfare,
+		Donor: lpadata.Donor{
+			UID:                       donorUID,
+			FirstNames:                "a",
+			LastName:                  "b",
+			ContactLanguagePreference: localize.En,
+		},
+		Attorneys: lpadata.Attorneys{
+			Attorneys: []lpadata.Attorney{{
+				UID:                       attorneyUID,
+				FirstNames:                "c",
+				LastName:                  "d",
+				ContactLanguagePreference: localize.En,
+				Channel:                   lpadata.ChannelPaper,
+				SignedAt:                  &testNow,
+			}},
+			TrustCorporation: lpadata.TrustCorporation{
+				UID:                       trustCorporationUID,
+				Name:                      "trusty",
+				ContactLanguagePreference: localize.En,
+				Channel:                   lpadata.ChannelPaper,
+				Signatories:               []lpadata.TrustCorporationSignatory{{SignedAt: testNow}, {SignedAt: testNow}},
+			},
+		},
+		ReplacementAttorneys: lpadata.Attorneys{
+			Attorneys: []lpadata.Attorney{{
+				UID:                       replacementAttorneyUID,
+				FirstNames:                "e",
+				LastName:                  "f",
+				ContactLanguagePreference: localize.En,
+				Channel:                   lpadata.ChannelPaper,
+				SignedAt:                  &testNow,
+			}},
+			TrustCorporation: lpadata.TrustCorporation{
+				UID:                       replacementTrustCorporationUID,
+				Name:                      "untrusty",
+				ContactLanguagePreference: localize.En,
+				Channel:                   lpadata.ChannelPaper,
+				Signatories:               []lpadata.TrustCorporationSignatory{{SignedAt: testNow}, {SignedAt: testNow}},
+			},
+		},
+		SignedAt:           signedAt,
+		AttorneysInvitedAt: attorneysInvitedAt,
+	}
+
+	row := &Event{
+		TargetLpaKey:      dynamo.LpaKey("an-lpa"),
+		TargetLpaOwnerKey: dynamo.LpaOwnerKey(dynamo.DonorKey("a-donor")),
+	}
+	donor := &donordata.Provided{
+		LpaUID: "lpa-uid",
+	}
+
+	donorStore := newMockDonorStore(t)
+	donorStore.EXPECT().
+		One(ctx, row.TargetLpaKey, row.TargetLpaOwnerKey).
+		Return(donor, nil)
+
+	lpaStoreResolvingService := newMockLpaStoreResolvingService(t)
+	lpaStoreResolvingService.EXPECT().
+		Resolve(ctx, donor).
+		Return(lpa, nil)
+
+	attorneyStore := newMockAttorneyStore(t)
+	attorneyStore.EXPECT().
+		All(ctx, row.TargetLpaKey).
+		Return(nil, dynamo.NotFoundError{})
+
+	runner := &Runner{
+		donorStore:               donorStore,
+		lpaStoreResolvingService: lpaStoreResolvingService,
+		attorneyStore:            attorneyStore,
+		eventClient:              nil,
+		notifyClient:             nil,
+		bundle:                   nil,
+		now:                      testNowFn,
+	}
+
+	err := runner.stepRemindAttorneyToComplete(ctx, row)
+	assert.Equal(t, errStepIgnored, err)
+}
+
 func TestRunnerRemindAttorneyToCompleteWhenNotValidTime(t *testing.T) {
 	testcases := map[string]*lpadata.Lpa{
 		"invite sent almost 3 months ago": {
