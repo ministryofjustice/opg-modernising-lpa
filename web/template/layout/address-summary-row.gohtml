@@ -3,7 +3,7 @@
         <dt class="govuk-summary-list__key">{{ tr .App .Label }}</dt>
         <dd class="govuk-summary-list__value">
             {{ if .Value.Line1 }}
-                {{ template "address-lines" .Value }}
+                {{ template "address-lines" (addressLines .App .Value) }}
             {{ else if .CanChange }}
                 <a href="{{ .ChangeLink }}" class="govuk-link">
                     {{ tr .App "enter" }} {{ lowerFirst (tr .App .Label) }} {{ if not .SummarisingSelf }}<span class="govuk-visually-hidden"> {{ trFormat .App "forFullName" "FullName" .FullName }}</span>{{ end }}

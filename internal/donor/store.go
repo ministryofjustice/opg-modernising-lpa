@@ -125,6 +125,7 @@ func (s *Store) Create(ctx context.Context) (*donordata.Provided, error) {
 		donor.Donor.OtherNames = latest.Donor.OtherNames
 		donor.Donor.DateOfBirth = latest.Donor.DateOfBirth
 		donor.Donor.Address = latest.Donor.Address
+		donor.Donor.InternationalAddress = latest.Donor.InternationalAddress
 	}
 
 	if err := donor.UpdateHash(); err != nil {
