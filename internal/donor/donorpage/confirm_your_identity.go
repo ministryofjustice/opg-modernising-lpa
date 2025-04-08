@@ -16,6 +16,7 @@ import (
 type confirmYourIdentityData struct {
 	App    appcontext.Data
 	Errors validation.List
+	NonUK  bool
 }
 
 func ConfirmYourIdentity(tmpl template.Template, donorStore DonorStore) Handler {
@@ -33,6 +34,9 @@ func ConfirmYourIdentity(tmpl template.Template, donorStore DonorStore) Handler 
 			return donor.PathIdentityWithOneLogin.Redirect(w, r, appData, provided)
 		}
 
-		return tmpl(w, &confirmYourIdentityData{App: appData})
+		return tmpl(w, &confirmYourIdentityData{
+			App:   appData,
+			NonUK: provided.Donor.Address.Country != "GB",
+		})
 	}
 }

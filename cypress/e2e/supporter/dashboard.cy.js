@@ -35,6 +35,8 @@ describe('Dashboard', () => {
         cy.get('#f-date-of-birth-year').invoke('val', '1990');
         cy.contains('button', 'Save and continue').click()
 
+        cy.contains('label', 'Yes').click();
+        cy.contains('button', 'Continue').click();
         AddressFormAssertions.assertCanAddAddressFromSelect()
 
         cy.get('#f-email').invoke('val', 'john@example.com');

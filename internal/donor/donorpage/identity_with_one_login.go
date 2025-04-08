@@ -7,6 +7,7 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor/donordata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/localize"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/onelogin"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/sesh"
 )
 
@@ -20,7 +21,12 @@ func IdentityWithOneLogin(oneLoginClient OneLoginClient, sessionStore SessionSto
 		state := randomString(12)
 		nonce := randomString(12)
 
-		authCodeURL, err := oneLoginClient.AuthCodeURL(state, nonce, locale, true)
+		confidenceLevel := onelogin.ConfidenceLevelLow
+		if provided.Donor.Address.Country != "GB" {
+			confidenceLevel = onelogin.ConfidenceLevelMedium
+		}
+
+		authCodeURL, err := oneLoginClient.AuthCodeURL(state, nonce, locale, confidenceLevel)
 		if err != nil {
 			return err
 		}

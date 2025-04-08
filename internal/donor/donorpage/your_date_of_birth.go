@@ -48,7 +48,7 @@ func YourDateOfBirth(tmpl template.Template, donorStore DonorStore) Handler {
 						return donor.PathMakeANewLPA.Redirect(w, r, appData, provided)
 					}
 
-					return donor.PathYourAddress.Redirect(w, r, appData, provided)
+					return donor.PathDoYouLiveInTheUK.Redirect(w, r, appData, provided)
 				}
 
 				provided.Donor.DateOfBirth = data.Form.Dob
@@ -70,7 +70,7 @@ func YourDateOfBirth(tmpl template.Template, donorStore DonorStore) Handler {
 					return donor.PathWeHaveUpdatedYourDetails.RedirectQuery(w, r, appData, provided, url.Values{"detail": {"dateOfBirth"}})
 				}
 
-				return donor.PathYourAddress.Redirect(w, r, appData, provided)
+				return donor.PathDoYouLiveInTheUK.Redirect(w, r, appData, provided)
 			}
 		}
 
