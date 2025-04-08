@@ -9,6 +9,7 @@ terraform {
         aws.region,
         aws.management,
         aws.global,
+        aws.shared,
       ]
     }
     pagerduty = {

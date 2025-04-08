@@ -88,6 +88,31 @@ provider "aws" {
   }
 }
 
+# make these roles in org infra
+provider "aws" {
+  alias  = "shared_eu_west_1"
+  region = "eu-west-1"
+  default_tags {
+    tags = local.default_tags
+  }
+  assume_role {
+    role_arn     = "arn:aws:iam::${local.account.shared_account_id}:role/${var.default_role}"
+    session_name = "opg-modernising-lpa-terraform-session"
+  }
+}
+
+provider "aws" {
+  alias  = "shared_eu_west_2"
+  region = "eu-west-2"
+  default_tags {
+    tags = local.default_tags
+  }
+  assume_role {
+    role_arn     = "arn:aws:iam::${local.account.shared_account_id}:role/${var.default_role}"
+    session_name = "opg-modernising-lpa-terraform-session"
+  }
+}
+
 data "aws_region" "eu_west_1" {
   provider = aws.eu_west_1
 }
