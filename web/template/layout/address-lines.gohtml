@@ -1,7 +1,8 @@
 {{ define "address-lines" }}
-  {{ .Line1 }}<br>
-  {{ if .Line2 }}{{ .Line2 }}<br>{{end}}
-  {{ if .Line3 }}{{ .Line3 }}<br>{{end}}
-  {{ if .TownOrCity }}{{ .TownOrCity }}<br>{{end}}
-  {{ .Postcode }}
+  {{ .Address.Line1 }}<br>
+  {{ if .Address.Line2 }}{{ .Address.Line2 }}<br>{{end}}
+  {{ if .Address.Line3 }}{{ .Address.Line3 }}<br>{{end}}
+  {{ if .Address.TownOrCity }}{{ .Address.TownOrCity }}<br>{{end}}
+  {{ if .Address.Postcode }}{{ .Address.Postcode }}<br>{{ end }}
+  {{ if ne .Address.Country "GB" }}{{ tr .App (printf "country:%s" .Address.Country) }}{{ end }}
 {{ end }}
