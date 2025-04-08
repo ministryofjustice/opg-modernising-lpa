@@ -47,7 +47,7 @@ func (r *Runner) stepRemindAttorneyToComplete(ctx context.Context, row *Event) e
 	ran := false
 
 	for _, attorney := range lpa.Attorneys.Attorneys {
-		if provided, ok := attorneyMap[attorney.UID]; !ok || !provided.Signed() {
+		if provided, ok := attorneyMap[attorney.UID]; (!ok || !provided.Signed()) && !attorney.Signed() {
 			ran = true
 			if err := r.stepRemindAttorneyToCompleteAttorney(ctx, lpa, actor.TypeAttorney, attorney, provided); err != nil {
 				return err
@@ -56,7 +56,7 @@ func (r *Runner) stepRemindAttorneyToComplete(ctx context.Context, row *Event) e
 	}
 
 	if trustCorporation := lpa.Attorneys.TrustCorporation; !lpa.Attorneys.TrustCorporation.UID.IsZero() {
-		if provided, ok := attorneyMap[trustCorporation.UID]; !ok || !provided.Signed() {
+		if provided, ok := attorneyMap[trustCorporation.UID]; (!ok || !provided.Signed()) && !trustCorporation.Signed() {
 			ran = true
 			if err := r.stepRemindAttorneyToCompleteTrustCorporation(ctx, lpa, actor.TypeTrustCorporation, trustCorporation, provided); err != nil {
 				return err
@@ -65,7 +65,7 @@ func (r *Runner) stepRemindAttorneyToComplete(ctx context.Context, row *Event) e
 	}
 
 	for _, attorney := range lpa.ReplacementAttorneys.Attorneys {
-		if provided, ok := attorneyMap[attorney.UID]; !ok || !provided.Signed() {
+		if provided, ok := attorneyMap[attorney.UID]; (!ok || !provided.Signed()) && !attorney.Signed() {
 			ran = true
 			if err := r.stepRemindAttorneyToCompleteAttorney(ctx, lpa, actor.TypeReplacementAttorney, attorney, provided); err != nil {
 				return err
@@ -74,7 +74,7 @@ func (r *Runner) stepRemindAttorneyToComplete(ctx context.Context, row *Event) e
 	}
 
 	if trustCorporation := lpa.ReplacementAttorneys.TrustCorporation; !trustCorporation.UID.IsZero() {
-		if provided, ok := attorneyMap[trustCorporation.UID]; !ok || !provided.Signed() {
+		if provided, ok := attorneyMap[trustCorporation.UID]; (!ok || !provided.Signed()) && !trustCorporation.Signed() {
 			ran = true
 			if err := r.stepRemindAttorneyToCompleteTrustCorporation(ctx, lpa, actor.TypeReplacementTrustCorporation, trustCorporation, provided); err != nil {
 				return err
