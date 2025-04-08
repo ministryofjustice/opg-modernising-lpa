@@ -196,3 +196,7 @@ body.js-enabled .js-only {
 .app-overflow-wrap-anywhere {
     overflow-wrap: anywhere;
 }
+
+.app-inset-text-error {
+    border-left: 5px solid $govuk-error-colour;
+}
