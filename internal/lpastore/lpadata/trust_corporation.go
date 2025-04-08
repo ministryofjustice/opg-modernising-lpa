@@ -26,3 +26,13 @@ type TrustCorporation struct {
 
 	Removed bool `json:"-"`
 }
+
+func (t TrustCorporation) Signed() bool {
+	for _, signatory := range t.Signatories {
+		if !signatory.SignedAt.IsZero() {
+			return true
+		}
+	}
+
+	return false
+}
