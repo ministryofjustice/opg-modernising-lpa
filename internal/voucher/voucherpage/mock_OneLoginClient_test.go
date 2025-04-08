@@ -24,9 +24,9 @@ func (_m *mockOneLoginClient) EXPECT() *mockOneLoginClient_Expecter {
 	return &mockOneLoginClient_Expecter{mock: &_m.Mock}
 }
 
-// AuthCodeURL provides a mock function with given fields: state, nonce, locale, _a3
-func (_m *mockOneLoginClient) AuthCodeURL(state string, nonce string, locale string, _a3 bool) (string, error) {
-	ret := _m.Called(state, nonce, locale, _a3)
+// AuthCodeURL provides a mock function with given fields: state, nonce, locale, confidenceLevel
+func (_m *mockOneLoginClient) AuthCodeURL(state string, nonce string, locale string, confidenceLevel onelogin.ConfidenceLevel) (string, error) {
+	ret := _m.Called(state, nonce, locale, confidenceLevel)
 
 	if len(ret) == 0 {
 		panic("no return value specified for AuthCodeURL")
@@ -34,17 +34,17 @@ func (_m *mockOneLoginClient) AuthCodeURL(state string, nonce string, locale str
 
 	var r0 string
 	var r1 error
-	if rf, ok := ret.Get(0).(func(string, string, string, bool) (string, error)); ok {
-		return rf(state, nonce, locale, _a3)
+	if rf, ok := ret.Get(0).(func(string, string, string, onelogin.ConfidenceLevel) (string, error)); ok {
+		return rf(state, nonce, locale, confidenceLevel)
 	}
-	if rf, ok := ret.Get(0).(func(string, string, string, bool) string); ok {
-		r0 = rf(state, nonce, locale, _a3)
+	if rf, ok := ret.Get(0).(func(string, string, string, onelogin.ConfidenceLevel) string); ok {
+		r0 = rf(state, nonce, locale, confidenceLevel)
 	} else {
 		r0 = ret.Get(0).(string)
 	}
 
-	if rf, ok := ret.Get(1).(func(string, string, string, bool) error); ok {
-		r1 = rf(state, nonce, locale, _a3)
+	if rf, ok := ret.Get(1).(func(string, string, string, onelogin.ConfidenceLevel) error); ok {
+		r1 = rf(state, nonce, locale, confidenceLevel)
 	} else {
 		r1 = ret.Error(1)
 	}
@@ -61,14 +61,14 @@ type mockOneLoginClient_AuthCodeURL_Call struct {
 //   - state string
 //   - nonce string
 //   - locale string
-//   - _a3 bool
-func (_e *mockOneLoginClient_Expecter) AuthCodeURL(state interface{}, nonce interface{}, locale interface{}, _a3 interface{}) *mockOneLoginClient_AuthCodeURL_Call {
-	return &mockOneLoginClient_AuthCodeURL_Call{Call: _e.mock.On("AuthCodeURL", state, nonce, locale, _a3)}
+//   - confidenceLevel onelogin.ConfidenceLevel
+func (_e *mockOneLoginClient_Expecter) AuthCodeURL(state interface{}, nonce interface{}, locale interface{}, confidenceLevel interface{}) *mockOneLoginClient_AuthCodeURL_Call {
+	return &mockOneLoginClient_AuthCodeURL_Call{Call: _e.mock.On("AuthCodeURL", state, nonce, locale, confidenceLevel)}
 }
 
-func (_c *mockOneLoginClient_AuthCodeURL_Call) Run(run func(state string, nonce string, locale string, _a3 bool)) *mockOneLoginClient_AuthCodeURL_Call {
+func (_c *mockOneLoginClient_AuthCodeURL_Call) Run(run func(state string, nonce string, locale string, confidenceLevel onelogin.ConfidenceLevel)) *mockOneLoginClient_AuthCodeURL_Call {
 	_c.Call.Run(func(args mock.Arguments) {
-		run(args[0].(string), args[1].(string), args[2].(string), args[3].(bool))
+		run(args[0].(string), args[1].(string), args[2].(string), args[3].(onelogin.ConfidenceLevel))
 	})
 	return _c
 }
@@ -78,7 +78,7 @@ func (_c *mockOneLoginClient_AuthCodeURL_Call) Return(_a0 string, _a1 error) *mo
 	return _c
 }
 
-func (_c *mockOneLoginClient_AuthCodeURL_Call) RunAndReturn(run func(string, string, string, bool) (string, error)) *mockOneLoginClient_AuthCodeURL_Call {
+func (_c *mockOneLoginClient_AuthCodeURL_Call) RunAndReturn(run func(string, string, string, onelogin.ConfidenceLevel) (string, error)) *mockOneLoginClient_AuthCodeURL_Call {
 	_c.Call.Return(run)
 	return _c
 }
