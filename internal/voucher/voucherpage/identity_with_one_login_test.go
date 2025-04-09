@@ -7,6 +7,7 @@ import (
 
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/appcontext"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/localize"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/onelogin"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/sesh"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/voucher"
 	"github.com/stretchr/testify/assert"
@@ -19,7 +20,7 @@ func TestIdentityWithOneLogin(t *testing.T) {
 
 	client := newMockOneLoginClient(t)
 	client.EXPECT().
-		AuthCodeURL("i am random", "i am random", "cy", true).
+		AuthCodeURL("i am random", "i am random", "cy", onelogin.ConfidenceLevelLow).
 		Return("http://auth", nil)
 
 	sessionStore := newMockSessionStore(t)
@@ -41,7 +42,7 @@ func TestIdentityWithOneLoginWhenAuthCodeURLError(t *testing.T) {
 
 	client := newMockOneLoginClient(t)
 	client.EXPECT().
-		AuthCodeURL("i am random", "i am random", "", true).
+		AuthCodeURL("i am random", "i am random", "", onelogin.ConfidenceLevelLow).
 		Return("http://auth?locale=en", expectedError)
 
 	err := IdentityWithOneLogin(client, nil, func(int) string { return "i am random" })(testAppData, w, r, nil)
@@ -57,7 +58,7 @@ func TestIdentityWithOneLoginWhenStoreSaveError(t *testing.T) {
 
 	client := newMockOneLoginClient(t)
 	client.EXPECT().
-		AuthCodeURL("i am random", "i am random", "", true).
+		AuthCodeURL("i am random", "i am random", "", onelogin.ConfidenceLevelLow).
 		Return("http://auth?locale=en", nil)
 
 	sessionStore := newMockSessionStore(t)
