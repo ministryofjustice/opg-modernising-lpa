@@ -58,7 +58,7 @@
                     <div
                         class="govuk-summary-list__row {{ if .AddressMatch }}govuk-summary-list__row--no-actions{{end}}">
                         <dt class="govuk-summary-list__key">{{ tr .App "address" }}</dt>
-                        <dd class="govuk-summary-list__value">{{ template "address-lines" .Provided.Donor.Address }}</dd>
+                        <dd class="govuk-summary-list__value">{{ template "address-lines" (addressLines .App .Provided.Donor.Address) }}</dd>
                         {{ if not .AddressMatch }}
                             <dd class="govuk-summary-list__actions">
                                 <span class="moj-badge moj-badge--red app-08rem-font-size">{{ tr .App "doesNotMatch" }}</span>
