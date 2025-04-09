@@ -16,6 +16,8 @@ variable "accounts" {
       regions                = list(string)
       pagerduty_service_name = string
       athena_enabled         = bool
+      shared_account_id      = string
+      opg_metrics_endpoint   = string
     })
   )
 }
