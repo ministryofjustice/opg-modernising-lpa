@@ -15,6 +15,8 @@ describe('LPA type', () => {
 
         cy.contains('button', 'Save and continue').click();
 
+        cy.contains('label', 'Yes').click();
+        cy.contains('button', 'Continue').click();
         AddressFormAssertions.assertCanAddAddressFromSelect()
 
         cy.contains('a', 'Continue').click();
