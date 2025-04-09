@@ -115,7 +115,7 @@ get-org-members:  ##@dynamodb dumps all members of an org by orgId supplied e.g.
 
 delete-all-items: ##@dynamodb deletes and recreates lpas dynamodb table
 	docker compose -f docker/docker-compose.yml exec localstack awslocal dynamodb --region eu-west-1 \
-		delete-table --table-name lpas
+		delete-table --table-name lpas || true
 
 	docker compose -f docker/docker-compose.yml exec localstack awslocal dynamodb create-table \
 						 --region eu-west-1 \
@@ -123,7 +123,7 @@ delete-all-items: ##@dynamodb deletes and recreates lpas dynamodb table
 						 --attribute-definitions AttributeName=PK,AttributeType=S AttributeName=SK,AttributeType=S AttributeName=LpaUID,AttributeType=S AttributeName=UpdatedAt,AttributeType=S \
 						 --key-schema AttributeName=PK,KeyType=HASH AttributeName=SK,KeyType=RANGE \
 						 --provisioned-throughput ReadCapacityUnits=1000,WriteCapacityUnits=1000 \
-						 --global-secondary-indexes file://dynamodb-lpa-gsi-schema.json
+						 --global-secondary-indexes file:///usr/dynamodb-lpa-gsi-schema.json
 
 emit-evidence-received: ##@events emits an evidence-received event with the given LpaUID e.g. emit-evidence-received uid=abc-123
 	curl -X POST "localhost:9001/emit/opg.poas.sirius/evidence-received" \
@@ -172,6 +172,11 @@ emit-material-change-confirmed: ##@events emits a material-change-confirmed even
 
 emit-certificate-provider-identity-check-failed: ##@events emits a certificate-provider-identity-check-failed event with the given LpaUID e.g. certificate-provider-identity-check-failed uid=abc-123
 	curl -X POST "localhost:9001/emit/opg.poas.sirius/certificate-provider-identity-check-failed" \
+		-H "Content-Type: application/json" \
+		-d '{"uid": "${uid}"}'
+
+emit-certificate-provider-submission-completed: ##@events emits a certificate-provider-submission-completed event with the given LpaUID e.g. certificate-provider-submission-completed uid=abc-123
+	curl -X POST "localhost:9001/emit/opg.poas.sirius/certificate-provider-submission-completed" \
 		-H "Content-Type: application/json" \
 		-d '{"uid": "${uid}"}'
 
