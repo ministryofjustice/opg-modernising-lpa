@@ -15,6 +15,25 @@ data "aws_ssm_parameter" "opg_metrics_arn" {
   provider = aws.region
 }
 
+resource "aws_iam_role_policy" "opg_metrics" {
+  name     = "opg-metrics-${data.aws_region.current.name}"
+  role     = var.opg_metrics_api_destination_role.name
+  policy   = data.aws_iam_policy_document.opg_metrics.json
+  provider = aws.region
+}
+
+
+data "aws_iam_policy_document" "opg_metrics" {
+  statement {
+    effect  = "Allow"
+    actions = ["events:InvokeApiDestination"]
+    resources = [
+      "${data.aws_ssm_parameter.opg_metrics_arn.value}*"
+    ]
+  }
+  provider = aws.global
+}
+
 resource "aws_cloudwatch_event_target" "opg_metrics" {
   arn            = data.aws_ssm_parameter.opg_metrics_arn.insecure_value
   event_bus_name = aws_cloudwatch_event_bus.main.name
