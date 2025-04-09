@@ -15,6 +15,7 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor/donordata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/localize"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/lpastore/lpadata"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/place"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -633,4 +634,16 @@ func TestFieldset(t *testing.T) {
 		Legend: aLegend,
 		Items:  items("top", "a-name", "a-value", anItem),
 	}, fieldset("top", "a-name", "a-value", aLegend, anItem))
+}
+
+func TestAddressLines(t *testing.T) {
+	app := appcontext.Data{
+		Page: "hey",
+	}
+	address := place.Address{Line1: "abc"}
+
+	assert.Equal(t, addressLinesData{
+		App:     app,
+		Address: address,
+	}, addressLines(app, address))
 }
