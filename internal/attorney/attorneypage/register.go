@@ -54,7 +54,7 @@ type SessionStore interface {
 }
 
 type OneLoginClient interface {
-	AuthCodeURL(state, nonce, locale string, identity bool) (string, error)
+	AuthCodeURL(state, nonce, locale string, confidenceLevel onelogin.ConfidenceLevel) (string, error)
 	Exchange(ctx context.Context, code, nonce string) (idToken, accessToken string, err error)
 	UserInfo(ctx context.Context, accessToken string) (onelogin.UserInfo, error)
 }
