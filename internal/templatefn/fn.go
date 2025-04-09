@@ -18,6 +18,7 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/localize"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/lpastore"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/lpastore/lpadata"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/place"
 )
 
 // Globals contains values that are used in templates and do not change as the
@@ -91,6 +92,7 @@ func All(globals *Globals) map[string]any {
 		"legendHeading":      legendHeading,
 		"fieldset":           fieldset,
 		"htmlContent":        htmlContent,
+		"addressLines":       addressLines,
 	}
 }
 
@@ -569,5 +571,17 @@ func fieldset(top any, name string, value any, legend legendData, is ...any) fie
 		Name:   name,
 		Legend: legend,
 		Items:  items(top, name, value, is...),
+	}
+}
+
+type addressLinesData struct {
+	App     appcontext.Data
+	Address place.Address
+}
+
+func addressLines(appData appcontext.Data, address place.Address) addressLinesData {
+	return addressLinesData{
+		App:     appData,
+		Address: address,
 	}
 }
