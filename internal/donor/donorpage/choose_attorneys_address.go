@@ -86,6 +86,8 @@ func ChooseAttorneysAddress(logger Logger, tmpl template.Template, addressClient
 			if action == "manual" {
 				data.Form.Action = "manual"
 				data.Form.Address = &place.Address{}
+			} else if action == "" && len(provided.ActorAddresses()) == 0 {
+				data.Form.Action = "postcode"
 			}
 		}
 
