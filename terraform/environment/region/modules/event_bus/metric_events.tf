@@ -38,12 +38,35 @@ resource "aws_cloudwatch_event_target" "opg_metrics" {
   arn            = data.aws_ssm_parameter.opg_metrics_arn.insecure_value
   event_bus_name = aws_cloudwatch_event_bus.main.name
   rule           = aws_cloudwatch_event_rule.metric_events.name
-  # role_arn       = "arn:aws:iam::653761790766:role/service-role/Amazon_EventBridge_Invoke_Api_Destination_344039630"
-  role_arn = var.opg_metrics_api_destination_role.arn
+  role_arn       = var.opg_metrics_api_destination_role.arn
   http_target {
-    header_parameters       = {}
+    header_parameters = {
+      Content-Type = "application/json"
+    }
     path_parameter_values   = []
     query_string_parameters = {}
+  }
+  input_transformer {
+    input_paths = {
+      "Environment"      = "$.detail.Environment"
+      "MeasureName"      = "$.detail.MeasureName"
+      "MeasureValue"     = "$.detail.MeasureValue"
+      "MeasureValueType" = "$.detail.MeasureValueType"
+      "Subcategory"      = "$.detail.Subcategory"
+      "Time"             = "$.detail.Time"
+    }
+    input_template = <<-EOT
+      {
+        "Project": "Modernising Lasting Powers of Attorney",
+        "Category": "Make and Register a Lasting Power of Attorney Service",
+        "Subcategory": <Subcategory>,
+        "Environment": <Environment>,
+        "MeasureName": <MeasureName>,
+        "MeasureValue": <MeasureValue>,
+        "MeasureValueType": <MeasureValueType>,
+        "Time": <Time>
+      }
+    EOT
   }
   provider = aws.region
 }
