@@ -473,7 +473,7 @@ func (p *Provided) CorrespondentEmail() string {
 func (p *Provided) ActorAddresses() []place.Address {
 	var addresses []place.Address
 
-	if p.Donor.Address.String() != "" {
+	if p.Donor.Address.String() != "" && p.Donor.Address.Country == "GB" {
 		addresses = append(addresses, p.Donor.Address)
 	}
 

@@ -25,9 +25,14 @@
                             (printf "%s?makingAnotherLPA=1#f-date-of-birth" (link .App (global.Paths.YourDateOfBirth.Format .App.LpaID)))
                             "" true true) }}
 
+                        {{ $addressChangeLink := printf "%s?makingAnotherLPA=1#f-address-line-1" (link .App (global.Paths.YourAddress.Format .App.LpaID)) }}
+                        {{ if ne .Donor.Donor.Address.Country "GB" }}
+                            {{ $addressChangeLink = printf "%s?makingAnotherLPA=1" (link .App (global.Paths.YourNonUKAddress.Format .App.LpaID)) }}
+                        {{ end }}
+
                         {{ template "address-summary-row" (summaryRow .App "address"
                             .Donor.Donor.Address
-                            (printf "%s?makingAnotherLPA=1#f-address-line-1" (link .App (global.Paths.YourAddress.Format .App.LpaID)))
+                            $addressChangeLink
                             "" true true) }}
                     </dl>
                 </div>

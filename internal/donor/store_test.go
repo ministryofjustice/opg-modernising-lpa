@@ -504,12 +504,13 @@ func TestDonorStoreCreate(t *testing.T) {
 	testCases := map[string]donordata.Provided{
 		"with previous details": {
 			Donor: donordata.Donor{
-				UID:         actoruid.New(),
-				FirstNames:  "a",
-				LastName:    "b",
-				OtherNames:  "c",
-				DateOfBirth: date.New("2000", "01", "02"),
-				Address:     place.Address{Line1: "d"},
+				UID:                  actoruid.New(),
+				FirstNames:           "a",
+				LastName:             "b",
+				OtherNames:           "c",
+				DateOfBirth:          date.New("2000", "01", "02"),
+				Address:              place.Address{Line1: "d"},
+				InternationalAddress: place.InternationalAddress{Town: "a-town"},
 			},
 		},
 		"no previous details": {},
@@ -525,13 +526,14 @@ func TestDonorStoreCreate(t *testing.T) {
 				CreatedAt: testNow,
 				Version:   1,
 				Donor: donordata.Donor{
-					UID:         testUID,
-					FirstNames:  previousDetails.Donor.FirstNames,
-					LastName:    previousDetails.Donor.LastName,
-					OtherNames:  previousDetails.Donor.OtherNames,
-					DateOfBirth: previousDetails.Donor.DateOfBirth,
-					Address:     previousDetails.Donor.Address,
-					Channel:     lpadata.ChannelOnline,
+					UID:                  testUID,
+					FirstNames:           previousDetails.Donor.FirstNames,
+					LastName:             previousDetails.Donor.LastName,
+					OtherNames:           previousDetails.Donor.OtherNames,
+					DateOfBirth:          previousDetails.Donor.DateOfBirth,
+					Address:              previousDetails.Donor.Address,
+					InternationalAddress: previousDetails.Donor.InternationalAddress,
+					Channel:              lpadata.ChannelOnline,
 				},
 			}
 			donor.UpdateHash()
