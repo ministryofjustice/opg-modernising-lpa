@@ -5,11 +5,12 @@ import (
 
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/appcontext"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/localize"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/onelogin"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/sesh"
 )
 
 type LoginOneLoginClient interface {
-	AuthCodeURL(state, nonce, locale string, identity bool) (string, error)
+	AuthCodeURL(state, nonce, locale string, confidenceLevel onelogin.ConfidenceLevel) (string, error)
 }
 
 type LoginSessionStore interface {
@@ -26,7 +27,7 @@ func Login(oneLoginClient LoginOneLoginClient, sessionStore LoginSessionStore, r
 		state := randomString(12)
 		nonce := randomString(12)
 
-		authCodeURL, err := oneLoginClient.AuthCodeURL(state, nonce, locale, false)
+		authCodeURL, err := oneLoginClient.AuthCodeURL(state, nonce, locale, onelogin.ConfidenceLevelNone)
 		if err != nil {
 			return err
 		}

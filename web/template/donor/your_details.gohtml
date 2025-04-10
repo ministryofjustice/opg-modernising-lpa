@@ -24,9 +24,14 @@
                         (fromLink .App global.Paths.YourDateOfBirth "#f-date-of-birth")
                         .Donor.Donor.FullName .Donor.CanChangePersonalDetails true) }}
 
+                    {{ $addressChangeLink := fromLink .App global.Paths.YourAddress "#f-address-line-1" }}
+                    {{ if ne .Donor.Donor.Address.Country "GB" }}
+                        {{ $addressChangeLink = fromLink .App global.Paths.YourNonUKAddress "" }}
+                    {{ end }}
+
                     {{ template "address-summary-row" (summaryRow $.App "address"
                         .Donor.Donor.Address
-                        (fromLink .App global.Paths.YourAddress "#f-address-line-1")
+                        $addressChangeLink
                         .Donor.Donor.FullName .Donor.CanChange true) }}
 
                     {{ template "summary-row" (summaryRow .App "email"

@@ -94,7 +94,7 @@ type ShareCodeSender interface {
 }
 
 type OneLoginClient interface {
-	AuthCodeURL(state, nonce, locale string, identity bool) (string, error)
+	AuthCodeURL(state, nonce, locale string, confidenceLevel onelogin.ConfidenceLevel) (string, error)
 	Exchange(ctx context.Context, code, nonce string) (idToken, accessToken string, err error)
 	UserInfo(ctx context.Context, accessToken string) (onelogin.UserInfo, error)
 	ParseIdentityClaim(userInfo onelogin.UserInfo) (identity.UserData, error)
@@ -245,8 +245,14 @@ func Register(
 		YourDateOfBirth(tmpls.Get("your_date_of_birth.gohtml"), donorStore))
 	handleWithDonor(donor.PathYouHaveToldUsYouAreUnder18, page.CanGoBack,
 		Guidance(tmpls.Get("you_have_told_us_you_are_under_18.gohtml")))
+	handleWithDonor(donor.PathDoYouLiveInTheUK, page.CanGoBack,
+		DoYouLiveInTheUK(tmpls.Get("do_you_live_in_the_uk.gohtml")))
 	handleWithDonor(donor.PathYourAddress, page.CanGoBack,
 		YourAddress(logger, tmpls.Get("your_address.gohtml"), addressClient, donorStore))
+	handleWithDonor(donor.PathWhatCountryDoYouLiveIn, page.CanGoBack,
+		WhatCountryDoYouLiveIn(tmpls.Get("what_country_do_you_live_in.gohtml"), donorStore))
+	handleWithDonor(donor.PathYourNonUKAddress, page.CanGoBack,
+		YourNonUKAddress(tmpls.Get("your_non_uk_address.gohtml"), donorStore))
 	handleWithDonor(donor.PathReceivingUpdatesAboutYourLpa, page.CanGoBack,
 		Guidance(tmpls.Get("receiving_updates_about_your_lpa.gohtml")))
 	handleWithDonor(donor.PathYourEmail, page.CanGoBack,
@@ -413,7 +419,7 @@ func Register(
 		Guidance(tmpls.Get("pending_payment.gohtml")))
 
 	handleWithDonor(donor.PathConfirmYourIdentity, page.CanGoBack,
-		ConfirmYourIdentity(tmpls.Get("prove_your_identity.gohtml"), donorStore))
+		ConfirmYourIdentity(tmpls.Get("confirm_your_identity.gohtml"), donorStore))
 	handleWithDonor(donor.PathHowWillYouConfirmYourIdentity, page.None,
 		HowWillYouConfirmYourIdentity(tmpls.Get("how_will_you_confirm_your_identity.gohtml"), donorStore, eventClient))
 	handleWithDonor(donor.PathCompletingYourIdentityConfirmation, page.None,
