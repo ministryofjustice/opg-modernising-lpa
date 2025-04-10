@@ -76,8 +76,20 @@ func TestGetDIDWhenRefreshAfterCacheControlDuration(t *testing.T) {
 
 	logger := newMockLogger(t)
 
-	client := getDID(ctx, logger, doer, "identity-url")
-	client.refreshRateLimit = time.Duration(0)
+	// create and start client to prevent data race on refreshRateLimit
+	client := &didClient{
+		ctx:         ctx,
+		identityURL: "identity-url",
+		http:        doer,
+		logger:      logger,
+		now:         time.Now,
+		// only allow a single request to be waiting
+		refreshRequest: make(chan struct{}, 1),
+		// set to 0 for this test
+		refreshRateLimit: 0,
+	}
+
+	go client.backgroundRefresh()
 
 	select {
 	case <-ctx.Done():
