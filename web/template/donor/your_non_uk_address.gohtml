@@ -1,0 +1,63 @@
+{{ template "page" . }}
+
+{{ define "pageTitle" }}
+    {{ tr .App "enterYourNonUkAddress" }}
+{{ end }}
+
+{{ define "main" }}
+    {{ $whatCountryLink := link .App (global.Paths.WhatCountryDoYouLiveIn.Format .App.LpaID) }}
+    {{ if .App.Query.Has "from" }}
+        {{ $whatCountryLink = printf "%s?next=%s" $whatCountryLink (.App.Query.Get "from") }}
+    {{ end }}
+
+    <div class="govuk-grid-row">
+        <div class="govuk-grid-column-two-thirds">
+            <form novalidate method="post">
+                <fieldset class="govuk-fieldset">
+                    <legend class="govuk-fieldset__legend govuk-fieldset__legend--xl">
+                        <h1 class="govuk-fieldset__heading">{{ template "pageTitle" . }}</h1>
+                    </legend>
+
+                    <label class="govuk-label">{{ tr .App "country" }}</label>
+                    <p class="govuk-body">
+                        <strong class="govuk-!-margin-right-4">{{ tr .App (printf "country:%s" .Country) }}</strong>
+                        <a href="{{ $whatCountryLink }}" class="govuk-link">{{ tr .App "change" }}</a>
+                    </p>
+
+                    <label class="govuk-label">{{ tr .App "buildingAddress" }}</label>
+                    <div class="govuk-hint">{{ tr .App "fillInAtLeastOne" }}</div>
+                    {{ template "error-message" (errorMessage . "buildingAddress") }}
+                    <div class="govuk-inset-text govuk-!-margin-top-0 {{ if .Errors.Has "buildingAddress" }}app-inset-text-error{{ end }}" id="f-buildingAddress">
+                        {{ template "input" (input . "apartmentNumber" "apartmentNumber" .Form.Address.ApartmentNumber
+                            "classes" "govuk-input--width-5") }}
+                        {{ template "input" (input . "buildingNumber" "buildingNumber" .Form.Address.BuildingNumber
+                            "classes" "govuk-input--width-5") }}
+                        {{ template "input" (input . "buildingName" "buildingName" .Form.Address.BuildingName) }}
+                    </div>
+
+                    {{ template "input" (input . "streetName" "streetNameOptional" .Form.Address.StreetName
+                        "autocomplete" "address-level3") }}
+                    {{ template "input" (input . "town" "townSuburbOrCity" .Form.Address.Town
+                        "autocomplete" "address-level2") }}
+                    {{ template "input" (input . "postalCode" "postalCodeOrZipcode" .Form.Address.PostalCode
+                        "classes" "govuk-input--width-10" "autocomplete" "postal-code") }}
+                    {{ template "input" (input . "region" "regionOptional" .Form.Address.Region
+                        "hint" "forExampleStateDistrictCounty" "autocomplete" "address-level1") }}
+                </fieldset>
+
+                <div class="govuk-inset-text">
+                    {{ trHtml .App "youMustUsuallyBeResidentContent" }}
+                </div>
+
+                <div class="govuk-button-group">
+                    {{ template "button" (button .App "saveAndContinue") }}
+                    <button name="live-in-uk" class="govuk-button govuk-button--secondary" data-module="govuk-button">{{ tr .App "iLiveInTheUk" }}</button>
+                    {{ if .CanTaskList }}
+                        <a id="return-to-tasklist-btn" href="{{ link .App (global.Paths.TaskList.Format .App.LpaID) }}" class="govuk-button govuk-button--secondary">{{ tr .App "returnToTaskList" }}</a>
+                    {{ end }}
+                </div>
+                {{ template "csrf-field" . }}
+            </form>
+        </div>
+    </div>
+{{ end }}
