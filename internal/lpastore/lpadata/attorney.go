@@ -33,3 +33,11 @@ type Attorney struct {
 func (a Attorney) FullName() string {
 	return a.FirstNames + " " + a.LastName
 }
+
+func (a Attorney) Signed() bool {
+	if a.SignedAt == nil {
+		return false
+	}
+
+	return !a.SignedAt.IsZero()
+}
