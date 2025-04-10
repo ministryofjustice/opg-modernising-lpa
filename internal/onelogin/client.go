@@ -14,6 +14,14 @@ import (
 
 var ErrAccessDenied = errors.New("access denied")
 
+type ConfidenceLevel uint8
+
+const (
+	ConfidenceLevelNone ConfidenceLevel = iota
+	ConfidenceLevelLow
+	ConfidenceLevelMedium
+)
+
 type Doer interface {
 	Do(r *http.Request) (*http.Response, error)
 }
@@ -57,7 +65,7 @@ func New(ctx context.Context, logger Logger, httpClient *http.Client, secretsCli
 	}
 }
 
-func (c *Client) AuthCodeURL(state, nonce, locale string, identity bool) (string, error) {
+func (c *Client) AuthCodeURL(state, nonce, locale string, confidenceLevel ConfidenceLevel) (string, error) {
 	q := url.Values{
 		"response_type": {"code"},
 		"scope":         {"openid email"},
@@ -68,8 +76,14 @@ func (c *Client) AuthCodeURL(state, nonce, locale string, identity bool) (string
 		"ui_locales":    {locale},
 	}
 
-	if identity {
-		q.Add("vtr", `["Cl.Cm.P1"]`)
+	if confidenceLevel > ConfidenceLevelNone {
+		switch confidenceLevel {
+		case ConfidenceLevelLow:
+			q.Add("vtr", `["Cl.Cm.P1"]`)
+		case ConfidenceLevelMedium:
+			q.Add("vtr", `["Cl.Cm.P2"]`)
+		}
+
 		q.Add("claims", `{"userinfo":{"https://vocab.account.gov.uk/v1/coreIdentityJWT": null,"https://vocab.account.gov.uk/v1/returnCode": null,"https://vocab.account.gov.uk/v1/address": null}}`)
 	}
 
