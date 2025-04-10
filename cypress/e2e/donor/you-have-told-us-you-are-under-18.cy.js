@@ -14,7 +14,7 @@ describe('You have told us you are under 18', () => {
             cy.checkA11yApp();
 
             cy.contains('a', 'Continue').click();
-            cy.url().should('contain', '/your-address');
+            cy.url().should('contain', '/do-you-live-in-the-uk');
         });
 
         it('can be fixed', () => {
@@ -31,7 +31,7 @@ describe('You have told us you are under 18', () => {
             cy.get('#f-date-of-birth-year').invoke('val', today.getFullYear() - 19);
             cy.contains('button', 'Save and continue').click();
 
-            cy.url().should('contain', '/your-address');
+            cy.url().should('contain', '/do-you-live-in-the-uk');
         });
     });
 

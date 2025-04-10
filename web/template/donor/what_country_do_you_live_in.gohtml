@@ -1,0 +1,37 @@
+{{ template "page" . }}
+
+{{ define "pageTitle" }}{{ tr .App "whatCountryDoYouLiveIn" }}{{ end }}
+
+{{ define "main" }}
+    <div class="govuk-grid-row">
+        <div class="govuk-grid-column-two-thirds">
+            <form novalidate method="post">
+                <div class="govuk-form-group {{ if .Errors.Has "country" }}govuk-form-group--error{{ end }}">
+                    <h1 class="govuk-label-wrapper">
+                        <label class="govuk-label govuk-label--xl" for="f-country">
+                            {{ tr .App "whatCountryDoYouLiveIn" }}
+                        </label>
+                    </h1>
+
+                    {{ template "error-message" (errorMessage . "country") }}
+
+                    <select class="govuk-select" id="f-country" name="country">
+                        {{ if not .Form.CountryCode }}
+                            <option value="" selected></option>
+                        {{ end }}
+                        {{ range .Countries }}
+                            <option value="{{ . }}" {{ if eq . $.Form.CountryCode }}selected{{ end }}>{{ tr $.App (printf "country:%s" .) }}</option>
+                        {{ end }}
+                    </select>
+                </div>
+
+                {{ if .CanTaskList }}
+                    {{ template "buttons" (button .App "continue") }}
+                {{ else }}
+                    {{ template "button" (button .App "continue") }}
+                {{ end }}
+                {{ template "csrf-field" . }}
+            </form>
+        </div>
+    </div>
+{{ end }}
