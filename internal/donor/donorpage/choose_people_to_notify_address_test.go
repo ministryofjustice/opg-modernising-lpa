@@ -577,13 +577,13 @@ func TestPostChoosePeopleToNotifyAddressReuse(t *testing.T) {
 			UID:        uid,
 			FullName:   " ",
 			ActorLabel: "personToNotify",
-			Addresses:  []place.Address{{Line1: "donor lane"}},
+			Addresses:  []place.Address{{Line1: "donor lane", Country: "GB"}},
 			TitleKeys:  testTitleKeys,
 		}).
 		Return(nil)
 
 	err := ChoosePeopleToNotifyAddress(nil, template.Execute, nil, nil)(testAppData, w, r, &donordata.Provided{
-		Donor:          donordata.Donor{Address: place.Address{Line1: "donor lane"}},
+		Donor:          donordata.Donor{Address: place.Address{Line1: "donor lane", Country: "GB"}},
 		PeopleToNotify: donordata.PeopleToNotify{{UID: uid}},
 	})
 	resp := w.Result()
@@ -648,7 +648,7 @@ func TestPostChoosePeopleToNotifyAddressReuseSelectWhenValidationError(t *testin
 				Action:     "reuse-select",
 				FieldNames: form.FieldNames.Address,
 			},
-			Addresses:  []place.Address{{Line1: "donor lane"}},
+			Addresses:  []place.Address{{Line1: "donor lane", Country: "GB"}},
 			Errors:     validation.With("select-address", validation.SelectError{Label: "anAddressFromTheList"}),
 			UID:        uid,
 			FullName:   " ",
@@ -658,7 +658,7 @@ func TestPostChoosePeopleToNotifyAddressReuseSelectWhenValidationError(t *testin
 		Return(nil)
 
 	err := ChoosePeopleToNotifyAddress(nil, template.Execute, nil, nil)(testAppData, w, r, &donordata.Provided{
-		Donor:          donordata.Donor{Address: place.Address{Line1: "donor lane"}},
+		Donor:          donordata.Donor{Address: place.Address{Line1: "donor lane", Country: "GB"}},
 		PeopleToNotify: donordata.PeopleToNotify{{UID: uid}},
 	})
 	resp := w.Result()

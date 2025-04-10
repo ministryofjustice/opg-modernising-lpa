@@ -212,14 +212,14 @@ func TestGenerateHash(t *testing.T) {
 	}
 
 	// DO change this value to match the updates
-	const modified uint64 = 0x1a12e1c9560ee113
+	const modified uint64 = 0x814b05611ef5cbaf
 
 	// DO NOT change these initial hash values. If a field has been added/removed
 	// you will need to handle the version gracefully by modifying
 	// (*Provided).HashInclude and adding another testcase for the new
 	// version.
 	testcases := map[uint8]uint64{
-		0: 0xe6934c23c7ad57b5,
+		0: 0xfa2f72f76ce2acb7,
 	}
 
 	for version, initial := range testcases {
@@ -269,13 +269,13 @@ func TestGenerateCheckedHash(t *testing.T) {
 	}
 
 	// DO change this value to match the updates
-	const modified uint64 = 0x11a7ddc4490982a6
+	const modified uint64 = 0x7ca08a475ccbc5a
 
 	// DO NOT change these initial hash values. If a field has been added/removed
 	// you will need to handle the version gracefully by modifying
 	// toCheck.HashInclude and adding another testcase for the new version.
 	testcases := map[uint8]uint64{
-		0: 0xf03839c34589438f,
+		0: 0xef46e6906761c8b9,
 	}
 
 	for version, initial := range testcases {
@@ -564,7 +564,7 @@ func TestProvidedCorrespondentEmailWhenCorrespondentProvided(t *testing.T) {
 
 func TestActorAddresses(t *testing.T) {
 	donor := &Provided{
-		Donor: Donor{Address: place.Address{Line1: "1"}},
+		Donor: Donor{Address: place.Address{Line1: "1", Country: "GB"}},
 		Attorneys: Attorneys{Attorneys: []Attorney{
 			{Address: place.Address{Line1: "2"}},
 			{Address: place.Address{Line1: "3"}},
@@ -577,7 +577,7 @@ func TestActorAddresses(t *testing.T) {
 	}
 
 	want := []place.Address{
-		{Line1: "1"},
+		{Line1: "1", Country: "GB"},
 		{Line1: "6"},
 		{Line1: "2"},
 		{Line1: "3"},
@@ -591,6 +591,29 @@ func TestActorAddresses(t *testing.T) {
 func TestActorAddressesActorWithNoAddressIgnored(t *testing.T) {
 	donor := &Provided{
 		Donor: Donor{FirstNames: "Donor", LastName: "Actor", Address: address},
+		Attorneys: Attorneys{Attorneys: []Attorney{
+			{FirstNames: "Attorney One", LastName: "Actor", Address: address},
+			{FirstNames: "Attorney Two", LastName: "Actor"},
+		}},
+		ReplacementAttorneys: Attorneys{Attorneys: []Attorney{
+			{FirstNames: "Replacement Attorney One", LastName: "Actor"},
+			{FirstNames: "Replacement Attorney Two", LastName: "Actor", Address: address},
+		}},
+		CertificateProvider: CertificateProvider{FirstNames: "Certificate Provider", LastName: "Actor"},
+	}
+
+	want := []place.Address{address}
+
+	assert.Equal(t, want, donor.ActorAddresses())
+}
+
+func TestActorAddressesActorWithNonUKAddressIgnored(t *testing.T) {
+	donor := &Provided{
+		Donor: Donor{FirstNames: "Donor", LastName: "Actor", Address: place.Address{
+			Line1:      "123 Rue Faux",
+			TownOrCity: "La Ville Fausse",
+			Country:    "FR",
+		}},
 		Attorneys: Attorneys{Attorneys: []Attorney{
 			{FirstNames: "Attorney One", LastName: "Actor", Address: address},
 			{FirstNames: "Attorney Two", LastName: "Actor"},

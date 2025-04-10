@@ -547,13 +547,13 @@ func TestPostEnterReplacementTrustCorporationAddressReuse(t *testing.T) {
 				FieldNames: form.FieldNames.Address,
 			},
 			ActorLabel: "theTrustCorporation",
-			Addresses:  []place.Address{{Line1: "donor lane"}},
+			Addresses:  []place.Address{{Line1: "donor lane", Country: "GB"}},
 			TitleKeys:  testTitleKeys,
 		}).
 		Return(nil)
 
 	err := EnterReplacementTrustCorporationAddress(nil, template.Execute, nil, nil)(testAppData, w, r, &donordata.Provided{
-		Donor:                donordata.Donor{Address: place.Address{Line1: "donor lane"}},
+		Donor:                donordata.Donor{Address: place.Address{Line1: "donor lane", Country: "GB"}},
 		ReplacementAttorneys: donordata.Attorneys{TrustCorporation: donordata.TrustCorporation{}},
 	})
 	resp := w.Result()
@@ -623,7 +623,7 @@ func TestPostEnterReplacementTrustCorporationAddressReuseSelectWhenValidationErr
 				Action:     "reuse-select",
 				FieldNames: form.FieldNames.Address,
 			},
-			Addresses:  []place.Address{{Line1: "donor lane"}},
+			Addresses:  []place.Address{{Line1: "donor lane", Country: "GB"}},
 			Errors:     validation.With("select-address", validation.SelectError{Label: "anAddressFromTheList"}),
 			ActorLabel: "theTrustCorporation",
 			TitleKeys:  testTitleKeys,
@@ -631,7 +631,7 @@ func TestPostEnterReplacementTrustCorporationAddressReuseSelectWhenValidationErr
 		Return(nil)
 
 	err := EnterReplacementTrustCorporationAddress(nil, template.Execute, nil, nil)(testAppData, w, r, &donordata.Provided{
-		Donor:                donordata.Donor{Address: place.Address{Line1: "donor lane"}},
+		Donor:                donordata.Donor{Address: place.Address{Line1: "donor lane", Country: "GB"}},
 		ReplacementAttorneys: donordata.Attorneys{TrustCorporation: donordata.TrustCorporation{}},
 	})
 	resp := w.Result()
