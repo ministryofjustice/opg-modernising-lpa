@@ -48,24 +48,33 @@ resource "aws_cloudwatch_event_target" "opg_metrics" {
   }
   input_transformer {
     input_paths = {
-      "Environment"      = "$.detail.Environment"
-      "MeasureName"      = "$.detail.MeasureName"
-      "MeasureValue"     = "$.detail.MeasureValue"
-      "MeasureValueType" = "$.detail.MeasureValueType"
-      "Subcategory"      = "$.detail.Subcategory"
-      "Time"             = "$.detail.Time"
+      "Project"          = "$.detail.metric.Project",
+      "Category"         = "$.detail.metric.Category",
+      "Subcategory"      = "$.detail.metric.Subcategory",
+      "Environment"      = "$.detail.metric.Environment",
+      "MeasureName"      = "$.detail.metric.MeasureName",
+      "MeasureValue"     = "$.detail.metric.MeasureValue",
+      "MeasureValueType" = "$.detail.metric.MeasureValueType",
+      "Time"             = "$.detail.metric.Time"
     }
     input_template = <<-EOT
       {
-        "Project": "Modernising Lasting Powers of Attorney",
-        "Category": "Make and Register a Lasting Power of Attorney Service",
-        "Subcategory": <Subcategory>,
-        "Environment": <Environment>,
-        "MeasureName": <MeasureName>,
-        "MeasureValue": <MeasureValue>,
-        "MeasureValueType": <MeasureValueType>,
-        "Time": <Time>
+        "metrics": [
+          {
+            "metric": {
+              "Project": "<Project>",
+              "Category": "<Category>",
+              "Subcategory": <Subcategory>,
+              "Environment": <Environment>,
+              "MeasureName": <MeasureName>,
+              "MeasureValue": <MeasureValue>,
+              "MeasureValueType": <MeasureValueType>,
+              "Time": <Time>
+            }
+          }
+        ]
       }
+
     EOT
   }
   provider = aws.region
