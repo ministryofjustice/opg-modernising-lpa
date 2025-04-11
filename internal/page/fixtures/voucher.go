@@ -53,7 +53,9 @@ func Voucher(
 			progress     = slices.Index(progressValues, r.FormValue("progress"))
 		)
 
-		if err := sessionStore.SetLogin(r, w, &sesh.LoginSession{Sub: voucherSub, Email: testEmail}); err != nil {
+		encodedSub := encodeSub(voucherSub)
+
+		if err := sessionStore.SetLogin(r, w, &sesh.LoginSession{Sub: mockGOLSubPrefix + encodedSub, Email: testEmail}); err != nil {
 			return err
 		}
 
@@ -64,7 +66,7 @@ func Voucher(
 		var (
 			donorSub         = random.String(16)
 			donorSessionID   = base64.StdEncoding.EncodeToString([]byte(donorSub))
-			voucherSessionID = base64.StdEncoding.EncodeToString([]byte(voucherSub))
+			voucherSessionID = base64.StdEncoding.EncodeToString([]byte(mockGOLSubPrefix + encodedSub))
 		)
 
 		createSession := &appcontext.Session{SessionID: donorSessionID}
