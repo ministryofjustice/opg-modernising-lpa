@@ -7,7 +7,7 @@ describe('How should attorneys make decisions', () => {
     });
 
     it('can choose how attorneys act - Jointly and severally', () => {
-        cy.contains('h1', 'How should your attorneys make decisions?');
+        cy.contains('h1', 'How your attorneys should make decisions');
 
         cy.get('input[name="decision-type"]').check('jointly-and-severally', { force: true });
 
@@ -17,7 +17,7 @@ describe('How should attorneys make decisions', () => {
     });
 
     it('can choose how attorneys act - Jointly', () => {
-        cy.contains('h1', 'How should your attorneys make decisions?');
+        cy.contains('h1', 'How your attorneys should make decisions');
 
         cy.get('input[name="decision-type"]').check('jointly', { force: true });
 
@@ -30,7 +30,7 @@ describe('How should attorneys make decisions', () => {
     });
 
     it('can choose how attorneys act - Jointly for some decisions, and jointly and severally for other decisions', () => {
-        cy.contains('h1', 'How should your attorneys make decisions?');
+        cy.contains('h1', 'How your attorneys should make decisions');
 
         cy.get('input[name="decision-type"]').check('jointly-for-some-severally-for-others', { force: true });
         cy.get('#f-mixed-details').invoke('val', 'some details on attorneys');
@@ -59,9 +59,9 @@ describe('How should attorneys make decisions', () => {
         cy.contains('button', 'Save and continue').click();
 
         cy.get('.govuk-error-summary').within(() => {
-            cy.contains('Enter details');
+            cy.contains('Enter a restriction stating which decisions your attorneys must make jointly');
         });
 
-        cy.contains('[for=f-mixed-details] + .govuk-error-message', 'Enter details');
+        cy.contains('[for=f-mixed-details] + p + .govuk-error-message', 'Enter a restriction stating which decisions your attorneys must make jointly');
     });
 });
