@@ -348,6 +348,28 @@ func handleCertificateProviderSubmissionCompleted(ctx context.Context, event *ev
 		now := factory.Now()
 		donor.AttorneysInvitedAt = now()
 
+		certificateProvideStore := factory.CertificateProviderStore()
+
+		certificateProvider, err := certificateProvideStore.OneByUID(ctx, v.UID)
+		if err != nil && !errors.Is(err, dynamo.NotFoundError{}) {
+			return fmt.Errorf("failed to get certificateProvider: %w", err)
+		}
+
+		if certificateProvider != nil {
+			certificateProviderCtx := appcontext.ContextWithSession(ctx, &appcontext.Session{
+				LpaID:     certificateProvider.LpaID,
+				SessionID: certificateProvider.SK.Sub(),
+			})
+
+			if err = lpaStoreClient.SendPaperCertificateProviderAccessOnline(ctx, lpa, certificateProvider.Email); err != nil {
+				return fmt.Errorf("failed to send certificate provider email to LPA store: %w", err)
+			}
+
+			if err = certificateProvideStore.Delete(certificateProviderCtx); err != nil {
+				return fmt.Errorf("failed to delete certificateProvider: %w", err)
+			}
+		}
+
 		if err := factory.ScheduledStore().DeleteAllActionByUID(ctx, []scheduled.Action{
 			scheduled.ActionRemindCertificateProviderToComplete,
 			scheduled.ActionRemindCertificateProviderToConfirmIdentity,
