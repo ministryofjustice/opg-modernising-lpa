@@ -1681,5 +1681,15 @@
     "youCanThenSendYourLpaToTheCourtOfProtection": "Welsh",
     "youHaveAlreadyProvidedTheCertificateForThisLpa": "Welsh",
     "youHaveAlreadyProvidedTheCertificateForDonorsLpaNotification": "Welsh {{ possessive .DonorFullName}} {{ .LpaType }} Welsh",
-    "youHaveAlreadyProvidedTheCertificateForThisLpaContent": "<p class=\"govuk-body\">Welsh</p><p class=\"govuk-body\">Welsh</p>"
+    "youHaveAlreadyProvidedTheCertificateForThisLpaContent": "<p class=\"govuk-body\">Welsh</p><p class=\"govuk-body\">Welsh</p>",
+    "howYourAttorneysShouldMakeDecisions": "Welsh",
+    "howYourAttorneysShouldMakeDecisionsContent": "<p class=\"govuk-body\">Welsh</p><p class=\"govuk-body\"><a href=\"{{.GuidanceLink}}\" class=\"govuk-link\" target=\"_blank\" rel=\"noreferrer noopener\">Welsh</a></p><p class=\"govuk-body\"><a href=\"{{.GuidanceLink}}\" class=\"govuk-link\" target=\"_blank\" rel=\"noreferrer noopener\">Welsh</a></p><p class=\"govuk-body\"><a href=\"{{.GuidanceLink}}\" class=\"govuk-link\" target=\"_blank\" rel=\"noreferrer noopener\">Welsh</a></p>",
+    "youCanLimitTheDecisionsByAddingRestrictions": "Welsh <a href=\"{{.GuidanceLink}}\" class=\"govuk-link\" target=\"_blank\" rel=\"noreferrer noopener\">Welsh</a>.",
+    "howWouldYouLikeYourAttorneysToAct": "Welsh",
+    "jointlyAndSeverallyValue": "Welsh",
+    "jointlyValue": "Welsh",
+    "jointlyForSomeSeverallyForOthersValue": "Welsh",
+    "useTheTextBoxToAddRestrictionForAttorneys": "Welsh",
+    "seeExamplesOfRestrictionsInstructingAttorneys": "Welsh",
+    "aRestrictionStatingWhichDecisionsYourAttorneysMustMakeJointly": "Welsh"
 }
