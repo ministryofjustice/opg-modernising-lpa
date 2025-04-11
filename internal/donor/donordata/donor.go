@@ -29,6 +29,8 @@ type Donor struct {
 	DateOfBirth date.Date `relatedhash:"-"`
 	// Address of the donor
 	Address place.Address
+	// International address of the donor
+	InternationalAddress place.InternationalAddress `relatedhash:"-"`
 	// Mobile phone number to contact the donor
 	Mobile string `checkhash:"-" relatedhash:"-"`
 	// ThinksCanSign is what the donor thinks about their ability to sign online
