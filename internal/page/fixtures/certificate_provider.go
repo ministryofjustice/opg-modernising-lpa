@@ -96,13 +96,15 @@ func CertificateProvider(
 			return tmpl(w, &fixturesData{App: appData, Sub: certificateProviderSub, DonorEmail: donorEmail})
 		}
 
+		encodedSub := encodeSub(certificateProviderSub)
+
 		var (
 			donorSub                     = random.String(16)
 			donorSessionID               = base64.StdEncoding.EncodeToString([]byte(donorSub))
-			certificateProviderSessionID = base64.StdEncoding.EncodeToString([]byte(certificateProviderSub))
+			certificateProviderSessionID = base64.StdEncoding.EncodeToString([]byte(mockGOLSubPrefix + encodedSub))
 		)
 
-		err := sessionStore.SetLogin(r, w, &sesh.LoginSession{Sub: certificateProviderSub, Email: testEmail})
+		err := sessionStore.SetLogin(r, w, &sesh.LoginSession{Sub: mockGOLSubPrefix + encodedSub, Email: testEmail})
 		if err != nil {
 			return err
 		}

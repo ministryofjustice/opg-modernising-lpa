@@ -82,15 +82,17 @@ func Supporter(
 			supporterSub = random.String(16)
 		}
 
-		supporterSessionID := base64.StdEncoding.EncodeToString([]byte(supporterSub))
+		encodedSub := encodeSub(supporterSub)
+
+		supporterSessionID := base64.StdEncoding.EncodeToString([]byte(mockGOLSubPrefix + encodedSub))
 
 		supporterCtx := appcontext.ContextWithSession(r.Context(), &appcontext.Session{SessionID: supporterSessionID, Email: testEmail})
 
-		loginSession := &sesh.LoginSession{Sub: supporterSub, Email: testEmail}
+		loginSession := &sesh.LoginSession{Sub: mockGOLSubPrefix + encodedSub, Email: testEmail}
 
 		if asMember != "" {
 			supporterCtx = appcontext.ContextWithSession(r.Context(), &appcontext.Session{SessionID: supporterSessionID, Email: asMember})
-			loginSession = &sesh.LoginSession{Sub: supporterSub, Email: asMember}
+			loginSession = &sesh.LoginSession{Sub: mockGOLSubPrefix + encodedSub, Email: asMember}
 		}
 
 		if r.Method != http.MethodPost && !r.URL.Query().Has("redirect") {
