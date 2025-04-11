@@ -17,6 +17,7 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor/actoruid"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/appcontext"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/attorney/attorneydata"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/certificateprovider/certificateproviderdata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/document"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor/donordata"
@@ -65,6 +66,8 @@ var progressValues = []string{
 	"payForTheLpa",
 	"confirmYourIdentity",
 	"signTheLpa",
+	"certificateProviderInvited",
+	"certificateProviderAccessCodeUsed",
 	"signedByCertificateProvider",
 	"signedByAttorneys",
 	"statutoryWaitingPeriod",
@@ -87,6 +90,7 @@ type FixtureData struct {
 	PaymentTaskProgress        string
 	WithVirus                  bool
 	UseRealID                  bool
+	CertificateProviderSub     string
 	CertificateProviderEmail   string
 	CertificateProviderMobile  string
 	CertificateProviderChannel string
@@ -135,6 +139,10 @@ func Donor(
 			data.DonorSub = random.String(16)
 		}
 
+		if data.CertificateProviderSub == "" {
+			data.CertificateProviderSub = random.String(16)
+		}
+
 		if r.Method != http.MethodPost && !r.URL.Query().Has("redirect") {
 			return tmpl(w, &fixturesData{
 				App:        appData,
@@ -153,12 +161,14 @@ func Donor(
 					"vouched",
 					"vouch-failed",
 				},
+				CertificateProviderSub: data.CertificateProviderSub,
 			})
 		}
 
-		donorSessionID := base64.StdEncoding.EncodeToString([]byte(data.DonorSub))
+		encodedSub := encodeSub(data.DonorSub)
+		donorSessionID := base64.StdEncoding.EncodeToString([]byte(mockGOLSubPrefix + encodedSub))
 
-		if err := sessionStore.SetLogin(r, w, &sesh.LoginSession{Sub: data.DonorSub, Email: data.DonorEmail}); err != nil {
+		if err := sessionStore.SetLogin(r, w, &sesh.LoginSession{Sub: mockGOLSubPrefix + encodedSub, Email: data.DonorEmail}); err != nil {
 			return err
 		}
 
@@ -638,59 +648,67 @@ func updateLPAProgress(
 		donorDetails.Tasks.SignTheLpa = task.StateCompleted
 	}
 
+	certificateProviderEncodedSub := encodeSub(data.CertificateProviderSub)
+	certificateProviderSessionID := base64.StdEncoding.EncodeToString([]byte(mockGOLSubPrefix + certificateProviderEncodedSub))
+	certificateProviderCtx := appcontext.ContextWithSession(r.Context(), &appcontext.Session{SessionID: certificateProviderSessionID, LpaID: donorDetails.LpaID})
+
+	if data.Progress >= slices.Index(progressValues, "certificateProviderInvited") {
+		plainCode, hashedCode := sharecodedata.Generate()
+		shareCodeData := sharecodedata.Link{
+			PK:          dynamo.ShareKey(dynamo.CertificateProviderShareKey(hashedCode.String())),
+			SK:          dynamo.ShareSortKey(dynamo.MetadataKey(hashedCode.String())),
+			ActorUID:    donorDetails.CertificateProvider.UID,
+			LpaOwnerKey: donorDetails.SK,
+			LpaUID:      donorDetails.LpaUID,
+			LpaKey:      donorDetails.PK,
+		}
+
+		err := shareCodeStore.Put(certificateProviderCtx, actor.TypeCertificateProvider, hashedCode, shareCodeData)
+		if err != nil {
+			return nil, nil, err
+		}
+
+		if err := notifyClient.SendEmail(certificateProviderCtx, notify.ToCustomEmail(localize.En, data.CertificateProviderEmail), notify.CertificateProviderInviteEmail{
+			DonorFullName:                donorDetails.Donor.FullName(),
+			LpaType:                      "Property and affairs",
+			CertificateProviderFullName:  donorDetails.CertificateProvider.FullName(),
+			DonorFirstNames:              donorDetails.Donor.FirstNames,
+			DonorFirstNamesPossessive:    donorDetails.Donor.FirstNames + "’s",
+			WhatLpaCovers:                "money, finances and any property they might own",
+			CertificateProviderStartURL:  appPublicURL + page.PathCertificateProviderEnterReferenceNumber.Format(),
+			ShareCode:                    plainCode.Plain(),
+			CertificateProviderOptOutURL: appPublicURL + page.PathCertificateProviderEnterReferenceNumberOptOut.Format(),
+		}); err != nil {
+			return nil, nil, err
+		}
+	}
+
 	var certificateProviderUID actoruid.UID
+	var certificateProvider *certificateproviderdata.Provided
+
+	if data.Progress >= slices.Index(progressValues, "certificateProviderAccessCodeUsed") {
+		var err error
+		certificateProvider, err = createCertificateProvider(certificateProviderCtx, shareCodeStore, certificateProviderStore, donorDetails)
+		if err != nil {
+			return nil, nil, err
+		}
+
+		certificateProvider.ContactLanguagePreference = localize.En
+		certificateProvider.SignedAt = donorDetails.SignedAt.AddDate(0, 0, 3)
+
+		if err := certificateProviderStore.Put(certificateProviderCtx, certificateProvider); err != nil {
+			return nil, nil, err
+		}
+
+		certificateProviderUID = certificateProvider.UID
+	}
 
 	if data.Progress >= slices.Index(progressValues, "signedByCertificateProvider") {
-		ctx := appcontext.ContextWithSession(r.Context(), &appcontext.Session{SessionID: random.String(16), LpaID: donorDetails.LpaID})
-
 		if donorDetails.CertificateProvider.CarryOutBy.IsOnline() {
-			certificateProvider, err := createCertificateProvider(ctx, shareCodeStore, certificateProviderStore, donorDetails)
-			if err != nil {
-				return nil, nil, err
-			}
-
-			certificateProvider.ContactLanguagePreference = localize.En
-			certificateProvider.SignedAt = donorDetails.SignedAt.AddDate(0, 0, 3)
-
-			if err := certificateProviderStore.Put(ctx, certificateProvider); err != nil {
-				return nil, nil, err
-			}
-
-			certificateProviderUID = certificateProvider.UID
-
 			fns = append(fns, func(ctx context.Context, client *lpastore.Client, lpa *lpadata.Lpa) error {
 				return client.SendCertificateProvider(ctx, certificateProvider, lpa)
 			})
 		} else {
-			plainCode, hashedCode := sharecodedata.Generate()
-			shareCodeData := sharecodedata.Link{
-				PK:          dynamo.ShareKey(dynamo.CertificateProviderShareKey(hashedCode.String())),
-				SK:          dynamo.ShareSortKey(dynamo.MetadataKey(hashedCode.String())),
-				ActorUID:    donorDetails.CertificateProvider.UID,
-				LpaOwnerKey: donorDetails.SK,
-				LpaUID:      donorDetails.LpaUID,
-				LpaKey:      donorDetails.PK,
-			}
-
-			err := shareCodeStore.Put(ctx, actor.TypeCertificateProvider, hashedCode, shareCodeData)
-			if err != nil {
-				return nil, nil, err
-			}
-
-			if err := notifyClient.SendEmail(ctx, notify.ToCustomEmail(localize.En, data.CertificateProviderEmail), notify.CertificateProviderInviteEmail{
-				DonorFullName:                donorDetails.Donor.FullName(),
-				LpaType:                      "Property and affairs",
-				CertificateProviderFullName:  donorDetails.CertificateProvider.FullName(),
-				DonorFirstNames:              donorDetails.Donor.FirstNames,
-				DonorFirstNamesPossessive:    donorDetails.Donor.FirstNames + "’s",
-				WhatLpaCovers:                "money, finances and any property they might own",
-				CertificateProviderStartURL:  appPublicURL + page.PathCertificateProviderEnterReferenceNumber.Format(),
-				ShareCode:                    plainCode.Plain(),
-				CertificateProviderOptOutURL: appPublicURL + page.PathCertificateProviderEnterReferenceNumberOptOut.Format(),
-			}); err != nil {
-				return nil, nil, err
-			}
-
 			fns = append(fns, func(ctx context.Context, client *lpastore.Client, lpa *lpadata.Lpa) error {
 				return client.SendPaperCertificateProviderSign(ctx, lpa.LpaUID, donorDetails.CertificateProvider)
 			})
@@ -837,6 +855,7 @@ func setFixtureData(r *http.Request) FixtureData {
 		PaymentTaskProgress:        paymentTaskProgress,
 		WithVirus:                  r.FormValue("withVirus") == "1",
 		UseRealID:                  slices.Contains(options, "uid"),
+		CertificateProviderSub:     r.FormValue("certificateProviderSub"),
 		CertificateProviderEmail:   r.FormValue("certificateProviderEmail"),
 		CertificateProviderMobile:  r.FormValue("certificateProviderMobile"),
 		CertificateProviderChannel: r.FormValue("certificateProviderChannel"),

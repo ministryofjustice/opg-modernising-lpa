@@ -58,8 +58,8 @@ Cypress.Commands.add('visitLpa', (path, opts = {}) => {
     cy.url().then(u => cy.visit(u.split('/').slice(3, -1).join('/') + path, opts));
 });
 
-// Function to poll a page until element contains text or timeout occurs
-Cypress.Commands.add('waitForTextByReloading', (selector, expectedText) => {
+// Function to poll a page until element contains or not contains text or timeout occurs
+Cypress.Commands.add('waitForTextVisibilityByReloading', (selector, expectedText, beVisible=true) => {
     const options = {
         timeout: 20000,
         interval: 500,
@@ -72,7 +72,9 @@ Cypress.Commands.add('waitForTextByReloading', (selector, expectedText) => {
             const $el = $body.find(selector);
             const found = $el.length > 0 && $el.text().includes(expectedText);
 
-            if (found) {
+            if (found && beVisible) {
+                return;
+            } else if (!found && !beVisible) {
                 return;
             }
 
