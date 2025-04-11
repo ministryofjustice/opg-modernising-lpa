@@ -46,7 +46,7 @@ describe('LPA type', () => {
 
         cy.visit('/dashboard')
 
-        cy.waitForTextByReloading('.govuk-body-s', 'M-');
+        cy.('.govuk-body-s', 'M-');
         cy.contains('.govuk-body-s', 'Reference number:')
             .invoke('text')
             .then((text) => {
