@@ -1897,5 +1897,14 @@
     "countryYouLiveIn": "Welsh",
     "iDoNotLiveInTheUk": "Welsh",
     "confirmYourIdentityNonUkContent": "Welsh",
-    "iLiveInTheUk": "Welsh"
+    "iLiveInTheUk": "Welsh",
+    "howYourAttorneysShouldMakeDecisions": "Welsh",
+    "howYourAttorneysShouldMakeDecisionsContent": "<p class=\"govuk-body\">Welsh</p><p class=\"govuk-body\"><a href=\"{{.GuidanceLink}}\" class=\"govuk-link\" target=\"_blank\" rel=\"noreferrer noopener\">Welsh</a></p><p class=\"govuk-body\"><a href=\"{{.GuidanceLink}}\" class=\"govuk-link\" target=\"_blank\" rel=\"noreferrer noopener\">Welsh</a></p><p class=\"govuk-body\"><a href=\"{{.GuidanceLink}}\" class=\"govuk-link\" target=\"_blank\" rel=\"noreferrer noopener\">Welsh</a></p><p class=\"govuk-body\"><a href=\"{{.GuidanceLink}}\" class=\"govuk-link\" target=\"_blank\" rel=\"noreferrer noopener\">Welsh</a></p>",
+    "howWouldYouLikeYourAttorneysToAct": "Welsh",
+    "jointlyAndSeverallyValue": "Welsh",
+    "jointlyValue": "Welsh",
+    "jointlyForSomeSeverallyForOthersValue": "Welsh",
+    "useTheTextBoxToAddRestrictionForAttorneys": "Welsh",
+    "seeExamplesOfRestrictionsInstructingAttorneys": "Welsh",
+    "aRestrictionStatingWhichDecisionsYourAttorneysMustMakeJointly": "Welsh"
 }
