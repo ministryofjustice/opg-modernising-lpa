@@ -256,27 +256,6 @@ func handleDonorSubmissionCompleted(ctx context.Context, client dynamodbClient, 
 		return fmt.Errorf("failed to unmarshal detail: %w", err)
 	}
 
-	lpa, err := lpaStoreClient.Lpa(ctx, v.UID)
-	if err != nil {
-		return err
-	}
-
-	// There is no certificate provider record yet, so assume English
-	to := notify.ToLpaCertificateProvider(&certificateproviderdata.Provided{ContactLanguagePreference: localize.En}, lpa)
-
-	if err := shareCodeSender.SendCertificateProviderInvite(ctx, appData, sharecode.CertificateProviderInvite{
-		LpaKey:                      lpa.LpaKey,
-		LpaOwnerKey:                 lpa.LpaOwnerKey,
-		LpaUID:                      lpa.LpaUID,
-		Type:                        lpa.Type,
-		DonorFirstNames:             lpa.Donor.FirstNames,
-		DonorFullName:               lpa.Donor.FullName(),
-		CertificateProviderUID:      lpa.CertificateProvider.UID,
-		CertificateProviderFullName: lpa.CertificateProvider.FullName(),
-	}, to); err != nil {
-		return fmt.Errorf("failed to send share code to certificate provider: %w", err)
-	}
-
 	lpaID := uuidString()
 
 	donor := &donordata.Provided{
@@ -287,6 +266,27 @@ func handleDonorSubmissionCompleted(ctx context.Context, client dynamodbClient, 
 		CreatedAt:                    now(),
 		Version:                      1,
 		CertificateProviderInvitedAt: now(),
+	}
+
+	lpa, err := lpaStoreClient.Lpa(ctx, v.UID)
+	if err != nil {
+		return err
+	}
+
+	// There is no certificate provider record yet, so assume English
+	to := notify.ToLpaCertificateProvider(&certificateproviderdata.Provided{ContactLanguagePreference: localize.En}, lpa)
+
+	if err := shareCodeSender.SendCertificateProviderInvite(ctx, appData, sharecode.CertificateProviderInvite{
+		LpaKey:                      donor.PK,
+		LpaOwnerKey:                 donor.SK,
+		LpaUID:                      lpa.LpaUID,
+		Type:                        lpa.Type,
+		DonorFirstNames:             lpa.Donor.FirstNames,
+		DonorFullName:               lpa.Donor.FullName(),
+		CertificateProviderUID:      lpa.CertificateProvider.UID,
+		CertificateProviderFullName: lpa.CertificateProvider.FullName(),
+	}, to); err != nil {
+		return fmt.Errorf("failed to send share code to certificate provider: %w", err)
 	}
 
 	transaction := dynamo.NewTransaction().

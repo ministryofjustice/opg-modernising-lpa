@@ -939,6 +939,8 @@ func TestHandleDonorSubmissionCompleted(t *testing.T) {
 	shareCodeSender := newMockShareCodeSender(t)
 	shareCodeSender.EXPECT().
 		SendCertificateProviderInvite(ctx, appData, sharecode.CertificateProviderInvite{
+			LpaKey:                      dynamo.LpaKey(testUuidString),
+			LpaOwnerKey:                 dynamo.LpaOwnerKey(dynamo.DonorKey("PAPER")),
 			DonorFirstNames:             "Dave",
 			DonorFullName:               "Dave Smith",
 			CertificateProviderUID:      uid,
