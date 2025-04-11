@@ -46,36 +46,6 @@ resource "aws_cloudwatch_event_target" "opg_metrics" {
     path_parameter_values   = []
     query_string_parameters = {}
   }
-  input_transformer {
-    input_paths = {
-      "Project"          = "$.detail.metric.Project",
-      "Category"         = "$.detail.metric.Category",
-      "Subcategory"      = "$.detail.metric.Subcategory",
-      "Environment"      = "$.detail.metric.Environment",
-      "MeasureName"      = "$.detail.metric.MeasureName",
-      "MeasureValue"     = "$.detail.metric.MeasureValue",
-      "MeasureValueType" = "$.detail.metric.MeasureValueType",
-      "Time"             = "$.detail.metric.Time"
-    }
-    input_template = <<-EOT
-      {
-        "metrics": [
-          {
-            "metric": {
-              "Project": "<Project>",
-              "Category": "<Category>",
-              "Subcategory": <Subcategory>,
-              "Environment": <Environment>,
-              "MeasureName": <MeasureName>,
-              "MeasureValue": <MeasureValue>,
-              "MeasureValueType": <MeasureValueType>,
-              "Time": <Time>
-            }
-          }
-        ]
-      }
-
-    EOT
-  }
-  provider = aws.region
+  input_path = "$.detail"
+  provider   = aws.region
 }
