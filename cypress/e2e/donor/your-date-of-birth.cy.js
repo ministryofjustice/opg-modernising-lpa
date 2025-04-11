@@ -15,7 +15,7 @@ describe('Your date of birth', () => {
             cy.get('#f-date-of-birth-year').invoke('val', '1990');
 
             cy.contains('button', 'Save and continue').click();
-            cy.url().should('contain', '/your-address');
+            cy.url().should('contain', '/do-you-live-in-the-uk');
         });
 
         it('errors when empty', () => {
@@ -42,7 +42,7 @@ describe('Your date of birth', () => {
             cy.contains('By continuing, you confirm that this person is more than 100 years old. If not, please change their date of birth.');
 
             cy.contains('button', 'Save and continue').click();
-            cy.url().should('contain', '/your-address');
+            cy.url().should('contain', '/do-you-live-in-the-uk');
         });
     });
 
@@ -54,7 +54,7 @@ describe('Your date of birth', () => {
         it('shows task list button', () => {
             cy.contains('a', 'Return to task list');
             cy.contains('button', 'Save and continue').click();
-            cy.url().should('contain', '/your-address');
+            cy.url().should('contain', '/do-you-live-in-the-uk');
         });
     });
 });

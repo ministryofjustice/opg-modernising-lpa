@@ -46,8 +46,6 @@ describe('Choose attorneys task', () => {
         });
         cy.go('back');
 
-        cy.contains('label', 'Enter a new address').click();
-        cy.contains('button', 'Continue').click();
         cy.get('#f-lookup-postcode').invoke('val', 'B14 7ED');
         cy.contains('button', 'Find address').click();
         cy.get('#f-select-address').select('2 RICHMOND PLACE, BIRMINGHAM, B14 7ED');

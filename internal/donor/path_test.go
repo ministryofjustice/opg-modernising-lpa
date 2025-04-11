@@ -25,6 +25,11 @@ func TestLpaPathFormat(t *testing.T) {
 	assert.Equal(t, "/lpa/abc/anything", Path("/anything").Format("abc"))
 }
 
+func TestLpaPathFormatQuery(t *testing.T) {
+	assert.Equal(t, "/lpa/abc/anything", Path("/anything").FormatQuery("abc", url.Values{}))
+	assert.Equal(t, "/lpa/abc/anything?a=b&c=d&c=e", Path("/anything").FormatQuery("abc", url.Values{"a": {"b"}, "c": {"d", "e"}}))
+}
+
 func TestLpaPathRedirect(t *testing.T) {
 	testCases := map[string]struct {
 		url      string
