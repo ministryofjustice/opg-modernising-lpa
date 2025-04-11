@@ -149,6 +149,9 @@ func AttorneyKey(s string) AttorneyKeyType {
 type CertificateProviderKeyType string
 
 func (t CertificateProviderKeyType) SK() string { return string(t) }
+func (t CertificateProviderKeyType) Sub() string {
+	return t.SK()[len(certificateProviderPrefix)+1:]
+}
 
 // CertificateProviderKey is used as the SK (with LpaKey as PK) for certificate
 // provider entered information.

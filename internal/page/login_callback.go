@@ -58,7 +58,7 @@ func LoginCallback(logger Logger, oneLoginClient LoginCallbackOneLoginClient, se
 			return err
 		}
 
-		if actorType != actor.TypeDonor {
+		if !actorType.IsDonor() {
 			exists, err := dashboardStore.SubExistsForActorType(r.Context(), session.SessionID(), actorType)
 
 			if err != nil {
