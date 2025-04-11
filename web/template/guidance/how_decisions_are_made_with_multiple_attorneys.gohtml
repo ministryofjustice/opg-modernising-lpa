@@ -10,7 +10,11 @@
             <span class="govuk-caption-xl">{{ tr .App "helpAndSupport" }}</span>
             <h1 class="govuk-heading-xl">{{ tr .App "howMultipleAttorneysMakeDecisions" }}</h1>
 
-            {{ trFormatHtml .App "howMultipleAttorneysMakeDecisionsContent" "AddingRestrictionsAndConditionsLink" (link .App global.Paths.AddingRestrictionsAndConditions.Format) "UnderstandingLifeSustainingTreatmentLink" (link .App global.Paths.UnderstandingLifeSustainingTreatment.Format) "ContactTheOfficeOfThePublicGuardianLink" (link .App global.Paths.ContactTheOfficeOfThePublicGuardian.Format) }}
+            {{ trFormatHtml .App "howMultipleAttorneysMakeDecisionsContent"
+                "AddingRestrictionsAndConditionsLink" (link .App global.Paths.AddingRestrictionsAndConditions.Format)
+                "UnderstandingLifeSustainingTreatmentLink" (link .App global.Paths.UnderstandingLifeSustainingTreatment.Format)
+                "ContactTheOfficeOfThePublicGuardianLink" (link .App global.Paths.ContactTheOfficeOfThePublicGuardian.Format)
+                "GlossaryLink" (link .App global.Paths.Glossary.Format) }}
         </div>
 
         <div class="govuk-grid-column-full app-back-to-top-mobile">
