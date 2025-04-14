@@ -53,7 +53,7 @@ func TestVouchFailer(t *testing.T) {
 		}).
 		Return(nil)
 
-	err := makeVouchFailer(donorStore, notifyClient, "app://")(ctx, provided, lpa)
+	err := makeVouchFailer(donorStore, notifyClient, "app:///start")(ctx, provided, lpa)
 	assert.Nil(t, err)
 }
 

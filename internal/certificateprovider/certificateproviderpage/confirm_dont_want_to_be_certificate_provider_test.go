@@ -98,7 +98,7 @@ func TestPostConfirmDontWantToBeCertificateProvider(t *testing.T) {
 				DonorFullName:                 "a b c",
 				LpaType:                       "Personal welfare",
 				LpaUID:                        "lpa-uid",
-				DonorStartPageURL:             "example.com" + page.PathStart.Format(),
+				DonorStartPageURL:             "example.com",
 			},
 		},
 		"cannot-register": {
@@ -125,7 +125,7 @@ func TestPostConfirmDontWantToBeCertificateProvider(t *testing.T) {
 				DonorFullName:                 "a b c",
 				LpaType:                       "Personal welfare",
 				LpaUID:                        "lpa-uid",
-				DonorStartPageURL:             "example.com" + page.PathStart.Format(),
+				DonorStartPageURL:             "example.com",
 			},
 		},
 		"not witnessed and signed": {
@@ -176,7 +176,7 @@ func TestPostConfirmDontWantToBeCertificateProvider(t *testing.T) {
 				DonorFullName:               "a b c",
 				LpaType:                     "Personal welfare",
 				LpaUID:                      "lpa-uid",
-				DonorStartPageURL:           "example.com" + page.PathStart.Format(),
+				DonorStartPageURL:           "example.com",
 			},
 		},
 	}

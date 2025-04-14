@@ -7,10 +7,8 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/appcontext"
 )
 
-func SignOut(logger Logger, sessionStore SessionStore, oneLoginClient OneLoginClient, appPublicURL string) Handler {
+func SignOut(logger Logger, sessionStore SessionStore, oneLoginClient OneLoginClient, donorStartURL string) Handler {
 	return func(appData appcontext.Data, w http.ResponseWriter, r *http.Request) error {
-		redirectURL := appPublicURL + PathStart.Format()
-
 		var idToken string
 		if session, err := sessionStore.Login(r); err == nil && session != nil {
 			idToken = session.IDToken
@@ -20,10 +18,10 @@ func SignOut(logger Logger, sessionStore SessionStore, oneLoginClient OneLoginCl
 			logger.InfoContext(r.Context(), "unable to expire session", slog.Any("err", err))
 		}
 
-		endSessionURL, err := oneLoginClient.EndSessionURL(idToken, redirectURL)
+		endSessionURL, err := oneLoginClient.EndSessionURL(idToken, donorStartURL)
 		if err != nil {
 			logger.InfoContext(r.Context(), "unable to end onelogin session", slog.Any("err", err))
-			endSessionURL = redirectURL
+			endSessionURL = donorStartURL
 		}
 
 		logger.InfoContext(r.Context(), "logout")

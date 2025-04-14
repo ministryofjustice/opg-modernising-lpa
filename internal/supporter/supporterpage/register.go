@@ -129,6 +129,7 @@ func Register(
 	shareCodeStore ShareCodeStore,
 	progressTracker ProgressTracker,
 	lpaStoreResolvingService LpaStoreResolvingService,
+	donorStartURL string,
 ) {
 	handleRoot := makeHandle(rootMux, sessionStore, errorHandler)
 
@@ -178,7 +179,7 @@ func Register(
 		EditMember(logger, tmpls.Get("edit_member.gohtml"), memberStore))
 
 	handleWithSupporter(supporter.PathDonorAccess, CanGoBack,
-		DonorAccess(logger, tmpls.Get("donor_access.gohtml"), donorStore, shareCodeStore, notifyClient, appPublicURL, sharecodedata.Generate))
+		DonorAccess(logger, tmpls.Get("donor_access.gohtml"), donorStore, shareCodeStore, notifyClient, donorStartURL, sharecodedata.Generate))
 }
 
 type HandleOpt byte

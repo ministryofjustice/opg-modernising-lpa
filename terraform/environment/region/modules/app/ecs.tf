@@ -503,6 +503,10 @@ locals {
           name  = "S3_UPLOADS_KMS_KEY_ALIAS"
           value = data.aws_kms_alias.reduced_fees_uploads_s3_encryption.name
         },
+        {
+          name  = "DONOR_START_URL",
+          value = var.app_env_vars.donor_start_url
+        },
       ]
     }
   )
