@@ -8,6 +8,11 @@ variable "iam_role" {
   description = "IAM role to allow cross account put to event bus"
 }
 
+variable "opg_metrics_api_destination_role" {
+  type        = any
+  description = "IAM role to allow api destination calls to opg-metrics"
+}
+
 variable "receive_account_ids" {
   type        = list(string)
   description = "IDs of accounts to receive messages from"

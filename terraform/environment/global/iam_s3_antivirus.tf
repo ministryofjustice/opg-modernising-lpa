@@ -1,3 +1,4 @@
+#  TODO: I think this role can go now
 resource "aws_iam_role" "s3_antivirus" {
   name               = "s3-antivirus-${data.aws_default_tags.current.tags.environment-name}"
   assume_role_policy = data.aws_iam_policy_document.lambda_assume.json

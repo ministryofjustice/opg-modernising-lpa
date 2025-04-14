@@ -10,6 +10,7 @@ variable "iam_roles" {
     schedule_runner_scheduler               = any
     schedule_runner_lambda                  = any
     guardduty_malware_protection            = any
+    opg_metrics                             = any
   })
   description = "ARN of IAM role that allows your Amazon ECS container task to make calls to other AWS services."
 }
