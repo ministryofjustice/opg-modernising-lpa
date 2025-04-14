@@ -229,6 +229,51 @@ func (_c *mockFactory_CertificateProviderStore_Call) RunAndReturn(run func() Cer
 	return _c
 }
 
+// DonorStartURL provides a mock function with no fields
+func (_m *mockFactory) DonorStartURL() string {
+	ret := _m.Called()
+
+	if len(ret) == 0 {
+		panic("no return value specified for DonorStartURL")
+	}
+
+	var r0 string
+	if rf, ok := ret.Get(0).(func() string); ok {
+		r0 = rf()
+	} else {
+		r0 = ret.Get(0).(string)
+	}
+
+	return r0
+}
+
+// mockFactory_DonorStartURL_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'DonorStartURL'
+type mockFactory_DonorStartURL_Call struct {
+	*mock.Call
+}
+
+// DonorStartURL is a helper method to define mock.On call
+func (_e *mockFactory_Expecter) DonorStartURL() *mockFactory_DonorStartURL_Call {
+	return &mockFactory_DonorStartURL_Call{Call: _e.mock.On("DonorStartURL")}
+}
+
+func (_c *mockFactory_DonorStartURL_Call) Run(run func()) *mockFactory_DonorStartURL_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		run()
+	})
+	return _c
+}
+
+func (_c *mockFactory_DonorStartURL_Call) Return(_a0 string) *mockFactory_DonorStartURL_Call {
+	_c.Call.Return(_a0)
+	return _c
+}
+
+func (_c *mockFactory_DonorStartURL_Call) RunAndReturn(run func() string) *mockFactory_DonorStartURL_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
 // DynamoClient provides a mock function with no fields
 func (_m *mockFactory) DynamoClient() dynamodbClient {
 	ret := _m.Called()
