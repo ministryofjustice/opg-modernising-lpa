@@ -21,7 +21,7 @@ type confirmDontWantToBeCertificateProviderData struct {
 	Lpa    *lpadata.Lpa
 }
 
-func ConfirmDontWantToBeCertificateProvider(tmpl template.Template, lpaStoreClient LpaStoreClient, donorStore DonorStore, certificateProviderStore CertificateProviderStore, notifyClient NotifyClient, appPublicURL string) Handler {
+func ConfirmDontWantToBeCertificateProvider(tmpl template.Template, lpaStoreClient LpaStoreClient, donorStore DonorStore, certificateProviderStore CertificateProviderStore, notifyClient NotifyClient, donorStartURL string) Handler {
 	return func(appData appcontext.Data, w http.ResponseWriter, r *http.Request, certificateProvider *certificateproviderdata.Provided, lpa *lpadata.Lpa) error {
 		data := &confirmDontWantToBeCertificateProviderData{
 			App: appData,
@@ -39,7 +39,7 @@ func ConfirmDontWantToBeCertificateProvider(tmpl template.Template, lpaStoreClie
 					DonorFullName:                 lpa.Donor.FullName(),
 					LpaType:                       appData.Localizer.T(lpa.Type.String()),
 					LpaUID:                        lpa.LpaUID,
-					DonorStartPageURL:             appPublicURL + page.PathStart.Format(),
+					DonorStartPageURL:             donorStartURL,
 				}
 
 				if !lpa.Status.IsCannotRegister() {
@@ -59,7 +59,7 @@ func ConfirmDontWantToBeCertificateProvider(tmpl template.Template, lpaStoreClie
 					DonorFullName:               donor.Donor.FullName(),
 					LpaType:                     appData.Localizer.T(donor.Type.String()),
 					LpaUID:                      donor.LpaUID,
-					DonorStartPageURL:           appPublicURL + page.PathStart.Format(),
+					DonorStartPageURL:           donorStartURL,
 				}
 
 				donor.CertificateProvider = donordata.CertificateProvider{}

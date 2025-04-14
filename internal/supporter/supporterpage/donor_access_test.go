@@ -166,7 +166,7 @@ func TestPostDonorAccess(t *testing.T) {
 		Return("Translation")
 	testLpaAppData.Localizer = localizer
 
-	err := DonorAccess(nil, nil, donorStore, shareCodeStore, notifyClient, "http://whatever", testGenerateFn)(testLpaAppData, w, r, &supporterdata.Organisation{PK: dynamo.OrganisationKey("org-id"), ID: "org-id", Name: "Helpers"}, &supporterdata.Member{FirstNames: "John", LastName: "Smith"})
+	err := DonorAccess(nil, nil, donorStore, shareCodeStore, notifyClient, "http://whatever/start", testGenerateFn)(testLpaAppData, w, r, &supporterdata.Organisation{PK: dynamo.OrganisationKey("org-id"), ID: "org-id", Name: "Helpers"}, &supporterdata.Member{FirstNames: "John", LastName: "Smith"})
 	resp := w.Result()
 
 	assert.Nil(t, err)
