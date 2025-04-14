@@ -10,7 +10,13 @@
             <span class="govuk-caption-xl">{{ tr .App "helpAndSupport" }}</span>
             <h1 class="govuk-heading-xl">{{ tr .App "addingRestrictionsAndConditionsToTheLPA" }}</h1>
 
-            {{ trFormatHtml .App "addingRestrictionsAndConditionsToTheLPAContent" "UnderstandingMentalCapacityLink" (link .App global.Paths.UnderstandingMentalCapacity.Format) "UnderstandingLifeSustainingTreatmentLink" (link .App global.Paths.UnderstandingLifeSustainingTreatment.Format) "HowDecisionsAreMadeWithMultipleAttorneysLink" (link .App global.Paths.HowDecisionsAreMadeWithMultipleAttorneys.Format) "ReplacementAttorneysLink" (link .App global.Paths.ReplacementAttorneys.Format) "HowDecisionsAreMadeWithMultipleAttorneys" (link .App global.Paths.HowDecisionsAreMadeWithMultipleAttorneys.Format) }}
+            {{ trFormatHtml .App "addingRestrictionsAndConditionsToTheLPAContent"
+                "UnderstandingMentalCapacityLink" (link .App global.Paths.UnderstandingMentalCapacity.Format)
+                "UnderstandingLifeSustainingTreatmentLink" (link .App global.Paths.UnderstandingLifeSustainingTreatment.Format)
+                "HowDecisionsAreMadeWithMultipleAttorneysLink" (link .App global.Paths.HowDecisionsAreMadeWithMultipleAttorneys.Format)
+                "ReplacementAttorneysLink" (link .App global.Paths.ReplacementAttorneys.Format)
+                "HowDecisionsAreMadeWithMultipleAttorneys" (link .App global.Paths.HowDecisionsAreMadeWithMultipleAttorneys.Format)
+                "GlossaryLink" (link .App global.Paths.Glossary.Format) }}
         </div>
 
         <div class="govuk-grid-column-full app-back-to-top-mobile">
