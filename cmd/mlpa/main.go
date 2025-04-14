@@ -81,8 +81,11 @@ func main() {
 
 func run(ctx context.Context, logger *slog.Logger) error {
 	var (
-		devMode               = os.Getenv("DEV_MODE") == "1"
-		appPublicURL          = cmp.Or(os.Getenv("APP_PUBLIC_URL"), "http://localhost:5050")
+		devMode       = os.Getenv("DEV_MODE") == "1"
+		appPublicURL  = cmp.Or(os.Getenv("APP_PUBLIC_URL"), "http://localhost:5050")
+		donorStartURL = cmp.Or(os.Getenv("DONOR_START_URL"), appPublicURL+page.PathStart.Format())
+		// certificateProviderStartURL = cmp.Or(os.Getenv("CERTIFICATE_PROVIDER_START_URL"), appPublicURL+page.PathCertificateProviderStart.Format())
+		// attorneyStartURL            = cmp.Or(os.Getenv("ATTORNEY_START_URL"), appPublicURL+page.PathAttorneyStart.Format())
 		authRedirectBaseURL   = cmp.Or(os.Getenv("AUTH_REDIRECT_BASE_URL"), "http://localhost:5050")
 		webDir                = cmp.Or(os.Getenv("WEB_DIR"), "web")
 		awsBaseURL            = os.Getenv("AWS_BASE_URL")
@@ -158,13 +161,14 @@ func run(ctx context.Context, logger *slog.Logger) error {
 	}
 
 	layouts, err := parseLayoutTemplates(webDir+"/template/layout", templatefn.All(&templatefn.Globals{
-		DevMode:     devMode,
-		Tag:         Tag,
-		Region:      region,
-		OneloginURL: oneloginURL,
-		StaticHash:  staticHash,
-		RumConfig:   rumConfig,
-		ActorTypes:  actor.TypeValues,
+		DevMode:       devMode,
+		Tag:           Tag,
+		Region:        region,
+		OneloginURL:   oneloginURL,
+		StaticHash:    staticHash,
+		RumConfig:     rumConfig,
+		ActorTypes:    actor.TypeValues,
+		DonorStartURL: donorStartURL,
 	}))
 	if err != nil {
 		return err
@@ -315,6 +319,7 @@ func run(ctx context.Context, logger *slog.Logger) error {
 		lpaStoreClient,
 		searchClient,
 		useURL,
+		donorStartURL,
 	)))
 
 	mux.Handle("/", app.App(
@@ -341,6 +346,7 @@ func run(ctx context.Context, logger *slog.Logger) error {
 		lpaStoreClient,
 		searchClient,
 		useURL,
+		donorStartURL,
 	))
 
 	var handler http.Handler = mux
