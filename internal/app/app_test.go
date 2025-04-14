@@ -19,7 +19,6 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/localize"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/notify"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/onelogin"
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/pay"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/place"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/search"
@@ -94,7 +93,7 @@ func (m *mockDynamoClient) ExpectOneByPK(ctx, pk, data interface{}, err error) {
 }
 
 func TestApp(t *testing.T) {
-	app := App(true, &slog.Logger{}, &localize.Bundle{}, localize.En, template.Templates{}, template.Templates{}, template.Templates{}, template.Templates{}, template.Templates{}, template.Templates{}, template.Templates{}, nil, nil, "http://public.url", &pay.Client{}, &notify.Client{}, &place.Client{}, &onelogin.Client{}, nil, nil, nil, &search.Client{}, "http://use.url")
+	app := App(true, &slog.Logger{}, &localize.Bundle{}, localize.En, template.Templates{}, template.Templates{}, template.Templates{}, template.Templates{}, template.Templates{}, template.Templates{}, template.Templates{}, nil, nil, "http://public.url", &pay.Client{}, &notify.Client{}, &place.Client{}, &onelogin.Client{}, nil, nil, nil, &search.Client{}, "http://use.url", "http://donor.url")
 
 	assert.Implements(t, (*http.Handler)(nil), app)
 }
@@ -104,7 +103,7 @@ func TestMakeHandle(t *testing.T) {
 	r, _ := http.NewRequest(http.MethodGet, "/path?a=b", nil)
 
 	mux := http.NewServeMux()
-	handle := makeHandle(mux, nil, nil)
+	handle := makeHandle(mux, nil, nil, "http://example.com/donor")
 	handle("/path", None, func(appData appcontext.Data, hw http.ResponseWriter, hr *http.Request) error {
 		assert.Equal(t, appcontext.Data{
 			Page: "/path",
@@ -131,7 +130,7 @@ func TestMakeHandleRequireSession(t *testing.T) {
 		Return(&sesh.LoginSession{Sub: "random"}, nil)
 
 	mux := http.NewServeMux()
-	handle := makeHandle(mux, nil, sessionStore)
+	handle := makeHandle(mux, nil, sessionStore, "http://example.com/donor")
 	handle("/path", RequireSession, func(appData appcontext.Data, hw http.ResponseWriter, hr *http.Request) error {
 		assert.Equal(t, appcontext.Data{
 			Page:      "/path",
@@ -162,14 +161,14 @@ func TestMakeHandleRequireSessionError(t *testing.T) {
 		Return(nil, expectedError)
 
 	mux := http.NewServeMux()
-	handle := makeHandle(mux, nil, sessionStore)
+	handle := makeHandle(mux, nil, sessionStore, "http://example.com/donor")
 	handle("/path", RequireSession, func(_ appcontext.Data, _ http.ResponseWriter, _ *http.Request) error { return nil })
 
 	mux.ServeHTTP(w, r)
 	resp := w.Result()
 
 	assert.Equal(t, http.StatusFound, resp.StatusCode)
-	assert.Equal(t, page.PathStart.Format(), resp.Header.Get("Location"))
+	assert.Equal(t, "http://example.com/donor", resp.Header.Get("Location"))
 }
 
 func TestMakeHandleWhenError(t *testing.T) {
@@ -181,7 +180,7 @@ func TestMakeHandleWhenError(t *testing.T) {
 		Execute(w, r, expectedError)
 
 	mux := http.NewServeMux()
-	handle := makeHandle(mux, errorHandler.Execute, nil)
+	handle := makeHandle(mux, errorHandler.Execute, nil, "http://example.com/donor")
 	handle("/path", None, func(appData appcontext.Data, hw http.ResponseWriter, hr *http.Request) error {
 		return expectedError
 	})

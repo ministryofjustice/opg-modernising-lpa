@@ -264,3 +264,9 @@ func TestFactoryAppPublicURL(t *testing.T) {
 
 	assert.Equal(t, "a", factory.AppPublicURL())
 }
+
+func TestFactoryDonorStartURL(t *testing.T) {
+	factory := &Factory{donorStartURL: "a"}
+
+	assert.Equal(t, "a", factory.DonorStartURL())
+}
