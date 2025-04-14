@@ -27,7 +27,7 @@ type donorAccessData struct {
 	ShareCode *sharecodedata.Link
 }
 
-func DonorAccess(logger Logger, tmpl template.Template, donorStore DonorStore, shareCodeStore ShareCodeStore, notifyClient NotifyClient, appPublicURL string, generate func() (sharecodedata.PlainText, sharecodedata.Hashed)) Handler {
+func DonorAccess(logger Logger, tmpl template.Template, donorStore DonorStore, shareCodeStore ShareCodeStore, notifyClient NotifyClient, donorStartURL string, generate func() (sharecodedata.PlainText, sharecodedata.Hashed)) Handler {
 	return func(appData appcontext.Data, w http.ResponseWriter, r *http.Request, organisation *supporterdata.Organisation, member *supporterdata.Member) error {
 		donor, err := donorStore.Get(r.Context())
 		if err != nil {
@@ -108,7 +108,7 @@ func DonorAccess(logger Logger, tmpl template.Template, donorStore DonorStore, s
 					OrganisationName:  organisation.Name,
 					LpaType:           localize.LowerFirst(appData.Localizer.T(donor.Type.String())),
 					DonorName:         donor.Donor.FullName(),
-					URL:               appPublicURL + page.PathStart.Format(),
+					URL:               donorStartURL,
 					ShareCode:         plainCode.Plain(),
 				}); err != nil {
 					return err

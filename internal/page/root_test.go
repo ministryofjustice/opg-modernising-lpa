@@ -13,11 +13,11 @@ func TestRoot(t *testing.T) {
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest(http.MethodGet, "/", nil)
 
-	Root(nil, nil)(TestAppData, w, r)
+	Root(nil, nil, "http://example.com/somewhere")(TestAppData, w, r)
 
 	resp := w.Result()
 	assert.Equal(t, http.StatusFound, resp.StatusCode)
-	assert.Equal(t, PathStart.Format(), resp.Header.Get("Location"))
+	assert.Equal(t, "http://example.com/somewhere", resp.Header.Get("Location"))
 }
 
 func TestRootNotFound(t *testing.T) {
@@ -29,7 +29,7 @@ func TestRootNotFound(t *testing.T) {
 		Execute(w, &rootData{App: TestAppData}).
 		Return(nil)
 
-	Root(template.Execute, nil)(TestAppData, w, r)
+	Root(template.Execute, nil, "")(TestAppData, w, r)
 
 	resp := w.Result()
 	assert.Equal(t, http.StatusNotFound, resp.StatusCode)
@@ -48,5 +48,5 @@ func TestRootNotFoundTemplateErrors(t *testing.T) {
 	logger.EXPECT().
 		ErrorContext(r.Context(), "error rendering page", slog.Any("req", r), slog.Any("err", expectedError))
 
-	Root(template.Execute, logger)(TestAppData, w, r)
+	Root(template.Execute, logger, "")(TestAppData, w, r)
 }

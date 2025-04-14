@@ -25,6 +25,7 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/localize"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/lpastore/lpadata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/notify"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/pay"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/random"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/s3"
@@ -44,6 +45,7 @@ var (
 	tableName             = os.Getenv("LPAS_TABLE")
 	notifyIsProduction    = os.Getenv("GOVUK_NOTIFY_IS_PRODUCTION") == "1"
 	appPublicURL          = os.Getenv("APP_PUBLIC_URL")
+	donorStartURL         = cmp.Or(os.Getenv("DONOR_START_URL"), appPublicURL+page.PathStart.Format())
 	awsBaseURL            = os.Getenv("AWS_BASE_URL")
 	notifyBaseURL         = os.Getenv("GOVUK_NOTIFY_BASE_URL")
 	evidenceBucketName    = os.Getenv("UPLOADS_S3_BUCKET_NAME")
@@ -65,6 +67,7 @@ var (
 type factory interface {
 	AppData() (appcontext.Data, error)
 	AppPublicURL() string
+	DonorStartURL() string
 	Bundle() (Bundle, error)
 	CertificateProviderStore() CertificateProviderStore
 	DynamoClient() dynamodbClient
@@ -198,6 +201,7 @@ func handler(ctx context.Context, event Event) (map[string]any, error) {
 		cfg:                   cfg,
 		dynamoClient:          dynamoClient,
 		appPublicURL:          appPublicURL,
+		donorStartURL:         donorStartURL,
 		lpaStoreBaseURL:       lpaStoreBaseURL,
 		lpaStoreSecretARN:     lpaStoreSecretARN,
 		uidBaseURL:            uidBaseURL,
