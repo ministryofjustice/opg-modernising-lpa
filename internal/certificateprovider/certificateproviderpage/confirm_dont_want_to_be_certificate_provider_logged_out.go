@@ -23,7 +23,7 @@ type confirmDontWantToBeCertificateProviderDataLoggedOut struct {
 	Lpa    *lpadata.Lpa
 }
 
-func ConfirmDontWantToBeCertificateProviderLoggedOut(tmpl template.Template, shareCodeStore ShareCodeStore, lpaStoreResolvingService LpaStoreResolvingService, lpaStoreClient LpaStoreClient, donorStore DonorStore, sessionStore SessionStore, notifyClient NotifyClient, appPublicURL string) page.Handler {
+func ConfirmDontWantToBeCertificateProviderLoggedOut(tmpl template.Template, shareCodeStore ShareCodeStore, lpaStoreResolvingService LpaStoreResolvingService, lpaStoreClient LpaStoreClient, donorStore DonorStore, sessionStore SessionStore, notifyClient NotifyClient, donorStartURL string) page.Handler {
 	return func(appData appcontext.Data, w http.ResponseWriter, r *http.Request) error {
 		session, err := sessionStore.LpaData(r)
 		if err != nil {
@@ -60,7 +60,7 @@ func ConfirmDontWantToBeCertificateProviderLoggedOut(tmpl template.Template, sha
 					DonorFullName:                 lpa.Donor.FullName(),
 					LpaType:                       appData.Localizer.T(lpa.Type.String()),
 					LpaUID:                        lpa.LpaUID,
-					DonorStartPageURL:             appPublicURL + page.PathStart.Format(),
+					DonorStartPageURL:             donorStartURL,
 				}
 
 				if !lpa.Status.IsCannotRegister() {
@@ -80,7 +80,7 @@ func ConfirmDontWantToBeCertificateProviderLoggedOut(tmpl template.Template, sha
 					DonorFullName:               donor.Donor.FullName(),
 					LpaType:                     appData.Localizer.T(donor.Type.String()),
 					LpaUID:                      donor.LpaUID,
-					DonorStartPageURL:           appPublicURL + page.PathStart.Format(),
+					DonorStartPageURL:           donorStartURL,
 				}
 
 				donor.CertificateProvider = donordata.CertificateProvider{}
