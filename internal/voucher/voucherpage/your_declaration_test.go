@@ -15,7 +15,7 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/lpastore/lpadata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/notify"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
-	scheduled "github.com/ministryofjustice/opg-modernising-lpa/internal/scheduled"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/scheduled"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/task"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/validation"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/voucher"
@@ -237,7 +237,7 @@ func TestPostYourDeclaration(t *testing.T) {
 				}).
 				Return(nil)
 
-			err := YourDeclaration(nil, lpaStoreResolvingService, voucherStore, donorStore, notifyClient, nil, scheduledStore, testNowFn, "app://")(testAppData, w, r, &voucherdata.Provided{LpaID: "lpa-id", FirstNames: "Vivian", LastName: "Voucher"})
+			err := YourDeclaration(nil, lpaStoreResolvingService, voucherStore, donorStore, notifyClient, nil, scheduledStore, testNowFn, "app:///start")(testAppData, w, r, &voucherdata.Provided{LpaID: "lpa-id", FirstNames: "Vivian", LastName: "Voucher"})
 			resp := w.Result()
 
 			assert.Nil(t, err)
@@ -329,7 +329,7 @@ func TestPostYourDeclarationWhenSubmitted(t *testing.T) {
 		}).
 		Return(nil)
 
-	err := YourDeclaration(nil, lpaStoreResolvingService, voucherStore, donorStore, notifyClient, lpaStoreClient, scheduledStore, testNowFn, "app://")(testAppData, w, r, &voucherdata.Provided{LpaID: "lpa-id", FirstNames: "Vivian", LastName: "Voucher"})
+	err := YourDeclaration(nil, lpaStoreResolvingService, voucherStore, donorStore, notifyClient, lpaStoreClient, scheduledStore, testNowFn, "app:///start")(testAppData, w, r, &voucherdata.Provided{LpaID: "lpa-id", FirstNames: "Vivian", LastName: "Voucher"})
 	resp := w.Result()
 
 	assert.Nil(t, err)
@@ -380,7 +380,7 @@ func TestPostYourDeclarationWhenSubmittedAndLpaStoreClientErrors(t *testing.T) {
 		SendDonorConfirmIdentity(mock.Anything, mock.Anything).
 		Return(expectedError)
 
-	err := YourDeclaration(nil, lpaStoreResolvingService, voucherStore, donorStore, notifyClient, lpaStoreClient, nil, testNowFn, "app://")(testAppData, w, r, &voucherdata.Provided{LpaID: "lpa-id", FirstNames: "Vivian", LastName: "Voucher"})
+	err := YourDeclaration(nil, lpaStoreResolvingService, voucherStore, donorStore, notifyClient, lpaStoreClient, nil, testNowFn, "app:///start")(testAppData, w, r, &voucherdata.Provided{LpaID: "lpa-id", FirstNames: "Vivian", LastName: "Voucher"})
 	assert.ErrorIs(t, err, expectedError)
 }
 
@@ -483,7 +483,7 @@ func TestPostYourDeclarationWhenNotifyClientErrors(t *testing.T) {
 			notifyClient := newMockNotifyClient(t)
 			tc.setupNotify(notifyClient)
 
-			err := YourDeclaration(nil, lpaStoreResolvingService, nil, nil, notifyClient, nil, nil, testNowFn, "app://")(testAppData, w, r, &voucherdata.Provided{LpaID: "lpa-id", FirstNames: "Vivian", LastName: "Voucher"})
+			err := YourDeclaration(nil, lpaStoreResolvingService, nil, nil, notifyClient, nil, nil, testNowFn, "app:///start")(testAppData, w, r, &voucherdata.Provided{LpaID: "lpa-id", FirstNames: "Vivian", LastName: "Voucher"})
 
 			assert.ErrorIs(t, err, expectedError)
 		})

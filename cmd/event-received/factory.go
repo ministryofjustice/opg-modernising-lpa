@@ -74,6 +74,7 @@ type Factory struct {
 	cfg                   aws.Config
 	dynamoClient          dynamodbClient
 	appPublicURL          string
+	donorStartURL         string
 	lpaStoreBaseURL       string
 	lpaStoreSecretARN     string
 	uidBaseURL            string
@@ -261,4 +262,8 @@ func (f *Factory) CertificateProviderStore() CertificateProviderStore {
 
 func (f *Factory) AppPublicURL() string {
 	return f.appPublicURL
+}
+
+func (f *Factory) DonorStartURL() string {
+	return f.donorStartURL
 }
