@@ -150,3 +150,7 @@ func TestScheduledDayKeyTypeHandled(t *testing.T) {
 
 	assert.Equal(t, key.PK()+"#HANDLED", key.Handled().PK())
 }
+
+func TestCertificateProviderKeyTypeSub(t *testing.T) {
+	assert.Equal(t, "xyz", CertificateProviderKey("xyz").Sub())
+}

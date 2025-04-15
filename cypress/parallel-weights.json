@@ -1,50 +1,50 @@
 {
     "cypress/e2e/accessibility/data-loss-warning.cy.js": {
-        "time": 1819,
-        "weight": 4
+        "time": 1880,
+        "weight": 5
     },
     "cypress/e2e/attorney/confirm-your-details.cy.js": {
-        "time": 4411,
-        "weight": 11
+        "time": 3855,
+        "weight": 10
     },
     "cypress/e2e/attorney/language-preferences.cy.js": {
-        "time": 1035,
-        "weight": 2
+        "time": 1084,
+        "weight": 3
     },
     "cypress/e2e/attorney/legal-rights-and-responsibilities.cy.js": {
-        "time": 566,
+        "time": 531,
         "weight": 1
     },
     "cypress/e2e/attorney/opt-out.cy.js": {
-        "time": 1072,
+        "time": 970,
         "weight": 2
     },
     "cypress/e2e/attorney/phone-number.cy.js": {
-        "time": 1563,
-        "weight": 4
+        "time": 1144,
+        "weight": 3
     },
     "cypress/e2e/attorney/progress.cy.js": {
-        "time": 1157,
+        "time": 1400,
         "weight": 3
     },
     "cypress/e2e/attorney/read-the-lpa.cy.js": {
-        "time": 523,
+        "time": 440,
         "weight": 1
     },
     "cypress/e2e/attorney/sign.cy.js": {
-        "time": 3941,
-        "weight": 10
+        "time": 3927,
+        "weight": 11
     },
     "cypress/e2e/attorney/start.cy.js": {
-        "time": 114,
+        "time": 125,
         "weight": 0
     },
     "cypress/e2e/attorney/task-list.cy.js": {
-        "time": 450,
+        "time": 387,
         "weight": 1
     },
     "cypress/e2e/attorney/trust-corporation.cy.js": {
-        "time": 7761,
+        "time": 7283,
         "weight": 20
     },
     "cypress/e2e/attorney/what-happens-when-you-sign-the-lpa.cy.js": {
@@ -52,383 +52,399 @@
         "weight": 2
     },
     "cypress/e2e/certificate-provider/certificate-provided.cy.js": {
-        "time": 1007,
+        "time": 913,
         "weight": 2
     },
     "cypress/e2e/certificate-provider/choose-not-to-be-a-certificate-provider.cy.js": {
-        "time": 1410,
+        "time": 1378,
         "weight": 3
     },
     "cypress/e2e/certificate-provider/confirm-your-details.cy.js": {
-        "time": 3236,
-        "weight": 8
+        "time": 2442,
+        "weight": 6
     },
     "cypress/e2e/certificate-provider/confirm-your-identity.cy.js": {
-        "time": 5982,
+        "time": 5480,
         "weight": 15
     },
     "cypress/e2e/certificate-provider/dashboard.cy.js": {
-        "time": 1170,
-        "weight": 3
+        "time": 1039,
+        "weight": 2
     },
     "cypress/e2e/certificate-provider/enter-date-of-birth.cy.js": {
-        "time": 2729,
-        "weight": 7
+        "time": 2876,
+        "weight": 8
     },
     "cypress/e2e/certificate-provider/enter-reference-number.cy.js": {
-        "time": 3804,
-        "weight": 9
+        "time": 3900,
+        "weight": 11
+    },
+    "cypress/e2e/certificate-provider/hybrid-channels.cy.js": {
+        "time": 10698,
+        "weight": 30
     },
     "cypress/e2e/certificate-provider/language-preferences.cy.js": {
-        "time": 884,
+        "time": 944,
         "weight": 2
     },
     "cypress/e2e/certificate-provider/provide-certificate.cy.js": {
-        "time": 1605,
-        "weight": 4
+        "time": 2246,
+        "weight": 6
     },
     "cypress/e2e/certificate-provider/read-the-lpa.cy.js": {
-        "time": 1243,
-        "weight": 3
+        "time": 1010,
+        "weight": 2
     },
     "cypress/e2e/certificate-provider/start.cy.js": {
-        "time": 615,
+        "time": 606,
         "weight": 1
     },
     "cypress/e2e/certificate-provider/task-list.cy.js": {
-        "time": 513,
+        "time": 418,
         "weight": 1
     },
     "cypress/e2e/certificate-provider/what-is-your-home-address.cy.js": {
-        "time": 5327,
-        "weight": 13
+        "time": 4137,
+        "weight": 11
     },
     "cypress/e2e/certificate-provider/who-is-eligible.cy.js": {
-        "time": 610,
+        "time": 479,
         "weight": 1
     },
     "cypress/e2e/dev-features.cy.js": {
-        "time": 270,
+        "time": 328,
         "weight": 0
     },
     "cypress/e2e/donor/add-correspondent.cy.js": {
-        "time": 6486,
-        "weight": 16
+        "time": 6316,
+        "weight": 17
     },
     "cypress/e2e/donor/can-you-sign-your-lpa.cy.js": {
-        "time": 848,
+        "time": 875,
         "weight": 2
     },
     "cypress/e2e/donor/certificate-provider.cy.js": {
-        "time": 11377,
-        "weight": 29
+        "time": 11323,
+        "weight": 32
     },
     "cypress/e2e/donor/check-you-can-sign.cy.js": {
-        "time": 852,
+        "time": 824,
         "weight": 2
     },
     "cypress/e2e/donor/check-your-details.cy.js": {
-        "time": 2145,
+        "time": 1794,
         "weight": 5
     },
     "cypress/e2e/donor/check-your-lpa.cy.js": {
-        "time": 8903,
-        "weight": 23
+        "time": 7962,
+        "weight": 22
     },
     "cypress/e2e/donor/choose-attorneys-address.cy.js": {
-        "time": 6586,
+        "time": 6232,
         "weight": 17
     },
     "cypress/e2e/donor/choose-attorneys-summary.cy.js": {
-        "time": 5032,
-        "weight": 13
+        "time": 3892,
+        "weight": 11
     },
     "cypress/e2e/donor/choose-attorneys-task.cy.js": {
-        "time": 6218,
-        "weight": 16
+        "time": 6480,
+        "weight": 18
     },
     "cypress/e2e/donor/choose-attorneys.cy.js": {
-        "time": 5602,
-        "weight": 14
+        "time": 4186,
+        "weight": 11
     },
     "cypress/e2e/donor/choose-people-to-notify-address.cy.js": {
-        "time": 2850,
+        "time": 2801,
         "weight": 7
     },
     "cypress/e2e/donor/choose-replacement-attorneys-address.cy.js": {
-        "time": 5292,
-        "weight": 13
+        "time": 5104,
+        "weight": 14
     },
     "cypress/e2e/donor/choose-replacement-attorneys-summary.cy.js": {
-        "time": 4159,
-        "weight": 10
+        "time": 3971,
+        "weight": 11
     },
     "cypress/e2e/donor/choose-replacement-attorneys-task.cy.js": {
-        "time": 45895,
-        "weight": 119
+        "time": 40769,
+        "weight": 115
     },
     "cypress/e2e/donor/choose-replacement-attorneys.cy.js": {
-        "time": 4890,
-        "weight": 12
+        "time": 4829,
+        "weight": 13
     },
     "cypress/e2e/donor/choose-someone-to-vouch-for-you.cy.js": {
-        "time": 610,
+        "time": 571,
         "weight": 1
     },
     "cypress/e2e/donor/confirm-person-allowed-to-vouch.cy.js": {
-        "time": 1570,
+        "time": 1585,
         "weight": 4
     },
     "cypress/e2e/donor/confirm-your-certificate-provider-is-not-related.cy.js": {
-        "time": 2014,
-        "weight": 5
+        "time": 1270,
+        "weight": 3
     },
     "cypress/e2e/donor/confirm-your-identity.cy.js": {
-        "time": 10890,
-        "weight": 28
+        "time": 10593,
+        "weight": 29
     },
     "cypress/e2e/donor/cost-of-repeat-application.cy.js": {
-        "time": 966,
-        "weight": 2
+        "time": 701,
+        "weight": 1
     },
     "cypress/e2e/donor/dashboard.cy.js": {
-        "time": 4337,
+        "time": 3950,
         "weight": 11
     },
     "cypress/e2e/donor/delete-lpa.cy.js": {
-        "time": 1394,
+        "time": 867,
+        "weight": 2
+    },
+    "cypress/e2e/donor/do-you-live-in-the-uk.cy.js": {
+        "time": 1305,
         "weight": 3
     },
     "cypress/e2e/donor/enter-access-code.cy.js": {
-        "time": 648,
+        "time": 622,
         "weight": 1
     },
     "cypress/e2e/donor/enter-replacement-trust-corporation-address.cy.js": {
-        "time": 6124,
-        "weight": 15
+        "time": 5960,
+        "weight": 16
     },
     "cypress/e2e/donor/enter-replacement-trust-corporation.cy.js": {
-        "time": 861,
+        "time": 829,
         "weight": 2
     },
     "cypress/e2e/donor/enter-trust-corporation-address.cy.js": {
-        "time": 5648,
-        "weight": 14
+        "time": 5760,
+        "weight": 16
     },
     "cypress/e2e/donor/enter-trust-corporation.cy.js": {
         "time": 851,
         "weight": 2
     },
     "cypress/e2e/donor/enter-voucher.cy.js": {
-        "time": 1048,
+        "time": 967,
         "weight": 2
     },
     "cypress/e2e/donor/how-should-attorneys-make-decisions.cy.js": {
-        "time": 2717,
-        "weight": 7
+        "time": 2337,
+        "weight": 6
     },
     "cypress/e2e/donor/how-should-replacement-attorneys-make-decisions.cy.js": {
-        "time": 1244,
+        "time": 1319,
         "weight": 3
     },
     "cypress/e2e/donor/how-should-replacement-attorneys-step-in.cy.js": {
-        "time": 1571,
+        "time": 1499,
         "weight": 4
     },
     "cypress/e2e/donor/language-preferences.cy.js": {
-        "time": 848,
+        "time": 862,
         "weight": 2
     },
     "cypress/e2e/donor/life-sustaining-treatment.cy.js": {
-        "time": 1558,
-        "weight": 4
+        "time": 1317,
+        "weight": 3
     },
     "cypress/e2e/donor/lpa-type.cy.js": {
-        "time": 13112,
-        "weight": 34
+        "time": 7888,
+        "weight": 22
     },
     "cypress/e2e/donor/make-a-new-lpa.cy.js": {
-        "time": 2383,
+        "time": 2458,
         "weight": 6
     },
     "cypress/e2e/donor/payment.cy.js": {
-        "time": 32280,
-        "weight": 84
+        "time": 27055,
+        "weight": 76
     },
     "cypress/e2e/donor/people-to-notify.cy.js": {
-        "time": 6125,
+        "time": 5400,
         "weight": 15
     },
     "cypress/e2e/donor/previous-application-number.cy.js": {
-        "time": 977,
+        "time": 911,
         "weight": 2
     },
     "cypress/e2e/donor/progress.cy.js": {
-        "time": 25349,
-        "weight": 65
+        "time": 22694,
+        "weight": 64
     },
     "cypress/e2e/donor/provide-your-details.cy.js": {
-        "time": 4821,
-        "weight": 12
+        "time": 3703,
+        "weight": 10
     },
     "cypress/e2e/donor/remove-replacement-trust-corporation.cy.js": {
-        "time": 767,
-        "weight": 1
+        "time": 741,
+        "weight": 2
     },
     "cypress/e2e/donor/remove-trust-corporation.cy.js": {
-        "time": 877,
+        "time": 839,
         "weight": 2
     },
     "cypress/e2e/donor/restrictions.cy.js": {
-        "time": 619,
+        "time": 497,
         "weight": 1
     },
     "cypress/e2e/donor/sign-the-lpa.cy.js": {
-        "time": 7244,
-        "weight": 18
+        "time": 7870,
+        "weight": 22
     },
     "cypress/e2e/donor/signing-on-behalf.cy.js": {
-        "time": 2214,
+        "time": 2020,
         "weight": 5
     },
     "cypress/e2e/donor/start.cy.js": {
-        "time": 441,
+        "time": 403,
         "weight": 1
     },
     "cypress/e2e/donor/task-list.cy.js": {
-        "time": 374,
-        "weight": 0
+        "time": 382,
+        "weight": 1
     },
     "cypress/e2e/donor/view-lpa.cy.js": {
-        "time": 1029,
-        "weight": 2
+        "time": 1148,
+        "weight": 3
     },
     "cypress/e2e/donor/want-replacement-attorneys.cy.js": {
-        "time": 1920,
-        "weight": 4
-    },
-    "cypress/e2e/donor/what-you-can-do-now.cy.js": {
-        "time": 11705,
-        "weight": 30
-    },
-    "cypress/e2e/donor/when-can-the-lpa-be-used.cy.js": {
-        "time": 916,
-        "weight": 2
-    },
-    "cypress/e2e/donor/withdraw-lpa.cy.js": {
-        "time": 1132,
-        "weight": 2
-    },
-    "cypress/e2e/donor/you-cannot-sign-your-lpa-yet.cy.js": {
-        "time": 1601,
-        "weight": 4
-    },
-    "cypress/e2e/donor/you-have-told-us-you-are-under-18.cy.js": {
-        "time": 2014,
+        "time": 1925,
         "weight": 5
     },
+    "cypress/e2e/donor/what-country-do-you-live-in.cy.js": {
+        "time": 1325,
+        "weight": 3
+    },
+    "cypress/e2e/donor/what-you-can-do-now.cy.js": {
+        "time": 12261,
+        "weight": 34
+    },
+    "cypress/e2e/donor/when-can-the-lpa-be-used.cy.js": {
+        "time": 706,
+        "weight": 1
+    },
+    "cypress/e2e/donor/withdraw-lpa.cy.js": {
+        "time": 1194,
+        "weight": 3
+    },
+    "cypress/e2e/donor/you-cannot-sign-your-lpa-yet.cy.js": {
+        "time": 1375,
+        "weight": 3
+    },
+    "cypress/e2e/donor/you-have-told-us-you-are-under-18.cy.js": {
+        "time": 2244,
+        "weight": 6
+    },
     "cypress/e2e/donor/you-must-be-over-18-to-complete.cy.js": {
-        "time": 3059,
-        "weight": 7
+        "time": 3325,
+        "weight": 9
     },
     "cypress/e2e/donor/your-address.cy.js": {
-        "time": 3988,
+        "time": 3672,
         "weight": 10
     },
     "cypress/e2e/donor/your-authorised-signatory.cy.js": {
-        "time": 1732,
+        "time": 1657,
         "weight": 4
     },
     "cypress/e2e/donor/your-date-of-birth.cy.js": {
-        "time": 1813,
+        "time": 1523,
         "weight": 4
     },
     "cypress/e2e/donor/your-independent-witness-address.cy.js": {
-        "time": 5852,
+        "time": 5486,
         "weight": 15
     },
     "cypress/e2e/donor/your-independent-witness-mobile.cy.js": {
-        "time": 1115,
-        "weight": 2
+        "time": 1466,
+        "weight": 4
     },
     "cypress/e2e/donor/your-independent-witness.cy.js": {
-        "time": 1246,
+        "time": 1218,
         "weight": 3
     },
     "cypress/e2e/donor/your-name.cy.js": {
-        "time": 1441,
-        "weight": 3
+        "time": 1569,
+        "weight": 4
+    },
+    "cypress/e2e/donor/your-non-uk-address.cy.js": {
+        "time": 2339,
+        "weight": 6
     },
     "cypress/e2e/error-pages.cy.js": {
-        "time": 935,
+        "time": 934,
         "weight": 2
     },
     "cypress/e2e/navigation.cy.js": {
-        "time": 584,
+        "time": 493,
         "weight": 1
     },
     "cypress/e2e/supporter/add-correspondent.cy.js": {
-        "time": 7973,
-        "weight": 20
+        "time": 7045,
+        "weight": 19
     },
     "cypress/e2e/supporter/dashboard.cy.js": {
-        "time": 7161,
-        "weight": 18
+        "time": 6762,
+        "weight": 19
     },
     "cypress/e2e/supporter/donor-access.cy.js": {
-        "time": 4137,
-        "weight": 10
+        "time": 4089,
+        "weight": 11
     },
     "cypress/e2e/supporter/edit-member.cy.js": {
-        "time": 5373,
+        "time": 4883,
         "weight": 13
     },
     "cypress/e2e/supporter/enter-organisation-name.cy.js": {
-        "time": 679,
+        "time": 623,
         "weight": 1
     },
     "cypress/e2e/supporter/invite-member.cy.js": {
-        "time": 1670,
+        "time": 1710,
         "weight": 4
     },
     "cypress/e2e/supporter/manage-organisation.cy.js": {
-        "time": 4017,
-        "weight": 10
+        "time": 4452,
+        "weight": 12
     },
     "cypress/e2e/supporter/manage-team-members.cy.js": {
-        "time": 2344,
-        "weight": 6
+        "time": 2098,
+        "weight": 5
     },
     "cypress/e2e/supporter/start.cy.js": {
-        "time": 1171,
+        "time": 1216,
         "weight": 3
     },
     "cypress/e2e/supporter/suspended.cy.js": {
-        "time": 319,
+        "time": 311,
         "weight": 0
     },
     "cypress/e2e/supporter/view-lpa.cy.js": {
-        "time": 6986,
-        "weight": 18
+        "time": 5626,
+        "weight": 15
     },
     "cypress/e2e/voucher/confirm-your-identity.cy.js": {
-        "time": 8309,
-        "weight": 21
+        "time": 7898,
+        "weight": 22
     },
     "cypress/e2e/voucher/confirm-your-name.cy.js": {
-        "time": 3085,
+        "time": 2875,
         "weight": 8
     },
     "cypress/e2e/voucher/enter-reference-number.cy.js": {
-        "time": 2817,
-        "weight": 7
+        "time": 2924,
+        "weight": 8
     },
     "cypress/e2e/voucher/verify-donor-details.cy.js": {
-        "time": 641,
+        "time": 684,
         "weight": 1
     },
     "cypress/e2e/voucher/your-declaration.cy.js": {
-        "time": 793,
-        "weight": 2
+        "time": 672,
+        "weight": 1
     }
 }

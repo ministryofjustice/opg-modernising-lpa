@@ -208,23 +208,28 @@ func TestPostEnterReferenceNumberWhenPaperCertificateExists(t *testing.T) {
 				Get(mock.Anything, mock.Anything, mock.Anything).
 				Return(sharecodedata.Link{LpaKey: dynamo.LpaKey("lpa-id"), LpaOwnerKey: dynamo.LpaOwnerKey(dynamo.DonorKey("session-id")), ActorUID: uid, LpaUID: "lpa-uid"}, nil)
 
+			lpa := lpadata.Lpa{
+				Donor:               lpadata.Donor{FirstNames: "a", LastName: "b"},
+				CertificateProvider: lpadata.CertificateProvider{Channel: lpadata.ChannelPaper, SignedAt: &testNow},
+				Type:                lpadata.LpaTypePropertyAndAffairs,
+			}
 			lpaStoreClient := newMockLpaStoreClient(t)
 			lpaStoreClient.EXPECT().
 				Lpa(r.Context(), "lpa-uid").
-				Return(&lpadata.Lpa{
-					Donor:               lpadata.Donor{FirstNames: "a", LastName: "b"},
-					CertificateProvider: lpadata.CertificateProvider{Channel: lpadata.ChannelPaper, SignedAt: &testNow},
-					Type:                lpadata.LpaTypePropertyAndAffairs,
-				}, nil)
+				Return(&lpa, nil)
+			lpaStoreClient.EXPECT().
+				SendPaperCertificateProviderAccessOnline(r.Context(), &lpa, "a@example.com").
+				Return(nil)
 
 			localizer := newMockLocalizer(t)
 			localizer.EXPECT().
 				T("property-and-affairs").
 				Return("c")
 			appData := appcontext.Data{
-				SessionID: "session-id",
-				LpaID:     "lpa-id",
-				Lang:      localize.En,
+				SessionID:         "session-id",
+				LpaID:             "lpa-id",
+				Lang:              localize.En,
+				LoginSessionEmail: "a@example.com",
 			}
 			appData.Localizer = localizer
 
@@ -339,6 +344,46 @@ func TestPostEnterReferenceNumberWhenLpaStoreClientError(t *testing.T) {
 	assert.ErrorContains(t, err, "error getting LPA from LPA store: err")
 }
 
+func TestPostEnterReferenceNumberWhenSendPaperCertificateProviderAccessOnlineError(t *testing.T) {
+	form := url.Values{
+		"reference-number": {"abcdef 123-456"},
+	}
+
+	w := httptest.NewRecorder()
+	r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(form.Encode()))
+	r.Header.Add("Content-Type", page.FormUrlEncoded)
+
+	dashboardStore := newMockDashboardStore(t)
+	dashboardStore.EXPECT().
+		GetAll(r.Context()).
+		Return(dashboarddata.Results{}, nil)
+
+	uid := actoruid.New()
+
+	shareCodeStore := newMockShareCodeStore(t)
+	shareCodeStore.EXPECT().
+		Get(mock.Anything, mock.Anything, mock.Anything).
+		Return(sharecodedata.Link{LpaKey: dynamo.LpaKey("lpa-id"), LpaOwnerKey: dynamo.LpaOwnerKey(dynamo.DonorKey("session-id")), ActorUID: uid, LpaUID: "lpa-uid"}, nil)
+
+	lpaStoreClient := newMockLpaStoreClient(t)
+	lpaStoreClient.EXPECT().
+		Lpa(mock.Anything, mock.Anything).
+		Return(&lpadata.Lpa{
+			Donor:               lpadata.Donor{FirstNames: "a", LastName: "b"},
+			CertificateProvider: lpadata.CertificateProvider{Channel: lpadata.ChannelPaper, SignedAt: &testNow},
+			Type:                lpadata.LpaTypePropertyAndAffairs,
+		}, nil)
+	lpaStoreClient.EXPECT().
+		SendPaperCertificateProviderAccessOnline(mock.Anything, mock.Anything, mock.Anything).
+		Return(expectedError)
+
+	err := EnterReferenceNumber(nil, shareCodeStore, nil, nil, lpaStoreClient, dashboardStore)(testAppData, w, r)
+	resp := w.Result()
+
+	assert.ErrorContains(t, err, "error sending certificate provider email to LPA store")
+	assert.Equal(t, http.StatusOK, resp.StatusCode)
+}
+
 func TestPostEnterReferenceNumberWhenClearLoginError(t *testing.T) {
 	form := url.Values{
 		"reference-number": {"abcdef 123-456"},
@@ -368,6 +413,9 @@ func TestPostEnterReferenceNumberWhenClearLoginError(t *testing.T) {
 			CertificateProvider: lpadata.CertificateProvider{Channel: lpadata.ChannelPaper, SignedAt: &testNow},
 			Type:                lpadata.LpaTypePropertyAndAffairs,
 		}, nil)
+	lpaStoreClient.EXPECT().
+		SendPaperCertificateProviderAccessOnline(mock.Anything, mock.Anything, mock.Anything).
+		Return(nil)
 
 	sessionStore := newMockSessionStore(t)
 	sessionStore.EXPECT().

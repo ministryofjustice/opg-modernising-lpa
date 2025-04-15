@@ -36,6 +36,7 @@ type LpaStoreClient interface {
 	SendCertificateProviderConfirmIdentity(ctx context.Context, lpaUID string, certificateProvider *certificateproviderdata.Provided) error
 	SendDonorConfirmIdentity(ctx context.Context, donor *donordata.Provided) error
 	SendLpa(ctx context.Context, uid string, body lpastore.CreateLpa) error
+	SendPaperCertificateProviderAccessOnline(ctx context.Context, lpa *lpadata.Lpa, certificateProviderEmail string) error
 }
 
 type SecretsClient interface {
@@ -59,12 +60,9 @@ type UidClient interface {
 }
 
 type CertificateProviderStore interface {
+	Delete(ctx context.Context) error
 	OneByUID(ctx context.Context, uid string) (*certificateproviderdata.Provided, error)
 	Put(ctx context.Context, certificateProvider *certificateproviderdata.Provided) error
-}
-
-type Localizer interface {
-	localize.Localizer
 }
 
 type Factory struct {
