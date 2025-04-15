@@ -36,7 +36,7 @@ func YourDeclaration(
 	lpaStoreClient LpaStoreClient,
 	scheduledStore ScheduledStore,
 	now func() time.Time,
-	appPublicURL string,
+	donorStartURL string,
 ) Handler {
 	sendNotification := func(ctx context.Context, lpa *lpadata.Lpa, provided *voucherdata.Provided) error {
 		if lpa.Donor.Mobile != "" {
@@ -44,13 +44,13 @@ func YourDeclaration(
 				return notifyClient.SendActorSMS(ctx, notify.ToLpaDonor(lpa), lpa.LpaUID, notify.VoucherHasConfirmedDonorIdentitySMS{
 					VoucherFullName:   provided.FullName(),
 					DonorFullName:     lpa.Donor.FullName(),
-					DonorStartPageURL: appPublicURL + page.PathStart.Format(),
+					DonorStartPageURL: donorStartURL,
 				})
 			}
 
 			return notifyClient.SendActorSMS(ctx, notify.ToLpaDonor(lpa), lpa.LpaUID, notify.VoucherHasConfirmedDonorIdentityOnSignedLpaSMS{
 				VoucherFullName:   provided.FullName(),
-				DonorStartPageURL: appPublicURL + page.PathStart.Format(),
+				DonorStartPageURL: donorStartURL,
 			})
 		}
 
@@ -58,14 +58,14 @@ func YourDeclaration(
 			return notifyClient.SendActorEmail(ctx, notify.ToLpaDonor(lpa), lpa.LpaUID, notify.VoucherHasConfirmedDonorIdentityEmail{
 				VoucherFullName:   provided.FullName(),
 				DonorFullName:     lpa.Donor.FullName(),
-				DonorStartPageURL: appPublicURL + page.PathStart.Format(),
+				DonorStartPageURL: donorStartURL,
 			})
 		}
 
 		return notifyClient.SendActorEmail(ctx, notify.ToLpaDonor(lpa), lpa.LpaUID, notify.VoucherHasConfirmedDonorIdentityOnSignedLpaEmail{
 			VoucherFullName:   provided.FullName(),
 			DonorFullName:     lpa.Donor.FullName(),
-			DonorStartPageURL: appPublicURL + page.PathStart.Format(),
+			DonorStartPageURL: donorStartURL,
 		})
 	}
 

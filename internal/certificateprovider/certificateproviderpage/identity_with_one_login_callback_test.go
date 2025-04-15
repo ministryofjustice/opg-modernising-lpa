@@ -17,7 +17,6 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/lpastore/lpadata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/notify"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/onelogin"
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/sesh"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/task"
 	"github.com/stretchr/testify/assert"
@@ -232,7 +231,7 @@ func TestGetIdentityWithOneLoginCallbackWhenIdentityCheckFailed(t *testing.T) {
 			DonorFullName:               "c d",
 			CertificateProviderFullName: "a b",
 			LpaType:                     "translated LPA type",
-			DonorStartPageURL:           "www.example.com" + page.PathStart.Format(),
+			DonorStartPageURL:           "www.example.com",
 		}).
 		Return(nil)
 
