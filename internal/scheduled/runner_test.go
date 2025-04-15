@@ -58,7 +58,7 @@ func TestNewRunner(t *testing.T) {
 	metricsClient := newMockMetricsClient(t)
 	bundle := newMockBundle(t)
 
-	runner := NewRunner(logger, store, donorStore, certificateProviderStore, attorneyStore, lpaStoreResolvingService, notifyClient, eventClient, bundle, metricsClient, true, "app://url", "http://example.com/certificate-provider")
+	runner := NewRunner(logger, store, donorStore, certificateProviderStore, attorneyStore, lpaStoreResolvingService, notifyClient, eventClient, bundle, metricsClient, true, "certificateProviderStartURL", "attorneyStartURL")
 
 	assert.Equal(t, logger, runner.logger)
 	assert.Equal(t, store, runner.store)
@@ -69,7 +69,8 @@ func TestNewRunner(t *testing.T) {
 	assert.Equal(t, notifyClient, runner.notifyClient)
 	assert.Equal(t, metricsClient, runner.metricsClient)
 	assert.Equal(t, true, runner.metricsEnabled)
-	assert.Equal(t, "app://url", runner.appPublicURL)
+	assert.Equal(t, "certificateProviderStartURL", runner.certificateProviderStartURL)
+	assert.Equal(t, "attorneyStartURL", runner.attorneyStartURL)
 }
 
 func (m *mockMetricsClient) assertPutMetrics(processed, ignored, errored float64, err error) {

@@ -66,24 +66,26 @@ type CertificateProviderStore interface {
 }
 
 type Factory struct {
-	logger                *slog.Logger
-	now                   func() time.Time
-	uuidString            func() string
-	cfg                   aws.Config
-	dynamoClient          dynamodbClient
-	appPublicURL          string
-	donorStartURL         string
-	lpaStoreBaseURL       string
-	lpaStoreSecretARN     string
-	uidBaseURL            string
-	notifyBaseURL         string
-	notifyIsProduction    bool
-	eventBusName          string
-	searchEndpoint        string
-	searchIndexName       string
-	searchIndexingEnabled bool
-	eventClient           EventClient
-	httpClient            *http.Client
+	logger                      *slog.Logger
+	now                         func() time.Time
+	uuidString                  func() string
+	cfg                         aws.Config
+	dynamoClient                dynamodbClient
+	appPublicURL                string
+	donorStartURL               string
+	certificateProviderStartURL string
+	attorneyStartURL            string
+	lpaStoreBaseURL             string
+	lpaStoreSecretARN           string
+	uidBaseURL                  string
+	notifyBaseURL               string
+	notifyIsProduction          bool
+	eventBusName                string
+	searchEndpoint              string
+	searchIndexName             string
+	searchIndexingEnabled       bool
+	eventClient                 EventClient
+	httpClient                  *http.Client
 
 	// previously constructed values
 	appData                  *appcontext.Data
@@ -166,7 +168,16 @@ func (f *Factory) ShareCodeSender(ctx context.Context) (ShareCodeSender, error) 
 			return nil, err
 		}
 
-		f.shareCodeSender = sharecode.NewSender(sharecode.NewStore(f.dynamoClient), notifyClient, f.appPublicURL, event.NewClient(f.cfg, f.eventBusName), certificateprovider.NewStore(f.dynamoClient), scheduled.NewStore(f.dynamoClient))
+		f.shareCodeSender = sharecode.NewSender(
+			sharecode.NewStore(f.dynamoClient),
+			notifyClient,
+			f.appPublicURL,
+			f.certificateProviderStartURL,
+			f.attorneyStartURL,
+			event.NewClient(f.cfg, f.eventBusName),
+			certificateprovider.NewStore(f.dynamoClient),
+			scheduled.NewStore(f.dynamoClient),
+		)
 	}
 
 	return f.shareCodeSender, nil

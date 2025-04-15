@@ -91,8 +91,8 @@ type Runner struct {
 	actions                     map[Action]ActionFunc
 	waiter                      Waiter
 	metricsClient               MetricsClient
-	appPublicURL                string
 	certificateProviderStartURL string
+	attorneyStartURL            string
 	// TODO remove in MLPAB-2690
 	metricsEnabled bool
 
@@ -113,8 +113,8 @@ func NewRunner(
 	bundle Bundle,
 	metricsClient MetricsClient,
 	metricsEnabled bool,
-	appPublicURL string,
 	certificateProviderStartURL string,
+	attorneyStartURL string,
 ) *Runner {
 	r := &Runner{
 		logger:                      logger,
@@ -131,8 +131,8 @@ func NewRunner(
 		waiter:                      &waiter{backoff: time.Second, sleep: time.Sleep, maxRetries: 10},
 		metricsClient:               metricsClient,
 		metricsEnabled:              metricsEnabled,
-		appPublicURL:                appPublicURL,
 		certificateProviderStartURL: certificateProviderStartURL,
+		attorneyStartURL:            attorneyStartURL,
 	}
 
 	r.actions = map[Action]ActionFunc{
