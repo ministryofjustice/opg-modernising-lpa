@@ -859,7 +859,7 @@ func TestShareCodeSenderSendAttorneys(t *testing.T) {
 			DonorFullName:             "Jan Smith",
 			DonorFirstNamesPossessive: "Jan's",
 			LpaType:                   "property and affairs",
-			AttorneyStartPageURL:      fmt.Sprintf("http://app%s", page.PathAttorneyStart),
+			AttorneyStartPageURL:      "http://example.com/attorney",
 			AttorneyOptOutURL:         fmt.Sprintf("http://app%s", page.PathAttorneyEnterReferenceNumberOptOut),
 		}).
 		Return(nil)
@@ -871,7 +871,7 @@ func TestShareCodeSenderSendAttorneys(t *testing.T) {
 			DonorFullName:             "Jan Smith",
 			DonorFirstNamesPossessive: "Jan's",
 			LpaType:                   "property and affairs",
-			AttorneyStartPageURL:      fmt.Sprintf("http://app%s", page.PathAttorneyStart),
+			AttorneyStartPageURL:      "http://example.com/attorney",
 			AttorneyOptOutURL:         fmt.Sprintf("http://app%s", page.PathAttorneyEnterReferenceNumberOptOut),
 		}).
 		Return(nil)
@@ -883,7 +883,7 @@ func TestShareCodeSenderSendAttorneys(t *testing.T) {
 			DonorFullName:             "Jan Smith",
 			DonorFirstNamesPossessive: "Jan's",
 			LpaType:                   "property and affairs",
-			AttorneyStartPageURL:      fmt.Sprintf("http://app%s", page.PathAttorneyStart),
+			AttorneyStartPageURL:      "http://example.com/attorney",
 			AttorneyOptOutURL:         fmt.Sprintf("http://app%s", page.PathAttorneyEnterReferenceNumberOptOut),
 		}).
 		Return(nil)
@@ -895,7 +895,7 @@ func TestShareCodeSenderSendAttorneys(t *testing.T) {
 			DonorFullName:             "Jan Smith",
 			DonorFirstNamesPossessive: "Jan's",
 			LpaType:                   "property and affairs",
-			AttorneyStartPageURL:      fmt.Sprintf("http://app%s", page.PathAttorneyStart),
+			AttorneyStartPageURL:      "http://example.com/attorney",
 			AttorneyOptOutURL:         fmt.Sprintf("http://app%s", page.PathAttorneyEnterReferenceNumberOptOut),
 		}).
 		Return(nil)
@@ -907,7 +907,7 @@ func TestShareCodeSenderSendAttorneys(t *testing.T) {
 			DonorFullName:             "Jan Smith",
 			DonorFirstNamesPossessive: "Jan's",
 			LpaType:                   "property and affairs",
-			AttorneyStartPageURL:      fmt.Sprintf("http://app%s", page.PathAttorneyStart),
+			AttorneyStartPageURL:      "http://example.com/attorney",
 			AttorneyOptOutURL:         fmt.Sprintf("http://app%s", page.PathAttorneyEnterReferenceNumberOptOut),
 		}).
 		Return(nil)
@@ -973,13 +973,14 @@ func TestShareCodeSenderSendAttorneys(t *testing.T) {
 		Return(nil)
 
 	sender := &Sender{
-		shareCodeStore: shareCodeStore,
-		notifyClient:   notifyClient,
-		appPublicURL:   "http://app",
-		generate:       testGenerateFn,
-		eventClient:    eventClient,
-		scheduledStore: scheduledStore,
-		now:            testNowFn,
+		shareCodeStore:   shareCodeStore,
+		notifyClient:     notifyClient,
+		appPublicURL:     "http://app",
+		attorneyStartURL: "http://example.com/attorney",
+		generate:         testGenerateFn,
+		eventClient:      eventClient,
+		scheduledStore:   scheduledStore,
+		now:              testNowFn,
 	}
 	err := sender.SendAttorneys(ctx, testAppData, lpa)
 
@@ -1164,7 +1165,7 @@ func TestShareCodeSenderSendAttorneysWithTestCode(t *testing.T) {
 					DonorFullName:             "Jan Smith",
 					DonorFirstNamesPossessive: "Jan's",
 					LpaType:                   "property and affairs",
-					AttorneyStartPageURL:      fmt.Sprintf("http://app%s", page.PathAttorneyStart),
+					AttorneyStartPageURL:      "http://example.com/attorney",
 					AttorneyOptOutURL:         fmt.Sprintf("http://app%s", page.PathAttorneyEnterReferenceNumberOptOut),
 				}).
 				Return(nil)
@@ -1176,7 +1177,7 @@ func TestShareCodeSenderSendAttorneysWithTestCode(t *testing.T) {
 					DonorFullName:             "Jan Smith",
 					DonorFirstNamesPossessive: "Jan's",
 					LpaType:                   "property and affairs",
-					AttorneyStartPageURL:      fmt.Sprintf("http://app%s", page.PathAttorneyStart),
+					AttorneyStartPageURL:      "http://example.com/attorney",
 					AttorneyOptOutURL:         fmt.Sprintf("http://app%s", page.PathAttorneyEnterReferenceNumberOptOut),
 				}).
 				Return(nil)
@@ -1196,13 +1197,14 @@ func TestShareCodeSenderSendAttorneysWithTestCode(t *testing.T) {
 				Return(nil)
 
 			sender := &Sender{
-				shareCodeStore: shareCodeStore,
-				scheduledStore: scheduledStore,
-				notifyClient:   notifyClient,
-				appPublicURL:   "http://app",
-				generate:       testGenerateFn,
-				eventClient:    eventClient,
-				now:            testNowFn,
+				shareCodeStore:   shareCodeStore,
+				scheduledStore:   scheduledStore,
+				notifyClient:     notifyClient,
+				appPublicURL:     "http://app",
+				attorneyStartURL: "http://example.com/attorney",
+				generate:         testGenerateFn,
+				eventClient:      eventClient,
+				now:              testNowFn,
 			}
 
 			if tc.useTestCode {

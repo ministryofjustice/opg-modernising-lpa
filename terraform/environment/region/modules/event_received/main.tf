@@ -9,6 +9,7 @@ module "event_received" {
     APP_PUBLIC_URL                 = "https://${var.app_public_url}"
     DONOR_START_URL                = var.donor_start_url
     CERTIFICATE_PROVIDER_START_URL = var.certificate_provider_start_url
+    ATTORNEY_START_URL             = var.attorney_start_url
     UPLOADS_S3_BUCKET_NAME         = var.uploads_bucket.bucket
     UID_BASE_URL                   = var.uid_base_url
     LPA_STORE_BASE_URL             = var.lpa_store_base_url
