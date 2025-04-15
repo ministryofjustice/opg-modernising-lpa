@@ -231,6 +231,54 @@ func (_c *mockLpaStoreClient_SendLpa_Call) RunAndReturn(run func(context.Context
 	return _c
 }
 
+// SendPaperCertificateProviderAccessOnline provides a mock function with given fields: ctx, lpa, certificateProviderEmail
+func (_m *mockLpaStoreClient) SendPaperCertificateProviderAccessOnline(ctx context.Context, lpa *lpadata.Lpa, certificateProviderEmail string) error {
+	ret := _m.Called(ctx, lpa, certificateProviderEmail)
+
+	if len(ret) == 0 {
+		panic("no return value specified for SendPaperCertificateProviderAccessOnline")
+	}
+
+	var r0 error
+	if rf, ok := ret.Get(0).(func(context.Context, *lpadata.Lpa, string) error); ok {
+		r0 = rf(ctx, lpa, certificateProviderEmail)
+	} else {
+		r0 = ret.Error(0)
+	}
+
+	return r0
+}
+
+// mockLpaStoreClient_SendPaperCertificateProviderAccessOnline_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'SendPaperCertificateProviderAccessOnline'
+type mockLpaStoreClient_SendPaperCertificateProviderAccessOnline_Call struct {
+	*mock.Call
+}
+
+// SendPaperCertificateProviderAccessOnline is a helper method to define mock.On call
+//   - ctx context.Context
+//   - lpa *lpadata.Lpa
+//   - certificateProviderEmail string
+func (_e *mockLpaStoreClient_Expecter) SendPaperCertificateProviderAccessOnline(ctx interface{}, lpa interface{}, certificateProviderEmail interface{}) *mockLpaStoreClient_SendPaperCertificateProviderAccessOnline_Call {
+	return &mockLpaStoreClient_SendPaperCertificateProviderAccessOnline_Call{Call: _e.mock.On("SendPaperCertificateProviderAccessOnline", ctx, lpa, certificateProviderEmail)}
+}
+
+func (_c *mockLpaStoreClient_SendPaperCertificateProviderAccessOnline_Call) Run(run func(ctx context.Context, lpa *lpadata.Lpa, certificateProviderEmail string)) *mockLpaStoreClient_SendPaperCertificateProviderAccessOnline_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		run(args[0].(context.Context), args[1].(*lpadata.Lpa), args[2].(string))
+	})
+	return _c
+}
+
+func (_c *mockLpaStoreClient_SendPaperCertificateProviderAccessOnline_Call) Return(_a0 error) *mockLpaStoreClient_SendPaperCertificateProviderAccessOnline_Call {
+	_c.Call.Return(_a0)
+	return _c
+}
+
+func (_c *mockLpaStoreClient_SendPaperCertificateProviderAccessOnline_Call) RunAndReturn(run func(context.Context, *lpadata.Lpa, string) error) *mockLpaStoreClient_SendPaperCertificateProviderAccessOnline_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
 // newMockLpaStoreClient creates a new instance of mockLpaStoreClient. It also registers a testing interface on the mock and a cleanup function to assert the mocks expectations.
 // The first argument is typically a *testing.T value.
 func newMockLpaStoreClient(t interface {

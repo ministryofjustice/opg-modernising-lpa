@@ -284,7 +284,7 @@ describe('Progress', () => {
                         expect(response.status).to.eq(200);
 
                         cy.visitLpa('/progress')
-                        cy.waitForTextByReloading('main', 'Success: 1 notification from OPG')
+                        cy.waitForTextVisibilityByReloading('main', 'Success: 1 notification from OPG')
 
                         cy.checkA11yApp();
 
@@ -323,7 +323,7 @@ describe('Progress', () => {
                         expect(response.status).to.eq(200);
 
                         cy.visitLpa('/progress')
-                        cy.waitForTextByReloading('main', 'Your LPA cannot be registered by the Office of the Public Guardian (OPG)')
+                        cy.waitForTextVisibilityByReloading('main', 'Your LPA cannot be registered by the Office of the Public Guardian (OPG)')
 
                         cy.checkA11yApp();
 

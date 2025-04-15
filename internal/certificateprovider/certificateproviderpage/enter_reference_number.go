@@ -59,6 +59,10 @@ func EnterReferenceNumber(tmpl template.Template, shareCodeStore ShareCodeStore,
 				}
 
 				if lpa != nil && lpa.CertificateProvider.Channel.IsPaper() && !lpa.CertificateProvider.SignedAt.IsZero() {
+					if err := lpaStoreClient.SendPaperCertificateProviderAccessOnline(r.Context(), lpa, appData.LoginSessionEmail); err != nil {
+						return fmt.Errorf("error sending certificate provider email to LPA store: %w", err)
+					}
+
 					redirectTo := page.PathCertificateProviderYouHaveAlreadyProvidedACertificateLoggedIn
 
 					if results.Empty() {
