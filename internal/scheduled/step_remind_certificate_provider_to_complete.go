@@ -10,7 +10,6 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/event"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/localize"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/notify"
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
 )
 
 func (r *Runner) stepRemindCertificateProviderToComplete(ctx context.Context, row *Event) error {
@@ -66,7 +65,7 @@ func (r *Runner) stepRemindCertificateProviderToComplete(ctx context.Context, ro
 			CertificateProviderFullName:     lpa.CertificateProvider.FullName(),
 			InvitedDate:                     localizer.FormatDate(lpa.CertificateProviderInvitedAt),
 			DeadlineDate:                    localizer.FormatDate(lpa.ExpiresAt()),
-			CertificateProviderStartPageURL: r.appPublicURL + page.PathCertificateProviderStart.Format(),
+			CertificateProviderStartPageURL: r.certificateProviderStartURL,
 		}); err != nil {
 			return fmt.Errorf("could not send certificate provider email: %w", err)
 		}
@@ -108,7 +107,7 @@ func (r *Runner) stepRemindCertificateProviderToComplete(ctx context.Context, ro
 				LpaType:                         localizer.T(lpa.Type.String()),
 				InvitedDate:                     localizer.FormatDate(lpa.CertificateProviderInvitedAt),
 				DeadlineDate:                    localizer.FormatDate(lpa.ExpiresAt()),
-				CertificateProviderStartPageURL: r.appPublicURL + page.PathCertificateProviderStart.Format(),
+				CertificateProviderStartPageURL: r.certificateProviderStartURL,
 			}
 		}
 

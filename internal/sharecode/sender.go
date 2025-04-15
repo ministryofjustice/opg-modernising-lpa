@@ -49,15 +49,16 @@ type ScheduledStore interface {
 }
 
 type Sender struct {
-	testCode                 string
-	shareCodeStore           ShareCodeStore
-	certificateProviderStore CertificateProviderStore
-	scheduledStore           ScheduledStore
-	notifyClient             NotifyClient
-	appPublicURL             string
-	eventClient              EventClient
-	generate                 func() (sharecodedata.PlainText, sharecodedata.Hashed)
-	now                      func() time.Time
+	testCode                    string
+	shareCodeStore              ShareCodeStore
+	certificateProviderStore    CertificateProviderStore
+	scheduledStore              ScheduledStore
+	notifyClient                NotifyClient
+	appPublicURL                string
+	certificateProviderStartURL string
+	eventClient                 EventClient
+	generate                    func() (sharecodedata.PlainText, sharecodedata.Hashed)
+	now                         func() time.Time
 }
 
 func NewSender(shareCodeStore ShareCodeStore, notifyClient NotifyClient, appPublicURL string, eventClient EventClient, certificateProviderStore CertificateProviderStore, scheduledStore ScheduledStore) *Sender {
@@ -103,7 +104,7 @@ func (s *Sender) SendCertificateProviderInvite(ctx context.Context, appData appc
 		CertificateProviderFullName:  invite.CertificateProviderFullName,
 		DonorFullName:                invite.DonorFullName,
 		LpaType:                      localize.LowerFirst(appData.Localizer.T(invite.Type.String())),
-		CertificateProviderStartURL:  fmt.Sprintf("%s%s", s.appPublicURL, page.PathCertificateProviderStart),
+		CertificateProviderStartURL:  s.certificateProviderStartURL,
 		DonorFirstNames:              invite.DonorFirstNames,
 		DonorFirstNamesPossessive:    appData.Localizer.Possessive(invite.DonorFirstNames),
 		WhatLpaCovers:                appData.Localizer.T(whatLpaCovers),
@@ -131,7 +132,7 @@ func (s *Sender) SendCertificateProviderPrompt(ctx context.Context, appData appc
 		CertificateProviderFullName: donor.CertificateProvider.FullName(),
 		DonorFullName:               donor.Donor.FullName(),
 		LpaType:                     localize.LowerFirst(appData.Localizer.T(donor.Type.String())),
-		CertificateProviderStartURL: fmt.Sprintf("%s%s", s.appPublicURL, page.PathCertificateProviderStart),
+		CertificateProviderStartURL: s.certificateProviderStartURL,
 		ShareCode:                   shareCode.Plain(),
 	})
 }

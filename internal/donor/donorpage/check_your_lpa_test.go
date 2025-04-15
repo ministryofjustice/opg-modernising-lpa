@@ -455,11 +455,11 @@ func TestPostCheckYourLpaPaperCertificateProviderOnFirstCheck(t *testing.T) {
 					DonorFullName:                   "Teneil Throssell",
 					LpaType:                         "property and affairs",
 					DonorFirstNames:                 "Teneil",
-					CertificateProviderStartPageURL: "http://example.org/certificate-provider-start",
+					CertificateProviderStartPageURL: "http://example.org/certificate-provider",
 				}).
 				Return(nil)
 
-			err := CheckYourLpa(nil, donorStore, nil, notifyClient, nil, nil, testNowFn, "http://example.org")(testAppData, w, r, provided)
+			err := CheckYourLpa(nil, donorStore, nil, notifyClient, nil, nil, testNowFn, "http://example.org/certificate-provider")(testAppData, w, r, provided)
 			resp := w.Result()
 
 			assert.Nil(t, err)
