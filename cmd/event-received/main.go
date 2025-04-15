@@ -42,22 +42,24 @@ const (
 )
 
 var (
-	tableName             = os.Getenv("LPAS_TABLE")
-	notifyIsProduction    = os.Getenv("GOVUK_NOTIFY_IS_PRODUCTION") == "1"
-	appPublicURL          = os.Getenv("APP_PUBLIC_URL")
-	donorStartURL         = cmp.Or(os.Getenv("DONOR_START_URL"), appPublicURL+page.PathStart.Format())
-	awsBaseURL            = os.Getenv("AWS_BASE_URL")
-	notifyBaseURL         = os.Getenv("GOVUK_NOTIFY_BASE_URL")
-	evidenceBucketName    = os.Getenv("UPLOADS_S3_BUCKET_NAME")
-	uidBaseURL            = os.Getenv("UID_BASE_URL")
-	lpaStoreBaseURL       = os.Getenv("LPA_STORE_BASE_URL")
-	lpaStoreSecretARN     = os.Getenv("LPA_STORE_SECRET_ARN")
-	eventBusName          = cmp.Or(os.Getenv("EVENT_BUS_NAME"), "default")
-	searchEndpoint        = os.Getenv("SEARCH_ENDPOINT")
-	searchIndexName       = cmp.Or(os.Getenv("SEARCH_INDEX_NAME"), "lpas")
-	searchIndexingEnabled = os.Getenv("SEARCH_INDEXING_DISABLED") != "1"
-	xrayEnabled           = os.Getenv("XRAY_ENABLED") == "1"
-	kmsKeyAlias           = cmp.Or(os.Getenv("S3_UPLOADS_KMS_KEY_ALIAS"), "alias/custom-key")
+	tableName                   = os.Getenv("LPAS_TABLE")
+	notifyIsProduction          = os.Getenv("GOVUK_NOTIFY_IS_PRODUCTION") == "1"
+	appPublicURL                = os.Getenv("APP_PUBLIC_URL")
+	donorStartURL               = cmp.Or(os.Getenv("DONOR_START_URL"), appPublicURL+page.PathStart.Format())
+	certificateProviderStartURL = cmp.Or(os.Getenv("CERTIFICATE_PROVIDER_START_URL"), appPublicURL+page.PathCertificateProviderStart.Format())
+	attorneyStartURL            = cmp.Or(os.Getenv("ATTORNEY_START_URL"), appPublicURL+page.PathAttorneyStart.Format())
+	awsBaseURL                  = os.Getenv("AWS_BASE_URL")
+	notifyBaseURL               = os.Getenv("GOVUK_NOTIFY_BASE_URL")
+	evidenceBucketName          = os.Getenv("UPLOADS_S3_BUCKET_NAME")
+	uidBaseURL                  = os.Getenv("UID_BASE_URL")
+	lpaStoreBaseURL             = os.Getenv("LPA_STORE_BASE_URL")
+	lpaStoreSecretARN           = os.Getenv("LPA_STORE_SECRET_ARN")
+	eventBusName                = cmp.Or(os.Getenv("EVENT_BUS_NAME"), "default")
+	searchEndpoint              = os.Getenv("SEARCH_ENDPOINT")
+	searchIndexName             = cmp.Or(os.Getenv("SEARCH_INDEX_NAME"), "lpas")
+	searchIndexingEnabled       = os.Getenv("SEARCH_INDEXING_DISABLED") != "1"
+	xrayEnabled                 = os.Getenv("XRAY_ENABLED") == "1"
+	kmsKeyAlias                 = cmp.Or(os.Getenv("S3_UPLOADS_KMS_KEY_ALIAS"), "alias/custom-key")
 
 	cfg        aws.Config
 	httpClient *http.Client
@@ -195,23 +197,25 @@ func handler(ctx context.Context, event Event) (map[string]any, error) {
 	}
 
 	factory := &Factory{
-		logger:                logger,
-		now:                   time.Now,
-		uuidString:            random.UuidString,
-		cfg:                   cfg,
-		dynamoClient:          dynamoClient,
-		appPublicURL:          appPublicURL,
-		donorStartURL:         donorStartURL,
-		lpaStoreBaseURL:       lpaStoreBaseURL,
-		lpaStoreSecretARN:     lpaStoreSecretARN,
-		uidBaseURL:            uidBaseURL,
-		notifyBaseURL:         notifyBaseURL,
-		notifyIsProduction:    notifyIsProduction,
-		eventBusName:          eventBusName,
-		searchEndpoint:        searchEndpoint,
-		searchIndexName:       searchIndexName,
-		searchIndexingEnabled: searchIndexingEnabled,
-		httpClient:            httpClient,
+		logger:                      logger,
+		now:                         time.Now,
+		uuidString:                  random.UuidString,
+		cfg:                         cfg,
+		dynamoClient:                dynamoClient,
+		appPublicURL:                appPublicURL,
+		donorStartURL:               donorStartURL,
+		attorneyStartURL:            attorneyStartURL,
+		certificateProviderStartURL: certificateProviderStartURL,
+		lpaStoreBaseURL:             lpaStoreBaseURL,
+		lpaStoreSecretARN:           lpaStoreSecretARN,
+		uidBaseURL:                  uidBaseURL,
+		notifyBaseURL:               notifyBaseURL,
+		notifyIsProduction:          notifyIsProduction,
+		eventBusName:                eventBusName,
+		searchEndpoint:              searchEndpoint,
+		searchIndexName:             searchIndexName,
+		searchIndexingEnabled:       searchIndexingEnabled,
+		httpClient:                  httpClient,
 	}
 
 	if event.SQSEvent != nil {

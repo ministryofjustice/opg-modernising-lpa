@@ -9,6 +9,7 @@ module "schedule_runner" {
   lambda_function_image_tag      = var.app_service_container_version
   event_bus                      = module.event_bus.event_bus
   certificate_provider_start_url = var.app_env_vars.certificate_provider_start_url
+  attorney_start_url             = var.app_env_vars.attorney_start_url
   search_endpoint                = var.search_endpoint
   search_index_name              = var.search_index_name
   schedule_runner_scheduler      = var.iam_roles.schedule_runner_scheduler
