@@ -215,6 +215,7 @@ func Register(
 	bundle Bundle,
 	donorStartURL string,
 	certificateProviderStartURL string,
+	attorneyStartURL string,
 ) {
 	payer := Pay(logger, sessionStore, donorStore, payClient, appPublicURL)
 
@@ -235,7 +236,7 @@ func Register(
 	handleWithDonor(donor.PathDeleteThisLpa, page.None,
 		DeleteLpa(tmpls.Get("delete_this_lpa.gohtml"), donorStore, notifyClient, certificateProviderStartURL))
 	handleWithDonor(donor.PathWithdrawThisLpa, page.None,
-		WithdrawLpa(tmpls.Get("withdraw_this_lpa.gohtml"), donorStore, time.Now, lpaStoreClient, notifyClient, lpaStoreResolvingService, certificateProviderStore, appPublicURL, certificateProviderStartURL))
+		WithdrawLpa(tmpls.Get("withdraw_this_lpa.gohtml"), donorStore, time.Now, lpaStoreClient, notifyClient, lpaStoreResolvingService, certificateProviderStore, certificateProviderStartURL, attorneyStartURL))
 
 	handleWithDonor(donor.PathMakeANewLPA, page.None,
 		Guidance(tmpls.Get("make_a_new_lpa.gohtml")))

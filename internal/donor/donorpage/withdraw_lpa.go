@@ -21,7 +21,7 @@ type withdrawLpaData struct {
 	Donor  *donordata.Provided
 }
 
-func WithdrawLpa(tmpl template.Template, donorStore DonorStore, now func() time.Time, lpaStoreClient LpaStoreClient, notifyClient NotifyClient, lpaStoreResolvingService LpaStoreResolvingService, certificateProviderStore CertificateProviderStore, appPublicURL, certificateProviderStartURL string) Handler {
+func WithdrawLpa(tmpl template.Template, donorStore DonorStore, now func() time.Time, lpaStoreClient LpaStoreClient, notifyClient NotifyClient, lpaStoreResolvingService LpaStoreResolvingService, certificateProviderStore CertificateProviderStore, certificateProviderStartURL, attorneyStartURL string) Handler {
 	return func(appData appcontext.Data, w http.ResponseWriter, r *http.Request, provided *donordata.Provided) error {
 		if r.Method == http.MethodPost {
 			if !provided.CertificateProviderInvitedAt.IsZero() {
@@ -72,7 +72,7 @@ func WithdrawLpa(tmpl template.Template, donorStore DonorStore, now func() time.
 						DonorFullNamePossessive: appData.Localizer.Possessive(lpa.Donor.FullName()),
 						InvitedDate:             appData.Localizer.FormatDate(provided.AttorneysInvitedAt),
 						LpaType:                 localize.LowerFirst(appData.Localizer.T(lpa.Type.String())),
-						AttorneyStartPageURL:    appPublicURL + appData.Lang.URL(page.PathAttorneyStart.Format()),
+						AttorneyStartPageURL:    attorneyStartURL,
 					}); err != nil {
 						return fmt.Errorf("error sending attorney email: %w", err)
 					}
@@ -90,7 +90,7 @@ func WithdrawLpa(tmpl template.Template, donorStore DonorStore, now func() time.
 						DonorFullNamePossessive: appData.Localizer.Possessive(lpa.Donor.FullName()),
 						InvitedDate:             appData.Localizer.FormatDate(provided.AttorneysInvitedAt),
 						LpaType:                 localize.LowerFirst(appData.Localizer.T(lpa.Type.String())),
-						AttorneyStartPageURL:    appPublicURL + appData.Lang.URL(page.PathAttorneyStart.Format()),
+						AttorneyStartPageURL:    attorneyStartURL,
 					}); err != nil {
 						return fmt.Errorf("error sending trust corporation email: %w", err)
 					}

@@ -511,6 +511,10 @@ locals {
           name  = "CERTIFICATE_PROVIDER_START_URL",
           value = var.app_env_vars.certificate_provider_start_url
         },
+        {
+          name  = "ATTORNEY_START_URL",
+          value = var.app_env_vars.attorney_start_url
+        },
       ]
     }
   )

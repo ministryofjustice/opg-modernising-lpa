@@ -15,6 +15,7 @@ module "schedule_runner" {
     LPA_STORE_SECRET_ARN           = var.lpa_store_secret_arn
     APP_PUBLIC_URL                 = "https://${var.app_public_url}"
     CERTIFICATE_PROVIDER_START_URL = var.certificate_provider_start_url
+    ATTORNEY_START_URL             = var.attorney_start_url
   }
   image_uri            = "${var.lambda_function_image_ecr_url}:${var.lambda_function_image_tag}"
   aws_iam_role         = var.schedule_runner_lambda_role

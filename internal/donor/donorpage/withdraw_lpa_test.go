@@ -185,7 +185,7 @@ func TestPostWithdrawLpaWhenCertificateProviderInvited(t *testing.T) {
 				SendActorEmail(r.Context(), notify.ToLpaCertificateProvider(tc.certificateProvider, tc.lpa), "lpa-uid", expectedEmail).
 				Return(nil)
 
-			err := WithdrawLpa(nil, donorStore, testNowFn, lpaStoreClient, notifyClient, lpaStoreResolvingService, certificateProviderStore, "app://", "http://example.com/certificate-provider")(testAppData, w, r, &donordata.Provided{
+			err := WithdrawLpa(nil, donorStore, testNowFn, lpaStoreClient, notifyClient, lpaStoreResolvingService, certificateProviderStore, "http://example.com/certificate-provider", "http://example.com/attorney")(testAppData, w, r, &donordata.Provided{
 				Donor:                        donordata.Donor{FirstNames: "a", LastName: "b"},
 				LpaUID:                       "lpa-uid",
 				Type:                         lpadata.LpaTypePersonalWelfare,
@@ -283,7 +283,7 @@ func TestPostWithdrawLpaWhenAttorneysInvited(t *testing.T) {
 						InvitedDate:             "2 January 2020",
 						LpaType:                 "property and affairs",
 						AttorneyFullName:        "C D",
-						AttorneyStartPageURL:    "http://example.com/attorney-start",
+						AttorneyStartPageURL:    "http://example.com/attorney",
 					}).
 					Return(nil).
 					Once()
@@ -294,7 +294,7 @@ func TestPostWithdrawLpaWhenAttorneysInvited(t *testing.T) {
 						InvitedDate:             "2 January 2020",
 						LpaType:                 "property and affairs",
 						AttorneyFullName:        "E F",
-						AttorneyStartPageURL:    "http://example.com/attorney-start",
+						AttorneyStartPageURL:    "http://example.com/attorney",
 					}).
 					Return(nil).
 					Once()
@@ -321,7 +321,7 @@ func TestPostWithdrawLpaWhenAttorneysInvited(t *testing.T) {
 						InvitedDate:             "2 January 2020",
 						LpaType:                 "property and affairs",
 						AttorneyFullName:        "C D",
-						AttorneyStartPageURL:    "http://example.com/attorney-start",
+						AttorneyStartPageURL:    "http://example.com/attorney",
 					}).
 					Return(nil).
 					Once()
@@ -332,7 +332,7 @@ func TestPostWithdrawLpaWhenAttorneysInvited(t *testing.T) {
 						InvitedDate:             "2 January 2020",
 						LpaType:                 "property and affairs",
 						AttorneyFullName:        "E F",
-						AttorneyStartPageURL:    "http://example.com/attorney-start",
+						AttorneyStartPageURL:    "http://example.com/attorney",
 					}).
 					Return(nil).
 					Once()
@@ -343,7 +343,7 @@ func TestPostWithdrawLpaWhenAttorneysInvited(t *testing.T) {
 						InvitedDate:             "2 January 2020",
 						LpaType:                 "property and affairs",
 						AttorneyFullName:        "t",
-						AttorneyStartPageURL:    "http://example.com/attorney-start",
+						AttorneyStartPageURL:    "http://example.com/attorney",
 					}).
 					Return(nil).
 					Once()
@@ -370,7 +370,7 @@ func TestPostWithdrawLpaWhenAttorneysInvited(t *testing.T) {
 						InvitedDate:             "2 January 2020",
 						LpaType:                 "property and affairs",
 						AttorneyFullName:        "C D",
-						AttorneyStartPageURL:    "http://example.com/attorney-start",
+						AttorneyStartPageURL:    "http://example.com/attorney",
 					}).
 					Return(nil).
 					Once()
@@ -381,7 +381,7 @@ func TestPostWithdrawLpaWhenAttorneysInvited(t *testing.T) {
 						InvitedDate:             "2 January 2020",
 						LpaType:                 "property and affairs",
 						AttorneyFullName:        "E F",
-						AttorneyStartPageURL:    "http://example.com/attorney-start",
+						AttorneyStartPageURL:    "http://example.com/attorney",
 					}).
 					Return(nil).
 					Once()
@@ -392,7 +392,7 @@ func TestPostWithdrawLpaWhenAttorneysInvited(t *testing.T) {
 						InvitedDate:             "2 January 2020",
 						LpaType:                 "property and affairs",
 						AttorneyFullName:        "t",
-						AttorneyStartPageURL:    "http://example.com/attorney-start",
+						AttorneyStartPageURL:    "http://example.com/attorney",
 					}).
 					Return(nil).
 					Once()
@@ -441,7 +441,7 @@ func TestPostWithdrawLpaWhenAttorneysInvited(t *testing.T) {
 			appData := testAppData
 			appData.Localizer = localizer
 
-			err := WithdrawLpa(nil, donorStore, testNowFn, lpaStoreClient, notifyClient, lpaStoreResolvingService, nil, "http://example.com", "")(appData, w, r, provided)
+			err := WithdrawLpa(nil, donorStore, testNowFn, lpaStoreClient, notifyClient, lpaStoreResolvingService, nil, "http://example.com/certificate-provider", "http://example.com/attorney")(appData, w, r, provided)
 			resp := w.Result()
 
 			assert.Nil(t, err)
