@@ -1091,6 +1091,9 @@ func TestHandleCertificateProviderSubmissionCompleted(t *testing.T) {
 	lpaStoreClient.EXPECT().
 		Lpa(ctx, "M-1111-2222-3333").
 		Return(lpa, nil)
+	lpaStoreClient.EXPECT().
+		SendPaperCertificateProviderAccessOnline(ctx, lpa, "a@example.com").
+		Return(nil)
 
 	dynamoClient := newMockDynamodbClient(t)
 	dynamoClient.EXPECT().
@@ -1114,6 +1117,24 @@ func TestHandleCertificateProviderSubmissionCompleted(t *testing.T) {
 		DeleteAllActionByUID(mock.Anything, mock.Anything, mock.Anything).
 		Return(nil)
 
+	certificateProviderStore := newMockCertificateProviderStore(t)
+	certificateProviderStore.EXPECT().
+		OneByUID(ctx, "M-1111-2222-3333").
+		Return(&certificateproviderdata.Provided{
+			LpaID: "lpa-id",
+			SK:    dynamo.CertificateProviderKey("cp-sub"),
+			Email: "a@example.com",
+		}, nil)
+
+	certificateProviderCtx := appcontext.ContextWithSession(ctx, &appcontext.Session{
+		LpaID:     "lpa-id",
+		SessionID: "cp-sub",
+	})
+
+	certificateProviderStore.EXPECT().
+		Delete(certificateProviderCtx).
+		Return(nil)
+
 	factory := newMockFactory(t)
 	factory.EXPECT().
 		LpaStoreClient().
@@ -1133,6 +1154,9 @@ func TestHandleCertificateProviderSubmissionCompleted(t *testing.T) {
 	factory.EXPECT().
 		ScheduledStore().
 		Return(scheduledStore)
+	factory.EXPECT().
+		CertificateProviderStore().
+		Return(certificateProviderStore)
 
 	handler := &siriusEventHandler{}
 	err := handler.Handle(ctx, factory, certificateProviderSubmissionCompletedEvent)
@@ -1192,7 +1216,7 @@ func TestHandleCertificateProviderSubmissionCompletedWhenLpaStoreErrors(t *testi
 func TestHandleCertificateProviderSubmissionCompletedWhenDonorGetErrors(t *testing.T) {
 	lpaStoreClient := newMockLpaStoreClient(t)
 	lpaStoreClient.EXPECT().
-		Lpa(ctx, "M-1111-2222-3333").
+		Lpa(mock.Anything, mock.Anything).
 		Return(&lpadata.Lpa{
 			CertificateProvider: lpadata.CertificateProvider{
 				Channel: lpadata.ChannelPaper,
@@ -1234,6 +1258,9 @@ func TestHandleCertificateProviderSubmissionCompletedWhenDonorPutErrors(t *testi
 				Channel: lpadata.ChannelPaper,
 			},
 		}, nil)
+	lpaStoreClient.EXPECT().
+		SendPaperCertificateProviderAccessOnline(mock.Anything, mock.Anything, mock.Anything).
+		Return(nil)
 
 	dynamoClient := newMockDynamodbClient(t)
 	dynamoClient.EXPECT().
@@ -1256,107 +1283,16 @@ func TestHandleCertificateProviderSubmissionCompletedWhenDonorPutErrors(t *testi
 		DeleteAllActionByUID(mock.Anything, mock.Anything, mock.Anything).
 		Return(nil)
 
-	factory := newMockFactory(t)
-	factory.EXPECT().
-		LpaStoreClient().
-		Return(lpaStoreClient, nil)
-	factory.EXPECT().
-		ShareCodeSender(ctx).
-		Return(shareCodeSender, nil)
-	factory.EXPECT().
-		AppData().
-		Return(appcontext.Data{}, nil)
-	factory.EXPECT().
-		DynamoClient().
-		Return(dynamoClient)
-	factory.EXPECT().
-		Now().
-		Return(testNowFn)
-	factory.EXPECT().
-		ScheduledStore().
-		Return(scheduledStore)
-
-	handler := &siriusEventHandler{}
-	err := handler.Handle(ctx, factory, certificateProviderSubmissionCompletedEvent)
-	assert.ErrorIs(t, err, expectedError)
-}
-
-func TestHandleCertificateProviderSubmissionCompletedWhenScheduleDeleteErrors(t *testing.T) {
-	lpaStoreClient := newMockLpaStoreClient(t)
-	lpaStoreClient.EXPECT().
-		Lpa(ctx, "M-1111-2222-3333").
-		Return(&lpadata.Lpa{
-			CertificateProvider: lpadata.CertificateProvider{
-				Channel: lpadata.ChannelPaper,
-			},
+	certificateProviderStore := newMockCertificateProviderStore(t)
+	certificateProviderStore.EXPECT().
+		OneByUID(mock.Anything, mock.Anything).
+		Return(&certificateproviderdata.Provided{
+			LpaID: "lpa-id",
+			SK:    dynamo.CertificateProviderKey("cp-sub"),
+			Email: "a@example.com",
 		}, nil)
-
-	dynamoClient := newMockDynamodbClient(t)
-	dynamoClient.EXPECT().
-		OneByUID(ctx, "M-1111-2222-3333").
-		Return(dynamo.Keys{PK: dynamo.LpaKey("an-lpa"), SK: dynamo.DonorKey("a-donor")}, nil)
-	dynamoClient.EXPECT().
-		One(ctx, dynamo.LpaKey("an-lpa"), dynamo.DonorKey("a-donor"), mock.Anything).
-		Return(nil).
-		SetData(&donordata.Provided{PK: dynamo.LpaKey("an-lpa")})
-
-	scheduledStore := newMockScheduledStore(t)
-	scheduledStore.EXPECT().
-		DeleteAllActionByUID(mock.Anything, mock.Anything, mock.Anything).
-		Return(expectedError)
-
-	factory := newMockFactory(t)
-	factory.EXPECT().
-		LpaStoreClient().
-		Return(lpaStoreClient, nil)
-	factory.EXPECT().
-		ShareCodeSender(ctx).
-		Return(nil, nil)
-	factory.EXPECT().
-		AppData().
-		Return(appcontext.Data{}, nil)
-	factory.EXPECT().
-		DynamoClient().
-		Return(dynamoClient)
-	factory.EXPECT().
-		Now().
-		Return(testNowFn)
-	factory.EXPECT().
-		ScheduledStore().
-		Return(scheduledStore)
-
-	handler := &siriusEventHandler{}
-	err := handler.Handle(ctx, factory, certificateProviderSubmissionCompletedEvent)
-	assert.Equal(t, fmt.Errorf("failed to delete scheduled events: %w", expectedError), err)
-}
-
-func TestHandleCertificateProviderSubmissionCompletedWhenShareCodeSenderErrors(t *testing.T) {
-	lpaStoreClient := newMockLpaStoreClient(t)
-	lpaStoreClient.EXPECT().
-		Lpa(ctx, "M-1111-2222-3333").
-		Return(&lpadata.Lpa{
-			CertificateProvider: lpadata.CertificateProvider{
-				Channel: lpadata.ChannelPaper,
-			},
-		}, nil)
-
-	dynamoClient := newMockDynamodbClient(t)
-	dynamoClient.EXPECT().
-		OneByUID(ctx, "M-1111-2222-3333").
-		Return(dynamo.Keys{PK: dynamo.LpaKey("an-lpa"), SK: dynamo.DonorKey("a-donor")}, nil)
-	dynamoClient.EXPECT().
-		One(ctx, dynamo.LpaKey("an-lpa"), dynamo.DonorKey("a-donor"), mock.Anything).
-		Return(nil).
-		SetData(&donordata.Provided{PK: dynamo.LpaKey("an-lpa")})
-
-	shareCodeSender := newMockShareCodeSender(t)
-	shareCodeSender.EXPECT().
-		SendAttorneys(ctx, mock.Anything, mock.Anything).
-		Return(expectedError)
-
-	scheduledStore := newMockScheduledStore(t)
-	scheduledStore.EXPECT().
-		DeleteAllActionByUID(mock.Anything, mock.Anything, mock.Anything).
+	certificateProviderStore.EXPECT().
+		Delete(mock.Anything).
 		Return(nil)
 
 	factory := newMockFactory(t)
@@ -1378,6 +1314,247 @@ func TestHandleCertificateProviderSubmissionCompletedWhenShareCodeSenderErrors(t
 	factory.EXPECT().
 		ScheduledStore().
 		Return(scheduledStore)
+	factory.EXPECT().
+		CertificateProviderStore().
+		Return(certificateProviderStore)
+
+	handler := &siriusEventHandler{}
+	err := handler.Handle(ctx, factory, certificateProviderSubmissionCompletedEvent)
+	assert.ErrorIs(t, err, expectedError)
+}
+
+func TestHandleCertificateProviderSubmissionCompletedWhenCertificateProviderStoreOneByUIDErrors(t *testing.T) {
+	lpaStoreClient := newMockLpaStoreClient(t)
+	lpaStoreClient.EXPECT().
+		Lpa(ctx, "M-1111-2222-3333").
+		Return(&lpadata.Lpa{
+			CertificateProvider: lpadata.CertificateProvider{
+				Channel: lpadata.ChannelPaper,
+			},
+		}, nil)
+
+	dynamoClient := newMockDynamodbClient(t)
+	dynamoClient.EXPECT().
+		OneByUID(mock.Anything, mock.Anything).
+		Return(dynamo.Keys{PK: dynamo.LpaKey("an-lpa"), SK: dynamo.DonorKey("a-donor")}, nil)
+	dynamoClient.EXPECT().
+		One(mock.Anything, mock.Anything, mock.Anything, mock.Anything).
+		Return(nil)
+
+	certificateProviderStore := newMockCertificateProviderStore(t)
+	certificateProviderStore.EXPECT().
+		OneByUID(mock.Anything, mock.Anything).
+		Return(&certificateproviderdata.Provided{
+			LpaID: "lpa-id",
+			SK:    dynamo.CertificateProviderKey("cp-sub"),
+			Email: "a@example.com",
+		}, expectedError)
+
+	factory := newMockFactory(t)
+	factory.EXPECT().
+		LpaStoreClient().
+		Return(lpaStoreClient, nil)
+	factory.EXPECT().
+		ShareCodeSender(ctx).
+		Return(nil, nil)
+	factory.EXPECT().
+		AppData().
+		Return(appcontext.Data{}, nil)
+	factory.EXPECT().
+		DynamoClient().
+		Return(dynamoClient)
+	factory.EXPECT().
+		Now().
+		Return(testNowFn)
+	factory.EXPECT().
+		CertificateProviderStore().
+		Return(certificateProviderStore)
+
+	handler := &siriusEventHandler{}
+	err := handler.Handle(ctx, factory, certificateProviderSubmissionCompletedEvent)
+	assert.ErrorIs(t, err, expectedError)
+}
+
+func TestHandleCertificateProviderSubmissionCompletedWhenCertificateProviderStoreDeleteErrors(t *testing.T) {
+	lpaStoreClient := newMockLpaStoreClient(t)
+	lpaStoreClient.EXPECT().
+		Lpa(ctx, "M-1111-2222-3333").
+		Return(&lpadata.Lpa{
+			CertificateProvider: lpadata.CertificateProvider{
+				Channel: lpadata.ChannelPaper,
+			},
+		}, nil)
+	lpaStoreClient.EXPECT().
+		SendPaperCertificateProviderAccessOnline(mock.Anything, mock.Anything, mock.Anything).
+		Return(nil)
+
+	dynamoClient := newMockDynamodbClient(t)
+	dynamoClient.EXPECT().
+		OneByUID(mock.Anything, mock.Anything).
+		Return(dynamo.Keys{PK: dynamo.LpaKey("an-lpa"), SK: dynamo.DonorKey("a-donor")}, nil)
+	dynamoClient.EXPECT().
+		One(mock.Anything, mock.Anything, mock.Anything, mock.Anything).
+		Return(nil)
+
+	certificateProviderStore := newMockCertificateProviderStore(t)
+	certificateProviderStore.EXPECT().
+		OneByUID(mock.Anything, mock.Anything).
+		Return(&certificateproviderdata.Provided{
+			LpaID: "lpa-id",
+			SK:    dynamo.CertificateProviderKey("cp-sub"),
+			Email: "a@example.com",
+		}, nil)
+	certificateProviderStore.EXPECT().
+		Delete(mock.Anything).
+		Return(expectedError)
+
+	factory := newMockFactory(t)
+	factory.EXPECT().
+		LpaStoreClient().
+		Return(lpaStoreClient, nil)
+	factory.EXPECT().
+		ShareCodeSender(ctx).
+		Return(nil, nil)
+	factory.EXPECT().
+		AppData().
+		Return(appcontext.Data{}, nil)
+	factory.EXPECT().
+		DynamoClient().
+		Return(dynamoClient)
+	factory.EXPECT().
+		Now().
+		Return(testNowFn)
+	factory.EXPECT().
+		CertificateProviderStore().
+		Return(certificateProviderStore)
+
+	handler := &siriusEventHandler{}
+	err := handler.Handle(ctx, factory, certificateProviderSubmissionCompletedEvent)
+	assert.ErrorIs(t, err, expectedError)
+}
+
+func TestHandleCertificateProviderSubmissionCompletedWhenLpaStoreClientErrors(t *testing.T) {
+	lpaStoreClient := newMockLpaStoreClient(t)
+	lpaStoreClient.EXPECT().
+		Lpa(ctx, "M-1111-2222-3333").
+		Return(&lpadata.Lpa{
+			CertificateProvider: lpadata.CertificateProvider{
+				Channel: lpadata.ChannelPaper,
+			},
+		}, nil)
+	lpaStoreClient.EXPECT().
+		SendPaperCertificateProviderAccessOnline(mock.Anything, mock.Anything, mock.Anything).
+		Return(expectedError)
+
+	dynamoClient := newMockDynamodbClient(t)
+	dynamoClient.EXPECT().
+		OneByUID(ctx, "M-1111-2222-3333").
+		Return(dynamo.Keys{PK: dynamo.LpaKey("an-lpa"), SK: dynamo.DonorKey("a-donor")}, nil)
+	dynamoClient.EXPECT().
+		One(ctx, dynamo.LpaKey("an-lpa"), dynamo.DonorKey("a-donor"), mock.Anything).
+		Return(nil).
+		SetData(&donordata.Provided{PK: dynamo.LpaKey("an-lpa")})
+
+	certificateProviderStore := newMockCertificateProviderStore(t)
+	certificateProviderStore.EXPECT().
+		OneByUID(mock.Anything, mock.Anything).
+		Return(&certificateproviderdata.Provided{
+			LpaID: "lpa-id",
+			SK:    dynamo.CertificateProviderKey("cp-sub"),
+			Email: "a@example.com",
+		}, nil)
+
+	factory := newMockFactory(t)
+	factory.EXPECT().
+		LpaStoreClient().
+		Return(lpaStoreClient, nil)
+	factory.EXPECT().
+		ShareCodeSender(ctx).
+		Return(nil, nil)
+	factory.EXPECT().
+		AppData().
+		Return(appcontext.Data{}, nil)
+	factory.EXPECT().
+		DynamoClient().
+		Return(dynamoClient)
+	factory.EXPECT().
+		Now().
+		Return(testNowFn)
+	factory.EXPECT().
+		CertificateProviderStore().
+		Return(certificateProviderStore)
+
+	handler := &siriusEventHandler{}
+	err := handler.Handle(ctx, factory, certificateProviderSubmissionCompletedEvent)
+	assert.ErrorIs(t, err, expectedError)
+}
+
+func TestHandleCertificateProviderSubmissionCompletedWhenShareCodeSenderErrors(t *testing.T) {
+	lpaStoreClient := newMockLpaStoreClient(t)
+	lpaStoreClient.EXPECT().
+		Lpa(mock.Anything, mock.Anything).
+		Return(&lpadata.Lpa{
+			CertificateProvider: lpadata.CertificateProvider{
+				Channel: lpadata.ChannelPaper,
+			},
+		}, nil)
+	lpaStoreClient.EXPECT().
+		SendPaperCertificateProviderAccessOnline(mock.Anything, mock.Anything, mock.Anything).
+		Return(nil)
+
+	dynamoClient := newMockDynamodbClient(t)
+	dynamoClient.EXPECT().
+		OneByUID(mock.Anything, mock.Anything).
+		Return(dynamo.Keys{PK: dynamo.LpaKey("an-lpa"), SK: dynamo.DonorKey("a-donor")}, nil)
+	dynamoClient.EXPECT().
+		One(mock.Anything, mock.Anything, mock.Anything, mock.Anything).
+		Return(nil).
+		SetData(&donordata.Provided{PK: dynamo.LpaKey("an-lpa")})
+
+	shareCodeSender := newMockShareCodeSender(t)
+	shareCodeSender.EXPECT().
+		SendAttorneys(ctx, mock.Anything, mock.Anything).
+		Return(expectedError)
+
+	scheduledStore := newMockScheduledStore(t)
+	scheduledStore.EXPECT().
+		DeleteAllActionByUID(mock.Anything, mock.Anything, mock.Anything).
+		Return(nil)
+
+	certificateProviderStore := newMockCertificateProviderStore(t)
+	certificateProviderStore.EXPECT().
+		OneByUID(mock.Anything, mock.Anything).
+		Return(&certificateproviderdata.Provided{
+			LpaID: "lpa-id",
+			SK:    dynamo.CertificateProviderKey("cp-sub"),
+			Email: "a@example.com",
+		}, nil)
+	certificateProviderStore.EXPECT().
+		Delete(mock.Anything).
+		Return(nil)
+
+	factory := newMockFactory(t)
+	factory.EXPECT().
+		LpaStoreClient().
+		Return(lpaStoreClient, nil)
+	factory.EXPECT().
+		ShareCodeSender(ctx).
+		Return(shareCodeSender, nil)
+	factory.EXPECT().
+		AppData().
+		Return(appcontext.Data{}, nil)
+	factory.EXPECT().
+		DynamoClient().
+		Return(dynamoClient)
+	factory.EXPECT().
+		Now().
+		Return(testNowFn)
+	factory.EXPECT().
+		ScheduledStore().
+		Return(scheduledStore)
+	factory.EXPECT().
+		CertificateProviderStore().
+		Return(certificateProviderStore)
 
 	handler := &siriusEventHandler{}
 	err := handler.Handle(ctx, factory, certificateProviderSubmissionCompletedEvent)
