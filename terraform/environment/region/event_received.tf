@@ -22,6 +22,7 @@ module "event_received" {
   app_public_url                 = aws_route53_record.app.fqdn
   donor_start_url                = var.app_env_vars.donor_start_url
   certificate_provider_start_url = var.app_env_vars.certificate_provider_start_url
+  attorney_start_url             = var.app_env_vars.attorney_start_url
   uploads_bucket                 = module.uploads_s3_bucket.bucket
   uid_base_url                   = var.uid_service.base_url
   lpa_store_base_url             = var.lpa_store_service.base_url
