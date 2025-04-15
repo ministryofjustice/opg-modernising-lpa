@@ -29,7 +29,7 @@ func TestGetWithdrawLpa(t *testing.T) {
 		}).
 		Return(nil)
 
-	err := WithdrawLpa(template.Execute, nil, nil, nil, nil, nil, nil, "")(testAppData, w, r, &donordata.Provided{})
+	err := WithdrawLpa(template.Execute, nil, nil, nil, nil, nil, nil, "", "")(testAppData, w, r, &donordata.Provided{})
 	resp := w.Result()
 
 	assert.Nil(t, err)
@@ -45,7 +45,7 @@ func TestGetWithdrawLpaWhenTemplateErrors(t *testing.T) {
 		Execute(w, mock.Anything).
 		Return(expectedError)
 
-	err := WithdrawLpa(template.Execute, nil, nil, nil, nil, nil, nil, "")(testAppData, w, r, &donordata.Provided{})
+	err := WithdrawLpa(template.Execute, nil, nil, nil, nil, nil, nil, "", "")(testAppData, w, r, &donordata.Provided{})
 	resp := w.Result()
 
 	assert.Equal(t, expectedError, err)
@@ -77,7 +77,7 @@ func TestPostWithdrawLpa(t *testing.T) {
 		SendDonorWithdrawLPA(r.Context(), "lpa-uid").
 		Return(nil)
 
-	err := WithdrawLpa(nil, donorStore, testNowFn, lpaStoreClient, nil, nil, nil, "app://")(testAppData, w, r, &donordata.Provided{
+	err := WithdrawLpa(nil, donorStore, testNowFn, lpaStoreClient, nil, nil, nil, "app://", "http://example.com/certificate-provider")(testAppData, w, r, &donordata.Provided{
 		LpaUID: "lpa-uid",
 		Donor:  donordata.Donor{FirstNames: "a", LastName: "b"},
 		Type:   lpadata.LpaTypePersonalWelfare,
@@ -177,7 +177,7 @@ func TestPostWithdrawLpaWhenCertificateProviderInvited(t *testing.T) {
 				LpaType:                         "type",
 				CertificateProviderFullName:     "C D",
 				InvitedDate:                     "formatted date",
-				CertificateProviderStartPageURL: "app://" + "/certificate-provider-start",
+				CertificateProviderStartPageURL: "http://example.com/certificate-provider",
 			}
 
 			notifyClient := newMockNotifyClient(t)
@@ -185,7 +185,7 @@ func TestPostWithdrawLpaWhenCertificateProviderInvited(t *testing.T) {
 				SendActorEmail(r.Context(), notify.ToLpaCertificateProvider(tc.certificateProvider, tc.lpa), "lpa-uid", expectedEmail).
 				Return(nil)
 
-			err := WithdrawLpa(nil, donorStore, testNowFn, lpaStoreClient, notifyClient, lpaStoreResolvingService, certificateProviderStore, "app://")(testAppData, w, r, &donordata.Provided{
+			err := WithdrawLpa(nil, donorStore, testNowFn, lpaStoreClient, notifyClient, lpaStoreResolvingService, certificateProviderStore, "app://", "http://example.com/certificate-provider")(testAppData, w, r, &donordata.Provided{
 				Donor:                        donordata.Donor{FirstNames: "a", LastName: "b"},
 				LpaUID:                       "lpa-uid",
 				Type:                         lpadata.LpaTypePersonalWelfare,
@@ -250,7 +250,7 @@ func TestPostWithdrawLpaWhenVoucherInvited(t *testing.T) {
 	appData := testAppData
 	appData.Localizer = localizer
 
-	err := WithdrawLpa(nil, donorStore, testNowFn, lpaStoreClient, notifyClient, nil, nil, "")(appData, w, r, provided)
+	err := WithdrawLpa(nil, donorStore, testNowFn, lpaStoreClient, notifyClient, nil, nil, "", "")(appData, w, r, provided)
 	resp := w.Result()
 
 	assert.Nil(t, err)
@@ -441,7 +441,7 @@ func TestPostWithdrawLpaWhenAttorneysInvited(t *testing.T) {
 			appData := testAppData
 			appData.Localizer = localizer
 
-			err := WithdrawLpa(nil, donorStore, testNowFn, lpaStoreClient, notifyClient, lpaStoreResolvingService, nil, "http://example.com")(appData, w, r, provided)
+			err := WithdrawLpa(nil, donorStore, testNowFn, lpaStoreClient, notifyClient, lpaStoreResolvingService, nil, "http://example.com", "")(appData, w, r, provided)
 			resp := w.Result()
 
 			assert.Nil(t, err)
@@ -540,7 +540,7 @@ func TestPostWithdrawLpaWhenNotifyErrors(t *testing.T) {
 				SendActorEmail(mock.Anything, mock.Anything, mock.Anything, mock.Anything).
 				Return(expectedError)
 
-			err := WithdrawLpa(nil, nil, testNowFn, nil, notifyClient, lpaStoreResolvingService, certificateProviderStore, "")(testAppData, w, r, tc.provided)
+			err := WithdrawLpa(nil, nil, testNowFn, nil, notifyClient, lpaStoreResolvingService, certificateProviderStore, "", "")(testAppData, w, r, tc.provided)
 			assert.ErrorIs(t, err, expectedError)
 		})
 	}
@@ -563,7 +563,7 @@ func TestPostWithdrawLpaWhenLpaStoreResolvingServiceErrors(t *testing.T) {
 				Get(mock.Anything).
 				Return(nil, expectedError)
 
-			err := WithdrawLpa(nil, nil, testNowFn, nil, nil, lpaStoreResolvingService, nil, "")(testAppData, w, r, provided)
+			err := WithdrawLpa(nil, nil, testNowFn, nil, nil, lpaStoreResolvingService, nil, "", "")(testAppData, w, r, provided)
 			assert.ErrorIs(t, err, expectedError)
 		})
 	}
@@ -579,7 +579,7 @@ func TestPostWithdrawLpaWhenStoreErrors(t *testing.T) {
 		Put(r.Context(), mock.Anything).
 		Return(expectedError)
 
-	err := WithdrawLpa(nil, donorStore, time.Now, nil, nil, nil, nil, "")(testAppData, w, r, &donordata.Provided{LpaUID: "lpa-uid"})
+	err := WithdrawLpa(nil, donorStore, time.Now, nil, nil, nil, nil, "", "")(testAppData, w, r, &donordata.Provided{LpaUID: "lpa-uid"})
 	assert.Equal(t, expectedError, err)
 }
 
@@ -598,6 +598,6 @@ func TestPostWithdrawLpaWhenLpaStoreClientErrors(t *testing.T) {
 		SendDonorWithdrawLPA(mock.Anything, mock.Anything).
 		Return(expectedError)
 
-	err := WithdrawLpa(nil, donorStore, time.Now, lpaStoreClient, nil, nil, nil, "")(testAppData, w, r, &donordata.Provided{LpaUID: "lpa-uid"})
+	err := WithdrawLpa(nil, donorStore, time.Now, lpaStoreClient, nil, nil, nil, "", "")(testAppData, w, r, &donordata.Provided{LpaUID: "lpa-uid"})
 	assert.Equal(t, expectedError, err)
 }

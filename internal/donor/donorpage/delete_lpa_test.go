@@ -113,7 +113,7 @@ func TestPostDeleteLpaWhenCertificateProviderInvited(t *testing.T) {
 		LpaType:                         "type",
 		CertificateProviderFullName:     "c d",
 		InvitedDate:                     "formatted date",
-		CertificateProviderStartPageURL: "app://" + "/certificate-provider-start",
+		CertificateProviderStartPageURL: "http://example.com/certificate-provider",
 	}
 
 	notifyClient := newMockNotifyClient(t)
@@ -121,7 +121,7 @@ func TestPostDeleteLpaWhenCertificateProviderInvited(t *testing.T) {
 		SendActorEmail(r.Context(), notify.ToCertificateProvider(donor.CertificateProvider), "lpa-uid", email).
 		Return(nil)
 
-	err := DeleteLpa(nil, donorStore, notifyClient, "app://")(testAppData, w, r, &donordata.Provided{
+	err := DeleteLpa(nil, donorStore, notifyClient, "http://example.com/certificate-provider")(testAppData, w, r, &donordata.Provided{
 		LpaUID:                       "lpa-uid",
 		Donor:                        donordata.Donor{FirstNames: "a", LastName: "b"},
 		Type:                         lpadata.LpaTypePersonalWelfare,

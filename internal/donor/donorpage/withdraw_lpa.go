@@ -21,7 +21,7 @@ type withdrawLpaData struct {
 	Donor  *donordata.Provided
 }
 
-func WithdrawLpa(tmpl template.Template, donorStore DonorStore, now func() time.Time, lpaStoreClient LpaStoreClient, notifyClient NotifyClient, lpaStoreResolvingService LpaStoreResolvingService, certificateProviderStore CertificateProviderStore, appPublicURL string) Handler {
+func WithdrawLpa(tmpl template.Template, donorStore DonorStore, now func() time.Time, lpaStoreClient LpaStoreClient, notifyClient NotifyClient, lpaStoreResolvingService LpaStoreResolvingService, certificateProviderStore CertificateProviderStore, appPublicURL, certificateProviderStartURL string) Handler {
 	return func(appData appcontext.Data, w http.ResponseWriter, r *http.Request, provided *donordata.Provided) error {
 		if r.Method == http.MethodPost {
 			if !provided.CertificateProviderInvitedAt.IsZero() {
@@ -39,7 +39,7 @@ func WithdrawLpa(tmpl template.Template, donorStore DonorStore, now func() time.
 					LpaType:                         localize.LowerFirst(appData.Localizer.T(provided.Type.String())),
 					CertificateProviderFullName:     lpa.CertificateProvider.FullName(),
 					InvitedDate:                     appData.Localizer.FormatDate(provided.CertificateProviderInvitedAt),
-					CertificateProviderStartPageURL: appPublicURL + appData.Lang.URL(page.PathCertificateProviderStart.Format()),
+					CertificateProviderStartPageURL: certificateProviderStartURL,
 				}
 
 				if err := notifyClient.SendActorEmail(r.Context(), notify.ToLpaCertificateProvider(certificateProvider, lpa), provided.LpaUID, email); err != nil {

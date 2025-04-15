@@ -139,8 +139,9 @@ func Register(
 	scheduledStore ScheduledStore,
 	appPublicURL string,
 	donorStartURL string,
+	certificateProviderStartURL string,
 ) {
-	handleRoot := makeHandle(rootMux, errorHandler, sessionStore)
+	handleRoot := makeHandle(rootMux, errorHandler, sessionStore, certificateProviderStartURL)
 
 	handleRoot(page.PathCertificateProviderLogin, page.None,
 		page.Login(oneLoginClient, sessionStore, random.String, page.PathCertificateProviderLoginCallback))
@@ -159,7 +160,7 @@ func Register(
 	handleRoot(page.PathCertificateProviderYouHaveAlreadyProvidedACertificateLoggedIn, page.RequireSession,
 		page.Guidance(tmpls.Get("you_have_already_provided_a_certificate_for_donors_lpa.gohtml")))
 
-	handleCertificateProvider := makeCertificateProviderHandle(rootMux, sessionStore, errorHandler, certificateProviderStore, lpaStoreResolvingService)
+	handleCertificateProvider := makeCertificateProviderHandle(rootMux, sessionStore, errorHandler, certificateProviderStore, lpaStoreResolvingService, certificateProviderStartURL)
 
 	handleCertificateProvider(certificateprovider.PathWhoIsEligible, page.None,
 		Guidance(tmpls.Get("who_is_eligible.gohtml")))
@@ -203,7 +204,7 @@ func Register(
 		ConfirmDontWantToBeCertificateProvider(tmpls.Get("confirm_dont_want_to_be_certificate_provider.gohtml"), lpaStoreClient, donorStore, certificateProviderStore, notifyClient, donorStartURL))
 }
 
-func makeHandle(mux *http.ServeMux, errorHandler page.ErrorHandler, sessionStore SessionStore) func(page.Path, page.HandleOpt, page.Handler) {
+func makeHandle(mux *http.ServeMux, errorHandler page.ErrorHandler, sessionStore SessionStore, certificateProviderStartURL string) func(page.Path, page.HandleOpt, page.Handler) {
 	return func(path page.Path, opt page.HandleOpt, h page.Handler) {
 		mux.HandleFunc(path.String(), func(w http.ResponseWriter, r *http.Request) {
 			ctx := r.Context()
@@ -213,7 +214,7 @@ func makeHandle(mux *http.ServeMux, errorHandler page.ErrorHandler, sessionStore
 			if opt&page.RequireSession != 0 {
 				loginSession, err := sessionStore.Login(r)
 				if err != nil {
-					http.Redirect(w, r, page.PathCertificateProviderStart.Format(), http.StatusFound)
+					http.Redirect(w, r, certificateProviderStartURL, http.StatusFound)
 					return
 				}
 
@@ -231,7 +232,7 @@ func makeHandle(mux *http.ServeMux, errorHandler page.ErrorHandler, sessionStore
 	}
 }
 
-func makeCertificateProviderHandle(mux *http.ServeMux, sessionStore SessionStore, errorHandler page.ErrorHandler, certificateProviderStore CertificateProviderStore, lpaStoreResolvingService LpaStoreResolvingService) func(certificateprovider.Path, page.HandleOpt, Handler) {
+func makeCertificateProviderHandle(mux *http.ServeMux, sessionStore SessionStore, errorHandler page.ErrorHandler, certificateProviderStore CertificateProviderStore, lpaStoreResolvingService LpaStoreResolvingService, certificateProviderStartURL string) func(certificateprovider.Path, page.HandleOpt, Handler) {
 	return func(path certificateprovider.Path, opt page.HandleOpt, h Handler) {
 		mux.HandleFunc(path.String(), func(w http.ResponseWriter, r *http.Request) {
 			ctx := r.Context()
@@ -243,7 +244,7 @@ func makeCertificateProviderHandle(mux *http.ServeMux, sessionStore SessionStore
 
 			session, err := sessionStore.Login(r)
 			if err != nil {
-				http.Redirect(w, r, page.PathCertificateProviderStart.Format(), http.StatusFound)
+				http.Redirect(w, r, certificateProviderStartURL, http.StatusFound)
 				return
 			}
 

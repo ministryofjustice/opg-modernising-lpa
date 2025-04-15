@@ -25,6 +25,14 @@ variable "app_public_url" {
   type = string
 }
 
+variable "donor_start_url" {
+  type = string
+}
+
+variable "certificate_provider_start_url" {
+  type = string
+}
+
 variable "uploads_bucket" {
   type = any
 }

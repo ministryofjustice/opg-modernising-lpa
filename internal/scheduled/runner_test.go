@@ -58,7 +58,7 @@ func TestNewRunner(t *testing.T) {
 	metricsClient := newMockMetricsClient(t)
 	bundle := newMockBundle(t)
 
-	runner := NewRunner(logger, store, donorStore, certificateProviderStore, attorneyStore, lpaStoreResolvingService, notifyClient, eventClient, bundle, metricsClient, true, "app://url")
+	runner := NewRunner(logger, store, donorStore, certificateProviderStore, attorneyStore, lpaStoreResolvingService, notifyClient, eventClient, bundle, metricsClient, true, "app://url", "http://example.com/certificate-provider")
 
 	assert.Equal(t, logger, runner.logger)
 	assert.Equal(t, store, runner.store)
