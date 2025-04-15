@@ -47,8 +47,8 @@ var (
 	xrayEnabled                 = os.Getenv("XRAY_ENABLED") == "1"
 	lpaStoreBaseURL             = os.Getenv("LPA_STORE_BASE_URL")
 	lpaStoreSecretARN           = os.Getenv("LPA_STORE_SECRET_ARN")
-	appPublicURL                = os.Getenv("APP_PUBLIC_URL")
 	certificateProviderStartURL = os.Getenv("CERTIFICATE_PROVIDER_START_URL")
+	attorneyStartURL            = os.Getenv("ATTORNEY_START_URL")
 
 	Tag string
 
@@ -118,8 +118,8 @@ func handleRunSchedule(ctx context.Context) error {
 		bundle,
 		metricsClient,
 		metricsEnabled,
-		appPublicURL,
 		certificateProviderStartURL,
+		attorneyStartURL,
 	)
 
 	if err = runner.Run(ctx); err != nil {

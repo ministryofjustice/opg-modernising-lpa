@@ -131,7 +131,7 @@ func TestRunnerRemindAttorneyToComplete(t *testing.T) {
 					AttorneyFullName:        "c d",
 					InvitedDate:             "1 October 1999",
 					DeadlineDate:            "2 April 2000",
-					AttorneyStartPageURL:    "http://app/attorney-start",
+					AttorneyStartPageURL:    "http://example.com/attorney",
 				}).
 				Return(nil).
 				Once()
@@ -143,7 +143,7 @@ func TestRunnerRemindAttorneyToComplete(t *testing.T) {
 					AttorneyFullName:        "trusty",
 					InvitedDate:             "1 October 1999",
 					DeadlineDate:            "2 April 2000",
-					AttorneyStartPageURL:    "http://app/attorney-start",
+					AttorneyStartPageURL:    "http://example.com/attorney",
 				}).
 				Return(nil).
 				Once()
@@ -155,7 +155,7 @@ func TestRunnerRemindAttorneyToComplete(t *testing.T) {
 					AttorneyFullName:        "e f",
 					InvitedDate:             "1 October 1999",
 					DeadlineDate:            "2 April 2000",
-					AttorneyStartPageURL:    "http://app/attorney-start",
+					AttorneyStartPageURL:    "http://example.com/attorney",
 				}).
 				Return(nil).
 				Once()
@@ -167,7 +167,7 @@ func TestRunnerRemindAttorneyToComplete(t *testing.T) {
 					AttorneyFullName:        "untrusty",
 					InvitedDate:             "1 October 1999",
 					DeadlineDate:            "2 April 2000",
-					AttorneyStartPageURL:    "http://app/attorney-start",
+					AttorneyStartPageURL:    "http://example.com/attorney",
 				}).
 				Return(nil).
 				Once()
@@ -178,7 +178,7 @@ func TestRunnerRemindAttorneyToComplete(t *testing.T) {
 					LpaType:              "Personal welfare",
 					InvitedDate:          "1 October 1999",
 					DeadlineDate:         "2 April 2000",
-					AttorneyStartPageURL: "http://app/attorney-start",
+					AttorneyStartPageURL: "http://example.com/attorney",
 				}).
 				Return(nil).
 				Once()
@@ -189,7 +189,7 @@ func TestRunnerRemindAttorneyToComplete(t *testing.T) {
 					LpaType:              "Personal welfare",
 					InvitedDate:          "1 October 1999",
 					DeadlineDate:         "2 April 2000",
-					AttorneyStartPageURL: "http://app/attorney-start",
+					AttorneyStartPageURL: "http://example.com/attorney",
 				}).
 				Return(nil).
 				Once()
@@ -200,7 +200,7 @@ func TestRunnerRemindAttorneyToComplete(t *testing.T) {
 					LpaType:              "Personal welfare",
 					InvitedDate:          "1 October 1999",
 					DeadlineDate:         "2 April 2000",
-					AttorneyStartPageURL: "http://app/attorney-start",
+					AttorneyStartPageURL: "http://example.com/attorney",
 				}).
 				Return(nil).
 				Once()
@@ -211,7 +211,7 @@ func TestRunnerRemindAttorneyToComplete(t *testing.T) {
 					LpaType:              "Personal welfare",
 					InvitedDate:          "1 October 1999",
 					DeadlineDate:         "2 April 2000",
-					AttorneyStartPageURL: "http://app/attorney-start",
+					AttorneyStartPageURL: "http://example.com/attorney",
 				}).
 				Return(nil).
 				Once()
@@ -243,7 +243,7 @@ func TestRunnerRemindAttorneyToComplete(t *testing.T) {
 				notifyClient:             notifyClient,
 				bundle:                   bundle,
 				now:                      testNowFn,
-				appPublicURL:             "http://app",
+				attorneyStartURL:         "http://example.com/attorney",
 			}
 
 			err := runner.stepRemindAttorneyToComplete(ctx, row)
@@ -1098,7 +1098,6 @@ func TestRunnerRemindAttorneyToCompleteWhenNotifyClientErrors(t *testing.T) {
 					notifyClient:             notifyClient,
 					bundle:                   bundle,
 					now:                      testNowFn,
-					appPublicURL:             "http://app",
 				}
 
 				err := runner.stepRemindAttorneyToComplete(ctx, row)
@@ -1250,7 +1249,6 @@ func TestRunnerRemindAttorneyToCompleteWhenEventClientErrors(t *testing.T) {
 					attorneyStore:            attorneyStore,
 					eventClient:              eventClient,
 					now:                      testNowFn,
-					appPublicURL:             "http://app",
 				}
 
 				err := runner.stepRemindAttorneyToComplete(ctx, row)

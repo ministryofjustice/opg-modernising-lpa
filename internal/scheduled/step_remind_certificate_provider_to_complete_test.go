@@ -463,7 +463,6 @@ func TestRunnerRemindCertificateProviderToComplete(t *testing.T) {
 				eventClient:                 eventClient,
 				bundle:                      bundle,
 				now:                         testNowFn,
-				appPublicURL:                "http://app",
 				certificateProviderStartURL: "http://example.com/certificate-provider",
 			}
 

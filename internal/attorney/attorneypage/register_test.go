@@ -14,7 +14,6 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/attorney/attorneydata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/lpastore"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/lpastore/lpadata"
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/sesh"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
@@ -22,7 +21,7 @@ import (
 
 func TestRegister(t *testing.T) {
 	mux := http.NewServeMux()
-	Register(mux, &mockLogger{}, template.Templates{}, template.Templates{}, nil, nil, nil, nil, nil, &mockDashboardStore{}, &lpastore.Client{}, &lpastore.ResolvingService{}, &mockNotifyClient{})
+	Register(mux, &mockLogger{}, template.Templates{}, template.Templates{}, nil, nil, nil, nil, nil, &mockDashboardStore{}, &lpastore.Client{}, &lpastore.ResolvingService{}, &mockNotifyClient{}, "attorneyStartURL")
 
 	assert.Implements(t, (*http.Handler)(nil), mux)
 }
@@ -37,7 +36,7 @@ func TestMakeHandle(t *testing.T) {
 		Return(&sesh.LoginSession{Sub: "random"}, nil)
 
 	mux := http.NewServeMux()
-	handle := makeHandle(mux, sessionStore, nil)
+	handle := makeHandle(mux, sessionStore, nil, "")
 	handle("/path", RequireSession, func(appData appcontext.Data, hw http.ResponseWriter, hr *http.Request) error {
 		assert.Equal(t, appcontext.Data{
 			Page:      "/path",
@@ -67,7 +66,7 @@ func TestMakeHandleRequireSessionExistingSession(t *testing.T) {
 		Return(&sesh.LoginSession{Sub: "random"}, nil)
 
 	mux := http.NewServeMux()
-	handle := makeHandle(mux, sessionStore, nil)
+	handle := makeHandle(mux, sessionStore, nil, "")
 	handle("/path", RequireSession|CanGoBack, func(appData appcontext.Data, hw http.ResponseWriter, hr *http.Request) error {
 		assert.Equal(t, appcontext.Data{
 			Page:      "/path",
@@ -98,7 +97,7 @@ func TestMakeHandleErrors(t *testing.T) {
 		Execute(w, r, expectedError)
 
 	mux := http.NewServeMux()
-	handle := makeHandle(mux, nil, errorHandler.Execute)
+	handle := makeHandle(mux, nil, errorHandler.Execute, "")
 	handle("/path", None, func(appData appcontext.Data, hw http.ResponseWriter, hr *http.Request) error {
 		return expectedError
 	})
@@ -116,14 +115,14 @@ func TestMakeHandleSessionError(t *testing.T) {
 		Return(nil, expectedError)
 
 	mux := http.NewServeMux()
-	handle := makeHandle(mux, sessionStore, nil)
+	handle := makeHandle(mux, sessionStore, nil, "http://example.com")
 	handle("/path", RequireSession, func(appData appcontext.Data, hw http.ResponseWriter, hr *http.Request) error { return nil })
 
 	mux.ServeHTTP(w, r)
 	resp := w.Result()
 
 	assert.Equal(t, http.StatusFound, resp.StatusCode)
-	assert.Equal(t, page.PathAttorneyStart.Format(), resp.Header.Get("Location"))
+	assert.Equal(t, "http://example.com", resp.Header.Get("Location"))
 }
 
 func TestMakeHandleNoSessionRequired(t *testing.T) {
@@ -131,7 +130,7 @@ func TestMakeHandleNoSessionRequired(t *testing.T) {
 	r, _ := http.NewRequest(http.MethodGet, "/path", nil)
 
 	mux := http.NewServeMux()
-	handle := makeHandle(mux, nil, nil)
+	handle := makeHandle(mux, nil, nil, "")
 	handle("/path", None, func(appData appcontext.Data, hw http.ResponseWriter, hr *http.Request) error {
 		assert.Equal(t, appcontext.Data{
 			Page: "/path",
@@ -173,7 +172,7 @@ func TestMakeAttorneyHandleExistingSession(t *testing.T) {
 		Return(expectedLpa, nil)
 
 	mux := http.NewServeMux()
-	handle := makeAttorneyHandle(mux, sessionStore, nil, attorneyStore, lpaStoreResolvingService)
+	handle := makeAttorneyHandle(mux, sessionStore, nil, attorneyStore, lpaStoreResolvingService, "")
 	handle("/path", CanGoBack, func(appData appcontext.Data, hw http.ResponseWriter, hr *http.Request, details *attorneydata.Provided, lpa *lpadata.Lpa) error {
 		assert.Equal(t, expectedDetails, details)
 		assert.Equal(t, expectedLpa, lpa)
@@ -247,7 +246,7 @@ func TestMakeAttorneyHandleExistingLpaData(t *testing.T) {
 				Return(&lpadata.Lpa{}, nil)
 
 			mux := http.NewServeMux()
-			handle := makeAttorneyHandle(mux, sessionStore, nil, attorneyStore, lpaStoreResolvingService)
+			handle := makeAttorneyHandle(mux, sessionStore, nil, attorneyStore, lpaStoreResolvingService, "")
 			handle("/path", CanGoBack, func(appData appcontext.Data, hw http.ResponseWriter, hr *http.Request, details *attorneydata.Provided, lpa *lpadata.Lpa) error {
 				assert.Equal(t, tc.details, details)
 				assert.Equal(t, appcontext.Data{
@@ -300,7 +299,7 @@ func TestMakeAttorneyHandleExistingSessionWhenCannotGoToURL(t *testing.T) {
 		Return(&lpadata.Lpa{}, nil)
 
 	mux := http.NewServeMux()
-	handle := makeAttorneyHandle(mux, sessionStore, nil, attorneyStore, lpaStoreResolvingService)
+	handle := makeAttorneyHandle(mux, sessionStore, nil, attorneyStore, lpaStoreResolvingService, "")
 	handle(path, CanGoBack, nil)
 
 	mux.ServeHTTP(w, r)
@@ -334,7 +333,7 @@ func TestMakeAttorneyHandleErrors(t *testing.T) {
 		Return(&lpadata.Lpa{}, nil)
 
 	mux := http.NewServeMux()
-	handle := makeAttorneyHandle(mux, sessionStore, errorHandler.Execute, attorneyStore, lpaStoreResolvingService)
+	handle := makeAttorneyHandle(mux, sessionStore, errorHandler.Execute, attorneyStore, lpaStoreResolvingService, "")
 	handle("/path", None, func(_ appcontext.Data, _ http.ResponseWriter, _ *http.Request, _ *attorneydata.Provided, _ *lpadata.Lpa) error {
 		return expectedError
 	})
@@ -361,7 +360,7 @@ func TestMakeAttorneyHandleAttorneyStoreErrors(t *testing.T) {
 		Execute(w, r, expectedError)
 
 	mux := http.NewServeMux()
-	handle := makeAttorneyHandle(mux, sessionStore, errorHandler.Execute, attorneyStore, nil)
+	handle := makeAttorneyHandle(mux, sessionStore, errorHandler.Execute, attorneyStore, nil, "")
 	handle("/path", None, nil)
 
 	mux.ServeHTTP(w, r)
@@ -391,7 +390,7 @@ func TestMakeAttorneyHandleLpaStoreErrors(t *testing.T) {
 		Execute(w, r, expectedError)
 
 	mux := http.NewServeMux()
-	handle := makeAttorneyHandle(mux, sessionStore, errorHandler.Execute, attorneyStore, lpaStoreResolvingService)
+	handle := makeAttorneyHandle(mux, sessionStore, errorHandler.Execute, attorneyStore, lpaStoreResolvingService, "")
 	handle("/path", None, nil)
 
 	mux.ServeHTTP(w, r)
@@ -407,12 +406,12 @@ func TestMakeAttorneyHandleSessionError(t *testing.T) {
 		Return(nil, expectedError)
 
 	mux := http.NewServeMux()
-	handle := makeAttorneyHandle(mux, sessionStore, nil, nil, nil)
+	handle := makeAttorneyHandle(mux, sessionStore, nil, nil, nil, "http://example.com")
 	handle("/path", RequireSession, nil)
 
 	mux.ServeHTTP(w, r)
 	resp := w.Result()
 
 	assert.Equal(t, http.StatusFound, resp.StatusCode)
-	assert.Equal(t, page.PathAttorneyStart.Format(), resp.Header.Get("Location"))
+	assert.Equal(t, "http://example.com", resp.Header.Get("Location"))
 }
