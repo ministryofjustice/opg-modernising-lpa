@@ -40,12 +40,13 @@ variable "environments" {
       regions       = list(string)
       app = object({
         env = object({
-          app_public_url         = string
-          donor_start_url        = string
-          auth_redirect_base_url = string
-          notify_is_production   = string
-          onelogin_url           = string
-          dev_mode               = string
+          app_public_url                 = string
+          donor_start_url                = string
+          certificate_provider_start_url = string
+          auth_redirect_base_url         = string
+          notify_is_production           = string
+          onelogin_url                   = string
+          dev_mode                       = string
         })
         autoscaling = object({
           minimum = number

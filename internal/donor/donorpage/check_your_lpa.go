@@ -32,12 +32,13 @@ type checkYourLpaData struct {
 }
 
 type checkYourLpaNotifier struct {
-	notifyClient             NotifyClient
-	shareCodeSender          ShareCodeSender
-	certificateProviderStore CertificateProviderStore
-	scheduledStore           ScheduledStore
-	appPublicURL             string
-	now                      func() time.Time
+	notifyClient                NotifyClient
+	shareCodeSender             ShareCodeSender
+	certificateProviderStore    CertificateProviderStore
+	scheduledStore              ScheduledStore
+	appPublicURL                string
+	certificateProviderStartURL string
+	now                         func() time.Time
 }
 
 func (n *checkYourLpaNotifier) Notify(ctx context.Context, appData appcontext.Data, donor *donordata.Provided, wasCompleted bool) error {
@@ -61,7 +62,7 @@ func (n *checkYourLpaNotifier) sendPaperNotification(ctx context.Context, appDat
 			DonorFullName:                   provided.Donor.FullName(),
 			DonorFirstNames:                 provided.Donor.FirstNames,
 			LpaType:                         localize.LowerFirst(appData.Localizer.T(provided.Type.String())),
-			CertificateProviderStartPageURL: n.appPublicURL + appData.Lang.URL(page.PathCertificateProviderStart.Format()),
+			CertificateProviderStartPageURL: n.certificateProviderStartURL,
 		}
 	}
 
@@ -117,14 +118,14 @@ func (n *checkYourLpaNotifier) sendOnlineNotification(ctx context.Context, appDa
 	return n.notifyClient.SendActorSMS(ctx, notify.ToProvidedCertificateProvider(certificateProvider, donor.CertificateProvider), donor.LpaUID, sms)
 }
 
-func CheckYourLpa(tmpl template.Template, donorStore DonorStore, shareCodeSender ShareCodeSender, notifyClient NotifyClient, certificateProviderStore CertificateProviderStore, scheduledStore ScheduledStore, now func() time.Time, appPublicURL string) Handler {
+func CheckYourLpa(tmpl template.Template, donorStore DonorStore, shareCodeSender ShareCodeSender, notifyClient NotifyClient, certificateProviderStore CertificateProviderStore, scheduledStore ScheduledStore, now func() time.Time, certificateProviderStartURL string) Handler {
 	notifier := &checkYourLpaNotifier{
-		notifyClient:             notifyClient,
-		shareCodeSender:          shareCodeSender,
-		certificateProviderStore: certificateProviderStore,
-		appPublicURL:             appPublicURL,
-		now:                      now,
-		scheduledStore:           scheduledStore,
+		notifyClient:                notifyClient,
+		shareCodeSender:             shareCodeSender,
+		certificateProviderStore:    certificateProviderStore,
+		certificateProviderStartURL: certificateProviderStartURL,
+		now:                         now,
+		scheduledStore:              scheduledStore,
 	}
 
 	return func(appData appcontext.Data, w http.ResponseWriter, r *http.Request, provided *donordata.Provided) error {

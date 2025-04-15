@@ -3,17 +3,18 @@ module "schedule_runner" {
   lambda_name = "schedule-runner"
   description = "Function to run scheduled tasks on a schedule set by EventBridge Scheduler"
   environment_variables = {
-    EVENT_BUS_NAME             = var.event_bus.name
-    GOVUK_NOTIFY_BASE_URL      = "https://api.notifications.service.gov.uk"
-    GOVUK_NOTIFY_IS_PRODUCTION = data.aws_default_tags.current.tags.environment-name == "production" ? "1" : "0"
-    LPAS_TABLE                 = var.lpas_table.name
-    SEARCH_ENDPOINT            = var.search_endpoint
-    SEARCH_INDEX_NAME          = var.search_index_name
-    SEARCH_INDEXING_DISABLED   = 1
-    XRAY_ENABLED               = 1
-    LPA_STORE_BASE_URL         = var.lpa_store_base_url
-    LPA_STORE_SECRET_ARN       = var.lpa_store_secret_arn
-    APP_PUBLIC_URL             = "https://${var.app_public_url}"
+    EVENT_BUS_NAME                 = var.event_bus.name
+    GOVUK_NOTIFY_BASE_URL          = "https://api.notifications.service.gov.uk"
+    GOVUK_NOTIFY_IS_PRODUCTION     = data.aws_default_tags.current.tags.environment-name == "production" ? "1" : "0"
+    LPAS_TABLE                     = var.lpas_table.name
+    SEARCH_ENDPOINT                = var.search_endpoint
+    SEARCH_INDEX_NAME              = var.search_index_name
+    SEARCH_INDEXING_DISABLED       = 1
+    XRAY_ENABLED                   = 1
+    LPA_STORE_BASE_URL             = var.lpa_store_base_url
+    LPA_STORE_SECRET_ARN           = var.lpa_store_secret_arn
+    APP_PUBLIC_URL                 = "https://${var.app_public_url}"
+    CERTIFICATE_PROVIDER_START_URL = var.certificate_provider_start_url
   }
   image_uri            = "${var.lambda_function_image_ecr_url}:${var.lambda_function_image_tag}"
   aws_iam_role         = var.schedule_runner_lambda_role

@@ -507,6 +507,10 @@ locals {
           name  = "DONOR_START_URL",
           value = var.app_env_vars.donor_start_url
         },
+        {
+          name  = "CERTIFICATE_PROVIDER_START_URL",
+          value = var.app_env_vars.certificate_provider_start_url
+        },
       ]
     }
   )

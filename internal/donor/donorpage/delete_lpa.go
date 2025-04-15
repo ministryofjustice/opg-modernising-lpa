@@ -20,7 +20,7 @@ type deleteLpaData struct {
 	Donor  *donordata.Provided
 }
 
-func DeleteLpa(tmpl template.Template, donorStore DonorStore, notifyClient NotifyClient, appPublicURL string) Handler {
+func DeleteLpa(tmpl template.Template, donorStore DonorStore, notifyClient NotifyClient, certificateProviderStartURL string) Handler {
 	return func(appData appcontext.Data, w http.ResponseWriter, r *http.Request, provided *donordata.Provided) error {
 		if r.Method == http.MethodPost {
 			if !provided.CertificateProviderInvitedAt.IsZero() {
@@ -30,7 +30,7 @@ func DeleteLpa(tmpl template.Template, donorStore DonorStore, notifyClient Notif
 					LpaType:                         localize.LowerFirst(appData.Localizer.T(provided.Type.String())),
 					CertificateProviderFullName:     provided.CertificateProvider.FullName(),
 					InvitedDate:                     appData.Localizer.FormatDate(provided.CertificateProviderInvitedAt),
-					CertificateProviderStartPageURL: appPublicURL + appData.Lang.URL(page.PathCertificateProviderStart.Format()),
+					CertificateProviderStartPageURL: certificateProviderStartURL,
 				}
 
 				if err := notifyClient.SendActorEmail(r.Context(), notify.ToCertificateProvider(provided.CertificateProvider), provided.LpaUID, email); err != nil {
