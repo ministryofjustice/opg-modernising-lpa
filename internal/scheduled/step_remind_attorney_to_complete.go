@@ -13,7 +13,6 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/localize"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/lpastore/lpadata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/notify"
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
 )
 
 func (r *Runner) stepRemindAttorneyToComplete(ctx context.Context, row *Event) error {
@@ -116,7 +115,7 @@ func (r *Runner) stepRemindAttorneyToCompleteAttorney(ctx context.Context, lpa *
 			AttorneyFullName:        attorney.FullName(),
 			InvitedDate:             localizer.FormatDate(lpa.AttorneysInvitedAt),
 			DeadlineDate:            localizer.FormatDate(lpa.ExpiresAt()),
-			AttorneyStartPageURL:    r.appPublicURL + page.PathAttorneyStart.Format(),
+			AttorneyStartPageURL:    r.attorneyStartURL,
 		}); err != nil {
 			return fmt.Errorf("could not send attorney email: %w", err)
 		}
@@ -158,7 +157,7 @@ func (r *Runner) stepRemindAttorneyToCompleteAttorney(ctx context.Context, lpa *
 				LpaType:              localizer.T(lpa.Type.String()),
 				InvitedDate:          localizer.FormatDate(lpa.AttorneysInvitedAt),
 				DeadlineDate:         localizer.FormatDate(lpa.ExpiresAt()),
-				AttorneyStartPageURL: r.appPublicURL + page.PathAttorneyStart.Format(),
+				AttorneyStartPageURL: r.attorneyStartURL,
 			}
 		}
 
@@ -197,7 +196,7 @@ func (r *Runner) stepRemindAttorneyToCompleteTrustCorporation(ctx context.Contex
 			AttorneyFullName:        trustCorporation.Name,
 			InvitedDate:             localizer.FormatDate(lpa.AttorneysInvitedAt),
 			DeadlineDate:            localizer.FormatDate(lpa.ExpiresAt()),
-			AttorneyStartPageURL:    r.appPublicURL + page.PathAttorneyStart.Format(),
+			AttorneyStartPageURL:    r.attorneyStartURL,
 		}); err != nil {
 			return fmt.Errorf("could not send trust corporation email: %w", err)
 		}
@@ -239,7 +238,7 @@ func (r *Runner) stepRemindAttorneyToCompleteTrustCorporation(ctx context.Contex
 				LpaType:              localizer.T(lpa.Type.String()),
 				InvitedDate:          localizer.FormatDate(lpa.AttorneysInvitedAt),
 				DeadlineDate:         localizer.FormatDate(lpa.ExpiresAt()),
-				AttorneyStartPageURL: r.appPublicURL + page.PathAttorneyStart.Format(),
+				AttorneyStartPageURL: r.attorneyStartURL,
 			}
 		}
 

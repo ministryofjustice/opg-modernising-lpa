@@ -106,8 +106,9 @@ func Register(
 	lpaStoreClient LpaStoreClient,
 	lpaStoreResolvingService LpaStoreResolvingService,
 	notifyClient NotifyClient,
+	attorneyStartURL string,
 ) {
-	handleRoot := makeHandle(rootMux, sessionStore, errorHandler)
+	handleRoot := makeHandle(rootMux, sessionStore, errorHandler, attorneyStartURL)
 
 	handleRoot(page.PathAttorneyLogin, None,
 		page.Login(oneLoginClient, sessionStore, random.String, page.PathAttorneyLoginCallback))
@@ -122,7 +123,7 @@ func Register(
 	handleRoot(page.PathAttorneyYouHaveDecidedNotToBeAttorney, None,
 		page.Guidance(tmpls.Get("you_have_decided_not_to_be_attorney.gohtml")))
 
-	handleAttorney := makeAttorneyHandle(rootMux, sessionStore, errorHandler, attorneyStore, lpaStoreResolvingService)
+	handleAttorney := makeAttorneyHandle(rootMux, sessionStore, errorHandler, attorneyStore, lpaStoreResolvingService, attorneyStartURL)
 
 	handleAttorney(attorney.PathCodeOfConduct, None,
 		Guidance(tmpls.Get("code_of_conduct.gohtml")))
@@ -161,7 +162,7 @@ const (
 	CanGoBack
 )
 
-func makeHandle(mux *http.ServeMux, store SessionStore, errorHandler page.ErrorHandler) func(page.Path, handleOpt, page.Handler) {
+func makeHandle(mux *http.ServeMux, store SessionStore, errorHandler page.ErrorHandler, attorneyStartURL string) func(page.Path, handleOpt, page.Handler) {
 	return func(path page.Path, opt handleOpt, h page.Handler) {
 		mux.HandleFunc(path.String(), func(w http.ResponseWriter, r *http.Request) {
 			ctx := r.Context()
@@ -173,7 +174,7 @@ func makeHandle(mux *http.ServeMux, store SessionStore, errorHandler page.ErrorH
 			if opt&RequireSession != 0 {
 				session, err := store.Login(r)
 				if err != nil {
-					http.Redirect(w, r, page.PathAttorneyStart.Format(), http.StatusFound)
+					http.Redirect(w, r, attorneyStartURL, http.StatusFound)
 					return
 				}
 
@@ -188,7 +189,7 @@ func makeHandle(mux *http.ServeMux, store SessionStore, errorHandler page.ErrorH
 	}
 }
 
-func makeAttorneyHandle(mux *http.ServeMux, store SessionStore, errorHandler page.ErrorHandler, attorneyStore AttorneyStore, lpaStoreResolvingService LpaStoreResolvingService) func(attorney.Path, handleOpt, Handler) {
+func makeAttorneyHandle(mux *http.ServeMux, store SessionStore, errorHandler page.ErrorHandler, attorneyStore AttorneyStore, lpaStoreResolvingService LpaStoreResolvingService, attorneyStartURL string) func(attorney.Path, handleOpt, Handler) {
 	return func(path attorney.Path, opt handleOpt, h Handler) {
 		mux.HandleFunc(path.String(), func(w http.ResponseWriter, r *http.Request) {
 			ctx := r.Context()
@@ -199,7 +200,7 @@ func makeAttorneyHandle(mux *http.ServeMux, store SessionStore, errorHandler pag
 
 			session, err := store.Login(r)
 			if err != nil {
-				http.Redirect(w, r, page.PathAttorneyStart.Format(), http.StatusFound)
+				http.Redirect(w, r, attorneyStartURL, http.StatusFound)
 				return
 			}
 

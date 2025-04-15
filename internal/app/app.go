@@ -107,6 +107,7 @@ func App(
 	useURL string,
 	donorStartURL string,
 	certificateProviderStartURL string,
+	attorneyStartURL string,
 ) http.Handler {
 	localizer := bundle.For(lang)
 	documentStore := document.NewStore(lpaDynamoClient, s3Client, eventClient)
@@ -123,7 +124,7 @@ func App(
 	scheduledStore := scheduled.NewStore(lpaDynamoClient)
 	progressTracker := task.ProgressTracker{Localizer: localizer}
 
-	shareCodeSender := sharecode.NewSender(shareCodeStore, notifyClient, appPublicURL, eventClient, certificateProviderStore, scheduledStore)
+	shareCodeSender := sharecode.NewSender(shareCodeStore, notifyClient, appPublicURL, certificateProviderStartURL, attorneyStartURL, eventClient, certificateProviderStore, scheduledStore)
 	witnessCodeSender := donor.NewWitnessCodeSender(donorStore, certificateProviderStore, notifyClient, localizer)
 
 	lpaStoreResolvingService := lpastore.NewResolvingService(donorStore, lpaStoreClient)
@@ -266,6 +267,7 @@ func App(
 		lpaStoreClient,
 		lpaStoreResolvingService,
 		notifyClient,
+		attorneyStartURL,
 	)
 
 	donorpage.Register(
@@ -296,6 +298,7 @@ func App(
 		bundle,
 		donorStartURL,
 		certificateProviderStartURL,
+		attorneyStartURL,
 	)
 
 	return withAppData(page.ValidateCsrf(rootMux, sessionStore, random.String, errorHandler), localizer, lang)
