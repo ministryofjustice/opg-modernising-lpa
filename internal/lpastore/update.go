@@ -290,3 +290,16 @@ func (c *Client) SendAttorneyOptOut(ctx context.Context, lpaUID string, attorney
 
 	return c.sendUpdate(ctx, lpaUID, attorneyUID, body)
 }
+
+func (c *Client) SendPaperCertificateProviderAccessOnline(ctx context.Context, lpa *lpadata.Lpa, certificateProviderEmail string) error {
+	body := updateRequest{
+		Type: "PAPER_CERTIFICATE_PROVIDER_ACCESS_ONLINE",
+		Changes: []updateRequestChange{{
+			Key: "/certificateProvider/email",
+			Old: nil,
+			New: certificateProviderEmail,
+		}},
+	}
+
+	return c.sendUpdate(ctx, lpa.LpaUID, lpa.CertificateProvider.UID, body)
+}

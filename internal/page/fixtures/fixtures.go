@@ -2,6 +2,8 @@ package fixtures
 
 import (
 	"context"
+	"crypto/sha256"
+	"encoding/base64"
 	"fmt"
 	"net/http"
 	"strings"
@@ -28,17 +30,19 @@ import (
 )
 
 const (
-	testEmail  = "simulate-delivered@notifications.service.gov.uk"
-	testMobile = "07700900000"
+	testEmail        = "simulate-delivered@notifications.service.gov.uk"
+	testMobile       = "07700900000"
+	mockGOLSubPrefix = "urn:fdc:mock-one-login:2023:"
 )
 
 type fixturesData struct {
-	App        appcontext.Data
-	Sub        string
-	DonorEmail string
-	Errors     validation.List
-	Members    []Name
-	IdStatuses []string
+	App                    appcontext.Data
+	Sub                    string
+	DonorEmail             string
+	Errors                 validation.List
+	Members                []Name
+	IdStatuses             []string
+	CertificateProviderSub string
 }
 
 type Name struct {
@@ -287,4 +291,11 @@ func createVoucher(ctx context.Context, shareCodeStore *sharecode.Store, voucher
 	}
 
 	return voucherStore.Create(ctx, shareCodeData, donor.Voucher.Email)
+}
+
+// transforms the sub to base64(sha256(sub)) for compatability with mock GOL
+func encodeSub(sub string) string {
+	h := sha256.New()
+	h.Write([]byte(sub))
+	return base64.StdEncoding.EncodeToString(h.Sum(nil))
 }
