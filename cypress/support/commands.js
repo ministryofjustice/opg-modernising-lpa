@@ -72,9 +72,7 @@ Cypress.Commands.add('waitForTextVisibilityByReloading', (selector, expectedText
             const $el = $body.find(selector);
             const found = $el.length > 0 && $el.text().includes(expectedText);
 
-            if (found && beVisible) {
-                return;
-            } else if (!found && !beVisible) {
+            if (found === beVisible) {
                 return;
             }
 
