@@ -106,6 +106,7 @@ func App(
 	searchClient *search.Client,
 	useURL string,
 	donorStartURL string,
+	certificateProviderStartURL string,
 ) http.Handler {
 	localizer := bundle.For(lang)
 	documentStore := document.NewStore(lpaDynamoClient, s3Client, eventClient)
@@ -248,6 +249,7 @@ func App(
 		scheduledStore,
 		appPublicURL,
 		donorStartURL,
+		certificateProviderStartURL,
 	)
 
 	attorneypage.Register(
@@ -293,6 +295,7 @@ func App(
 		voucherStore,
 		bundle,
 		donorStartURL,
+		certificateProviderStartURL,
 	)
 
 	return withAppData(page.ValidateCsrf(rootMux, sessionStore, random.String, errorHandler), localizer, lang)

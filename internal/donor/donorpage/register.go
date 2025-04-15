@@ -214,6 +214,7 @@ func Register(
 	voucherStore VoucherStore,
 	bundle Bundle,
 	donorStartURL string,
+	certificateProviderStartURL string,
 ) {
 	payer := Pay(logger, sessionStore, donorStore, payClient, appPublicURL)
 
@@ -232,9 +233,9 @@ func Register(
 		ViewLpa(tmpls.Get("view_lpa.gohtml"), lpaStoreClient))
 
 	handleWithDonor(donor.PathDeleteThisLpa, page.None,
-		DeleteLpa(tmpls.Get("delete_this_lpa.gohtml"), donorStore, notifyClient, appPublicURL))
+		DeleteLpa(tmpls.Get("delete_this_lpa.gohtml"), donorStore, notifyClient, certificateProviderStartURL))
 	handleWithDonor(donor.PathWithdrawThisLpa, page.None,
-		WithdrawLpa(tmpls.Get("withdraw_this_lpa.gohtml"), donorStore, time.Now, lpaStoreClient, notifyClient, lpaStoreResolvingService, certificateProviderStore, appPublicURL))
+		WithdrawLpa(tmpls.Get("withdraw_this_lpa.gohtml"), donorStore, time.Now, lpaStoreClient, notifyClient, lpaStoreResolvingService, certificateProviderStore, appPublicURL, certificateProviderStartURL))
 
 	handleWithDonor(donor.PathMakeANewLPA, page.None,
 		Guidance(tmpls.Get("make_a_new_lpa.gohtml")))
@@ -382,7 +383,7 @@ func Register(
 	handleWithDonor(donor.PathConfirmYourCertificateProviderIsNotRelated, page.CanGoBack,
 		ConfirmYourCertificateProviderIsNotRelated(tmpls.Get("confirm_your_certificate_provider_is_not_related.gohtml"), donorStore, time.Now))
 	handleWithDonor(donor.PathCheckYourLpa, page.CanGoBack,
-		CheckYourLpa(tmpls.Get("check_your_lpa.gohtml"), donorStore, shareCodeSender, notifyClient, certificateProviderStore, scheduledStore, time.Now, appPublicURL))
+		CheckYourLpa(tmpls.Get("check_your_lpa.gohtml"), donorStore, shareCodeSender, notifyClient, certificateProviderStore, scheduledStore, time.Now, certificateProviderStartURL))
 	handleWithDonor(donor.PathLpaDetailsSaved, page.CanGoBack,
 		LpaDetailsSaved(tmpls.Get("lpa_details_saved.gohtml")))
 

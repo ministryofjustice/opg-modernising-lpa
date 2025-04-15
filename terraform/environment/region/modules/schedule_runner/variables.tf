@@ -29,6 +29,10 @@ variable "lpas_table" {
   })
 }
 
+variable "certificate_provider_start_url" {
+  type = string
+}
+
 variable "search_endpoint" {
   type        = string
   description = "URL of the OpenSearch Service endpoint to use"
