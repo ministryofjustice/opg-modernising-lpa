@@ -119,7 +119,8 @@ resource "aws_cloudwatch_event_rule" "cross_account_put" {
   event_bus_name = aws_cloudwatch_event_bus.main.name
 
   event_pattern = jsonencode({
-    source = ["opg.poas.makeregister"]
+    source      = ["opg.poas.makeregister"]
+    detail-type = [{ "anything-but" : { "prefix" : "metric" } }]
   })
   provider = aws.region
 }
