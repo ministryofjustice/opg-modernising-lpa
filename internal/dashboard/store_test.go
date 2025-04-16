@@ -10,6 +10,7 @@ import (
 	"github.com/aws/aws-sdk-go-v2/feature/dynamodb/attributevalue"
 	"github.com/aws/aws-sdk-go-v2/service/dynamodb/types"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor/actoruid"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/appcontext"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/attorney/attorneydata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/certificateprovider/certificateproviderdata"
@@ -87,6 +88,13 @@ func TestDashboardStoreGetAll(t *testing.T) {
 		LpaID: "789",
 		Tasks: attorneydata.Tasks{ConfirmYourDetails: task.StateInProgress},
 	}
+	actorUID, _ := actoruid.Parse("789-paper-attorney-uid")
+	lpa789PaperAttorney := lpadata.Attorney{
+		UID:      actorUID,
+		Channel:  lpadata.ChannelPaper,
+		SignedAt: &aTime,
+	}
+	lpa789.Attorneys = lpadata.Attorneys{Attorneys: []lpadata.Attorney{lpa789PaperAttorney}}
 	lpaNoUIDDonor := &donordata.Provided{
 		PK:        dynamo.LpaKey("0"),
 		SK:        dynamo.LpaOwnerKey(dynamo.DonorKey(sessionID)),
@@ -232,7 +240,7 @@ func TestDashboardStoreGetAll(t *testing.T) {
 			assert.Equal(t, dashboarddata.Results{
 				Donor:               []dashboarddata.Actor{{Lpa: lpa123, Donor: lpa123Donor}, {Lpa: lpa0, Donor: lpa0Donor}, {Lpa: lpaReferenced}},
 				CertificateProvider: []dashboarddata.Actor{{Lpa: lpa456, CertificateProvider: lpa456CertificateProvider}},
-				Attorney:            []dashboarddata.Actor{{Lpa: lpa789, Attorney: lpa789Attorney}},
+				Attorney:            []dashboarddata.Actor{{Lpa: lpa789, Attorney: lpa789Attorney, LpaAttorney: &lpa789PaperAttorney}},
 				Voucher:             []dashboarddata.Actor{{Lpa: lpaVouched, Voucher: lpaVouchedVoucher}},
 			}, results)
 		})

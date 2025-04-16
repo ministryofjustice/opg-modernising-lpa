@@ -90,6 +90,7 @@ func Attorney(
 			isTrustCorporation = slices.Contains(options, "is-trust-corporation")
 			isSupported        = slices.Contains(options, "is-supported")
 			isPaperDonor       = slices.Contains(options, "is-paper-donor")
+			isPaperAttorney    = slices.Contains(options, "is-paper-attorney")
 			hasPhoneNumber     = slices.Contains(options, "has-phone-number")
 		)
 
@@ -280,29 +281,31 @@ func Attorney(
 			certificateProvider.SignedAt = donorDetails.SignedAt.Add(time.Hour)
 		}
 
-		if progress >= slices.Index(progressValues, "confirmYourDetails") {
-			attorney.Phone = testMobile
-			attorney.ContactLanguagePreference = localize.En
-			attorney.Tasks.ConfirmYourDetails = task.StateCompleted
-		}
+		if !isPaperAttorney {
+			if progress >= slices.Index(progressValues, "confirmYourDetails") {
+				attorney.Phone = testMobile
+				attorney.ContactLanguagePreference = localize.En
+				attorney.Tasks.ConfirmYourDetails = task.StateCompleted
+			}
 
-		if progress >= slices.Index(progressValues, "readTheLPA") {
-			attorney.Tasks.ReadTheLpa = task.StateCompleted
-		}
+			if progress >= slices.Index(progressValues, "readTheLPA") {
+				attorney.Tasks.ReadTheLpa = task.StateCompleted
+			}
 
-		if progress >= slices.Index(progressValues, "signedByAttorney") {
-			attorney.Tasks.SignTheLpa = task.StateCompleted
+			if progress >= slices.Index(progressValues, "signedByAttorney") {
+				attorney.Tasks.SignTheLpa = task.StateCompleted
 
-			if isTrustCorporation {
-				attorney.WouldLikeSecondSignatory = form.No
-				attorney.AuthorisedSignatories = [2]attorneydata.TrustCorporationSignatory{{
-					FirstNames:        "A",
-					LastName:          "Sign",
-					ProfessionalTitle: "Assistant to the signer",
-					SignedAt:          donorDetails.SignedAt.Add(2 * time.Hour),
-				}}
-			} else {
-				attorney.SignedAt = donorDetails.SignedAt.Add(2 * time.Hour)
+				if isTrustCorporation {
+					attorney.WouldLikeSecondSignatory = form.No
+					attorney.AuthorisedSignatories = [2]attorneydata.TrustCorporationSignatory{{
+						FirstNames:        "A",
+						LastName:          "Sign",
+						ProfessionalTitle: "Assistant to the signer",
+						SignedAt:          donorDetails.SignedAt.Add(2 * time.Hour),
+					}}
+				} else {
+					attorney.SignedAt = donorDetails.SignedAt.Add(2 * time.Hour)
+				}
 			}
 		}
 
@@ -405,6 +408,14 @@ func Attorney(
 					body.Attorneys[1].Mobile = testMobile
 				} else {
 					body.Attorneys[0].Mobile = testMobile
+				}
+			}
+
+			if isPaperAttorney {
+				body.Attorneys[0].Channel = lpadata.ChannelPaper
+
+				if progress >= slices.Index(progressValues, "signedByAttorney") {
+					body.Attorneys[0].SignedAt = &testNow
 				}
 			}
 
