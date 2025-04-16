@@ -2,6 +2,7 @@ package attorneypage
 
 import (
 	"errors"
+	"fmt"
 	"net/http"
 
 	"github.com/ministryofjustice/opg-go-common/template"
@@ -9,6 +10,7 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/appcontext"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/attorney"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/dynamo"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/lpastore"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/sharecode/sharecodedata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/validation"
@@ -20,7 +22,7 @@ type enterReferenceNumberData struct {
 	Form   *enterReferenceNumberForm
 }
 
-func EnterReferenceNumber(tmpl template.Template, shareCodeStore ShareCodeStore, sessionStore SessionStore, attorneyStore AttorneyStore) page.Handler {
+func EnterReferenceNumber(tmpl template.Template, shareCodeStore ShareCodeStore, sessionStore SessionStore, attorneyStore AttorneyStore, lpaStoreClient LpaStoreClient) page.Handler {
 	return func(appData appcontext.Data, w http.ResponseWriter, r *http.Request) error {
 		data := enterReferenceNumberData{
 			App:  appData,
@@ -41,6 +43,23 @@ func EnterReferenceNumber(tmpl template.Template, shareCodeStore ShareCodeStore,
 						return tmpl(w, data)
 					} else {
 						return err
+					}
+				}
+
+				lpa, err := lpaStoreClient.Lpa(r.Context(), shareCode.LpaUID)
+				if err != nil && !errors.Is(err, lpastore.ErrNotFound) {
+					return fmt.Errorf("error getting LPA from LPA store: %w", err)
+				}
+
+				if lpa != nil {
+					lpaAttorney, found := lpa.Attorneys.Get(shareCode.ActorUID)
+
+					if found && lpaAttorney.Channel.IsPaper() && !lpaAttorney.SignedAt.IsZero() {
+						if err := lpaStoreClient.SendPaperAttorneyAccessOnline(r.Context(), shareCode.LpaUID, appData.LoginSessionEmail, shareCode.ActorUID); err != nil {
+							return fmt.Errorf("error sending attorney email to LPA store: %w", err)
+						}
+
+						return page.PathDashboard.Redirect(w, r, appData)
 					}
 				}
 

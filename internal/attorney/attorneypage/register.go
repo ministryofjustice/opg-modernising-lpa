@@ -82,8 +82,10 @@ type DashboardStore interface {
 }
 
 type LpaStoreClient interface {
+	Lpa(ctx context.Context, lpaUID string) (*lpadata.Lpa, error)
 	SendAttorney(context.Context, *lpadata.Lpa, *attorneydata.Provided) error
 	SendAttorneyOptOut(ctx context.Context, lpaUID string, attorneyUID actoruid.UID, actorType actor.Type) error
+	SendPaperAttorneyAccessOnline(ctx context.Context, lpaUID, attorneyEmail string, attorneyUID actoruid.UID) error
 }
 
 type NotifyClient interface {
@@ -115,7 +117,7 @@ func Register(
 	handleRoot(page.PathAttorneyLoginCallback, None,
 		page.LoginCallback(logger, oneLoginClient, sessionStore, page.PathAttorneyEnterReferenceNumber, dashboardStore, actor.TypeAttorney))
 	handleRoot(page.PathAttorneyEnterReferenceNumber, RequireSession,
-		EnterReferenceNumber(tmpls.Get("enter_reference_number.gohtml"), shareCodeStore, sessionStore, attorneyStore))
+		EnterReferenceNumber(tmpls.Get("enter_reference_number.gohtml"), shareCodeStore, sessionStore, attorneyStore, lpaStoreClient))
 	handleRoot(page.PathAttorneyEnterReferenceNumberOptOut, None,
 		EnterReferenceNumberOptOut(tmpls.Get("enter_reference_number_opt_out.gohtml"), shareCodeStore, sessionStore))
 	handleRoot(page.PathAttorneyConfirmDontWantToBeAttorneyLoggedOut, None,
