@@ -28,6 +28,65 @@ func (_m *mockLpaStoreClient) EXPECT() *mockLpaStoreClient_Expecter {
 	return &mockLpaStoreClient_Expecter{mock: &_m.Mock}
 }
 
+// Lpa provides a mock function with given fields: ctx, lpaUID
+func (_m *mockLpaStoreClient) Lpa(ctx context.Context, lpaUID string) (*lpadata.Lpa, error) {
+	ret := _m.Called(ctx, lpaUID)
+
+	if len(ret) == 0 {
+		panic("no return value specified for Lpa")
+	}
+
+	var r0 *lpadata.Lpa
+	var r1 error
+	if rf, ok := ret.Get(0).(func(context.Context, string) (*lpadata.Lpa, error)); ok {
+		return rf(ctx, lpaUID)
+	}
+	if rf, ok := ret.Get(0).(func(context.Context, string) *lpadata.Lpa); ok {
+		r0 = rf(ctx, lpaUID)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).(*lpadata.Lpa)
+		}
+	}
+
+	if rf, ok := ret.Get(1).(func(context.Context, string) error); ok {
+		r1 = rf(ctx, lpaUID)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
+}
+
+// mockLpaStoreClient_Lpa_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'Lpa'
+type mockLpaStoreClient_Lpa_Call struct {
+	*mock.Call
+}
+
+// Lpa is a helper method to define mock.On call
+//   - ctx context.Context
+//   - lpaUID string
+func (_e *mockLpaStoreClient_Expecter) Lpa(ctx interface{}, lpaUID interface{}) *mockLpaStoreClient_Lpa_Call {
+	return &mockLpaStoreClient_Lpa_Call{Call: _e.mock.On("Lpa", ctx, lpaUID)}
+}
+
+func (_c *mockLpaStoreClient_Lpa_Call) Run(run func(ctx context.Context, lpaUID string)) *mockLpaStoreClient_Lpa_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		run(args[0].(context.Context), args[1].(string))
+	})
+	return _c
+}
+
+func (_c *mockLpaStoreClient_Lpa_Call) Return(_a0 *lpadata.Lpa, _a1 error) *mockLpaStoreClient_Lpa_Call {
+	_c.Call.Return(_a0, _a1)
+	return _c
+}
+
+func (_c *mockLpaStoreClient_Lpa_Call) RunAndReturn(run func(context.Context, string) (*lpadata.Lpa, error)) *mockLpaStoreClient_Lpa_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
 // SendAttorney provides a mock function with given fields: _a0, _a1, _a2
 func (_m *mockLpaStoreClient) SendAttorney(_a0 context.Context, _a1 *lpadata.Lpa, _a2 *attorneydata.Provided) error {
 	ret := _m.Called(_a0, _a1, _a2)
@@ -121,6 +180,55 @@ func (_c *mockLpaStoreClient_SendAttorneyOptOut_Call) Return(_a0 error) *mockLpa
 }
 
 func (_c *mockLpaStoreClient_SendAttorneyOptOut_Call) RunAndReturn(run func(context.Context, string, actoruid.UID, actor.Type) error) *mockLpaStoreClient_SendAttorneyOptOut_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
+// SendPaperAttorneyAccessOnline provides a mock function with given fields: ctx, lpaUID, attorneyEmail, attorneyUID
+func (_m *mockLpaStoreClient) SendPaperAttorneyAccessOnline(ctx context.Context, lpaUID string, attorneyEmail string, attorneyUID actoruid.UID) error {
+	ret := _m.Called(ctx, lpaUID, attorneyEmail, attorneyUID)
+
+	if len(ret) == 0 {
+		panic("no return value specified for SendPaperAttorneyAccessOnline")
+	}
+
+	var r0 error
+	if rf, ok := ret.Get(0).(func(context.Context, string, string, actoruid.UID) error); ok {
+		r0 = rf(ctx, lpaUID, attorneyEmail, attorneyUID)
+	} else {
+		r0 = ret.Error(0)
+	}
+
+	return r0
+}
+
+// mockLpaStoreClient_SendPaperAttorneyAccessOnline_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'SendPaperAttorneyAccessOnline'
+type mockLpaStoreClient_SendPaperAttorneyAccessOnline_Call struct {
+	*mock.Call
+}
+
+// SendPaperAttorneyAccessOnline is a helper method to define mock.On call
+//   - ctx context.Context
+//   - lpaUID string
+//   - attorneyEmail string
+//   - attorneyUID actoruid.UID
+func (_e *mockLpaStoreClient_Expecter) SendPaperAttorneyAccessOnline(ctx interface{}, lpaUID interface{}, attorneyEmail interface{}, attorneyUID interface{}) *mockLpaStoreClient_SendPaperAttorneyAccessOnline_Call {
+	return &mockLpaStoreClient_SendPaperAttorneyAccessOnline_Call{Call: _e.mock.On("SendPaperAttorneyAccessOnline", ctx, lpaUID, attorneyEmail, attorneyUID)}
+}
+
+func (_c *mockLpaStoreClient_SendPaperAttorneyAccessOnline_Call) Run(run func(ctx context.Context, lpaUID string, attorneyEmail string, attorneyUID actoruid.UID)) *mockLpaStoreClient_SendPaperAttorneyAccessOnline_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		run(args[0].(context.Context), args[1].(string), args[2].(string), args[3].(actoruid.UID))
+	})
+	return _c
+}
+
+func (_c *mockLpaStoreClient_SendPaperAttorneyAccessOnline_Call) Return(_a0 error) *mockLpaStoreClient_SendPaperAttorneyAccessOnline_Call {
+	_c.Call.Return(_a0)
+	return _c
+}
+
+func (_c *mockLpaStoreClient_SendPaperAttorneyAccessOnline_Call) RunAndReturn(run func(context.Context, string, string, actoruid.UID) error) *mockLpaStoreClient_SendPaperAttorneyAccessOnline_Call {
 	_c.Call.Return(run)
 	return _c
 }
