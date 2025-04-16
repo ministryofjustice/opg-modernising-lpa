@@ -36,6 +36,7 @@ type LpaStoreClient interface {
 	SendCertificateProviderConfirmIdentity(ctx context.Context, lpaUID string, certificateProvider *certificateproviderdata.Provided) error
 	SendDonorConfirmIdentity(ctx context.Context, donor *donordata.Provided) error
 	SendLpa(ctx context.Context, uid string, body lpastore.CreateLpa) error
+	SendPaperCertificateProviderAccessOnline(ctx context.Context, lpa *lpadata.Lpa, certificateProviderEmail string) error
 }
 
 type SecretsClient interface {
@@ -59,32 +60,32 @@ type UidClient interface {
 }
 
 type CertificateProviderStore interface {
+	Delete(ctx context.Context) error
 	OneByUID(ctx context.Context, uid string) (*certificateproviderdata.Provided, error)
 	Put(ctx context.Context, certificateProvider *certificateproviderdata.Provided) error
 }
 
-type Localizer interface {
-	localize.Localizer
-}
-
 type Factory struct {
-	logger                *slog.Logger
-	now                   func() time.Time
-	uuidString            func() string
-	cfg                   aws.Config
-	dynamoClient          dynamodbClient
-	appPublicURL          string
-	lpaStoreBaseURL       string
-	lpaStoreSecretARN     string
-	uidBaseURL            string
-	notifyBaseURL         string
-	notifyIsProduction    bool
-	eventBusName          string
-	searchEndpoint        string
-	searchIndexName       string
-	searchIndexingEnabled bool
-	eventClient           EventClient
-	httpClient            *http.Client
+	logger                      *slog.Logger
+	now                         func() time.Time
+	uuidString                  func() string
+	cfg                         aws.Config
+	dynamoClient                dynamodbClient
+	appPublicURL                string
+	donorStartURL               string
+	certificateProviderStartURL string
+	attorneyStartURL            string
+	lpaStoreBaseURL             string
+	lpaStoreSecretARN           string
+	uidBaseURL                  string
+	notifyBaseURL               string
+	notifyIsProduction          bool
+	eventBusName                string
+	searchEndpoint              string
+	searchIndexName             string
+	searchIndexingEnabled       bool
+	eventClient                 EventClient
+	httpClient                  *http.Client
 
 	// previously constructed values
 	appData                  *appcontext.Data
@@ -167,7 +168,16 @@ func (f *Factory) ShareCodeSender(ctx context.Context) (ShareCodeSender, error) 
 			return nil, err
 		}
 
-		f.shareCodeSender = sharecode.NewSender(sharecode.NewStore(f.dynamoClient), notifyClient, f.appPublicURL, event.NewClient(f.cfg, f.eventBusName), certificateprovider.NewStore(f.dynamoClient), scheduled.NewStore(f.dynamoClient))
+		f.shareCodeSender = sharecode.NewSender(
+			sharecode.NewStore(f.dynamoClient),
+			notifyClient,
+			f.appPublicURL,
+			f.certificateProviderStartURL,
+			f.attorneyStartURL,
+			event.NewClient(f.cfg, f.eventBusName),
+			certificateprovider.NewStore(f.dynamoClient),
+			scheduled.NewStore(f.dynamoClient),
+		)
 	}
 
 	return f.shareCodeSender, nil
@@ -261,4 +271,8 @@ func (f *Factory) CertificateProviderStore() CertificateProviderStore {
 
 func (f *Factory) AppPublicURL() string {
 	return f.appPublicURL
+}
+
+func (f *Factory) DonorStartURL() string {
+	return f.donorStartURL
 }

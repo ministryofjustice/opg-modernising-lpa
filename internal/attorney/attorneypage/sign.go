@@ -44,7 +44,7 @@ func Sign(tmpl template.Template, attorneyStore AttorneyStore, lpaStoreClient Lp
 		{
 			attorney, ok := attorneys.Get(appData.AttorneyUID)
 			if !ok {
-				return page.PathAttorneyStart.Redirect(w, r, appData)
+				return page.PathDashboard.Redirect(w, r, appData)
 			}
 
 			data.Attorney = attorney

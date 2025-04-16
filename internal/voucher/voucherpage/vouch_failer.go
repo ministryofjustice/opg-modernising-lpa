@@ -6,13 +6,12 @@ import (
 
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/lpastore/lpadata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/notify"
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/voucher/voucherdata"
 )
 
 type vouchFailer func(ctx context.Context, provided *voucherdata.Provided, lpa *lpadata.Lpa) error
 
-func makeVouchFailer(donorStore DonorStore, notifyClient NotifyClient, appPublicURL string) vouchFailer {
+func makeVouchFailer(donorStore DonorStore, notifyClient NotifyClient, donorStartURL string) vouchFailer {
 	return func(ctx context.Context, provided *voucherdata.Provided, lpa *lpadata.Lpa) error {
 		donor, err := donorStore.GetAny(ctx)
 		if err != nil {
@@ -22,7 +21,7 @@ func makeVouchFailer(donorStore DonorStore, notifyClient NotifyClient, appPublic
 		email := notify.VouchingFailedAttemptEmail{
 			Greeting:          notifyClient.EmailGreeting(lpa),
 			VoucherFullName:   provided.FullName(),
-			DonorStartPageURL: appPublicURL + page.PathStart.Format(),
+			DonorStartPageURL: donorStartURL,
 		}
 
 		if err := notifyClient.SendActorEmail(ctx, notify.ToLpaDonor(lpa), lpa.LpaUID, email); err != nil {

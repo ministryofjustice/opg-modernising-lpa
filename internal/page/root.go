@@ -14,10 +14,10 @@ type rootData struct {
 	Errors validation.List
 }
 
-func Root(tmpl template.Template, logger Logger) Handler {
+func Root(tmpl template.Template, logger Logger, donorStartURL string) Handler {
 	return func(appData appcontext.Data, w http.ResponseWriter, r *http.Request) error {
 		if r.URL.Path == "/" {
-			http.Redirect(w, r, PathStart.Format(), http.StatusFound)
+			http.Redirect(w, r, donorStartURL, http.StatusFound)
 			return nil
 		}
 

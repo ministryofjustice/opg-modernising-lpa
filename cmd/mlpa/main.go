@@ -81,22 +81,25 @@ func main() {
 
 func run(ctx context.Context, logger *slog.Logger) error {
 	var (
-		devMode               = os.Getenv("DEV_MODE") == "1"
-		appPublicURL          = cmp.Or(os.Getenv("APP_PUBLIC_URL"), "http://localhost:5050")
-		authRedirectBaseURL   = cmp.Or(os.Getenv("AUTH_REDIRECT_BASE_URL"), "http://localhost:5050")
-		webDir                = cmp.Or(os.Getenv("WEB_DIR"), "web")
-		awsBaseURL            = os.Getenv("AWS_BASE_URL")
-		clientID              = cmp.Or(os.Getenv("CLIENT_ID"), "client-id-value")
-		issuer                = cmp.Or(os.Getenv("ISSUER"), "http://mock-onelogin:8080")
-		identityURL           = cmp.Or(os.Getenv("IDENTITY_URL"), "http://mock-onelogin:8080")
-		dynamoTableLpas       = cmp.Or(os.Getenv("DYNAMODB_TABLE_LPAS"), "lpas")
-		notifyBaseURL         = cmp.Or(os.Getenv("GOVUK_NOTIFY_BASE_URL"), "http://mock-notify:8080")
-		notifyIsProduction    = os.Getenv("GOVUK_NOTIFY_IS_PRODUCTION") == "1"
-		ordnanceSurveyBaseURL = cmp.Or(os.Getenv("ORDNANCE_SURVEY_BASE_URL"), "http://mock-os-api:8080")
-		payBaseURL            = cmp.Or(os.Getenv("GOVUK_PAY_BASE_URL"), "http://mock-pay:8080")
-		port                  = cmp.Or(os.Getenv("APP_PORT"), "8080")
-		xrayEnabled           = os.Getenv("XRAY_ENABLED") == "1"
-		rumConfig             = templatefn.RumConfig{
+		devMode                     = os.Getenv("DEV_MODE") == "1"
+		appPublicURL                = cmp.Or(os.Getenv("APP_PUBLIC_URL"), "http://localhost:5050")
+		donorStartURL               = cmp.Or(os.Getenv("DONOR_START_URL"), appPublicURL+page.PathStart.Format())
+		certificateProviderStartURL = cmp.Or(os.Getenv("CERTIFICATE_PROVIDER_START_URL"), appPublicURL+page.PathCertificateProviderStart.Format())
+		attorneyStartURL            = cmp.Or(os.Getenv("ATTORNEY_START_URL"), appPublicURL+page.PathAttorneyStart.Format())
+		authRedirectBaseURL         = cmp.Or(os.Getenv("AUTH_REDIRECT_BASE_URL"), "http://localhost:5050")
+		webDir                      = cmp.Or(os.Getenv("WEB_DIR"), "web")
+		awsBaseURL                  = os.Getenv("AWS_BASE_URL")
+		clientID                    = cmp.Or(os.Getenv("CLIENT_ID"), "client-id-value")
+		issuer                      = cmp.Or(os.Getenv("ISSUER"), "http://mock-onelogin:8080")
+		identityURL                 = cmp.Or(os.Getenv("IDENTITY_URL"), "http://mock-onelogin:8080")
+		dynamoTableLpas             = cmp.Or(os.Getenv("DYNAMODB_TABLE_LPAS"), "lpas")
+		notifyBaseURL               = cmp.Or(os.Getenv("GOVUK_NOTIFY_BASE_URL"), "http://mock-notify:8080")
+		notifyIsProduction          = os.Getenv("GOVUK_NOTIFY_IS_PRODUCTION") == "1"
+		ordnanceSurveyBaseURL       = cmp.Or(os.Getenv("ORDNANCE_SURVEY_BASE_URL"), "http://mock-os-api:8080")
+		payBaseURL                  = cmp.Or(os.Getenv("GOVUK_PAY_BASE_URL"), "http://mock-pay:8080")
+		port                        = cmp.Or(os.Getenv("APP_PORT"), "8080")
+		xrayEnabled                 = os.Getenv("XRAY_ENABLED") == "1"
+		rumConfig                   = templatefn.RumConfig{
 			GuestRoleArn:      os.Getenv("AWS_RUM_GUEST_ROLE_ARN"),
 			Endpoint:          os.Getenv("AWS_RUM_ENDPOINT"),
 			ApplicationRegion: os.Getenv("AWS_RUM_APPLICATION_REGION"),
@@ -158,13 +161,14 @@ func run(ctx context.Context, logger *slog.Logger) error {
 	}
 
 	layouts, err := parseLayoutTemplates(webDir+"/template/layout", templatefn.All(&templatefn.Globals{
-		DevMode:     devMode,
-		Tag:         Tag,
-		Region:      region,
-		OneloginURL: oneloginURL,
-		StaticHash:  staticHash,
-		RumConfig:   rumConfig,
-		ActorTypes:  actor.TypeValues,
+		DevMode:       devMode,
+		Tag:           Tag,
+		Region:        region,
+		OneloginURL:   oneloginURL,
+		StaticHash:    staticHash,
+		RumConfig:     rumConfig,
+		ActorTypes:    actor.TypeValues,
+		DonorStartURL: donorStartURL,
 	}))
 	if err != nil {
 		return err
@@ -315,6 +319,9 @@ func run(ctx context.Context, logger *slog.Logger) error {
 		lpaStoreClient,
 		searchClient,
 		useURL,
+		donorStartURL,
+		certificateProviderStartURL,
+		attorneyStartURL,
 	)))
 
 	mux.Handle("/", app.App(
@@ -341,6 +348,9 @@ func run(ctx context.Context, logger *slog.Logger) error {
 		lpaStoreClient,
 		searchClient,
 		useURL,
+		donorStartURL,
+		certificateProviderStartURL,
+		attorneyStartURL,
 	))
 
 	var handler http.Handler = mux

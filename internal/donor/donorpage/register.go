@@ -213,10 +213,13 @@ func Register(
 	scheduledStore ScheduledStore,
 	voucherStore VoucherStore,
 	bundle Bundle,
+	donorStartURL string,
+	certificateProviderStartURL string,
+	attorneyStartURL string,
 ) {
 	payer := Pay(logger, sessionStore, donorStore, payClient, appPublicURL)
 
-	handleRoot := makeHandle(rootMux, sessionStore, errorHandler)
+	handleRoot := makeHandle(rootMux, sessionStore, errorHandler, donorStartURL)
 
 	handleRoot(page.PathLogin, page.None,
 		page.Login(oneLoginClient, sessionStore, random.String, page.PathLoginCallback))
@@ -225,15 +228,15 @@ func Register(
 	handleRoot(page.PathEnterAccessCode, page.RequireSession,
 		EnterAccessCode(logger, tmpls.Get("enter_access_code.gohtml"), shareCodeStore, donorStore))
 
-	handleWithDonor := makeLpaHandle(rootMux, sessionStore, errorHandler, donorStore)
+	handleWithDonor := makeLpaHandle(rootMux, sessionStore, errorHandler, donorStore, donorStartURL)
 
 	handleWithDonor(donor.PathViewLPA, page.None,
 		ViewLpa(tmpls.Get("view_lpa.gohtml"), lpaStoreClient))
 
 	handleWithDonor(donor.PathDeleteThisLpa, page.None,
-		DeleteLpa(tmpls.Get("delete_this_lpa.gohtml"), donorStore, notifyClient, appPublicURL))
+		DeleteLpa(tmpls.Get("delete_this_lpa.gohtml"), donorStore, notifyClient, certificateProviderStartURL))
 	handleWithDonor(donor.PathWithdrawThisLpa, page.None,
-		WithdrawLpa(tmpls.Get("withdraw_this_lpa.gohtml"), donorStore, time.Now, lpaStoreClient, notifyClient, lpaStoreResolvingService, certificateProviderStore, appPublicURL))
+		WithdrawLpa(tmpls.Get("withdraw_this_lpa.gohtml"), donorStore, time.Now, lpaStoreClient, notifyClient, lpaStoreResolvingService, certificateProviderStore, certificateProviderStartURL, attorneyStartURL))
 
 	handleWithDonor(donor.PathMakeANewLPA, page.None,
 		Guidance(tmpls.Get("make_a_new_lpa.gohtml")))
@@ -381,7 +384,7 @@ func Register(
 	handleWithDonor(donor.PathConfirmYourCertificateProviderIsNotRelated, page.CanGoBack,
 		ConfirmYourCertificateProviderIsNotRelated(tmpls.Get("confirm_your_certificate_provider_is_not_related.gohtml"), donorStore, time.Now))
 	handleWithDonor(donor.PathCheckYourLpa, page.CanGoBack,
-		CheckYourLpa(tmpls.Get("check_your_lpa.gohtml"), donorStore, shareCodeSender, notifyClient, certificateProviderStore, scheduledStore, time.Now, appPublicURL))
+		CheckYourLpa(tmpls.Get("check_your_lpa.gohtml"), donorStore, shareCodeSender, notifyClient, certificateProviderStore, scheduledStore, time.Now, certificateProviderStartURL))
 	handleWithDonor(donor.PathLpaDetailsSaved, page.CanGoBack,
 		LpaDetailsSaved(tmpls.Get("lpa_details_saved.gohtml")))
 
@@ -500,7 +503,7 @@ func Register(
 		UploadEvidenceSSE(documentStore, logger, 3*time.Minute, 2*time.Second, time.Now))
 }
 
-func makeHandle(mux *http.ServeMux, store SessionStore, errorHandler page.ErrorHandler) func(page.Path, page.HandleOpt, page.Handler) {
+func makeHandle(mux *http.ServeMux, store SessionStore, errorHandler page.ErrorHandler, donorStartURL string) func(page.Path, page.HandleOpt, page.Handler) {
 	return func(path page.Path, opt page.HandleOpt, h page.Handler) {
 		mux.HandleFunc(path.String(), func(w http.ResponseWriter, r *http.Request) {
 			ctx := r.Context()
@@ -512,7 +515,7 @@ func makeHandle(mux *http.ServeMux, store SessionStore, errorHandler page.ErrorH
 			if opt&page.RequireSession != 0 {
 				session, err := store.Login(r)
 				if err != nil {
-					http.Redirect(w, r, page.PathStart.Format(), http.StatusFound)
+					http.Redirect(w, r, donorStartURL, http.StatusFound)
 					return
 				}
 
@@ -528,14 +531,14 @@ func makeHandle(mux *http.ServeMux, store SessionStore, errorHandler page.ErrorH
 	}
 }
 
-func makeLpaHandle(mux *http.ServeMux, store SessionStore, errorHandler page.ErrorHandler, donorStore DonorStore) func(donor.Path, page.HandleOpt, Handler) {
+func makeLpaHandle(mux *http.ServeMux, store SessionStore, errorHandler page.ErrorHandler, donorStore DonorStore, donorStartURL string) func(donor.Path, page.HandleOpt, Handler) {
 	return func(path donor.Path, opt page.HandleOpt, h Handler) {
 		mux.HandleFunc(path.String(), func(w http.ResponseWriter, r *http.Request) {
 			ctx := r.Context()
 
 			loginSession, err := store.Login(r)
 			if err != nil {
-				http.Redirect(w, r, page.PathStart.Format(), http.StatusFound)
+				http.Redirect(w, r, donorStartURL, http.StatusFound)
 				return
 			}
 

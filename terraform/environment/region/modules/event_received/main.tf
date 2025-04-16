@@ -3,20 +3,23 @@ module "event_received" {
   lambda_name = "event-received"
   description = "Function to react when an event is received"
   environment_variables = {
-    LPAS_TABLE                 = var.lpas_table.name
-    GOVUK_NOTIFY_IS_PRODUCTION = data.aws_default_tags.current.tags.environment-name == "production" ? "1" : "0"
-    GOVUK_NOTIFY_BASE_URL      = "https://api.notifications.service.gov.uk"
-    APP_PUBLIC_URL             = "https://${var.app_public_url}"
-    UPLOADS_S3_BUCKET_NAME     = var.uploads_bucket.bucket
-    UID_BASE_URL               = var.uid_base_url
-    LPA_STORE_BASE_URL         = var.lpa_store_base_url
-    LPA_STORE_SECRET_ARN       = var.lpa_store_secret_arn
-    SEARCH_ENDPOINT            = var.search_endpoint
-    SEARCH_INDEX_NAME          = var.search_index_name
-    SEARCH_INDEXING_DISABLED   = 1
-    EVENT_BUS_NAME             = var.event_bus_name
-    JWT_KEY_SECRET_ARN         = data.aws_secretsmanager_secret.lpa_store_jwt_key.arn
-    XRAY_ENABLED               = 1
+    LPAS_TABLE                     = var.lpas_table.name
+    GOVUK_NOTIFY_IS_PRODUCTION     = data.aws_default_tags.current.tags.environment-name == "production" ? "1" : "0"
+    GOVUK_NOTIFY_BASE_URL          = "https://api.notifications.service.gov.uk"
+    APP_PUBLIC_URL                 = "https://${var.app_public_url}"
+    DONOR_START_URL                = var.donor_start_url
+    CERTIFICATE_PROVIDER_START_URL = var.certificate_provider_start_url
+    ATTORNEY_START_URL             = var.attorney_start_url
+    UPLOADS_S3_BUCKET_NAME         = var.uploads_bucket.bucket
+    UID_BASE_URL                   = var.uid_base_url
+    LPA_STORE_BASE_URL             = var.lpa_store_base_url
+    LPA_STORE_SECRET_ARN           = var.lpa_store_secret_arn
+    SEARCH_ENDPOINT                = var.search_endpoint
+    SEARCH_INDEX_NAME              = var.search_index_name
+    SEARCH_INDEXING_DISABLED       = 1
+    EVENT_BUS_NAME                 = var.event_bus_name
+    JWT_KEY_SECRET_ARN             = data.aws_secretsmanager_secret.lpa_store_jwt_key.arn
+    XRAY_ENABLED                   = 1
   }
   image_uri            = "${var.lambda_function_image_ecr_url}:${var.lambda_function_image_tag}"
   aws_iam_role         = var.event_received_lambda_role

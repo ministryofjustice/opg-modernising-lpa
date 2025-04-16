@@ -29,7 +29,7 @@ import (
 
 func TestRegister(t *testing.T) {
 	mux := http.NewServeMux()
-	Register(mux, &slog.Logger{}, template.Templates{}, &mockSessionStore{}, &mockDonorStore{}, &onelogin.Client{}, &place.Client{}, "http://example.org", &pay.Client{}, &mockShareCodeSender{}, &mockWitnessCodeSender{}, nil, &mockCertificateProviderStore{}, &mockNotifyClient{}, &mockEvidenceReceivedStore{}, &mockDocumentStore{}, &mockEventClient{}, &mockDashboardStore{}, &mockLpaStoreClient{}, &mockShareCodeStore{}, &mockProgressTracker{}, &lpastore.ResolvingService{}, &mockScheduledStore{}, &mockVoucherStore{}, &mockBundle{})
+	Register(mux, &slog.Logger{}, template.Templates{}, &mockSessionStore{}, &mockDonorStore{}, &onelogin.Client{}, &place.Client{}, "http://example.org", &pay.Client{}, &mockShareCodeSender{}, &mockWitnessCodeSender{}, nil, &mockCertificateProviderStore{}, &mockNotifyClient{}, &mockEvidenceReceivedStore{}, &mockDocumentStore{}, &mockEventClient{}, &mockDashboardStore{}, &mockLpaStoreClient{}, &mockShareCodeStore{}, &mockProgressTracker{}, &lpastore.ResolvingService{}, &mockScheduledStore{}, &mockVoucherStore{}, &mockBundle{}, "donorStartURL", "certificateProviderStartURL", "attorneyStartURL")
 
 	assert.Implements(t, (*http.Handler)(nil), mux)
 }
@@ -39,7 +39,7 @@ func TestMakeHandle(t *testing.T) {
 	r, _ := http.NewRequest(http.MethodGet, "/path?a=b", nil)
 
 	mux := http.NewServeMux()
-	handle := makeHandle(mux, nil, nil)
+	handle := makeHandle(mux, nil, nil, "http://example.com/start")
 	handle("/path", page.None, func(appData appcontext.Data, hw http.ResponseWriter, hr *http.Request) error {
 		assert.Equal(t, appcontext.Data{
 			Page:      "/path",
@@ -69,7 +69,7 @@ func TestMakeHandleWhenRequireSession(t *testing.T) {
 		Return(loginSession, nil)
 
 	mux := http.NewServeMux()
-	handle := makeHandle(mux, sessionStore, nil)
+	handle := makeHandle(mux, sessionStore, nil, "http://example.com/start")
 	handle("/path", page.RequireSession, func(appData appcontext.Data, hw http.ResponseWriter, hr *http.Request) error {
 		assert.Equal(t, appcontext.Data{
 			Page:              "/path",
@@ -99,14 +99,14 @@ func TestMakeHandleWhenRequireSessionErrors(t *testing.T) {
 		Return(nil, expectedError)
 
 	mux := http.NewServeMux()
-	handle := makeHandle(mux, sessionStore, nil)
+	handle := makeHandle(mux, sessionStore, nil, "http://example.com/start")
 	handle("/path", page.RequireSession, nil)
 
 	mux.ServeHTTP(w, r)
 	resp := w.Result()
 
 	assert.Equal(t, http.StatusFound, resp.StatusCode)
-	assert.Equal(t, page.PathStart.Format(), resp.Header.Get("Location"))
+	assert.Equal(t, "http://example.com/start", resp.Header.Get("Location"))
 }
 
 func TestMakeHandleErrors(t *testing.T) {
@@ -118,7 +118,7 @@ func TestMakeHandleErrors(t *testing.T) {
 		Execute(w, r, expectedError)
 
 	mux := http.NewServeMux()
-	handle := makeHandle(mux, nil, errorHandler.Execute)
+	handle := makeHandle(mux, nil, errorHandler.Execute, "http://example.com/start")
 	handle("/path", page.None, func(appData appcontext.Data, hw http.ResponseWriter, hr *http.Request) error {
 		return expectedError
 	})
@@ -185,7 +185,7 @@ func TestMakeLpaHandleWhenDetailsProvidedAndUIDExists(t *testing.T) {
 					LpaUID: "a-uid",
 				}, nil)
 
-			handle := makeLpaHandle(mux, sessionStore, nil, donorStore)
+			handle := makeLpaHandle(mux, sessionStore, nil, donorStore, "http://example.com/start")
 			handle("/path", page.None, func(appData appcontext.Data, hw http.ResponseWriter, hr *http.Request, _ *donordata.Provided) error {
 				assert.Equal(t, tc.expectedAppData, appData)
 
@@ -244,7 +244,7 @@ func TestMakeHandleLpaWhenDonorEmailNotSet(t *testing.T) {
 		}).
 		Return(nil)
 
-	handle := makeLpaHandle(mux, sessionStore, nil, donorStore)
+	handle := makeLpaHandle(mux, sessionStore, nil, donorStore, "http://example.com/start")
 	handle("/path", page.None, func(appData appcontext.Data, hw http.ResponseWriter, hr *http.Request, _ *donordata.Provided) error {
 		hw.WriteHeader(http.StatusTeapot)
 		return nil
@@ -267,7 +267,7 @@ func TestMakeLpaHandleWhenSessionStoreError(t *testing.T) {
 		Login(r).
 		Return(nil, expectedError)
 
-	handle := makeLpaHandle(mux, sessionStore, nil, nil)
+	handle := makeLpaHandle(mux, sessionStore, nil, nil, "http://example.com/start")
 	handle("/path", page.None, func(_ appcontext.Data, _ http.ResponseWriter, _ *http.Request, _ *donordata.Provided) error {
 		return expectedError
 	})
@@ -276,7 +276,7 @@ func TestMakeLpaHandleWhenSessionStoreError(t *testing.T) {
 	resp := w.Result()
 
 	assert.Equal(t, http.StatusFound, resp.StatusCode)
-	assert.Equal(t, page.PathStart.Format(), resp.Header.Get("Location"))
+	assert.Equal(t, "http://example.com/start", resp.Header.Get("Location"))
 }
 
 func TestMakeLpaHandleWhenDonorStoreError(t *testing.T) {
@@ -316,7 +316,7 @@ func TestMakeLpaHandleWhenDonorStoreError(t *testing.T) {
 			errorHandler.EXPECT().
 				Execute(w, r, expectedError)
 
-			handle := makeLpaHandle(mux, sessionStore, errorHandler.Execute, donorStore())
+			handle := makeLpaHandle(mux, sessionStore, errorHandler.Execute, donorStore(), "http://example.com/start")
 			handle("/path", page.None, func(_ appcontext.Data, _ http.ResponseWriter, _ *http.Request, _ *donordata.Provided) error {
 				return expectedError
 			})
@@ -347,7 +347,7 @@ func TestMakeLpaHandleWhenCannotGoToURL(t *testing.T) {
 		Get(mock.Anything).
 		Return(&donordata.Provided{LpaID: "123", Donor: donordata.Donor{Email: "a@example.com"}}, nil)
 
-	handle := makeLpaHandle(mux, sessionStore, nil, donorStore)
+	handle := makeLpaHandle(mux, sessionStore, nil, donorStore, "http://example.com/start")
 	handle(path, page.None, func(_ appcontext.Data, _ http.ResponseWriter, _ *http.Request, _ *donordata.Provided) error {
 		return nil
 	})
@@ -395,7 +395,7 @@ func TestMakeLpaHandleWhenCannotGoToTaskList(t *testing.T) {
 			},
 		}, nil)
 
-	handle := makeLpaHandle(mux, sessionStore, nil, donorStore)
+	handle := makeLpaHandle(mux, sessionStore, nil, donorStore, "http://example.com/start")
 	handle(path, page.None, func(_ appcontext.Data, _ http.ResponseWriter, _ *http.Request, _ *donordata.Provided) error {
 		return nil
 	})
@@ -423,7 +423,7 @@ func TestMakeLpaHandleSessionExistingSession(t *testing.T) {
 		Return(&donordata.Provided{Donor: donordata.Donor{Email: "a@example.com"}}, nil)
 
 	mux := http.NewServeMux()
-	handle := makeLpaHandle(mux, sessionStore, nil, donorStore)
+	handle := makeLpaHandle(mux, sessionStore, nil, donorStore, "http://example.com/start")
 	handle("/path", page.RequireSession|page.CanGoBack, func(appData appcontext.Data, hw http.ResponseWriter, hr *http.Request, _ *donordata.Provided) error {
 		assert.Equal(t, appcontext.Data{
 			Page:      "/lpa/123/path",
@@ -466,7 +466,7 @@ func TestMakeLpaHandleErrors(t *testing.T) {
 		Return(&donordata.Provided{Donor: donordata.Donor{Email: "a@example.com"}}, nil)
 
 	mux := http.NewServeMux()
-	handle := makeLpaHandle(mux, sessionStore, errorHandler.Execute, donorStore)
+	handle := makeLpaHandle(mux, sessionStore, errorHandler.Execute, donorStore, "http://example.com/start")
 	handle("/path", page.RequireSession, func(_ appcontext.Data, _ http.ResponseWriter, _ *http.Request, _ *donordata.Provided) error {
 		return expectedError
 	})

@@ -105,6 +105,9 @@ func App(
 	lpaStoreClient *lpastore.Client,
 	searchClient *search.Client,
 	useURL string,
+	donorStartURL string,
+	certificateProviderStartURL string,
+	attorneyStartURL string,
 ) http.Handler {
 	localizer := bundle.For(lang)
 	documentStore := document.NewStore(lpaDynamoClient, s3Client, eventClient)
@@ -121,16 +124,16 @@ func App(
 	scheduledStore := scheduled.NewStore(lpaDynamoClient)
 	progressTracker := task.ProgressTracker{Localizer: localizer}
 
-	shareCodeSender := sharecode.NewSender(shareCodeStore, notifyClient, appPublicURL, eventClient, certificateProviderStore, scheduledStore)
+	shareCodeSender := sharecode.NewSender(shareCodeStore, notifyClient, appPublicURL, certificateProviderStartURL, attorneyStartURL, eventClient, certificateProviderStore, scheduledStore)
 	witnessCodeSender := donor.NewWitnessCodeSender(donorStore, certificateProviderStore, notifyClient, localizer)
 
 	lpaStoreResolvingService := lpastore.NewResolvingService(donorStore, lpaStoreClient)
 
 	errorHandler := page.Error(tmpls.Get("error-500.gohtml"), logger, devMode)
-	notFoundHandler := page.Root(tmpls.Get("error-404.gohtml"), logger)
+	notFoundHandler := page.Root(tmpls.Get("error-404.gohtml"), logger, donorStartURL)
 
 	rootMux := http.NewServeMux()
-	handleRoot := makeHandle(rootMux, errorHandler, sessionStore)
+	handleRoot := makeHandle(rootMux, errorHandler, sessionStore, donorStartURL)
 
 	if devMode {
 		handleRoot(page.PathFixtures, None,
@@ -150,7 +153,7 @@ func App(
 	handleRoot(page.PathRoot, None,
 		notFoundHandler)
 	handleRoot(page.PathSignOut, None,
-		page.SignOut(logger, sessionStore, oneLoginClient, appPublicURL))
+		page.SignOut(logger, sessionStore, oneLoginClient, donorStartURL))
 	handleRoot(page.PathStart, None,
 		page.Guidance(tmpls.Get("start.gohtml")))
 	handleRoot(page.PathCertificateProviderStart, None,
@@ -201,10 +204,10 @@ func App(
 		errorHandler,
 		lpaStoreResolvingService,
 		notifyClient,
-		appPublicURL,
 		donorStore,
 		lpaStoreClient,
 		scheduledStore,
+		donorStartURL,
 	)
 
 	supporterpage.Register(
@@ -223,6 +226,7 @@ func App(
 		shareCodeStore,
 		progressTracker,
 		lpaStoreResolvingService,
+		donorStartURL,
 	)
 
 	certificateproviderpage.Register(
@@ -245,6 +249,8 @@ func App(
 		eventClient,
 		scheduledStore,
 		appPublicURL,
+		donorStartURL,
+		certificateProviderStartURL,
 	)
 
 	attorneypage.Register(
@@ -261,6 +267,7 @@ func App(
 		lpaStoreClient,
 		lpaStoreResolvingService,
 		notifyClient,
+		attorneyStartURL,
 	)
 
 	donorpage.Register(
@@ -289,6 +296,9 @@ func App(
 		scheduledStore,
 		voucherStore,
 		bundle,
+		donorStartURL,
+		certificateProviderStartURL,
+		attorneyStartURL,
 	)
 
 	return withAppData(page.ValidateCsrf(rootMux, sessionStore, random.String, errorHandler), localizer, lang)
@@ -321,7 +331,7 @@ const (
 	RequireSession
 )
 
-func makeHandle(mux *http.ServeMux, errorHandler page.ErrorHandler, sessionStore SessionStore) func(page.Path, handleOpt, page.Handler) {
+func makeHandle(mux *http.ServeMux, errorHandler page.ErrorHandler, sessionStore SessionStore, donorStartURL string) func(page.Path, handleOpt, page.Handler) {
 	return func(path page.Path, opt handleOpt, h page.Handler) {
 		mux.HandleFunc(path.String(), func(w http.ResponseWriter, r *http.Request) {
 			ctx := r.Context()
@@ -332,7 +342,7 @@ func makeHandle(mux *http.ServeMux, errorHandler page.ErrorHandler, sessionStore
 			if opt&RequireSession != 0 {
 				loginSession, err := sessionStore.Login(r)
 				if err != nil {
-					http.Redirect(w, r, page.PathStart.Format(), http.StatusFound)
+					http.Redirect(w, r, donorStartURL, http.StatusFound)
 					return
 				}
 

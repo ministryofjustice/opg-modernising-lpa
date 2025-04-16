@@ -37,17 +37,18 @@ var (
 	awsBaseURL   = os.Getenv("AWS_BASE_URL")
 	eventBusName = cmp.Or(os.Getenv("EVENT_BUS_NAME"), "default")
 	// TODO remove in MLPAB-2690
-	metricsEnabled        = os.Getenv("METRICS_ENABLED") == "1"
-	notifyBaseURL         = os.Getenv("GOVUK_NOTIFY_BASE_URL")
-	notifyIsProduction    = os.Getenv("GOVUK_NOTIFY_IS_PRODUCTION") == "1"
-	searchEndpoint        = os.Getenv("SEARCH_ENDPOINT")
-	searchIndexName       = cmp.Or(os.Getenv("SEARCH_INDEX_NAME"), "lpas")
-	searchIndexingEnabled = os.Getenv("SEARCH_INDEXING_DISABLED") != "1"
-	tableName             = os.Getenv("LPAS_TABLE")
-	xrayEnabled           = os.Getenv("XRAY_ENABLED") == "1"
-	lpaStoreBaseURL       = os.Getenv("LPA_STORE_BASE_URL")
-	lpaStoreSecretARN     = os.Getenv("LPA_STORE_SECRET_ARN")
-	appPublicURL          = os.Getenv("APP_PUBLIC_URL")
+	metricsEnabled              = os.Getenv("METRICS_ENABLED") == "1"
+	notifyBaseURL               = os.Getenv("GOVUK_NOTIFY_BASE_URL")
+	notifyIsProduction          = os.Getenv("GOVUK_NOTIFY_IS_PRODUCTION") == "1"
+	searchEndpoint              = os.Getenv("SEARCH_ENDPOINT")
+	searchIndexName             = cmp.Or(os.Getenv("SEARCH_INDEX_NAME"), "lpas")
+	searchIndexingEnabled       = os.Getenv("SEARCH_INDEXING_DISABLED") != "1"
+	tableName                   = os.Getenv("LPAS_TABLE")
+	xrayEnabled                 = os.Getenv("XRAY_ENABLED") == "1"
+	lpaStoreBaseURL             = os.Getenv("LPA_STORE_BASE_URL")
+	lpaStoreSecretARN           = os.Getenv("LPA_STORE_SECRET_ARN")
+	certificateProviderStartURL = os.Getenv("CERTIFICATE_PROVIDER_START_URL")
+	attorneyStartURL            = os.Getenv("ATTORNEY_START_URL")
 
 	Tag string
 
@@ -117,7 +118,8 @@ func handleRunSchedule(ctx context.Context) error {
 		bundle,
 		metricsClient,
 		metricsEnabled,
-		appPublicURL,
+		certificateProviderStartURL,
+		attorneyStartURL,
 	)
 
 	if err = runner.Run(ctx); err != nil {

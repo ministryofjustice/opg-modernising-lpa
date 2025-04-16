@@ -25,7 +25,7 @@ import (
 
 func TestRegister(t *testing.T) {
 	mux := http.NewServeMux()
-	Register(mux, &slog.Logger{}, template.Templates{}, template.Templates{}, nil, &onelogin.Client{}, nil, nil, nil, &place.Client{}, &notify.Client{}, nil, &mockDashboardStore{}, &lpastore.Client{}, &lpastore.ResolvingService{}, &mockDonorStore{}, &mockEventClient{}, &mockScheduledStore{}, "publicURL")
+	Register(mux, &slog.Logger{}, template.Templates{}, template.Templates{}, nil, &onelogin.Client{}, nil, nil, nil, &place.Client{}, &notify.Client{}, nil, &mockDashboardStore{}, &lpastore.Client{}, &lpastore.ResolvingService{}, &mockDonorStore{}, &mockEventClient{}, &mockScheduledStore{}, "publicURL", "donorStartURL", "certificateProviderStartURL")
 
 	assert.Implements(t, (*http.Handler)(nil), mux)
 }
@@ -35,7 +35,7 @@ func TestMakeHandle(t *testing.T) {
 	r, _ := http.NewRequest(http.MethodGet, "/path?a=b", nil)
 
 	mux := http.NewServeMux()
-	handle := makeHandle(mux, nil, nil)
+	handle := makeHandle(mux, nil, nil, "")
 	handle("/path", page.None, func(appData appcontext.Data, hw http.ResponseWriter, hr *http.Request) error {
 		assert.Equal(t, appcontext.Data{
 			Page:      "/path",
@@ -66,7 +66,7 @@ func TestMakeHandleWhenSessionRequired(t *testing.T) {
 		Return(&sesh.LoginSession{Sub: "random"}, nil)
 
 	mux := http.NewServeMux()
-	handle := makeHandle(mux, nil, sessionStore)
+	handle := makeHandle(mux, nil, sessionStore, "")
 	handle("/path", page.RequireSession, func(appData appcontext.Data, hw http.ResponseWriter, hr *http.Request) error {
 		assert.Equal(t, appcontext.Data{
 			Page:      "/path",
@@ -98,7 +98,7 @@ func TestMakeHandleWhenSessionRequiredAndSessionError(t *testing.T) {
 		Return(nil, expectedError)
 
 	mux := http.NewServeMux()
-	handle := makeHandle(mux, nil, sessionStore)
+	handle := makeHandle(mux, nil, sessionStore, "http://example.com")
 	handle("/path", page.RequireSession, func(appData appcontext.Data, hw http.ResponseWriter, hr *http.Request) error {
 		return nil
 	})
@@ -107,7 +107,7 @@ func TestMakeHandleWhenSessionRequiredAndSessionError(t *testing.T) {
 	resp := w.Result()
 
 	assert.Equal(t, http.StatusFound, resp.StatusCode)
-	assert.Equal(t, page.PathCertificateProviderStart.Format(), resp.Header.Get("Location"))
+	assert.Equal(t, "http://example.com", resp.Header.Get("Location"))
 }
 
 func TestMakeHandleErrors(t *testing.T) {
@@ -119,7 +119,7 @@ func TestMakeHandleErrors(t *testing.T) {
 		Execute(w, r, expectedError)
 
 	mux := http.NewServeMux()
-	handle := makeHandle(mux, errorHandler.Execute, nil)
+	handle := makeHandle(mux, errorHandler.Execute, nil, "")
 	handle("/path", page.None, func(appData appcontext.Data, hw http.ResponseWriter, hr *http.Request) error {
 		return expectedError
 	})
@@ -148,7 +148,7 @@ func TestMakeCertificateProviderHandle(t *testing.T) {
 		Return(&lpadata.Lpa{LpaID: "123"}, nil)
 
 	mux := http.NewServeMux()
-	handle := makeCertificateProviderHandle(mux, sessionStore, nil, certificateProviderStore, lpaStoreResolvingService)
+	handle := makeCertificateProviderHandle(mux, sessionStore, nil, certificateProviderStore, lpaStoreResolvingService, "")
 	handle("/path", page.None, func(appData appcontext.Data, hw http.ResponseWriter, hr *http.Request, certificateProvider *certificateproviderdata.Provided, lpa *lpadata.Lpa) error {
 		assert.Equal(t, appcontext.Data{
 			Page:      "/certificate-provider/123/path",
@@ -197,7 +197,7 @@ func TestMakeCertificateProviderHandleWhenCannotGoToURL(t *testing.T) {
 		Return(&lpadata.Lpa{}, nil)
 
 	mux := http.NewServeMux()
-	handle := makeCertificateProviderHandle(mux, sessionStore, nil, certificateProviderStore, lpaStoreResolvingService)
+	handle := makeCertificateProviderHandle(mux, sessionStore, nil, certificateProviderStore, lpaStoreResolvingService, "")
 	handle(path, page.None, func(_ appcontext.Data, _ http.ResponseWriter, _ *http.Request, _ *certificateproviderdata.Provided, _ *lpadata.Lpa) error {
 		return nil
 	})
@@ -219,7 +219,7 @@ func TestMakeCertificateProviderHandleSessionError(t *testing.T) {
 		Return(nil, expectedError)
 
 	mux := http.NewServeMux()
-	handle := makeCertificateProviderHandle(mux, sessionStore, nil, nil, nil)
+	handle := makeCertificateProviderHandle(mux, sessionStore, nil, nil, nil, "http://example.com")
 	handle("/path", page.None, func(_ appcontext.Data, _ http.ResponseWriter, _ *http.Request, _ *certificateproviderdata.Provided, _ *lpadata.Lpa) error {
 		return nil
 	})
@@ -228,7 +228,7 @@ func TestMakeCertificateProviderHandleSessionError(t *testing.T) {
 	resp := w.Result()
 
 	assert.Equal(t, http.StatusFound, resp.StatusCode)
-	assert.Equal(t, page.PathCertificateProviderStart.Format(), resp.Header.Get("Location"))
+	assert.Equal(t, "http://example.com", resp.Header.Get("Location"))
 }
 
 func TestMakeCertificateProviderHandleWhenCertificateProviderStoreError(t *testing.T) {
@@ -251,7 +251,7 @@ func TestMakeCertificateProviderHandleWhenCertificateProviderStoreError(t *testi
 		Execute(w, r, expectedError)
 
 	mux := http.NewServeMux()
-	handle := makeCertificateProviderHandle(mux, sessionStore, errorHandler.Execute, certificateProviderStore, nil)
+	handle := makeCertificateProviderHandle(mux, sessionStore, errorHandler.Execute, certificateProviderStore, nil, "")
 	handle("/path", page.None, func(_ appcontext.Data, _ http.ResponseWriter, _ *http.Request, _ *certificateproviderdata.Provided, _ *lpadata.Lpa) error {
 		return nil
 	})
@@ -284,7 +284,7 @@ func TestMakeCertificateProviderHandleWhenLpaStoreResolvingServiceError(t *testi
 		Execute(w, r, expectedError)
 
 	mux := http.NewServeMux()
-	handle := makeCertificateProviderHandle(mux, sessionStore, errorHandler.Execute, certificateProviderStore, lpaStoreResolvingService)
+	handle := makeCertificateProviderHandle(mux, sessionStore, errorHandler.Execute, certificateProviderStore, lpaStoreResolvingService, "")
 	handle("/path", page.None, func(_ appcontext.Data, _ http.ResponseWriter, _ *http.Request, _ *certificateproviderdata.Provided, _ *lpadata.Lpa) error {
 		return nil
 	})

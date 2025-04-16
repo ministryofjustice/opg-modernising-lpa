@@ -49,27 +49,31 @@ type ScheduledStore interface {
 }
 
 type Sender struct {
-	testCode                 string
-	shareCodeStore           ShareCodeStore
-	certificateProviderStore CertificateProviderStore
-	scheduledStore           ScheduledStore
-	notifyClient             NotifyClient
-	appPublicURL             string
-	eventClient              EventClient
-	generate                 func() (sharecodedata.PlainText, sharecodedata.Hashed)
-	now                      func() time.Time
+	testCode                    string
+	shareCodeStore              ShareCodeStore
+	certificateProviderStore    CertificateProviderStore
+	scheduledStore              ScheduledStore
+	notifyClient                NotifyClient
+	appPublicURL                string
+	certificateProviderStartURL string
+	attorneyStartURL            string
+	eventClient                 EventClient
+	generate                    func() (sharecodedata.PlainText, sharecodedata.Hashed)
+	now                         func() time.Time
 }
 
-func NewSender(shareCodeStore ShareCodeStore, notifyClient NotifyClient, appPublicURL string, eventClient EventClient, certificateProviderStore CertificateProviderStore, scheduledStore ScheduledStore) *Sender {
+func NewSender(shareCodeStore ShareCodeStore, notifyClient NotifyClient, appPublicURL, certificateProviderStartURL, attorneyStartURL string, eventClient EventClient, certificateProviderStore CertificateProviderStore, scheduledStore ScheduledStore) *Sender {
 	return &Sender{
-		shareCodeStore:           shareCodeStore,
-		notifyClient:             notifyClient,
-		appPublicURL:             appPublicURL,
-		eventClient:              eventClient,
-		certificateProviderStore: certificateProviderStore,
-		scheduledStore:           scheduledStore,
-		generate:                 sharecodedata.Generate,
-		now:                      time.Now,
+		shareCodeStore:              shareCodeStore,
+		notifyClient:                notifyClient,
+		appPublicURL:                appPublicURL,
+		certificateProviderStartURL: certificateProviderStartURL,
+		attorneyStartURL:            attorneyStartURL,
+		eventClient:                 eventClient,
+		certificateProviderStore:    certificateProviderStore,
+		scheduledStore:              scheduledStore,
+		generate:                    sharecodedata.Generate,
+		now:                         time.Now,
 	}
 }
 
@@ -103,7 +107,7 @@ func (s *Sender) SendCertificateProviderInvite(ctx context.Context, appData appc
 		CertificateProviderFullName:  invite.CertificateProviderFullName,
 		DonorFullName:                invite.DonorFullName,
 		LpaType:                      localize.LowerFirst(appData.Localizer.T(invite.Type.String())),
-		CertificateProviderStartURL:  fmt.Sprintf("%s%s", s.appPublicURL, page.PathCertificateProviderStart),
+		CertificateProviderStartURL:  s.certificateProviderStartURL,
 		DonorFirstNames:              invite.DonorFirstNames,
 		DonorFirstNamesPossessive:    appData.Localizer.Possessive(invite.DonorFirstNames),
 		WhatLpaCovers:                appData.Localizer.T(whatLpaCovers),
@@ -131,7 +135,7 @@ func (s *Sender) SendCertificateProviderPrompt(ctx context.Context, appData appc
 		CertificateProviderFullName: donor.CertificateProvider.FullName(),
 		DonorFullName:               donor.Donor.FullName(),
 		LpaType:                     localize.LowerFirst(appData.Localizer.T(donor.Type.String())),
-		CertificateProviderStartURL: fmt.Sprintf("%s%s", s.appPublicURL, page.PathCertificateProviderStart),
+		CertificateProviderStartURL: s.certificateProviderStartURL,
 		ShareCode:                   shareCode.Plain(),
 	})
 }
@@ -260,7 +264,7 @@ func (s *Sender) sendOriginalAttorney(ctx context.Context, appData appcontext.Da
 			DonorFirstNamesPossessive: appData.Localizer.Possessive(lpa.Donor.FirstNames),
 			DonorFullName:             lpa.Donor.FullName(),
 			LpaType:                   localize.LowerFirst(appData.Localizer.T(lpa.Type.String())),
-			AttorneyStartPageURL:      s.appPublicURL + page.PathAttorneyStart.Format(),
+			AttorneyStartPageURL:      s.attorneyStartURL,
 			ShareCode:                 shareCode.Plain(),
 			AttorneyOptOutURL:         s.appPublicURL + page.PathAttorneyEnterReferenceNumberOptOut.Format(),
 		})
@@ -287,7 +291,7 @@ func (s *Sender) sendReplacementAttorney(ctx context.Context, appData appcontext
 			DonorFirstNamesPossessive: appData.Localizer.Possessive(lpa.Donor.FirstNames),
 			DonorFullName:             lpa.Donor.FullName(),
 			LpaType:                   localize.LowerFirst(appData.Localizer.T(lpa.Type.String())),
-			AttorneyStartPageURL:      s.appPublicURL + page.PathAttorneyStart.Format(),
+			AttorneyStartPageURL:      s.attorneyStartURL,
 			ShareCode:                 shareCode.Plain(),
 			AttorneyOptOutURL:         s.appPublicURL + page.PathAttorneyEnterReferenceNumberOptOut.Format(),
 		})
@@ -318,7 +322,7 @@ func (s *Sender) sendTrustCorporation(ctx context.Context, appData appcontext.Da
 			DonorFirstNamesPossessive: appData.Localizer.Possessive(lpa.Donor.FirstNames),
 			DonorFullName:             lpa.Donor.FullName(),
 			LpaType:                   localize.LowerFirst(appData.Localizer.T(lpa.Type.String())),
-			AttorneyStartPageURL:      fmt.Sprintf("%s%s", s.appPublicURL, page.PathAttorneyStart),
+			AttorneyStartPageURL:      s.attorneyStartURL,
 			ShareCode:                 shareCode.Plain(),
 			AttorneyOptOutURL:         s.appPublicURL + page.PathAttorneyEnterReferenceNumberOptOut.Format(),
 		})
@@ -349,7 +353,7 @@ func (s *Sender) sendReplacementTrustCorporation(ctx context.Context, appData ap
 			DonorFirstNamesPossessive: appData.Localizer.Possessive(lpa.Donor.FirstNames),
 			DonorFullName:             lpa.Donor.FullName(),
 			LpaType:                   localize.LowerFirst(appData.Localizer.T(lpa.Type.String())),
-			AttorneyStartPageURL:      fmt.Sprintf("%s%s", s.appPublicURL, page.PathAttorneyStart),
+			AttorneyStartPageURL:      s.attorneyStartURL,
 			ShareCode:                 shareCode.Plain(),
 			AttorneyOptOutURL:         s.appPublicURL + page.PathAttorneyEnterReferenceNumberOptOut.Format(),
 		})

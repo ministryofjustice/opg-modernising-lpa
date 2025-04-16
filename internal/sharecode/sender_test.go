@@ -86,7 +86,7 @@ func TestShareCodeSenderSendCertificateProviderInvite(t *testing.T) {
 			DonorFirstNames:              "Jan",
 			DonorFullName:                "Jan Smith",
 			LpaType:                      "property and affairs",
-			CertificateProviderStartURL:  fmt.Sprintf("http://app%s", page.PathCertificateProviderStart),
+			CertificateProviderStartURL:  "http://example.com/certificate-provider",
 			DonorFirstNamesPossessive:    "Jan’s",
 			WhatLpaCovers:                "houses and stuff",
 			CertificateProviderOptOutURL: fmt.Sprintf("http://app%s", page.PathCertificateProviderEnterReferenceNumberOptOut),
@@ -94,10 +94,11 @@ func TestShareCodeSenderSendCertificateProviderInvite(t *testing.T) {
 		Return(nil)
 
 	sender := &Sender{
-		shareCodeStore: shareCodeStore,
-		notifyClient:   notifyClient,
-		appPublicURL:   "http://app",
-		generate:       testGenerateFn,
+		shareCodeStore:              shareCodeStore,
+		notifyClient:                notifyClient,
+		appPublicURL:                "http://app",
+		certificateProviderStartURL: "http://example.com/certificate-provider",
+		generate:                    testGenerateFn,
 	}
 	err := sender.SendCertificateProviderInvite(ctx, testAppData, CertificateProviderInvite{
 		LpaKey:                      dynamo.LpaKey("lpa"),
@@ -185,7 +186,7 @@ func TestShareCodeSenderSendCertificateProviderInviteWithTestCode(t *testing.T) 
 					DonorFirstNames:              "Jan",
 					DonorFullName:                "Jan Smith",
 					LpaType:                      "personal welfare",
-					CertificateProviderStartURL:  fmt.Sprintf("http://app%s", page.PathCertificateProviderStart),
+					CertificateProviderStartURL:  "http://example.com/certificate-provider",
 					ShareCode:                    tc.expectedTestCode,
 					DonorFirstNamesPossessive:    "Jan’s",
 					WhatLpaCovers:                "health and stuff",
@@ -199,7 +200,7 @@ func TestShareCodeSenderSendCertificateProviderInviteWithTestCode(t *testing.T) 
 					DonorFirstNames:              "Jan",
 					DonorFullName:                "Jan Smith",
 					LpaType:                      "personal welfare",
-					CertificateProviderStartURL:  fmt.Sprintf("http://app%s", page.PathCertificateProviderStart),
+					CertificateProviderStartURL:  "http://example.com/certificate-provider",
 					ShareCode:                    testStringCode,
 					DonorFirstNamesPossessive:    "Jan’s",
 					WhatLpaCovers:                "health and stuff",
@@ -209,10 +210,11 @@ func TestShareCodeSenderSendCertificateProviderInviteWithTestCode(t *testing.T) 
 				Return(nil)
 
 			sender := &Sender{
-				shareCodeStore: shareCodeStore,
-				notifyClient:   notifyClient,
-				appPublicURL:   "http://app",
-				generate:       testGenerateFn,
+				shareCodeStore:              shareCodeStore,
+				notifyClient:                notifyClient,
+				appPublicURL:                "http://app",
+				certificateProviderStartURL: "http://example.com/certificate-provider",
+				generate:                    testGenerateFn,
 			}
 
 			if tc.useTestCode {
@@ -286,7 +288,6 @@ func TestShareCodeSenderSendCertificateProviderInviteWhenEmailErrors(t *testing.
 	sender := &Sender{
 		shareCodeStore: shareCodeStore,
 		notifyClient:   notifyClient,
-		appPublicURL:   "http://app",
 		generate:       testGenerateFn,
 	}
 	err := sender.SendCertificateProviderInvite(ctx, testAppData, CertificateProviderInvite{
@@ -311,7 +312,6 @@ func TestShareCodeSenderSendCertificateProviderInviteWhenShareCodeStoreErrors(t 
 
 	sender := &Sender{
 		shareCodeStore: shareCodeStore,
-		appPublicURL:   "http://app",
 		generate:       testGenerateFn,
 	}
 	err := sender.SendCertificateProviderInvite(ctx, testAppData, CertificateProviderInvite{}, notify.ToCustomEmail(localize.En, ""))
@@ -353,7 +353,7 @@ func TestShareCodeSenderSendCertificateProviderPromptOnline(t *testing.T) {
 			CertificateProviderFullName: "Joanna Jones",
 			DonorFullName:               "Jan Smith",
 			LpaType:                     "property and affairs",
-			CertificateProviderStartURL: fmt.Sprintf("http://app%s", page.PathCertificateProviderStart),
+			CertificateProviderStartURL: "http://example.com/certificate-provider",
 		}).
 		Return(nil)
 
@@ -372,11 +372,11 @@ func TestShareCodeSenderSendCertificateProviderPromptOnline(t *testing.T) {
 		Return(nil, expectedError)
 
 	sender := &Sender{
-		shareCodeStore:           shareCodeStore,
-		notifyClient:             notifyClient,
-		appPublicURL:             "http://app",
-		generate:                 testGenerateFn,
-		certificateProviderStore: certificateProviderStore,
+		shareCodeStore:              shareCodeStore,
+		notifyClient:                notifyClient,
+		certificateProviderStartURL: "http://example.com/certificate-provider",
+		generate:                    testGenerateFn,
+		certificateProviderStore:    certificateProviderStore,
 	}
 	err := sender.SendCertificateProviderPrompt(ctx, testAppData, donor)
 
@@ -422,7 +422,7 @@ func TestShareCodeSenderSendCertificateProviderPromptOnlineWhenStarted(t *testin
 			CertificateProviderFullName: "Joanna Jones",
 			DonorFullName:               "Jan Smith",
 			LpaType:                     "property and affairs",
-			CertificateProviderStartURL: fmt.Sprintf("http://app%s", page.PathCertificateProviderStart),
+			CertificateProviderStartURL: "http://example.com/certificate-provider",
 		}).
 		Return(nil)
 
@@ -441,11 +441,11 @@ func TestShareCodeSenderSendCertificateProviderPromptOnlineWhenStarted(t *testin
 		Return(certificateProvider, nil)
 
 	sender := &Sender{
-		shareCodeStore:           shareCodeStore,
-		notifyClient:             notifyClient,
-		appPublicURL:             "http://app",
-		generate:                 testGenerateFn,
-		certificateProviderStore: certificateProviderStore,
+		shareCodeStore:              shareCodeStore,
+		notifyClient:                notifyClient,
+		certificateProviderStartURL: "http://example.com/certificate-provider",
+		generate:                    testGenerateFn,
+		certificateProviderStore:    certificateProviderStore,
 	}
 	err := sender.SendCertificateProviderPrompt(ctx, testAppData, donor)
 
@@ -497,7 +497,6 @@ func TestShareCodeSenderSendCertificateProviderPromptPaper(t *testing.T) {
 
 	sender := &Sender{
 		shareCodeStore: shareCodeStore,
-		appPublicURL:   "http://app",
 		generate:       testGenerateFn,
 		eventClient:    eventClient,
 	}
@@ -573,7 +572,7 @@ func TestShareCodeSenderSendCertificateProviderPromptWithTestCode(t *testing.T) 
 					CertificateProviderFullName: "Joanna Jones",
 					DonorFullName:               "Jan Smith",
 					LpaType:                     "property and affairs",
-					CertificateProviderStartURL: fmt.Sprintf("http://app%s", page.PathCertificateProviderStart),
+					CertificateProviderStartURL: "http://example.com/certificate-provider",
 					ShareCode:                   tc.expectedTestCode,
 				}).
 				Once().
@@ -583,7 +582,7 @@ func TestShareCodeSenderSendCertificateProviderPromptWithTestCode(t *testing.T) 
 					CertificateProviderFullName: "Joanna Jones",
 					DonorFullName:               "Jan Smith",
 					LpaType:                     "property and affairs",
-					CertificateProviderStartURL: fmt.Sprintf("http://app%s", page.PathCertificateProviderStart),
+					CertificateProviderStartURL: "http://example.com/certificate-provider",
 					ShareCode:                   testStringCode,
 				}).
 				Once().
@@ -595,11 +594,11 @@ func TestShareCodeSenderSendCertificateProviderPromptWithTestCode(t *testing.T) 
 				Return(nil, expectedError)
 
 			sender := &Sender{
-				shareCodeStore:           shareCodeStore,
-				notifyClient:             notifyClient,
-				appPublicURL:             "http://app",
-				generate:                 testGenerateFn,
-				certificateProviderStore: certificateProviderStore,
+				shareCodeStore:              shareCodeStore,
+				notifyClient:                notifyClient,
+				certificateProviderStartURL: "http://example.com/certificate-provider",
+				generate:                    testGenerateFn,
+				certificateProviderStore:    certificateProviderStore,
 			}
 
 			if tc.useTestCode {
@@ -631,7 +630,6 @@ func TestShareCodeSenderSendCertificateProviderPromptPaperWhenShareCodeStoreErro
 
 	sender := &Sender{
 		shareCodeStore: shareCodeStore,
-		appPublicURL:   "http://app",
 		generate:       testGenerateFn,
 	}
 	err := sender.SendCertificateProviderPrompt(ctx, testAppData, donor)
@@ -660,7 +658,6 @@ func TestShareCodeSenderSendCertificateProviderPromptPaperWhenEventClientError(t
 
 	sender := &Sender{
 		shareCodeStore: shareCodeStore,
-		appPublicURL:   "http://app",
 		generate:       testGenerateFn,
 		eventClient:    eventClient,
 	}
@@ -710,7 +707,6 @@ func TestShareCodeSenderSendCertificateProviderPromptWhenEmailErrors(t *testing.
 	sender := &Sender{
 		shareCodeStore:           shareCodeStore,
 		notifyClient:             notifyClient,
-		appPublicURL:             "http://app",
 		generate:                 testGenerateFn,
 		certificateProviderStore: certificateProviderStore,
 	}
@@ -729,7 +725,6 @@ func TestShareCodeSenderSendCertificateProviderPromptWhenShareCodeStoreErrors(t 
 
 	sender := &Sender{
 		shareCodeStore: shareCodeStore,
-		appPublicURL:   "http://app",
 		generate:       testGenerateFn,
 	}
 	err := sender.SendCertificateProviderPrompt(ctx, testAppData, &donordata.Provided{})
@@ -864,7 +859,7 @@ func TestShareCodeSenderSendAttorneys(t *testing.T) {
 			DonorFullName:             "Jan Smith",
 			DonorFirstNamesPossessive: "Jan's",
 			LpaType:                   "property and affairs",
-			AttorneyStartPageURL:      fmt.Sprintf("http://app%s", page.PathAttorneyStart),
+			AttorneyStartPageURL:      "http://example.com/attorney",
 			AttorneyOptOutURL:         fmt.Sprintf("http://app%s", page.PathAttorneyEnterReferenceNumberOptOut),
 		}).
 		Return(nil)
@@ -876,7 +871,7 @@ func TestShareCodeSenderSendAttorneys(t *testing.T) {
 			DonorFullName:             "Jan Smith",
 			DonorFirstNamesPossessive: "Jan's",
 			LpaType:                   "property and affairs",
-			AttorneyStartPageURL:      fmt.Sprintf("http://app%s", page.PathAttorneyStart),
+			AttorneyStartPageURL:      "http://example.com/attorney",
 			AttorneyOptOutURL:         fmt.Sprintf("http://app%s", page.PathAttorneyEnterReferenceNumberOptOut),
 		}).
 		Return(nil)
@@ -888,7 +883,7 @@ func TestShareCodeSenderSendAttorneys(t *testing.T) {
 			DonorFullName:             "Jan Smith",
 			DonorFirstNamesPossessive: "Jan's",
 			LpaType:                   "property and affairs",
-			AttorneyStartPageURL:      fmt.Sprintf("http://app%s", page.PathAttorneyStart),
+			AttorneyStartPageURL:      "http://example.com/attorney",
 			AttorneyOptOutURL:         fmt.Sprintf("http://app%s", page.PathAttorneyEnterReferenceNumberOptOut),
 		}).
 		Return(nil)
@@ -900,7 +895,7 @@ func TestShareCodeSenderSendAttorneys(t *testing.T) {
 			DonorFullName:             "Jan Smith",
 			DonorFirstNamesPossessive: "Jan's",
 			LpaType:                   "property and affairs",
-			AttorneyStartPageURL:      fmt.Sprintf("http://app%s", page.PathAttorneyStart),
+			AttorneyStartPageURL:      "http://example.com/attorney",
 			AttorneyOptOutURL:         fmt.Sprintf("http://app%s", page.PathAttorneyEnterReferenceNumberOptOut),
 		}).
 		Return(nil)
@@ -912,7 +907,7 @@ func TestShareCodeSenderSendAttorneys(t *testing.T) {
 			DonorFullName:             "Jan Smith",
 			DonorFirstNamesPossessive: "Jan's",
 			LpaType:                   "property and affairs",
-			AttorneyStartPageURL:      fmt.Sprintf("http://app%s", page.PathAttorneyStart),
+			AttorneyStartPageURL:      "http://example.com/attorney",
 			AttorneyOptOutURL:         fmt.Sprintf("http://app%s", page.PathAttorneyEnterReferenceNumberOptOut),
 		}).
 		Return(nil)
@@ -978,13 +973,14 @@ func TestShareCodeSenderSendAttorneys(t *testing.T) {
 		Return(nil)
 
 	sender := &Sender{
-		shareCodeStore: shareCodeStore,
-		notifyClient:   notifyClient,
-		appPublicURL:   "http://app",
-		generate:       testGenerateFn,
-		eventClient:    eventClient,
-		scheduledStore: scheduledStore,
-		now:            testNowFn,
+		shareCodeStore:   shareCodeStore,
+		notifyClient:     notifyClient,
+		appPublicURL:     "http://app",
+		attorneyStartURL: "http://example.com/attorney",
+		generate:         testGenerateFn,
+		eventClient:      eventClient,
+		scheduledStore:   scheduledStore,
+		now:              testNowFn,
 	}
 	err := sender.SendAttorneys(ctx, testAppData, lpa)
 
@@ -1169,7 +1165,7 @@ func TestShareCodeSenderSendAttorneysWithTestCode(t *testing.T) {
 					DonorFullName:             "Jan Smith",
 					DonorFirstNamesPossessive: "Jan's",
 					LpaType:                   "property and affairs",
-					AttorneyStartPageURL:      fmt.Sprintf("http://app%s", page.PathAttorneyStart),
+					AttorneyStartPageURL:      "http://example.com/attorney",
 					AttorneyOptOutURL:         fmt.Sprintf("http://app%s", page.PathAttorneyEnterReferenceNumberOptOut),
 				}).
 				Return(nil)
@@ -1181,7 +1177,7 @@ func TestShareCodeSenderSendAttorneysWithTestCode(t *testing.T) {
 					DonorFullName:             "Jan Smith",
 					DonorFirstNamesPossessive: "Jan's",
 					LpaType:                   "property and affairs",
-					AttorneyStartPageURL:      fmt.Sprintf("http://app%s", page.PathAttorneyStart),
+					AttorneyStartPageURL:      "http://example.com/attorney",
 					AttorneyOptOutURL:         fmt.Sprintf("http://app%s", page.PathAttorneyEnterReferenceNumberOptOut),
 				}).
 				Return(nil)
@@ -1201,13 +1197,14 @@ func TestShareCodeSenderSendAttorneysWithTestCode(t *testing.T) {
 				Return(nil)
 
 			sender := &Sender{
-				shareCodeStore: shareCodeStore,
-				scheduledStore: scheduledStore,
-				notifyClient:   notifyClient,
-				appPublicURL:   "http://app",
-				generate:       testGenerateFn,
-				eventClient:    eventClient,
-				now:            testNowFn,
+				shareCodeStore:   shareCodeStore,
+				scheduledStore:   scheduledStore,
+				notifyClient:     notifyClient,
+				appPublicURL:     "http://app",
+				attorneyStartURL: "http://example.com/attorney",
+				generate:         testGenerateFn,
+				eventClient:      eventClient,
+				now:              testNowFn,
 			}
 
 			if tc.useTestCode {

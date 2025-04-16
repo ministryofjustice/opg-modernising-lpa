@@ -105,15 +105,17 @@ func Attorney(
 			return tmpl(w, &fixturesData{App: appData, Errors: validation.With("", validation.CustomError{Label: "Can't add a trust corporation to a personal welfare LPA"})})
 		}
 
+		encodedSub := encodeSub(attorneySub)
+
 		var (
 			donorSub                     = random.String(16)
 			certificateProviderSub       = random.String(16)
 			donorSessionID               = base64.StdEncoding.EncodeToString([]byte(donorSub))
 			certificateProviderSessionID = base64.StdEncoding.EncodeToString([]byte(certificateProviderSub))
-			attorneySessionID            = base64.StdEncoding.EncodeToString([]byte(attorneySub))
+			attorneySessionID            = base64.StdEncoding.EncodeToString([]byte(mockGOLSubPrefix + encodedSub))
 		)
 
-		if err := sessionStore.SetLogin(r, w, &sesh.LoginSession{Sub: attorneySub, Email: testEmail}); err != nil {
+		if err := sessionStore.SetLogin(r, w, &sesh.LoginSession{Sub: mockGOLSubPrefix + encodedSub, Email: testEmail}); err != nil {
 			return err
 		}
 

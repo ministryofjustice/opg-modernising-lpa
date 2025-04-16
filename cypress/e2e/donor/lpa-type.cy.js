@@ -1,4 +1,4 @@
-import { AddressFormAssertions } from "../../support/e2e";
+import {AddressFormAssertions} from "../../support/e2e";
 
 describe('LPA type', () => {
     it('can be submitted', () => {
@@ -48,7 +48,7 @@ describe('LPA type', () => {
 
         cy.visit('/dashboard')
 
-        cy.waitForTextByReloading('.govuk-body-s', 'M-');
+        cy.waitForTextVisibilityByReloading('.govuk-body-s', 'M-');
         cy.contains('.govuk-body-s', 'Reference number:')
             .invoke('text')
             .then((text) => {

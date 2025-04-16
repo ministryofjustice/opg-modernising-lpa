@@ -77,21 +77,22 @@ type LpaStoreResolvingService interface {
 }
 
 type Runner struct {
-	logger                   Logger
-	store                    ScheduledStore
-	now                      func() time.Time
-	since                    func(time.Time) time.Duration
-	donorStore               DonorStore
-	certificateProviderStore CertificateProviderStore
-	attorneyStore            AttorneyStore
-	lpaStoreResolvingService LpaStoreResolvingService
-	notifyClient             NotifyClient
-	eventClient              EventClient
-	bundle                   Bundle
-	actions                  map[Action]ActionFunc
-	waiter                   Waiter
-	metricsClient            MetricsClient
-	appPublicURL             string
+	logger                      Logger
+	store                       ScheduledStore
+	now                         func() time.Time
+	since                       func(time.Time) time.Duration
+	donorStore                  DonorStore
+	certificateProviderStore    CertificateProviderStore
+	attorneyStore               AttorneyStore
+	lpaStoreResolvingService    LpaStoreResolvingService
+	notifyClient                NotifyClient
+	eventClient                 EventClient
+	bundle                      Bundle
+	actions                     map[Action]ActionFunc
+	waiter                      Waiter
+	metricsClient               MetricsClient
+	certificateProviderStartURL string
+	attorneyStartURL            string
 	// TODO remove in MLPAB-2690
 	metricsEnabled bool
 
@@ -112,24 +113,26 @@ func NewRunner(
 	bundle Bundle,
 	metricsClient MetricsClient,
 	metricsEnabled bool,
-	appPublicURL string,
+	certificateProviderStartURL string,
+	attorneyStartURL string,
 ) *Runner {
 	r := &Runner{
-		logger:                   logger,
-		store:                    store,
-		now:                      time.Now,
-		since:                    time.Since,
-		donorStore:               donorStore,
-		certificateProviderStore: certificateProviderStore,
-		attorneyStore:            attorneyStore,
-		lpaStoreResolvingService: lpaStoreResolvingService,
-		notifyClient:             notifyClient,
-		eventClient:              eventClient,
-		bundle:                   bundle,
-		waiter:                   &waiter{backoff: time.Second, sleep: time.Sleep, maxRetries: 10},
-		metricsClient:            metricsClient,
-		metricsEnabled:           metricsEnabled,
-		appPublicURL:             appPublicURL,
+		logger:                      logger,
+		store:                       store,
+		now:                         time.Now,
+		since:                       time.Since,
+		donorStore:                  donorStore,
+		certificateProviderStore:    certificateProviderStore,
+		attorneyStore:               attorneyStore,
+		lpaStoreResolvingService:    lpaStoreResolvingService,
+		notifyClient:                notifyClient,
+		eventClient:                 eventClient,
+		bundle:                      bundle,
+		waiter:                      &waiter{backoff: time.Second, sleep: time.Sleep, maxRetries: 10},
+		metricsClient:               metricsClient,
+		metricsEnabled:              metricsEnabled,
+		certificateProviderStartURL: certificateProviderStartURL,
+		attorneyStartURL:            attorneyStartURL,
 	}
 
 	r.actions = map[Action]ActionFunc{

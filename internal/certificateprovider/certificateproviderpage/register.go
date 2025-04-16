@@ -105,6 +105,7 @@ type LpaStoreClient interface {
 	SendCertificateProvider(ctx context.Context, certificateProvider *certificateproviderdata.Provided, lpa *lpadata.Lpa) error
 	SendCertificateProviderConfirmIdentity(ctx context.Context, lpaUID string, certificateProvider *certificateproviderdata.Provided) error
 	SendCertificateProviderOptOut(ctx context.Context, lpaUID string, actorUID actoruid.UID) error
+	SendPaperCertificateProviderAccessOnline(ctx context.Context, lpa *lpadata.Lpa, certificateProviderEmail string) error
 }
 
 type ErrorHandler func(http.ResponseWriter, *http.Request, error)
@@ -137,8 +138,10 @@ func Register(
 	eventClient EventClient,
 	scheduledStore ScheduledStore,
 	appPublicURL string,
+	donorStartURL string,
+	certificateProviderStartURL string,
 ) {
-	handleRoot := makeHandle(rootMux, errorHandler, sessionStore)
+	handleRoot := makeHandle(rootMux, errorHandler, sessionStore, certificateProviderStartURL)
 
 	handleRoot(page.PathCertificateProviderLogin, page.None,
 		page.Login(oneLoginClient, sessionStore, random.String, page.PathCertificateProviderLoginCallback))
@@ -149,7 +152,7 @@ func Register(
 	handleRoot(page.PathCertificateProviderEnterReferenceNumberOptOut, page.None,
 		EnterReferenceNumberOptOut(tmpls.Get("enter_reference_number_opt_out.gohtml"), shareCodeStore, sessionStore))
 	handleRoot(page.PathCertificateProviderConfirmDontWantToBeCertificateProviderLoggedOut, page.None,
-		ConfirmDontWantToBeCertificateProviderLoggedOut(tmpls.Get("confirm_dont_want_to_be_certificate_provider.gohtml"), shareCodeStore, lpaStoreResolvingService, lpaStoreClient, donorStore, sessionStore, notifyClient, appPublicURL))
+		ConfirmDontWantToBeCertificateProviderLoggedOut(tmpls.Get("confirm_dont_want_to_be_certificate_provider.gohtml"), shareCodeStore, lpaStoreResolvingService, lpaStoreClient, donorStore, sessionStore, notifyClient, donorStartURL))
 	handleRoot(page.PathCertificateProviderYouHaveDecidedNotToBeCertificateProvider, page.None,
 		page.Guidance(tmpls.Get("you_have_decided_not_to_be_a_certificate_provider.gohtml")))
 	handleRoot(page.PathCertificateProviderYouHaveAlreadyProvidedACertificate, page.None,
@@ -157,7 +160,7 @@ func Register(
 	handleRoot(page.PathCertificateProviderYouHaveAlreadyProvidedACertificateLoggedIn, page.RequireSession,
 		page.Guidance(tmpls.Get("you_have_already_provided_a_certificate_for_donors_lpa.gohtml")))
 
-	handleCertificateProvider := makeCertificateProviderHandle(rootMux, sessionStore, errorHandler, certificateProviderStore, lpaStoreResolvingService)
+	handleCertificateProvider := makeCertificateProviderHandle(rootMux, sessionStore, errorHandler, certificateProviderStore, lpaStoreResolvingService, certificateProviderStartURL)
 
 	handleCertificateProvider(certificateprovider.PathWhoIsEligible, page.None,
 		Guidance(tmpls.Get("who_is_eligible.gohtml")))
@@ -185,7 +188,7 @@ func Register(
 	handleCertificateProvider(certificateprovider.PathIdentityWithOneLogin, page.None,
 		IdentityWithOneLogin(oneLoginClient, sessionStore, random.String))
 	handleCertificateProvider(certificateprovider.PathIdentityWithOneLoginCallback, page.None,
-		IdentityWithOneLoginCallback(oneLoginClient, sessionStore, certificateProviderStore, notifyClient, lpaStoreClient, eventClient, appPublicURL))
+		IdentityWithOneLoginCallback(oneLoginClient, sessionStore, certificateProviderStore, notifyClient, lpaStoreClient, eventClient, donorStartURL))
 	handleCertificateProvider(certificateprovider.PathIdentityDetails, page.None,
 		Guidance(tmpls.Get("identity_details.gohtml")))
 
@@ -198,10 +201,10 @@ func Register(
 	handleCertificateProvider(certificateprovider.PathCertificateProvided, page.None,
 		Guidance(tmpls.Get("certificate_provided.gohtml")))
 	handleCertificateProvider(certificateprovider.PathConfirmDontWantToBeCertificateProvider, page.CanGoBack,
-		ConfirmDontWantToBeCertificateProvider(tmpls.Get("confirm_dont_want_to_be_certificate_provider.gohtml"), lpaStoreClient, donorStore, certificateProviderStore, notifyClient, appPublicURL))
+		ConfirmDontWantToBeCertificateProvider(tmpls.Get("confirm_dont_want_to_be_certificate_provider.gohtml"), lpaStoreClient, donorStore, certificateProviderStore, notifyClient, donorStartURL))
 }
 
-func makeHandle(mux *http.ServeMux, errorHandler page.ErrorHandler, sessionStore SessionStore) func(page.Path, page.HandleOpt, page.Handler) {
+func makeHandle(mux *http.ServeMux, errorHandler page.ErrorHandler, sessionStore SessionStore, certificateProviderStartURL string) func(page.Path, page.HandleOpt, page.Handler) {
 	return func(path page.Path, opt page.HandleOpt, h page.Handler) {
 		mux.HandleFunc(path.String(), func(w http.ResponseWriter, r *http.Request) {
 			ctx := r.Context()
@@ -211,7 +214,7 @@ func makeHandle(mux *http.ServeMux, errorHandler page.ErrorHandler, sessionStore
 			if opt&page.RequireSession != 0 {
 				loginSession, err := sessionStore.Login(r)
 				if err != nil {
-					http.Redirect(w, r, page.PathCertificateProviderStart.Format(), http.StatusFound)
+					http.Redirect(w, r, certificateProviderStartURL, http.StatusFound)
 					return
 				}
 
@@ -229,7 +232,7 @@ func makeHandle(mux *http.ServeMux, errorHandler page.ErrorHandler, sessionStore
 	}
 }
 
-func makeCertificateProviderHandle(mux *http.ServeMux, sessionStore SessionStore, errorHandler page.ErrorHandler, certificateProviderStore CertificateProviderStore, lpaStoreResolvingService LpaStoreResolvingService) func(certificateprovider.Path, page.HandleOpt, Handler) {
+func makeCertificateProviderHandle(mux *http.ServeMux, sessionStore SessionStore, errorHandler page.ErrorHandler, certificateProviderStore CertificateProviderStore, lpaStoreResolvingService LpaStoreResolvingService, certificateProviderStartURL string) func(certificateprovider.Path, page.HandleOpt, Handler) {
 	return func(path certificateprovider.Path, opt page.HandleOpt, h Handler) {
 		mux.HandleFunc(path.String(), func(w http.ResponseWriter, r *http.Request) {
 			ctx := r.Context()
@@ -241,7 +244,7 @@ func makeCertificateProviderHandle(mux *http.ServeMux, sessionStore SessionStore
 
 			session, err := sessionStore.Login(r)
 			if err != nil {
-				http.Redirect(w, r, page.PathCertificateProviderStart.Format(), http.StatusFound)
+				http.Redirect(w, r, certificateProviderStartURL, http.StatusFound)
 				return
 			}
 

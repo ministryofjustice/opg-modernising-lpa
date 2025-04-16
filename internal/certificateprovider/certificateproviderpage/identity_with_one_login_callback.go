@@ -10,11 +10,10 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/event"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/lpastore/lpadata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/notify"
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/task"
 )
 
-func IdentityWithOneLoginCallback(oneLoginClient OneLoginClient, sessionStore SessionStore, certificateProviderStore CertificateProviderStore, notifyClient NotifyClient, lpaStoreClient LpaStoreClient, eventClient EventClient, appPublicURL string) Handler {
+func IdentityWithOneLoginCallback(oneLoginClient OneLoginClient, sessionStore SessionStore, certificateProviderStore CertificateProviderStore, notifyClient NotifyClient, lpaStoreClient LpaStoreClient, eventClient EventClient, donorStartURL string) Handler {
 	return func(appData appcontext.Data, w http.ResponseWriter, r *http.Request, certificateProvider *certificateproviderdata.Provided, lpa *lpadata.Lpa) error {
 		if certificateProvider.CertificateProviderIdentityConfirmed(lpa.CertificateProvider.FirstNames, lpa.CertificateProvider.LastName) {
 			return certificateprovider.PathIdentityDetails.Redirect(w, r, appData, certificateProvider.LpaID)
@@ -95,7 +94,7 @@ func IdentityWithOneLoginCallback(oneLoginClient OneLoginClient, sessionStore Se
 				DonorFullName:               lpa.Donor.FullName(),
 				CertificateProviderFullName: lpa.CertificateProvider.FullName(),
 				LpaType:                     appData.Localizer.T(lpa.Type.String()),
-				DonorStartPageURL:           appPublicURL + page.PathStart.Format(),
+				DonorStartPageURL:           donorStartURL,
 			}); err != nil {
 				return err
 			}
