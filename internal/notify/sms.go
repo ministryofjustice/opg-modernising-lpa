@@ -16,14 +16,14 @@ type CertificateProviderActingDigitallyHasConfirmedPersonalDetailsLPADetailsChan
 func (s CertificateProviderActingDigitallyHasConfirmedPersonalDetailsLPADetailsChangedPromptSMS) smsID(isProduction bool, lang localize.Lang) string {
 	if isProduction {
 		if lang.IsCy() {
-			return "b894b318-ebf1-4e31-8bc4-d1289a1d0dd7"
+			return "bacd1fe6-9259-48fd-a62e-f61bc3b95c19"
 		}
 
 		return "28873afc-f019-48c1-bd25-df88c27813e0"
 	}
 
 	if lang.IsCy() {
-		return "7c1820ef-bc75-4d33-9d3d-edcb49404be1"
+		return "792dc3d1-766a-4c5b-a9b6-59b5b47d22e7"
 	}
 
 	return "bcdc85a7-32b1-40a6-a61f-a552406e6ecc"
@@ -150,7 +150,15 @@ type PaperDonorLpaSubmittedSMS struct {
 
 func (e PaperDonorLpaSubmittedSMS) smsID(isProduction bool, lang localize.Lang) string {
 	if isProduction {
+		if lang.IsCy() {
+			return "7656df1d-d84a-4c35-aef9-5b182c2d9199"
+		}
+
 		return "edd5d11d-e9e8-4e80-a4e1-daaa46efbe0f"
+	}
+
+	if lang.IsCy() {
+		return "ad3cf00d-c564-454a-9a8f-0a01ec94e261"
 	}
 
 	return "e7476d24-6d37-4137-b4a0-de14d3a977ed"
@@ -163,7 +171,15 @@ type PaperDonorCertificateProvidedSMS struct {
 
 func (e PaperDonorCertificateProvidedSMS) smsID(isProduction bool, lang localize.Lang) string {
 	if isProduction {
+		if lang.IsCy() {
+			return "fb5f82a6-2046-4242-ba5f-a9c55cb7318f"
+		}
+
 		return "6b3d9a6c-5103-4c16-8c09-6ebaaec58f93"
+	}
+
+	if lang.IsCy() {
+		return "c483e0f0-1e70-4b40-a6b9-512b1f28b786"
 	}
 
 	return "ecdfef3e-cdc0-4393-add5-571bd9cd5c9f"
