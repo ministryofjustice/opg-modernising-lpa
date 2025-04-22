@@ -3,6 +3,7 @@ package attorneypage
 import (
 	"errors"
 	"testing"
+	"time"
 
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor/actoruid"
@@ -41,6 +42,7 @@ var (
 		Lang:        localize.En,
 		ActorType:   actor.TypeReplacementTrustCorporation,
 	}
+	testNow = time.Now()
 )
 
 func evalT[T any](fn func(*testing.T) T, t *testing.T) T {

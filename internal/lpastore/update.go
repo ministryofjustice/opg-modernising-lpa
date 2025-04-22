@@ -303,3 +303,16 @@ func (c *Client) SendPaperCertificateProviderAccessOnline(ctx context.Context, l
 
 	return c.sendUpdate(ctx, lpa.LpaUID, lpa.CertificateProvider.UID, body)
 }
+
+func (c *Client) SendPaperAttorneyAccessOnline(ctx context.Context, lpaUID, attorneyEmail string, attorneyUID actoruid.UID) error {
+	body := updateRequest{
+		Type: "PAPER_ATTORNEY_ACCESS_ONLINE",
+		Changes: []updateRequestChange{{
+			Key: fmt.Sprintf("/attorneys/%s/email", attorneyUID.String()),
+			Old: nil,
+			New: attorneyEmail,
+		}},
+	}
+
+	return c.sendUpdate(ctx, lpaUID, attorneyUID, body)
+}
