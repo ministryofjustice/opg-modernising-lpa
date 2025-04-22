@@ -39,7 +39,7 @@
               </div>
               <div class="govuk-radios__conditional govuk-radios__conditional--hidden" id="when-to-step-in-3-conditional-div">
                 <div class="govuk-form-group {{ if .Errors.Has "other-details" }}govuk-form-group--error{{ end }}">
-                  <p class="govuk-body">{{ tr .App "otherWayHint" }}</p>
+                  {{ trFormatHtml .App "otherWayHint" "ReplacementAttorneysHelpLink" (link .App global.Paths.ReplacementAttorneys.Format) }}
                   <label class="govuk-label" for="f-other-details" {{ if .Errors.Has "other-details" }}aria-describedby="other-details-error"{{ end }}>
                     {{ tr .App "details" }}
                   </label>
