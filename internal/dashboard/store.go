@@ -215,6 +215,12 @@ func (s *Store) getAllForSub(ctx context.Context, sub string) (results dashboard
 				}
 
 				entry.Attorney = attorneyProvidedDetails
+
+				lpaAttorney, ok := attorneyMap[lpaID].Lpa.Attorneys.Get(attorneyProvidedDetails.UID)
+				if ok {
+					entry.LpaAttorney = &lpaAttorney
+				}
+
 				attorneyMap[lpaID] = entry
 				continue
 			}

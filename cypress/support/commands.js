@@ -58,7 +58,7 @@ Cypress.Commands.add('visitLpa', (path, opts = {}) => {
     cy.url().then(u => cy.visit(u.split('/').slice(3, -1).join('/') + path, opts));
 });
 
-// Function to poll a page until element contains or not contains text or timeout occurs
+// Poll a page until element contains or not contains text or timeout occurs
 Cypress.Commands.add('waitForTextVisibilityByReloading', (selector, expectedText, beVisible=true) => {
     const options = {
         timeout: 20000,
