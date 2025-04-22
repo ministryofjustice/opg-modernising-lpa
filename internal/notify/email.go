@@ -444,14 +444,14 @@ type InformDonorCertificateProviderHasNotActedEmail struct {
 func (e InformDonorCertificateProviderHasNotActedEmail) emailID(isProduction bool, lang localize.Lang) string {
 	if isProduction {
 		if lang.IsCy() {
-			return "688d8284-ae13-4e87-97be-3d6b21767755"
+			return "1b2c1c38-f2d6-4a61-88b2-5e28f80f9b6d"
 		}
 
 		return "b45e8f81-22da-45fa-a7ea-99430c749b61"
 	}
 
 	if lang.IsCy() {
-		return "4fc578f0-5cce-4082-a926-957aebb824bd"
+		return "3562d638-1916-44a2-bfb2-913ea97175ee"
 	}
 
 	return "0f7cbfed-1ffa-43d7-92c0-8d162aadc0ea"
@@ -541,7 +541,15 @@ type InformDonorPaperAttorneyHasNotActedEmail struct {
 
 func (e InformDonorPaperAttorneyHasNotActedEmail) emailID(isProduction bool, lang localize.Lang) string {
 	if isProduction {
+		if lang.IsCy() {
+			return "2ae31d91-b10e-43fd-9732-2e274d8d83dd"
+		}
+
 		return "81c6c4b1-2d7c-4b74-b08c-1e646146a5bb"
+	}
+
+	if lang.IsCy() {
+		return "e41a29be-213e-457c-900b-0f3e84f69ea4"
 	}
 
 	return "1be32a05-3492-486f-97f3-630c1ff4f2ae"
@@ -578,9 +586,17 @@ type DigitalDonorLpaSubmittedEmail struct {
 	LpaType  string
 }
 
-func (e DigitalDonorLpaSubmittedEmail) emailID(isProduction bool, _ localize.Lang) string {
+func (e DigitalDonorLpaSubmittedEmail) emailID(isProduction bool, lang localize.Lang) string {
 	if isProduction {
+		if lang.IsCy() {
+			return "5d1a3651-07f2-46e4-96f7-fd1cf2253f6d"
+		}
+
 		return "ce8a6d18-05ce-4028-8449-29c09bd1f958"
+	}
+
+	if lang.IsCy() {
+		return "978c76a0-d534-4365-a474-34303b8811db"
 	}
 
 	return "cd02bc22-41be-4e2c-94c2-055d6cba6466"
@@ -592,9 +608,17 @@ type DigitalDonorCertificateProvidedEmail struct {
 	LpaType                     string
 }
 
-func (e DigitalDonorCertificateProvidedEmail) emailID(isProduction bool, _ localize.Lang) string {
+func (e DigitalDonorCertificateProvidedEmail) emailID(isProduction bool, lang localize.Lang) string {
 	if isProduction {
+		if lang.IsCy() {
+			return "2854a288-0807-4843-85f5-3f435ae660e3"
+		}
+
 		return "9db20b35-8728-434b-8090-52cf704bc5a9"
+	}
+
+	if lang.IsCy() {
+		return "8644d6bb-2265-4ade-a6d8-7b4ef6e72258"
 	}
 
 	return "9baaeb36-f1c6-44ba-840d-14914c18a455"
@@ -624,9 +648,17 @@ type InformDonorPaperCertificateProviderHasNotConfirmedIdentityEmail struct {
 	DeadlineDate                string
 }
 
-func (e InformDonorPaperCertificateProviderHasNotConfirmedIdentityEmail) emailID(isProduction bool, _ localize.Lang) string {
+func (e InformDonorPaperCertificateProviderHasNotConfirmedIdentityEmail) emailID(isProduction bool, lang localize.Lang) string {
 	if isProduction {
+		if lang.IsCy() {
+			return "53cda24c-13d2-40a3-aefe-a2eab33f599c"
+		}
+
 		return "c43c88f5-c7a2-4a7b-abb4-90718388d3aa"
+	}
+
+	if lang.IsCy() {
+		return "e508eebf-5c70-4af5-a978-b3dd7df468ab"
 	}
 
 	return "0b0f45d6-6ff1-4f66-905e-ba68905231c1"
@@ -721,9 +753,17 @@ type InformDonorPaperCertificateProviderIdentityCheckFailed struct {
 	DonorStartPageURL           string
 }
 
-func (e InformDonorPaperCertificateProviderIdentityCheckFailed) emailID(isProduction bool, _ localize.Lang) string {
+func (e InformDonorPaperCertificateProviderIdentityCheckFailed) emailID(isProduction bool, lang localize.Lang) string {
 	if isProduction {
+		if lang.IsCy() {
+			return "4ae408c2-51c0-4c5c-83ee-f850af50ca64"
+		}
+
 		return "ee349ded-8cfb-4a28-beac-5a4fb90aa823"
+	}
+
+	if lang.IsCy() {
+		return "635a9425-4e0a-40a6-9364-9a895fd0e8c3"
 	}
 
 	return "f724710b-7974-4c2f-806e-34cf23dd3680"
