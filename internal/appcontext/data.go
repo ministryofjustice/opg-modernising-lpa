@@ -15,19 +15,20 @@ import (
 )
 
 type Data struct {
+	ActorType         actor.Type
+	AttorneyUID       actoruid.UID
+	CanGoBack         bool
+	CookieConsentSet  bool
+	CsrfToken         string
+	HideLoginNav      bool
+	Lang              localize.Lang
+	LoginSessionEmail string
+	Localizer         localize.Localizer
+	LpaID             string
 	Page              string
 	Path              string
 	Query             url.Values
-	Localizer         localize.Localizer
-	Lang              localize.Lang
-	CookieConsentSet  bool
-	CanGoBack         bool
 	SessionID         string
-	LpaID             string
-	CsrfToken         string
-	ActorType         actor.Type
-	AttorneyUID       actoruid.UID
-	LoginSessionEmail string
 	SupporterData     *SupporterData
 }
 

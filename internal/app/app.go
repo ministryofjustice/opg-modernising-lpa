@@ -171,25 +171,25 @@ func App(
 	handleRoot(page.PathAccessibilityStatement, None,
 		page.Guidance(tmpls.Get("accessibility_statement.gohtml")))
 
-	handleRoot(page.PathAddingRestrictionsAndConditions, RequireSession,
+	handleRoot(page.PathAddingRestrictionsAndConditions, RequireSession|HideNav,
 		page.Guidance(guidanceTmpls.Get("adding_restrictions_and_conditions.gohtml")))
-	handleRoot(page.PathContactTheOfficeOfThePublicGuardian, RequireSession,
+	handleRoot(page.PathContactTheOfficeOfThePublicGuardian, RequireSession|HideNav,
 		page.Guidance(guidanceTmpls.Get("contact_opg.gohtml")))
-	handleRoot(page.PathGlossary, RequireSession,
+	handleRoot(page.PathGlossary, RequireSession|HideNav,
 		page.Guidance(guidanceTmpls.Get("glossary.gohtml")))
-	handleRoot(page.PathHowDecisionsAreMadeWithMultipleAttorneys, RequireSession,
+	handleRoot(page.PathHowDecisionsAreMadeWithMultipleAttorneys, RequireSession|HideNav,
 		page.Guidance(guidanceTmpls.Get("how_decisions_are_made_with_multiple_attorneys.gohtml")))
-	handleRoot(page.PathHowToMakeAndRegisterYourLPA, RequireSession,
+	handleRoot(page.PathHowToMakeAndRegisterYourLPA, RequireSession|HideNav,
 		page.Guidance(guidanceTmpls.Get("how_to_make_and_register_your_lpa.gohtml")))
-	handleRoot(page.PathHowToSelectAttorneysForAnLPA, RequireSession,
+	handleRoot(page.PathHowToSelectAttorneysForAnLPA, RequireSession|HideNav,
 		page.Guidance(guidanceTmpls.Get("how_to_select_attorneys_for_an_lpa.gohtml")))
-	handleRoot(page.PathReplacementAttorneys, RequireSession,
+	handleRoot(page.PathReplacementAttorneys, RequireSession|HideNav,
 		page.Guidance(guidanceTmpls.Get("replacement_attorneys.gohtml")))
-	handleRoot(page.PathTheTwoTypesOfLPAPath, RequireSession,
+	handleRoot(page.PathTheTwoTypesOfLPAPath, RequireSession|HideNav,
 		page.Guidance(guidanceTmpls.Get("the_two_types_of_lpa.gohtml")))
-	handleRoot(page.PathUnderstandingLifeSustainingTreatment, RequireSession,
+	handleRoot(page.PathUnderstandingLifeSustainingTreatment, RequireSession|HideNav,
 		page.Guidance(guidanceTmpls.Get("understanding_life_sustaining_treatment.gohtml")))
-	handleRoot(page.PathUnderstandingMentalCapacity, RequireSession,
+	handleRoot(page.PathUnderstandingMentalCapacity, RequireSession|HideNav,
 		page.Guidance(guidanceTmpls.Get("understanding_mental_capacity.gohtml")))
 
 	voucherpage.Register(
@@ -329,6 +329,7 @@ type handleOpt byte
 const (
 	None handleOpt = 1 << iota
 	RequireSession
+	HideNav
 )
 
 func makeHandle(mux *http.ServeMux, errorHandler page.ErrorHandler, sessionStore SessionStore, donorStartURL string) func(page.Path, handleOpt, page.Handler) {
@@ -338,6 +339,7 @@ func makeHandle(mux *http.ServeMux, errorHandler page.ErrorHandler, sessionStore
 
 			appData := appcontext.DataFromContext(ctx)
 			appData.Page = path.Format()
+			appData.HideLoginNav = opt&HideNav != 0
 
 			if opt&RequireSession != 0 {
 				loginSession, err := sessionStore.Login(r)
