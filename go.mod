@@ -6,23 +6,23 @@ toolchain go1.24.2
 
 require (
 	github.com/MicahParks/jwkset v0.9.5
-	github.com/MicahParks/keyfunc/v3 v3.3.10
+	github.com/MicahParks/keyfunc/v3 v3.3.11
 	github.com/aws/aws-lambda-go v1.48.0
 	github.com/aws/aws-sdk-go-v2 v1.36.3
 	github.com/aws/aws-sdk-go-v2/config v1.29.14
 	github.com/aws/aws-sdk-go-v2/credentials v1.17.67
-	github.com/aws/aws-sdk-go-v2/feature/dynamodb/attributevalue v1.18.11
+	github.com/aws/aws-sdk-go-v2/feature/dynamodb/attributevalue v1.18.12
 	github.com/aws/aws-sdk-go-v2/service/cloudwatch v1.44.3
-	github.com/aws/aws-sdk-go-v2/service/dynamodb v1.42.3
-	github.com/aws/aws-sdk-go-v2/service/eventbridge v1.38.1
+	github.com/aws/aws-sdk-go-v2/service/dynamodb v1.42.4
+	github.com/aws/aws-sdk-go-v2/service/eventbridge v1.39.0
 	github.com/aws/aws-sdk-go-v2/service/s3 v1.79.2
 	github.com/aws/aws-sdk-go-v2/service/s3control v1.56.3
-	github.com/aws/aws-sdk-go-v2/service/secretsmanager v1.35.3
+	github.com/aws/aws-sdk-go-v2/service/secretsmanager v1.35.4
 	github.com/aws/aws-sdk-go-v2/service/sqs v1.38.5
 	github.com/aws/aws-sdk-go-v2/service/ssm v1.58.2
 	github.com/aws/smithy-go v1.22.3
 	github.com/felixge/httpsnoop v1.0.4
-	github.com/gabriel-vasile/mimetype v1.4.8
+	github.com/gabriel-vasile/mimetype v1.4.9
 	github.com/golang-jwt/jwt/v5 v5.2.2
 	github.com/google/uuid v1.6.0
 	github.com/gorilla/handlers v1.5.2
