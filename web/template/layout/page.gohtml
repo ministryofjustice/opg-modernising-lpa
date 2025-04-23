@@ -59,7 +59,7 @@
 
             <a href="#main-content" class="govuk-skip-link" data-module="govuk-skip-link">{{ tr .App "skipToMainContent" }}</a>
 
-            {{ if .App.SessionID }}
+            {{ if and .App.SessionID (not .App.HideLoginNav) }}
                 {{ template "login-header.gohtml" . }}
             {{ else }}
                 <header class="govuk-header " role="banner" data-module="govuk-header">
