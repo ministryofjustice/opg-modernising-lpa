@@ -99,56 +99,84 @@ func TestApp(t *testing.T) {
 }
 
 func TestMakeHandle(t *testing.T) {
-	w := httptest.NewRecorder()
-	r, _ := http.NewRequest(http.MethodGet, "/path?a=b", nil)
+	testcases := map[string]struct {
+		opts                handleOpt
+		expectedData        appcontext.Data
+		expectedSessionData *appcontext.Session
+		setupSessionStore   func(*http.Request) *mockSessionStore
+	}{
+		"no opts": {
+			opts: None,
+			expectedData: appcontext.Data{
+				Page: "/path",
+			},
+			setupSessionStore: func(*http.Request) *mockSessionStore { return newMockSessionStore(t) },
+		},
+		"RequireSession": {
+			opts: RequireSession,
+			expectedData: appcontext.Data{
+				Page:      "/path",
+				SessionID: "cmFuZG9t",
+			},
+			expectedSessionData: &appcontext.Session{SessionID: "cmFuZG9t"},
+			setupSessionStore: func(r *http.Request) *mockSessionStore {
+				sessionStore := newMockSessionStore(t)
+				sessionStore.EXPECT().
+					Login(r).
+					Return(&sesh.LoginSession{Sub: "random"}, nil)
+				return sessionStore
+			},
+		},
+		"HideNav": {
+			opts: HideNav,
+			expectedData: appcontext.Data{
+				Page:         "/path",
+				HideLoginNav: true,
+			},
+			setupSessionStore: func(*http.Request) *mockSessionStore { return newMockSessionStore(t) },
+		},
+		"RequireSession|HideNave": {
+			opts: RequireSession | HideNav,
+			expectedData: appcontext.Data{
+				Page:         "/path",
+				SessionID:    "cmFuZG9t",
+				HideLoginNav: true,
+			},
+			expectedSessionData: &appcontext.Session{SessionID: "cmFuZG9t"},
+			setupSessionStore: func(r *http.Request) *mockSessionStore {
+				sessionStore := newMockSessionStore(t)
+				sessionStore.EXPECT().
+					Login(r).
+					Return(&sesh.LoginSession{Sub: "random"}, nil)
+				return sessionStore
+			},
+		},
+	}
 
-	mux := http.NewServeMux()
-	handle := makeHandle(mux, nil, nil, "http://example.com/donor")
-	handle("/path", None, func(appData appcontext.Data, hw http.ResponseWriter, hr *http.Request) error {
-		assert.Equal(t, appcontext.Data{
-			Page: "/path",
-		}, appData)
-		assert.Equal(t, w, hw)
+	for name, tc := range testcases {
+		t.Run(name, func(t *testing.T) {
+			w := httptest.NewRecorder()
+			r, _ := http.NewRequest(http.MethodGet, "/path?a=b", nil)
 
-		hw.WriteHeader(http.StatusTeapot)
-		return nil
-	})
+			mux := http.NewServeMux()
+			handle := makeHandle(mux, nil, tc.setupSessionStore(r), "http://example.com/donor")
+			handle("/path", tc.opts, func(appData appcontext.Data, hw http.ResponseWriter, hr *http.Request) error {
+				assert.Equal(t, tc.expectedData, appData)
+				assert.Equal(t, w, hw)
 
-	mux.ServeHTTP(w, r)
-	resp := w.Result()
+				sessionData, _ := appcontext.SessionFromContext(hr.Context())
+				assert.Equal(t, tc.expectedSessionData, sessionData)
 
-	assert.Equal(t, http.StatusTeapot, resp.StatusCode)
-}
+				hw.WriteHeader(http.StatusTeapot)
+				return nil
+			})
 
-func TestMakeHandleRequireSession(t *testing.T) {
-	w := httptest.NewRecorder()
-	r, _ := http.NewRequest(http.MethodGet, "/path?a=b", nil)
+			mux.ServeHTTP(w, r)
+			resp := w.Result()
 
-	sessionStore := newMockSessionStore(t)
-	sessionStore.EXPECT().
-		Login(r).
-		Return(&sesh.LoginSession{Sub: "random"}, nil)
-
-	mux := http.NewServeMux()
-	handle := makeHandle(mux, nil, sessionStore, "http://example.com/donor")
-	handle("/path", RequireSession, func(appData appcontext.Data, hw http.ResponseWriter, hr *http.Request) error {
-		assert.Equal(t, appcontext.Data{
-			Page:      "/path",
-			SessionID: "cmFuZG9t",
-		}, appData)
-		assert.Equal(t, w, hw)
-
-		sessionData, _ := appcontext.SessionFromContext(hr.Context())
-		assert.Equal(t, &appcontext.Session{SessionID: "cmFuZG9t"}, sessionData)
-
-		hw.WriteHeader(http.StatusTeapot)
-		return nil
-	})
-
-	mux.ServeHTTP(w, r)
-	resp := w.Result()
-
-	assert.Equal(t, http.StatusTeapot, resp.StatusCode)
+			assert.Equal(t, http.StatusTeapot, resp.StatusCode)
+		})
+	}
 }
 
 func TestMakeHandleRequireSessionError(t *testing.T) {

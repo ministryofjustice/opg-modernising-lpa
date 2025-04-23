@@ -137,7 +137,7 @@
                   <a class="service-header__nav-list-item-link" href="{{ link .App global.Paths.Dashboard.Format }}">{{ tr .App "manageYourLpas" }}</a>
                 </li>
                 <li class="service-header__nav-list-item">
-                  <a class="service-header__nav-list-item-link" href="{{ link .App (global.Paths.HowToMakeAndRegisterYourLPA.Format ) }}">{{ tr .App "helpAndSupport" }} <span class="govuk-!-font-weight-regular">({{ tr .App "opensInNewTab" }})</span></a>
+                  <a class="service-header__nav-list-item-link" href="{{ link .App (global.Paths.HowToMakeAndRegisterYourLPA.Format ) }}" target="_blank" rel="noopener noreferrer">{{ tr .App "helpAndSupport" }} <span class="govuk-!-font-weight-regular">({{ tr .App "opensInNewTab" }})</span></a>
                 </li>
               {{ end }}
             </ul>
