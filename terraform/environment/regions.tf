@@ -88,6 +88,7 @@ module "eu_west_1" {
   real_user_monitoring_cw_logs_enabled    = local.environment.app.real_user_monitoring_cw_logs_enabled
   ecs_aws_otel_collector_version          = var.ecs_aws_otel_collector_version
   log_emitted_events                      = local.environment.log_emitted_events
+  start_page_redirects                    = local.environment.start_page_redirects
   providers = {
     aws.region            = aws.eu_west_1
     aws.global            = aws.global
@@ -161,6 +162,7 @@ module "eu_west_2" {
   real_user_monitoring_cw_logs_enabled    = local.environment.app.real_user_monitoring_cw_logs_enabled
   ecs_aws_otel_collector_version          = var.ecs_aws_otel_collector_version
   log_emitted_events                      = local.environment.log_emitted_events
+  start_page_redirects                    = local.environment.start_page_redirects
   providers = {
     aws.region            = aws.eu_west_2
     aws.global            = aws.global

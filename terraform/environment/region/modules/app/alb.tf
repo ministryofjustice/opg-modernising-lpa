@@ -73,13 +73,14 @@ resource "aws_lb_listener" "app_loadbalancer" {
 }
 
 resource "aws_lb_listener_rule" "donor_start" {
+  count        = var.start_page_redirects.enabled ? 1 : 0
   listener_arn = aws_lb_listener.app_loadbalancer.arn
   priority     = 10
   action {
     type = "redirect"
 
     redirect {
-      host        = "mainstreamcontent.modernising.opg.service.justice.gov.uk"
+      host        = var.start_page_redirects.start_page_redirect_url
       path        = "/register-lasting-power-of-attorney/make-lpa"
       query       = ""
       port        = "443"
@@ -96,13 +97,14 @@ resource "aws_lb_listener_rule" "donor_start" {
 }
 
 resource "aws_lb_listener_rule" "attorney_start" {
+  count        = var.start_page_redirects.enabled ? 1 : 0
   listener_arn = aws_lb_listener.app_loadbalancer.arn
   priority     = 11
   action {
     type = "redirect"
 
     redirect {
-      host        = "mainstreamcontent.modernising.opg.service.justice.gov.uk"
+      host        = var.start_page_redirects.start_page_redirect_url
       path        = "/register-lasting-power-of-attorney/attorney"
       query       = ""
       port        = "443"
@@ -119,13 +121,14 @@ resource "aws_lb_listener_rule" "attorney_start" {
 }
 
 resource "aws_lb_listener_rule" "certificate_provider_start" {
+  count        = var.start_page_redirects.enabled ? 1 : 0
   listener_arn = aws_lb_listener.app_loadbalancer.arn
   priority     = 12
   action {
     type = "redirect"
 
     redirect {
-      host        = "mainstreamcontent.modernising.opg.service.justice.gov.uk"
+      host        = var.start_page_redirects.start_page_redirect_url
       path        = "/register-lasting-power-of-attorney/certificate-provider"
       query       = ""
       port        = "443"

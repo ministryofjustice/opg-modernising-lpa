@@ -165,3 +165,10 @@ variable "ecs_aws_otel_collector_version" {
   type        = string
   description = "semver tag for the public ecr tag of the aws-otel-collector image"
 }
+
+variable "start_page_redirects" {
+  type = object({
+    enabled                 = bool
+    start_page_redirect_url = string
+  })
+}

@@ -197,3 +197,10 @@ variable "log_emitted_events" {
   description = "Log events emitted to /aws/events/{env}-emitted"
   default     = false
 }
+
+variable "start_page_redirects" {
+  type = object({
+    enabled                 = bool
+    start_page_redirect_url = string
+  })
+}
