@@ -25,6 +25,9 @@ resource "aws_cloudwatch_event_connection" "opg_metrics" {
     }
   }
   provider = aws.eu_west_1
+  lifecycle {
+    ignore_changes = [auth_parameters[0].invocation_http_parameters]
+  }
 }
 
 resource "aws_cloudwatch_event_api_destination" "opg_metrics_put" {
