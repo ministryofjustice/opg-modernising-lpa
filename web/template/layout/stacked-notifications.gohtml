@@ -1,0 +1,26 @@
+{{ define "stacked-notifications" }}
+    {{ if .Notifications}}
+        <div class="govuk-notification-banner {{ if .Success }} govuk-notification-banner--success {{ end }}" aria-labelledby="govuk-notification-banner-title" data-module="govuk-notification-banner">
+            <div class="govuk-notification-banner__header">
+                <h1 class="govuk-notification-banner__title govuk-!-font-weight-regular" id="govuk-notification-banner-title">
+                    {{ if .Count }}
+                        <span class="govuk-!-font-weight-bold">{{ if .Success }}{{ tr .App "success" }}{{ else }}{{ tr .App "important" }}{{ end }}:</span> {{ trFormatCount .App "notificationsFromOpg" (len .Notifications) }}
+                    {{ else }}
+                        <span class="govuk-!-font-weight-bold">{{ if .Success }}{{ tr .App "success" }}{{ else }}{{ tr .App "important" }}{{ end }}</span>
+                    {{ end }}
+                </h1>
+            </div>
+
+            <div class="govuk-notification-banner__content">
+                {{ range $i, $_ := .Notifications }}
+                    {{ if gt $i 0 }}
+                        <hr class="govuk-section-break govuk-section-break--m govuk-section-break--visible">
+                    {{ end }}
+
+                    <h2 class="govuk-notification-banner__heading">{{ tr $.App .Heading }}</h2>
+                    {{ trHtml $.App .BodyHTML }}
+                {{ end }}
+            </div>
+        </div>
+    {{ end }}
+{{ end }}

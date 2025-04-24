@@ -10,6 +10,7 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/appcontext"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor/donordata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/dynamo"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/task"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/validation"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/voucher/voucherdata"
@@ -20,21 +21,16 @@ type progressData struct {
 	Errors               validation.List
 	Donor                *donordata.Provided
 	Progress             task.Progress
-	InfoNotifications    []progressNotification
-	SuccessNotifications []progressNotification
+	InfoNotifications    []page.Notification
+	SuccessNotifications []page.Notification
 }
 
 func (d *progressData) addInfo(heading, body string) {
-	d.InfoNotifications = append(d.InfoNotifications, progressNotification{Heading: heading, Body: body})
+	d.InfoNotifications = append(d.InfoNotifications, page.Notification{Heading: heading, BodyHTML: body})
 }
 
 func (d *progressData) addSuccess(heading, body string) {
-	d.SuccessNotifications = append(d.SuccessNotifications, progressNotification{Heading: heading, Body: body})
-}
-
-type progressNotification struct {
-	Heading string
-	Body    string
+	d.SuccessNotifications = append(d.SuccessNotifications, page.Notification{Heading: heading, BodyHTML: body})
 }
 
 func Progress(tmpl template.Template, lpaStoreResolvingService LpaStoreResolvingService, progressTracker ProgressTracker, certificateProviderStore CertificateProviderStore, voucherStore VoucherStore, donorStore DonorStore, now func() time.Time) Handler {
