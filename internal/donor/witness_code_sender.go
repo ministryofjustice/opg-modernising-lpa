@@ -14,7 +14,6 @@ import (
 
 var (
 	testWitnessCode               = "1234"
-	UseTestWitnessCode            = false
 	ErrTooManyWitnessCodeRequests = errors.New("too many witness code requests")
 )
 
@@ -42,9 +41,10 @@ type WitnessCodeSender struct {
 	localizer                Localizer
 	randomCode               func(int) string
 	now                      func() time.Time
+	useTestCode              bool
 }
 
-func NewWitnessCodeSender(donorStore DonorStore, certificateProviderStore CertificateProviderStore, notifyClient NotifyClient, localizer Localizer) *WitnessCodeSender {
+func NewWitnessCodeSender(donorStore DonorStore, certificateProviderStore CertificateProviderStore, notifyClient NotifyClient, localizer Localizer, useTestCode bool) *WitnessCodeSender {
 	return &WitnessCodeSender{
 		donorStore:               donorStore,
 		certificateProviderStore: certificateProviderStore,
@@ -52,6 +52,7 @@ func NewWitnessCodeSender(donorStore DonorStore, certificateProviderStore Certif
 		localizer:                localizer,
 		randomCode:               random.Code,
 		now:                      time.Now,
+		useTestCode:              useTestCode,
 	}
 }
 
@@ -61,7 +62,7 @@ func (s *WitnessCodeSender) SendToCertificateProvider(ctx context.Context, donor
 	}
 
 	code := s.randomCode(4)
-	if UseTestWitnessCode {
+	if s.useTestCode {
 		code = testWitnessCode
 	}
 
@@ -89,7 +90,7 @@ func (s *WitnessCodeSender) SendToIndependentWitness(ctx context.Context, donor 
 	}
 
 	code := s.randomCode(4)
-	if UseTestWitnessCode {
+	if s.useTestCode {
 		code = testWitnessCode
 	}
 

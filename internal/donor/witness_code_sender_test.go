@@ -36,7 +36,6 @@ func TestWitnessCodeSenderSendToCertificateProvider(t *testing.T) {
 		t.Run(name, func(t *testing.T) {
 			now := time.Now()
 			ctx := context.Background()
-			UseTestWitnessCode = tc.useTestCode
 
 			notifyClient := newMockNotifyClient(t)
 			notifyClient.EXPECT().
@@ -78,6 +77,7 @@ func TestWitnessCodeSenderSendToCertificateProvider(t *testing.T) {
 				localizer:                localizer,
 				randomCode:               func(int) string { return tc.randomCode },
 				now:                      func() time.Time { return now },
+				useTestCode:              tc.useTestCode,
 			}
 			err := sender.SendToCertificateProvider(ctx, &donordata.Provided{
 				LpaUID:              "lpa-uid",
