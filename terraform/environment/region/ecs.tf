@@ -62,6 +62,7 @@ module "app" {
   search_index_name                                    = var.search_index_name
   search_collection_arn                                = var.search_collection_arn
   ecs_aws_otel_collector_version                       = var.ecs_aws_otel_collector_version
+  start_page_redirects                                 = var.start_page_redirects
 
   providers = {
     aws.region     = aws.region

@@ -72,6 +72,78 @@ resource "aws_lb_listener" "app_loadbalancer" {
   provider = aws.region
 }
 
+resource "aws_lb_listener_rule" "donor_start" {
+  count        = var.start_page_redirects.enabled ? 1 : 0
+  listener_arn = aws_lb_listener.app_loadbalancer.arn
+  priority     = 10
+  action {
+    type = "redirect"
+
+    redirect {
+      host        = var.start_page_redirects.start_page_redirect_url
+      path        = "/register-lasting-power-of-attorney/make-lpa"
+      query       = ""
+      port        = "443"
+      protocol    = "HTTPS"
+      status_code = "HTTP_302"
+    }
+  }
+  condition {
+    path_pattern {
+      values = ["/start"]
+    }
+  }
+  provider = aws.region
+}
+
+resource "aws_lb_listener_rule" "attorney_start" {
+  count        = var.start_page_redirects.enabled ? 1 : 0
+  listener_arn = aws_lb_listener.app_loadbalancer.arn
+  priority     = 11
+  action {
+    type = "redirect"
+
+    redirect {
+      host        = var.start_page_redirects.start_page_redirect_url
+      path        = "/register-lasting-power-of-attorney/attorney"
+      query       = ""
+      port        = "443"
+      protocol    = "HTTPS"
+      status_code = "HTTP_302"
+    }
+  }
+  condition {
+    path_pattern {
+      values = ["/attorney-start"]
+    }
+  }
+  provider = aws.region
+}
+
+resource "aws_lb_listener_rule" "certificate_provider_start" {
+  count        = var.start_page_redirects.enabled ? 1 : 0
+  listener_arn = aws_lb_listener.app_loadbalancer.arn
+  priority     = 12
+  action {
+    type = "redirect"
+
+    redirect {
+      host        = var.start_page_redirects.start_page_redirect_url
+      path        = "/register-lasting-power-of-attorney/certificate-provider"
+      query       = ""
+      port        = "443"
+      protocol    = "HTTPS"
+      status_code = "HTTP_302"
+    }
+  }
+  condition {
+    path_pattern {
+      values = ["/certificate-provider-start"]
+    }
+  }
+  provider = aws.region
+}
+
 resource "aws_lb_listener_rule" "app_maintenance" {
   listener_arn = aws_lb_listener.app_loadbalancer.arn
   priority     = 101 # Specifically set so that maintenance mode scripts can locate the correct rule to modify
