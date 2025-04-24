@@ -38,6 +38,10 @@ resource "aws_s3_bucket_lifecycle_configuration" "main" {
   rule {
     id = "abort-incomplete-multipart-upload"
 
+    filter {
+      prefix = ""
+    }
+
     abort_incomplete_multipart_upload {
       days_after_initiation = 7
     }
