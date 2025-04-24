@@ -107,6 +107,7 @@ const (
 	PathUploadEvidenceSSE                                    = Path("/upload-evidence-sse")
 	PathUseExistingAddress                                   = Path("/use-existing-address")
 	PathViewLPA                                              = Path("/view-lpa")
+	PathWarningInterruption                                  = Path("/warning")
 	PathWeHaveContactedVoucher                               = Path("/we-have-contacted-voucher")
 	PathWeHaveInformedVoucherNoLongerNeeded                  = Path("/we-have-informed-voucher-no-longer-needed")
 	PathWeHaveUpdatedYourDetails                             = Path("/we-have-updated-your-details")
@@ -172,7 +173,7 @@ func (p Path) Redirect(w http.ResponseWriter, r *http.Request, appData appcontex
 
 func (p Path) RedirectQuery(w http.ResponseWriter, r *http.Request, appData appcontext.Data, donor *donordata.Provided, query url.Values) error {
 	rurl := p.FormatQuery(donor.LpaID, query)
-	if fromURL := r.FormValue("from"); fromURL != "" && canFrom(fromURL, donor.LpaID) {
+	if fromURL := r.FormValue("from"); fromURL != "" && canFrom(fromURL, donor.LpaID) && query.Get("warningFrom") == "" {
 		rurl = fromURL
 	}
 

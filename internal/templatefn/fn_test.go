@@ -15,6 +15,7 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor/donordata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/localize"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/lpastore/lpadata"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/place"
 	"github.com/stretchr/testify/assert"
 )
@@ -161,6 +162,14 @@ func TestInc(t *testing.T) {
 func TestLink(t *testing.T) {
 	assert.Equal(t, "/dashboard", link(appcontext.Data{}, "/dashboard"))
 	assert.Equal(t, "/cy/dashboard", link(appcontext.Data{Lang: localize.Cy}, "/dashboard"))
+}
+
+func TestLinkActor(t *testing.T) {
+	uid := actoruid.New()
+
+	assert.Equal(t, "/lpa/lpa-id/your-details?id="+uid.String()+"#field", linkActor(appcontext.Data{LpaID: "lpa-id"}, donor.PathYourDetails, uid, "#field"))
+
+	assert.Equal(t, "/cy/lpa/lpa-id/your-details?id="+uid.String(), linkActor(appcontext.Data{LpaID: "lpa-id", Lang: localize.Cy}, donor.PathYourDetails, uid, ""))
 }
 
 func TestFromLink(t *testing.T) {
@@ -646,4 +655,19 @@ func TestAddressLines(t *testing.T) {
 		App:     app,
 		Address: address,
 	}, addressLines(app, address))
+}
+
+func TestStackedNotifications(t *testing.T) {
+	appData := appcontext.Data{Page: "hey"}
+	notifications := []page.Notification{{
+		Heading:  "a",
+		BodyHTML: "b",
+	}}
+
+	assert.Equal(t, stackedNotificationsData{
+		App:           appData,
+		Notifications: notifications,
+		Count:         true,
+		Success:       true,
+	}, stackedNotifications(appData, notifications, "count", "success"))
 }

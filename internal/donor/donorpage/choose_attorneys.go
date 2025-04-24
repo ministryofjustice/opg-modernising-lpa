@@ -3,7 +3,6 @@ package donorpage
 import (
 	"net/http"
 	"net/url"
-	"strings"
 
 	"github.com/ministryofjustice/opg-go-common/template"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
@@ -22,8 +21,6 @@ type chooseAttorneysData struct {
 	Donor                    *donordata.Provided
 	Form                     *chooseAttorneysForm
 	ShowDetails              bool
-	DobWarning               string
-	NameWarning              *actor.SameNameWarning
 	ShowTrustCorporationLink bool
 }
 
@@ -54,24 +51,25 @@ func ChooseAttorneys(tmpl template.Template, donorStore DonorStore) Handler {
 		if r.Method == http.MethodPost {
 			data.Form = readChooseAttorneysForm(r)
 			data.Errors = data.Form.Validate()
-			dobWarning := data.Form.DobWarning()
 
+			dobWarning := DateOfBirthWarning(data.Form.Dob, false)
 			nameWarning := actor.NewSameNameWarning(
 				actor.TypeAttorney,
 				attorneyMatches(provided, attorney.UID, data.Form.FirstNames, data.Form.LastName),
 				data.Form.FirstNames,
 				data.Form.LastName,
 			)
+			redirectToWarning := false
 
-			if data.Form.Dob != attorney.DateOfBirth && (data.Errors.Any() || data.Form.IgnoreDobWarning != dobWarning) {
-				data.DobWarning = dobWarning
+			if (data.Form.Dob != attorney.DateOfBirth || attorney.DateOfBirth.After(date.Today().AddDate(-18, 0, 0))) && dobWarning != "" {
+				redirectToWarning = true
 			}
 
-			if data.Form.NameHasChanged(attorney) && (data.Errors.Any() || data.Form.IgnoreNameWarning != nameWarning.String()) {
-				data.NameWarning = nameWarning
+			if attorney.NameHasChanged(data.Form.FirstNames, data.Form.LastName) && nameWarning != nil {
+				redirectToWarning = true
 			}
 
-			if data.Errors.None() && data.DobWarning == "" && data.NameWarning == nil {
+			if data.Errors.None() {
 				if attorneyFound == false {
 					attorney = donordata.Attorney{UID: uid}
 				}
@@ -90,12 +88,15 @@ func ChooseAttorneys(tmpl template.Template, donorStore DonorStore) Handler {
 					return err
 				}
 
+				if redirectToWarning {
+					return donor.PathWarningInterruption.RedirectQuery(w, r, appData, provided, url.Values{
+						"id":          {attorney.UID.String()},
+						"warningFrom": {appData.Page},
+					})
+				}
+
 				return donor.PathChooseAttorneysAddress.RedirectQuery(w, r, appData, provided, url.Values{"id": {attorney.UID.String()}})
 			}
-		}
-
-		if !attorney.DateOfBirth.IsZero() {
-			data.DobWarning = data.Form.DobWarning()
 		}
 
 		return tmpl(w, data)
@@ -147,43 +148,4 @@ func (f *chooseAttorneysForm) Validate() validation.List {
 		validation.DateMustBePast())
 
 	return errors
-}
-
-func (f *chooseAttorneysForm) DobWarning() string {
-	var (
-		today                = date.Today()
-		hundredYearsEarlier  = today.AddDate(-100, 0, 0)
-		eighteenYearsEarlier = today.AddDate(-18, 0, 0)
-	)
-
-	if !f.Dob.IsZero() {
-		if f.Dob.Before(hundredYearsEarlier) {
-			return "dateOfBirthIsOver100"
-		}
-		if f.Dob.Before(today) && f.Dob.After(eighteenYearsEarlier) {
-			return "attorneyDateOfBirthIsUnder18"
-		}
-	}
-
-	return ""
-}
-
-func attorneyMatches(donor *donordata.Provided, uid actoruid.UID, firstNames, lastName string) actor.Type {
-	if firstNames == "" && lastName == "" {
-		return actor.TypeNone
-	}
-
-	for person := range donor.Actors() {
-		if !(person.Type.IsAttorney() && person.UID == uid) &&
-			strings.EqualFold(person.FirstNames, firstNames) &&
-			strings.EqualFold(person.LastName, lastName) {
-			return person.Type
-		}
-	}
-
-	return actor.TypeNone
-}
-
-func (f *chooseAttorneysForm) NameHasChanged(attorney donordata.Attorney) bool {
-	return attorney.FirstNames != f.FirstNames || attorney.LastName != f.LastName
 }

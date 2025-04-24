@@ -6,34 +6,31 @@
   <div class="govuk-grid-row">
     <div class="govuk-grid-column-two-thirds">
       <form novalidate method="post">
-        <h1 class="govuk-heading-xl">{{ tr .App "enterYourAttorneysDetails" }}</h1>
+          <h1 class="govuk-heading-xl">{{ tr .App "enterYourAttorneysDetails" }}</h1>
 
-        {{ if .ShowTrustCorporationLink }}
-          <p class="govuk-body">
-            <a href="{{ link .App (global.Paths.EnterTrustCorporation.Format .Donor.LpaID) }}" class="govuk-link govuk-link--no-visited-state">
-              {{ tr .App "myAttorneyIsTrustCorporation" }}
-            </a>
-          </p>
-        {{ end }}
+          {{ if .ShowTrustCorporationLink }}
+              <p class="govuk-body">
+                  <a href="{{ link .App (global.Paths.EnterTrustCorporation.Format .Donor.LpaID) }}" class="govuk-link govuk-link--no-visited-state">
+                      {{ tr .App "myAttorneyIsTrustCorporation" }}
+                  </a>
+              </p>
+          {{ end }}
 
-        {{ template "details" (details . "whoWouldYouLikeToBeTheAttorneysDetailsTitle" (printf "whoWouldYouLikeToBeTheAttorneysDetailsContent:%s" .Donor.Type.String) false) }}
+          {{ template "details" (details . "whoWouldYouLikeToBeTheAttorneysDetailsTitle" (printf "whoWouldYouLikeToBeTheAttorneysDetailsContent:%s" .Donor.Type.String) false) }}
 
-        <p class="govuk-body">{{ tr .App "youMustEnterTheirNameAsItAppears" }}</p>
+          <p class="govuk-body">{{ tr .App "youMustEnterTheirNameAsItAppears" }}</p>
 
-        {{ template "input" (input . "first-names" "firstNames" .Form.FirstNames "classes" "govuk-input--width-20" "hint" "firstNamesHint") }}
-        {{ template "input" (input . "last-name" "lastName" .Form.LastName "classes" "govuk-input--width-20") }}
+          {{ template "input" (input . "first-names" "firstNames" .Form.FirstNames "classes" "govuk-input--width-20" "hint" "firstNamesHint") }}
+          {{ template "input" (input . "last-name" "lastName" .Form.LastName "classes" "govuk-input--width-20") }}
 
-        {{ template "name-warning" . }}
+          {{ template "date" (input . "date-of-birth" "dateOfBirth" .Form.Dob "hint" "dateOfBirthHint") }}
 
-        {{ template "date" (input . "date-of-birth" "dateOfBirth" .Form.Dob "hint" "dateOfBirthHint") }}
-        {{ template "dob-warning" . }}
+          {{ template "input" (input . "email" "emailOptional" .Form.Email "classes" "govuk-input--width-20" "type" "email" "spellcheck" "false" "autocomplete" "email" "labelClasses" "govuk-label--m") }}
 
-        {{ template "input" (input . "email" "emailOptional" .Form.Email "classes" "govuk-input--width-20" "type" "email" "spellcheck" "false" "autocomplete" "email" "labelClasses" "govuk-label--m") }}
+          {{ template "warning" (content .App "organisationsMightNotAcceptAttorney") }}
 
-        {{ template "warning" (content .App "organisationsMightNotAcceptAttorney") }}
-
-        {{ template "buttons" (button .App "saveAndContinue") }}
-        {{ template "csrf-field" . }}
+          {{ template "buttons" (button .App "saveAndContinue") }}
+          {{ template "csrf-field" . }}
       </form>
     </div>
   </div>
