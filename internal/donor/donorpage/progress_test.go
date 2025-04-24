@@ -12,6 +12,7 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/dynamo"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/identity"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/lpastore/lpadata"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/pay"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/task"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/voucher/voucherdata"
@@ -42,8 +43,8 @@ func TestGetProgress(t *testing.T) {
 		setupVoucherStore             func(*mockVoucherStore_GetAny_Call)
 		setupDonorStore               func(*testing.T, *mockDonorStore)
 		lpa                           *lpadata.Lpa
-		infoNotifications             []progressNotification
-		successNotifications          []progressNotification
+		infoNotifications             []page.Notification
+		successNotifications          []page.Notification
 		setupLocalizer                func(*testing.T) *mockLocalizer
 	}{
 		"none": {
@@ -63,10 +64,10 @@ func TestGetProgress(t *testing.T) {
 			},
 			lpa:                           &lpadata.Lpa{LpaUID: "lpa-uid"},
 			setupCertificateProviderStore: certificateProviderStoreNotFound,
-			infoNotifications: []progressNotification{
+			infoNotifications: []page.Notification{
 				{
-					Heading: "youHaveChosenToConfirmYourIdentityAtPostOffice",
-					Body:    "whenYouHaveConfirmedAtPostOfficeReturnToTaskList",
+					Heading:  "youHaveChosenToConfirmYourIdentityAtPostOffice",
+					BodyHTML: "whenYouHaveConfirmedAtPostOfficeReturnToTaskList",
 				},
 			},
 			setupDonorStore: donorStoreNoUpdate,
@@ -94,10 +95,10 @@ func TestGetProgress(t *testing.T) {
 				Submitted: true,
 			},
 			setupCertificateProviderStore: certificateProviderStoreNotFound,
-			infoNotifications: []progressNotification{
+			infoNotifications: []page.Notification{
 				{
-					Heading: "youveSubmittedYourLpaToOpg",
-					Body:    "opgIsCheckingYourLpa",
+					Heading:  "youveSubmittedYourLpaToOpg",
+					BodyHTML: "opgIsCheckingYourLpa",
 				},
 			},
 			setupDonorStore: donorStoreNoUpdate,
@@ -138,10 +139,10 @@ func TestGetProgress(t *testing.T) {
 			},
 			lpa:                           &lpadata.Lpa{LpaUID: "lpa-uid"},
 			setupCertificateProviderStore: certificateProviderStoreNotFound,
-			infoNotifications: []progressNotification{
+			infoNotifications: []page.Notification{
 				{
-					Heading: "weNeedMoreEvidenceToMakeADecisionAboutYourLPAFee",
-					Body:    "B",
+					Heading:  "weNeedMoreEvidenceToMakeADecisionAboutYourLPAFee",
+					BodyHTML: "B",
 				},
 			},
 			setupLocalizer: func(t *testing.T) *mockLocalizer {
@@ -171,10 +172,10 @@ func TestGetProgress(t *testing.T) {
 			},
 			lpa:                           &lpadata.Lpa{LpaUID: "lpa-uid"},
 			setupCertificateProviderStore: certificateProviderStoreNotFound,
-			infoNotifications: []progressNotification{
+			infoNotifications: []page.Notification{
 				{
-					Heading: "H",
-					Body:    "youDoNotNeedToTakeAnyAction",
+					Heading:  "H",
+					BodyHTML: "youDoNotNeedToTakeAnyAction",
 				},
 			},
 			setupLocalizer: func(t *testing.T) *mockLocalizer {
@@ -200,10 +201,10 @@ func TestGetProgress(t *testing.T) {
 			},
 			lpa:                           &lpadata.Lpa{LpaUID: "lpa-uid"},
 			setupCertificateProviderStore: certificateProviderStoreNotFound,
-			infoNotifications: []progressNotification{
+			infoNotifications: []page.Notification{
 				{
-					Heading: "youMustPayForYourLPA",
-					Body:    "B",
+					Heading:  "youMustPayForYourLPA",
+					BodyHTML: "B",
 				},
 			},
 			setupLocalizer: func(t *testing.T) *mockLocalizer {
@@ -230,10 +231,10 @@ func TestGetProgress(t *testing.T) {
 			},
 			lpa:                           &lpadata.Lpa{LpaUID: "lpa-uid"},
 			setupCertificateProviderStore: certificateProviderStoreNotFound,
-			infoNotifications: []progressNotification{
+			infoNotifications: []page.Notification{
 				{
-					Heading: "H",
-					Body:    "B",
+					Heading:  "H",
+					BodyHTML: "B",
 				},
 			},
 			setupLocalizer: func(t *testing.T) *mockLocalizer {
@@ -270,10 +271,10 @@ func TestGetProgress(t *testing.T) {
 				Status: lpadata.StatusDoNotRegister,
 			},
 			setupCertificateProviderStore: certificateProviderStoreNotFound,
-			infoNotifications: []progressNotification{
+			infoNotifications: []page.Notification{
 				{
-					Heading: "thereIsAProblemWithYourLpa",
-					Body:    "B",
+					Heading:  "thereIsAProblemWithYourLpa",
+					BodyHTML: "B",
 				},
 			},
 			setupLocalizer: func(t *testing.T) *mockLocalizer {
@@ -301,10 +302,10 @@ func TestGetProgress(t *testing.T) {
 			},
 			lpa:                           &lpadata.Lpa{LpaUID: "lpa-uid"},
 			setupCertificateProviderStore: certificateProviderStoreNotFound,
-			infoNotifications: []progressNotification{
+			infoNotifications: []page.Notification{
 				{
-					Heading: "youHaveBeenUnableToConfirmYourIdentity",
-					Body:    "B",
+					Heading:  "youHaveBeenUnableToConfirmYourIdentity",
+					BodyHTML: "B",
 				},
 			},
 			setupLocalizer: func(t *testing.T) *mockLocalizer {
@@ -339,10 +340,10 @@ func TestGetProgress(t *testing.T) {
 					},
 				}, nil)
 			},
-			infoNotifications: []progressNotification{
+			infoNotifications: []page.Notification{
 				{
-					Heading: "H",
-					Body:    "B",
+					Heading:  "H",
+					BodyHTML: "B",
 				},
 			},
 			setupLocalizer: func(t *testing.T) *mockLocalizer {
@@ -374,10 +375,10 @@ func TestGetProgress(t *testing.T) {
 				Voucher: donordata.Voucher{FirstNames: "a", LastName: "b"},
 			},
 			lpa: &lpadata.Lpa{LpaUID: "lpa-uid"},
-			successNotifications: []progressNotification{
+			successNotifications: []page.Notification{
 				{
-					Heading: "H",
-					Body:    "returnToYourTaskListForInformationAboutWhatToDoNext",
+					Heading:  "H",
+					BodyHTML: "returnToYourTaskListForInformationAboutWhatToDoNext",
 				},
 			},
 			setupLocalizer: func(*testing.T) *mockLocalizer {
@@ -416,10 +417,10 @@ func TestGetProgress(t *testing.T) {
 				WitnessedByCertificateProviderAt: signedAt,
 			},
 			lpa: &lpadata.Lpa{LpaUID: "lpa-uid"},
-			successNotifications: []progressNotification{
+			successNotifications: []page.Notification{
 				{
-					Heading: "H",
-					Body:    "youDoNotNeedToTakeAnyAction",
+					Heading:  "H",
+					BodyHTML: "youDoNotNeedToTakeAnyAction",
 				},
 			},
 			setupLocalizer: func(*testing.T) *mockLocalizer {
@@ -473,10 +474,10 @@ func TestGetProgress(t *testing.T) {
 			},
 			lpa:                           &lpadata.Lpa{LpaUID: "lpa-uid"},
 			setupCertificateProviderStore: certificateProviderStoreNotFound,
-			successNotifications: []progressNotification{
+			successNotifications: []page.Notification{
 				{
-					Heading: "weHaveApprovedYourLPAFeeRequest",
-					Body:    "yourLPAIsNowPaid",
+					Heading:  "weHaveApprovedYourLPAFeeRequest",
+					BodyHTML: "yourLPAIsNowPaid",
 				},
 			},
 			setupDonorStore: func(_ *testing.T, s *mockDonorStore) {
@@ -511,8 +512,8 @@ func TestGetProgress(t *testing.T) {
 			},
 			lpa:                           &lpadata.Lpa{},
 			setupCertificateProviderStore: certificateProviderStoreNotFound,
-			infoNotifications: []progressNotification{
-				{Heading: "weAreReviewingTheEvidenceYouSent", Body: "ifYourEvidenceIsApprovedWillShowPaid"},
+			infoNotifications: []page.Notification{
+				{Heading: "weAreReviewingTheEvidenceYouSent", BodyHTML: "ifYourEvidenceIsApprovedWillShowPaid"},
 			},
 			setupDonorStore: donorStoreNoUpdate,
 		},
@@ -526,8 +527,8 @@ func TestGetProgress(t *testing.T) {
 			},
 			lpa:                           &lpadata.Lpa{},
 			setupCertificateProviderStore: certificateProviderStoreNotFound,
-			infoNotifications: []progressNotification{
-				{Heading: "thereIsFeeToPay", Body: "B"},
+			infoNotifications: []page.Notification{
+				{Heading: "thereIsFeeToPay", BodyHTML: "B"},
 			},
 			setupLocalizer: func(t *testing.T) *mockLocalizer {
 				l := newMockLocalizer(t)
@@ -547,8 +548,8 @@ func TestGetProgress(t *testing.T) {
 			},
 			lpa:                           &lpadata.Lpa{},
 			setupCertificateProviderStore: certificateProviderStoreNotFound,
-			infoNotifications: []progressNotification{
-				{Heading: "thereIsFeeToPay", Body: "B"},
+			infoNotifications: []page.Notification{
+				{Heading: "thereIsFeeToPay", BodyHTML: "B"},
 			},
 			setupLocalizer: func(t *testing.T) *mockLocalizer {
 				l := newMockLocalizer(t)
@@ -568,8 +569,8 @@ func TestGetProgress(t *testing.T) {
 			},
 			lpa:                           &lpadata.Lpa{},
 			setupCertificateProviderStore: certificateProviderStoreNotFound,
-			infoNotifications: []progressNotification{
-				{Heading: "yourLpaMustBeReviewedByCourtOfProtection", Body: "opgIsCompletingChecksSoYouCanSubmitToCourtOfProtection"},
+			infoNotifications: []page.Notification{
+				{Heading: "yourLpaMustBeReviewedByCourtOfProtection", BodyHTML: "opgIsCompletingChecksSoYouCanSubmitToCourtOfProtection"},
 			},
 			setupDonorStore: donorStoreNoUpdate,
 		},
@@ -580,8 +581,8 @@ func TestGetProgress(t *testing.T) {
 			},
 			lpa:                           &lpadata.Lpa{},
 			setupCertificateProviderStore: certificateProviderStoreNotFound,
-			infoNotifications: []progressNotification{
-				{Heading: "yourLpaMustBeReviewedByCourtOfProtection", Body: "whenYouHavePaidOpgWillCheck"},
+			infoNotifications: []page.Notification{
+				{Heading: "yourLpaMustBeReviewedByCourtOfProtection", BodyHTML: "whenYouHavePaidOpgWillCheck"},
 			},
 			setupDonorStore: donorStoreNoUpdate,
 		},
@@ -594,8 +595,8 @@ func TestGetProgress(t *testing.T) {
 			},
 			lpa:                           &lpadata.Lpa{},
 			setupCertificateProviderStore: certificateProviderStoreNotFound,
-			infoNotifications: []progressNotification{
-				{Heading: "yourLpaMustBeReviewedByCourtOfProtection", Body: "returnToYourTaskListToSignThenOpgWillCheck"},
+			infoNotifications: []page.Notification{
+				{Heading: "yourLpaMustBeReviewedByCourtOfProtection", BodyHTML: "returnToYourTaskListToSignThenOpgWillCheck"},
 			},
 			setupDonorStore: donorStoreNoUpdate,
 		},
@@ -609,10 +610,10 @@ func TestGetProgress(t *testing.T) {
 				Status: lpadata.StatusWithdrawn,
 			},
 			setupCertificateProviderStore: certificateProviderStoreNotFound,
-			infoNotifications: []progressNotification{
+			infoNotifications: []page.Notification{
 				{
-					Heading: "lpaRevoked",
-					Body:    "translated body",
+					Heading:  "lpaRevoked",
+					BodyHTML: "translated body",
 				},
 			},
 			setupLocalizer: func(t *testing.T) *mockLocalizer {
@@ -638,8 +639,8 @@ func TestGetProgress(t *testing.T) {
 			},
 			lpa:                           &lpadata.Lpa{},
 			setupCertificateProviderStore: certificateProviderStoreNotFound,
-			infoNotifications: []progressNotification{
-				{Heading: "yourLPACannotBeRegisteredByOPG", Body: "youDidNotConfirmYourIdentityWithinSixMonthsOfSigning"},
+			infoNotifications: []page.Notification{
+				{Heading: "yourLPACannotBeRegisteredByOPG", BodyHTML: "youDidNotConfirmYourIdentityWithinSixMonthsOfSigning"},
 			},
 			setupDonorStore: donorStoreNoUpdate,
 		},
@@ -650,8 +651,8 @@ func TestGetProgress(t *testing.T) {
 			},
 			lpa:                           &lpadata.Lpa{},
 			setupCertificateProviderStore: certificateProviderStoreNotFound,
-			infoNotifications: []progressNotification{
-				{Heading: "youMustConfirmYourIdentityAgain", Body: "youDidNotSignYourLPAWithinSixMonthsOfConfirmingYourIdentity"},
+			infoNotifications: []page.Notification{
+				{Heading: "youMustConfirmYourIdentityAgain", BodyHTML: "youDidNotSignYourLPAWithinSixMonthsOfConfirmingYourIdentity"},
 			},
 			setupDonorStore: donorStoreNoUpdate,
 		},
@@ -661,8 +662,8 @@ func TestGetProgress(t *testing.T) {
 				Status: lpadata.StatusStatutoryWaitingPeriod,
 			},
 			setupCertificateProviderStore: certificateProviderStoreNotFound,
-			infoNotifications: []progressNotification{
-				{Heading: "yourLpaIsAwaitingRegistration", Body: "theOpgWillRegisterYourLpaAtEndOfWaitingPeriod"},
+			infoNotifications: []page.Notification{
+				{Heading: "yourLpaIsAwaitingRegistration", BodyHTML: "theOpgWillRegisterYourLpaAtEndOfWaitingPeriod"},
 			},
 			setupDonorStore: donorStoreNoUpdate,
 		},
@@ -676,8 +677,8 @@ func TestGetProgress(t *testing.T) {
 			},
 			lpa:                           &lpadata.Lpa{},
 			setupCertificateProviderStore: certificateProviderStoreNotFound,
-			infoNotifications: []progressNotification{
-				{Heading: "confirmationOfIdentityPending", Body: "youDoNotNeedToTakeAnyAction"},
+			infoNotifications: []page.Notification{
+				{Heading: "confirmationOfIdentityPending", BodyHTML: "youDoNotNeedToTakeAnyAction"},
 			},
 			setupDonorStore: donorStoreNoUpdate,
 		},
@@ -687,8 +688,8 @@ func TestGetProgress(t *testing.T) {
 			},
 			lpa:                           &lpadata.Lpa{},
 			setupCertificateProviderStore: certificateProviderStoreNotFound,
-			infoNotifications: []progressNotification{
-				{Heading: "thereIsAProblemWithYourLpa", Body: "B"},
+			infoNotifications: []page.Notification{
+				{Heading: "thereIsAProblemWithYourLpa", BodyHTML: "B"},
 			},
 			setupLocalizer: func(t *testing.T) *mockLocalizer {
 				l := newMockLocalizer(t)
@@ -718,8 +719,8 @@ func TestGetProgress(t *testing.T) {
 			},
 			lpa:                           &lpadata.Lpa{},
 			setupCertificateProviderStore: certificateProviderStoreNotFound,
-			successNotifications: []progressNotification{
-				{Heading: "yourIdentityHadBeenConfirmed", Body: "youDoNotNeedToTakeAnyAction"},
+			successNotifications: []page.Notification{
+				{Heading: "yourIdentityHadBeenConfirmed", BodyHTML: "youDoNotNeedToTakeAnyAction"},
 			},
 			setupDonorStore: func(_ *testing.T, s *mockDonorStore) {
 				s.EXPECT().
@@ -759,8 +760,8 @@ func TestGetProgress(t *testing.T) {
 			lpa:                           &lpadata.Lpa{},
 			setupCertificateProviderStore: certificateProviderStoreNotFound,
 			setupDonorStore:               donorStoreNoUpdate,
-			infoNotifications: []progressNotification{
-				{Heading: "yourLPACannotBeRegisteredByOPG", Body: "B"},
+			infoNotifications: []page.Notification{
+				{Heading: "yourLPACannotBeRegisteredByOPG", BodyHTML: "B"},
 			},
 			setupLocalizer: func(t *testing.T) *mockLocalizer {
 				l := newMockLocalizer(t)
@@ -782,8 +783,8 @@ func TestGetProgress(t *testing.T) {
 					},
 				}, nil)
 			},
-			infoNotifications: []progressNotification{
-				{Heading: "heading", Body: "wellContactYouIfYouNeedToTakeAnyAction"},
+			infoNotifications: []page.Notification{
+				{Heading: "heading", BodyHTML: "wellContactYouIfYouNeedToTakeAnyAction"},
 			},
 			setupLocalizer: func(t *testing.T) *mockLocalizer {
 				l := newMockLocalizer(t)
@@ -809,8 +810,8 @@ func TestGetProgress(t *testing.T) {
 					},
 				}, nil)
 			},
-			successNotifications: []progressNotification{
-				{Heading: "heading", Body: "youDoNotNeedToTakeAnyAction"},
+			successNotifications: []page.Notification{
+				{Heading: "heading", BodyHTML: "youDoNotNeedToTakeAnyAction"},
 			},
 			setupLocalizer: func(t *testing.T) *mockLocalizer {
 				l := newMockLocalizer(t)
@@ -857,8 +858,8 @@ func TestGetProgress(t *testing.T) {
 				}, nil)
 			},
 			setupDonorStore: donorStoreNoUpdate,
-			infoNotifications: []progressNotification{
-				{Heading: "yourLPACannotBeRegisteredByOPG", Body: "B"},
+			infoNotifications: []page.Notification{
+				{Heading: "yourLPACannotBeRegisteredByOPG", BodyHTML: "B"},
 			},
 			setupLocalizer: func(t *testing.T) *mockLocalizer {
 				l := newMockLocalizer(t)

@@ -232,6 +232,7 @@ type appPaths struct {
 	UploadEvidenceSSE                                    donor.Path
 	UseExistingAddress                                   donor.Path
 	ViewLPA                                              donor.Path
+	WarningInterruption                                  donor.Path
 	WeHaveContactedVoucher                               donor.Path
 	WeHaveUpdatedYourDetails                             donor.Path
 	WhatACertificateProviderDoes                         donor.Path
@@ -478,6 +479,7 @@ var paths = appPaths{
 	UploadEvidenceSSE:                                    donor.PathUploadEvidenceSSE,
 	UseExistingAddress:                                   donor.PathUseExistingAddress,
 	ViewLPA:                                              donor.PathViewLPA,
+	WarningInterruption:                                  donor.PathWarningInterruption,
 	WeHaveContactedVoucher:                               donor.PathWeHaveContactedVoucher,
 	WeHaveUpdatedYourDetails:                             donor.PathWeHaveUpdatedYourDetails,
 	WhatACertificateProviderDoes:                         donor.PathWhatACertificateProviderDoes,
