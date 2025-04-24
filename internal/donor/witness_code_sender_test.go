@@ -15,6 +15,21 @@ import (
 	"github.com/stretchr/testify/mock"
 )
 
+func TestNewWitnessCodeSender(t *testing.T) {
+	donorStore := newMockDonorStore(t)
+	certificateProviderStore := newMockCertificateProviderStore(t)
+	notifyClient := newMockNotifyClient(t)
+	localizer := newMockLocalizer(t)
+
+	sender := NewWitnessCodeSender(donorStore, certificateProviderStore, notifyClient, localizer, true)
+
+	assert.Equal(t, donorStore, sender.donorStore)
+	assert.Equal(t, certificateProviderStore, sender.certificateProviderStore)
+	assert.Equal(t, notifyClient, sender.notifyClient)
+	assert.Equal(t, localizer, sender.localizer)
+	assert.True(t, sender.useTestCode)
+}
+
 func TestWitnessCodeSenderSendToCertificateProvider(t *testing.T) {
 	testCases := map[string]struct {
 		randomCode          string
@@ -36,7 +51,6 @@ func TestWitnessCodeSenderSendToCertificateProvider(t *testing.T) {
 		t.Run(name, func(t *testing.T) {
 			now := time.Now()
 			ctx := context.Background()
-			UseTestWitnessCode = tc.useTestCode
 
 			notifyClient := newMockNotifyClient(t)
 			notifyClient.EXPECT().
@@ -78,6 +92,7 @@ func TestWitnessCodeSenderSendToCertificateProvider(t *testing.T) {
 				localizer:                localizer,
 				randomCode:               func(int) string { return tc.randomCode },
 				now:                      func() time.Time { return now },
+				useTestCode:              tc.useTestCode,
 			}
 			err := sender.SendToCertificateProvider(ctx, &donordata.Provided{
 				LpaUID:              "lpa-uid",
@@ -223,52 +238,73 @@ func TestWitnessCodeSenderSendToCertificateProviderWhenDonorStoreErrors(t *testi
 }
 
 func TestWitnessCodeSenderSendToIndependentWitness(t *testing.T) {
-	now := time.Now()
-	ctx := context.Background()
-
-	notifyClient := newMockNotifyClient(t)
-	notifyClient.EXPECT().
-		SendActorSMS(ctx, notify.ToIndependentWitness(donordata.IndependentWitness{Mobile: "0777"}), "lpa-uid", notify.WitnessCodeSMS{
-			WitnessCode:   "1234",
-			DonorFullName: "Joe Jones’",
-			LpaType:       "property and affairs",
-		}).
-		Return(nil)
-
-	donorStore := newMockDonorStore(t)
-	donorStore.EXPECT().
-		Put(ctx, &donordata.Provided{
-			LpaUID:                  "lpa-uid",
-			Donor:                   donordata.Donor{FirstNames: "Joe", LastName: "Jones"},
-			IndependentWitness:      donordata.IndependentWitness{Mobile: "0777"},
-			IndependentWitnessCodes: donordata.WitnessCodes{{Code: "1234", Created: now}},
-			Type:                    lpadata.LpaTypePropertyAndAffairs,
-		}).
-		Return(nil)
-
-	localizer := newMockLocalizer(t)
-	localizer.EXPECT().
-		T("property-and-affairs").
-		Return("property and affairs")
-	localizer.EXPECT().
-		Possessive("Joe Jones").
-		Return("Joe Jones’")
-
-	sender := &WitnessCodeSender{
-		donorStore:   donorStore,
-		notifyClient: notifyClient,
-		localizer:    localizer,
-		randomCode:   func(int) string { return "1234" },
-		now:          func() time.Time { return now },
+	testCases := map[string]struct {
+		randomCode          string
+		expectedWitnessCode string
+		useTestCode         bool
+	}{
+		"random code": {
+			randomCode:          "4321",
+			expectedWitnessCode: "4321",
+		},
+		"test code": {
+			randomCode:          "4321",
+			expectedWitnessCode: "1234",
+			useTestCode:         true,
+		},
 	}
-	err := sender.SendToIndependentWitness(ctx, &donordata.Provided{
-		LpaUID:             "lpa-uid",
-		Donor:              donordata.Donor{FirstNames: "Joe", LastName: "Jones"},
-		IndependentWitness: donordata.IndependentWitness{Mobile: "0777"},
-		Type:               lpadata.LpaTypePropertyAndAffairs,
-	})
 
-	assert.Nil(t, err)
+	for name, tc := range testCases {
+		t.Run(name, func(t *testing.T) {
+			now := time.Now()
+			ctx := context.Background()
+
+			notifyClient := newMockNotifyClient(t)
+			notifyClient.EXPECT().
+				SendActorSMS(ctx, notify.ToIndependentWitness(donordata.IndependentWitness{Mobile: "0777"}), "lpa-uid", notify.WitnessCodeSMS{
+					WitnessCode:   tc.expectedWitnessCode,
+					DonorFullName: "Joe Jones’",
+					LpaType:       "property and affairs",
+				}).
+				Return(nil)
+
+			donorStore := newMockDonorStore(t)
+			donorStore.EXPECT().
+				Put(ctx, &donordata.Provided{
+					LpaUID:                  "lpa-uid",
+					Donor:                   donordata.Donor{FirstNames: "Joe", LastName: "Jones"},
+					IndependentWitness:      donordata.IndependentWitness{Mobile: "0777"},
+					IndependentWitnessCodes: donordata.WitnessCodes{{Code: tc.expectedWitnessCode, Created: now}},
+					Type:                    lpadata.LpaTypePropertyAndAffairs,
+				}).
+				Return(nil)
+
+			localizer := newMockLocalizer(t)
+			localizer.EXPECT().
+				T("property-and-affairs").
+				Return("property and affairs")
+			localizer.EXPECT().
+				Possessive("Joe Jones").
+				Return("Joe Jones’")
+
+			sender := &WitnessCodeSender{
+				donorStore:   donorStore,
+				notifyClient: notifyClient,
+				localizer:    localizer,
+				randomCode:   func(int) string { return tc.randomCode },
+				now:          func() time.Time { return now },
+				useTestCode:  tc.useTestCode,
+			}
+			err := sender.SendToIndependentWitness(ctx, &donordata.Provided{
+				LpaUID:             "lpa-uid",
+				Donor:              donordata.Donor{FirstNames: "Joe", LastName: "Jones"},
+				IndependentWitness: donordata.IndependentWitness{Mobile: "0777"},
+				Type:               lpadata.LpaTypePropertyAndAffairs,
+			})
+
+			assert.Nil(t, err)
+		})
+	}
 }
 
 func TestWitnessCodeSenderSendToIndependentWitnessWhenTooRecentlySent(t *testing.T) {
