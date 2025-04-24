@@ -36,3 +36,7 @@ func (a Attorney) Channel() lpadata.Channel {
 
 	return lpadata.ChannelPaper
 }
+
+func (a Attorney) NameHasChanged(firstNames, lastName string) bool {
+	return a.FirstNames != firstNames || a.LastName != lastName
+}
