@@ -108,6 +108,7 @@ func App(
 	donorStartURL string,
 	certificateProviderStartURL string,
 	attorneyStartURL string,
+	useTestWitnessCode bool,
 ) http.Handler {
 	localizer := bundle.For(lang)
 	documentStore := document.NewStore(lpaDynamoClient, s3Client, eventClient)
@@ -125,7 +126,7 @@ func App(
 	progressTracker := task.ProgressTracker{Localizer: localizer}
 
 	shareCodeSender := sharecode.NewSender(shareCodeStore, notifyClient, appPublicURL, certificateProviderStartURL, attorneyStartURL, eventClient, certificateProviderStore, scheduledStore)
-	witnessCodeSender := donor.NewWitnessCodeSender(donorStore, certificateProviderStore, notifyClient, localizer)
+	witnessCodeSender := donor.NewWitnessCodeSender(donorStore, certificateProviderStore, notifyClient, localizer, useTestWitnessCode)
 
 	lpaStoreResolvingService := lpastore.NewResolvingService(donorStore, lpaStoreClient)
 
