@@ -49,7 +49,7 @@ func ChooseReplacementAttorneys(tmpl template.Template, donorStore DonorStore) H
 		if r.Method == http.MethodPost {
 			data.Form = readChooseAttorneysForm(r)
 			data.Errors = data.Form.Validate()
-			dobWarning := data.Form.DobWarning()
+			dobWarning := data.Form.DobWarning(true)
 
 			nameWarning := actor.NewSameNameWarning(
 				actor.TypeReplacementAttorney,
@@ -89,7 +89,7 @@ func ChooseReplacementAttorneys(tmpl template.Template, donorStore DonorStore) H
 		}
 
 		if !attorney.DateOfBirth.IsZero() {
-			data.DobWarning = data.Form.DobWarning()
+			data.DobWarning = data.Form.DobWarning(true)
 		}
 
 		return tmpl(w, data)
