@@ -102,6 +102,11 @@ variable "environments" {
         enable_s3_batch_job_replication_scheduler = bool
       })
       log_emitted_events = bool
+      start_page_redirects = object({
+        enabled                 = bool
+        start_page_redirect_url = string
+      })
+
     })
   )
 }
