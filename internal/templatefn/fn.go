@@ -18,6 +18,7 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/localize"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/lpastore"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/lpastore/lpadata"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/place"
 )
 
@@ -47,53 +48,55 @@ func All(globals *Globals) map[string]any {
 	globals.Paths = paths
 
 	return map[string]any{
-		"global":             func() *Globals { return globals },
-		"isEnglish":          isEnglish,
-		"isWelsh":            isWelsh,
-		"input":              input,
-		"button":             button,
-		"items":              items,
-		"item":               item,
-		"fieldID":            fieldID,
-		"errorMessage":       errorMessage,
-		"details":            details,
-		"inc":                inc,
-		"link":               link,
-		"fromLink":           fromLink,
-		"fromLinkActor":      fromLinkActor,
-		"stringContains":     strings.Contains,
-		"tr":                 tr,
-		"trFormat":           trFormat,
-		"trFormatHtml":       trFormatHtml,
-		"trHtml":             trHtml,
-		"trCount":            trCount,
-		"trFormatCount":      trFormatCount,
-		"now":                now,
-		"addDays":            addDays,
-		"formatDate":         formatDate,
-		"formatTime":         formatTime,
-		"formatDateTime":     formatDateTime,
-		"formatPhone":        formatPhone,
-		"lowerFirst":         localize.LowerFirst,
-		"listAttorneys":      listAttorneys,
-		"listPeopleToNotify": listPeopleToNotify,
-		"possessive":         possessive,
-		"card":               card,
-		"printStruct":        printStruct,
-		"concatAnd":          concatAnd,
-		"concatOr":           concatOr,
-		"concatComma":        concatComma,
-		"content":            content,
-		"notificationBanner": notificationBanner,
-		"checkboxEq":         checkboxEq,
-		"lpaDecisions":       lpaDecisions,
-		"summaryRow":         summaryRow,
-		"staticSummaryRow":   staticSummaryRow,
-		"legend":             legend,
-		"legendHeading":      legendHeading,
-		"fieldset":           fieldset,
-		"htmlContent":        htmlContent,
-		"addressLines":       addressLines,
+		"global":               func() *Globals { return globals },
+		"isEnglish":            isEnglish,
+		"isWelsh":              isWelsh,
+		"input":                input,
+		"button":               button,
+		"items":                items,
+		"item":                 item,
+		"fieldID":              fieldID,
+		"errorMessage":         errorMessage,
+		"details":              details,
+		"inc":                  inc,
+		"link":                 link,
+		"linkActor":            linkActor,
+		"fromLink":             fromLink,
+		"fromLinkActor":        fromLinkActor,
+		"stringContains":       strings.Contains,
+		"tr":                   tr,
+		"trFormat":             trFormat,
+		"trFormatHtml":         trFormatHtml,
+		"trHtml":               trHtml,
+		"trCount":              trCount,
+		"trFormatCount":        trFormatCount,
+		"now":                  now,
+		"addDays":              addDays,
+		"formatDate":           formatDate,
+		"formatTime":           formatTime,
+		"formatDateTime":       formatDateTime,
+		"formatPhone":          formatPhone,
+		"lowerFirst":           localize.LowerFirst,
+		"listAttorneys":        listAttorneys,
+		"listPeopleToNotify":   listPeopleToNotify,
+		"possessive":           possessive,
+		"card":                 card,
+		"printStruct":          printStruct,
+		"concatAnd":            concatAnd,
+		"concatOr":             concatOr,
+		"concatComma":          concatComma,
+		"content":              content,
+		"notificationBanner":   notificationBanner,
+		"checkboxEq":           checkboxEq,
+		"lpaDecisions":         lpaDecisions,
+		"summaryRow":           summaryRow,
+		"staticSummaryRow":     staticSummaryRow,
+		"legend":               legend,
+		"legendHeading":        legendHeading,
+		"fieldset":             fieldset,
+		"htmlContent":          htmlContent,
+		"addressLines":         addressLines,
+		"stackedNotifications": stackedNotifications,
 	}
 }
 
@@ -197,6 +200,9 @@ func inc(i int) int {
 
 func link(app appcontext.Data, path string) string {
 	return app.Lang.URL(path)
+}
+func linkActor(app appcontext.Data, path lpaIDPath, uid actoruid.UID, field string) string {
+	return app.Lang.URL(path.Format(app.LpaID)) + "?id=" + uid.String() + field
 }
 
 type lpaIDPath interface{ Format(string) string }
@@ -584,5 +590,21 @@ func addressLines(appData appcontext.Data, address place.Address) addressLinesDa
 	return addressLinesData{
 		App:     appData,
 		Address: address,
+	}
+}
+
+type stackedNotificationsData struct {
+	App           appcontext.Data
+	Notifications []page.Notification
+	Count         bool
+	Success       bool
+}
+
+func stackedNotifications(appData appcontext.Data, notifications []page.Notification, options ...string) stackedNotificationsData {
+	return stackedNotificationsData{
+		App:           appData,
+		Notifications: notifications,
+		Count:         slices.Contains(options, "count"),
+		Success:       slices.Contains(options, "success"),
 	}
 }

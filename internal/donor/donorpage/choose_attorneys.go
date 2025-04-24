@@ -22,9 +22,11 @@ type chooseAttorneysData struct {
 	Donor                    *donordata.Provided
 	Form                     *chooseAttorneysForm
 	ShowDetails              bool
-	DobWarning               string
-	NameWarning              *actor.SameNameWarning
+	WarningNotifications     []page.Notification
 	ShowTrustCorporationLink bool
+	AttorneyUID              actoruid.UID
+	//DobWarning               string
+	//NameWarning              *actor.SameNameWarning
 }
 
 func ChooseAttorneys(tmpl template.Template, donorStore DonorStore) Handler {
@@ -51,10 +53,14 @@ func ChooseAttorneys(tmpl template.Template, donorStore DonorStore) Handler {
 			ShowTrustCorporationLink: provided.Type.IsPropertyAndAffairs() && provided.ReplacementAttorneys.TrustCorporation.Name == "",
 		}
 
+		if attorneyFound {
+			data.AttorneyUID = attorney.UID
+		}
+
 		if r.Method == http.MethodPost {
 			data.Form = readChooseAttorneysForm(r)
 			data.Errors = data.Form.Validate()
-			dobWarning := data.Form.DobWarning()
+			dobWarning := data.Form.DobWarning(false)
 
 			nameWarning := actor.NewSameNameWarning(
 				actor.TypeAttorney,
@@ -63,15 +69,21 @@ func ChooseAttorneys(tmpl template.Template, donorStore DonorStore) Handler {
 				data.Form.LastName,
 			)
 
-			if data.Form.Dob != attorney.DateOfBirth && (data.Errors.Any() || data.Form.IgnoreDobWarning != dobWarning) {
-				data.DobWarning = dobWarning
+			if data.Form.Dob != attorney.DateOfBirth && dobWarning != "" {
+				data.WarningNotifications = append(data.WarningNotifications, page.Notification{
+					Heading:  "pleaseReviewTheInformationYouHaveEntered",
+					BodyHTML: dobWarning,
+				})
 			}
 
-			if data.Form.NameHasChanged(attorney) && (data.Errors.Any() || data.Form.IgnoreNameWarning != nameWarning.String()) {
-				data.NameWarning = nameWarning
+			if data.Form.NameHasChanged(attorney) && nameWarning != nil {
+				data.WarningNotifications = append(data.WarningNotifications, page.Notification{
+					Heading:  "pleaseReviewTheInformationYouHaveEntered",
+					BodyHTML: nameWarning.Format(appData.Localizer),
+				})
 			}
 
-			if data.Errors.None() && data.DobWarning == "" && data.NameWarning == nil {
+			if data.Errors.None() {
 				if attorneyFound == false {
 					attorney = donordata.Attorney{UID: uid}
 				}
@@ -90,12 +102,12 @@ func ChooseAttorneys(tmpl template.Template, donorStore DonorStore) Handler {
 					return err
 				}
 
+				if len(data.WarningNotifications) > 0 {
+					return tmpl(w, data)
+				}
+
 				return donor.PathChooseAttorneysAddress.RedirectQuery(w, r, appData, provided, url.Values{"id": {attorney.UID.String()}})
 			}
-		}
-
-		if !attorney.DateOfBirth.IsZero() {
-			data.DobWarning = data.Form.DobWarning()
 		}
 
 		return tmpl(w, data)
@@ -149,7 +161,7 @@ func (f *chooseAttorneysForm) Validate() validation.List {
 	return errors
 }
 
-func (f *chooseAttorneysForm) DobWarning() string {
+func (f *chooseAttorneysForm) DobWarning(replacement bool) string {
 	var (
 		today                = date.Today()
 		hundredYearsEarlier  = today.AddDate(-100, 0, 0)
@@ -161,7 +173,11 @@ func (f *chooseAttorneysForm) DobWarning() string {
 			return "dateOfBirthIsOver100"
 		}
 		if f.Dob.Before(today) && f.Dob.After(eighteenYearsEarlier) {
-			return "attorneyDateOfBirthIsUnder18"
+			//TODO drop as part of MLPAB-2990
+			if replacement {
+				return "attorneyDateOfBirthIsUnder18"
+			}
+			return "dateOfBirthIsUnder18Attorney"
 		}
 	}
 
