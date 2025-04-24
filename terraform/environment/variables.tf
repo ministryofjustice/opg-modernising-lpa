@@ -48,6 +48,7 @@ variable "environments" {
           notify_is_production           = string
           onelogin_url                   = string
           dev_mode                       = string
+          use_test_witness_code          = string
         })
         autoscaling = object({
           minimum = number
