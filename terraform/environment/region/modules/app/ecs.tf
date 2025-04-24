@@ -515,6 +515,10 @@ locals {
           name  = "ATTORNEY_START_URL",
           value = var.app_env_vars.attorney_start_url
         },
+        {
+          name  = "USE_TEST_WITNESS_CODE",
+          value = var.app_env_vars.use_test_witness_code
+        },
       ]
     }
   )
