@@ -53,9 +53,15 @@ resource "aws_s3_bucket_lifecycle_configuration" "bucket" {
   rule {
     id     = "retain-for-400-days"
     status = "Enabled"
+
+    filter {
+      prefix = ""
+    }
+
     expiration {
       days = 400
     }
+
     noncurrent_version_expiration {
       noncurrent_days = 400
     }
@@ -63,6 +69,11 @@ resource "aws_s3_bucket_lifecycle_configuration" "bucket" {
   rule {
     id     = "abort-incomplete-multipart-upload"
     status = "Enabled"
+
+    filter {
+      prefix = ""
+    }
+
     abort_incomplete_multipart_upload {
       days_after_initiation = 7
     }

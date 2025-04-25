@@ -42,6 +42,11 @@ resource "aws_s3_bucket_lifecycle_configuration" "lifecycle" {
   rule {
     id     = "retain-dynamodb-exports-for-30-days"
     status = "Enabled"
+
+    filter {
+      prefix = ""
+    }
+
     expiration {
       days = 30
     }
@@ -49,6 +54,11 @@ resource "aws_s3_bucket_lifecycle_configuration" "lifecycle" {
   rule {
     id     = "abort-incomplete-multipart-upload"
     status = "Enabled"
+
+    filter {
+      prefix = ""
+    }
+
     abort_incomplete_multipart_upload {
       days_after_initiation = 7
     }
