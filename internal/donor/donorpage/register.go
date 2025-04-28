@@ -496,6 +496,9 @@ func Register(
 	handleWithDonor(donor.PathYouHaveSubmittedYourLpa, page.None,
 		Guidance(tmpls.Get("you_have_submitted_your_lpa.gohtml")))
 
+	handleWithDonor(donor.PathWarningInterruption, page.CanGoBack,
+		WarningInterruption(tmpls.Get("warning_interruption.gohtml")))
+
 	handleWithDonor(donor.PathProgress, page.None,
 		Progress(tmpls.Get("progress.gohtml"), lpaStoreResolvingService, progressTracker, certificateProviderStore, voucherStore, donorStore, time.Now))
 

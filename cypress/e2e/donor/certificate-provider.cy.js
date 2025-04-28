@@ -1,6 +1,4 @@
-import {
-    AddressFormAssertions, TestEmail, TestMobile
-} from "../../support/e2e";
+import {AddressFormAssertions, TestEmail, TestMobile} from "../../support/e2e";
 
 describe('Certificate provider task', () => {
     beforeEach(() => {
@@ -252,7 +250,7 @@ describe('Certificate provider task', () => {
         cy.contains('button', 'Save and continue').click();
         cy.url().should('contain', '/certificate-provider-details');
 
-        cy.contains('There is also an attorney called Jessie Jones.');
+        cy.contains('You have already entered Jessie Jones as an attorney on your LPA.');
 
         cy.contains('button', 'Save and continue').click();
         cy.url().should('contain', '/how-do-you-know-your-certificate-provider');

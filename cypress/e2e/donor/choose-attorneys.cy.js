@@ -80,11 +80,11 @@ describe('Choose attorneys', () => {
         cy.get('#f-date-of-birth-month').invoke('val', '2');
         cy.get('#f-date-of-birth-year').invoke('val', '1990');
         cy.contains('button', 'Save and continue').click();
-        cy.url().should('contain', '/choose-attorneys');
+        cy.url().should('contain', '/warning');
 
-        cy.contains('The donor’s name is also Sam Smith. The donor cannot also be an attorney. By saving this section, you are confirming that these are two different people with the same name.');
+        cy.contains('You and your attorney have the same name. As the donor, you cannot act as an attorney for your LPA.');
 
-        cy.contains('button', 'Save and continue').click();
+        cy.contains('a', 'Continue').click();
         cy.url().should('contain', '/choose-attorneys-address');
     });
 
@@ -95,16 +95,15 @@ describe('Choose attorneys', () => {
         cy.get('#f-date-of-birth-month').invoke('val', '2');
         cy.get('#f-date-of-birth-year').invoke('val', new Date().getFullYear() - 1);
         cy.contains('button', 'Save and continue').click();
-        cy.url().should('contain', '/choose-attorneys');
+        cy.url().should('contain', '/warning');
 
         cy.contains('This attorney is under 18 years old. You can continue making your LPA but you will not be able to sign it until they are 18.');
 
-        cy.contains('button', 'Save and continue').click();
-        cy.url().should('contain', '/choose-attorneys-address');
-
-        cy.visitLpa("/choose-attorneys-summary")
-        cy.contains('a', 'Change').click()
+        cy.contains('a', 'Change date of birth for Sam Smith').click();
         cy.url().should('contain', '/choose-attorneys');
+
+        cy.contains('button', 'Save and continue').click();
+        cy.url().should('contain', '/warning');
 
         cy.contains('This attorney is under 18 years old. You can continue making your LPA but you will not be able to sign it until they are 18.');
     });
@@ -116,15 +115,11 @@ describe('Choose attorneys', () => {
         cy.get('#f-date-of-birth-month').invoke('val', '2');
         cy.get('#f-date-of-birth-year').invoke('val', '1900');
         cy.contains('button', 'Save and continue').click();
-        cy.url().should('contain', '/choose-attorneys');
+        cy.url().should('contain', '/warning');
 
         cy.contains('By continuing, you confirm that this person is more than 100 years old. If not, please change their date of birth.');
 
-        cy.contains('button', 'Save and continue').click();
-        cy.url().should('contain', '/choose-attorneys-address');
-
-        cy.go(-2);
-        cy.url().should('contain', '/choose-attorneys');
+        cy.contains('a', 'Change date of birth for Sam Smith').click();
 
         cy.get('#f-date-of-birth-year').invoke('val', new Date().getFullYear() - 20);
         cy.contains('button', 'Save and continue').click();
