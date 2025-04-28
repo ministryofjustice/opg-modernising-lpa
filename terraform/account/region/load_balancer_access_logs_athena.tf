@@ -23,6 +23,10 @@ resource "aws_s3_bucket_lifecycle_configuration" "athena_results" {
     id     = "ExpireObjectsAfter28Days"
     status = "Enabled"
 
+    filter {
+      prefix = ""
+    }
+
     expiration {
       days = 28
     }

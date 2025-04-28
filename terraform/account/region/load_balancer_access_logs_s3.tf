@@ -54,6 +54,11 @@ resource "aws_s3_bucket_lifecycle_configuration" "lifecycle" {
   rule {
     id     = "retain-logs-for-13-months"
     status = "Enabled"
+
+    filter {
+      prefix = ""
+    }
+
     transition {
       days          = 30
       storage_class = "STANDARD_IA"
@@ -73,6 +78,11 @@ resource "aws_s3_bucket_lifecycle_configuration" "lifecycle" {
   rule {
     id     = "abort-incomplete-multipart-upload"
     status = "Enabled"
+
+    filter {
+      prefix = ""
+    }
+
     abort_incomplete_multipart_upload {
       days_after_initiation = 7
     }
