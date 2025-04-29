@@ -1,0 +1,24 @@
+{{ template "page" . }}
+
+{{ define "pageTitle" }}{{tr .App .PageTitle }}{{ end }}
+
+{{ define "main" }}
+    <div class="govuk-grid-row">
+        <div class="govuk-grid-column-two-thirds">
+            {{ template "stacked-notifications" (stackedNotifications .App .Notifications) }}
+
+            <h1 class="govuk-heading-xl">{{ tr .App .PageTitle }}</h1>
+
+            {{ if eq .From (global.Paths.ChooseAttorneys.Format .App.LpaID) }}
+                <dl class="govuk-summary-list">
+                    {{ template "summary-row" (summaryRow $.App "firstNames" .Attorney.FirstNames (linkActor .App global.Paths.ChooseAttorneys .Attorney.UID "#f-first-names") .Donor.Donor.FullName true false) }}
+                    {{ template "summary-row" (summaryRow $.App "lastName" .Attorney.LastName (linkActor .App global.Paths.ChooseAttorneys .Attorney.UID "#f-last-name") .Donor.Donor.FullName true false) }}
+                    {{ template "summary-row" (summaryRow $.App "dateOfBirth" (formatDate .App .Attorney.DateOfBirth) (linkActor .App global.Paths.ChooseAttorneys .Attorney.UID "#f-date-of-birth") .Donor.Donor.FullName true false) }}
+                    {{ template "summary-row" (summaryRow $.App "email" .Attorney.Email (linkActor .App global.Paths.ChooseAttorneys .Attorney.UID "#f-email") .Donor.Donor.FullName true false) }}
+                </dl>
+
+                {{ template "buttons" (button .App "continue" "link" (linkActor .App global.Paths.ChooseAttorneysAddress .Attorney.UID "")) }}
+            {{ end }}
+        </div>
+    </div>
+{{ end }}

@@ -6,7 +6,7 @@ describe('You cannot sign your LPA yet', () => {
         cy.contains('.govuk-summary-card', 'Jessie Jones').contains('a', 'Change').click();
         cy.get('#f-date-of-birth-year').invoke('val', today.getFullYear() - 1);
         cy.contains('button', 'Save and continue').click()
-        cy.contains('button', 'Save and continue').click()
+        cy.contains('a', 'Continue').click()
         cy.visitLpa('/choose-replacement-attorneys-summary')
 
         cy.contains('.govuk-summary-card', 'Blake Buckley').contains('a', 'Change').click();
