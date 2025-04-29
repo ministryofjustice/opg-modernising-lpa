@@ -11,6 +11,7 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor/donordata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/form"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/pay"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/task"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/validation"
 	"github.com/stretchr/testify/assert"
@@ -79,6 +80,46 @@ func TestPostAreYouApplyingForFeeDiscountOrExemption(t *testing.T) {
 			Tasks: donordata.Tasks{PayForLpa: task.PaymentStateInProgress},
 		}).
 		Return(nil)
+
+	err := AreYouApplyingForFeeDiscountOrExemption(nil, payer.Execute, donorStore)(testAppData, w, r, donor)
+	assert.Nil(t, err)
+}
+
+func TestPostAreYouApplyingForFeeDiscountOrExemptionWhenFeeTypeExistsAndIsNotFull(t *testing.T) {
+	f := url.Values{
+		form.FieldNames.YesNo: {form.No.String()},
+	}
+
+	w := httptest.NewRecorder()
+	r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(f.Encode()))
+	r.Header.Add("Content-Type", page.FormUrlEncoded)
+
+	donor := &donordata.Provided{LpaID: "lpa-id", Donor: donordata.Donor{Email: "a@b.com"}, FeeType: pay.HardshipFee}
+
+	payer := newMockHandler(t)
+	payer.EXPECT().
+		Execute(testAppData, w, r, donor).
+		Return(nil)
+
+	donorStore := newMockDonorStore(t)
+	donorStore.EXPECT().
+		Put(r.Context(), &donordata.Provided{
+			LpaID:   "lpa-id",
+			Donor:   donordata.Donor{Email: "a@b.com"},
+			Tasks:   donordata.Tasks{PayForLpa: task.PaymentStateInProgress},
+			FeeType: pay.HardshipFee,
+		}).
+		Return(nil).
+		Once()
+	donorStore.EXPECT().
+		Put(r.Context(), &donordata.Provided{
+			LpaID:   "lpa-id",
+			Donor:   donordata.Donor{Email: "a@b.com"},
+			Tasks:   donordata.Tasks{PayForLpa: task.PaymentStateInProgress},
+			FeeType: pay.FullFee,
+		}).
+		Return(nil).
+		Once()
 
 	err := AreYouApplyingForFeeDiscountOrExemption(nil, payer.Execute, donorStore)(testAppData, w, r, donor)
 	assert.Nil(t, err)
