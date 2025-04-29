@@ -67,3 +67,8 @@ type SessionStore interface {
 	OneLogin(r *http.Request) (*sesh.OneLoginSession, error)
 	SetOneLogin(r *http.Request, w http.ResponseWriter, session *sesh.OneLoginSession) error
 }
+
+type Notification struct {
+	Heading  string
+	BodyHTML string
+}

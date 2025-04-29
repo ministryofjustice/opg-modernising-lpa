@@ -43,7 +43,7 @@ describe('Your authorised signatory', () => {
         cy.contains('button', 'Continue').click();
         cy.url().should('contain', '/your-authorised-signatory');
 
-        cy.contains('There is also an attorney called Jessie Jones.');
+        cy.contains('You have already entered Jessie Jones as an attorney on your LPA.');
 
         cy.contains('button', 'Continue').click();
         cy.url().should('contain', '/your-independent-witness');

@@ -199,7 +199,7 @@ describe('People to notify', () => {
         cy.contains('button', 'Save and continue').click();
         cy.url().should('contain', '/choose-people-to-notify');
 
-        cy.contains('The donor’s name is also Sam Smith.');
+        cy.contains('You and your person to notify have the same name. As the donor, you cannot act as a person to notify for your LPA.');
 
         cy.contains('button', 'Save and continue').click();
         cy.url().should('contain', '/choose-people-to-notify-address');
