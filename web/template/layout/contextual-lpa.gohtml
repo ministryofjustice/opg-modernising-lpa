@@ -172,8 +172,8 @@
                 </div>
                 <div class="govuk-summary-card__content">
                     <dl class="govuk-summary-list">
-                        {{ template "summary-row" (staticSummaryRow $.App "mobile"
-                            (formatPhone .Mobile)) }}
+                        {{ template "summary-row" (staticSummaryRow $.App "phone"
+                            (formatPhone .Phone)) }}
                         {{ template "address-summary-row" (staticSummaryRow $.App "address"
                             .Address) }}
                     </dl>
