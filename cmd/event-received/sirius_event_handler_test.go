@@ -1003,6 +1003,18 @@ func TestHandleDonorSubmissionCompleted(t *testing.T) {
 	assert.Nil(t, err)
 }
 
+func TestHandleDonorSubmissionCompletedWhenOnlineDonor(t *testing.T) {
+	appData := appcontext.Data{}
+
+	lpaStoreClient := newMockLpaStoreClient(t)
+	lpaStoreClient.EXPECT().
+		Lpa(mock.Anything, mock.Anything).
+		Return(&lpadata.Lpa{Donor: lpadata.Donor{Channel: lpadata.ChannelOnline}}, nil)
+
+	err := handleDonorSubmissionCompleted(ctx, nil, donorSubmissionCompletedEvent, nil, appData, lpaStoreClient, testUuidStringFn, testNowFn)
+	assert.Nil(t, err)
+}
+
 func TestHandleDonorSubmissionCompletedWhenWriteTransactionError(t *testing.T) {
 	appData := appcontext.Data{}
 
