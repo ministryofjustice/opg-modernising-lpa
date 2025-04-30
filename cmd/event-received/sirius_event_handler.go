@@ -255,6 +255,15 @@ func handleDonorSubmissionCompleted(ctx context.Context, client dynamodbClient, 
 		return fmt.Errorf("failed to unmarshal detail: %w", err)
 	}
 
+	lpa, err := lpaStoreClient.Lpa(ctx, v.UID)
+	if err != nil {
+		return err
+	}
+
+	if lpa.Donor.Channel.IsOnline() {
+		return nil
+	}
+
 	lpaID := uuidString()
 
 	donor := &donordata.Provided{
@@ -265,11 +274,6 @@ func handleDonorSubmissionCompleted(ctx context.Context, client dynamodbClient, 
 		CreatedAt:                    now(),
 		Version:                      1,
 		CertificateProviderInvitedAt: now(),
-	}
-
-	lpa, err := lpaStoreClient.Lpa(ctx, v.UID)
-	if err != nil {
-		return err
 	}
 
 	// There is no certificate provider record yet, so assume English
