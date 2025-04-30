@@ -249,3 +249,8 @@ func TestTrustCorporationChannel(t *testing.T) {
 	assert.Equal(t, lpadata.ChannelOnline, TrustCorporation{Email: "a@example.com"}.Channel())
 	assert.Equal(t, lpadata.ChannelPaper, TrustCorporation{}.Channel())
 }
+
+func TestAttorneyNameHasChanged(t *testing.T) {
+	assert.False(t, Attorney{FirstNames: "a", LastName: "b"}.NameHasChanged("a", "b"))
+	assert.True(t, Attorney{FirstNames: "a", LastName: "b"}.NameHasChanged("a", ""))
+}

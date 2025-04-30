@@ -2,6 +2,7 @@ package actor
 
 import (
 	"fmt"
+	"strings"
 
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/localize"
 )
@@ -28,9 +29,12 @@ func NewSameNameWarning(actor, matches Type, firstNames, lastName string) *SameN
 
 func (w *SameNameWarning) Format(l localize.Localizer) string {
 	return l.Format(w.translationKey(), map[string]any{
-		"ArticleAndType": l.T(w.actorType()),
-		"FirstNames":     w.firstNames,
-		"LastName":       w.lastName,
+		"Type":                l.T(w.actor.String()),
+		"TypePlural":          strings.ToLower(l.T(w.pluralActorType())),
+		"ArticleAndType":      l.T(w.actorType()),
+		"MatchArticleAndType": l.T(w.matchesType()),
+		"FirstNames":          w.firstNames,
+		"LastName":            w.lastName,
 	})
 }
 
@@ -48,9 +52,9 @@ func (w *SameNameWarning) translationKey() string {
 		return "donorMatchesActorWarning"
 	case TypeAttorney:
 		if w.actor == TypeAttorney {
-			return "attorneyMatchesAttorneyWarning"
+			return "actorMatchesSameActorTypeWarning"
 		}
-		return "attorneyMatchesActorWarning"
+		return "actorMatchesDifferentActorTypeWarning"
 	case TypeReplacementAttorney:
 		if w.actor == TypeReplacementAttorney {
 			return "replacementAttorneyMatchesReplacementAttorneyWarning"
@@ -73,7 +77,15 @@ func (w *SameNameWarning) translationKey() string {
 }
 
 func (w *SameNameWarning) actorType() string {
-	switch w.actor {
+	return articleAndType(w.actor)
+}
+
+func (w *SameNameWarning) matchesType() string {
+	return articleAndType(w.matches)
+}
+
+func articleAndType(comparator Type) string {
+	switch comparator {
 	case TypeDonor:
 		return "theDonor"
 	case TypeAttorney:
@@ -93,4 +105,13 @@ func (w *SameNameWarning) actorType() string {
 	}
 
 	return ""
+}
+
+func (w *SameNameWarning) pluralActorType() string {
+	switch w.actor {
+	case TypeAttorney:
+		return "attorneys"
+	default:
+		return ""
+	}
 }

@@ -85,7 +85,7 @@ describe('Choose replacement attorneys', () => {
         cy.contains('button', 'Save and continue').click();
         cy.url().should('contain', '/choose-replacement-attorneys');
 
-        cy.contains('The donor’s name is also Sam Smith. The donor cannot also be a replacement attorney. By saving this section, you are confirming that these are two different people with the same name.');
+        cy.contains('You and your replacement attorney have the same name. As the donor, you cannot act as a replacement attorney for your LPA.');
 
         cy.contains('button', 'Save and continue').click();
         cy.url().should('contain', '/choose-replacement-attorneys-address');
