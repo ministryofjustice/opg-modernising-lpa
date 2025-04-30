@@ -5,7 +5,7 @@ import (
 	"net/http/httptest"
 	"net/url"
 	"testing"
-	time "time"
+	"time"
 
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/appcontext"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor/donordata"
@@ -68,16 +68,25 @@ func TestLpaPathRedirectQuery(t *testing.T) {
 		url      string
 		donor    *donordata.Provided
 		expected string
+		query    url.Values
 	}{
 		"redirect": {
 			url:      "/",
 			donor:    &donordata.Provided{LpaID: "lpa-id"},
 			expected: PathConfirmYourIdentity.Format("lpa-id") + "?q=1",
+			query:    url.Values{"q": {"1"}},
 		},
 		"redirect with from": {
 			url:      "/?from=" + PathRestrictions.Format("lpa-id"),
 			donor:    &donordata.Provided{LpaID: "lpa-id"},
 			expected: PathRestrictions.Format("lpa-id"),
+			query:    url.Values{"q": {"1"}},
+		},
+		"redirect with warningFrom": {
+			url:      "/?from=" + PathRestrictions.Format("lpa-id"),
+			donor:    &donordata.Provided{LpaID: "lpa-id"},
+			expected: PathConfirmYourIdentity.Format("lpa-id") + "?q=1&warningFrom=a",
+			query:    url.Values{"q": {"1"}, "warningFrom": {"a"}},
 		},
 	}
 
@@ -86,7 +95,7 @@ func TestLpaPathRedirectQuery(t *testing.T) {
 			r, _ := http.NewRequest(http.MethodGet, tc.url, nil)
 			w := httptest.NewRecorder()
 
-			err := PathConfirmYourIdentity.RedirectQuery(w, r, appcontext.Data{Lang: localize.En}, tc.donor, url.Values{"q": {"1"}})
+			err := PathConfirmYourIdentity.RedirectQuery(w, r, appcontext.Data{Lang: localize.En}, tc.donor, tc.query)
 			resp := w.Result()
 
 			assert.Nil(t, err)

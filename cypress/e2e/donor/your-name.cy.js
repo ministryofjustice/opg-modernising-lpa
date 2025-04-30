@@ -57,7 +57,7 @@ describe('Your name', () => {
             cy.contains('button', 'Save and continue').click();
             cy.url().should('contain', '/your-name');
 
-            cy.contains('There is also an attorney called Jessie Jones. An attorney cannot also be the donor. By saving this section, you are confirming that these are two different people with the same name.');
+            cy.contains('You have already entered Jessie Jones as an attorney on your LPA.');
 
             cy.contains('button', 'Save and continue').click();
             cy.url().should('contain', '/your-date-of-birth');
