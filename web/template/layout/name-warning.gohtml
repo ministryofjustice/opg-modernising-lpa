@@ -1,7 +1,6 @@
 {{ define "name-warning" }}
   {{ if .NameWarning }}
-    {{ $warning := printf "%s %s" (.NameWarning.Format .App.Localizer) (tr .App "bySavingThisSectionDifferentPeople") }}
-    {{ template "information-banner" (content .App $warning) }}
+    {{ template "information-banner" (content .App (.NameWarning.Format .App.Localizer)) }}
 
     <input type="hidden" name="ignore-name-warning" value="{{ .NameWarning.String }}" />
   {{ end }}
