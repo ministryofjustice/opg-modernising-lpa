@@ -256,7 +256,11 @@
 
     {{ template "contextual-lpa-warning" .App }}
 
-    <h3 class="govuk-heading-m">{{ tr .App "restrictions" }}</h3>
+    {{ $hasOtherRestrictions := or .Lpa.AttorneyDecisions.How.IsJointlyForSomeSeverallyForOthers .Lpa.HowShouldReplacementAttorneysStepInDetails .Lpa.ReplacementAttorneyDecisions.How.IsJointlyForSomeSeverallyForOthers }}
+
+    {{ if $hasOtherRestrictions}}
+        <h3 class="govuk-heading-m">{{ tr .App "restrictions" }}</h3>
+    {{ end }}
 
     <dl class="govuk-summary-list app-stacked-summary-list">
         {{ if .Lpa.AttorneyDecisions.How.IsJointlyForSomeSeverallyForOthers }}
@@ -274,8 +278,24 @@
                 .Lpa.ReplacementAttorneyDecisions.Details) }}
         {{ end }}
 
-        {{ template "text-summary-row" (staticSummaryRow .App "restrictions"
-            .Lpa.Restrictions) }}
+        {{/* Not using text-summary-row here due to complexities with heading logic */}}
+        <div class="govuk-summary-list__row govuk-summary-list__row--no-actions">
+            <dt class="govuk-summary-list__key">
+                {{ if $hasOtherRestrictions }}
+                    {{ tr .App "restrictions" }}
+                {{ else }}
+                    <h3 class="govuk-heading-m govuk-!-margin-bottom-1">{{ (tr .App "restrictions") }}</h3>
+                {{end}}
+            </dt>
+            <dd class="govuk-summary-list__value">
+                {{ if .Lpa.Restrictions }}
+                    {{ .Lpa.Restrictions }}
+                {{ else }}
+                    <p class="govuk-body">{{ tr .App "noRestrictionsOrConditionsAddedToLPA" }}</p>
+                {{ end }}
+            </dd>
+        </div>
+
     </dl>
 
     {{ template "contextual-lpa-warning" .App }}
