@@ -413,6 +413,8 @@ func Attorney(
 
 			if isPaperAttorney {
 				body.Attorneys[0].Channel = lpadata.ChannelPaper
+				body.Attorneys[0].Email = ""
+				body.Attorneys[0].Address = donorDetails.Donor.Address
 
 				if progress >= slices.Index(progressValues, "signedByAttorney") {
 					body.Attorneys[0].SignedAt = &testNow
