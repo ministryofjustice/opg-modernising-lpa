@@ -1802,5 +1802,7 @@
     "useTheTextBoxToAddRestrictionForAttorneys": "Use the text box to add a restriction to your LPA stating which decisions your attorneys must make jointly.",
     "seeExamplesOfRestrictionsInstructingAttorneys": "See examples of restrictions instructing attorneys to act jointly (opens in new tab)",
     "aRestrictionStatingWhichDecisionsYourAttorneysMustMakeJointly": "a restriction stating which decisions your attorneys must make jointly",
-    "checkYourAttorneysDetails": "Check your attorney’s details"
+    "checkYourAttorneysDetails": "Check your attorney’s details",
+    "noRestrictionsOrConditionsAddedToLPA": "No restrictions or conditions have been added to this LPA.",
+    "add": "Add"
 }
