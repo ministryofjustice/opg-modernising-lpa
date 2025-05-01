@@ -450,7 +450,11 @@
 
     {{ template "contextual-lpa-warning" $app }}
 
-    <h3 class="govuk-heading-m">{{ tr $app "restrictions" }}</h3>
+    {{ $hasOtherRestrictions := or .Donor.AttorneyDecisions.How.IsJointlyForSomeSeverallyForOthers .Donor.HowShouldReplacementAttorneysStepInDetails .Donor.ReplacementAttorneyDecisions.How.IsJointlyForSomeSeverallyForOthers }}
+
+    {{ if $hasOtherRestrictions}}
+        <h3 class="govuk-heading-m">{{ tr $app "restrictions" }}</h3>
+    {{ end }}
 
     <dl class="govuk-summary-list app-stacked-summary-list">
         {{ if .Donor.AttorneyDecisions.How.IsJointlyForSomeSeverallyForOthers }}
@@ -492,10 +496,36 @@
                 $donorFullName $canChange $isDonor) }}
         {{ end }}
 
-        {{ template "summary-row" (summaryRow $app "restrictions"
-            .Donor.Restrictions
-            (fromLink $app global.Paths.Restrictions "")
-            $donorFullName $canChange $isDonor) }}
+        {{/* Not using summary-row here due to complexities with heading logic */}}
+        <div class="govuk-summary-list__row{{ if or (eq "" .Donor.Restrictions) (not $canChange) }} govuk-summary-list__row--no-actions{{ end }}">
+            <dt class="govuk-summary-list__key">
+                {{ if $hasOtherRestrictions }}
+                    {{ tr $app "restrictions" }}
+                {{ else }}
+                    <h3 class="govuk-heading-m govuk-!-margin-bottom-1">{{ (tr $app "restrictions") }}</h3>
+                {{end}}
+            </dt>
+            <dd class="govuk-summary-list__value">
+                {{ if .Donor.Restrictions }}
+                    {{ .Donor.Restrictions }}
+                {{ else }}
+                    <p class="govuk-body">{{ tr $app "noRestrictionsOrConditionsAddedToLPA" }}</p>
+
+                    {{ if $canChange}}
+                        <a href="{{ (fromLink $app global.Paths.Restrictions "") }}" class="govuk-link">
+                            {{ tr $app "add" }} {{ lowerFirst (tr $app "restrictions") }} {{ if not $isDonor }} <span class="govuk-visually-hidden"> {{ trFormat $app "forFullName" "FullName" $donorFullName }}</span>{{ end }}
+                        </a>
+                    {{ end }}
+                {{ end }}
+            </dd>
+            {{ if and .Donor.Restrictions $canChange }}
+                <dd class="govuk-summary-list__actions">
+                    <a class="govuk-link govuk-link--no-visited-state" href="{{ (fromLink $app global.Paths.Restrictions "") }}">{{ tr $app "change" }}<span class="govuk-visually-hidden">
+                    {{ lowerFirst (tr $app "restrictions") }}{{ if not $isDonor }} {{ trFormat $app "forFullName" "FullName" $donorFullName }}{{ end }}
+                </span></a>
+                </dd>
+            {{ end }}
+        </div>
     </dl>
 
     {{ template "contextual-lpa-warning" $app }}
