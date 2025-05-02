@@ -57,7 +57,8 @@
     "errorReferenceNumber": "Rhaid i’r {{lowerFirst .Label}} ddechrau â’r rhif 7 neu’r llythyren M",
     "errorNoLinks": "Does dim modd cynnwys dolenni i wefannau yn {{lowerFirst .Label}} gan y byddan nhw’n gwneud eich LPA yn annilys",
     "donorMatchesActorWarning": "<p class=\"govuk-body\">Welsh {{lowerFirst .Type}} {{lowerFirst .ArticleAndType}}</p><p class=\"govuk-body\">Welsh {{lowerFirst .Type}} </p>",
-    "replacementAttorneyMatchesActorWarning": "Mae yna atwrnai wrth gefn hefyd o’r enw {{.FirstNames}} {{.LastName}}. Ni all atwrnai wrth gefn fod yn {{.ArticleAndType}}.", "replacementAttorneyMatchesReplacementAttorneyWarning": "Mae yna atwrnai wrth gefn yn barod o’r enw {{.FirstNames}} {{.LastName}}.",
+    "replacementAttorneyMatchesActorWarning": "Mae yna atwrnai wrth gefn hefyd o’r enw {{.FirstNames}} {{.LastName}}. Ni all atwrnai wrth gefn fod yn {{.ArticleAndType}}.",
+    "replacementAttorneyMatchesReplacementAttorneyWarning": "Mae yna atwrnai wrth gefn yn barod o’r enw {{.FirstNames}} {{.LastName}}.",
     "certificateProviderMatchesActorWarning": "{{.FirstNames}} {{.LastName}} yw enw’r darparwr tystysgrif hefyd. Ni all y darparwr tystysgrif fod yn {{.ArticleAndType}}.",
     "personToNotifyMatchesActorWarning": "Mae person i’w hysbysu hefyd o’r enw {{.FirstNames}} {{.LastName}}. Ni all person i’w hysbysu fod yn {{.ArticleAndType}}.",
     "personToNotifyMatchesPersonToNotifyWarning": "Mae yna berson i’w hysbysu yn barod o’r enw {{.FirstNames}} {{.LastName}}.",
@@ -1901,5 +1902,7 @@
     "checkYourAttorneysDetails": "Welsh",
     "dateOfBirthIsUnder18Attorney": "<p class=\"govuk-body\">Welsh</p>",
     "actorMatchesDifferentActorTypeWarning": "<p class=\"govuk-body\">Welsh {{.FirstNames}} {{.LastName}} {{lowerFirst .MatchArticleAndType}} </p><p class=\"govuk-body\">Welsh</p>",
-    "actorMatchesSameActorTypeWarning": "<p class=\"govuk-body\">Welsh {{.FirstNames}} {{.LastName}} {{lowerFirst .MatchArticleAndType}}</p><p class=\"govuk-body\">Welsh {{.TypePlural}}</p>"
+    "actorMatchesSameActorTypeWarning": "<p class=\"govuk-body\">Welsh {{.FirstNames}} {{.LastName}} {{lowerFirst .MatchArticleAndType}}</p><p class=\"govuk-body\">Welsh {{.TypePlural}}</p>",
+    "noRestrictionsOrConditionsAddedToLPA": "Welsh",
+    "add": "Welsh"
 }
