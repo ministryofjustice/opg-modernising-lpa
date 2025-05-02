@@ -41,3 +41,7 @@ multi-reporter-config.json
 
 scripts/sbom_exporter/exports/*
 scripts/sbom_exporter/tmp.*.json
+
+/playwright-report/*
+/test-results/*
+/playwright/screenshots/*
