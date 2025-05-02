@@ -1,6 +1,7 @@
 {
     "name": "opg-modernising-lpa",
     "version": "0.0.1",
+    "type": "module",
     "scripts": {
         "build": "yarn build:js && yarn build:fixtures-js && yarn build:css && yarn build:images && yarn build:fonts",
         "build:js": "node_modules/.bin/esbuild --bundle web/assets/main.js --minify --outdir=web/static/javascript --sourcemap --resolve-extensions=.mjs,.js",
@@ -12,7 +13,8 @@
         "cypress:run": "node_modules/.bin/cypress run -vvv",
         "cypress:parallel": "cypress-parallel -s cypress:run -t 6 --spec cypress/e2e/**/*.cy.js cypress/smoke/*.cy.js",
         "cypress:parallel-with-specs": "cypress-parallel -s cypress:run -t 2",
-        "test": "jest"
+        "test": "jest",
+        "extractContent": "npx playwright test complete-section-1.spec.js"
     },
     "license": "MIT",
     "dependencies": {
@@ -24,6 +26,8 @@
         "totp-generator": "^1.0.0"
     },
     "devDependencies": {
+        "@axe-core/playwright": "^4.10.1",
+        "@playwright/test": "^1.52.0",
         "axe-core": "4.10.3",
         "cypress": "14.3.3",
         "cypress-axe": "1.6.0",
@@ -31,6 +35,7 @@
         "cypress-multi-reporters": "2.0.5",
         "cypress-parallel": "0.15.0",
         "cypress-real-events": "1.14.0",
+        "playwright": "^1.52.0",
         "stop-only": "3.4.2"
     },
     "engines": {
