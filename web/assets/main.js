@@ -1,10 +1,9 @@
-import { AwsRum, AwsRumConfig } from 'aws-rum-web';
+import {AwsRum} from 'aws-rum-web';
 import * as MOJFrontend from '@ministryofjustice/frontend'
 import * as GOVUKFrontend from "govuk-frontend";
-import $ from 'jquery';
-import { CrossServiceHeader } from './service-header';
-import { DataLossWarning } from './data-loss-warning';
-import { FileUploadModal } from "./file-upload-modal";
+import {CrossServiceHeader} from './service-header';
+import {DataLossWarning} from './data-loss-warning';
+import {FileUploadModal} from "./file-upload-modal";
 import {GuidanceNav} from "./guidance-nav";
 
 // Account for DOMContentLoaded firing before JS runs
@@ -17,8 +16,6 @@ if (document.readyState !== "loading") {
 function init() {
     document.body.className += ' js-enabled' + ('noModule' in HTMLScriptElement.prototype ? ' govuk-frontend-supported' : '');
 
-    window.$ = $
-
     GOVUKFrontend.initAll();
     MOJFrontend.initAll();
 
@@ -26,8 +23,6 @@ function init() {
     if (header) {
         new CrossServiceHeader(header).init();
     }
-
-
 
     document.querySelectorAll(".moj-button-menu").forEach(buttonMenu => {
         new MOJFrontend.ButtonMenu({

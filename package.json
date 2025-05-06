@@ -20,7 +20,6 @@
         "aws-rum-web": "^1.11.0",
         "esbuild": "^0.25.0",
         "govuk-frontend": "5.10.0",
-        "jquery": "^3.6.1",
         "sass": "^1.56.1",
         "totp-generator": "^1.0.0"
     },
