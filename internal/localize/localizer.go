@@ -140,16 +140,19 @@ func (l *defaultLocalizer) FormatTime(t time.Time) string {
 		return ""
 	}
 
+	londonLoc, _ := time.LoadLocation("Europe/London")
+	lt := t.In(londonLoc)
+
 	if l.lang == Cy {
 		amPm := "yb"
-		if t.Hour() >= 12 {
+		if lt.Hour() >= 12 {
 			amPm = "yp"
 		}
 
-		return fmt.Sprintf("%s%s", t.Format("3:04"), amPm)
+		return fmt.Sprintf("%s%s", lt.Format("3:04"), amPm)
 	}
 
-	return t.Format("3:04pm")
+	return lt.Format("3:04pm")
 }
 
 func (l *defaultLocalizer) FormatDateTime(t time.Time) string {
@@ -157,16 +160,19 @@ func (l *defaultLocalizer) FormatDateTime(t time.Time) string {
 		return ""
 	}
 
+	londonLoc, _ := time.LoadLocation("Europe/London")
+	lt := t.In(londonLoc)
+
 	if l.lang == Cy {
 		amPm := "yb"
-		if t.Hour() >= 12 {
+		if lt.Hour() >= 12 {
 			amPm = "yp"
 		}
 
-		return fmt.Sprintf("%d %s %d am %s%s", t.Day(), monthsCy[t.Month()], t.Year(), t.Format("3:04"), amPm)
+		return fmt.Sprintf("%d %s %d am %s%s", lt.Day(), monthsCy[lt.Month()], lt.Year(), lt.Format("3:04"), amPm)
 	}
 
-	return t.Format("2 January 2006 at 3:04pm")
+	return lt.Format("2 January 2006 at 3:04pm")
 }
 
 func (l *defaultLocalizer) Lang() Lang {
