@@ -121,3 +121,7 @@ type LetterRequested struct {
 type ConfirmAtPostOfficeSelected struct {
 	UID string `json:"uid"`
 }
+
+type RegisterWithCourtOfProtection struct {
+	UID string `json:"uid"`
+}
