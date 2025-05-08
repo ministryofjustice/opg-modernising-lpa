@@ -93,6 +93,11 @@ func TestClientSendEvents(t *testing.T) {
 
 			return func(client *Client) error { return client.SendConfirmAtPostOfficeSelected(ctx, event) }, event
 		},
+		"register-with-court-of-protection": func() (func(*Client) error, any) {
+			event := RegisterWithCourtOfProtection{UID: "a"}
+
+			return func(client *Client) error { return client.SendRegisterWithCourtOfProtection(ctx, event) }, event
+		},
 	}
 
 	for eventName, setup := range testcases {

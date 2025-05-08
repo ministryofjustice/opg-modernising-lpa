@@ -304,6 +304,53 @@ func (_c *mockEventClient_SendReducedFeeRequested_Call) RunAndReturn(run func(co
 	return _c
 }
 
+// SendRegisterWithCourtOfProtection provides a mock function with given fields: ctx, e
+func (_m *mockEventClient) SendRegisterWithCourtOfProtection(ctx context.Context, e event.RegisterWithCourtOfProtection) error {
+	ret := _m.Called(ctx, e)
+
+	if len(ret) == 0 {
+		panic("no return value specified for SendRegisterWithCourtOfProtection")
+	}
+
+	var r0 error
+	if rf, ok := ret.Get(0).(func(context.Context, event.RegisterWithCourtOfProtection) error); ok {
+		r0 = rf(ctx, e)
+	} else {
+		r0 = ret.Error(0)
+	}
+
+	return r0
+}
+
+// mockEventClient_SendRegisterWithCourtOfProtection_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'SendRegisterWithCourtOfProtection'
+type mockEventClient_SendRegisterWithCourtOfProtection_Call struct {
+	*mock.Call
+}
+
+// SendRegisterWithCourtOfProtection is a helper method to define mock.On call
+//   - ctx context.Context
+//   - e event.RegisterWithCourtOfProtection
+func (_e *mockEventClient_Expecter) SendRegisterWithCourtOfProtection(ctx interface{}, e interface{}) *mockEventClient_SendRegisterWithCourtOfProtection_Call {
+	return &mockEventClient_SendRegisterWithCourtOfProtection_Call{Call: _e.mock.On("SendRegisterWithCourtOfProtection", ctx, e)}
+}
+
+func (_c *mockEventClient_SendRegisterWithCourtOfProtection_Call) Run(run func(ctx context.Context, e event.RegisterWithCourtOfProtection)) *mockEventClient_SendRegisterWithCourtOfProtection_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		run(args[0].(context.Context), args[1].(event.RegisterWithCourtOfProtection))
+	})
+	return _c
+}
+
+func (_c *mockEventClient_SendRegisterWithCourtOfProtection_Call) Return(_a0 error) *mockEventClient_SendRegisterWithCourtOfProtection_Call {
+	_c.Call.Return(_a0)
+	return _c
+}
+
+func (_c *mockEventClient_SendRegisterWithCourtOfProtection_Call) RunAndReturn(run func(context.Context, event.RegisterWithCourtOfProtection) error) *mockEventClient_SendRegisterWithCourtOfProtection_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
 // SendUidRequested provides a mock function with given fields: ctx, e
 func (_m *mockEventClient) SendUidRequested(ctx context.Context, e event.UidRequested) error {
 	ret := _m.Called(ctx, e)
