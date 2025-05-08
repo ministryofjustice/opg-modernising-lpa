@@ -7,6 +7,7 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/appcontext"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor/donordata"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/event"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/form"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/validation"
 )
@@ -17,7 +18,7 @@ type registerWithCourtOfProtectionData struct {
 	Form   *form.YesNoForm
 }
 
-func RegisterWithCourtOfProtection(tmpl template.Template, donorStore DonorStore) Handler {
+func RegisterWithCourtOfProtection(tmpl template.Template, donorStore DonorStore, eventClient EventClient) Handler {
 	return func(appData appcontext.Data, w http.ResponseWriter, r *http.Request, provided *donordata.Provided) error {
 		data := &registerWithCourtOfProtectionData{
 			App:  appData,
@@ -33,6 +34,12 @@ func RegisterWithCourtOfProtection(tmpl template.Template, donorStore DonorStore
 					return donor.PathDeleteThisLpa.Redirect(w, r, appData, provided)
 				} else {
 					provided.RegisteringWithCourtOfProtection = true
+
+					if err := eventClient.SendRegisterWithCourtOfProtection(r.Context(), event.RegisterWithCourtOfProtection{
+						UID: provided.LpaUID,
+					}); err != nil {
+						return err
+					}
 				}
 
 				if err := donorStore.Put(r.Context(), provided); err != nil {

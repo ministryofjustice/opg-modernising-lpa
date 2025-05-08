@@ -150,6 +150,7 @@ type EventClient interface {
 	SendIdentityCheckMismatched(ctx context.Context, e event.IdentityCheckMismatched) error
 	SendCorrespondentUpdated(ctx context.Context, e event.CorrespondentUpdated) error
 	SendConfirmAtPostOfficeSelected(ctx context.Context, e event.ConfirmAtPostOfficeSelected) error
+	SendRegisterWithCourtOfProtection(ctx context.Context, e event.RegisterWithCourtOfProtection) error
 }
 
 type DashboardStore interface {
@@ -436,7 +437,7 @@ func Register(
 	handleWithDonor(donor.PathIdentityDetailsUpdated, page.None,
 		Guidance(tmpls.Get("identity_details_updated.gohtml")))
 	handleWithDonor(donor.PathRegisterWithCourtOfProtection, page.None,
-		RegisterWithCourtOfProtection(tmpls.Get("register_with_court_of_protection.gohtml"), donorStore))
+		RegisterWithCourtOfProtection(tmpls.Get("register_with_court_of_protection.gohtml"), donorStore, eventClient))
 
 	handleWithDonor(donor.PathUnableToConfirmIdentity, page.None,
 		Guidance(tmpls.Get("unable_to_confirm_identity.gohtml")))

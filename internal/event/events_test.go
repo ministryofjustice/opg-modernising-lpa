@@ -204,6 +204,11 @@ var eventTests = map[string]map[string]any{
 			UID: "M-1111-2222-3333",
 		},
 	},
+	"register-with-court-of-protection": {
+		"valid": RegisterWithCourtOfProtection{
+			UID: "M-1111-2222-3333",
+		},
+	},
 }
 
 func TestEventSchema(t *testing.T) {
