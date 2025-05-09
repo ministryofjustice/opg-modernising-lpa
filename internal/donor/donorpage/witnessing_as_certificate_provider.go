@@ -80,10 +80,10 @@ func WitnessingAsCertificateProvider(
 					}); err != nil {
 						return err
 					}
+				}
 
-					if err := lpaStoreClient.SendLpa(r.Context(), provided.LpaUID, lpastore.CreateLpaFromDonorProvided(provided)); err != nil {
-						return err
-					}
+				if err := lpaStoreClient.SendLpa(r.Context(), provided.LpaUID, lpastore.CreateLpaFromDonorProvided(provided)); err != nil {
+					return err
 				}
 
 				return donor.PathYouHaveSubmittedYourLpa.Redirect(w, r, appData, provided)
