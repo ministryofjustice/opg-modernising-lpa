@@ -188,7 +188,7 @@ func Register(
 	handleCertificateProvider(certificateprovider.PathIdentityWithOneLogin, page.None,
 		IdentityWithOneLogin(oneLoginClient, sessionStore, random.String))
 	handleCertificateProvider(certificateprovider.PathIdentityWithOneLoginCallback, page.None,
-		IdentityWithOneLoginCallback(oneLoginClient, sessionStore, certificateProviderStore, notifyClient, lpaStoreClient, eventClient, donorStartURL))
+		IdentityWithOneLoginCallback(oneLoginClient, sessionStore, certificateProviderStore, lpaStoreClient, eventClient))
 	handleCertificateProvider(certificateprovider.PathIdentityDetails, page.None,
 		Guidance(tmpls.Get("identity_details.gohtml")))
 
@@ -197,7 +197,7 @@ func Register(
 	handleCertificateProvider(certificateprovider.PathWhatHappensNext, page.CanGoBack,
 		Guidance(tmpls.Get("what_happens_next.gohtml")))
 	handleCertificateProvider(certificateprovider.PathProvideCertificate, page.CanGoBack,
-		ProvideCertificate(tmpls.Get("provide_certificate.gohtml"), certificateProviderStore, notifyClient, shareCodeSender, lpaStoreClient, scheduledStore, donorStore, time.Now))
+		ProvideCertificate(tmpls.Get("provide_certificate.gohtml"), certificateProviderStore, notifyClient, shareCodeSender, lpaStoreClient, scheduledStore, donorStore, time.Now, donorStartURL))
 	handleCertificateProvider(certificateprovider.PathCertificateProvided, page.None,
 		Guidance(tmpls.Get("certificate_provided.gohtml")))
 	handleCertificateProvider(certificateprovider.PathConfirmDontWantToBeCertificateProvider, page.CanGoBack,

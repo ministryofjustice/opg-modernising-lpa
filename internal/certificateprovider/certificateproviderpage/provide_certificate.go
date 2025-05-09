@@ -35,6 +35,7 @@ func ProvideCertificate(
 	scheduledStore ScheduledStore,
 	donorStore DonorStore,
 	now func() time.Time,
+	donorStartURL string,
 ) Handler {
 	return func(appData appcontext.Data, w http.ResponseWriter, r *http.Request, certificateProvider *certificateproviderdata.Provided, lpa *lpadata.Lpa) error {
 		if !certificateProvider.SignedAt.IsZero() {
@@ -78,6 +79,18 @@ func ProvideCertificate(
 					CertificateProvidedDateTime: appData.Localizer.FormatDateTime(certificateProvider.SignedAt),
 				}); err != nil {
 					return fmt.Errorf("email failed: %w", err)
+				}
+
+				if !certificateProvider.IdentityUserData.Status.IsConfirmed() {
+					if err := notifyClient.SendActorEmail(r.Context(), notify.ToLpaDonor(lpa), lpa.LpaUID, notify.CertificateProviderFailedIdentityCheckEmail{
+						Greeting:                    notifyClient.EmailGreeting(lpa),
+						DonorFullName:               lpa.Donor.FullName(),
+						CertificateProviderFullName: lpa.CertificateProvider.FullName(),
+						LpaType:                     appData.Localizer.T(lpa.Type.String()),
+						DonorStartPageURL:           donorStartURL,
+					}); err != nil {
+						return err
+					}
 				}
 
 				if err := shareCodeSender.SendAttorneys(r.Context(), appData, lpa); err != nil {
