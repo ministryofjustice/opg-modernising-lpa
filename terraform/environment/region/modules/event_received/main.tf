@@ -38,7 +38,7 @@ module "event_received" {
 }
 
 data "aws_kms_alias" "event_received_sqs" {
-  name     = "alias/${data.aws_default_tags.current.tags.application}_event_received_sqs_secret_encryption_key"
+  name     = "alias/${data.aws_default_tags.current.tags.application}-event-received-sqs-secret-encryption-key"
   provider = aws.region
 }
 
@@ -215,12 +215,12 @@ resource "aws_iam_role_policy_attachment" "cloudwatch_lambda_insights" {
 }
 
 data "aws_kms_alias" "dynamodb_encryption_key" {
-  name     = "alias/${data.aws_default_tags.current.tags.application}_dynamodb_encryption"
+  name     = "alias/${data.aws_default_tags.current.tags.application}-dynamodb-encryption"
   provider = aws.region
 }
 
 data "aws_kms_alias" "secrets_manager_secret_encryption_key" {
-  name     = "alias/${data.aws_default_tags.current.tags.application}_secrets_manager_secret_encryption_key"
+  name     = "alias/${data.aws_default_tags.current.tags.application}-secrets-manager-secret-encryption-key"
   provider = aws.region
 }
 

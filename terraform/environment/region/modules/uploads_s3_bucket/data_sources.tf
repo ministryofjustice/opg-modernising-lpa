@@ -17,11 +17,11 @@ data "aws_s3_bucket" "access_log" {
 }
 
 data "aws_kms_alias" "cloudwatch_application_logs_encryption" {
-  name     = "alias/${data.aws_default_tags.current.tags.application}_cloudwatch_application_logs_encryption"
+  name     = "alias/${data.aws_default_tags.current.tags.application}-cloudwatch-application-logs-encryption"
   provider = aws.region
 }
 
 data "aws_kms_alias" "reduced_fees_uploads_s3_encryption" {
-  name     = "alias/${data.aws_default_tags.current.tags.application}_reduced_fees_uploads_s3_encryption"
+  name     = "alias/${data.aws_default_tags.current.tags.application}-reduced-fees-uploads-s3-encryption"
   provider = aws.region
 }

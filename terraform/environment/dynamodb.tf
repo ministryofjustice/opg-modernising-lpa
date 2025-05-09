@@ -1,10 +1,10 @@
 data "aws_kms_alias" "dynamodb_encryption_key_eu_west_1" {
-  name     = "alias/${local.default_tags.application}_dynamodb_encryption"
+  name     = "alias/${local.default_tags.application}-dynamodb-encryption"
   provider = aws.eu_west_1
 }
 
 data "aws_kms_alias" "dynamodb_encryption_key_eu_west_2" {
-  name     = "alias/${local.default_tags.application}_dynamodb_encryption"
+  name     = "alias/${local.default_tags.application}-dynamodb-encryption"
   provider = aws.eu_west_2
 }
 

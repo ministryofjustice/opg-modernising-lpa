@@ -153,12 +153,12 @@ resource "aws_iam_role_policy" "schedule_runner" {
 }
 
 data "aws_kms_alias" "dynamodb_encryption_key" {
-  name     = "alias/${data.aws_default_tags.current.tags.application}_dynamodb_encryption"
+  name     = "alias/${data.aws_default_tags.current.tags.application}-dynamodb-encryption"
   provider = aws.region
 }
 
 data "aws_kms_alias" "secrets_manager_secret_encryption_key" {
-  name     = "alias/${data.aws_default_tags.current.tags.application}_secrets_manager_secret_encryption_key"
+  name     = "alias/${data.aws_default_tags.current.tags.application}-secrets-manager-secret-encryption-key"
   provider = aws.region
 }
 

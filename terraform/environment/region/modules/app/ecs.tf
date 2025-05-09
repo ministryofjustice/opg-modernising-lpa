@@ -116,17 +116,17 @@ data "aws_iam_policy_document" "combined" {
 }
 
 data "aws_kms_alias" "secrets_manager_secret_encryption_key" {
-  name     = "alias/${data.aws_default_tags.current.tags.application}_secrets_manager_secret_encryption_key"
+  name     = "alias/${data.aws_default_tags.current.tags.application}-secrets-manager-secret-encryption-key"
   provider = aws.region
 }
 
 data "aws_kms_alias" "dynamodb_encryption_key" {
-  name     = "alias/${data.aws_default_tags.current.tags.application}_dynamodb_encryption"
+  name     = "alias/${data.aws_default_tags.current.tags.application}-dynamodb-encryption"
   provider = aws.region
 }
 
 data "aws_kms_alias" "reduced_fees_uploads_s3_encryption" {
-  name     = "alias/${data.aws_default_tags.current.tags.application}_reduced_fees_uploads_s3_encryption"
+  name     = "alias/${data.aws_default_tags.current.tags.application}-reduced-fees-uploads-s3-encryption"
   provider = aws.region
 }
 
