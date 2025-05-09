@@ -1,7 +1,7 @@
 module "secrets_manager_kms" {
   source                  = "./modules/kms_key"
   encrypted_resource      = "Secrets Manager secret"
-  kms_key_alias_name      = "${local.default_tags.application}_secrets_manager_secret_encryption_key"
+  kms_key_alias_name      = "${local.default_tags.application}-secrets-manager-secret-encryption-key"
   enable_key_rotation     = true
   enable_multi_region     = true
   deletion_window_in_days = 10
