@@ -3,7 +3,7 @@ locals {
 }
 
 data "aws_kms_alias" "dynamodb_encryption_key" {
-  name     = "alias/${local.default_tags.application}_dynamodb_encryption"
+  name     = "alias/${local.default_tags.application}-dynamodb-encryption"
   provider = aws.eu_west_1
 }
 

@@ -1,7 +1,7 @@
 module "sns_kms" {
   source                  = "./modules/kms_key"
   encrypted_resource      = "SNS"
-  kms_key_alias_name      = "${local.default_tags.application}_sns_secret_encryption_key"
+  kms_key_alias_name      = "${local.default_tags.application}-sns-secret-encryption-key"
   enable_key_rotation     = true
   enable_multi_region     = true
   deletion_window_in_days = 10
@@ -21,7 +21,7 @@ resource "aws_kms_replica_key" "sns_replica_global" {
 }
 
 resource "aws_kms_alias" "sns_alias_global" {
-  name          = "alias/${local.default_tags.application}_sns_secret_encryption_key"
+  name          = "alias/${local.default_tags.application}-sns-secret-encryption-key"
   target_key_id = aws_kms_replica_key.sns_replica_global.key_id
   provider      = aws.global
 }
