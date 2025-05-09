@@ -9,11 +9,10 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/certificateprovider/certificateproviderdata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/event"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/lpastore/lpadata"
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/notify"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/task"
 )
 
-func IdentityWithOneLoginCallback(oneLoginClient OneLoginClient, sessionStore SessionStore, certificateProviderStore CertificateProviderStore, notifyClient NotifyClient, lpaStoreClient LpaStoreClient, eventClient EventClient, donorStartURL string) Handler {
+func IdentityWithOneLoginCallback(oneLoginClient OneLoginClient, sessionStore SessionStore, certificateProviderStore CertificateProviderStore, lpaStoreClient LpaStoreClient, eventClient EventClient) Handler {
 	return func(appData appcontext.Data, w http.ResponseWriter, r *http.Request, certificateProvider *certificateproviderdata.Provided, lpa *lpadata.Lpa) error {
 		if certificateProvider.CertificateProviderIdentityConfirmed(lpa.CertificateProvider.FirstNames, lpa.CertificateProvider.LastName) {
 			return certificateprovider.PathIdentityDetails.Redirect(w, r, appData, certificateProvider.LpaID)
@@ -79,22 +78,6 @@ func IdentityWithOneLoginCallback(oneLoginClient OneLoginClient, sessionStore Se
 					LastName:    userData.LastName,
 					DateOfBirth: userData.DateOfBirth,
 				},
-			}); err != nil {
-				return err
-			}
-		}
-
-		if certificateProvider.IdentityUserData.Status.IsConfirmed() {
-			return certificateprovider.PathIdentityDetails.Redirect(w, r, appData, certificateProvider.LpaID)
-		}
-
-		if lpa.SignedForDonor() {
-			if err := notifyClient.SendActorEmail(r.Context(), notify.ToLpaDonor(lpa), lpa.LpaUID, notify.CertificateProviderFailedIdentityCheckEmail{
-				Greeting:                    notifyClient.EmailGreeting(lpa),
-				DonorFullName:               lpa.Donor.FullName(),
-				CertificateProviderFullName: lpa.CertificateProvider.FullName(),
-				LpaType:                     appData.Localizer.T(lpa.Type.String()),
-				DonorStartPageURL:           donorStartURL,
 			}); err != nil {
 				return err
 			}
