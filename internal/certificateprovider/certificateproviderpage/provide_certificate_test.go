@@ -1,7 +1,6 @@
 package certificateproviderpage
 
 import (
-	"fmt"
 	"net/http"
 	"net/http/httptest"
 	"net/url"
@@ -12,6 +11,7 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/certificateprovider"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/certificateprovider/certificateproviderdata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor/donordata"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/identity"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/localize"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/lpastore/lpadata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/notify"
@@ -39,7 +39,7 @@ func TestGetProvideCertificate(t *testing.T) {
 		}).
 		Return(nil)
 
-	err := ProvideCertificate(template.Execute, nil, nil, nil, nil, nil, nil, time.Now)(testAppData, w, r, &certificateproviderdata.Provided{}, donor)
+	err := ProvideCertificate(template.Execute, nil, nil, nil, nil, nil, nil, time.Now, "donorStartURL")(testAppData, w, r, &certificateproviderdata.Provided{}, donor)
 	resp := w.Result()
 
 	assert.Nil(t, err)
@@ -52,7 +52,7 @@ func TestGetProvideCertificateWhenAlreadyAgreed(t *testing.T) {
 
 	donor := &lpadata.Lpa{LpaID: "lpa-id", SignedAt: time.Now(), WitnessedByCertificateProviderAt: time.Now()}
 
-	err := ProvideCertificate(nil, nil, nil, nil, nil, nil, nil, time.Now)(testAppData, w, r, &certificateproviderdata.Provided{
+	err := ProvideCertificate(nil, nil, nil, nil, nil, nil, nil, time.Now, "donorStartURL")(testAppData, w, r, &certificateproviderdata.Provided{
 		SignedAt: time.Now(),
 	}, donor)
 	resp := w.Result()
@@ -90,6 +90,9 @@ func TestPostProvideCertificate(t *testing.T) {
 		SignedAt: testNow,
 		Tasks: certificateproviderdata.Tasks{
 			ProvideTheCertificate: task.StateCompleted,
+		},
+		IdentityUserData: identity.UserData{
+			Status: identity.StatusConfirmed,
 		},
 		ContactLanguagePreference: localize.En,
 		Email:                     "a@example.com",
@@ -165,7 +168,14 @@ func TestPostProvideCertificate(t *testing.T) {
 		}).
 		Return(nil)
 
-	err := ProvideCertificate(nil, certificateProviderStore, notifyClient, shareCodeSender, lpaStoreClient, scheduledStore, donorStore, testNowFn)(testAppData, w, r, &certificateproviderdata.Provided{LpaID: "lpa-id", Email: "a@example.com", ContactLanguagePreference: localize.En}, lpa)
+	err := ProvideCertificate(nil, certificateProviderStore, notifyClient, shareCodeSender, lpaStoreClient, scheduledStore, donorStore, testNowFn, "donorStartURL")(testAppData, w, r, &certificateproviderdata.Provided{
+		LpaID:                     "lpa-id",
+		Email:                     "a@example.com",
+		ContactLanguagePreference: localize.En,
+		IdentityUserData: identity.UserData{
+			Status: identity.StatusConfirmed,
+		},
+	}, lpa)
 	resp := w.Result()
 
 	assert.Nil(t, err)
@@ -174,6 +184,114 @@ func TestPostProvideCertificate(t *testing.T) {
 }
 
 func TestPostProvideCertificateWhenIdentityCompleted(t *testing.T) {
+	form := url.Values{
+		"agree-to-statement": {"1"},
+		"submittable":        {"can-submit"},
+	}
+
+	w := httptest.NewRecorder()
+	r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(form.Encode()))
+	r.Header.Add("Content-Type", page.FormUrlEncoded)
+
+	lpa := &lpadata.Lpa{
+		LpaUID:                           "lpa-uid",
+		SignedAt:                         testNow.AddDate(0, -1, 0),
+		WitnessedByCertificateProviderAt: testNow,
+		CertificateProvider: lpadata.CertificateProvider{
+			Email:      "cp@example.org",
+			FirstNames: "a",
+			LastName:   "b",
+		},
+		Donor: lpadata.Donor{FirstNames: "c", LastName: "d"},
+		Type:  lpadata.LpaTypePropertyAndAffairs,
+	}
+
+	certificateProvider := &certificateproviderdata.Provided{
+		LpaID:    "lpa-id",
+		SignedAt: testNow,
+		Tasks: certificateproviderdata.Tasks{
+			ProvideTheCertificate: task.StateCompleted,
+			ConfirmYourIdentity:   task.IdentityStateCompleted,
+		},
+		IdentityUserData: identity.UserData{
+			Status: identity.StatusConfirmed,
+		},
+		ContactLanguagePreference: localize.En,
+		Email:                     "a@example.com",
+	}
+
+	donor := &donordata.Provided{}
+	updatedDonor := &donordata.Provided{
+		AttorneysInvitedAt: testNow,
+	}
+
+	certificateProviderStore := newMockCertificateProviderStore(t)
+	certificateProviderStore.EXPECT().
+		Put(r.Context(), certificateProvider).
+		Return(nil)
+
+	localizer := newMockLocalizer(t)
+	localizer.EXPECT().
+		Possessive("c").
+		Return("the possessive first names")
+	localizer.EXPECT().
+		Possessive("c d").
+		Return("the possessive full name")
+	localizer.EXPECT().
+		T("property-and-affairs").
+		Return("the translated term")
+	localizer.EXPECT().
+		FormatDateTime(testNow).
+		Return("the formatted date")
+
+	testAppData.Localizer = localizer
+
+	notifyClient := newMockNotifyClient(t)
+	notifyClient.EXPECT().
+		SendActorEmail(r.Context(), notify.ToLpaCertificateProvider(certificateProvider, lpa), "lpa-uid", notify.CertificateProviderCertificateProvidedEmail{
+			DonorFullNamePossessive:     "the possessive full name",
+			DonorFirstNamesPossessive:   "the possessive first names",
+			LpaType:                     "the translated term",
+			CertificateProviderFullName: "a b",
+			CertificateProvidedDateTime: "the formatted date",
+		}).
+		Return(nil)
+
+	shareCodeSender := newMockShareCodeSender(t)
+	shareCodeSender.EXPECT().
+		SendAttorneys(r.Context(), testAppData, lpa).
+		Return(nil)
+
+	donorStore := newMockDonorStore(t)
+	donorStore.EXPECT().
+		GetAny(r.Context()).
+		Return(donor, nil)
+	donorStore.EXPECT().
+		Put(r.Context(), updatedDonor).
+		Return(nil)
+
+	lpaStoreClient := newMockLpaStoreClient(t)
+	lpaStoreClient.EXPECT().
+		SendCertificateProvider(r.Context(), certificateProvider, lpa).
+		Return(nil)
+
+	err := ProvideCertificate(nil, certificateProviderStore, notifyClient, shareCodeSender, lpaStoreClient, nil, donorStore, testNowFn, "donorStartURL")(testAppData, w, r, &certificateproviderdata.Provided{
+		LpaID:                     "lpa-id",
+		Email:                     "a@example.com",
+		ContactLanguagePreference: localize.En,
+		Tasks:                     certificateproviderdata.Tasks{ConfirmYourIdentity: task.IdentityStateCompleted},
+		IdentityUserData: identity.UserData{
+			Status: identity.StatusConfirmed,
+		},
+	}, lpa)
+	resp := w.Result()
+
+	assert.Nil(t, err)
+	assert.Equal(t, http.StatusFound, resp.StatusCode)
+	assert.Equal(t, certificateprovider.PathCertificateProvided.Format("lpa-id"), resp.Header.Get("Location"))
+}
+
+func TestPostProvideCertificateWhenIdentityFailed(t *testing.T) {
 	form := url.Values{
 		"agree-to-statement": {"1"},
 		"submittable":        {"can-submit"},
@@ -243,6 +361,18 @@ func TestPostProvideCertificateWhenIdentityCompleted(t *testing.T) {
 			CertificateProvidedDateTime: "the formatted date",
 		}).
 		Return(nil)
+	notifyClient.EXPECT().
+		EmailGreeting(mock.Anything).
+		Return("Dear donor")
+	notifyClient.EXPECT().
+		SendActorEmail(r.Context(), notify.ToLpaDonor(lpa), "lpa-uid", notify.CertificateProviderFailedIdentityCheckEmail{
+			Greeting:                    "Dear donor",
+			DonorFullName:               "c d",
+			CertificateProviderFullName: "a b",
+			LpaType:                     "the translated term",
+			DonorStartPageURL:           "donorStartURL",
+		}).
+		Return(nil)
 
 	shareCodeSender := newMockShareCodeSender(t)
 	shareCodeSender.EXPECT().
@@ -262,7 +392,7 @@ func TestPostProvideCertificateWhenIdentityCompleted(t *testing.T) {
 		SendCertificateProvider(r.Context(), certificateProvider, lpa).
 		Return(nil)
 
-	err := ProvideCertificate(nil, certificateProviderStore, notifyClient, shareCodeSender, lpaStoreClient, nil, donorStore, testNowFn)(testAppData, w, r, &certificateproviderdata.Provided{
+	err := ProvideCertificate(nil, certificateProviderStore, notifyClient, shareCodeSender, lpaStoreClient, nil, donorStore, testNowFn, "donorStartURL")(testAppData, w, r, &certificateproviderdata.Provided{
 		LpaID:                     "lpa-id",
 		Email:                     "a@example.com",
 		ContactLanguagePreference: localize.En,
@@ -302,11 +432,10 @@ func TestPostProvideCertificateWhenSignedInLpaStore(t *testing.T) {
 	}
 
 	certificateProvider := &certificateproviderdata.Provided{
-		LpaID:    "lpa-id",
-		SignedAt: signedAt,
-		Tasks: certificateproviderdata.Tasks{
-			ProvideTheCertificate: task.StateCompleted,
-		},
+		LpaID:                     "lpa-id",
+		SignedAt:                  signedAt,
+		Tasks:                     certificateproviderdata.Tasks{ProvideTheCertificate: task.StateCompleted},
+		IdentityUserData:          identity.UserData{Status: identity.StatusConfirmed},
 		ContactLanguagePreference: localize.En,
 		Email:                     "a@example.com",
 	}
@@ -376,7 +505,7 @@ func TestPostProvideCertificateWhenSignedInLpaStore(t *testing.T) {
 		}).
 		Return(nil)
 
-	err := ProvideCertificate(nil, certificateProviderStore, notifyClient, shareCodeSender, nil, scheduledStore, donorStore, testNowFn)(testAppData, w, r, &certificateproviderdata.Provided{LpaID: "lpa-id", Email: "a@example.com", ContactLanguagePreference: localize.En}, lpa)
+	err := ProvideCertificate(nil, certificateProviderStore, notifyClient, shareCodeSender, nil, scheduledStore, donorStore, testNowFn, "donorStartURL")(testAppData, w, r, &certificateproviderdata.Provided{LpaID: "lpa-id", Email: "a@example.com", ContactLanguagePreference: localize.En, IdentityUserData: identity.UserData{Status: identity.StatusConfirmed}}, lpa)
 	resp := w.Result()
 
 	assert.Nil(t, err)
@@ -407,7 +536,7 @@ func TestPostProvideCertificateWhenCannotSubmit(t *testing.T) {
 		Type:  lpadata.LpaTypePropertyAndAffairs,
 	}
 
-	err := ProvideCertificate(nil, nil, nil, nil, nil, nil, nil, nil)(testAppData, w, r, &certificateproviderdata.Provided{LpaID: "lpa-id", Email: "a@example.com"}, lpa)
+	err := ProvideCertificate(nil, nil, nil, nil, nil, nil, nil, nil, "donorStartURL")(testAppData, w, r, &certificateproviderdata.Provided{LpaID: "lpa-id", Email: "a@example.com"}, lpa)
 	resp := w.Result()
 
 	assert.Nil(t, err)
@@ -479,7 +608,7 @@ func TestPostProvideCertificateWhenScheduledStoreErrors(t *testing.T) {
 		Create(mock.Anything, mock.Anything, mock.Anything).
 		Return(expectedError)
 
-	err := ProvideCertificate(nil, nil, notifyClient, shareCodeSender, lpaStoreClient, scheduledStore, donorStore, testNowFn)(testAppData, w, r, &certificateproviderdata.Provided{LpaID: "lpa-id", Email: "a@example.com", ContactLanguagePreference: localize.En}, lpa)
+	err := ProvideCertificate(nil, nil, notifyClient, shareCodeSender, lpaStoreClient, scheduledStore, donorStore, testNowFn, "donorStartURL")(testAppData, w, r, &certificateproviderdata.Provided{LpaID: "lpa-id", Email: "a@example.com", ContactLanguagePreference: localize.En, IdentityUserData: identity.UserData{Status: identity.StatusConfirmed}}, lpa)
 	assert.ErrorIs(t, err, expectedError)
 }
 
@@ -539,7 +668,7 @@ func TestPostProvideCertificateWhenDonorStoreGetErrors(t *testing.T) {
 		GetAny(r.Context()).
 		Return(nil, expectedError)
 
-	err := ProvideCertificate(nil, nil, notifyClient, shareCodeSender, lpaStoreClient, nil, donorStore, testNowFn)(testAppData, w, r, &certificateproviderdata.Provided{LpaID: "lpa-id", Email: "a@example.com", ContactLanguagePreference: localize.En}, lpa)
+	err := ProvideCertificate(nil, nil, notifyClient, shareCodeSender, lpaStoreClient, nil, donorStore, testNowFn, "donorStartURL")(testAppData, w, r, &certificateproviderdata.Provided{LpaID: "lpa-id", Email: "a@example.com", ContactLanguagePreference: localize.En, IdentityUserData: identity.UserData{Status: identity.StatusConfirmed}}, lpa)
 	assert.ErrorIs(t, err, expectedError)
 }
 
@@ -602,7 +731,7 @@ func TestPostProvideCertificateWhenDonorStorePutErrors(t *testing.T) {
 		Put(mock.Anything, mock.Anything).
 		Return(expectedError)
 
-	err := ProvideCertificate(nil, nil, notifyClient, shareCodeSender, lpaStoreClient, nil, donorStore, testNowFn)(testAppData, w, r, &certificateproviderdata.Provided{LpaID: "lpa-id", Email: "a@example.com", ContactLanguagePreference: localize.En}, lpa)
+	err := ProvideCertificate(nil, nil, notifyClient, shareCodeSender, lpaStoreClient, nil, donorStore, testNowFn, "donorStartURL")(testAppData, w, r, &certificateproviderdata.Provided{LpaID: "lpa-id", Email: "a@example.com", ContactLanguagePreference: localize.En, IdentityUserData: identity.UserData{Status: identity.StatusConfirmed}}, lpa)
 	assert.ErrorIs(t, err, expectedError)
 }
 
@@ -665,7 +794,7 @@ func TestPostProvideCertificateOnStoreError(t *testing.T) {
 		Create(mock.Anything, mock.Anything, mock.Anything).
 		Return(nil)
 
-	err := ProvideCertificate(nil, certificateProviderStore, notifyClient, shareCodeSender, lpaStoreClient, scheduledStore, donorStore, testNowFn)(testAppData, w, r, &certificateproviderdata.Provided{}, &lpadata.Lpa{SignedAt: testNow, WitnessedByCertificateProviderAt: testNow})
+	err := ProvideCertificate(nil, certificateProviderStore, notifyClient, shareCodeSender, lpaStoreClient, scheduledStore, donorStore, testNowFn, "donorStartURL")(testAppData, w, r, &certificateproviderdata.Provided{IdentityUserData: identity.UserData{Status: identity.StatusConfirmed}}, &lpadata.Lpa{SignedAt: testNow, WitnessedByCertificateProviderAt: testNow})
 	assert.ErrorIs(t, err, expectedError)
 }
 
@@ -697,61 +826,84 @@ func TestPostProvideCertificateWhenLpaStoreClientError(t *testing.T) {
 		SendCertificateProvider(mock.Anything, mock.Anything, mock.Anything).
 		Return(expectedError)
 
-	err := ProvideCertificate(nil, nil, nil, nil, lpaStoreClient, nil, nil, testNowFn)(testAppData, w, r, &certificateproviderdata.Provided{LpaID: "lpa-id"}, donor)
+	err := ProvideCertificate(nil, nil, nil, nil, lpaStoreClient, nil, nil, testNowFn, "donorStartURL")(testAppData, w, r, &certificateproviderdata.Provided{LpaID: "lpa-id"}, donor)
 	assert.ErrorIs(t, err, expectedError)
 }
 
 func TestPostProvideCertificateOnNotifyClientError(t *testing.T) {
-	form := url.Values{
-		"agree-to-statement": {"1"},
-		"submittable":        {"can-submit"},
+	testcases := map[string]func(*mockNotifyClient){
+		"first email": func(notifyClient *mockNotifyClient) {
+			notifyClient.EXPECT().
+				SendActorEmail(mock.Anything, mock.Anything, mock.Anything, mock.Anything).
+				Return(expectedError)
+		},
+		"second email": func(notifyClient *mockNotifyClient) {
+			notifyClient.EXPECT().
+				SendActorEmail(mock.Anything, mock.Anything, mock.Anything, mock.Anything).
+				Return(nil).
+				Once()
+			notifyClient.EXPECT().
+				EmailGreeting(mock.Anything).
+				Return("")
+			notifyClient.EXPECT().
+				SendActorEmail(mock.Anything, mock.Anything, mock.Anything, mock.Anything).
+				Return(expectedError).
+				Once()
+		},
 	}
 
-	w := httptest.NewRecorder()
-	r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(form.Encode()))
-	r.Header.Add("Content-Type", page.FormUrlEncoded)
+	for name, setupNotifyClient := range testcases {
+		t.Run(name, func(t *testing.T) {
+			form := url.Values{
+				"agree-to-statement": {"1"},
+				"submittable":        {"can-submit"},
+			}
 
-	localizer := newMockLocalizer(t)
-	localizer.EXPECT().
-		Possessive(mock.Anything).
-		Return("")
-	localizer.EXPECT().
-		Possessive(mock.Anything).
-		Return("")
-	localizer.EXPECT().
-		T(mock.Anything).
-		Return("")
-	localizer.EXPECT().
-		FormatDateTime(mock.Anything).
-		Return("")
+			w := httptest.NewRecorder()
+			r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(form.Encode()))
+			r.Header.Add("Content-Type", page.FormUrlEncoded)
 
-	notifyClient := newMockNotifyClient(t)
-	notifyClient.EXPECT().
-		SendActorEmail(r.Context(), mock.Anything, mock.Anything, mock.Anything).
-		Return(expectedError)
+			localizer := newMockLocalizer(t)
+			localizer.EXPECT().
+				Possessive(mock.Anything).
+				Return("")
+			localizer.EXPECT().
+				Possessive(mock.Anything).
+				Return("")
+			localizer.EXPECT().
+				T(mock.Anything).
+				Return("")
+			localizer.EXPECT().
+				FormatDateTime(mock.Anything).
+				Return("")
 
-	testAppData.Localizer = localizer
+			testAppData.Localizer = localizer
 
-	lpaStoreClient := newMockLpaStoreClient(t)
-	lpaStoreClient.EXPECT().
-		SendCertificateProvider(mock.Anything, mock.Anything, mock.Anything).
-		Return(nil)
+			notifyClient := newMockNotifyClient(t)
+			setupNotifyClient(notifyClient)
 
-	err := ProvideCertificate(nil, nil, notifyClient, nil, lpaStoreClient, nil, nil, testNowFn)(testAppData, w, r, &certificateproviderdata.Provided{LpaID: "lpa-id"}, &lpadata.Lpa{
-		SignedAt:                         testNow,
-		WitnessedByCertificateProviderAt: testNow,
-		CertificateProvider: lpadata.CertificateProvider{
-			Email:      "cp@example.org",
-			FirstNames: "a",
-			LastName:   "b",
-		},
-		Donor: lpadata.Donor{FirstNames: "c", LastName: "d"},
-		Type:  lpadata.LpaTypePropertyAndAffairs,
-	})
-	resp := w.Result()
+			lpaStoreClient := newMockLpaStoreClient(t)
+			lpaStoreClient.EXPECT().
+				SendCertificateProvider(mock.Anything, mock.Anything, mock.Anything).
+				Return(nil)
 
-	assert.Equal(t, fmt.Errorf("email failed: %w", expectedError), err)
-	assert.Equal(t, http.StatusOK, resp.StatusCode)
+			err := ProvideCertificate(nil, nil, notifyClient, nil, lpaStoreClient, nil, nil, testNowFn, "donorStartURL")(testAppData, w, r, &certificateproviderdata.Provided{LpaID: "lpa-id"}, &lpadata.Lpa{
+				SignedAt:                         testNow,
+				WitnessedByCertificateProviderAt: testNow,
+				CertificateProvider: lpadata.CertificateProvider{
+					Email:      "cp@example.org",
+					FirstNames: "a",
+					LastName:   "b",
+				},
+				Donor: lpadata.Donor{FirstNames: "c", LastName: "d"},
+				Type:  lpadata.LpaTypePropertyAndAffairs,
+			})
+			resp := w.Result()
+
+			assert.ErrorIs(t, err, expectedError)
+			assert.Equal(t, http.StatusOK, resp.StatusCode)
+		})
+	}
 }
 
 func TestPostProvideCertificateWhenShareCodeSenderErrors(t *testing.T) {
@@ -795,7 +947,7 @@ func TestPostProvideCertificateWhenShareCodeSenderErrors(t *testing.T) {
 		SendCertificateProvider(mock.Anything, mock.Anything, mock.Anything).
 		Return(nil)
 
-	err := ProvideCertificate(nil, nil, notifyClient, shareCodeSender, lpaStoreClient, nil, nil, testNowFn)(testAppData, w, r, &certificateproviderdata.Provided{LpaID: "lpa-id"}, &lpadata.Lpa{
+	err := ProvideCertificate(nil, nil, notifyClient, shareCodeSender, lpaStoreClient, nil, nil, testNowFn, "donorStartURL")(testAppData, w, r, &certificateproviderdata.Provided{LpaID: "lpa-id", IdentityUserData: identity.UserData{Status: identity.StatusConfirmed}}, &lpadata.Lpa{
 		SignedAt:                         testNow,
 		WitnessedByCertificateProviderAt: testNow,
 		Donor:                            lpadata.Donor{FirstNames: "c", LastName: "d"},
@@ -821,7 +973,7 @@ func TestPostProvideCertificateWhenValidationErrors(t *testing.T) {
 		})).
 		Return(nil)
 
-	err := ProvideCertificate(template.Execute, nil, nil, nil, nil, nil, nil, testNowFn)(testAppData, w, r, &certificateproviderdata.Provided{}, &lpadata.Lpa{SignedAt: testNow, WitnessedByCertificateProviderAt: testNow})
+	err := ProvideCertificate(template.Execute, nil, nil, nil, nil, nil, nil, testNowFn, "donorStartURL")(testAppData, w, r, &certificateproviderdata.Provided{}, &lpadata.Lpa{SignedAt: testNow, WitnessedByCertificateProviderAt: testNow})
 	resp := w.Result()
 
 	assert.Nil(t, err)
