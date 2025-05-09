@@ -41,12 +41,7 @@ func (h *siriusEventHandler) Handle(ctx context.Context, factory factory, cloudW
 			return err
 		}
 
-		lpaStoreClient, err := factory.LpaStoreClient()
-		if err != nil {
-			return err
-		}
-
-		return handleFeeApproved(ctx, factory.DynamoClient(), cloudWatchEvent, shareCodeSender, lpaStoreClient, factory.EventClient(), appData, factory.Now())
+		return handleFeeApproved(ctx, factory.DynamoClient(), cloudWatchEvent, shareCodeSender, factory.EventClient(), appData, factory.Now())
 
 	case "reduced-fee-declined":
 		return handleFeeDenied(ctx, factory.DynamoClient(), cloudWatchEvent, factory.Now())
@@ -138,7 +133,6 @@ func handleFeeApproved(
 	client dynamodbClient,
 	e *events.CloudWatchEvent,
 	shareCodeSender ShareCodeSender,
-	lpaStoreClient LpaStoreClient,
 	eventClient EventClient,
 	appData appcontext.Data,
 	now func() time.Time,
@@ -163,10 +157,6 @@ func handleFeeApproved(
 		donor.Tasks.PayForLpa = task.PaymentStateCompleted
 
 		if donor.Tasks.SignTheLpa.IsCompleted() {
-			if err := lpaStoreClient.SendLpa(ctx, donor.LpaUID, lpastore.CreateLpaFromDonorProvided(donor)); err != nil {
-				return fmt.Errorf("failed to send to lpastore: %w", err)
-			}
-
 			if err := eventClient.SendCertificateProviderStarted(ctx, event.CertificateProviderStarted{
 				UID: v.UID,
 			}); err != nil {
