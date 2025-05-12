@@ -19,7 +19,6 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/localize"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/lpastore"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/lpastore/lpadata"
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/notify"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/place"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/random"
@@ -368,16 +367,7 @@ func CertificateProvider(
 				SessionID: donorSessionID,
 				LpaID:     donorDetails.LpaID,
 				Localizer: appData.Localizer,
-			}, sharecode.CertificateProviderInvite{
-				LpaKey:                      donorDetails.PK,
-				LpaOwnerKey:                 donorDetails.SK,
-				LpaUID:                      donorDetails.LpaUID,
-				Type:                        donorDetails.Type,
-				DonorFirstNames:             donorDetails.Donor.FirstNames,
-				DonorFullName:               donorDetails.Donor.FullName(),
-				CertificateProviderUID:      donorDetails.CertificateProvider.UID,
-				CertificateProviderFullName: donorDetails.CertificateProvider.FullName(),
-			}, notify.ToCertificateProvider(donorDetails.CertificateProvider))
+			}, donorDetails)
 
 			switch redirect {
 			case "":

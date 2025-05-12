@@ -10,7 +10,6 @@ import (
 	"github.com/aws/aws-lambda-go/events"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/appcontext"
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/certificateprovider/certificateproviderdata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor/donordata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/dynamo"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/event"
@@ -19,7 +18,6 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/notify"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/pay"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/scheduled"
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/sharecode"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/task"
 )
 
@@ -266,20 +264,10 @@ func handleDonorSubmissionCompleted(ctx context.Context, client dynamodbClient, 
 		CertificateProviderInvitedAt: now(),
 	}
 
-	// There is no certificate provider record yet, so assume English
-	to := notify.ToLpaCertificateProvider(&certificateproviderdata.Provided{ContactLanguagePreference: localize.En}, lpa)
-
-	if err := shareCodeSender.SendCertificateProviderInvite(ctx, appData, sharecode.CertificateProviderInvite{
-		LpaKey:                      donor.PK,
-		LpaOwnerKey:                 donor.SK,
-		LpaUID:                      lpa.LpaUID,
-		Type:                        lpa.Type,
-		DonorFirstNames:             lpa.Donor.FirstNames,
-		DonorFullName:               lpa.Donor.FullName(),
-		CertificateProviderUID:      lpa.CertificateProvider.UID,
-		CertificateProviderFullName: lpa.CertificateProvider.FullName(),
-	}, to); err != nil {
-		return fmt.Errorf("failed to send share code to certificate provider: %w", err)
+	if lpa.CertificateProvider.Channel.IsOnline() {
+		if err := shareCodeSender.SendOnlineCertificateProviderPrompt(ctx, appData, donor, lpa); err != nil {
+			return fmt.Errorf("failed to send share code to certificate provider: %w", err)
+		}
 	}
 
 	transaction := dynamo.NewTransaction().

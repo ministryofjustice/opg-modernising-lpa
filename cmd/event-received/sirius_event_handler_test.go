@@ -22,7 +22,6 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/notify"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/pay"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/scheduled"
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/sharecode"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/task"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
@@ -885,14 +884,15 @@ func TestHandleDonorSubmissionCompleted(t *testing.T) {
 
 	shareCodeSender := newMockShareCodeSender(t)
 	shareCodeSender.EXPECT().
-		SendCertificateProviderInvite(ctx, appData, sharecode.CertificateProviderInvite{
-			LpaKey:                      dynamo.LpaKey(testUuidString),
-			LpaOwnerKey:                 dynamo.LpaOwnerKey(dynamo.DonorKey("PAPER")),
-			DonorFirstNames:             "Dave",
-			DonorFullName:               "Dave Smith",
-			CertificateProviderUID:      uid,
-			CertificateProviderFullName: "John Smith",
-		}, notify.ToLpaCertificateProvider(&certificateproviderdata.Provided{ContactLanguagePreference: localize.En}, lpa)).
+		SendOnlineCertificateProviderPrompt(ctx, appData, &donordata.Provided{
+			PK:                           dynamo.LpaKey(testUuidString),
+			SK:                           dynamo.LpaOwnerKey(dynamo.DonorKey("PAPER")),
+			LpaID:                        testUuidString,
+			LpaUID:                       "M-1111-2222-3333",
+			CreatedAt:                    testNow,
+			Version:                      1,
+			CertificateProviderInvitedAt: testNow,
+		}, lpa).
 		Return(nil)
 
 	client := newMockDynamodbClient(t)
@@ -970,17 +970,12 @@ func TestHandleDonorSubmissionCompletedWhenWriteTransactionError(t *testing.T) {
 		Lpa(mock.Anything, mock.Anything).
 		Return(&lpadata.Lpa{}, nil)
 
-	shareCodeSender := newMockShareCodeSender(t)
-	shareCodeSender.EXPECT().
-		SendCertificateProviderInvite(mock.Anything, mock.Anything, mock.Anything, mock.Anything).
-		Return(nil)
-
 	client := newMockDynamodbClient(t)
 	client.EXPECT().
 		WriteTransaction(mock.Anything, mock.Anything).
 		Return(expectedError)
 
-	err := handleDonorSubmissionCompleted(ctx, client, donorSubmissionCompletedEvent, shareCodeSender, appData, lpaStoreClient, testUuidStringFn, testNowFn)
+	err := handleDonorSubmissionCompleted(ctx, client, donorSubmissionCompletedEvent, nil, appData, lpaStoreClient, testUuidStringFn, testNowFn)
 	assert.Equal(t, expectedError, err)
 }
 
@@ -1018,7 +1013,7 @@ func TestHandleDonorSubmissionCompletedWhenShareCodeSenderError(t *testing.T) {
 
 	shareCodeSender := newMockShareCodeSender(t)
 	shareCodeSender.EXPECT().
-		SendCertificateProviderInvite(ctx, mock.Anything, mock.Anything, mock.Anything).
+		SendOnlineCertificateProviderPrompt(ctx, mock.Anything, mock.Anything, mock.Anything).
 		Return(expectedError)
 
 	err := handleDonorSubmissionCompleted(ctx, nil, donorSubmissionCompletedEvent, shareCodeSender, appData, lpaStoreClient, testUuidStringFn, testNowFn)
