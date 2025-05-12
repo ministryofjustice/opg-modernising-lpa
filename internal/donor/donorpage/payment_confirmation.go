@@ -12,12 +12,11 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor/donordata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/event"
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/lpastore"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/notify"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/task"
 )
 
-func PaymentConfirmation(logger Logger, payClient PayClient, donorStore DonorStore, sessionStore SessionStore, shareCodeSender ShareCodeSender, lpaStoreClient LpaStoreClient, eventClient EventClient, notifyClient NotifyClient) Handler {
+func PaymentConfirmation(logger Logger, payClient PayClient, donorStore DonorStore, sessionStore SessionStore, shareCodeSender ShareCodeSender, eventClient EventClient, notifyClient NotifyClient) Handler {
 	return func(appData appcontext.Data, w http.ResponseWriter, r *http.Request, provided *donordata.Provided) error {
 		paymentSession, err := sessionStore.Payment(r)
 		if err != nil {
@@ -101,10 +100,6 @@ func PaymentConfirmation(logger Logger, payClient PayClient, donorStore DonorSto
 						UID: provided.LpaUID,
 					}); err != nil {
 						return fmt.Errorf("failed to send certificate-provider-started event: %w", err)
-					}
-
-					if err := lpaStoreClient.SendLpa(r.Context(), provided.LpaUID, lpastore.CreateLpaFromDonorProvided(provided)); err != nil {
-						return fmt.Errorf("failed to send to lpastore: %w", err)
 					}
 				}
 			}

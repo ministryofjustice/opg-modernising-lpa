@@ -144,46 +144,6 @@ func TestPostWitnessingAsCertificateProvider(t *testing.T) {
 	assert.Equal(t, donor.PathYouHaveSubmittedYourLpa.Format("lpa-id"), resp.Header.Get("Location"))
 }
 
-func TestPostWitnessingAsCertificateProviderWhenPaymentPending(t *testing.T) {
-	form := url.Values{
-		"witness-code": {"1234"},
-	}
-
-	w := httptest.NewRecorder()
-	r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(form.Encode()))
-	r.Header.Add("Content-Type", page.FormUrlEncoded)
-
-	provided := &donordata.Provided{
-		LpaID:                            "lpa-id",
-		IdentityUserData:                 identity.UserData{Status: identity.StatusConfirmed},
-		CertificateProvider:              donordata.CertificateProvider{Email: "name@example.com"},
-		CertificateProviderCodes:         donordata.WitnessCodes{{Code: "1234", Created: testNow}},
-		WitnessedByCertificateProviderAt: testNow,
-		Tasks: donordata.Tasks{
-			PayForLpa:  task.PaymentStatePending,
-			SignTheLpa: task.StateCompleted,
-		},
-	}
-	donorStore := newMockDonorStore(t)
-	donorStore.EXPECT().
-		Put(r.Context(), provided).
-		Return(nil)
-
-	err := WitnessingAsCertificateProvider(nil, donorStore, nil, nil, nil, testNowFn)(testAppData, w, r, &donordata.Provided{
-		LpaID:                    "lpa-id",
-		IdentityUserData:         identity.UserData{Status: identity.StatusConfirmed},
-		CertificateProvider:      donordata.CertificateProvider{Email: "name@example.com"},
-		CertificateProviderCodes: donordata.WitnessCodes{{Code: "1234", Created: testNow}},
-		Tasks:                    donordata.Tasks{PayForLpa: task.PaymentStatePending},
-		WitnessCodeLimiter:       testLimiter(),
-	})
-	resp := w.Result()
-
-	assert.Nil(t, err)
-	assert.Equal(t, http.StatusFound, resp.StatusCode)
-	assert.Equal(t, donor.PathYouHaveSubmittedYourLpa.Format("lpa-id"), resp.Header.Get("Location"))
-}
-
 func TestPostWitnessingAsCertificateProviderWhenSendLpaErrors(t *testing.T) {
 	form := url.Values{
 		"witness-code": {"1234"},
