@@ -18,7 +18,6 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/place"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/scheduled"
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/sharecode"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/task"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/validation"
 	"github.com/stretchr/testify/assert"
@@ -234,10 +233,7 @@ func TestPostCheckYourLpaDigitalCertificateProviderOnFirstCheck(t *testing.T) {
 
 			shareCodeSender := newMockShareCodeSender(t)
 			shareCodeSender.EXPECT().
-				SendCertificateProviderInvite(r.Context(), testAppData, sharecode.CertificateProviderInvite{
-					CertificateProviderUID:      provided.CertificateProvider.UID,
-					CertificateProviderFullName: provided.CertificateProvider.FullName(),
-				}, notify.ToCertificateProvider(provided.CertificateProvider)).
+				SendCertificateProviderInvite(r.Context(), testAppData, provided).
 				Return(nil)
 
 			scheduledStore := newMockScheduledStore(t)
@@ -606,7 +602,7 @@ func TestPostCheckYourLpaWhenShareCodeSenderErrors(t *testing.T) {
 
 	shareCodeSender := newMockShareCodeSender(t)
 	shareCodeSender.EXPECT().
-		SendCertificateProviderInvite(r.Context(), testAppData, mock.Anything, mock.Anything).
+		SendCertificateProviderInvite(r.Context(), testAppData, mock.Anything).
 		Return(expectedError)
 
 	err := CheckYourLpa(nil, nil, shareCodeSender, nil, nil, scheduledStore, testNowFn, "http://example.org")(testAppData, w, r, donor)
