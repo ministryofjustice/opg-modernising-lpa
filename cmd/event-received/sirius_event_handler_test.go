@@ -142,11 +142,6 @@ func TestHandleFeeApproved(t *testing.T) {
 	completedDonorProvided := donorProvided
 	completedDonorProvided.Tasks.PayForLpa = task.PaymentStateCompleted
 
-	lpaStoreClient := newMockLpaStoreClient(t)
-	lpaStoreClient.EXPECT().
-		SendLpa(ctx, completedDonorProvided.LpaUID, lpastore.CreateLpaFromDonorProvided(&completedDonorProvided)).
-		Return(nil)
-
 	eventClient := newMockEventClient(t)
 	eventClient.EXPECT().
 		SendCertificateProviderStarted(ctx, event.CertificateProviderStarted{
@@ -190,9 +185,6 @@ func TestHandleFeeApproved(t *testing.T) {
 	factory.EXPECT().
 		ShareCodeSender(ctx).
 		Return(shareCodeSender, nil)
-	factory.EXPECT().
-		LpaStoreClient().
-		Return(lpaStoreClient, nil)
 	factory.EXPECT().
 		DynamoClient().
 		Return(client)
@@ -257,9 +249,6 @@ func TestHandleFeeApprovedWhenNotPaid(t *testing.T) {
 		ShareCodeSender(ctx).
 		Return(nil, nil)
 	factory.EXPECT().
-		LpaStoreClient().
-		Return(nil, nil)
-	factory.EXPECT().
 		DynamoClient().
 		Return(client)
 	factory.EXPECT().
@@ -310,7 +299,7 @@ func TestHandleFeeApprovedWhenNotSigned(t *testing.T) {
 		Put(ctx, &updatedDonorProvided).
 		Return(nil)
 
-	err := handleFeeApproved(ctx, client, event, nil, nil, nil, appcontext.Data{}, testNowFn)
+	err := handleFeeApproved(ctx, client, event, nil, nil, appcontext.Data{}, testNowFn)
 	assert.Nil(t, err)
 }
 
@@ -344,7 +333,7 @@ func TestHandleFeeApprovedWhenAlreadyPaidOrApproved(t *testing.T) {
 					return nil
 				})
 
-			err := handleFeeApproved(ctx, client, event, nil, nil, nil, appcontext.Data{}, nil)
+			err := handleFeeApproved(ctx, client, event, nil, nil, appcontext.Data{}, nil)
 			assert.Nil(t, err)
 		})
 	}
@@ -491,7 +480,7 @@ func TestHandleFeeApprovedWhenApprovedTypeDiffers(t *testing.T) {
 				Put(ctx, &updatedDonorProvided).
 				Return(nil)
 
-			err := handleFeeApproved(ctx, client, event, nil, nil, nil, appcontext.Data{}, testNowFn)
+			err := handleFeeApproved(ctx, client, event, nil, nil, appcontext.Data{}, testNowFn)
 			assert.Nil(t, err)
 		})
 	}
@@ -541,7 +530,7 @@ func TestHandleFeeApprovedWhenVoucherSelected(t *testing.T) {
 		}, appcontext.Data{}).
 		Return(nil)
 
-	err := handleFeeApproved(ctx, client, event, shareCodeSender, nil, nil, appcontext.Data{}, testNowFn)
+	err := handleFeeApproved(ctx, client, event, shareCodeSender, nil, appcontext.Data{}, testNowFn)
 	assert.Nil(t, err)
 }
 
@@ -573,7 +562,7 @@ func TestHandleFeeApprovedWhenVoucherSelectedAndShareCodeSenderError(t *testing.
 		SendVoucherInvite(mock.Anything, mock.Anything, mock.Anything).
 		Return(expectedError)
 
-	err := handleFeeApproved(ctx, client, event, shareCodeSender, nil, nil, appcontext.Data{}, testNowFn)
+	err := handleFeeApproved(ctx, client, event, shareCodeSender, nil, appcontext.Data{}, testNowFn)
 	assert.ErrorIs(t, err, expectedError)
 }
 
@@ -598,7 +587,7 @@ func TestHandleFeeApprovedWhenDynamoClientPutError(t *testing.T) {
 		Put(ctx, mock.Anything).
 		Return(expectedError)
 
-	err := handleFeeApproved(ctx, client, event, nil, nil, nil, appcontext.Data{}, testNowFn)
+	err := handleFeeApproved(ctx, client, event, nil, nil, appcontext.Data{}, testNowFn)
 	assert.Equal(t, fmt.Errorf("failed to update donor provided details: %w", expectedError), err)
 }
 
@@ -625,11 +614,6 @@ func TestHandleFeeApprovedWhenShareCodeSenderError(t *testing.T) {
 			return nil
 		})
 
-	lpaStoreClient := newMockLpaStoreClient(t)
-	lpaStoreClient.EXPECT().
-		SendLpa(mock.Anything, mock.Anything, mock.Anything).
-		Return(nil)
-
 	eventClient := newMockEventClient(t)
 	eventClient.EXPECT().
 		SendCertificateProviderStarted(mock.Anything, mock.Anything).
@@ -640,7 +624,7 @@ func TestHandleFeeApprovedWhenShareCodeSenderError(t *testing.T) {
 		SendCertificateProviderPrompt(ctx, appcontext.Data{}, mock.Anything).
 		Return(expectedError)
 
-	err := handleFeeApproved(ctx, client, event, shareCodeSender, lpaStoreClient, eventClient, appcontext.Data{}, testNowFn)
+	err := handleFeeApproved(ctx, client, event, shareCodeSender, eventClient, appcontext.Data{}, testNowFn)
 	assert.Equal(t, fmt.Errorf("failed to send share code to certificate provider: %w", expectedError), err)
 }
 
@@ -667,50 +651,13 @@ func TestHandleFeeApprovedWhenEventClientError(t *testing.T) {
 			return nil
 		})
 
-	lpaStoreClient := newMockLpaStoreClient(t)
-	lpaStoreClient.EXPECT().
-		SendLpa(mock.Anything, mock.Anything, mock.Anything).
-		Return(nil)
-
 	eventClient := newMockEventClient(t)
 	eventClient.EXPECT().
 		SendCertificateProviderStarted(mock.Anything, mock.Anything).
 		Return(expectedError)
 
-	err := handleFeeApproved(ctx, client, event, nil, lpaStoreClient, eventClient, appcontext.Data{}, testNowFn)
+	err := handleFeeApproved(ctx, client, event, nil, eventClient, appcontext.Data{}, testNowFn)
 	assert.Equal(t, fmt.Errorf("failed to send certificate-provider-started event: %w", expectedError), err)
-}
-
-func TestHandleFeeApprovedWhenLpaStoreError(t *testing.T) {
-	event := &events.CloudWatchEvent{
-		DetailType: "reduced-fee-approved",
-		Detail:     json.RawMessage(`{"uid":"M-1111-2222-3333","approvedType":"NoFee"}`),
-	}
-
-	client := newMockDynamodbClient(t)
-	client.EXPECT().
-		OneByUID(ctx, "M-1111-2222-3333").
-		Return(dynamo.Keys{PK: dynamo.LpaKey("123"), SK: dynamo.DonorKey("456")}, nil)
-	client.
-		On("One", ctx, dynamo.LpaKey("123"), dynamo.DonorKey("456"), mock.Anything).
-		Return(func(ctx context.Context, pk dynamo.PK, sk dynamo.SK, v interface{}) error {
-			b, _ := attributevalue.Marshal(donordata.Provided{
-				PK:      dynamo.LpaKey("123"),
-				SK:      dynamo.LpaOwnerKey(dynamo.DonorKey("456")),
-				FeeType: pay.NoFee,
-				Tasks:   donordata.Tasks{PayForLpa: task.PaymentStatePending, SignTheLpa: task.StateCompleted},
-			})
-			attributevalue.Unmarshal(b, v)
-			return nil
-		})
-
-	lpaStoreClient := newMockLpaStoreClient(t)
-	lpaStoreClient.EXPECT().
-		SendLpa(ctx, mock.Anything, mock.Anything).
-		Return(expectedError)
-
-	err := handleFeeApproved(ctx, client, event, nil, lpaStoreClient, nil, appcontext.Data{}, testNowFn)
-	assert.Equal(t, fmt.Errorf("failed to send to lpastore: %w", expectedError), err)
 }
 
 func TestHandleFurtherInfoRequested(t *testing.T) {

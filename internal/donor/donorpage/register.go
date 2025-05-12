@@ -412,7 +412,7 @@ func Register(
 	handleWithDonor(donor.PathPayFee, page.None,
 		payer)
 	handleWithDonor(donor.PathPaymentConfirmation, page.None,
-		PaymentConfirmation(logger, payClient, donorStore, sessionStore, shareCodeSender, lpaStoreClient, eventClient, notifyClient))
+		PaymentConfirmation(logger, payClient, donorStore, sessionStore, shareCodeSender, eventClient, notifyClient))
 	handleWithDonor(donor.PathPaymentSuccessful, page.None,
 		Guidance(tmpls.Get("payment_successful.gohtml")))
 	handleWithDonor(donor.PathEvidenceSuccessfullyUploaded, page.None,
