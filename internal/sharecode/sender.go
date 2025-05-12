@@ -81,35 +81,24 @@ func (s *Sender) UseTestCode(shareCode string) {
 	s.testCode = shareCode
 }
 
-type CertificateProviderInvite struct {
-	LpaKey                      dynamo.LpaKeyType
-	LpaOwnerKey                 dynamo.LpaOwnerKeyType
-	LpaUID                      string
-	Type                        lpadata.LpaType
-	DonorFirstNames             string
-	DonorFullName               string
-	CertificateProviderUID      actoruid.UID
-	CertificateProviderFullName string
-}
-
-func (s *Sender) SendCertificateProviderInvite(ctx context.Context, appData appcontext.Data, invite CertificateProviderInvite, to notify.ToEmail) error {
-	shareCode, err := s.createShareCode(ctx, invite.LpaKey, invite.LpaOwnerKey, invite.LpaUID, invite.CertificateProviderUID, actor.TypeCertificateProvider)
+func (s *Sender) SendCertificateProviderInvite(ctx context.Context, appData appcontext.Data, provided *donordata.Provided) error {
+	shareCode, err := s.createShareCode(ctx, provided.PK, provided.SK, provided.LpaUID, provided.CertificateProvider.UID, actor.TypeCertificateProvider)
 	if err != nil {
 		return err
 	}
 
 	whatLpaCovers := "whatPropertyAndAffairsCovers"
-	if invite.Type.IsPersonalWelfare() {
+	if provided.Type.IsPersonalWelfare() {
 		whatLpaCovers = "whatPersonalWelfareCovers"
 	}
 
-	return s.sendEmail(ctx, to, invite.LpaUID, notify.CertificateProviderInviteEmail{
-		CertificateProviderFullName:  invite.CertificateProviderFullName,
-		DonorFullName:                invite.DonorFullName,
-		LpaType:                      localize.LowerFirst(appData.Localizer.T(invite.Type.String())),
+	return s.sendEmail(ctx, notify.ToCertificateProvider(provided.CertificateProvider), provided.LpaUID, notify.CertificateProviderInviteEmail{
+		CertificateProviderFullName:  provided.CertificateProvider.FullName(),
+		DonorFullName:                provided.Donor.FullName(),
+		LpaType:                      localize.LowerFirst(appData.Localizer.T(provided.Type.String())),
 		CertificateProviderStartURL:  s.certificateProviderStartURL,
-		DonorFirstNames:              invite.DonorFirstNames,
-		DonorFirstNamesPossessive:    appData.Localizer.Possessive(invite.DonorFirstNames),
+		DonorFirstNames:              provided.Donor.FirstNames,
+		DonorFirstNamesPossessive:    appData.Localizer.Possessive(provided.Donor.FirstNames),
 		WhatLpaCovers:                appData.Localizer.T(whatLpaCovers),
 		ShareCode:                    shareCode.Plain(),
 		CertificateProviderOptOutURL: fmt.Sprintf("%s%s", s.appPublicURL, page.PathCertificateProviderEnterReferenceNumberOptOut),
@@ -135,6 +124,24 @@ func (s *Sender) SendCertificateProviderPrompt(ctx context.Context, appData appc
 		CertificateProviderFullName: donor.CertificateProvider.FullName(),
 		DonorFullName:               donor.Donor.FullName(),
 		LpaType:                     localize.LowerFirst(appData.Localizer.T(donor.Type.String())),
+		CertificateProviderStartURL: s.certificateProviderStartURL,
+		ShareCode:                   shareCode.Plain(),
+	})
+}
+
+func (s *Sender) SendOnlineCertificateProviderPrompt(ctx context.Context, appData appcontext.Data, provided *donordata.Provided, lpa *lpadata.Lpa) error {
+	shareCode, err := s.createShareCode(ctx, provided.PK, provided.SK, lpa.LpaUID, lpa.CertificateProvider.UID, actor.TypeCertificateProvider)
+	if err != nil {
+		return err
+	}
+
+	// There is no certificate provider record yet, so assume English
+	to := notify.ToLpaCertificateProvider(&certificateproviderdata.Provided{ContactLanguagePreference: localize.En}, lpa)
+
+	return s.sendEmail(ctx, to, lpa.LpaUID, notify.CertificateProviderProvideCertificatePromptEmail{
+		CertificateProviderFullName: lpa.CertificateProvider.FullName(),
+		DonorFullName:               lpa.Donor.FullName(),
+		LpaType:                     localize.LowerFirst(appData.Localizer.T(lpa.Type.String())),
 		CertificateProviderStartURL: s.certificateProviderStartURL,
 		ShareCode:                   shareCode.Plain(),
 	})
