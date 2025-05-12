@@ -22,7 +22,6 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/notify"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/pay"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/scheduled"
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/sharecode"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/task"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
@@ -885,14 +884,7 @@ func TestHandleDonorSubmissionCompleted(t *testing.T) {
 
 	shareCodeSender := newMockShareCodeSender(t)
 	shareCodeSender.EXPECT().
-		SendCertificateProviderInvite(ctx, appData, sharecode.CertificateProviderInvite{
-			LpaKey:                      dynamo.LpaKey(testUuidString),
-			LpaOwnerKey:                 dynamo.LpaOwnerKey(dynamo.DonorKey("PAPER")),
-			DonorFirstNames:             "Dave",
-			DonorFullName:               "Dave Smith",
-			CertificateProviderUID:      uid,
-			CertificateProviderFullName: "John Smith",
-		}, notify.ToLpaCertificateProvider(&certificateproviderdata.Provided{ContactLanguagePreference: localize.En}, lpa)).
+		SendLpaCertificateProviderPrompt(ctx, appData, dynamo.LpaKey(testUuidString), dynamo.LpaOwnerKey(dynamo.DonorKey("PAPER")), lpa).
 		Return(nil)
 
 	client := newMockDynamodbClient(t)
@@ -972,7 +964,7 @@ func TestHandleDonorSubmissionCompletedWhenWriteTransactionError(t *testing.T) {
 
 	shareCodeSender := newMockShareCodeSender(t)
 	shareCodeSender.EXPECT().
-		SendCertificateProviderInvite(mock.Anything, mock.Anything, mock.Anything, mock.Anything).
+		SendLpaCertificateProviderPrompt(ctx, mock.Anything, mock.Anything, mock.Anything, mock.Anything).
 		Return(nil)
 
 	client := newMockDynamodbClient(t)
@@ -1018,7 +1010,7 @@ func TestHandleDonorSubmissionCompletedWhenShareCodeSenderError(t *testing.T) {
 
 	shareCodeSender := newMockShareCodeSender(t)
 	shareCodeSender.EXPECT().
-		SendCertificateProviderInvite(ctx, mock.Anything, mock.Anything, mock.Anything).
+		SendLpaCertificateProviderPrompt(ctx, mock.Anything, mock.Anything, mock.Anything, mock.Anything).
 		Return(expectedError)
 
 	err := handleDonorSubmissionCompleted(ctx, nil, donorSubmissionCompletedEvent, shareCodeSender, appData, lpaStoreClient, testUuidStringFn, testNowFn)

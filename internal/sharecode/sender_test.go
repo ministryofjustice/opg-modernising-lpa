@@ -38,6 +38,8 @@ var (
 
 func TestShareCodeSenderSendCertificateProviderInvite(t *testing.T) {
 	donor := &donordata.Provided{
+		PK: dynamo.LpaKey("lpa"),
+		SK: dynamo.LpaOwnerKey(dynamo.DonorKey("donor")),
 		CertificateProvider: donordata.CertificateProvider{
 			FirstNames: "Joanna",
 			LastName:   "Jones",
@@ -100,16 +102,7 @@ func TestShareCodeSenderSendCertificateProviderInvite(t *testing.T) {
 		certificateProviderStartURL: "http://example.com/certificate-provider",
 		generate:                    testGenerateFn,
 	}
-	err := sender.SendCertificateProviderInvite(ctx, testAppData, CertificateProviderInvite{
-		LpaKey:                      dynamo.LpaKey("lpa"),
-		LpaOwnerKey:                 dynamo.LpaOwnerKey(dynamo.DonorKey("donor")),
-		LpaUID:                      donor.LpaUID,
-		Type:                        donor.Type,
-		DonorFirstNames:             donor.Donor.FirstNames,
-		DonorFullName:               donor.Donor.FullName(),
-		CertificateProviderUID:      donor.CertificateProvider.UID,
-		CertificateProviderFullName: donor.CertificateProvider.FullName(),
-	}, to)
+	err := sender.SendCertificateProviderInvite(ctx, testAppData, donor)
 
 	assert.Nil(t, err)
 }
@@ -130,6 +123,8 @@ func TestShareCodeSenderSendCertificateProviderInviteWithTestCode(t *testing.T) 
 	}
 
 	donor := &donordata.Provided{
+		PK: dynamo.LpaKey("lpa"),
+		SK: dynamo.LpaOwnerKey(dynamo.DonorKey("donor")),
 		CertificateProvider: donordata.CertificateProvider{
 			FirstNames: "Joanna",
 			LastName:   "Jones",
@@ -221,28 +216,10 @@ func TestShareCodeSenderSendCertificateProviderInviteWithTestCode(t *testing.T) 
 				sender.UseTestCode("abcdef123456")
 			}
 
-			err := sender.SendCertificateProviderInvite(ctx, testAppData, CertificateProviderInvite{
-				LpaKey:                      dynamo.LpaKey("lpa"),
-				LpaOwnerKey:                 dynamo.LpaOwnerKey(dynamo.DonorKey("donor")),
-				LpaUID:                      donor.LpaUID,
-				Type:                        donor.Type,
-				DonorFirstNames:             donor.Donor.FirstNames,
-				DonorFullName:               donor.Donor.FullName(),
-				CertificateProviderUID:      donor.CertificateProvider.UID,
-				CertificateProviderFullName: donor.CertificateProvider.FullName(),
-			}, to)
+			err := sender.SendCertificateProviderInvite(ctx, testAppData, donor)
 			assert.Nil(t, err)
 
-			err = sender.SendCertificateProviderInvite(ctx, testAppData, CertificateProviderInvite{
-				LpaKey:                      dynamo.LpaKey("lpa"),
-				LpaOwnerKey:                 dynamo.LpaOwnerKey(dynamo.DonorKey("donor")),
-				LpaUID:                      donor.LpaUID,
-				Type:                        donor.Type,
-				DonorFirstNames:             donor.Donor.FirstNames,
-				DonorFullName:               donor.Donor.FullName(),
-				CertificateProviderUID:      donor.CertificateProvider.UID,
-				CertificateProviderFullName: donor.CertificateProvider.FullName(),
-			}, to)
+			err = sender.SendCertificateProviderInvite(ctx, testAppData, donor)
 			assert.Nil(t, err)
 		})
 	}
@@ -263,8 +240,6 @@ func TestShareCodeSenderSendCertificateProviderInviteWhenEmailErrors(t *testing.
 		},
 		Type: lpadata.LpaTypePropertyAndAffairs,
 	}
-
-	to := notify.ToCertificateProvider(donor.CertificateProvider)
 
 	localizer := newMockLocalizer(t)
 	localizer.EXPECT().
@@ -290,14 +265,7 @@ func TestShareCodeSenderSendCertificateProviderInviteWhenEmailErrors(t *testing.
 		notifyClient:   notifyClient,
 		generate:       testGenerateFn,
 	}
-	err := sender.SendCertificateProviderInvite(ctx, testAppData, CertificateProviderInvite{
-		LpaUID:                      donor.LpaUID,
-		Type:                        donor.Type,
-		DonorFirstNames:             donor.Donor.FirstNames,
-		DonorFullName:               donor.Donor.FullName(),
-		CertificateProviderUID:      donor.CertificateProvider.UID,
-		CertificateProviderFullName: donor.CertificateProvider.FullName(),
-	}, to)
+	err := sender.SendCertificateProviderInvite(ctx, testAppData, donor)
 
 	assert.Equal(t, expectedError, errors.Unwrap(err))
 }
@@ -314,7 +282,7 @@ func TestShareCodeSenderSendCertificateProviderInviteWhenShareCodeStoreErrors(t 
 		shareCodeStore: shareCodeStore,
 		generate:       testGenerateFn,
 	}
-	err := sender.SendCertificateProviderInvite(ctx, testAppData, CertificateProviderInvite{}, notify.ToCustomEmail(localize.En, ""))
+	err := sender.SendCertificateProviderInvite(ctx, testAppData, &donordata.Provided{})
 
 	assert.Equal(t, expectedError, errors.Unwrap(err))
 }
@@ -730,6 +698,111 @@ func TestShareCodeSenderSendCertificateProviderPromptWhenShareCodeStoreErrors(t 
 	err := sender.SendCertificateProviderPrompt(ctx, testAppData, &donordata.Provided{})
 
 	assert.Equal(t, expectedError, errors.Unwrap(err))
+}
+
+func TestShareCodeSenderSendOnlineCertificateProviderPrompt(t *testing.T) {
+	lpaKey := dynamo.LpaKey("lpa")
+	lpaOwnerKey := dynamo.LpaOwnerKey(dynamo.DonorKey("donor"))
+
+	lpa := &lpadata.Lpa{
+		CertificateProvider: lpadata.CertificateProvider{
+			FirstNames: "Joanna",
+			LastName:   "Jones",
+			Email:      "name@example.org",
+			Channel:    lpadata.ChannelOnline,
+		},
+		Donor: lpadata.Donor{
+			FirstNames: "Jan",
+			LastName:   "Smith",
+		},
+		Type:   lpadata.LpaTypePropertyAndAffairs,
+		LpaUID: "lpa-uid",
+	}
+
+	localizer := newMockLocalizer(t)
+	localizer.EXPECT().
+		T(lpa.Type.String()).
+		Return("Property and affairs").
+		Once()
+	testAppData.Localizer = localizer
+
+	ctx := context.Background()
+
+	notifyClient := newMockNotifyClient(t)
+	notifyClient.EXPECT().
+		SendActorEmail(ctx, notify.ToLpaCertificateProvider(&certificateproviderdata.Provided{ContactLanguagePreference: localize.En}, lpa), "lpa-uid", notify.CertificateProviderProvideCertificatePromptEmail{
+			ShareCode:                   testStringCode,
+			CertificateProviderFullName: "Joanna Jones",
+			DonorFullName:               "Jan Smith",
+			LpaType:                     "property and affairs",
+			CertificateProviderStartURL: "http://example.com/certificate-provider",
+		}).
+		Return(nil)
+
+	shareCodeStore := newMockShareCodeStore(t)
+	shareCodeStore.EXPECT().
+		Put(ctx, actor.TypeCertificateProvider, testHashedCode, sharecodedata.Link{
+			LpaKey:      dynamo.LpaKey("lpa"),
+			LpaOwnerKey: dynamo.LpaOwnerKey(dynamo.DonorKey("donor")),
+			LpaUID:      "lpa-uid",
+		}).
+		Return(nil)
+
+	sender := &Sender{
+		shareCodeStore:              shareCodeStore,
+		notifyClient:                notifyClient,
+		certificateProviderStartURL: "http://example.com/certificate-provider",
+		generate:                    testGenerateFn,
+	}
+	err := sender.SendLpaCertificateProviderPrompt(ctx, testAppData, lpaKey, lpaOwnerKey, lpa)
+
+	assert.Nil(t, err)
+}
+
+func TestShareCodeSenderSendOnlineCertificateProviderPromptWhenShareCodeErrors(t *testing.T) {
+	shareCodeStore := newMockShareCodeStore(t)
+	shareCodeStore.EXPECT().
+		Put(mock.Anything, mock.Anything, mock.Anything, mock.Anything).
+		Return(expectedError)
+
+	sender := &Sender{
+		shareCodeStore: shareCodeStore,
+		generate:       testGenerateFn,
+	}
+	err := sender.SendLpaCertificateProviderPrompt(context.Background(), testAppData, dynamo.LpaKey(""), dynamo.LpaOwnerKey(dynamo.DonorKey("")), &lpadata.Lpa{})
+
+	assert.ErrorIs(t, err, expectedError)
+}
+
+func TestShareCodeSenderSendOnlineCertificateProviderPromptWhenEmailErrors(t *testing.T) {
+	localizer := newMockLocalizer(t)
+	localizer.EXPECT().
+		T(mock.Anything).
+		Return("Property and affairs").
+		Once()
+	testAppData.Localizer = localizer
+
+	ctx := context.Background()
+
+	notifyClient := newMockNotifyClient(t)
+	notifyClient.EXPECT().
+		SendActorEmail(mock.Anything, mock.Anything, mock.Anything, mock.Anything).
+		Return(expectedError)
+
+	shareCodeStore := newMockShareCodeStore(t)
+	shareCodeStore.EXPECT().
+		Put(mock.Anything, mock.Anything, mock.Anything, mock.Anything).
+		Return(nil)
+
+	sender := &Sender{
+		shareCodeStore:              shareCodeStore,
+		notifyClient:                notifyClient,
+		certificateProviderStartURL: "http://example.com/certificate-provider",
+		generate:                    testGenerateFn,
+	}
+	err := sender.SendLpaCertificateProviderPrompt(ctx, testAppData, dynamo.LpaKey(""), dynamo.LpaOwnerKey(dynamo.DonorKey("")), &lpadata.Lpa{})
+
+	assert.ErrorIs(t, err, expectedError)
 }
 
 func TestShareCodeSenderSendAttorneys(t *testing.T) {
