@@ -38,6 +38,8 @@ var (
 
 func TestShareCodeSenderSendCertificateProviderInvite(t *testing.T) {
 	donor := &donordata.Provided{
+		PK: dynamo.LpaKey("lpa"),
+		SK: dynamo.LpaOwnerKey(dynamo.DonorKey("donor")),
 		CertificateProvider: donordata.CertificateProvider{
 			FirstNames: "Joanna",
 			LastName:   "Jones",
@@ -100,16 +102,7 @@ func TestShareCodeSenderSendCertificateProviderInvite(t *testing.T) {
 		certificateProviderStartURL: "http://example.com/certificate-provider",
 		generate:                    testGenerateFn,
 	}
-	err := sender.SendCertificateProviderInvite(ctx, testAppData, CertificateProviderInvite{
-		LpaKey:                      dynamo.LpaKey("lpa"),
-		LpaOwnerKey:                 dynamo.LpaOwnerKey(dynamo.DonorKey("donor")),
-		LpaUID:                      donor.LpaUID,
-		Type:                        donor.Type,
-		DonorFirstNames:             donor.Donor.FirstNames,
-		DonorFullName:               donor.Donor.FullName(),
-		CertificateProviderUID:      donor.CertificateProvider.UID,
-		CertificateProviderFullName: donor.CertificateProvider.FullName(),
-	}, to)
+	err := sender.SendCertificateProviderInvite(ctx, testAppData, donor)
 
 	assert.Nil(t, err)
 }
@@ -130,6 +123,8 @@ func TestShareCodeSenderSendCertificateProviderInviteWithTestCode(t *testing.T) 
 	}
 
 	donor := &donordata.Provided{
+		PK: dynamo.LpaKey("lpa"),
+		SK: dynamo.LpaOwnerKey(dynamo.DonorKey("donor")),
 		CertificateProvider: donordata.CertificateProvider{
 			FirstNames: "Joanna",
 			LastName:   "Jones",
@@ -221,28 +216,10 @@ func TestShareCodeSenderSendCertificateProviderInviteWithTestCode(t *testing.T) 
 				sender.UseTestCode("abcdef123456")
 			}
 
-			err := sender.SendCertificateProviderInvite(ctx, testAppData, CertificateProviderInvite{
-				LpaKey:                      dynamo.LpaKey("lpa"),
-				LpaOwnerKey:                 dynamo.LpaOwnerKey(dynamo.DonorKey("donor")),
-				LpaUID:                      donor.LpaUID,
-				Type:                        donor.Type,
-				DonorFirstNames:             donor.Donor.FirstNames,
-				DonorFullName:               donor.Donor.FullName(),
-				CertificateProviderUID:      donor.CertificateProvider.UID,
-				CertificateProviderFullName: donor.CertificateProvider.FullName(),
-			}, to)
+			err := sender.SendCertificateProviderInvite(ctx, testAppData, donor)
 			assert.Nil(t, err)
 
-			err = sender.SendCertificateProviderInvite(ctx, testAppData, CertificateProviderInvite{
-				LpaKey:                      dynamo.LpaKey("lpa"),
-				LpaOwnerKey:                 dynamo.LpaOwnerKey(dynamo.DonorKey("donor")),
-				LpaUID:                      donor.LpaUID,
-				Type:                        donor.Type,
-				DonorFirstNames:             donor.Donor.FirstNames,
-				DonorFullName:               donor.Donor.FullName(),
-				CertificateProviderUID:      donor.CertificateProvider.UID,
-				CertificateProviderFullName: donor.CertificateProvider.FullName(),
-			}, to)
+			err = sender.SendCertificateProviderInvite(ctx, testAppData, donor)
 			assert.Nil(t, err)
 		})
 	}
@@ -263,8 +240,6 @@ func TestShareCodeSenderSendCertificateProviderInviteWhenEmailErrors(t *testing.
 		},
 		Type: lpadata.LpaTypePropertyAndAffairs,
 	}
-
-	to := notify.ToCertificateProvider(donor.CertificateProvider)
 
 	localizer := newMockLocalizer(t)
 	localizer.EXPECT().
@@ -290,14 +265,7 @@ func TestShareCodeSenderSendCertificateProviderInviteWhenEmailErrors(t *testing.
 		notifyClient:   notifyClient,
 		generate:       testGenerateFn,
 	}
-	err := sender.SendCertificateProviderInvite(ctx, testAppData, CertificateProviderInvite{
-		LpaUID:                      donor.LpaUID,
-		Type:                        donor.Type,
-		DonorFirstNames:             donor.Donor.FirstNames,
-		DonorFullName:               donor.Donor.FullName(),
-		CertificateProviderUID:      donor.CertificateProvider.UID,
-		CertificateProviderFullName: donor.CertificateProvider.FullName(),
-	}, to)
+	err := sender.SendCertificateProviderInvite(ctx, testAppData, donor)
 
 	assert.Equal(t, expectedError, errors.Unwrap(err))
 }
@@ -314,7 +282,7 @@ func TestShareCodeSenderSendCertificateProviderInviteWhenShareCodeStoreErrors(t 
 		shareCodeStore: shareCodeStore,
 		generate:       testGenerateFn,
 	}
-	err := sender.SendCertificateProviderInvite(ctx, testAppData, CertificateProviderInvite{}, notify.ToCustomEmail(localize.En, ""))
+	err := sender.SendCertificateProviderInvite(ctx, testAppData, &donordata.Provided{})
 
 	assert.Equal(t, expectedError, errors.Unwrap(err))
 }
