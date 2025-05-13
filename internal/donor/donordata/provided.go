@@ -397,7 +397,7 @@ func (p *Provided) AttorneysNames(localizer Localizer) []string {
 // SigningDeadline gives the date at which the LPA should be signed by the
 // certificate provider and attorneys.
 func (p *Provided) SigningDeadline() time.Time {
-	return p.SignedAt.AddDate(2, 0, 0)
+	return p.SignedAt.AddDate(2, 0, -1)
 }
 
 // DonorSigningDeadline gives the date at which the LPA should be signed by the
