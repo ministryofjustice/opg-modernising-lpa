@@ -17,7 +17,6 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/notify"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/scheduled"
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/sharecode"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/task"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/validation"
 )
@@ -83,16 +82,7 @@ func (n *checkYourLpaNotifier) sendOnlineNotification(ctx context.Context, appDa
 			return fmt.Errorf("could not schedule certificate provider prompt: %w", err)
 		}
 
-		return n.shareCodeSender.SendCertificateProviderInvite(ctx, appData, sharecode.CertificateProviderInvite{
-			LpaKey:                      donor.PK,
-			LpaOwnerKey:                 donor.SK,
-			LpaUID:                      donor.LpaUID,
-			Type:                        donor.Type,
-			DonorFirstNames:             donor.Donor.FirstNames,
-			DonorFullName:               donor.Donor.FullName(),
-			CertificateProviderUID:      donor.CertificateProvider.UID,
-			CertificateProviderFullName: donor.CertificateProvider.FullName(),
-		}, notify.ToCertificateProvider(donor.CertificateProvider))
+		return n.shareCodeSender.SendCertificateProviderInvite(ctx, appData, donor)
 	}
 
 	certificateProvider, err := n.certificateProviderStore.GetAny(ctx)
