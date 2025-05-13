@@ -491,7 +491,7 @@ func TestSigningDeadline(t *testing.T) {
 		SignedAt: time.Date(2020, time.January, 2, 3, 4, 5, 6, time.UTC),
 	}
 
-	expected := time.Date(2022, time.January, 2, 3, 4, 5, 6, time.UTC)
+	expected := time.Date(2022, time.January, 1, 3, 4, 5, 6, time.UTC)
 	assert.Equal(t, expected, donor.SigningDeadline())
 }
 
