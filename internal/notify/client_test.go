@@ -185,9 +185,8 @@ func TestSendEmailWhenError(t *testing.T) {
 
 func TestSendActorEmail(t *testing.T) {
 	testcases := map[string]string{
-		"not previously created":           `{"notifications":[]}`,
-		"previously created before window": `{"notifications":[{"status":"sending","created_at":"2020-01-02T02:53:06Z"}]}`,
-		"previously failed":                `{"notifications":[{"status":"temporary-failure","created_at":"2020-01-02T02:57:06Z"}]}`,
+		"not previously created": `{"notifications":[]}`,
+		"previously failed":      `{"notifications":[{"status":"temporary-failure","created_at":"2020-01-02T02:57:06Z"}]}`,
 	}
 
 	for name, responseBody := range testcases {

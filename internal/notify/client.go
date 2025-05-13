@@ -24,8 +24,7 @@ import (
 )
 
 var (
-	allowResendAfter = 10 * time.Minute
-	simulatedEmails  = []string{
+	simulatedEmails = []string{
 		"simulate-delivered@notifications.service.gov.uk",
 		"simulate-delivered-2@notifications.service.gov.uk",
 		"simulate-delivered-3@notifications.service.gov.uk",
@@ -274,8 +273,7 @@ func (c *Client) recentlySent(ctx context.Context, ref string) (bool, error) {
 	}
 
 	for _, notification := range resp.Notifications {
-		if (notification.Status == "sending" || notification.Status == "delivered") &&
-			notification.CreatedAt.After(c.now().Add(-allowResendAfter)) {
+		if notification.Status == "sending" || notification.Status == "delivered" {
 			return true, nil
 		}
 	}
