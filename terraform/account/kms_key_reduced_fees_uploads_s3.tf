@@ -1,7 +1,7 @@
 module "reduced_fees_uploads_s3_kms" {
   source                  = "./modules/kms_key"
   encrypted_resource      = "reduced_fees_uploads_s3_bucket"
-  kms_key_alias_name      = "${local.default_tags.application}_reduced_fees_uploads_s3_encryption"
+  kms_key_alias_name      = "${local.default_tags.application}-reduced-fees-uploads-s3-encryption"
   enable_key_rotation     = true
   enable_multi_region     = true
   deletion_window_in_days = 10

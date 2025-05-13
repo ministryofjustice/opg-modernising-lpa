@@ -9,7 +9,7 @@ data "aws_kms_alias" "cloudtrail" {
 }
 
 data "aws_kms_alias" "dynamodb_cloudtrail_log_group" {
-  name     = "alias/${local.default_tags.application}_dynamodb_cloudtrail_log_group_encryption"
+  name     = "alias/${local.default_tags.application}-dynamodb-cloudtrail-log-group-encryption"
   provider = aws.eu_west_1
 }
 
