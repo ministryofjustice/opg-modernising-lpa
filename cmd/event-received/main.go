@@ -20,6 +20,7 @@ import (
 	"github.com/aws/aws-sdk-go-v2/service/s3/types"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/appcontext"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/document"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor/donordata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/dynamo"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/event"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/localize"
@@ -142,6 +143,7 @@ type ScheduledStore interface {
 
 type NotifyClient interface {
 	EmailGreeting(lpa *lpadata.Lpa) string
+	EmailGreetingProvided(provided *donordata.Provided) string
 	SendActorEmail(context context.Context, to notify.ToEmail, lpaUID string, email notify.Email) error
 	SendActorSMS(context context.Context, to notify.ToMobile, lpaUID string, sms notify.SMS) error
 }

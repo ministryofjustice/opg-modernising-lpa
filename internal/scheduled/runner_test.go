@@ -11,6 +11,7 @@ import (
 	"github.com/aws/aws-sdk-go-v2/service/cloudwatch"
 	"github.com/aws/aws-sdk-go-v2/service/cloudwatch/types"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/dynamo"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
 )
@@ -58,7 +59,7 @@ func TestNewRunner(t *testing.T) {
 	metricsClient := newMockMetricsClient(t)
 	bundle := newMockBundle(t)
 
-	runner := NewRunner(logger, store, donorStore, certificateProviderStore, attorneyStore, lpaStoreResolvingService, notifyClient, eventClient, bundle, metricsClient, true, "certificateProviderStartURL", "attorneyStartURL")
+	runner := NewRunner(logger, store, donorStore, certificateProviderStore, attorneyStore, lpaStoreResolvingService, notifyClient, eventClient, bundle, metricsClient, true, "certificateProviderStartURL", "attorneyStartURL", "appPublicURL")
 
 	assert.Equal(t, logger, runner.logger)
 	assert.Equal(t, store, runner.store)
@@ -71,6 +72,8 @@ func TestNewRunner(t *testing.T) {
 	assert.Equal(t, true, runner.metricsEnabled)
 	assert.Equal(t, "certificateProviderStartURL", runner.certificateProviderStartURL)
 	assert.Equal(t, "attorneyStartURL", runner.attorneyStartURL)
+	assert.Equal(t, "appPublicURL"+page.PathCertificateProviderEnterReferenceNumberOptOut.Format(), runner.certificateProviderOptOutURL)
+	assert.Equal(t, "appPublicURL"+page.PathAttorneyEnterReferenceNumberOptOut.Format(), runner.attorneyOptOutURL)
 }
 
 func (m *mockMetricsClient) assertPutMetrics(processed, ignored, errored float64, err error) {

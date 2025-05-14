@@ -104,12 +104,13 @@ func DonorAccess(logger Logger, tmpl template.Template, donorStore DonorStore, s
 				}
 
 				if err := notifyClient.SendEmail(r.Context(), notify.ToDonorOnly(donor), notify.DonorAccessEmail{
-					SupporterFullName: member.FullName(),
-					OrganisationName:  organisation.Name,
-					LpaType:           localize.LowerFirst(appData.Localizer.T(donor.Type.String())),
-					DonorName:         donor.Donor.FullName(),
-					URL:               donorStartURL,
-					ShareCode:         plainCode.Plain(),
+					SupporterFullName:  member.FullName(),
+					OrganisationName:   organisation.Name,
+					LpaType:            localize.LowerFirst(appData.Localizer.T(donor.Type.String())),
+					LpaReferenceNumber: donor.LpaUID,
+					DonorName:          donor.Donor.FullName(),
+					URL:                donorStartURL,
+					ShareCode:          plainCode.Plain(),
 				}); err != nil {
 					return err
 				}

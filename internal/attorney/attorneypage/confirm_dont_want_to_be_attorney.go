@@ -34,9 +34,10 @@ func ConfirmDontWantToBeAttorney(tmpl template.Template, attorneyStore AttorneyS
 			}
 
 			email := notify.AttorneyOptedOutEmail{
-				Greeting:         notifyClient.EmailGreeting(lpa),
-				AttorneyFullName: fullName,
-				LpaType:          appData.Localizer.T(lpa.Type.String()),
+				Greeting:           notifyClient.EmailGreeting(lpa),
+				AttorneyFullName:   fullName,
+				LpaType:            appData.Localizer.T(lpa.Type.String()),
+				LpaReferenceNumber: lpa.LpaUID,
 			}
 
 			if err := notifyClient.SendActorEmail(r.Context(), notify.ToLpaDonor(lpa), lpa.LpaUID, email); err != nil {

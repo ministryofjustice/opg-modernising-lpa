@@ -279,6 +279,7 @@ func TestPostCheckYourLpaDigitalCertificateProviderOnSubsequentChecks(t *testing
 			expectedSms: notify.CertificateProviderActingDigitallyHasConfirmedPersonalDetailsLPADetailsChangedPromptSMS{
 				DonorFullNamePossessive: "Teneil Throssell’s",
 				LpaType:                 "property and affairs",
+				LpaReferenceNumber:      "lpa-uid",
 				DonorFirstNames:         "Teneil",
 			},
 		},
@@ -287,6 +288,7 @@ func TestPostCheckYourLpaDigitalCertificateProviderOnSubsequentChecks(t *testing
 			expectedSms: notify.CertificateProviderActingDigitallyHasConfirmedPersonalDetailsLPADetailsChangedPromptSMS{
 				DonorFullNamePossessive: "Teneil Throssell’s",
 				LpaType:                 "property and affairs",
+				LpaReferenceNumber:      "lpa-uid",
 				DonorFirstNames:         "Teneil",
 			},
 		},
@@ -498,9 +500,9 @@ func TestPostCheckYourLpaPaperCertificateProviderOnSubsequentCheck(t *testing.T)
 	notifyClient := newMockNotifyClient(t)
 	notifyClient.EXPECT().
 		SendActorSMS(r.Context(), notify.ToCertificateProvider(provided.CertificateProvider), "lpa-uid", notify.CertificateProviderActingOnPaperDetailsChangedSMS{
-			DonorFullName:   "Teneil Throssell",
-			DonorFirstNames: "Teneil",
-			LpaUID:          "lpa-uid",
+			DonorFullName:      "Teneil Throssell",
+			DonorFirstNames:    "Teneil",
+			LpaReferenceNumber: "lpa-uid",
 		}).
 		Return(nil)
 

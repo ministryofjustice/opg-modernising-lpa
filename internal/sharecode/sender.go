@@ -232,6 +232,7 @@ func (s *Sender) SendVoucherAccessCode(ctx context.Context, provided *donordata.
 			ShareCode:                 shareCode.Plain(),
 			DonorFullNamePossessive:   appData.Localizer.Possessive(provided.Donor.FullName()),
 			LpaType:                   appData.Localizer.T(provided.Type.String()),
+			LpaReferenceNumber:        provided.LpaUID,
 			VoucherFullName:           provided.Voucher.FullName(),
 			DonorFirstNamesPossessive: appData.Localizer.Possessive(provided.Donor.FirstNames),
 		}); err != nil {
@@ -242,10 +243,11 @@ func (s *Sender) SendVoucherAccessCode(ctx context.Context, provided *donordata.
 		provided.VoucherCodeSentTo = provided.Donor.Email
 
 		if err := s.sendEmail(ctx, notify.ToDonorOnly(provided), provided.LpaUID, notify.VouchingShareCodeEmail{
-			ShareCode:       shareCode.Plain(),
-			VoucherFullName: provided.Voucher.FullName(),
-			DonorFullName:   provided.Donor.FullName(),
-			LpaType:         appData.Localizer.T(provided.Type.String()),
+			ShareCode:          shareCode.Plain(),
+			VoucherFullName:    provided.Voucher.FullName(),
+			DonorFullName:      provided.Donor.FullName(),
+			LpaType:            appData.Localizer.T(provided.Type.String()),
+			LpaReferenceNumber: provided.LpaUID,
 		}); err != nil {
 			return err
 		}
