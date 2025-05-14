@@ -132,6 +132,7 @@ func TestRunnerRemindAttorneyToComplete(t *testing.T) {
 					InvitedDate:             "1 October 1999",
 					DeadlineDate:            "2 April 2000",
 					AttorneyStartPageURL:    "http://example.com/attorney",
+					AttorneyOptOutURL:       "http://example.com/attorney-opt-out",
 				}).
 				Return(nil).
 				Once()
@@ -144,6 +145,7 @@ func TestRunnerRemindAttorneyToComplete(t *testing.T) {
 					InvitedDate:             "1 October 1999",
 					DeadlineDate:            "2 April 2000",
 					AttorneyStartPageURL:    "http://example.com/attorney",
+					AttorneyOptOutURL:       "http://example.com/attorney-opt-out",
 				}).
 				Return(nil).
 				Once()
@@ -156,6 +158,7 @@ func TestRunnerRemindAttorneyToComplete(t *testing.T) {
 					InvitedDate:             "1 October 1999",
 					DeadlineDate:            "2 April 2000",
 					AttorneyStartPageURL:    "http://example.com/attorney",
+					AttorneyOptOutURL:       "http://example.com/attorney-opt-out",
 				}).
 				Return(nil).
 				Once()
@@ -168,6 +171,7 @@ func TestRunnerRemindAttorneyToComplete(t *testing.T) {
 					InvitedDate:             "1 October 1999",
 					DeadlineDate:            "2 April 2000",
 					AttorneyStartPageURL:    "http://example.com/attorney",
+					AttorneyOptOutURL:       "http://example.com/attorney-opt-out",
 				}).
 				Return(nil).
 				Once()
@@ -176,7 +180,7 @@ func TestRunnerRemindAttorneyToComplete(t *testing.T) {
 					Greeting:             "hey",
 					AttorneyFullName:     "c d",
 					LpaType:              "Personal welfare",
-					InvitedDate:          "1 October 1999",
+					LpaReferenceNumber:   "lpa-uid",
 					DeadlineDate:         "2 April 2000",
 					AttorneyStartPageURL: "http://example.com/attorney",
 				}).
@@ -187,7 +191,7 @@ func TestRunnerRemindAttorneyToComplete(t *testing.T) {
 					Greeting:             "hey",
 					AttorneyFullName:     "trusty",
 					LpaType:              "Personal welfare",
-					InvitedDate:          "1 October 1999",
+					LpaReferenceNumber:   "lpa-uid",
 					DeadlineDate:         "2 April 2000",
 					AttorneyStartPageURL: "http://example.com/attorney",
 				}).
@@ -198,7 +202,7 @@ func TestRunnerRemindAttorneyToComplete(t *testing.T) {
 					Greeting:             "hey",
 					AttorneyFullName:     "e f",
 					LpaType:              "Personal welfare",
-					InvitedDate:          "1 October 1999",
+					LpaReferenceNumber:   "lpa-uid",
 					DeadlineDate:         "2 April 2000",
 					AttorneyStartPageURL: "http://example.com/attorney",
 				}).
@@ -209,7 +213,7 @@ func TestRunnerRemindAttorneyToComplete(t *testing.T) {
 					Greeting:             "hey",
 					AttorneyFullName:     "untrusty",
 					LpaType:              "Personal welfare",
-					InvitedDate:          "1 October 1999",
+					LpaReferenceNumber:   "lpa-uid",
 					DeadlineDate:         "2 April 2000",
 					AttorneyStartPageURL: "http://example.com/attorney",
 				}).
@@ -244,6 +248,7 @@ func TestRunnerRemindAttorneyToComplete(t *testing.T) {
 				bundle:                   bundle,
 				now:                      testNowFn,
 				attorneyStartURL:         "http://example.com/attorney",
+				attorneyOptOutURL:        "http://example.com/attorney-opt-out",
 			}
 
 			err := runner.stepRemindAttorneyToComplete(ctx, row)

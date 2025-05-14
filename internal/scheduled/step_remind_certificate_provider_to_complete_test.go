@@ -70,6 +70,7 @@ func TestRunnerRemindCertificateProviderToComplete(t *testing.T) {
 						InvitedDate:                     "1 March 2000",
 						DeadlineDate:                    "1 April 2000",
 						CertificateProviderStartPageURL: "http://example.com/certificate-provider",
+						CertificateProviderOptOutURL:    "http://example.com/certificate-provider-opt-out",
 					}).
 					Return(nil).
 					Once()
@@ -78,6 +79,7 @@ func TestRunnerRemindCertificateProviderToComplete(t *testing.T) {
 						Greeting:                        "hey",
 						CertificateProviderFullName:     "c d",
 						LpaType:                         "Personal welfare",
+						LpaReferenceNumber:              "lpa-uid",
 						InvitedDate:                     "1 March 2000",
 						DeadlineDate:                    "1 April 2000",
 						CertificateProviderStartPageURL: "http://example.com/certificate-provider",
@@ -139,6 +141,7 @@ func TestRunnerRemindCertificateProviderToComplete(t *testing.T) {
 						InvitedDate:                     "1 March 2000",
 						DeadlineDate:                    "1 April 2000",
 						CertificateProviderStartPageURL: "http://example.com/certificate-provider",
+						CertificateProviderOptOutURL:    "http://example.com/certificate-provider-opt-out",
 					}).
 					Return(nil).
 					Once()
@@ -147,6 +150,7 @@ func TestRunnerRemindCertificateProviderToComplete(t *testing.T) {
 						Greeting:                        "hey",
 						CertificateProviderFullName:     "c d",
 						LpaType:                         "Personal welfare",
+						LpaReferenceNumber:              "lpa-uid",
 						InvitedDate:                     "1 March 2000",
 						DeadlineDate:                    "1 April 2000",
 						CertificateProviderStartPageURL: "http://example.com/certificate-provider",
@@ -267,6 +271,7 @@ func TestRunnerRemindCertificateProviderToComplete(t *testing.T) {
 						InvitedDate:                     "1 March 2000",
 						DeadlineDate:                    "1 April 2000",
 						CertificateProviderStartPageURL: "http://example.com/certificate-provider",
+						CertificateProviderOptOutURL:    "http://example.com/certificate-provider-opt-out",
 					}).
 					Return(nil).
 					Once()
@@ -456,14 +461,15 @@ func TestRunnerRemindCertificateProviderToComplete(t *testing.T) {
 			}
 
 			runner := &Runner{
-				donorStore:                  donorStore,
-				lpaStoreResolvingService:    lpaStoreResolvingService,
-				certificateProviderStore:    certificateProviderStore,
-				notifyClient:                notifyClient,
-				eventClient:                 eventClient,
-				bundle:                      bundle,
-				now:                         testNowFn,
-				certificateProviderStartURL: "http://example.com/certificate-provider",
+				donorStore:                   donorStore,
+				lpaStoreResolvingService:     lpaStoreResolvingService,
+				certificateProviderStore:     certificateProviderStore,
+				notifyClient:                 notifyClient,
+				eventClient:                  eventClient,
+				bundle:                       bundle,
+				now:                          testNowFn,
+				certificateProviderStartURL:  "http://example.com/certificate-provider",
+				certificateProviderOptOutURL: "http://example.com/certificate-provider-opt-out",
 			}
 
 			err := runner.stepRemindCertificateProviderToComplete(ctx, row)

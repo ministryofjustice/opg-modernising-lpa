@@ -120,8 +120,9 @@ func TestPostDonorAccess(t *testing.T) {
 	donorUID := actoruid.New()
 
 	updatedDonor := &donordata.Provided{
-		Type:  lpadata.LpaTypePropertyAndAffairs,
-		Donor: donordata.Donor{UID: donorUID, FirstNames: "Barry", LastName: "Boy", Email: "email@example.com", ContactLanguagePreference: localize.En},
+		Type:   lpadata.LpaTypePropertyAndAffairs,
+		Donor:  donordata.Donor{UID: donorUID, FirstNames: "Barry", LastName: "Boy", Email: "email@example.com", ContactLanguagePreference: localize.En},
+		LpaUID: "lpa-uid",
 	}
 
 	donorStore := newMockDonorStore(t)
@@ -129,7 +130,7 @@ func TestPostDonorAccess(t *testing.T) {
 		Get(r.Context()).
 		Return(&donordata.Provided{
 			Type:  lpadata.LpaTypePropertyAndAffairs,
-			Donor: donordata.Donor{UID: donorUID, FirstNames: "Barry", LastName: "Boy", ContactLanguagePreference: localize.En},
+			Donor: donordata.Donor{UID: donorUID, FirstNames: "Barry", LastName: "Boy", ContactLanguagePreference: localize.En}, LpaUID: "lpa-uid",
 		}, nil)
 	donorStore.EXPECT().
 		Put(r.Context(), updatedDonor).
@@ -145,18 +146,20 @@ func TestPostDonorAccess(t *testing.T) {
 			LpaKey:       dynamo.LpaKey("lpa-id"),
 			ActorUID:     donorUID,
 			InviteSentTo: "email@example.com",
+			LpaUID:       "lpa-uid",
 		}).
 		Return(nil)
 
 	notifyClient := newMockNotifyClient(t)
 	notifyClient.EXPECT().
 		SendEmail(r.Context(), notify.ToDonor(updatedDonor), notify.DonorAccessEmail{
-			SupporterFullName: "John Smith",
-			OrganisationName:  "Helpers",
-			LpaType:           "translation",
-			DonorName:         "Barry Boy",
-			URL:               "http://whatever/start",
-			ShareCode:         testStringCode,
+			SupporterFullName:  "John Smith",
+			OrganisationName:   "Helpers",
+			LpaType:            "translation",
+			LpaReferenceNumber: "lpa-uid",
+			DonorName:          "Barry Boy",
+			URL:                "http://whatever/start",
+			ShareCode:          testStringCode,
 		}).
 		Return(nil)
 

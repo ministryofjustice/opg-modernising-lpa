@@ -115,8 +115,9 @@ func Register(
 	lpaStoreClient LpaStoreClient,
 	scheduledStore ScheduledStore,
 	donorStartURL string,
+	localizer Localizer,
 ) {
-	vouchFailed := makeVouchFailer(donorStore, notifyClient, donorStartURL)
+	vouchFailed := makeVouchFailer(donorStore, notifyClient, donorStartURL, localizer)
 
 	handleRoot := makeHandle(rootMux, sessionStore, errorHandler)
 
@@ -162,7 +163,7 @@ func Register(
 		Guidance(tmpls.Get("one_login_identity_details.gohtml"), lpaStoreResolvingService))
 
 	handleVoucher(voucher.PathSignTheDeclaration, None,
-		YourDeclaration(tmpls.Get("your_declaration.gohtml"), lpaStoreResolvingService, voucherStore, donorStore, notifyClient, lpaStoreClient, scheduledStore, time.Now, donorStartURL))
+		YourDeclaration(tmpls.Get("your_declaration.gohtml"), lpaStoreResolvingService, voucherStore, donorStore, notifyClient, lpaStoreClient, scheduledStore, time.Now, donorStartURL, localizer))
 	handleVoucher(voucher.PathThankYou, None,
 		Guidance(tmpls.Get("thank_you.gohtml"), lpaStoreResolvingService))
 }

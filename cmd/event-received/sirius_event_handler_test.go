@@ -2222,6 +2222,7 @@ func TestHandleCertificateProviderIdentityCheckFailed(t *testing.T) {
 	}
 
 	provided := &donordata.Provided{
+		LpaUID:              "lpa-uid",
 		PK:                  dynamo.LpaKey("123"),
 		SK:                  dynamo.LpaOwnerKey(dynamo.DonorKey("456")),
 		Type:                lpadata.LpaTypePropertyAndAffairs,
@@ -2241,7 +2242,11 @@ func TestHandleCertificateProviderIdentityCheckFailed(t *testing.T) {
 
 	notifyClient := newMockNotifyClient(t)
 	notifyClient.EXPECT().
+		EmailGreetingProvided(provided).
+		Return("greeting")
+	notifyClient.EXPECT().
 		SendActorEmail(ctx, notify.ToDonor(provided), "M-1111-2222-3333", notify.InformDonorPaperCertificateProviderIdentityCheckFailed{
+			Greeting:                    "greeting",
 			CertificateProviderFullName: "a b",
 			LpaType:                     "property and affairs",
 			DonorStartPageURL:           "app:///start",
@@ -2344,6 +2349,9 @@ func TestHandleCertificateProviderIdentityCheckFailedWhenNotifyError(t *testing.
 		Return(localizer)
 
 	notifyClient := newMockNotifyClient(t)
+	notifyClient.EXPECT().
+		EmailGreetingProvided(mock.Anything).
+		Return("")
 	notifyClient.EXPECT().
 		SendActorEmail(ctx, mock.Anything, mock.Anything, mock.Anything).
 		Return(expectedError)

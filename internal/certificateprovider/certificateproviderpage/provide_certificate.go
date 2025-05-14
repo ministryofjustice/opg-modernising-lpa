@@ -84,9 +84,9 @@ func ProvideCertificate(
 				if !certificateProvider.IdentityUserData.Status.IsConfirmed() {
 					if err := notifyClient.SendActorEmail(r.Context(), notify.ToLpaDonor(lpa), lpa.LpaUID, notify.CertificateProviderFailedIdentityCheckEmail{
 						Greeting:                    notifyClient.EmailGreeting(lpa),
-						DonorFullName:               lpa.Donor.FullName(),
 						CertificateProviderFullName: lpa.CertificateProvider.FullName(),
 						LpaType:                     appData.Localizer.T(lpa.Type.String()),
+						LpaReferenceNumber:          lpa.LpaUID,
 						DonorStartPageURL:           donorStartURL,
 					}); err != nil {
 						return fmt.Errorf("email to donor failed: %w", err)

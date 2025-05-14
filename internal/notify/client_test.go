@@ -12,6 +12,7 @@ import (
 	"testing"
 	"time"
 
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor/donordata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/event"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/localize"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/lpastore/lpadata"
@@ -106,6 +107,77 @@ func TestEmailGreeting(t *testing.T) {
 	for name, tc := range testcases {
 		t.Run(name, func(t *testing.T) {
 			greeting := client.EmailGreeting(tc.lpa)
+
+			assert.Equal(t, tc.expected, greeting)
+		})
+	}
+}
+
+func TestEmailGreetingProvided(t *testing.T) {
+	bundle, _ := localize.NewBundle("testdata/en.json", "testdata/cy.json")
+	client := &Client{bundle: bundle}
+
+	testcases := map[string]struct {
+		provided *donordata.Provided
+		expected string
+	}{
+		"english donor": {
+			provided: &donordata.Provided{
+				Donor: donordata.Donor{
+					ContactLanguagePreference: localize.En,
+					FirstNames:                "John",
+					LastName:                  "Smith",
+				},
+			},
+			expected: "Hi John Smith",
+		},
+		"welsh donor": {
+			provided: &donordata.Provided{
+				Donor: donordata.Donor{
+					ContactLanguagePreference: localize.Cy,
+					FirstNames:                "John",
+					LastName:                  "Smith",
+				},
+			},
+			expected: "Hy John Smith",
+		},
+		"english donor with correspondent": {
+			provided: &donordata.Provided{
+				LpaUID: "M-FAKE-1111",
+				Type:   lpadata.LpaTypePersonalWelfare,
+				Donor: donordata.Donor{
+					ContactLanguagePreference: localize.En,
+					FirstNames:                "John",
+					LastName:                  "Smith",
+				},
+				Correspondent: donordata.Correspondent{
+					FirstNames: "Dave",
+					LastName:   "David",
+				},
+			},
+			expected: "Hello Dave David for John Smith’s Personal welfare LPA (M-FAKE-1111)",
+		},
+		"welsh donor with correspondent": {
+			provided: &donordata.Provided{
+				LpaUID: "M-FAKE-1111",
+				Type:   lpadata.LpaTypePropertyAndAffairs,
+				Donor: donordata.Donor{
+					ContactLanguagePreference: localize.Cy,
+					FirstNames:                "John",
+					LastName:                  "Smith",
+				},
+				Correspondent: donordata.Correspondent{
+					FirstNames: "Dave",
+					LastName:   "David",
+				},
+			},
+			expected: "Hyllw Dave David fwr John Smith Property and affairs LPA (M-FAKE-1111)",
+		},
+	}
+
+	for name, tc := range testcases {
+		t.Run(name, func(t *testing.T) {
+			greeting := client.EmailGreetingProvided(tc.provided)
 
 			assert.Equal(t, tc.expected, greeting)
 		})
