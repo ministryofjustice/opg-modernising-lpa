@@ -79,6 +79,7 @@ func TestRunnerRemindCertificateProviderToConfirmIdentity(t *testing.T) {
 						Greeting:                        "hey",
 						CertificateProviderFullName:     "c d",
 						LpaType:                         "Personal welfare",
+						LpaReferenceNumber:              "lpa-uid",
 						DeadlineDate:                    "1 April 2000",
 						CertificateProviderStartPageURL: "http://example.com/certificate-provider",
 					}).
@@ -131,6 +132,7 @@ func TestRunnerRemindCertificateProviderToConfirmIdentity(t *testing.T) {
 						Greeting:                    "hey",
 						CertificateProviderFullName: "c d",
 						LpaType:                     "Personal welfare",
+						LpaReferenceNumber:          "lpa-uid",
 						PostedDate:                  "1 January 2000",
 						DeadlineDate:                "1 April 2000",
 					}).
