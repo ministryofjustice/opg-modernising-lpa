@@ -5,7 +5,9 @@ package main
 import (
 	context "context"
 
+	donordata "github.com/ministryofjustice/opg-modernising-lpa/internal/donor/donordata"
 	lpadata "github.com/ministryofjustice/opg-modernising-lpa/internal/lpastore/lpadata"
+
 	mock "github.com/stretchr/testify/mock"
 
 	notify "github.com/ministryofjustice/opg-modernising-lpa/internal/notify"
@@ -66,6 +68,52 @@ func (_c *mockNotifyClient_EmailGreeting_Call) Return(_a0 string) *mockNotifyCli
 }
 
 func (_c *mockNotifyClient_EmailGreeting_Call) RunAndReturn(run func(*lpadata.Lpa) string) *mockNotifyClient_EmailGreeting_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
+// EmailGreetingProvided provides a mock function with given fields: provided
+func (_m *mockNotifyClient) EmailGreetingProvided(provided *donordata.Provided) string {
+	ret := _m.Called(provided)
+
+	if len(ret) == 0 {
+		panic("no return value specified for EmailGreetingProvided")
+	}
+
+	var r0 string
+	if rf, ok := ret.Get(0).(func(*donordata.Provided) string); ok {
+		r0 = rf(provided)
+	} else {
+		r0 = ret.Get(0).(string)
+	}
+
+	return r0
+}
+
+// mockNotifyClient_EmailGreetingProvided_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'EmailGreetingProvided'
+type mockNotifyClient_EmailGreetingProvided_Call struct {
+	*mock.Call
+}
+
+// EmailGreetingProvided is a helper method to define mock.On call
+//   - provided *donordata.Provided
+func (_e *mockNotifyClient_Expecter) EmailGreetingProvided(provided interface{}) *mockNotifyClient_EmailGreetingProvided_Call {
+	return &mockNotifyClient_EmailGreetingProvided_Call{Call: _e.mock.On("EmailGreetingProvided", provided)}
+}
+
+func (_c *mockNotifyClient_EmailGreetingProvided_Call) Run(run func(provided *donordata.Provided)) *mockNotifyClient_EmailGreetingProvided_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		run(args[0].(*donordata.Provided))
+	})
+	return _c
+}
+
+func (_c *mockNotifyClient_EmailGreetingProvided_Call) Return(_a0 string) *mockNotifyClient_EmailGreetingProvided_Call {
+	_c.Call.Return(_a0)
+	return _c
+}
+
+func (_c *mockNotifyClient_EmailGreetingProvided_Call) RunAndReturn(run func(*donordata.Provided) string) *mockNotifyClient_EmailGreetingProvided_Call {
 	_c.Call.Return(run)
 	return _c
 }

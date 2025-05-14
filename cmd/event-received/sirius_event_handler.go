@@ -477,6 +477,7 @@ func handleCertificateProviderIdentityCheckedFailed(ctx context.Context, dynamoC
 	localizer := bundle.For(provided.Donor.ContactLanguagePreference)
 
 	return notifyClient.SendActorEmail(ctx, notify.ToDonor(provided), v.UID, notify.InformDonorPaperCertificateProviderIdentityCheckFailed{
+		Greeting:                    notifyClient.EmailGreetingProvided(provided),
 		CertificateProviderFullName: provided.CertificateProvider.FullName(),
 		LpaType:                     localize.LowerFirst(localizer.T(provided.Type.String())),
 		DonorStartPageURL:           donorStartURL,

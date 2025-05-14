@@ -1494,6 +1494,7 @@ func TestSendVoucherInvite(t *testing.T) {
 						ShareCode:                 testStringCode,
 						DonorFullNamePossessive:   "Possessive full name",
 						LpaType:                   "translated type",
+						LpaReferenceNumber:        "lpa-uid",
 						VoucherFullName:           "c d",
 						DonorFirstNamesPossessive: "Possessive first names",
 					}).
@@ -1537,10 +1538,11 @@ func TestSendVoucherInvite(t *testing.T) {
 				nc.EXPECT().
 					SendActorEmail(ctx, notify.ToDonorOnly(provided), "lpa-uid",
 						notify.VouchingShareCodeEmail{
-							ShareCode:       testStringCode,
-							VoucherFullName: "c d",
-							DonorFullName:   "a b",
-							LpaType:         "translated type",
+							ShareCode:          testStringCode,
+							VoucherFullName:    "c d",
+							DonorFullName:      "a b",
+							LpaType:            "translated type",
+							LpaReferenceNumber: "lpa-uid",
 						}).
 					Return(nil)
 				nc.EXPECT().
@@ -1579,10 +1581,11 @@ func TestSendVoucherInvite(t *testing.T) {
 				nc.EXPECT().
 					SendActorEmail(ctx, notify.ToDonorOnly(provided), "lpa-uid",
 						notify.VouchingShareCodeEmail{
-							ShareCode:       testStringCode,
-							VoucherFullName: "c d",
-							DonorFullName:   "a b",
-							LpaType:         "translated type",
+							ShareCode:          testStringCode,
+							VoucherFullName:    "c d",
+							DonorFullName:      "a b",
+							LpaType:            "translated type",
+							LpaReferenceNumber: "lpa-uid",
 						}).
 					Return(nil)
 				nc.EXPECT().

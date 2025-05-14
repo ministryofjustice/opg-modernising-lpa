@@ -48,7 +48,7 @@ func TestGetYourDeclaration(t *testing.T) {
 		}).
 		Return(nil)
 
-	err := YourDeclaration(template.Execute, lpaStoreResolvingService, nil, nil, nil, nil, nil, nil, "")(testAppData, w, r, provided)
+	err := YourDeclaration(template.Execute, lpaStoreResolvingService, nil, nil, nil, nil, nil, nil, "", nil)(testAppData, w, r, provided)
 	resp := w.Result()
 
 	assert.Nil(t, err)
@@ -59,7 +59,7 @@ func TestGetYourDeclarationWhenSigned(t *testing.T) {
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest(http.MethodGet, "/", nil)
 
-	err := YourDeclaration(nil, nil, nil, nil, nil, nil, nil, nil, "")(testAppData, w, r, &voucherdata.Provided{
+	err := YourDeclaration(nil, nil, nil, nil, nil, nil, nil, nil, "", nil)(testAppData, w, r, &voucherdata.Provided{
 		LpaID:    "lpa-id",
 		SignedAt: time.Now(),
 	})
@@ -79,7 +79,7 @@ func TestGetYourDeclarationWhenLpaStoreResolvingServiceErrors(t *testing.T) {
 		Get(r.Context()).
 		Return(nil, expectedError)
 
-	err := YourDeclaration(nil, lpaStoreResolvingService, nil, nil, nil, nil, nil, nil, "")(testAppData, w, r, &voucherdata.Provided{})
+	err := YourDeclaration(nil, lpaStoreResolvingService, nil, nil, nil, nil, nil, nil, "", nil)(testAppData, w, r, &voucherdata.Provided{})
 
 	assert.ErrorIs(t, err, expectedError)
 }
@@ -98,7 +98,7 @@ func TestGetYourDeclarationWhenTemplateErrors(t *testing.T) {
 		Execute(w, mock.Anything).
 		Return(expectedError)
 
-	err := YourDeclaration(template.Execute, lpaStoreResolvingService, nil, nil, nil, nil, nil, nil, "")(testAppData, w, r, &voucherdata.Provided{})
+	err := YourDeclaration(template.Execute, lpaStoreResolvingService, nil, nil, nil, nil, nil, nil, "", nil)(testAppData, w, r, &voucherdata.Provided{})
 
 	assert.ErrorIs(t, err, expectedError)
 }
@@ -116,68 +116,110 @@ func TestPostYourDeclaration(t *testing.T) {
 	sk := dynamo.LpaOwnerKey(dynamo.DonorKey("a-donor"))
 
 	testcases := map[string]struct {
-		lpa         *lpadata.Lpa
-		setupNotify func(*lpadata.Lpa, *mockNotifyClient)
+		lpa            *lpadata.Lpa
+		setupNotify    func(*lpadata.Lpa, *mockNotifyClient)
+		setupLocalizer func(*testing.T) *mockLocalizer
 	}{
 		"email": {
 			lpa: &lpadata.Lpa{
+				Type:   lpadata.LpaTypePersonalWelfare,
 				LpaUID: "lpa-uid",
 				Donor:  lpadata.Donor{FirstNames: "John", LastName: "Smith", Email: "blah@example.com", ContactLanguagePreference: localize.En},
+			},
+			setupLocalizer: func(t *testing.T) *mockLocalizer {
+				l := newMockLocalizer(t)
+				l.EXPECT().
+					T("personal-welfare").
+					Return("translated type")
+				return l
 			},
 			setupNotify: func(lpa *lpadata.Lpa, m *mockNotifyClient) {
 				m.EXPECT().
 					SendActorEmail(r.Context(), notify.ToLpaDonor(lpa), "lpa-uid", notify.VoucherHasConfirmedDonorIdentityEmail{
-						DonorFullName:     "John Smith",
-						DonorStartPageURL: "app:///start",
-						VoucherFullName:   "Vivian Voucher",
+						DonorFullName:      "John Smith",
+						DonorStartPageURL:  "app:///start",
+						VoucherFullName:    "Vivian Voucher",
+						LpaType:            "translated type",
+						LpaReferenceNumber: "lpa-uid",
 					}).
 					Return(nil)
 			},
 		},
 		"email when signed": {
 			lpa: &lpadata.Lpa{
+				Type:                             lpadata.LpaTypePersonalWelfare,
 				LpaUID:                           "lpa-uid",
 				Donor:                            lpadata.Donor{FirstNames: "John", LastName: "Smith", Email: "blah@example.com", ContactLanguagePreference: localize.Cy},
 				SignedAt:                         time.Now(),
 				WitnessedByCertificateProviderAt: time.Now(),
 			},
+			setupLocalizer: func(t *testing.T) *mockLocalizer {
+				l := newMockLocalizer(t)
+				l.EXPECT().
+					T("personal-welfare").
+					Return("translated type")
+				return l
+			},
 			setupNotify: func(lpa *lpadata.Lpa, m *mockNotifyClient) {
 				m.EXPECT().
 					SendActorEmail(r.Context(), notify.ToLpaDonor(lpa), "lpa-uid", notify.VoucherHasConfirmedDonorIdentityOnSignedLpaEmail{
-						DonorFullName:     "John Smith",
-						DonorStartPageURL: "app:///start",
-						VoucherFullName:   "Vivian Voucher",
+						DonorFullName:      "John Smith",
+						DonorStartPageURL:  "app:///start",
+						VoucherFullName:    "Vivian Voucher",
+						LpaType:            "translated type",
+						LpaReferenceNumber: "lpa-uid",
 					}).
 					Return(nil)
 			},
 		},
 		"mobile": {
 			lpa: &lpadata.Lpa{
+				Type:   lpadata.LpaTypePersonalWelfare,
 				LpaUID: "lpa-uid",
 				Donor:  lpadata.Donor{FirstNames: "John", LastName: "Smith", Email: "blah@example.com", Mobile: "0777", ContactLanguagePreference: localize.Cy},
+			},
+			setupLocalizer: func(t *testing.T) *mockLocalizer {
+				l := newMockLocalizer(t)
+				l.EXPECT().
+					T("personal-welfare").
+					Return("translated type")
+				return l
 			},
 			setupNotify: func(lpa *lpadata.Lpa, m *mockNotifyClient) {
 				m.EXPECT().
 					SendActorSMS(r.Context(), notify.ToLpaDonor(lpa), "lpa-uid", notify.VoucherHasConfirmedDonorIdentitySMS{
-						DonorFullName:     "John Smith",
-						DonorStartPageURL: "app:///start",
-						VoucherFullName:   "Vivian Voucher",
+						DonorFullName:      "John Smith",
+						DonorStartPageURL:  "app:///start",
+						VoucherFullName:    "Vivian Voucher",
+						LpaType:            "translated type",
+						LpaReferenceNumber: "lpa-uid",
 					}).
 					Return(nil)
 			},
 		},
 		"mobile when signed": {
 			lpa: &lpadata.Lpa{
+				Type:                             lpadata.LpaTypePersonalWelfare,
 				LpaUID:                           "lpa-uid",
 				Donor:                            lpadata.Donor{FirstNames: "John", LastName: "Smith", Email: "blah@example.com", Mobile: "0777", ContactLanguagePreference: localize.En},
 				SignedAt:                         time.Now(),
 				WitnessedByCertificateProviderAt: time.Now(),
 			},
+			setupLocalizer: func(t *testing.T) *mockLocalizer {
+				l := newMockLocalizer(t)
+				l.EXPECT().
+					T("personal-welfare").
+					Return("translated type")
+				return l
+			},
 			setupNotify: func(lpa *lpadata.Lpa, m *mockNotifyClient) {
 				m.EXPECT().
 					SendActorSMS(r.Context(), notify.ToLpaDonor(lpa), "lpa-uid", notify.VoucherHasConfirmedDonorIdentityOnSignedLpaSMS{
-						DonorStartPageURL: "app:///start",
-						VoucherFullName:   "Vivian Voucher",
+						DonorFullName:      "John Smith",
+						DonorStartPageURL:  "app:///start",
+						VoucherFullName:    "Vivian Voucher",
+						LpaType:            "translated type",
+						LpaReferenceNumber: "lpa-uid",
 					}).
 					Return(nil)
 			},
@@ -237,7 +279,7 @@ func TestPostYourDeclaration(t *testing.T) {
 				}).
 				Return(nil)
 
-			err := YourDeclaration(nil, lpaStoreResolvingService, voucherStore, donorStore, notifyClient, nil, scheduledStore, testNowFn, "app:///start")(testAppData, w, r, &voucherdata.Provided{LpaID: "lpa-id", FirstNames: "Vivian", LastName: "Voucher"})
+			err := YourDeclaration(nil, lpaStoreResolvingService, voucherStore, donorStore, notifyClient, nil, scheduledStore, testNowFn, "app:///start", tc.setupLocalizer(t))(testAppData, w, r, &voucherdata.Provided{LpaID: "lpa-id", FirstNames: "Vivian", LastName: "Voucher"})
 			resp := w.Result()
 
 			assert.Nil(t, err)
@@ -260,6 +302,7 @@ func TestPostYourDeclarationWhenSubmitted(t *testing.T) {
 	sk := dynamo.LpaOwnerKey(dynamo.DonorKey("a-donor"))
 
 	lpa := &lpadata.Lpa{
+		Type:      lpadata.LpaTypePersonalWelfare,
 		Submitted: true,
 		LpaUID:    "lpa-uid",
 		Donor:     lpadata.Donor{FirstNames: "John", LastName: "Smith", Email: "blah@example.com", ContactLanguagePreference: localize.En},
@@ -304,12 +347,19 @@ func TestPostYourDeclarationWhenSubmitted(t *testing.T) {
 		Put(r.Context(), donor).
 		Return(nil)
 
+	localizer := newMockLocalizer(t)
+	localizer.EXPECT().
+		T("personal-welfare").
+		Return("translated type")
+
 	notifyClient := newMockNotifyClient(t)
 	notifyClient.EXPECT().
 		SendActorEmail(r.Context(), notify.ToLpaDonor(lpa), "lpa-uid", notify.VoucherHasConfirmedDonorIdentityEmail{
-			DonorFullName:     "John Smith",
-			DonorStartPageURL: "app:///start",
-			VoucherFullName:   "Vivian Voucher",
+			DonorFullName:      "John Smith",
+			DonorStartPageURL:  "app:///start",
+			VoucherFullName:    "Vivian Voucher",
+			LpaType:            "translated type",
+			LpaReferenceNumber: "lpa-uid",
 		}).
 		Return(nil)
 
@@ -329,7 +379,7 @@ func TestPostYourDeclarationWhenSubmitted(t *testing.T) {
 		}).
 		Return(nil)
 
-	err := YourDeclaration(nil, lpaStoreResolvingService, voucherStore, donorStore, notifyClient, lpaStoreClient, scheduledStore, testNowFn, "app:///start")(testAppData, w, r, &voucherdata.Provided{LpaID: "lpa-id", FirstNames: "Vivian", LastName: "Voucher"})
+	err := YourDeclaration(nil, lpaStoreResolvingService, voucherStore, donorStore, notifyClient, lpaStoreClient, scheduledStore, testNowFn, "app:///start", localizer)(testAppData, w, r, &voucherdata.Provided{LpaID: "lpa-id", FirstNames: "Vivian", LastName: "Voucher"})
 	resp := w.Result()
 
 	assert.Nil(t, err)
@@ -370,6 +420,11 @@ func TestPostYourDeclarationWhenSubmittedAndLpaStoreClientErrors(t *testing.T) {
 		Put(mock.Anything, mock.Anything).
 		Return(nil)
 
+	localizer := newMockLocalizer(t)
+	localizer.EXPECT().
+		T(mock.Anything).
+		Return("")
+
 	notifyClient := newMockNotifyClient(t)
 	notifyClient.EXPECT().
 		SendActorEmail(mock.Anything, mock.Anything, mock.Anything, mock.Anything).
@@ -380,7 +435,7 @@ func TestPostYourDeclarationWhenSubmittedAndLpaStoreClientErrors(t *testing.T) {
 		SendDonorConfirmIdentity(mock.Anything, mock.Anything).
 		Return(expectedError)
 
-	err := YourDeclaration(nil, lpaStoreResolvingService, voucherStore, donorStore, notifyClient, lpaStoreClient, nil, testNowFn, "app:///start")(testAppData, w, r, &voucherdata.Provided{LpaID: "lpa-id", FirstNames: "Vivian", LastName: "Voucher"})
+	err := YourDeclaration(nil, lpaStoreResolvingService, voucherStore, donorStore, notifyClient, lpaStoreClient, nil, testNowFn, "app:///start", localizer)(testAppData, w, r, &voucherdata.Provided{LpaID: "lpa-id", FirstNames: "Vivian", LastName: "Voucher"})
 	assert.ErrorIs(t, err, expectedError)
 }
 
@@ -405,7 +460,7 @@ func TestPostYourDeclarationWhenValidationError(t *testing.T) {
 		})).
 		Return(nil)
 
-	err := YourDeclaration(template.Execute, lpaStoreResolvingService, nil, nil, nil, nil, nil, nil, "")(testAppData, w, r, &voucherdata.Provided{LpaID: "lpa-id"})
+	err := YourDeclaration(template.Execute, lpaStoreResolvingService, nil, nil, nil, nil, nil, nil, "", nil)(testAppData, w, r, &voucherdata.Provided{LpaID: "lpa-id"})
 	resp := w.Result()
 
 	assert.Nil(t, err)
@@ -422,13 +477,22 @@ func TestPostYourDeclarationWhenNotifyClientErrors(t *testing.T) {
 	r.Header.Add("Content-Type", page.FormUrlEncoded)
 
 	testcases := map[string]struct {
-		lpa         *lpadata.Lpa
-		setupNotify func(*mockNotifyClient)
+		lpa            *lpadata.Lpa
+		setupNotify    func(*mockNotifyClient)
+		setupLocalizer func(*testing.T) *mockLocalizer
 	}{
 		"email": {
 			lpa: &lpadata.Lpa{
+				Type:   lpadata.LpaTypePersonalWelfare,
 				LpaUID: "lpa-uid",
 				Donor:  lpadata.Donor{FirstNames: "John", LastName: "Smith", Email: "blah@example.com"},
+			},
+			setupLocalizer: func(t *testing.T) *mockLocalizer {
+				l := newMockLocalizer(t)
+				l.EXPECT().
+					T(mock.Anything).
+					Return("")
+				return l
 			},
 			setupNotify: func(m *mockNotifyClient) {
 				m.EXPECT().
@@ -438,9 +502,17 @@ func TestPostYourDeclarationWhenNotifyClientErrors(t *testing.T) {
 		},
 		"email when signed": {
 			lpa: &lpadata.Lpa{
+				Type:     lpadata.LpaTypePersonalWelfare,
 				LpaUID:   "lpa-uid",
 				Donor:    lpadata.Donor{FirstNames: "John", LastName: "Smith", Email: "blah@example.com"},
 				SignedAt: time.Now(),
+			},
+			setupLocalizer: func(t *testing.T) *mockLocalizer {
+				l := newMockLocalizer(t)
+				l.EXPECT().
+					T(mock.Anything).
+					Return("")
+				return l
 			},
 			setupNotify: func(m *mockNotifyClient) {
 				m.EXPECT().
@@ -450,8 +522,16 @@ func TestPostYourDeclarationWhenNotifyClientErrors(t *testing.T) {
 		},
 		"mobile": {
 			lpa: &lpadata.Lpa{
+				Type:   lpadata.LpaTypePersonalWelfare,
 				LpaUID: "lpa-uid",
 				Donor:  lpadata.Donor{FirstNames: "John", LastName: "Smith", Email: "blah@example.com", Mobile: "0777"},
+			},
+			setupLocalizer: func(t *testing.T) *mockLocalizer {
+				l := newMockLocalizer(t)
+				l.EXPECT().
+					T(mock.Anything).
+					Return("")
+				return l
 			},
 			setupNotify: func(m *mockNotifyClient) {
 				m.EXPECT().
@@ -461,9 +541,17 @@ func TestPostYourDeclarationWhenNotifyClientErrors(t *testing.T) {
 		},
 		"mobile when signed": {
 			lpa: &lpadata.Lpa{
+				Type:     lpadata.LpaTypePersonalWelfare,
 				LpaUID:   "lpa-uid",
 				Donor:    lpadata.Donor{FirstNames: "John", LastName: "Smith", Email: "blah@example.com", Mobile: "0777"},
 				SignedAt: time.Now(),
+			},
+			setupLocalizer: func(t *testing.T) *mockLocalizer {
+				l := newMockLocalizer(t)
+				l.EXPECT().
+					T(mock.Anything).
+					Return("")
+				return l
 			},
 			setupNotify: func(m *mockNotifyClient) {
 				m.EXPECT().
@@ -483,7 +571,7 @@ func TestPostYourDeclarationWhenNotifyClientErrors(t *testing.T) {
 			notifyClient := newMockNotifyClient(t)
 			tc.setupNotify(notifyClient)
 
-			err := YourDeclaration(nil, lpaStoreResolvingService, nil, nil, notifyClient, nil, nil, testNowFn, "app:///start")(testAppData, w, r, &voucherdata.Provided{LpaID: "lpa-id", FirstNames: "Vivian", LastName: "Voucher"})
+			err := YourDeclaration(nil, lpaStoreResolvingService, nil, nil, notifyClient, nil, nil, testNowFn, "app:///start", tc.setupLocalizer(t))(testAppData, w, r, &voucherdata.Provided{LpaID: "lpa-id", FirstNames: "Vivian", LastName: "Voucher"})
 
 			assert.ErrorIs(t, err, expectedError)
 		})
@@ -584,7 +672,12 @@ func TestPostYourDeclarationWhenStoreErrors(t *testing.T) {
 			scheduledStore := newMockScheduledStore(t)
 			tc.setupScheduledStore(scheduledStore)
 
-			err := YourDeclaration(nil, lpaStoreResolvingService, voucherStore, donorStore, notifyClient, nil, scheduledStore, testNowFn, "")(testAppData, w, r, &voucherdata.Provided{LpaID: "lpa-id"})
+			localizer := newMockLocalizer(t)
+			localizer.EXPECT().
+				T(mock.Anything).
+				Return("")
+
+			err := YourDeclaration(nil, lpaStoreResolvingService, voucherStore, donorStore, notifyClient, nil, scheduledStore, testNowFn, "", localizer)(testAppData, w, r, &voucherdata.Provided{LpaID: "lpa-id"})
 			assert.ErrorIs(t, err, expectedError)
 		})
 	}

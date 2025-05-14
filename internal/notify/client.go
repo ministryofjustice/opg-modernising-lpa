@@ -15,6 +15,7 @@ import (
 	"time"
 
 	"github.com/golang-jwt/jwt/v5"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor/donordata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/event"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/localize"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/lpastore/lpadata"
@@ -97,6 +98,23 @@ func (c *Client) EmailGreeting(lpa *lpadata.Lpa) string {
 		"CorrespondentFullName": lpa.Correspondent.FullName(),
 		"DonorFullName":         lpa.Donor.FullName(),
 		"LpaType":               localizer.T(lpa.Type.String()),
+	})
+}
+
+func (c *Client) EmailGreetingProvided(provided *donordata.Provided) string {
+	localizer := c.bundle.For(provided.Donor.ContactLanguagePreference)
+
+	if provided.Correspondent.FirstNames == "" {
+		return localizer.Format("emailGreetingDonor", map[string]any{
+			"DonorFullName": provided.Donor.FullName(),
+		})
+	}
+
+	return localizer.Format("emailGreetingCorrespondent", map[string]any{
+		"LpaUID":                provided.LpaUID,
+		"CorrespondentFullName": provided.Correspondent.FullName(),
+		"DonorFullName":         provided.Donor.FullName(),
+		"LpaType":               localizer.T(provided.Type.String()),
 	})
 }
 
