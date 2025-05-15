@@ -4,7 +4,6 @@ module "event_received" {
   description = "Function to react when an event is received"
   environment_variables = {
     LPAS_TABLE                     = var.lpas_table.name
-    GOVUK_NOTIFY_IS_PRODUCTION     = data.aws_default_tags.current.tags.environment-name == "production" ? "1" : "0"
     GOVUK_NOTIFY_BASE_URL          = "https://api.notifications.service.gov.uk"
     APP_PUBLIC_URL                 = "https://${var.app_public_url}"
     DONOR_START_URL                = var.donor_start_url
