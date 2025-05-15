@@ -9,6 +9,7 @@ import (
 	"github.com/ministryofjustice/opg-go-common/template"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/appcontext"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/identity"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/localize"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/lpastore/lpadata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/notify"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
@@ -37,35 +38,45 @@ func YourDeclaration(
 	scheduledStore ScheduledStore,
 	now func() time.Time,
 	donorStartURL string,
+	localizer Localizer,
 ) Handler {
-	sendNotification := func(ctx context.Context, lpa *lpadata.Lpa, provided *voucherdata.Provided) error {
+	sendNotification := func(ctx context.Context, lpa *lpadata.Lpa, provided *voucherdata.Provided, localizer Localizer) error {
 		if lpa.Donor.Mobile != "" {
 			if !lpa.SignedForDonor() {
 				return notifyClient.SendActorSMS(ctx, notify.ToLpaDonor(lpa), lpa.LpaUID, notify.VoucherHasConfirmedDonorIdentitySMS{
-					VoucherFullName:   provided.FullName(),
-					DonorFullName:     lpa.Donor.FullName(),
-					DonorStartPageURL: donorStartURL,
+					VoucherFullName:    provided.FullName(),
+					DonorFullName:      lpa.Donor.FullName(),
+					DonorStartPageURL:  donorStartURL,
+					LpaType:            localize.LowerFirst(localizer.T(lpa.Type.String())),
+					LpaReferenceNumber: lpa.LpaUID,
 				})
 			}
 
 			return notifyClient.SendActorSMS(ctx, notify.ToLpaDonor(lpa), lpa.LpaUID, notify.VoucherHasConfirmedDonorIdentityOnSignedLpaSMS{
-				VoucherFullName:   provided.FullName(),
-				DonorStartPageURL: donorStartURL,
+				VoucherFullName:    provided.FullName(),
+				DonorStartPageURL:  donorStartURL,
+				DonorFullName:      lpa.Donor.FullName(),
+				LpaType:            localize.LowerFirst(localizer.T(lpa.Type.String())),
+				LpaReferenceNumber: lpa.LpaUID,
 			})
 		}
 
 		if !lpa.SignedForDonor() {
 			return notifyClient.SendActorEmail(ctx, notify.ToLpaDonor(lpa), lpa.LpaUID, notify.VoucherHasConfirmedDonorIdentityEmail{
-				VoucherFullName:   provided.FullName(),
-				DonorFullName:     lpa.Donor.FullName(),
-				DonorStartPageURL: donorStartURL,
+				VoucherFullName:    provided.FullName(),
+				DonorFullName:      lpa.Donor.FullName(),
+				DonorStartPageURL:  donorStartURL,
+				LpaType:            localize.LowerFirst(localizer.T(lpa.Type.String())),
+				LpaReferenceNumber: lpa.LpaUID,
 			})
 		}
 
 		return notifyClient.SendActorEmail(ctx, notify.ToLpaDonor(lpa), lpa.LpaUID, notify.VoucherHasConfirmedDonorIdentityOnSignedLpaEmail{
-			VoucherFullName:   provided.FullName(),
-			DonorFullName:     lpa.Donor.FullName(),
-			DonorStartPageURL: donorStartURL,
+			VoucherFullName:    provided.FullName(),
+			DonorFullName:      lpa.Donor.FullName(),
+			DonorStartPageURL:  donorStartURL,
+			LpaType:            localize.LowerFirst(localizer.T(lpa.Type.String())),
+			LpaReferenceNumber: lpa.LpaUID,
 		})
 	}
 
@@ -91,7 +102,7 @@ func YourDeclaration(
 			data.Errors = data.Form.Validate()
 
 			if data.Errors.None() {
-				if err := sendNotification(r.Context(), lpa, provided); err != nil {
+				if err := sendNotification(r.Context(), lpa, provided, localizer); err != nil {
 					return fmt.Errorf("error sending notification: %w", err)
 				}
 

@@ -21,6 +21,7 @@ func TestVouchFailer(t *testing.T) {
 	lpa := &lpadata.Lpa{
 		LpaUID: "lpa-uid",
 		Donor:  lpadata.Donor{Email: "john@example.com", ContactLanguagePreference: localize.Cy},
+		Type:   lpadata.LpaTypePersonalWelfare,
 	}
 	provided := &voucherdata.Provided{
 		SK:         dynamo.VoucherKey("a-voucher"),
@@ -41,19 +42,26 @@ func TestVouchFailer(t *testing.T) {
 		FailVoucher(ctx, donor).
 		Return(nil)
 
+	localizer := newMockLocalizer(t)
+	localizer.EXPECT().
+		T("personal-welfare").
+		Return("translated type")
+
 	notifyClient := newMockNotifyClient(t)
 	notifyClient.EXPECT().
 		EmailGreeting(lpa).
 		Return("greeting")
 	notifyClient.EXPECT().
 		SendActorEmail(ctx, notify.ToLpaDonor(lpa), "lpa-uid", notify.VouchingFailedAttemptEmail{
-			Greeting:          "greeting",
-			VoucherFullName:   "Vivian Vaughn",
-			DonorStartPageURL: "app:///start",
+			Greeting:           "greeting",
+			VoucherFullName:    "Vivian Vaughn",
+			DonorStartPageURL:  "app:///start",
+			LpaType:            "translated type",
+			LpaReferenceNumber: "lpa-uid",
 		}).
 		Return(nil)
 
-	err := makeVouchFailer(donorStore, notifyClient, "app:///start")(ctx, provided, lpa)
+	err := makeVouchFailer(donorStore, notifyClient, "app:///start", localizer)(ctx, provided, lpa)
 	assert.Nil(t, err)
 }
 
@@ -63,7 +71,7 @@ func TestVouchFailerWhenDonorStoreGetErrors(t *testing.T) {
 		GetAny(mock.Anything).
 		Return(nil, expectedError)
 
-	err := makeVouchFailer(donorStore, nil, "app://")(ctx, &voucherdata.Provided{}, &lpadata.Lpa{})
+	err := makeVouchFailer(donorStore, nil, "app://", nil)(ctx, &voucherdata.Provided{}, &lpadata.Lpa{})
 	assert.ErrorIs(t, err, expectedError)
 }
 
@@ -73,6 +81,11 @@ func TestVouchFailerWheNotifyClientErrors(t *testing.T) {
 		GetAny(mock.Anything).
 		Return(&donordata.Provided{}, nil)
 
+	localizer := newMockLocalizer(t)
+	localizer.EXPECT().
+		T(mock.Anything).
+		Return("")
+
 	notifyClient := newMockNotifyClient(t)
 	notifyClient.EXPECT().
 		EmailGreeting(mock.Anything).
@@ -81,7 +94,7 @@ func TestVouchFailerWheNotifyClientErrors(t *testing.T) {
 		SendActorEmail(mock.Anything, mock.Anything, mock.Anything, mock.Anything).
 		Return(expectedError)
 
-	err := makeVouchFailer(donorStore, notifyClient, "app://")(ctx, &voucherdata.Provided{}, &lpadata.Lpa{})
+	err := makeVouchFailer(donorStore, notifyClient, "app://", localizer)(ctx, &voucherdata.Provided{}, &lpadata.Lpa{})
 	assert.ErrorIs(t, err, expectedError)
 }
 
@@ -94,6 +107,11 @@ func TestVouchFailerWhenDonorStorePutErrors(t *testing.T) {
 		FailVoucher(mock.Anything, mock.Anything).
 		Return(expectedError)
 
+	localizer := newMockLocalizer(t)
+	localizer.EXPECT().
+		T(mock.Anything).
+		Return("")
+
 	notifyClient := newMockNotifyClient(t)
 	notifyClient.EXPECT().
 		EmailGreeting(mock.Anything).
@@ -102,6 +120,6 @@ func TestVouchFailerWhenDonorStorePutErrors(t *testing.T) {
 		SendActorEmail(mock.Anything, mock.Anything, mock.Anything, mock.Anything).
 		Return(nil)
 
-	err := makeVouchFailer(donorStore, notifyClient, "app://")(ctx, &voucherdata.Provided{}, &lpadata.Lpa{})
+	err := makeVouchFailer(donorStore, notifyClient, "app://", localizer)(ctx, &voucherdata.Provided{}, &lpadata.Lpa{})
 	assert.ErrorIs(t, err, expectedError)
 }

@@ -66,6 +66,7 @@ func (r *Runner) stepRemindCertificateProviderToComplete(ctx context.Context, ro
 			InvitedDate:                     localizer.FormatDate(lpa.CertificateProviderInvitedAt),
 			DeadlineDate:                    localizer.FormatDate(lpa.ExpiresAt()),
 			CertificateProviderStartPageURL: r.certificateProviderStartURL,
+			CertificateProviderOptOutURL:    r.certificateProviderOptOutURL,
 		}); err != nil {
 			return fmt.Errorf("could not send certificate provider email: %w", err)
 		}
@@ -105,6 +106,7 @@ func (r *Runner) stepRemindCertificateProviderToComplete(ctx context.Context, ro
 				Greeting:                        r.notifyClient.EmailGreeting(lpa),
 				CertificateProviderFullName:     lpa.CertificateProvider.FullName(),
 				LpaType:                         localizer.T(lpa.Type.String()),
+				LpaReferenceNumber:              lpa.LpaUID,
 				InvitedDate:                     localizer.FormatDate(lpa.CertificateProviderInvitedAt),
 				DeadlineDate:                    localizer.FormatDate(lpa.ExpiresAt()),
 				CertificateProviderStartPageURL: r.certificateProviderStartURL,

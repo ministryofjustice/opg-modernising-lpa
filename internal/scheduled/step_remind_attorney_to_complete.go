@@ -116,6 +116,7 @@ func (r *Runner) stepRemindAttorneyToCompleteAttorney(ctx context.Context, lpa *
 			InvitedDate:             localizer.FormatDate(lpa.AttorneysInvitedAt),
 			DeadlineDate:            localizer.FormatDate(lpa.ExpiresAt()),
 			AttorneyStartPageURL:    r.attorneyStartURL,
+			AttorneyOptOutURL:       r.attorneyOptOutURL,
 		}); err != nil {
 			return fmt.Errorf("could not send attorney email: %w", err)
 		}
@@ -155,7 +156,7 @@ func (r *Runner) stepRemindAttorneyToCompleteAttorney(ctx context.Context, lpa *
 				Greeting:             r.notifyClient.EmailGreeting(lpa),
 				AttorneyFullName:     attorney.FullName(),
 				LpaType:              localizer.T(lpa.Type.String()),
-				InvitedDate:          localizer.FormatDate(lpa.AttorneysInvitedAt),
+				LpaReferenceNumber:   lpa.LpaUID,
 				DeadlineDate:         localizer.FormatDate(lpa.ExpiresAt()),
 				AttorneyStartPageURL: r.attorneyStartURL,
 			}
@@ -197,6 +198,7 @@ func (r *Runner) stepRemindAttorneyToCompleteTrustCorporation(ctx context.Contex
 			InvitedDate:             localizer.FormatDate(lpa.AttorneysInvitedAt),
 			DeadlineDate:            localizer.FormatDate(lpa.ExpiresAt()),
 			AttorneyStartPageURL:    r.attorneyStartURL,
+			AttorneyOptOutURL:       r.attorneyOptOutURL,
 		}); err != nil {
 			return fmt.Errorf("could not send trust corporation email: %w", err)
 		}
@@ -236,7 +238,7 @@ func (r *Runner) stepRemindAttorneyToCompleteTrustCorporation(ctx context.Contex
 				Greeting:             r.notifyClient.EmailGreeting(lpa),
 				AttorneyFullName:     trustCorporation.Name,
 				LpaType:              localizer.T(lpa.Type.String()),
-				InvitedDate:          localizer.FormatDate(lpa.AttorneysInvitedAt),
+				LpaReferenceNumber:   lpa.LpaUID,
 				DeadlineDate:         localizer.FormatDate(lpa.ExpiresAt()),
 				AttorneyStartPageURL: r.attorneyStartURL,
 			}
