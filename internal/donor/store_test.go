@@ -284,7 +284,7 @@ func TestDonorStoreGetByKeysWhenDynamoErrors(t *testing.T) {
 }
 
 func TestDonorStorePut(t *testing.T) {
-	saved := &donordata.Provided{PK: dynamo.LpaKey("5"), SK: dynamo.LpaOwnerKey(dynamo.DonorKey("an-id")), LpaID: "5", HasSentApplicationUpdatedEvent: true, Donor: donordata.Donor{FirstNames: "x", LastName: "y"}}
+	saved := &donordata.Provided{PK: dynamo.LpaKey("5"), SK: dynamo.LpaOwnerKey(dynamo.DonorKey("an-id")), LpaID: "5", HasSentApplicationUpdatedEvent: true, Donor: donordata.Donor{Channel: lpadata.ChannelOnline, FirstNames: "x", LastName: "y"}}
 	saved.UpdateHash()
 
 	dynamoClient := newMockDynamoClient(t)
@@ -294,7 +294,22 @@ func TestDonorStorePut(t *testing.T) {
 
 	donorStore := &Store{dynamoClient: dynamoClient, now: testNowFn}
 
-	err := donorStore.Put(ctx, &donordata.Provided{PK: dynamo.LpaKey("5"), Hash: 5, SK: dynamo.LpaOwnerKey(dynamo.DonorKey("an-id")), LpaID: "5", HasSentApplicationUpdatedEvent: true, Donor: donordata.Donor{FirstNames: "x", LastName: "y"}})
+	err := donorStore.Put(ctx, &donordata.Provided{PK: dynamo.LpaKey("5"), Hash: 5, SK: dynamo.LpaOwnerKey(dynamo.DonorKey("an-id")), LpaID: "5", HasSentApplicationUpdatedEvent: true, Donor: donordata.Donor{Channel: lpadata.ChannelOnline, FirstNames: "x", LastName: "y"}})
+	assert.Nil(t, err)
+}
+
+func TestDonorStorePutWhenPaper(t *testing.T) {
+	saved := &donordata.Provided{PK: dynamo.LpaKey("5"), SK: dynamo.LpaOwnerKey(dynamo.DonorKey("an-id")), LpaID: "5", Donor: donordata.Donor{Channel: lpadata.ChannelPaper, FirstNames: "x", LastName: "y"}}
+	saved.UpdateHash()
+
+	dynamoClient := newMockDynamoClient(t)
+	dynamoClient.EXPECT().
+		Put(ctx, saved).
+		Return(nil)
+
+	donorStore := &Store{dynamoClient: dynamoClient, now: testNowFn}
+
+	err := donorStore.Put(ctx, &donordata.Provided{PK: dynamo.LpaKey("5"), Hash: 5, SK: dynamo.LpaOwnerKey(dynamo.DonorKey("an-id")), LpaID: "5", Donor: donordata.Donor{Channel: lpadata.ChannelPaper, FirstNames: "x", LastName: "y"}})
 	assert.Nil(t, err)
 }
 
@@ -307,7 +322,7 @@ func TestDonorStorePutWhenDonorCanChange(t *testing.T) {
 		Hash:                           5,
 		LpaID:                          "5",
 		HasSentApplicationUpdatedEvent: true,
-		Donor:                          donordata.Donor{FirstNames: "x", LastName: "y"},
+		Donor:                          donordata.Donor{Channel: lpadata.ChannelOnline, FirstNames: "x", LastName: "y"},
 	}
 	initial.UpdateCheckedHash()
 	initial.SignedAt = testNow
@@ -318,7 +333,7 @@ func TestDonorStorePutWhenDonorCanChange(t *testing.T) {
 		CheckedHash:                    initial.CheckedHash,
 		LpaID:                          "5",
 		HasSentApplicationUpdatedEvent: true,
-		Donor:                          donordata.Donor{FirstNames: "x", LastName: "y"},
+		Donor:                          donordata.Donor{Channel: lpadata.ChannelOnline, FirstNames: "x", LastName: "y"},
 		SignedAt:                       testNow,
 	}
 	saved.UpdateHash()
@@ -343,7 +358,7 @@ func TestDonorStorePutWhenDonorCannotChange(t *testing.T) {
 		Hash:                           5,
 		LpaID:                          "5",
 		HasSentApplicationUpdatedEvent: true,
-		Donor:                          donordata.Donor{FirstNames: "x", LastName: "y"},
+		Donor:                          donordata.Donor{Channel: lpadata.ChannelOnline, FirstNames: "x", LastName: "y"},
 		SignedAt:                       testNow,
 	}
 	initial.UpdateCheckedHash()
@@ -364,7 +379,7 @@ func TestDonorStorePutWhenOtherActorCanChange(t *testing.T) {
 		Hash:                           5,
 		LpaID:                          "5",
 		HasSentApplicationUpdatedEvent: true,
-		Donor:                          donordata.Donor{FirstNames: "x", LastName: "y"},
+		Donor:                          donordata.Donor{Channel: lpadata.ChannelOnline, FirstNames: "x", LastName: "y"},
 		SignedAt:                       testNow,
 	}
 	initial.UpdateCheckedHash()
@@ -376,7 +391,7 @@ func TestDonorStorePutWhenOtherActorCanChange(t *testing.T) {
 		CheckedHash:                    initial.CheckedHash,
 		LpaID:                          "5",
 		HasSentApplicationUpdatedEvent: true,
-		Donor:                          donordata.Donor{FirstNames: "z", LastName: "y"},
+		Donor:                          donordata.Donor{Channel: lpadata.ChannelOnline, FirstNames: "z", LastName: "y"},
 		SignedAt:                       testNow,
 	}
 	saved.UpdateHash()
@@ -393,7 +408,7 @@ func TestDonorStorePutWhenOtherActorCanChange(t *testing.T) {
 }
 
 func TestDonorStorePutWhenUIDSet(t *testing.T) {
-	saved := &donordata.Provided{PK: dynamo.LpaKey("5"), SK: dynamo.LpaOwnerKey(dynamo.DonorKey("an-id")), LpaID: "5", HasSentApplicationUpdatedEvent: true, LpaUID: "M", UpdatedAt: testNow, Donor: donordata.Donor{FirstNames: "x", LastName: "y"}}
+	saved := &donordata.Provided{PK: dynamo.LpaKey("5"), SK: dynamo.LpaOwnerKey(dynamo.DonorKey("an-id")), LpaID: "5", HasSentApplicationUpdatedEvent: true, LpaUID: "M", UpdatedAt: testNow, Donor: donordata.Donor{Channel: lpadata.ChannelOnline, FirstNames: "x", LastName: "y"}}
 	saved.UpdateHash()
 
 	dynamoClient := newMockDynamoClient(t)
@@ -408,7 +423,7 @@ func TestDonorStorePutWhenUIDSet(t *testing.T) {
 
 	donorStore := &Store{dynamoClient: dynamoClient, searchClient: searchClient, now: testNowFn}
 
-	err := donorStore.Put(ctx, &donordata.Provided{PK: dynamo.LpaKey("5"), Hash: 5, SK: dynamo.LpaOwnerKey(dynamo.DonorKey("an-id")), LpaID: "5", HasSentApplicationUpdatedEvent: true, LpaUID: "M", Donor: donordata.Donor{FirstNames: "x", LastName: "y"}})
+	err := donorStore.Put(ctx, &donordata.Provided{PK: dynamo.LpaKey("5"), Hash: 5, SK: dynamo.LpaOwnerKey(dynamo.DonorKey("an-id")), LpaID: "5", HasSentApplicationUpdatedEvent: true, LpaUID: "M", Donor: donordata.Donor{Channel: lpadata.ChannelOnline, FirstNames: "x", LastName: "y"}})
 	assert.Nil(t, err)
 }
 
@@ -429,7 +444,7 @@ func TestDonorStorePutWhenUIDSetIndexErrors(t *testing.T) {
 
 	donorStore := &Store{dynamoClient: dynamoClient, searchClient: searchClient, logger: logger, now: testNowFn}
 
-	err := donorStore.Put(ctx, &donordata.Provided{PK: dynamo.LpaKey("5"), Hash: 5, SK: dynamo.LpaOwnerKey(dynamo.DonorKey("an-id")), LpaID: "5", HasSentApplicationUpdatedEvent: true, LpaUID: "M", Donor: donordata.Donor{FirstNames: "x", LastName: "y"}})
+	err := donorStore.Put(ctx, &donordata.Provided{PK: dynamo.LpaKey("5"), Hash: 5, SK: dynamo.LpaOwnerKey(dynamo.DonorKey("an-id")), LpaID: "5", HasSentApplicationUpdatedEvent: true, LpaUID: "M", Donor: donordata.Donor{Channel: lpadata.ChannelOnline, FirstNames: "x", LastName: "y"}})
 	assert.Nil(t, err)
 }
 
@@ -444,7 +459,7 @@ func TestDonorStorePutWhenNoChange(t *testing.T) {
 }
 
 func TestDonorStorePutWhenCheckChangeAndCheckCompleted(t *testing.T) {
-	saved := &donordata.Provided{PK: dynamo.LpaKey("5"), Hash: 5, CheckedHash: 5, SK: dynamo.LpaOwnerKey(dynamo.DonorKey("an-id")), LpaID: "5", HasSentApplicationUpdatedEvent: true, Donor: donordata.Donor{FirstNames: "a", LastName: "b"}, Tasks: donordata.Tasks{CheckYourLpa: task.StateInProgress}}
+	saved := &donordata.Provided{PK: dynamo.LpaKey("5"), Hash: 5, CheckedHash: 5, SK: dynamo.LpaOwnerKey(dynamo.DonorKey("an-id")), LpaID: "5", HasSentApplicationUpdatedEvent: true, Donor: donordata.Donor{Channel: lpadata.ChannelOnline, FirstNames: "a", LastName: "b"}, Tasks: donordata.Tasks{CheckYourLpa: task.StateInProgress}}
 	_ = saved.UpdateHash()
 
 	dynamoClient := newMockDynamoClient(t)
@@ -454,7 +469,7 @@ func TestDonorStorePutWhenCheckChangeAndCheckCompleted(t *testing.T) {
 
 	donorStore := &Store{dynamoClient: dynamoClient, now: testNowFn}
 
-	err := donorStore.Put(ctx, &donordata.Provided{PK: dynamo.LpaKey("5"), Hash: 5, CheckedHash: 5, SK: dynamo.LpaOwnerKey(dynamo.DonorKey("an-id")), LpaID: "5", HasSentApplicationUpdatedEvent: true, Donor: donordata.Donor{FirstNames: "a", LastName: "b"}, Tasks: donordata.Tasks{CheckYourLpa: task.StateCompleted}})
+	err := donorStore.Put(ctx, &donordata.Provided{PK: dynamo.LpaKey("5"), Hash: 5, CheckedHash: 5, SK: dynamo.LpaOwnerKey(dynamo.DonorKey("an-id")), LpaID: "5", HasSentApplicationUpdatedEvent: true, Donor: donordata.Donor{Channel: lpadata.ChannelOnline, FirstNames: "a", LastName: "b"}, Tasks: donordata.Tasks{CheckYourLpa: task.StateCompleted}})
 	assert.Nil(t, err)
 }
 
@@ -487,6 +502,7 @@ func TestDonorStorePutWhenApplicationUpdatedWhenError(t *testing.T) {
 		LpaID:  "5",
 		LpaUID: "M-1111",
 		Donor: donordata.Donor{
+			Channel:     lpadata.ChannelOnline,
 			FirstNames:  "John",
 			LastName:    "Smith",
 			DateOfBirth: date.New("2000", "01", "01"),
