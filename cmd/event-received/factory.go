@@ -80,7 +80,6 @@ type Factory struct {
 	lpaStoreSecretARN           string
 	uidBaseURL                  string
 	notifyBaseURL               string
-	notifyIsProduction          bool
 	eventBusName                string
 	searchEndpoint              string
 	searchIndexName             string
@@ -251,7 +250,7 @@ func (f *Factory) NotifyClient(ctx context.Context) (NotifyClient, error) {
 			return nil, fmt.Errorf("failed to get notify API secret: %w", err)
 		}
 
-		notifyClient, err := notify.New(f.logger, f.notifyIsProduction, f.notifyBaseURL, notifyApiKey, f.httpClient, event.NewClient(f.cfg, f.eventBusName), bundle)
+		notifyClient, err := notify.New(f.logger, f.notifyBaseURL, notifyApiKey, f.httpClient, event.NewClient(f.cfg, f.eventBusName), bundle)
 		if err != nil {
 			return nil, err
 		}

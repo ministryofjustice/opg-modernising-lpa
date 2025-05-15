@@ -76,7 +76,6 @@ services:
       - LPAS_TABLE=lpas
       - TAG=0.0.0
       - GOVUK_NOTIFY_BASE_URL=http://mock-notify:8080
-      - GOVUK_NOTIFY_IS_PRODUCTION=0
       - SEARCH_ENDPOINT=http://my-domain.eu-west-1.opensearch.localhost.localstack.cloud:4566
       - SEARCH_INDEXING_DISABLED=0
       - SEARCH_INDEX_NAME=lpas
