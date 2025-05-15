@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/localize"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/lpastore/lpadata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/notify"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/voucher/voucherdata"
@@ -11,7 +12,7 @@ import (
 
 type vouchFailer func(ctx context.Context, provided *voucherdata.Provided, lpa *lpadata.Lpa) error
 
-func makeVouchFailer(donorStore DonorStore, notifyClient NotifyClient, donorStartURL string) vouchFailer {
+func makeVouchFailer(donorStore DonorStore, notifyClient NotifyClient, donorStartURL string, localizer Localizer) vouchFailer {
 	return func(ctx context.Context, provided *voucherdata.Provided, lpa *lpadata.Lpa) error {
 		donor, err := donorStore.GetAny(ctx)
 		if err != nil {
@@ -19,9 +20,11 @@ func makeVouchFailer(donorStore DonorStore, notifyClient NotifyClient, donorStar
 		}
 
 		email := notify.VouchingFailedAttemptEmail{
-			Greeting:          notifyClient.EmailGreeting(lpa),
-			VoucherFullName:   provided.FullName(),
-			DonorStartPageURL: donorStartURL,
+			Greeting:           notifyClient.EmailGreeting(lpa),
+			VoucherFullName:    provided.FullName(),
+			DonorStartPageURL:  donorStartURL,
+			LpaType:            localize.LowerFirst(localizer.T(lpa.Type.String())),
+			LpaReferenceNumber: lpa.LpaUID,
 		}
 
 		if err := notifyClient.SendActorEmail(ctx, notify.ToLpaDonor(lpa), lpa.LpaUID, email); err != nil {

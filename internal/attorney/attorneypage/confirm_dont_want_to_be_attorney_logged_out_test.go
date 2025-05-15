@@ -205,9 +205,10 @@ func TestPostConfirmDontWantToBeAttorneyLoggedOut(t *testing.T) {
 				Return("Dear donor")
 			notifyClient.EXPECT().
 				SendActorEmail(ctx, notify.ToLpaDonor(lpa), "lpa-uid", notify.AttorneyOptedOutEmail{
-					Greeting:         "Dear donor",
-					AttorneyFullName: tc.attorneyFullName,
-					LpaType:          "Personal welfare",
+					Greeting:           "Dear donor",
+					AttorneyFullName:   tc.attorneyFullName,
+					LpaType:            "Personal welfare",
+					LpaReferenceNumber: "lpa-uid",
 				}).
 				Return(nil)
 

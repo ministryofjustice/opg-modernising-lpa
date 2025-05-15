@@ -17,6 +17,7 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/localize"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/lpastore/lpadata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/notify"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
 )
 
 // errStepIgnored is returned by steps when they don't require processing
@@ -77,22 +78,24 @@ type LpaStoreResolvingService interface {
 }
 
 type Runner struct {
-	logger                      Logger
-	store                       ScheduledStore
-	now                         func() time.Time
-	since                       func(time.Time) time.Duration
-	donorStore                  DonorStore
-	certificateProviderStore    CertificateProviderStore
-	attorneyStore               AttorneyStore
-	lpaStoreResolvingService    LpaStoreResolvingService
-	notifyClient                NotifyClient
-	eventClient                 EventClient
-	bundle                      Bundle
-	actions                     map[Action]ActionFunc
-	waiter                      Waiter
-	metricsClient               MetricsClient
-	certificateProviderStartURL string
-	attorneyStartURL            string
+	logger                       Logger
+	store                        ScheduledStore
+	now                          func() time.Time
+	since                        func(time.Time) time.Duration
+	donorStore                   DonorStore
+	certificateProviderStore     CertificateProviderStore
+	attorneyStore                AttorneyStore
+	lpaStoreResolvingService     LpaStoreResolvingService
+	notifyClient                 NotifyClient
+	eventClient                  EventClient
+	bundle                       Bundle
+	actions                      map[Action]ActionFunc
+	waiter                       Waiter
+	metricsClient                MetricsClient
+	certificateProviderStartURL  string
+	certificateProviderOptOutURL string
+	attorneyStartURL             string
+	attorneyOptOutURL            string
 	// TODO remove in MLPAB-2690
 	metricsEnabled bool
 
@@ -115,24 +118,27 @@ func NewRunner(
 	metricsEnabled bool,
 	certificateProviderStartURL string,
 	attorneyStartURL string,
+	appPublicURL string,
 ) *Runner {
 	r := &Runner{
-		logger:                      logger,
-		store:                       store,
-		now:                         time.Now,
-		since:                       time.Since,
-		donorStore:                  donorStore,
-		certificateProviderStore:    certificateProviderStore,
-		attorneyStore:               attorneyStore,
-		lpaStoreResolvingService:    lpaStoreResolvingService,
-		notifyClient:                notifyClient,
-		eventClient:                 eventClient,
-		bundle:                      bundle,
-		waiter:                      &waiter{backoff: time.Second, sleep: time.Sleep, maxRetries: 10},
-		metricsClient:               metricsClient,
-		metricsEnabled:              metricsEnabled,
-		certificateProviderStartURL: certificateProviderStartURL,
-		attorneyStartURL:            attorneyStartURL,
+		logger:                       logger,
+		store:                        store,
+		now:                          time.Now,
+		since:                        time.Since,
+		donorStore:                   donorStore,
+		certificateProviderStore:     certificateProviderStore,
+		attorneyStore:                attorneyStore,
+		lpaStoreResolvingService:     lpaStoreResolvingService,
+		notifyClient:                 notifyClient,
+		eventClient:                  eventClient,
+		bundle:                       bundle,
+		waiter:                       &waiter{backoff: time.Second, sleep: time.Sleep, maxRetries: 10},
+		metricsClient:                metricsClient,
+		metricsEnabled:               metricsEnabled,
+		certificateProviderStartURL:  certificateProviderStartURL,
+		certificateProviderOptOutURL: appPublicURL + page.PathCertificateProviderEnterReferenceNumberOptOut.Format(),
+		attorneyStartURL:             attorneyStartURL,
+		attorneyOptOutURL:            appPublicURL + page.PathAttorneyEnterReferenceNumberOptOut.Format(),
 	}
 
 	r.actions = map[Action]ActionFunc{

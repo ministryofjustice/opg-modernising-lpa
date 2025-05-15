@@ -108,7 +108,8 @@ func handleCreate(ctx context.Context, client dynamodbClient, lpaStoreClient Lpa
 	if lpa.Donor.Channel.IsPaper() {
 		if lpa.Donor.Mobile != "" {
 			if err := notifyClient.SendActorSMS(ctx, notify.ToLpaDonor(lpa), v.UID, notify.PaperDonorLpaSubmittedSMS{
-				LpaType: localize.LowerFirst(localizer.T(lpa.Type.String())),
+				LpaType:            localize.LowerFirst(localizer.T(lpa.Type.String())),
+				LpaReferenceNumber: lpa.LpaUID,
 			}); err != nil {
 				return fmt.Errorf("error sending sms: %w", err)
 			}
@@ -123,8 +124,9 @@ func handleCreate(ctx context.Context, client dynamodbClient, lpaStoreClient Lpa
 	}
 
 	if err := notifyClient.SendActorEmail(ctx, notify.ToDonor(donor), v.UID, notify.DigitalDonorLpaSubmittedEmail{
-		Greeting: notifyClient.EmailGreeting(lpa),
-		LpaType:  localize.LowerFirst(localizer.T(lpa.Type.String())),
+		Greeting:           notifyClient.EmailGreeting(lpa),
+		LpaType:            localize.LowerFirst(localizer.T(lpa.Type.String())),
+		LpaReferenceNumber: lpa.LpaUID,
 	}); err != nil {
 		return fmt.Errorf("error sending email: %w", err)
 	}
@@ -145,6 +147,7 @@ func handleCertificateProviderSign(ctx context.Context, client dynamodbClient, l
 			if err := notifyClient.SendActorSMS(ctx, notify.ToLpaDonor(lpa), v.UID, notify.PaperDonorCertificateProvidedSMS{
 				CertificateProviderFullName: lpa.CertificateProvider.FullName(),
 				LpaType:                     localize.LowerFirst(localizer.T(lpa.Type.String())),
+				LpaReferenceNumber:          lpa.LpaUID,
 			}); err != nil {
 				return fmt.Errorf("error sending sms: %w", err)
 			}
@@ -162,6 +165,7 @@ func handleCertificateProviderSign(ctx context.Context, client dynamodbClient, l
 		Greeting:                    notifyClient.EmailGreeting(lpa),
 		CertificateProviderFullName: lpa.CertificateProvider.FullName(),
 		LpaType:                     localize.LowerFirst(localizer.T(lpa.Type.String())),
+		LpaReferenceNumber:          lpa.LpaUID,
 	}); err != nil {
 		return fmt.Errorf("error sending email: %w", err)
 	}

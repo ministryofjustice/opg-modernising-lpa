@@ -9,7 +9,7 @@ type SMS interface {
 type CertificateProviderActingDigitallyHasConfirmedPersonalDetailsLPADetailsChangedPromptSMS struct {
 	DonorFullNamePossessive string
 	LpaType                 string
-	LpaUID                  string
+	LpaReferenceNumber      string
 	DonorFirstNames         string
 }
 
@@ -43,9 +43,9 @@ func (s CertificateProviderActingDigitallyHasNotConfirmedPersonalDetailsLPADetai
 }
 
 type CertificateProviderActingOnPaperDetailsChangedSMS struct {
-	DonorFullName   string
-	LpaUID          string
-	DonorFirstNames string
+	DonorFullName      string
+	LpaReferenceNumber string
+	DonorFirstNames    string
 }
 
 func (s CertificateProviderActingOnPaperDetailsChangedSMS) smsID(isProduction bool, _ localize.Lang) string {
@@ -97,6 +97,7 @@ type VouchingShareCodeSMS struct {
 	ShareCode                 string
 	DonorFullNamePossessive   string
 	LpaType                   string
+	LpaReferenceNumber        string
 	VoucherFullName           string
 	DonorFirstNamesPossessive string
 }
@@ -118,9 +119,11 @@ func (s VouchingShareCodeSMS) smsID(isProduction bool, lang localize.Lang) strin
 }
 
 type VoucherHasConfirmedDonorIdentitySMS struct {
-	VoucherFullName   string
-	DonorFullName     string
-	DonorStartPageURL string
+	VoucherFullName    string
+	DonorFullName      string
+	DonorStartPageURL  string
+	LpaType            string
+	LpaReferenceNumber string
 }
 
 func (e VoucherHasConfirmedDonorIdentitySMS) smsID(isProduction bool, _ localize.Lang) string {
@@ -132,8 +135,11 @@ func (e VoucherHasConfirmedDonorIdentitySMS) smsID(isProduction bool, _ localize
 }
 
 type VoucherHasConfirmedDonorIdentityOnSignedLpaSMS struct {
-	VoucherFullName   string
-	DonorStartPageURL string
+	VoucherFullName    string
+	DonorStartPageURL  string
+	DonorFullName      string
+	LpaType            string
+	LpaReferenceNumber string
 }
 
 func (e VoucherHasConfirmedDonorIdentityOnSignedLpaSMS) smsID(isProduction bool, _ localize.Lang) string {
@@ -145,7 +151,8 @@ func (e VoucherHasConfirmedDonorIdentityOnSignedLpaSMS) smsID(isProduction bool,
 }
 
 type PaperDonorLpaSubmittedSMS struct {
-	LpaType string
+	LpaType            string
+	LpaReferenceNumber string
 }
 
 func (e PaperDonorLpaSubmittedSMS) smsID(isProduction bool, lang localize.Lang) string {
@@ -167,6 +174,7 @@ func (e PaperDonorLpaSubmittedSMS) smsID(isProduction bool, lang localize.Lang) 
 type PaperDonorCertificateProvidedSMS struct {
 	CertificateProviderFullName string
 	LpaType                     string
+	LpaReferenceNumber          string
 }
 
 func (e PaperDonorCertificateProvidedSMS) smsID(isProduction bool, lang localize.Lang) string {

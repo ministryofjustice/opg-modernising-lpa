@@ -89,6 +89,7 @@ func (r *Runner) stepRemindCertificateProviderToConfirmIdentity(ctx context.Cont
 				Greeting:                    r.notifyClient.EmailGreeting(lpa),
 				CertificateProviderFullName: lpa.CertificateProvider.FullName(),
 				LpaType:                     localizer.T(lpa.Type.String()),
+				LpaReferenceNumber:          lpa.LpaUID,
 				PostedDate:                  localizer.FormatDate(lpa.CertificateProviderInvitedAt),
 				DeadlineDate:                localizer.FormatDate(lpa.ExpiresAt()),
 			}
@@ -97,6 +98,7 @@ func (r *Runner) stepRemindCertificateProviderToConfirmIdentity(ctx context.Cont
 				Greeting:                        r.notifyClient.EmailGreeting(lpa),
 				CertificateProviderFullName:     lpa.CertificateProvider.FullName(),
 				LpaType:                         localizer.T(lpa.Type.String()),
+				LpaReferenceNumber:              lpa.LpaUID,
 				DeadlineDate:                    localizer.FormatDate(lpa.ExpiresAt()),
 				CertificateProviderStartPageURL: r.certificateProviderStartURL,
 			}

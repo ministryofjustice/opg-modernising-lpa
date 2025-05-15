@@ -130,12 +130,13 @@ func (e OrganisationMemberInviteEmail) emailID(isProduction bool, _ localize.Lan
 }
 
 type DonorAccessEmail struct {
-	SupporterFullName string
-	OrganisationName  string
-	LpaType           string
-	DonorName         string
-	URL               string
-	ShareCode         string
+	SupporterFullName  string
+	OrganisationName   string
+	LpaType            string
+	LpaReferenceNumber string
+	DonorName          string
+	URL                string
+	ShareCode          string
 }
 
 func (e DonorAccessEmail) emailID(isProduction bool, lang localize.Lang) string {
@@ -159,7 +160,7 @@ type CertificateProviderOptedOutPreWitnessingEmail struct {
 	CertificateProviderFullName string
 	DonorFullName               string
 	LpaType                     string
-	LpaUID                      string
+	LpaReferenceNumber          string
 	DonorStartPageURL           string
 }
 
@@ -185,7 +186,7 @@ type CertificateProviderOptedOutPostWitnessingEmail struct {
 	CertificateProviderFullName   string
 	DonorFullName                 string
 	LpaType                       string
-	LpaUID                        string
+	LpaReferenceNumber            string
 	DonorStartPageURL             string
 }
 
@@ -207,9 +208,9 @@ func (e CertificateProviderOptedOutPostWitnessingEmail) emailID(isProduction boo
 
 type CertificateProviderFailedIdentityCheckEmail struct {
 	Greeting                    string
-	DonorFullName               string
 	CertificateProviderFullName string
 	LpaType                     string
+	LpaReferenceNumber          string
 	DonorStartPageURL           string
 }
 
@@ -256,9 +257,10 @@ func (e PaymentConfirmationEmail) emailID(isProduction bool, lang localize.Lang)
 }
 
 type AttorneyOptedOutEmail struct {
-	Greeting         string
-	AttorneyFullName string
-	LpaType          string
+	Greeting           string
+	AttorneyFullName   string
+	LpaType            string
+	LpaReferenceNumber string
 }
 
 func (e AttorneyOptedOutEmail) emailID(isProduction bool, _ localize.Lang) string {
@@ -280,10 +282,11 @@ func (e DonorIdentityCheckExpiredEmail) emailID(isProduction bool, _ localize.La
 }
 
 type VouchingShareCodeEmail struct {
-	ShareCode       string
-	VoucherFullName string
-	DonorFullName   string
-	LpaType         string
+	ShareCode          string
+	VoucherFullName    string
+	DonorFullName      string
+	LpaType            string
+	LpaReferenceNumber string
 }
 
 func (s VouchingShareCodeEmail) emailID(isProduction bool, lang localize.Lang) string {
@@ -320,9 +323,11 @@ func (s VoucherInviteEmail) emailID(isProduction bool, _ localize.Lang) string {
 }
 
 type VouchingFailedAttemptEmail struct {
-	Greeting          string
-	VoucherFullName   string
-	DonorStartPageURL string
+	Greeting           string
+	VoucherFullName    string
+	DonorStartPageURL  string
+	LpaType            string
+	LpaReferenceNumber string
 }
 
 func (e VouchingFailedAttemptEmail) emailID(isProduction bool, lang localize.Lang) string {
@@ -342,9 +347,11 @@ func (e VouchingFailedAttemptEmail) emailID(isProduction bool, lang localize.Lan
 }
 
 type VoucherHasConfirmedDonorIdentityEmail struct {
-	VoucherFullName   string
-	DonorFullName     string
-	DonorStartPageURL string
+	VoucherFullName    string
+	DonorFullName      string
+	DonorStartPageURL  string
+	LpaType            string
+	LpaReferenceNumber string
 }
 
 func (e VoucherHasConfirmedDonorIdentityEmail) emailID(isProduction bool, lang localize.Lang) string {
@@ -364,9 +371,11 @@ func (e VoucherHasConfirmedDonorIdentityEmail) emailID(isProduction bool, lang l
 }
 
 type VoucherHasConfirmedDonorIdentityOnSignedLpaEmail struct {
-	VoucherFullName   string
-	DonorFullName     string
-	DonorStartPageURL string
+	VoucherFullName    string
+	DonorFullName      string
+	DonorStartPageURL  string
+	LpaType            string
+	LpaReferenceNumber string
 }
 
 func (e VoucherHasConfirmedDonorIdentityOnSignedLpaEmail) emailID(isProduction bool, lang localize.Lang) string {
@@ -414,6 +423,7 @@ type AdviseCertificateProviderToSignOrOptOutEmail struct {
 	InvitedDate                     string
 	DeadlineDate                    string
 	CertificateProviderStartPageURL string
+	CertificateProviderOptOutURL    string
 }
 
 func (e AdviseCertificateProviderToSignOrOptOutEmail) emailID(isProduction bool, lang localize.Lang) string {
@@ -436,6 +446,7 @@ type InformDonorCertificateProviderHasNotActedEmail struct {
 	Greeting                        string
 	CertificateProviderFullName     string
 	LpaType                         string
+	LpaReferenceNumber              string
 	InvitedDate                     string
 	DeadlineDate                    string
 	CertificateProviderStartPageURL string
@@ -485,6 +496,7 @@ func (e AdviseCertificateProviderToConfirmIdentityEmail) emailID(isProduction bo
 type InformDonorCertificateProviderHasNotConfirmedIdentityEmail struct {
 	Greeting                        string
 	LpaType                         string
+	LpaReferenceNumber              string
 	CertificateProviderFullName     string
 	DeadlineDate                    string
 	CertificateProviderStartPageURL string
@@ -510,9 +522,9 @@ type InformDonorAttorneyHasNotActedEmail struct {
 	Greeting             string
 	AttorneyFullName     string
 	LpaType              string
+	LpaReferenceNumber   string
 	AttorneyStartPageURL string
 	DeadlineDate         string
-	InvitedDate          string
 }
 
 func (e InformDonorAttorneyHasNotActedEmail) emailID(isProduction bool, lang localize.Lang) string {
@@ -563,6 +575,8 @@ type AdviseAttorneyToSignOrOptOutEmail struct {
 	InvitedDate             string
 	DeadlineDate            string
 	AttorneyStartPageURL    string
+	AttorneyOptOutURL       string
+	ShareCode               string
 }
 
 func (e AdviseAttorneyToSignOrOptOutEmail) emailID(isProduction bool, lang localize.Lang) string {
@@ -582,8 +596,9 @@ func (e AdviseAttorneyToSignOrOptOutEmail) emailID(isProduction bool, lang local
 }
 
 type DigitalDonorLpaSubmittedEmail struct {
-	Greeting string
-	LpaType  string
+	Greeting           string
+	LpaType            string
+	LpaReferenceNumber string
 }
 
 func (e DigitalDonorLpaSubmittedEmail) emailID(isProduction bool, lang localize.Lang) string {
@@ -606,6 +621,7 @@ type DigitalDonorCertificateProvidedEmail struct {
 	Greeting                    string
 	CertificateProviderFullName string
 	LpaType                     string
+	LpaReferenceNumber          string
 }
 
 func (e DigitalDonorCertificateProvidedEmail) emailID(isProduction bool, lang localize.Lang) string {
@@ -644,6 +660,7 @@ type InformDonorPaperCertificateProviderHasNotConfirmedIdentityEmail struct {
 	Greeting                    string
 	CertificateProviderFullName string
 	LpaType                     string
+	LpaReferenceNumber          string
 	PostedDate                  string
 	DeadlineDate                string
 }
@@ -661,7 +678,7 @@ func (e InformDonorPaperCertificateProviderHasNotConfirmedIdentityEmail) emailID
 		return "e508eebf-5c70-4af5-a978-b3dd7df468ab"
 	}
 
-	return "0b0f45d6-6ff1-4f66-905e-ba68905231c1"
+	return "4477d422-765e-4b59-a965-6a243ecb5a51"
 }
 
 type VoucherLpaDeleted struct {
@@ -748,6 +765,7 @@ func (e InformCertificateProviderLPAHasBeenRevoked) emailID(isProduction bool, _
 }
 
 type InformDonorPaperCertificateProviderIdentityCheckFailed struct {
+	Greeting                    string
 	CertificateProviderFullName string
 	LpaType                     string
 	DonorStartPageURL           string
