@@ -367,9 +367,9 @@ func TestPostProvideCertificateWhenIdentityFailed(t *testing.T) {
 	notifyClient.EXPECT().
 		SendActorEmail(r.Context(), notify.ToLpaDonor(lpa), "lpa-uid", notify.CertificateProviderFailedIdentityCheckEmail{
 			Greeting:                    "Dear donor",
-			DonorFullName:               "c d",
 			CertificateProviderFullName: "a b",
 			LpaType:                     "the translated term",
+			LpaReferenceNumber:          "lpa-uid",
 			DonorStartPageURL:           "donorStartURL",
 		}).
 		Return(nil)

@@ -59,7 +59,7 @@ func ConfirmDontWantToBeCertificateProviderLoggedOut(tmpl template.Template, sha
 					CertificateProviderFullName:   lpa.CertificateProvider.FullName(),
 					DonorFullName:                 lpa.Donor.FullName(),
 					LpaType:                       appData.Localizer.T(lpa.Type.String()),
-					LpaUID:                        lpa.LpaUID,
+					LpaReferenceNumber:            lpa.LpaUID,
 					DonorStartPageURL:             donorStartURL,
 				}
 
@@ -79,7 +79,7 @@ func ConfirmDontWantToBeCertificateProviderLoggedOut(tmpl template.Template, sha
 					CertificateProviderFullName: donor.CertificateProvider.FullName(),
 					DonorFullName:               donor.Donor.FullName(),
 					LpaType:                     appData.Localizer.T(donor.Type.String()),
-					LpaUID:                      donor.LpaUID,
+					LpaReferenceNumber:          donor.LpaUID,
 					DonorStartPageURL:           donorStartURL,
 				}
 

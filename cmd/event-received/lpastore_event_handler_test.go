@@ -46,7 +46,8 @@ func TestLpaStoreEventHandlerHandleLpaUpdatedCreate(t *testing.T) {
 	}
 
 	lpa := &lpadata.Lpa{
-		Type: lpadata.LpaTypePersonalWelfare,
+		LpaUID: "lpa-uid",
+		Type:   lpadata.LpaTypePersonalWelfare,
 		Donor: lpadata.Donor{
 			ContactLanguagePreference: localize.Cy,
 		},
@@ -80,8 +81,9 @@ func TestLpaStoreEventHandlerHandleLpaUpdatedCreate(t *testing.T) {
 		Return("hello")
 	notifyClient.EXPECT().
 		SendActorEmail(ctx, notify.ToDonor(donor), "M-1111-2222-3333", notify.DigitalDonorLpaSubmittedEmail{
-			Greeting: "hello",
-			LpaType:  "personal welfare",
+			Greeting:           "hello",
+			LpaType:            "personal welfare",
+			LpaReferenceNumber: "lpa-uid",
 		}).
 		Return(nil)
 
@@ -148,7 +150,8 @@ func TestLpaStoreEventHandlerHandleLpaUpdatedCreateWhenPaperDonor(t *testing.T) 
 	}
 
 	lpa := &lpadata.Lpa{
-		Type: lpadata.LpaTypePersonalWelfare,
+		LpaUID: "lpa-uid",
+		Type:   lpadata.LpaTypePersonalWelfare,
 		Donor: lpadata.Donor{
 			Channel:                   lpadata.ChannelPaper,
 			ContactLanguagePreference: localize.Cy,
@@ -164,7 +167,8 @@ func TestLpaStoreEventHandlerHandleLpaUpdatedCreateWhenPaperDonor(t *testing.T) 
 	notifyClient := newMockNotifyClient(t)
 	notifyClient.EXPECT().
 		SendActorSMS(ctx, notify.ToLpaDonor(lpa), "M-1111-2222-3333", notify.PaperDonorLpaSubmittedSMS{
-			LpaType: "personal welfare",
+			LpaType:            "personal welfare",
+			LpaReferenceNumber: "lpa-uid",
 		}).
 		Return(nil)
 
@@ -378,7 +382,8 @@ func TestLpaStoreEventHandlerHandleLpaUpdatedCertificateProviderSign(t *testing.
 	}
 
 	lpa := &lpadata.Lpa{
-		Type: lpadata.LpaTypePersonalWelfare,
+		LpaUID: "lpa-uid",
+		Type:   lpadata.LpaTypePersonalWelfare,
 		Donor: lpadata.Donor{
 			ContactLanguagePreference: localize.Cy,
 		},
@@ -419,6 +424,7 @@ func TestLpaStoreEventHandlerHandleLpaUpdatedCertificateProviderSign(t *testing.
 			Greeting:                    "hello",
 			CertificateProviderFullName: "a b",
 			LpaType:                     "personal welfare",
+			LpaReferenceNumber:          "lpa-uid",
 		}).
 		Return(nil)
 
@@ -485,7 +491,8 @@ func TestLpaStoreEventHandlerHandleLpaUpdatedCertificateProviderSignWhenPaperDon
 	}
 
 	lpa := &lpadata.Lpa{
-		Type: lpadata.LpaTypePersonalWelfare,
+		LpaUID: "lpa-uid",
+		Type:   lpadata.LpaTypePersonalWelfare,
 		Donor: lpadata.Donor{
 			Channel:                   lpadata.ChannelPaper,
 			ContactLanguagePreference: localize.Cy,
@@ -506,6 +513,7 @@ func TestLpaStoreEventHandlerHandleLpaUpdatedCertificateProviderSignWhenPaperDon
 	notifyClient.EXPECT().
 		SendActorSMS(ctx, notify.ToLpaDonor(lpa), "M-1111-2222-3333", notify.PaperDonorCertificateProvidedSMS{
 			LpaType:                     "personal welfare",
+			LpaReferenceNumber:          "lpa-uid",
 			CertificateProviderFullName: "a b",
 		}).
 		Return(nil)

@@ -49,6 +49,7 @@ var (
 	lpaStoreSecretARN           = os.Getenv("LPA_STORE_SECRET_ARN")
 	certificateProviderStartURL = os.Getenv("CERTIFICATE_PROVIDER_START_URL")
 	attorneyStartURL            = os.Getenv("ATTORNEY_START_URL")
+	appPublicURL                = os.Getenv("APP_PUBLIC_URL")
 
 	Tag string
 
@@ -120,6 +121,7 @@ func handleRunSchedule(ctx context.Context) error {
 		metricsEnabled,
 		certificateProviderStartURL,
 		attorneyStartURL,
+		appPublicURL,
 	)
 
 	if err = runner.Run(ctx); err != nil {
