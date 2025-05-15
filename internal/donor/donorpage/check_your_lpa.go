@@ -52,9 +52,9 @@ func (n *checkYourLpaNotifier) sendPaperNotification(ctx context.Context, appDat
 	var sms notify.SMS
 	if wasCompleted {
 		sms = notify.CertificateProviderActingOnPaperDetailsChangedSMS{
-			DonorFullName:   provided.Donor.FullName(),
-			DonorFirstNames: provided.Donor.FirstNames,
-			LpaUID:          provided.LpaUID,
+			DonorFullName:      provided.Donor.FullName(),
+			DonorFirstNames:    provided.Donor.FirstNames,
+			LpaReferenceNumber: provided.LpaUID,
 		}
 	} else {
 		sms = notify.CertificateProviderActingOnPaperMeetingPromptSMS{
@@ -100,6 +100,7 @@ func (n *checkYourLpaNotifier) sendOnlineNotification(ctx context.Context, appDa
 	} else {
 		sms = notify.CertificateProviderActingDigitallyHasConfirmedPersonalDetailsLPADetailsChangedPromptSMS{
 			LpaType:                 localize.LowerFirst(appData.Localizer.T(donor.Type.String())),
+			LpaReferenceNumber:      donor.LpaUID,
 			DonorFullNamePossessive: appData.Localizer.Possessive(donor.Donor.FullName()),
 			DonorFirstNames:         donor.Donor.FirstNames,
 		}

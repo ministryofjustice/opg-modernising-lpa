@@ -2221,27 +2221,25 @@ func TestHandleCertificateProviderIdentityCheckFailed(t *testing.T) {
 		Detail:     json.RawMessage(`{"uid":"M-1111-2222-3333"}`),
 	}
 
-	provided := &donordata.Provided{
-		PK:                  dynamo.LpaKey("123"),
-		SK:                  dynamo.LpaOwnerKey(dynamo.DonorKey("456")),
+	lpa := &lpadata.Lpa{
+		LpaUID:              "lpa-uid",
 		Type:                lpadata.LpaTypePropertyAndAffairs,
-		Donor:               donordata.Donor{ContactLanguagePreference: localize.En},
-		CertificateProvider: donordata.CertificateProvider{FirstNames: "a", LastName: "b"},
-		Tasks:               donordata.Tasks{SignTheLpa: task.StateCompleted},
+		Donor:               lpadata.Donor{ContactLanguagePreference: localize.En},
+		CertificateProvider: lpadata.CertificateProvider{FirstNames: "a", LastName: "b"},
 	}
 
-	dynamoClient := newMockDynamodbClient(t)
-	dynamoClient.EXPECT().
-		OneByUID(ctx, "M-1111-2222-3333").
-		Return(dynamo.Keys{PK: dynamo.LpaKey("123"), SK: dynamo.DonorKey("456")}, nil)
-	dynamoClient.EXPECT().
-		One(ctx, dynamo.LpaKey("123"), dynamo.DonorKey("456"), mock.Anything).
-		Return(nil).
-		SetData(provided)
+	lpaStoreClient := newMockLpaStoreClient(t)
+	lpaStoreClient.EXPECT().
+		Lpa(ctx, "M-1111-2222-3333").
+		Return(lpa, nil)
 
 	notifyClient := newMockNotifyClient(t)
 	notifyClient.EXPECT().
-		SendActorEmail(ctx, notify.ToDonor(provided), "M-1111-2222-3333", notify.InformDonorPaperCertificateProviderIdentityCheckFailed{
+		EmailGreeting(lpa).
+		Return("greeting")
+	notifyClient.EXPECT().
+		SendActorEmail(ctx, notify.ToLpaDonor(lpa), "M-1111-2222-3333", notify.InformDonorPaperCertificateProviderIdentityCheckFailed{
+			Greeting:                    "greeting",
 			CertificateProviderFullName: "a b",
 			LpaType:                     "property and affairs",
 			DonorStartPageURL:           "app:///start",
@@ -2260,8 +2258,8 @@ func TestHandleCertificateProviderIdentityCheckFailed(t *testing.T) {
 
 	factory := newMockFactory(t)
 	factory.EXPECT().
-		DynamoClient().
-		Return(dynamoClient)
+		LpaStoreClient().
+		Return(lpaStoreClient, nil)
 	factory.EXPECT().
 		NotifyClient(ctx).
 		Return(notifyClient, nil)
@@ -2278,37 +2276,18 @@ func TestHandleCertificateProviderIdentityCheckFailed(t *testing.T) {
 	assert.Nil(t, err)
 }
 
-func TestHandleCertificateProviderIdentityCheckFailedWhenGetError(t *testing.T) {
+func TestHandleCertificateProviderIdentityCheckFailedWhenLpaStoreError(t *testing.T) {
 	event := &events.CloudWatchEvent{
 		DetailType: "certificate-provider-identity-check-failed",
 		Detail:     json.RawMessage(`{"uid":"M-1111-2222-3333"}`),
 	}
 
-	dynamoClient := newMockDynamodbClient(t)
-	dynamoClient.EXPECT().
-		OneByUID(mock.Anything, mock.Anything).
-		Return(dynamo.Keys{}, expectedError)
+	lpaStoreClient := newMockLpaStoreClient(t)
+	lpaStoreClient.EXPECT().
+		Lpa(mock.Anything, mock.Anything).
+		Return(&lpadata.Lpa{}, expectedError)
 
-	err := handleCertificateProviderIdentityCheckedFailed(ctx, dynamoClient, nil, nil, "", event)
-
-	assert.ErrorIs(t, err, expectedError)
-}
-
-func TestHandleCertificateProviderIdentityCheckFailedWhenPutError(t *testing.T) {
-	event := &events.CloudWatchEvent{
-		DetailType: "certificate-provider-identity-check-failed",
-		Detail:     json.RawMessage(`{"uid":"M-1111-2222-3333"}`),
-	}
-
-	dynamoClient := newMockDynamodbClient(t)
-	dynamoClient.EXPECT().
-		OneByUID(mock.Anything, mock.Anything).
-		Return(dynamo.Keys{PK: dynamo.LpaKey("123"), SK: dynamo.DonorKey("456")}, nil)
-	dynamoClient.EXPECT().
-		One(mock.Anything, mock.Anything, mock.Anything, mock.Anything).
-		Return(expectedError)
-
-	err := handleCertificateProviderIdentityCheckedFailed(ctx, dynamoClient, nil, nil, "", event)
+	err := handleCertificateProviderIdentityCheckedFailed(ctx, lpaStoreClient, nil, nil, "", event)
 
 	assert.ErrorIs(t, err, expectedError)
 }
@@ -2319,19 +2298,10 @@ func TestHandleCertificateProviderIdentityCheckFailedWhenNotifyError(t *testing.
 		Detail:     json.RawMessage(`{"uid":"M-1111-2222-3333"}`),
 	}
 
-	provided := &donordata.Provided{
-		Tasks: donordata.Tasks{SignTheLpa: task.StateCompleted},
-		Donor: donordata.Donor{ContactLanguagePreference: localize.En},
-	}
-
-	dynamoClient := newMockDynamodbClient(t)
-	dynamoClient.EXPECT().
-		OneByUID(mock.Anything, mock.Anything).
-		Return(dynamo.Keys{PK: dynamo.LpaKey("123"), SK: dynamo.DonorKey("456")}, nil)
-	dynamoClient.EXPECT().
-		One(mock.Anything, mock.Anything, mock.Anything, mock.Anything).
-		Return(nil).
-		SetData(provided)
+	lpaStoreClient := newMockLpaStoreClient(t)
+	lpaStoreClient.EXPECT().
+		Lpa(mock.Anything, mock.Anything).
+		Return(&lpadata.Lpa{}, nil)
 
 	localizer := newMockLocalizer(t)
 	localizer.EXPECT().
@@ -2345,10 +2315,13 @@ func TestHandleCertificateProviderIdentityCheckFailedWhenNotifyError(t *testing.
 
 	notifyClient := newMockNotifyClient(t)
 	notifyClient.EXPECT().
+		EmailGreeting(mock.Anything).
+		Return("")
+	notifyClient.EXPECT().
 		SendActorEmail(ctx, mock.Anything, mock.Anything, mock.Anything).
 		Return(expectedError)
 
-	err := handleCertificateProviderIdentityCheckedFailed(ctx, dynamoClient, notifyClient, bundle, "", event)
+	err := handleCertificateProviderIdentityCheckedFailed(ctx, lpaStoreClient, notifyClient, bundle, "", event)
 
 	assert.ErrorIs(t, err, expectedError)
 }

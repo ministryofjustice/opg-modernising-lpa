@@ -38,7 +38,7 @@ func ConfirmDontWantToBeCertificateProvider(tmpl template.Template, lpaStoreClie
 					CertificateProviderFullName:   lpa.CertificateProvider.FullName(),
 					DonorFullName:                 lpa.Donor.FullName(),
 					LpaType:                       appData.Localizer.T(lpa.Type.String()),
-					LpaUID:                        lpa.LpaUID,
+					LpaReferenceNumber:            lpa.LpaUID,
 					DonorStartPageURL:             donorStartURL,
 				}
 
@@ -58,7 +58,7 @@ func ConfirmDontWantToBeCertificateProvider(tmpl template.Template, lpaStoreClie
 					CertificateProviderFullName: donor.CertificateProvider.FullName(),
 					DonorFullName:               donor.Donor.FullName(),
 					LpaType:                     appData.Localizer.T(donor.Type.String()),
-					LpaUID:                      donor.LpaUID,
+					LpaReferenceNumber:          donor.LpaUID,
 					DonorStartPageURL:           donorStartURL,
 				}
 

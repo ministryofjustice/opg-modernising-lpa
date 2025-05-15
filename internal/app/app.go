@@ -209,6 +209,7 @@ func App(
 		lpaStoreClient,
 		scheduledStore,
 		donorStartURL,
+		localizer,
 	)
 
 	supporterpage.Register(
