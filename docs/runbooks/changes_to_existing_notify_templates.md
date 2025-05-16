@@ -7,13 +7,7 @@ Email and SMS notifications are sent via [GOV.UK Notify](https://www.notificatio
 - Copy the existing template in Notify:
   - `New Template -> Copy an existing template`
 - Make required changes, move the template to `Modernising LPA -> Staging` and copy the new template ID
-- Update the [template ID](../../internal/notify/client.go) in code as part of the PR
-- Merge the PR
+- Update the [email template ID](../../internal/notify/email.go) or [SMS template ID](../../internal/notify/sms.go) in code as part of the PR
+- Merge the PR and wait for changes to apply on production
 - Remove the old template from Notify
 - Move the template from `Modernising LPA -> Staging` to `Modernising LPA -> Live`
-
-This process should be followed in both `OPG Test` and `Office of the Public Guardian` Notify services.
-
-If there is an existing template in the `OPG Test` Notify service that needs to be duplicated you can make a copy of it directly by switching to the `Office of the Public Guardian` Notify service and then following the steps above but selecting the template from `OPG Test` when choosing `Copy an existing template`.
-
-
