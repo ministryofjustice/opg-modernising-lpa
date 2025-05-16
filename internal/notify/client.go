@@ -53,33 +53,31 @@ type Bundle interface {
 }
 
 type Client struct {
-	logger       Logger
-	baseURL      string
-	doer         Doer
-	issuer       string
-	secretKey    []byte
-	now          func() time.Time
-	isProduction bool
-	eventClient  EventClient
-	bundle       Bundle
+	logger      Logger
+	baseURL     string
+	doer        Doer
+	issuer      string
+	secretKey   []byte
+	now         func() time.Time
+	eventClient EventClient
+	bundle      Bundle
 }
 
-func New(logger Logger, isProduction bool, baseURL, apiKey string, httpClient Doer, eventClient EventClient, bundle Bundle) (*Client, error) {
+func New(logger Logger, baseURL, apiKey string, httpClient Doer, eventClient EventClient, bundle Bundle) (*Client, error) {
 	keyParts := strings.Split(apiKey, "-")
 	if len(keyParts) != 11 {
 		return nil, errors.New("invalid apiKey format")
 	}
 
 	return &Client{
-		logger:       logger,
-		baseURL:      baseURL,
-		doer:         httpClient,
-		issuer:       strings.Join(keyParts[1:6], "-"),
-		secretKey:    []byte(strings.Join(keyParts[6:11], "-")),
-		now:          time.Now,
-		isProduction: isProduction,
-		eventClient:  eventClient,
-		bundle:       bundle,
+		logger:      logger,
+		baseURL:     baseURL,
+		doer:        httpClient,
+		issuer:      strings.Join(keyParts[1:6], "-"),
+		secretKey:   []byte(strings.Join(keyParts[6:11], "-")),
+		now:         time.Now,
+		eventClient: eventClient,
+		bundle:      bundle,
 	}, nil
 }
 
@@ -147,7 +145,7 @@ func (c *Client) SendEmail(ctx context.Context, to ToEmail, email Email) error {
 	}
 
 	address, lang := to.toEmail()
-	templateID := email.emailID(c.isProduction, lang)
+	templateID := email.emailID(lang)
 
 	ctx, span := newSpan(ctx, "Email", templateID, address)
 	defer span.End()
@@ -178,7 +176,7 @@ func (c *Client) SendActorEmail(ctx context.Context, to ToEmail, lpaUID string, 
 
 	address, lang := to.toEmail()
 
-	templateID := email.emailID(c.isProduction, lang)
+	templateID := email.emailID(lang)
 
 	ctx, span := newSpan(ctx, "Email", templateID, address)
 	defer span.End()
@@ -229,7 +227,7 @@ func (c *Client) SendActorSMS(ctx context.Context, to ToMobile, lpaUID string, s
 
 	number, lang := to.toMobile()
 
-	templateID := sms.smsID(c.isProduction, lang)
+	templateID := sms.smsID(lang)
 
 	ctx, span := newSpan(ctx, "SMS", templateID, number)
 	defer span.End()
