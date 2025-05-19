@@ -58,6 +58,21 @@ func TestGetAddCorrespondentFromStore(t *testing.T) {
 	assert.Equal(t, http.StatusOK, resp.StatusCode)
 }
 
+func TestGetAddCorrespondentWhenExists(t *testing.T) {
+	w := httptest.NewRecorder()
+	r, _ := http.NewRequest(http.MethodGet, "/", nil)
+
+	err := AddCorrespondent(nil, nil, nil)(testAppData, w, r, &donordata.Provided{
+		LpaID:         "lpa-id",
+		Correspondent: donordata.Correspondent{UID: testUID},
+	})
+	resp := w.Result()
+
+	assert.Nil(t, err)
+	assert.Equal(t, http.StatusFound, resp.StatusCode)
+	assert.Equal(t, donor.PathCorrespondentSummary.Format("lpa-id"), resp.Header.Get("Location"))
+}
+
 func TestGetAddCorrespondentWhenTemplateErrors(t *testing.T) {
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest(http.MethodGet, "/", nil)
@@ -90,18 +105,18 @@ func TestPostAddCorrespondent(t *testing.T) {
 			existingTaskState:     task.StateCompleted,
 			expectedCorrespondent: donordata.Correspondent{FirstNames: "John"},
 			expectedTaskState:     task.StateCompleted,
-			redirect:              donor.PathEnterCorrespondentDetails,
+			redirect:              donor.PathChooseCorrespondent,
 		},
 		"yes was no": {
 			yesNo:             form.Yes,
 			existingTaskState: task.StateCompleted,
 			expectedTaskState: task.StateInProgress,
-			redirect:          donor.PathEnterCorrespondentDetails,
+			redirect:          donor.PathChooseCorrespondent,
 		},
 		"yes": {
 			yesNo:             form.Yes,
 			expectedTaskState: task.StateInProgress,
-			redirect:          donor.PathEnterCorrespondentDetails,
+			redirect:          donor.PathChooseCorrespondent,
 		},
 		"no was yes": {
 			yesNo:                 form.No,

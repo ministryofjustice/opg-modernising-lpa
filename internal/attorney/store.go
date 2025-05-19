@@ -32,7 +32,6 @@ type DynamoClient interface {
 	OneBySK(ctx context.Context, sk dynamo.SK, v interface{}) error
 	OneByUID(ctx context.Context, uid string) (dynamo.Keys, error)
 	Put(ctx context.Context, v interface{}) error
-	Update(ctx context.Context, pk dynamo.PK, sk dynamo.SK, values map[string]dynamodbtypes.AttributeValue, expression string) error
 	WriteTransaction(ctx context.Context, transaction *dynamo.Transaction) error
 }
 

@@ -415,13 +415,14 @@ func (c *Client) DeleteOne(ctx context.Context, pk PK, sk SK) error {
 	return err
 }
 
-func (c *Client) Update(ctx context.Context, pk PK, sk SK, values map[string]types.AttributeValue, expression string) error {
+func (c *Client) Update(ctx context.Context, pk PK, sk SK, names map[string]string, values map[string]types.AttributeValue, expression string) error {
 	_, err := c.svc.UpdateItem(ctx, &dynamodb.UpdateItemInput{
 		TableName: aws.String(c.table),
 		Key: map[string]types.AttributeValue{
 			"PK": &types.AttributeValueMemberS{Value: pk.PK()},
 			"SK": &types.AttributeValueMemberS{Value: sk.SK()},
 		},
+		ExpressionAttributeNames:  names,
 		ExpressionAttributeValues: values,
 		UpdateExpression:          aws.String(expression),
 	})

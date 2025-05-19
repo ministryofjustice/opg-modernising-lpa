@@ -28,7 +28,6 @@ type DynamoClient interface {
 	Create(ctx context.Context, v interface{}) error
 	DeleteKeys(ctx context.Context, keys []dynamo.Keys) error
 	DeleteOne(ctx context.Context, pk dynamo.PK, sk dynamo.SK) error
-	Update(ctx context.Context, pk dynamo.PK, sk dynamo.SK, values map[string]dynamodbtypes.AttributeValue, expression string) error
 	BatchPut(ctx context.Context, items []interface{}) error
 	OneBySK(ctx context.Context, sk dynamo.SK, v interface{}) error
 	OneByUID(ctx context.Context, uid string) (dynamo.Keys, error)
