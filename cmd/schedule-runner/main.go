@@ -39,7 +39,6 @@ var (
 	// TODO remove in MLPAB-2690
 	metricsEnabled              = os.Getenv("METRICS_ENABLED") == "1"
 	notifyBaseURL               = os.Getenv("GOVUK_NOTIFY_BASE_URL")
-	notifyIsProduction          = os.Getenv("GOVUK_NOTIFY_IS_PRODUCTION") == "1"
 	searchEndpoint              = os.Getenv("SEARCH_ENDPOINT")
 	searchIndexName             = cmp.Or(os.Getenv("SEARCH_INDEX_NAME"), "lpas")
 	searchIndexingEnabled       = os.Getenv("SEARCH_INDEXING_DISABLED") != "1"
@@ -74,7 +73,7 @@ func handleRunSchedule(ctx context.Context) error {
 		return err
 	}
 
-	notifyClient, err := notify.New(logger, notifyIsProduction, notifyBaseURL, notifyApiKey, httpClient, event.NewClient(cfg, eventBusName), bundle)
+	notifyClient, err := notify.New(logger, notifyBaseURL, notifyApiKey, httpClient, event.NewClient(cfg, eventBusName), bundle)
 	if err != nil {
 		return err
 	}
