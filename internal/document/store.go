@@ -27,7 +27,7 @@ type DynamoClient interface {
 	Create(ctx context.Context, v interface{}) error
 	DeleteKeys(ctx context.Context, keys []dynamo.Keys) error
 	DeleteOne(ctx context.Context, pk dynamo.PK, sk dynamo.SK) error
-	Update(ctx context.Context, pk dynamo.PK, sk dynamo.SK, values map[string]dynamodbtypes.AttributeValue, expression string) error
+	Update(ctx context.Context, pk dynamo.PK, sk dynamo.SK, names map[string]string, values map[string]dynamodbtypes.AttributeValue, expression string) error
 	BatchPut(ctx context.Context, items []interface{}) error
 	OneBySK(ctx context.Context, sk dynamo.SK, v interface{}) error
 	OneByUID(ctx context.Context, uid string) (dynamo.Keys, error)
@@ -109,11 +109,12 @@ func (s *Store) UpdateScanResults(ctx context.Context, lpaID, s3ObjectKey string
 	return s.dynamoClient.Update(ctx,
 		dynamo.LpaKey(lpaID),
 		dynamo.DocumentKey(s3ObjectKey),
+		map[string]string{"#VirusDetected": "VirusDetected", "#Scanned": "Scanned"},
 		map[string]types.AttributeValue{
 			":virusDetected": &types.AttributeValueMemberBOOL{Value: virusDetected},
 			":scanned":       &types.AttributeValueMemberBOOL{Value: true},
 		},
-		"set VirusDetected = :virusDetected, Scanned = :scanned")
+		"set #VirusDetected = :virusDetected, #Scanned = :scanned")
 }
 
 func (s *Store) Put(ctx context.Context, document Document) error {

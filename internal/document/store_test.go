@@ -100,10 +100,11 @@ func TestDocumentStoreUpdateScanResults(t *testing.T) {
 			ctx,
 			dynamo.LpaKey("123"),
 			dynamo.DocumentKey("object/key"),
+			map[string]string{"#VirusDetected": "VirusDetected", "#Scanned": "Scanned"},
 			map[string]types.AttributeValue{
 				":virusDetected": &types.AttributeValueMemberBOOL{Value: true},
 				":scanned":       &types.AttributeValueMemberBOOL{Value: true},
-			}, "set VirusDetected = :virusDetected, Scanned = :scanned").
+			}, "set #VirusDetected = :virusDetected, #Scanned = :scanned").
 		Return(nil)
 
 	documentStore := Store{dynamoClient: dynamoClient}
@@ -121,10 +122,11 @@ func TestDocumentStoreUpdateScanResultsWhenUpdateError(t *testing.T) {
 			ctx,
 			dynamo.LpaKey("123"),
 			dynamo.DocumentKey("object/key"),
+			map[string]string{"#VirusDetected": "VirusDetected", "#Scanned": "Scanned"},
 			map[string]types.AttributeValue{
 				":virusDetected": &types.AttributeValueMemberBOOL{Value: true},
 				":scanned":       &types.AttributeValueMemberBOOL{Value: true},
-			}, "set VirusDetected = :virusDetected, Scanned = :scanned").
+			}, "set #VirusDetected = :virusDetected, #Scanned = :scanned").
 		Return(expectedError)
 
 	documentStore := Store{dynamoClient: dynamoClient}

@@ -215,6 +215,7 @@ type appPaths struct {
 	ReceivingUpdatesAboutYourLpa                         donor.Path
 	RegisterWithCourtOfProtection                        donor.Path
 	RemoveAttorney                                       donor.Path
+	RemoveCorrespondent                                  donor.Path
 	RemovePersonToNotify                                 donor.Path
 	RemoveReplacementAttorney                            donor.Path
 	RemoveReplacementTrustCorporation                    donor.Path
@@ -462,6 +463,7 @@ var paths = appPaths{
 	ReceivingUpdatesAboutYourLpa:                         donor.PathReceivingUpdatesAboutYourLpa,
 	RegisterWithCourtOfProtection:                        donor.PathRegisterWithCourtOfProtection,
 	RemoveAttorney:                                       donor.PathRemoveAttorney,
+	RemoveCorrespondent:                                  donor.PathRemoveCorrespondent,
 	RemovePersonToNotify:                                 donor.PathRemovePersonToNotify,
 	RemoveReplacementAttorney:                            donor.PathRemoveReplacementAttorney,
 	RemoveReplacementTrustCorporation:                    donor.PathRemoveReplacementTrustCorporation,

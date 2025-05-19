@@ -33,6 +33,7 @@ const (
 	reservedPrefix                 = "RESERVED"
 	uidPrefix                      = "UID"
 	sessionPrefix                  = "SESSION"
+	reusePrefix                    = "REUSE"
 )
 
 func readKey(s string) (any, error) {
@@ -90,6 +91,8 @@ func readKey(s string) (any, error) {
 		return UIDKeyType(s), nil
 	case sessionPrefix:
 		return SessionKeyType(s), nil
+	case reusePrefix:
+		return ReuseKeyType(s), nil
 	default:
 		return nil, errors.New("unknown key prefix")
 	}
@@ -361,4 +364,14 @@ func (t SessionKeyType) PK() string { return string(t) }
 // SessionKey is used as the PK (with MetadataKey as SK) to store a session.
 func SessionKey(uid string) SessionKeyType {
 	return SessionKeyType(sessionPrefix + "#" + uid)
+}
+
+type ReuseKeyType string
+
+func (t ReuseKeyType) PK() string { return string(t) }
+
+// ReuseKey is used as the PK (with MetadataKey as SK) to store reusable data
+// for a type of actor.
+func ReuseKey(sessionID string, actorType string) ReuseKeyType {
+	return ReuseKeyType(reusePrefix + "#" + sessionID + "#" + actorType)
 }

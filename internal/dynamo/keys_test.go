@@ -39,6 +39,7 @@ func TestPK(t *testing.T) {
 		"ScheduledDayKey":             {ScheduledDayKey(time.Date(2024, time.January, 2, 12, 13, 14, 15, time.UTC)), "SCHEDULEDDAY#2024-01-02"},
 		"UIDKey":                      {UIDKey("S"), "UID#S"},
 		"SessionKey":                  {SessionKey("S"), "SESSION#S"},
+		"ReuseKey":                    {ReuseKey("S", "T"), "REUSE#S#T"},
 	}
 
 	for name, tc := range testcases {
