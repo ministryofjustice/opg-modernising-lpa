@@ -94,7 +94,6 @@ func run(ctx context.Context, logger *slog.Logger) error {
 		identityURL                 = cmp.Or(os.Getenv("IDENTITY_URL"), "http://mock-onelogin:8080")
 		dynamoTableLpas             = cmp.Or(os.Getenv("DYNAMODB_TABLE_LPAS"), "lpas")
 		notifyBaseURL               = cmp.Or(os.Getenv("GOVUK_NOTIFY_BASE_URL"), "http://mock-notify:8080")
-		notifyIsProduction          = os.Getenv("GOVUK_NOTIFY_IS_PRODUCTION") == "1"
 		ordnanceSurveyBaseURL       = cmp.Or(os.Getenv("ORDNANCE_SURVEY_BASE_URL"), "http://mock-os-api:8080")
 		payBaseURL                  = cmp.Or(os.Getenv("GOVUK_PAY_BASE_URL"), "http://mock-pay:8080")
 		port                        = cmp.Or(os.Getenv("APP_PORT"), "8080")
@@ -266,7 +265,7 @@ func run(ctx context.Context, logger *slog.Logger) error {
 		return err
 	}
 
-	notifyClient, err := notify.New(logger, notifyIsProduction, notifyBaseURL, notifyApiKey, httpClient, eventClient, bundle)
+	notifyClient, err := notify.New(logger, notifyBaseURL, notifyApiKey, httpClient, eventClient, bundle)
 	if err != nil {
 		return err
 	}
