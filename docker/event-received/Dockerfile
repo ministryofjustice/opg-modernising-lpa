@@ -18,8 +18,12 @@ COPY --link  docker/install_lambda_insights.sh /app/
 RUN chmod +x /app/install_lambda_insights.sh \
   && /app/install_lambda_insights.sh "${TARGETPLATFORM}"
 
-RUN dnf -y update sqlite-libs libxml2 && \
+# Switch DNF to the latest AL2023.7 release (2023.7.20250512) and update SQLite packages
+RUN echo "2023.7.20250512" > /etc/dnf/vars/releasever && \
+  dnf clean all && \
+  dnf -y update sqlite-libs libxml2 && \
   dnf clean all
+
 
 COPY --from=build /app/event-received ./event-received
 COPY --link lang ./lang
