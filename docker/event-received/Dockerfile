@@ -20,7 +20,6 @@ RUN chmod +x /app/install_lambda_insights.sh \
 
 # Switch DNF to the latest AL2023.7 release (2023.7.20250512) and update SQLite packages
 #Add trivy ignore on this issues as we are updating not installing.
-#trivy:ignore:AVD-DS-0017
 RUN echo "2023.7.20250512" > /etc/dnf/vars/releasever && \
 dnf clean all && \
 dnf -y update sqlite-libs libxml2 && \
