@@ -18,6 +18,9 @@ COPY --link  docker/install_lambda_insights.sh /app/
 RUN chmod +x /app/install_lambda_insights.sh \
   && /app/install_lambda_insights.sh "${TARGETPLATFORM}"
 
+RUN dnf -y update sqlite-libs libxml2 && \
+  dnf clean all
+
 COPY --from=build /app/event-received ./event-received
 COPY --link lang ./lang
 COPY --link ./docker/adot-collector/ /opt
