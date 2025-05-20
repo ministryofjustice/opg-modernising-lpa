@@ -22,6 +22,10 @@ type addCorrespondentData struct {
 
 func AddCorrespondent(tmpl template.Template, donorStore DonorStore, eventClient EventClient) Handler {
 	return func(appData appcontext.Data, w http.ResponseWriter, r *http.Request, provided *donordata.Provided) error {
+		if !provided.Correspondent.UID.IsZero() {
+			return donor.PathCorrespondentSummary.Redirect(w, r, appData, provided)
+		}
+
 		data := &addCorrespondentData{
 			App:   appData,
 			Donor: provided,
@@ -53,7 +57,7 @@ func AddCorrespondent(tmpl template.Template, donorStore DonorStore, eventClient
 					if provided.Correspondent.FirstNames == "" {
 						provided.Tasks.AddCorrespondent = task.StateInProgress
 					}
-					redirectUrl = donor.PathEnterCorrespondentDetails
+					redirectUrl = donor.PathChooseCorrespondent
 				}
 
 				if err := donorStore.Put(r.Context(), provided); err != nil {

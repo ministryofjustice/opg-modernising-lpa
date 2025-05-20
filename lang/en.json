@@ -1804,5 +1804,14 @@
     "aRestrictionStatingWhichDecisionsYourAttorneysMustMakeJointly": "a restriction stating which decisions your attorneys must make jointly",
     "checkYourAttorneysDetails": "Check your attorney’s details",
     "noRestrictionsOrConditionsAddedToLPA": "No restrictions or conditions have been added to this LPA.",
-    "add": "Add"
+    "add": "Add",
+    "chooseCorrespondent": "Choose a correspondent",
+    "chooseACorrespondentYouHaveUsed": "Choose a correspondent you have used in previous LPAs, or add a new correspondent",
+    "selectCorrespondent": "<span class=\"govuk-!-font-weight-bold\">Select {{.FullName}}</span><br>Email: {{.Email}}",
+    "iWantToAddNewCorrespondent": "I want to add a new correspondent",
+    "youveAddedACorrespondent": "You’ve added a correspondent",
+    "removeCorrespondent": "Remove correspondent",
+    "yesToRemoveCorrespondent": "yes to remove the correspondent",
+    "aCorrespondentOrToAddANewCorrespondent": "a correspondent, or to add a new correspondent",
+    "organisation": "Organisation"
 }

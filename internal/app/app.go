@@ -29,6 +29,7 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/pay"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/place"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/random"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/reuse"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/scheduled"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/search"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/sesh"
@@ -68,7 +69,7 @@ type DynamoClient interface {
 	OneBySK(ctx context.Context, sk dynamo.SK, v interface{}) error
 	OneByUID(ctx context.Context, uid string) (dynamo.Keys, error)
 	Put(ctx context.Context, v interface{}) error
-	Update(ctx context.Context, pk dynamo.PK, sk dynamo.SK, values map[string]dynamodbtypes.AttributeValue, expression string) error
+	Update(ctx context.Context, pk dynamo.PK, sk dynamo.SK, names map[string]string, values map[string]dynamodbtypes.AttributeValue, expression string) error
 	WriteTransaction(ctx context.Context, transaction *dynamo.Transaction) error
 }
 
@@ -123,6 +124,7 @@ func App(
 	memberStore := supporter.NewMemberStore(lpaDynamoClient)
 	voucherStore := voucher.NewStore(lpaDynamoClient)
 	scheduledStore := scheduled.NewStore(lpaDynamoClient)
+	reuseStore := reuse.NewStore(lpaDynamoClient)
 	progressTracker := task.ProgressTracker{Localizer: localizer}
 
 	shareCodeSender := sharecode.NewSender(shareCodeStore, notifyClient, appPublicURL, certificateProviderStartURL, attorneyStartURL, eventClient, certificateProviderStore, scheduledStore)
@@ -297,6 +299,7 @@ func App(
 		lpaStoreResolvingService,
 		scheduledStore,
 		voucherStore,
+		reuseStore,
 		bundle,
 		donorStartURL,
 		certificateProviderStartURL,

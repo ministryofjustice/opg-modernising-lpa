@@ -31,6 +31,11 @@ describe('Add correspondent', () => {
         cy.get('#f-email').invoke('val', 'email@example.com');
         cy.contains('label', 'No').click();
         cy.contains('button', 'Save and continue').click();
+
+        cy.checkA11yApp();
+        cy.contains('You’ve added a correspondent');
+        cy.contains('a', 'Return to task list').click();
+
         cy.contains('li', 'Add a correspondent').should('contain', 'Completed');
 
         cy.contains('.govuk-summary-list__row', 'Reference number').find('.govuk-summary-list__value')
@@ -63,6 +68,9 @@ describe('Add correspondent', () => {
         cy.contains('label', 'Enter a new address').click();
         cy.contains('button', 'Continue').click();
         AddressFormAssertions.assertCanAddAddressFromSelect()
+
+        cy.contains('You’ve added a correspondent');
+        cy.contains('a', 'Return to task list').click();
 
         cy.contains('li', 'Add a correspondent').should('contain', 'Completed');
 
