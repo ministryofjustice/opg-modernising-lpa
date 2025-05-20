@@ -1,0 +1,54 @@
+{{ template "page" . }}
+
+{{ define "pageTitle" }}{{ tr .App "youveAddedACorrespondent" }}{{ end }}
+
+{{ define "main" }}
+    <div class="govuk-grid-row">
+        <div class="govuk-grid-column-two-thirds">
+            <h1 class="govuk-heading-xl">{{ template "pageTitle" . }}</h1>
+
+            <div class="govuk-summary-card">
+                <div class="govuk-summary-card__title-wrapper">
+                    <h2 class="govuk-summary-card__title">{{ .Donor.Correspondent.FullName }}</h2>
+
+                    <ul class="govuk-summary-card__actions">
+                        <li class="govuk-summary-card__action">
+                            <a class="govuk-link govuk-link--no-visited-state" href="{{ link .App (global.Paths.RemoveCorrespondent.Format .App.LpaID) }}">{{ tr $.App "removeCorrespondent" }}</a>
+                        </li>
+                    </ul>
+                </div>
+                <div class="govuk-summary-card__content">
+                    <dl class="govuk-summary-list">
+                        {{ template "summary-row" (summaryRow .App "name" .Donor.Correspondent.FullName
+                            (fromLink .App global.Paths.EnterCorrespondentDetails "#f-first-names")
+                            .Donor.Correspondent.FullName true false) }}
+
+                        {{ template "summary-row" (summaryRow .App "email" .Donor.Correspondent.Email
+                            (fromLink .App global.Paths.EnterCorrespondentDetails "#f-email")
+                            .Donor.Correspondent.FullName true false) }}
+
+                        {{ if .Donor.Correspondent.Organisation }}
+                            {{ template "summary-row" (summaryRow .App "organisation" .Donor.Correspondent.Organisation
+                                (fromLink .App global.Paths.EnterCorrespondentDetails "#f-organisation")
+                                .Donor.Correspondent.FullName true false) }}
+                        {{ end }}
+
+                        {{ if .Donor.Correspondent.Phone }}
+                            {{ template "summary-row" (summaryRow .App "phone" .Donor.Correspondent.Phone
+                                (fromLink .App global.Paths.EnterCorrespondentDetails "#f-phone")
+                                .Donor.Correspondent.FullName true false) }}
+                        {{ end }}
+
+                        {{ if .Donor.Correspondent.WantAddress.IsYes }}
+                            {{ template "address-summary-row" (summaryRow .App "address" .Donor.Correspondent.Address
+                                (fromLink .App global.Paths.EnterCorrespondentAddress "#f-address-line-1")
+                                .Donor.Correspondent.FullName true false) }}
+                        {{ end }}
+                    </dl>
+                </div>
+            </div>
+
+            {{ template "button" (button .App "returnToTaskList" "link" (global.Paths.TaskList.Format .App.LpaID)) }}
+        </div>
+    </div>
+{{ end }}

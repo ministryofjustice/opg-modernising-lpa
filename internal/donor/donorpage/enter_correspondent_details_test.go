@@ -31,7 +31,7 @@ func TestGetEnterCorrespondentDetails(t *testing.T) {
 		}).
 		Return(nil)
 
-	err := EnterCorrespondentDetails(template.Execute, nil, nil, nil)(testAppData, w, r, &donordata.Provided{})
+	err := EnterCorrespondentDetails(template.Execute, nil, nil, nil, nil)(testAppData, w, r, &donordata.Provided{})
 	resp := w.Result()
 
 	assert.Nil(t, err)
@@ -53,7 +53,7 @@ func TestGetEnterCorrespondentDetailsFromStore(t *testing.T) {
 		}).
 		Return(nil)
 
-	err := EnterCorrespondentDetails(template.Execute, nil, nil, nil)(testAppData, w, r, &donordata.Provided{
+	err := EnterCorrespondentDetails(template.Execute, nil, nil, nil, nil)(testAppData, w, r, &donordata.Provided{
 		Correspondent: donordata.Correspondent{
 			FirstNames: "John",
 		},
@@ -73,7 +73,7 @@ func TestGetEnterCorrespondentDetailsWhenTemplateErrors(t *testing.T) {
 		Execute(w, mock.Anything).
 		Return(expectedError)
 
-	err := EnterCorrespondentDetails(template.Execute, nil, nil, nil)(testAppData, w, r, &donordata.Provided{})
+	err := EnterCorrespondentDetails(template.Execute, nil, nil, nil, nil)(testAppData, w, r, &donordata.Provided{})
 	resp := w.Result()
 
 	assert.Equal(t, expectedError, err)
@@ -92,20 +92,27 @@ func TestPostEnterCorrespondentDetails(t *testing.T) {
 	r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(f.Encode()))
 	r.Header.Add("Content-Type", page.FormUrlEncoded)
 
+	correspondent := donordata.Correspondent{
+		UID:         testUID,
+		FirstNames:  "John",
+		LastName:    "Doe",
+		Email:       "email@example.com",
+		WantAddress: form.No,
+	}
+
+	reuseStore := newMockReuseStore(t)
+	reuseStore.EXPECT().
+		PutCorrespondent(r.Context(), correspondent).
+		Return(nil)
+
 	donorStore := newMockDonorStore(t)
 	donorStore.EXPECT().
 		Put(r.Context(), &donordata.Provided{
-			LpaID:  "lpa-id",
-			LpaUID: "lpa-uid",
-			Donor:  donordata.Donor{FirstNames: "John", LastName: "Smith"},
-			Correspondent: donordata.Correspondent{
-				UID:         testUID,
-				FirstNames:  "John",
-				LastName:    "Doe",
-				Email:       "email@example.com",
-				WantAddress: form.No,
-			},
-			Tasks: donordata.Tasks{AddCorrespondent: task.StateCompleted},
+			LpaID:         "lpa-id",
+			LpaUID:        "lpa-uid",
+			Donor:         donordata.Donor{FirstNames: "John", LastName: "Smith"},
+			Correspondent: correspondent,
+			Tasks:         donordata.Tasks{AddCorrespondent: task.StateCompleted},
 		}).
 		Return(nil)
 
@@ -120,7 +127,7 @@ func TestPostEnterCorrespondentDetails(t *testing.T) {
 		}).
 		Return(nil)
 
-	err := EnterCorrespondentDetails(nil, donorStore, eventClient, testUIDFn)(testAppData, w, r, &donordata.Provided{
+	err := EnterCorrespondentDetails(nil, donorStore, reuseStore, eventClient, testUIDFn)(testAppData, w, r, &donordata.Provided{
 		LpaID:  "lpa-id",
 		LpaUID: "lpa-uid",
 		Donor:  donordata.Donor{FirstNames: "John", LastName: "Smith"},
@@ -129,7 +136,7 @@ func TestPostEnterCorrespondentDetails(t *testing.T) {
 
 	assert.Nil(t, err)
 	assert.Equal(t, http.StatusFound, resp.StatusCode)
-	assert.Equal(t, donor.PathTaskList.Format("lpa-id"), resp.Header.Get("Location"))
+	assert.Equal(t, donor.PathCorrespondentSummary.Format("lpa-id"), resp.Header.Get("Location"))
 }
 
 func TestPostEnterCorrespondentDetailsWhenWantsAddress(t *testing.T) {
@@ -141,26 +148,33 @@ func TestPostEnterCorrespondentDetailsWhenWantsAddress(t *testing.T) {
 	}
 
 	w := httptest.NewRecorder()
-	r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(f.Encode()))
+	r, _ := http.NewRequest(http.MethodPost, "/?from=/what", strings.NewReader(f.Encode()))
 	r.Header.Add("Content-Type", page.FormUrlEncoded)
+
+	correspondent := donordata.Correspondent{
+		UID:         testUID,
+		FirstNames:  "John",
+		LastName:    "Doe",
+		Email:       "email@example.com",
+		WantAddress: form.Yes,
+	}
+
+	reuseStore := newMockReuseStore(t)
+	reuseStore.EXPECT().
+		PutCorrespondent(r.Context(), correspondent).
+		Return(nil)
 
 	donorStore := newMockDonorStore(t)
 	donorStore.EXPECT().
 		Put(r.Context(), &donordata.Provided{
-			LpaID: "lpa-id",
-			Donor: donordata.Donor{FirstNames: "John", LastName: "Smith"},
-			Correspondent: donordata.Correspondent{
-				UID:         testUID,
-				FirstNames:  "John",
-				LastName:    "Doe",
-				Email:       "email@example.com",
-				WantAddress: form.Yes,
-			},
-			Tasks: donordata.Tasks{AddCorrespondent: task.StateInProgress},
+			LpaID:         "lpa-id",
+			Donor:         donordata.Donor{FirstNames: "John", LastName: "Smith"},
+			Correspondent: correspondent,
+			Tasks:         donordata.Tasks{AddCorrespondent: task.StateInProgress},
 		}).
 		Return(nil)
 
-	err := EnterCorrespondentDetails(nil, donorStore, nil, testUIDFn)(testAppData, w, r, &donordata.Provided{
+	err := EnterCorrespondentDetails(nil, donorStore, reuseStore, nil, testUIDFn)(testAppData, w, r, &donordata.Provided{
 		LpaID: "lpa-id",
 		Donor: donordata.Donor{FirstNames: "John", LastName: "Smith"},
 	})
@@ -168,7 +182,7 @@ func TestPostEnterCorrespondentDetailsWhenWantsAddress(t *testing.T) {
 
 	assert.Nil(t, err)
 	assert.Equal(t, http.StatusFound, resp.StatusCode)
-	assert.Equal(t, donor.PathEnterCorrespondentAddress.Format("lpa-id"), resp.Header.Get("Location"))
+	assert.Equal(t, donor.PathEnterCorrespondentAddress.FormatQuery("lpa-id", url.Values{"from": {"/what"}}), resp.Header.Get("Location"))
 }
 
 func TestPostEnterCorrespondentDetailsWhenEventClientErrors(t *testing.T) {
@@ -188,7 +202,7 @@ func TestPostEnterCorrespondentDetailsWhenEventClientErrors(t *testing.T) {
 		SendCorrespondentUpdated(mock.Anything, mock.Anything).
 		Return(expectedError)
 
-	err := EnterCorrespondentDetails(nil, nil, eventClient, testUIDFn)(testAppData, w, r, &donordata.Provided{
+	err := EnterCorrespondentDetails(nil, nil, nil, eventClient, testUIDFn)(testAppData, w, r, &donordata.Provided{
 		LpaID:  "lpa-id",
 		LpaUID: "lpa-uid",
 		Donor:  donordata.Donor{FirstNames: "John", LastName: "Smith"},
@@ -214,7 +228,7 @@ func TestPostEnterCorrespondentDetailsWhenValidationError(t *testing.T) {
 		})).
 		Return(nil)
 
-	err := EnterCorrespondentDetails(template.Execute, nil, nil, nil)(testAppData, w, r, &donordata.Provided{
+	err := EnterCorrespondentDetails(template.Execute, nil, nil, nil, nil)(testAppData, w, r, &donordata.Provided{
 		Donor: donordata.Donor{
 			FirstNames: "John",
 			LastName:   "Doe",
@@ -226,7 +240,7 @@ func TestPostEnterCorrespondentDetailsWhenValidationError(t *testing.T) {
 	assert.Equal(t, http.StatusOK, resp.StatusCode)
 }
 
-func TestPostEnterCorrespondentDetailsWhenStoreErrors(t *testing.T) {
+func TestPostEnterCorrespondentDetailsWhenReuseStoreErrors(t *testing.T) {
 	form := url.Values{
 		"first-names":         {"John"},
 		"last-name":           {"Doe"},
@@ -238,12 +252,44 @@ func TestPostEnterCorrespondentDetailsWhenStoreErrors(t *testing.T) {
 	r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(form.Encode()))
 	r.Header.Add("Content-Type", page.FormUrlEncoded)
 
+	reuseStore := newMockReuseStore(t)
+	reuseStore.EXPECT().
+		PutCorrespondent(mock.Anything, mock.Anything).
+		Return(expectedError)
+
+	err := EnterCorrespondentDetails(nil, nil, reuseStore, nil, testUIDFn)(testAppData, w, r, &donordata.Provided{
+		Donor: donordata.Donor{
+			FirstNames: "John",
+			Address:    place.Address{Line1: "abc"},
+		},
+	})
+
+	assert.Equal(t, expectedError, err)
+}
+
+func TestPostEnterCorrespondentDetailsWhenDonorStoreErrors(t *testing.T) {
+	form := url.Values{
+		"first-names":         {"John"},
+		"last-name":           {"Doe"},
+		"email":               {"email@example.com"},
+		form.FieldNames.YesNo: {form.Yes.String()},
+	}
+
+	w := httptest.NewRecorder()
+	r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(form.Encode()))
+	r.Header.Add("Content-Type", page.FormUrlEncoded)
+
+	reuseStore := newMockReuseStore(t)
+	reuseStore.EXPECT().
+		PutCorrespondent(mock.Anything, mock.Anything).
+		Return(nil)
+
 	donorStore := newMockDonorStore(t)
 	donorStore.EXPECT().
 		Put(r.Context(), mock.Anything).
 		Return(expectedError)
 
-	err := EnterCorrespondentDetails(nil, donorStore, nil, testUIDFn)(testAppData, w, r, &donordata.Provided{
+	err := EnterCorrespondentDetails(nil, donorStore, reuseStore, nil, testUIDFn)(testAppData, w, r, &donordata.Provided{
 		Donor: donordata.Donor{
 			FirstNames: "John",
 			Address:    place.Address{Line1: "abc"},

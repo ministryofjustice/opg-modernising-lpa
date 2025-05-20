@@ -977,17 +977,17 @@ func (_c *mockDynamoClient_Put_Call) RunAndReturn(run func(context.Context, inte
 	return _c
 }
 
-// Update provides a mock function with given fields: ctx, pk, sk, values, expression
-func (_m *mockDynamoClient) Update(ctx context.Context, pk dynamo.PK, sk dynamo.SK, values map[string]types.AttributeValue, expression string) error {
-	ret := _m.Called(ctx, pk, sk, values, expression)
+// Update provides a mock function with given fields: ctx, pk, sk, names, values, expression
+func (_m *mockDynamoClient) Update(ctx context.Context, pk dynamo.PK, sk dynamo.SK, names map[string]string, values map[string]types.AttributeValue, expression string) error {
+	ret := _m.Called(ctx, pk, sk, names, values, expression)
 
 	if len(ret) == 0 {
 		panic("no return value specified for Update")
 	}
 
 	var r0 error
-	if rf, ok := ret.Get(0).(func(context.Context, dynamo.PK, dynamo.SK, map[string]types.AttributeValue, string) error); ok {
-		r0 = rf(ctx, pk, sk, values, expression)
+	if rf, ok := ret.Get(0).(func(context.Context, dynamo.PK, dynamo.SK, map[string]string, map[string]types.AttributeValue, string) error); ok {
+		r0 = rf(ctx, pk, sk, names, values, expression)
 	} else {
 		r0 = ret.Error(0)
 	}
@@ -1004,15 +1004,16 @@ type mockDynamoClient_Update_Call struct {
 //   - ctx context.Context
 //   - pk dynamo.PK
 //   - sk dynamo.SK
+//   - names map[string]string
 //   - values map[string]types.AttributeValue
 //   - expression string
-func (_e *mockDynamoClient_Expecter) Update(ctx interface{}, pk interface{}, sk interface{}, values interface{}, expression interface{}) *mockDynamoClient_Update_Call {
-	return &mockDynamoClient_Update_Call{Call: _e.mock.On("Update", ctx, pk, sk, values, expression)}
+func (_e *mockDynamoClient_Expecter) Update(ctx interface{}, pk interface{}, sk interface{}, names interface{}, values interface{}, expression interface{}) *mockDynamoClient_Update_Call {
+	return &mockDynamoClient_Update_Call{Call: _e.mock.On("Update", ctx, pk, sk, names, values, expression)}
 }
 
-func (_c *mockDynamoClient_Update_Call) Run(run func(ctx context.Context, pk dynamo.PK, sk dynamo.SK, values map[string]types.AttributeValue, expression string)) *mockDynamoClient_Update_Call {
+func (_c *mockDynamoClient_Update_Call) Run(run func(ctx context.Context, pk dynamo.PK, sk dynamo.SK, names map[string]string, values map[string]types.AttributeValue, expression string)) *mockDynamoClient_Update_Call {
 	_c.Call.Run(func(args mock.Arguments) {
-		run(args[0].(context.Context), args[1].(dynamo.PK), args[2].(dynamo.SK), args[3].(map[string]types.AttributeValue), args[4].(string))
+		run(args[0].(context.Context), args[1].(dynamo.PK), args[2].(dynamo.SK), args[3].(map[string]string), args[4].(map[string]types.AttributeValue), args[5].(string))
 	})
 	return _c
 }
@@ -1022,7 +1023,7 @@ func (_c *mockDynamoClient_Update_Call) Return(_a0 error) *mockDynamoClient_Upda
 	return _c
 }
 
-func (_c *mockDynamoClient_Update_Call) RunAndReturn(run func(context.Context, dynamo.PK, dynamo.SK, map[string]types.AttributeValue, string) error) *mockDynamoClient_Update_Call {
+func (_c *mockDynamoClient_Update_Call) RunAndReturn(run func(context.Context, dynamo.PK, dynamo.SK, map[string]string, map[string]types.AttributeValue, string) error) *mockDynamoClient_Update_Call {
 	_c.Call.Return(run)
 	return _c
 }

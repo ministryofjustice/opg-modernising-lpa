@@ -1904,5 +1904,14 @@
     "actorMatchesDifferentActorTypeWarning": "<p class=\"govuk-body\">Welsh {{.FirstNames}} {{.LastName}} {{lowerFirst .MatchArticleAndType}} </p><p class=\"govuk-body\">Welsh</p>",
     "actorMatchesSameActorTypeWarning": "<p class=\"govuk-body\">Welsh {{.FirstNames}} {{.LastName}} {{lowerFirst .MatchArticleAndType}}</p><p class=\"govuk-body\">Welsh {{.TypePlural}}</p>",
     "noRestrictionsOrConditionsAddedToLPA": "Welsh",
-    "add": "Welsh"
+    "add": "Welsh",
+    "chooseCorrespondent": "Welsh",
+    "chooseACorrespondentYouHaveUsed": "Welsh",
+    "selectCorrespondent": "<span class=\"govuk-!-font-weight-bold\">Welsh {{.FullName}}</span><br>{{.Email}}",
+    "iWantToAddNewCorrespondent": "Welsh",
+    "youveAddedACorrespondent": "Welsh",
+    "removeCorrespondent": "Welsh",
+    "yesToRemoveCorrespondent": "Welsh",
+    "aCorrespondentOrToAddANewCorrespondent": "Welsh",
+    "organisation": "Welsh"
 }
