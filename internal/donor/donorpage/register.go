@@ -62,6 +62,12 @@ type GetDonorStore interface {
 	Get(context.Context) (*donordata.Provided, error)
 }
 
+type ReuseStore interface {
+	PutCorrespondent(ctx context.Context, correspondent donordata.Correspondent) error
+	Correspondents(ctx context.Context) ([]donordata.Correspondent, error)
+	DeleteCorrespondent(ctx context.Context, correspondent donordata.Correspondent) error
+}
+
 type CertificateProviderStore interface {
 	GetAny(ctx context.Context) (*certificateproviderdata.Provided, error)
 }
@@ -212,6 +218,7 @@ func Register(
 	lpaStoreResolvingService LpaStoreResolvingService,
 	scheduledStore ScheduledStore,
 	voucherStore VoucherStore,
+	reuseStore ReuseStore,
 	bundle Bundle,
 	donorStartURL string,
 	certificateProviderStartURL string,
@@ -361,10 +368,16 @@ func Register(
 
 	handleWithDonor(donor.PathAddCorrespondent, page.None,
 		AddCorrespondent(tmpls.Get("add_correspondent.gohtml"), donorStore, eventClient))
+	handleWithDonor(donor.PathChooseCorrespondent, page.CanGoBack,
+		ChooseCorrespondent(tmpls.Get("choose_correspondent.gohtml"), donorStore, reuseStore, actoruid.New))
 	handleWithDonor(donor.PathEnterCorrespondentDetails, page.CanGoBack,
-		EnterCorrespondentDetails(tmpls.Get("enter_correspondent_details.gohtml"), donorStore, eventClient, actoruid.New))
+		EnterCorrespondentDetails(tmpls.Get("enter_correspondent_details.gohtml"), donorStore, reuseStore, eventClient, actoruid.New))
 	handleWithDonor(donor.PathEnterCorrespondentAddress, page.CanGoBack,
-		EnterCorrespondentAddress(logger, tmpls.Get("choose_address.gohtml"), addressClient, donorStore, eventClient))
+		EnterCorrespondentAddress(logger, tmpls.Get("choose_address.gohtml"), addressClient, donorStore, reuseStore, eventClient))
+	handleWithDonor(donor.PathRemoveCorrespondent, page.CanGoBack,
+		RemoveCorrespondent(tmpls.Get("remove_correspondent.gohtml"), donorStore, reuseStore, eventClient))
+	handleWithDonor(donor.PathCorrespondentSummary, page.None,
+		Guidance(tmpls.Get("correspondent_summary.gohtml")))
 
 	handleWithDonor(donor.PathGettingHelpSigning, page.CanGoBack,
 		Guidance(tmpls.Get("getting_help_signing.gohtml")))

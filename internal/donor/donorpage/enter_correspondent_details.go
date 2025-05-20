@@ -2,6 +2,7 @@ package donorpage
 
 import (
 	"net/http"
+	"net/url"
 
 	"github.com/ministryofjustice/opg-go-common/template"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
@@ -24,7 +25,7 @@ type enterCorrespondentDetailsData struct {
 	NameWarning *actor.SameNameWarning
 }
 
-func EnterCorrespondentDetails(tmpl template.Template, donorStore DonorStore, eventClient EventClient, newUID func() actoruid.UID) Handler {
+func EnterCorrespondentDetails(tmpl template.Template, donorStore DonorStore, reuseStore ReuseStore, eventClient EventClient, newUID func() actoruid.UID) Handler {
 	return func(appData appcontext.Data, w http.ResponseWriter, r *http.Request, provided *donordata.Provided) error {
 		data := &enterCorrespondentDetailsData{
 			App: appData,
@@ -52,6 +53,7 @@ func EnterCorrespondentDetails(tmpl template.Template, donorStore DonorStore, ev
 				provided.Correspondent.Email = data.Form.Email
 				provided.Correspondent.Organisation = data.Form.Organisation
 				provided.Correspondent.Phone = data.Form.Phone
+				wantedAddress := provided.Correspondent.WantAddress
 				provided.Correspondent.WantAddress = data.Form.WantAddress.YesNo
 
 				var redirect donor.Path
@@ -70,16 +72,29 @@ func EnterCorrespondentDetails(tmpl template.Template, donorStore DonorStore, ev
 						return err
 					}
 
-					redirect = donor.PathTaskList
+					redirect = donor.PathCorrespondentSummary
 				} else {
 					if !provided.Tasks.AddCorrespondent.IsCompleted() && provided.Correspondent.Address.Line1 == "" {
 						provided.Tasks.AddCorrespondent = task.StateInProgress
 					}
+
 					redirect = donor.PathEnterCorrespondentAddress
+				}
+
+				if err := reuseStore.PutCorrespondent(r.Context(), provided.Correspondent); err != nil {
+					return err
 				}
 
 				if err := donorStore.Put(r.Context(), provided); err != nil {
 					return err
+				}
+
+				if !wantedAddress.IsYes() && provided.Correspondent.WantAddress.IsYes() {
+					from := r.FormValue("from")
+					delete(r.Form, "from")
+					return redirect.RedirectQuery(w, r, appData, provided, url.Values{
+						"from": {from},
+					})
 				}
 
 				return redirect.Redirect(w, r, appData, provided)

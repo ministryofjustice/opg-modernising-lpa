@@ -692,6 +692,7 @@ func TestUpdate(t *testing.T) {
 				"PK": &types.AttributeValueMemberS{Value: "a-pk"},
 				"SK": &types.AttributeValueMemberS{Value: "a-sk"},
 			},
+			ExpressionAttributeNames:  map[string]string{":A": "B"},
 			ExpressionAttributeValues: map[string]types.AttributeValue{"prop": &types.AttributeValueMemberS{Value: "val"}},
 			UpdateExpression:          aws.String("some = expression"),
 		}).
@@ -699,7 +700,7 @@ func TestUpdate(t *testing.T) {
 
 	c := &Client{table: "table-name", svc: dynamoDB}
 
-	err := c.Update(ctx, testPK("a-pk"), testSK("a-sk"), map[string]types.AttributeValue{"prop": &types.AttributeValueMemberS{Value: "val"}}, "some = expression")
+	err := c.Update(ctx, testPK("a-pk"), testSK("a-sk"), map[string]string{":A": "B"}, map[string]types.AttributeValue{"prop": &types.AttributeValueMemberS{Value: "val"}}, "some = expression")
 
 	assert.Nil(t, err)
 }
@@ -720,7 +721,7 @@ func TestUpdateOnServiceError(t *testing.T) {
 
 	c := &Client{table: "table-name", svc: dynamoDB}
 
-	err := c.Update(ctx, testPK("a-pk"), testSK("a-sk"), map[string]types.AttributeValue{"Col": &types.AttributeValueMemberS{Value: "Val"}}, "some = expression")
+	err := c.Update(ctx, testPK("a-pk"), testSK("a-sk"), nil, map[string]types.AttributeValue{"Col": &types.AttributeValueMemberS{Value: "Val"}}, "some = expression")
 
 	assert.Equal(t, expectedError, err)
 }
