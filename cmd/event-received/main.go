@@ -43,7 +43,6 @@ const (
 
 var (
 	tableName                   = os.Getenv("LPAS_TABLE")
-	notifyIsProduction          = os.Getenv("GOVUK_NOTIFY_IS_PRODUCTION") == "1"
 	appPublicURL                = os.Getenv("APP_PUBLIC_URL")
 	donorStartURL               = cmp.Or(os.Getenv("DONOR_START_URL"), appPublicURL+page.PathStart.Format())
 	certificateProviderStartURL = cmp.Or(os.Getenv("CERTIFICATE_PROVIDER_START_URL"), appPublicURL+page.PathCertificateProviderStart.Format())
@@ -209,7 +208,6 @@ func handler(ctx context.Context, event Event) (map[string]any, error) {
 		lpaStoreSecretARN:           lpaStoreSecretARN,
 		uidBaseURL:                  uidBaseURL,
 		notifyBaseURL:               notifyBaseURL,
-		notifyIsProduction:          notifyIsProduction,
 		eventBusName:                eventBusName,
 		searchEndpoint:              searchEndpoint,
 		searchIndexName:             searchIndexName,
