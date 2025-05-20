@@ -12,7 +12,7 @@ resource "aws_cloudwatch_event_archive" "main" {
 }
 
 data "aws_kms_alias" "sqs" {
-  name     = "alias/${data.aws_default_tags.current.tags.application}_sqs_secret_encryption_key"
+  name     = "alias/${data.aws_default_tags.current.tags.application}-sqs-secret-encryption-key"
   provider = aws.region
 }
 

@@ -2,7 +2,7 @@
 module "dynamodb_cloudtrail_log_group" {
   source                  = "./modules/kms_key"
   encrypted_resource      = "dynamodb cloudtrail log group"
-  kms_key_alias_name      = "${local.default_tags.application}_dynamodb_cloudtrail_log_group_encryption"
+  kms_key_alias_name      = "${local.default_tags.application}-dynamodb-cloudtrail-log-group-encryption"
   enable_key_rotation     = true
   enable_multi_region     = true
   deletion_window_in_days = 10

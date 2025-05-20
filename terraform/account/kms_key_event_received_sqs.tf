@@ -1,7 +1,7 @@
 module "event_received_sqs_kms" {
   source                  = "./modules/kms_key"
   encrypted_resource      = "SQS"
-  kms_key_alias_name      = "${local.default_tags.application}_event_received_sqs_secret_encryption_key"
+  kms_key_alias_name      = "${local.default_tags.application}-event-received-sqs-secret-encryption-key"
   enable_key_rotation     = true
   enable_multi_region     = true
   deletion_window_in_days = 10
