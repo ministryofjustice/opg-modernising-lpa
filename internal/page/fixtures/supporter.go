@@ -21,6 +21,7 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/notify"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/random"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/reuse"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/search"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/sesh"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/sharecode"
@@ -56,6 +57,7 @@ func Supporter(
 	eventClient *event.Client,
 	lpaStoreClient *lpastore.Client,
 	voucherStore *voucher.Store,
+	reuseStore *reuse.Store,
 	notifyClient *notify.Client,
 	appPublicURL string,
 ) page.Handler {
@@ -195,7 +197,7 @@ func Supporter(
 
 					var fns []func(context.Context, *lpastore.Client, *lpadata.Lpa) error
 					if setLPAProgress {
-						donor, fns, err = updateLPAProgress(donorFixtureData, donor, random.String(16), r, certificateProviderStore, attorneyStore, documentStore, eventClient, shareCodeStore, voucherStore, notifyClient, appPublicURL)
+						donor, fns, err = updateLPAProgress(donorCtx, donorFixtureData, donor, random.String(16), r, certificateProviderStore, attorneyStore, documentStore, eventClient, shareCodeStore, voucherStore, reuseStore, notifyClient, appPublicURL)
 						if err != nil {
 							return fmt.Errorf("error updating lpa progress: %w", err)
 						}
