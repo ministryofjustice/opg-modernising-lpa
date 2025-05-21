@@ -336,7 +336,7 @@ func TestListAttorneysWithAttorneys(t *testing.T) {
 	uid2 := actoruid.New()
 
 	attorneyLinks := attorneySummaryDataLinks{
-		Attorney:                donor.PathChooseAttorneys.Format("lpa-id") + "?from=/here",
+		Attorney:                donor.PathEnterAttorney.Format("lpa-id") + "?from=/here",
 		AttorneyAddress:         donor.PathChooseAttorneysAddress.Format("lpa-id") + "?from=/here",
 		RemoveAttorney:          donor.PathRemoveAttorney.Format("lpa-id") + "?from=/here",
 		TrustCorporation:        donor.PathEnterTrustCorporation.Format("lpa-id") + "?from=/here",
@@ -345,7 +345,7 @@ func TestListAttorneysWithAttorneys(t *testing.T) {
 	}
 
 	replacementLinks := attorneySummaryDataLinks{
-		Attorney:                donor.PathChooseReplacementAttorneys.Format("lpa-id") + "?from=/here",
+		Attorney:                donor.PathEnterReplacementAttorney.Format("lpa-id") + "?from=/here",
 		AttorneyAddress:         donor.PathChooseReplacementAttorneysAddress.Format("lpa-id") + "?from=/here",
 		RemoveAttorney:          donor.PathRemoveReplacementAttorney.Format("lpa-id") + "?from=/here",
 		TrustCorporation:        donor.PathEnterReplacementTrustCorporation.Format("lpa-id") + "?from=/here",
