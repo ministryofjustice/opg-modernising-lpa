@@ -19,7 +19,7 @@ import (
 
 func TestGetWarningInterruptionChooseAttorneys(t *testing.T) {
 	query := url.Values{
-		"warningFrom": {donor.PathChooseAttorneys.Format("lpa-id")},
+		"warningFrom": {donor.PathEnterAttorney.Format("lpa-id")},
 		"id":          {testUID.String()},
 	}
 
@@ -74,7 +74,7 @@ func TestGetWarningInterruptionChooseAttorneys(t *testing.T) {
 				{Heading: "pleaseReviewTheInformationYouHaveEntered", BodyHTML: "translatedWarning"},
 			},
 			PageTitle: "checkYourAttorneysDetails",
-			From:      donor.PathChooseAttorneys.Format("lpa-id"),
+			From:      donor.PathEnterAttorney.Format("lpa-id"),
 		}).
 		Return(nil)
 
@@ -87,7 +87,7 @@ func TestGetWarningInterruptionChooseAttorneys(t *testing.T) {
 
 func TestGetWarningInterruptionWhenTemplateError(t *testing.T) {
 	query := url.Values{
-		"warningFrom": {donor.PathChooseAttorneys.Format("lpa-id")},
+		"warningFrom": {donor.PathEnterAttorney.Format("lpa-id")},
 		"id":          {testUID.String()},
 	}
 
@@ -139,11 +139,11 @@ func TestGetWarningInterruptionWhenCantShowWarnings(t *testing.T) {
 		},
 		"not a UID": {
 			queryUID:    "not a UID",
-			warningFrom: donor.PathChooseAttorneys.Format("lpa-id"),
+			warningFrom: donor.PathEnterAttorney.Format("lpa-id"),
 		},
 		"attorney not found": {
 			queryUID:    uid.String(),
-			warningFrom: donor.PathChooseAttorneys.Format("lpa-id"),
+			warningFrom: donor.PathEnterAttorney.Format("lpa-id"),
 		},
 	}
 
