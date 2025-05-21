@@ -7,7 +7,6 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor/actoruid"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor/donordata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/form"
@@ -31,7 +30,7 @@ func TestGetWantReplacementAttorneys(t *testing.T) {
 		}).
 		Return(nil)
 
-	err := WantReplacementAttorneys(template.Execute, nil, nil)(testAppData, w, r, &donordata.Provided{})
+	err := WantReplacementAttorneys(template.Execute, nil)(testAppData, w, r, &donordata.Provided{})
 	resp := w.Result()
 
 	assert.Nil(t, err)
@@ -44,7 +43,7 @@ func TestGetWantReplacementAttorneysWithExistingReplacementAttorneys(t *testing.
 
 	template := newMockTemplate(t)
 
-	err := WantReplacementAttorneys(template.Execute, nil, nil)(testAppData, w, r, &donordata.Provided{LpaID: "lpa-id", ReplacementAttorneys: donordata.Attorneys{Attorneys: []donordata.Attorney{{FirstNames: "this"}}}})
+	err := WantReplacementAttorneys(template.Execute, nil)(testAppData, w, r, &donordata.Provided{LpaID: "lpa-id", ReplacementAttorneys: donordata.Attorneys{Attorneys: []donordata.Attorney{{FirstNames: "this"}}}})
 	resp := w.Result()
 
 	assert.Nil(t, err)
@@ -65,7 +64,7 @@ func TestGetWantReplacementAttorneysFromStore(t *testing.T) {
 		}).
 		Return(nil)
 
-	err := WantReplacementAttorneys(template.Execute, nil, nil)(testAppData, w, r, &donordata.Provided{WantReplacementAttorneys: form.Yes})
+	err := WantReplacementAttorneys(template.Execute, nil)(testAppData, w, r, &donordata.Provided{WantReplacementAttorneys: form.Yes})
 	resp := w.Result()
 
 	assert.Nil(t, err)
@@ -81,7 +80,7 @@ func TestGetWantReplacementAttorneysWhenTemplateErrors(t *testing.T) {
 		Execute(w, mock.Anything).
 		Return(expectedError)
 
-	err := WantReplacementAttorneys(template.Execute, nil, nil)(testAppData, w, r, &donordata.Provided{})
+	err := WantReplacementAttorneys(template.Execute, nil)(testAppData, w, r, &donordata.Provided{})
 	resp := w.Result()
 
 	assert.Equal(t, expectedError, err)
@@ -89,31 +88,20 @@ func TestGetWantReplacementAttorneysWhenTemplateErrors(t *testing.T) {
 }
 
 func TestPostWantReplacementAttorneys(t *testing.T) {
-	uid := actoruid.New()
-
 	testCases := map[string]struct {
-		yesNo                        form.YesNo
-		existingReplacementAttorneys donordata.Attorneys
-		expectedReplacementAttorneys donordata.Attorneys
-		taskState                    task.State
-		redirect                     string
+		yesNo     form.YesNo
+		taskState task.State
+		redirect  string
 	}{
 		"yes": {
-			yesNo:                        form.Yes,
-			existingReplacementAttorneys: donordata.Attorneys{Attorneys: []donordata.Attorney{{UID: uid}}},
-			expectedReplacementAttorneys: donordata.Attorneys{Attorneys: []donordata.Attorney{{UID: uid}}},
-			taskState:                    task.StateInProgress,
-			redirect:                     donor.PathChooseReplacementAttorneys.Format("lpa-id") + "?id=" + testUID.String(),
+			yesNo:     form.Yes,
+			taskState: task.StateInProgress,
+			redirect:  donor.PathChooseReplacementAttorneys.Format("lpa-id"),
 		},
 		"no": {
-			yesNo: form.No,
-			existingReplacementAttorneys: donordata.Attorneys{Attorneys: []donordata.Attorney{
-				{UID: uid},
-				{UID: actoruid.New()},
-			}},
-			expectedReplacementAttorneys: donordata.Attorneys{},
-			taskState:                    task.StateCompleted,
-			redirect:                     donor.PathTaskList.Format("lpa-id"),
+			yesNo:     form.No,
+			taskState: task.StateCompleted,
+			redirect:  donor.PathTaskList.Format("lpa-id"),
 		},
 	}
 
@@ -132,15 +120,17 @@ func TestPostWantReplacementAttorneys(t *testing.T) {
 				Put(r.Context(), &donordata.Provided{
 					LpaID:                    "lpa-id",
 					WantReplacementAttorneys: tc.yesNo,
-					ReplacementAttorneys:     tc.expectedReplacementAttorneys,
-					Tasks:                    donordata.Tasks{YourDetails: task.StateCompleted, ChooseAttorneys: task.StateCompleted, ChooseReplacementAttorneys: tc.taskState},
+					Tasks: donordata.Tasks{
+						YourDetails:                task.StateCompleted,
+						ChooseAttorneys:            task.StateCompleted,
+						ChooseReplacementAttorneys: tc.taskState,
+					},
 				}).
 				Return(nil)
 
-			err := WantReplacementAttorneys(nil, donorStore, testUIDFn)(testAppData, w, r, &donordata.Provided{
-				LpaID:                "lpa-id",
-				ReplacementAttorneys: tc.existingReplacementAttorneys,
-				Tasks:                donordata.Tasks{YourDetails: task.StateCompleted, ChooseAttorneys: task.StateCompleted},
+			err := WantReplacementAttorneys(nil, donorStore)(testAppData, w, r, &donordata.Provided{
+				LpaID: "lpa-id",
+				Tasks: donordata.Tasks{YourDetails: task.StateCompleted, ChooseAttorneys: task.StateCompleted},
 			})
 			resp := w.Result()
 
@@ -165,7 +155,7 @@ func TestPostWantReplacementAttorneysWhenStoreErrors(t *testing.T) {
 		Put(r.Context(), mock.Anything).
 		Return(expectedError)
 
-	err := WantReplacementAttorneys(nil, donorStore, nil)(testAppData, w, r, &donordata.Provided{})
+	err := WantReplacementAttorneys(nil, donorStore)(testAppData, w, r, &donordata.Provided{})
 
 	assert.Equal(t, expectedError, err)
 }
@@ -182,7 +172,7 @@ func TestPostWantReplacementAttorneysWhenValidationErrors(t *testing.T) {
 		})).
 		Return(nil)
 
-	err := WantReplacementAttorneys(template.Execute, nil, nil)(testAppData, w, r, &donordata.Provided{})
+	err := WantReplacementAttorneys(template.Execute, nil)(testAppData, w, r, &donordata.Provided{})
 	resp := w.Result()
 
 	assert.Nil(t, err)

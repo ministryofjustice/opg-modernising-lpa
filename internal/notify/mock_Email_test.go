@@ -20,17 +20,17 @@ func (_m *mockEmail) EXPECT() *mockEmail_Expecter {
 	return &mockEmail_Expecter{mock: &_m.Mock}
 }
 
-// emailID provides a mock function with given fields: _a0, _a1
-func (_m *mockEmail) emailID(_a0 bool, _a1 localize.Lang) string {
-	ret := _m.Called(_a0, _a1)
+// emailID provides a mock function with given fields: _a0
+func (_m *mockEmail) emailID(_a0 localize.Lang) string {
+	ret := _m.Called(_a0)
 
 	if len(ret) == 0 {
 		panic("no return value specified for emailID")
 	}
 
 	var r0 string
-	if rf, ok := ret.Get(0).(func(bool, localize.Lang) string); ok {
-		r0 = rf(_a0, _a1)
+	if rf, ok := ret.Get(0).(func(localize.Lang) string); ok {
+		r0 = rf(_a0)
 	} else {
 		r0 = ret.Get(0).(string)
 	}
@@ -44,15 +44,14 @@ type mockEmail_emailID_Call struct {
 }
 
 // emailID is a helper method to define mock.On call
-//   - _a0 bool
-//   - _a1 localize.Lang
-func (_e *mockEmail_Expecter) emailID(_a0 interface{}, _a1 interface{}) *mockEmail_emailID_Call {
-	return &mockEmail_emailID_Call{Call: _e.mock.On("emailID", _a0, _a1)}
+//   - _a0 localize.Lang
+func (_e *mockEmail_Expecter) emailID(_a0 interface{}) *mockEmail_emailID_Call {
+	return &mockEmail_emailID_Call{Call: _e.mock.On("emailID", _a0)}
 }
 
-func (_c *mockEmail_emailID_Call) Run(run func(_a0 bool, _a1 localize.Lang)) *mockEmail_emailID_Call {
+func (_c *mockEmail_emailID_Call) Run(run func(_a0 localize.Lang)) *mockEmail_emailID_Call {
 	_c.Call.Run(func(args mock.Arguments) {
-		run(args[0].(bool), args[1].(localize.Lang))
+		run(args[0].(localize.Lang))
 	})
 	return _c
 }
@@ -62,7 +61,7 @@ func (_c *mockEmail_emailID_Call) Return(_a0 string) *mockEmail_emailID_Call {
 	return _c
 }
 
-func (_c *mockEmail_emailID_Call) RunAndReturn(run func(bool, localize.Lang) string) *mockEmail_emailID_Call {
+func (_c *mockEmail_emailID_Call) RunAndReturn(run func(localize.Lang) string) *mockEmail_emailID_Call {
 	_c.Call.Return(run)
 	return _c
 }

@@ -1,13 +1,13 @@
-import {DateOfBirthAssertions, TestEmail} from "../../support/e2e";
+import { DateOfBirthAssertions, TestEmail } from "../../support/e2e";
 
-describe('Choose replacement attorneys', () => {
+describe('Enter replacement attorney', () => {
     beforeEach(() => {
         cy.visit('/fixtures?redirect=/do-you-want-replacement-attorneys&progress=chooseYourAttorneys');
 
         cy.get('input[name="yes-no"]').check('yes', { force: true })
         cy.contains('button', 'Save and continue').click();
 
-        cy.url().should('contain', '/choose-replacement-attorneys');
+        cy.url().should('contain', '/enter-replacement-attorney');
     });
 
     it('can be submitted', () => {
@@ -83,7 +83,7 @@ describe('Choose replacement attorneys', () => {
         cy.get('#f-date-of-birth-month').invoke('val', '2');
         cy.get('#f-date-of-birth-year').invoke('val', '1990');
         cy.contains('button', 'Save and continue').click();
-        cy.url().should('contain', '/choose-replacement-attorneys');
+        cy.url().should('contain', '/enter-replacement-attorney');
 
         cy.contains('You and your replacement attorney have the same name. As the donor, you cannot act as a replacement attorney for your LPA.');
 
@@ -98,7 +98,7 @@ describe('Choose replacement attorneys', () => {
         cy.get('#f-date-of-birth-month').invoke('val', '2');
         cy.get('#f-date-of-birth-year').invoke('val', new Date().getFullYear() - 1);
         cy.contains('button', 'Save and continue').click();
-        cy.url().should('contain', '/choose-replacement-attorneys');
+        cy.url().should('contain', '/enter-replacement-attorney');
 
         cy.contains('This attorney is under 18 years old. You can continue making your LPA but you will not be able to sign it until they are 18.');
 
@@ -107,7 +107,7 @@ describe('Choose replacement attorneys', () => {
 
         cy.visitLpa("/choose-replacement-attorneys-summary")
         cy.contains('a', 'Change').click()
-        cy.url().should('contain', '/choose-replacement-attorneys');
+        cy.url().should('contain', '/enter-replacement-attorney');
 
         cy.contains('This attorney is under 18 years old. You can continue making your LPA but you will not be able to sign it until they are 18.');
     });
@@ -119,7 +119,7 @@ describe('Choose replacement attorneys', () => {
         cy.get('#f-date-of-birth-month').invoke('val', '2');
         cy.get('#f-date-of-birth-year').invoke('val', '1900');
         cy.contains('button', 'Save and continue').click();
-        cy.url().should('contain', '/choose-replacement-attorneys');
+        cy.url().should('contain', '/enter-replacement-attorney');
 
         cy.contains('By continuing, you confirm that this person is more than 100 years old. If not, please change their date of birth.');
 
@@ -127,7 +127,7 @@ describe('Choose replacement attorneys', () => {
         cy.url().should('contain', '/choose-replacement-attorneys-address');
 
         cy.go(-2);
-        cy.url().should('contain', '/choose-replacement-attorneys');
+        cy.url().should('contain', '/enter-replacement-attorney');
 
         cy.get('#f-date-of-birth-year').invoke('val', new Date().getFullYear() - 20);
         cy.contains('button', 'Save and continue').click();

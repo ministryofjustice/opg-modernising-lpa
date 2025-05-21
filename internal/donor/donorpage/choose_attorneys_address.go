@@ -12,7 +12,7 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/place"
 )
 
-func ChooseAttorneysAddress(logger Logger, tmpl template.Template, addressClient AddressClient, donorStore DonorStore) Handler {
+func ChooseAttorneysAddress(logger Logger, tmpl template.Template, addressClient AddressClient, donorStore DonorStore, reuseStore ReuseStore) Handler {
 	return func(appData appcontext.Data, w http.ResponseWriter, r *http.Request, provided *donordata.Provided) error {
 		attorney, found := provided.Attorneys.Get(actoruid.FromRequest(r))
 		if found == false {
@@ -41,6 +41,10 @@ func ChooseAttorneysAddress(logger Logger, tmpl template.Template, addressClient
 				provided.UpdateDecisions()
 				provided.Tasks.ChooseAttorneys = donordata.ChooseAttorneysState(provided.Attorneys, provided.AttorneyDecisions)
 				provided.Tasks.ChooseReplacementAttorneys = donordata.ChooseReplacementAttorneysState(provided)
+
+				if err := reuseStore.PutAttorneys(r.Context(), []donordata.Attorney{attorney}); err != nil {
+					return err
+				}
 
 				if err := donorStore.Put(r.Context(), provided); err != nil {
 					return err
