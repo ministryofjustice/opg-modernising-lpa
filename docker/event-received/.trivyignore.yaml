@@ -2,7 +2,7 @@ misconfigurations:
   - id: AVD-DS-0002
     statement: Lambda creates a docker USER with least-privilege permissions.
   - id: AVD-DS-0017
-    statement: Package manager update shoudl always have install
+    statement: Package manager update should always have install
 vulnerabilities:
   - id: CVE-2022-49043
     statement: Patched version of libxml2 unavailable in latest image
