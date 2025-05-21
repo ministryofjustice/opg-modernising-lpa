@@ -81,7 +81,7 @@ func (s *Store) getAllForSub(ctx context.Context, sub string) (results dashboard
 	for _, key := range links {
 		searchKeys = append(searchKeys, dynamo.Keys{PK: key.PK, SK: key.DonorKey})
 
-		if key.ActorType == actor.TypeAttorney {
+		if key.ActorType == actor.TypeAttorney || key.ActorType == actor.TypeTrustCorporation || key.ActorType == actor.TypeReplacementAttorney || key.ActorType == actor.TypeReplacementTrustCorporation {
 			searchKeys = append(searchKeys, dynamo.Keys{PK: key.PK, SK: dynamo.AttorneyKey(sub)})
 		}
 
@@ -164,14 +164,17 @@ func (s *Store) getAllForSub(ctx context.Context, sub string) (results dashboard
 	donorMap := map[string]dashboarddata.Actor{}
 	certificateProviderMap := map[string]dashboarddata.Actor{}
 	attorneyMap := map[string]dashboarddata.Actor{}
+	trustCorporationMap := map[string]dashboarddata.Actor{}
 	voucherMap := map[string]dashboarddata.Actor{}
 
 	for _, lpa := range resolvedLpas {
 		switch keyMap[lpa.LpaID] {
 		case actor.TypeDonor:
 			donorMap[lpa.LpaID] = dashboarddata.Actor{Lpa: lpa}
-		case actor.TypeAttorney:
+		case actor.TypeAttorney, actor.TypeReplacementAttorney:
 			attorneyMap[lpa.LpaID] = dashboarddata.Actor{Lpa: lpa}
+		case actor.TypeTrustCorporation, actor.TypeReplacementTrustCorporation:
+			trustCorporationMap[lpa.LpaID] = dashboarddata.Actor{Lpa: lpa}
 		case actor.TypeCertificateProvider:
 			certificateProviderMap[lpa.LpaID] = dashboarddata.Actor{Lpa: lpa}
 		case actor.TypeVoucher:
@@ -208,8 +211,24 @@ func (s *Store) getAllForSub(ctx context.Context, sub string) (results dashboard
 
 			lpaID := attorneyProvidedDetails.LpaID
 
-			if entry, ok := attorneyMap[lpaID]; ok {
-				if attorneyProvidedDetails.IsReplacement && entry.Lpa.Submitted {
+			if entry, ok := trustCorporationMap[lpaID]; ok {
+				if attorneyProvidedDetails.IsReplacement && attorneyProvidedDetails.Signed() {
+					delete(trustCorporationMap, lpaID)
+					continue
+				}
+
+				entry.Attorney = attorneyProvidedDetails
+
+				if !trustCorporationMap[lpaID].Lpa.Attorneys.TrustCorporation.UID.IsZero() {
+					entry.LpaTrustCorporation = &trustCorporationMap[lpaID].Lpa.Attorneys.TrustCorporation
+				} else if !trustCorporationMap[lpaID].Lpa.ReplacementAttorneys.TrustCorporation.UID.IsZero() {
+					entry.LpaTrustCorporation = &trustCorporationMap[lpaID].Lpa.ReplacementAttorneys.TrustCorporation
+				}
+
+				trustCorporationMap[lpaID] = entry
+				continue
+			} else if entry, ok := attorneyMap[lpaID]; ok {
+				if attorneyProvidedDetails.IsReplacement && attorneyProvidedDetails.Signed() {
 					delete(attorneyMap, lpaID)
 					continue
 				}
@@ -217,6 +236,11 @@ func (s *Store) getAllForSub(ctx context.Context, sub string) (results dashboard
 				entry.Attorney = attorneyProvidedDetails
 
 				lpaAttorney, ok := attorneyMap[lpaID].Lpa.Attorneys.Get(attorneyProvidedDetails.UID)
+
+				if attorneyProvidedDetails.IsReplacement {
+					lpaAttorney, ok = attorneyMap[lpaID].Lpa.ReplacementAttorneys.Get(attorneyProvidedDetails.UID)
+				}
+
 				if ok {
 					entry.LpaAttorney = &lpaAttorney
 				}
@@ -265,6 +289,7 @@ func (s *Store) getAllForSub(ctx context.Context, sub string) (results dashboard
 	results.Donor = mapValues(donorMap)
 	results.CertificateProvider = mapValues(certificateProviderMap)
 	results.Attorney = mapValues(attorneyMap)
+	results.Attorney = append(results.Attorney, mapValues(trustCorporationMap)...)
 	results.Voucher = mapValues(voucherMap)
 
 	byUpdatedAt := func(a, b dashboarddata.Actor) int {
