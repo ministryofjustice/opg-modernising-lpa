@@ -19,18 +19,18 @@ import (
 )
 
 func TestAttorneyStoreCreate(t *testing.T) {
-	testcases := map[string]struct {
+	testcases := map[actor.Type]struct {
 		replacement      bool
 		trustCorporation bool
 	}{
-		"attorney":                      {},
-		"replacement":                   {replacement: true},
-		"trust corporation":             {trustCorporation: true},
-		"replacement trust corporation": {replacement: true, trustCorporation: true},
+		actor.TypeAttorney:                    {},
+		actor.TypeReplacementAttorney:         {replacement: true},
+		actor.TypeTrustCorporation:            {trustCorporation: true},
+		actor.TypeReplacementTrustCorporation: {replacement: true, trustCorporation: true},
 	}
 
-	for name, tc := range testcases {
-		t.Run(name, func(t *testing.T) {
+	for actorType, tc := range testcases {
+		t.Run(actorType.String(), func(t *testing.T) {
 			ctx := appcontext.ContextWithSession(context.Background(), &appcontext.Session{LpaID: "123", SessionID: "456"})
 			now := time.Now()
 			uid := actoruid.New()
@@ -63,7 +63,7 @@ func TestAttorneyStoreCreate(t *testing.T) {
 						SK:        dynamo.SubKey("456"),
 						DonorKey:  dynamo.LpaOwnerKey(dynamo.DonorKey("donor")),
 						UID:       uid,
-						ActorType: actor.TypeAttorney,
+						ActorType: actorType,
 						UpdatedAt: now,
 					},
 				},
