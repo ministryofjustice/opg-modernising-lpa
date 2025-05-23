@@ -1913,5 +1913,22 @@
     "removeCorrespondent": "Welsh",
     "yesToRemoveCorrespondent": "Welsh",
     "aCorrespondentOrToAddANewCorrespondent": "Welsh",
-    "organisation": "Welsh"
+    "organisation": "Welsh",
+    "youCanChooseAttorneysUsedInPreviousLpas": "Welsh",
+    "guidanceOnChoosingAnAttorney": "Welsh",
+    "chooseAttorneysYouHaveUsedInPreviousLpasOptional": "Welsh",
+    "selectOneOrMoreAttorneysUsedInPreviousLpas": "Welsh",
+    "selectAttorney": "<span class=\"govuk-!-font-weight-bold\">Welsh {{.FullName}}</span><br>{{.DateOfBirth}}<br> {{.Postcode}}",
+    "whyAreSomeAttorneyNotInList": "Welsh",
+    "whyAreSomeAttorneyNotInListContent": "Welsh",
+    "yesWantToChoosePreviousAttorney": "Welsh",
+    "yesWantToAddNewAttorney": "Welsh",
+    "youCanSelectReplacementAttorneysUsedInPreviousLpas": "Welsh",
+    "myReplacementAttorneyIsTrustCorporation": "Welsh",
+    "whyAreSomeAttorneyNotInListReplacementContent": "Welsh",
+    "chooseTrustCorporation": "Welsh",
+    "youCanChooseTrustCorporationUsedInPrevious": "Welsh",
+    "selectTrustCorporation": "<span class=\"govuk-!-font-weight-bold\">Welsh {{.Name}}</span><br> {{.CompanyNumber}}<br> {{.Postcode}}",
+    "iWantToAddNewTrustCorporation": "Welsh",
+    "aTrustCorporationOrToAddANewTrustCorporation": "Welsh"
 }

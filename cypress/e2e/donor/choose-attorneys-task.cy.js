@@ -10,7 +10,7 @@ describe('Choose attorneys task', () => {
     it('is in progress if I start adding an attorney', () => {
         cy.visit('/fixtures?redirect=/task-list');
         cy.contains('a', 'Choose your attorneys').click();
-        cy.contains('button', 'Continue').click();
+        cy.contains('a', 'Continue').click();
 
         cy.get('#f-first-names').invoke('val', 'John');
         cy.get('#f-last-name').invoke('val', 'Doe');
@@ -30,7 +30,7 @@ describe('Choose attorneys task', () => {
     it('is completed if enter an attorneys details using address', () => {
         cy.visit('/fixtures?redirect=/task-list');
         cy.contains('a', 'Choose your attorneys').click();
-        cy.contains('button', 'Continue').click();
+        cy.contains('a', 'Continue').click();
 
         cy.get('#f-first-names').invoke('val', 'John');
         cy.get('#f-last-name').invoke('val', 'Doe');

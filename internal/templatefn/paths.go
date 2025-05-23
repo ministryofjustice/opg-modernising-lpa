@@ -170,7 +170,9 @@ type appPaths struct {
 	ChooseReplacementAttorneys                           donor.Path
 	ChooseReplacementAttorneysAddress                    donor.Path
 	ChooseReplacementAttorneysSummary                    donor.Path
+	ChooseReplacementTrustCorporation                    donor.Path
 	ChooseSomeoneToVouchForYou                           donor.Path
+	ChooseTrustCorporation                               donor.Path
 	ChooseYourCertificateProvider                        donor.Path
 	ConfirmPersonAllowedToVouch                          donor.Path
 	ConfirmYourCertificateProviderIsNotRelated           donor.Path
@@ -178,8 +180,10 @@ type appPaths struct {
 	DoYouLiveInTheUK                                     donor.Path
 	DoYouWantReplacementAttorneys                        donor.Path
 	DoYouWantToNotifyPeople                              donor.Path
+	EnterAttorney                                        donor.Path
 	EnterCorrespondentAddress                            donor.Path
 	EnterCorrespondentDetails                            donor.Path
+	EnterReplacementAttorney                             donor.Path
 	EnterReplacementTrustCorporation                     donor.Path
 	EnterReplacementTrustCorporationAddress              donor.Path
 	EnterTrustCorporation                                donor.Path
@@ -416,9 +420,12 @@ var paths = appPaths{
 	ChoosePeopleToNotifyAddress:                          donor.PathChoosePeopleToNotifyAddress,
 	ChoosePeopleToNotifySummary:                          donor.PathChoosePeopleToNotifySummary,
 	ChooseReplacementAttorneys:                           donor.PathChooseReplacementAttorneys,
+
 	ChooseReplacementAttorneysAddress:                    donor.PathChooseReplacementAttorneysAddress,
 	ChooseReplacementAttorneysSummary:                    donor.PathChooseReplacementAttorneysSummary,
+	ChooseReplacementTrustCorporation:                    donor.PathChooseReplacementTrustCorporation,
 	ChooseSomeoneToVouchForYou:                           donor.PathChooseSomeoneToVouchForYou,
+	ChooseTrustCorporation:                               donor.PathChooseTrustCorporation,
 	ChooseYourCertificateProvider:                        donor.PathChooseYourCertificateProvider,
 	ConfirmPersonAllowedToVouch:                          donor.PathConfirmPersonAllowedToVouch,
 	ConfirmYourCertificateProviderIsNotRelated:           donor.PathConfirmYourCertificateProviderIsNotRelated,
@@ -426,8 +433,10 @@ var paths = appPaths{
 	DoYouLiveInTheUK:                                     donor.PathDoYouLiveInTheUK,
 	DoYouWantReplacementAttorneys:                        donor.PathDoYouWantReplacementAttorneys,
 	DoYouWantToNotifyPeople:                              donor.PathDoYouWantToNotifyPeople,
+	EnterAttorney:                                        donor.PathEnterAttorney,
 	EnterCorrespondentAddress:                            donor.PathEnterCorrespondentAddress,
 	EnterCorrespondentDetails:                            donor.PathEnterCorrespondentDetails,
+	EnterReplacementAttorney:                             donor.PathEnterReplacementAttorney,
 	EnterReplacementTrustCorporation:                     donor.PathEnterReplacementTrustCorporation,
 	EnterReplacementTrustCorporationAddress:              donor.PathEnterReplacementTrustCorporationAddress,
 	EnterTrustCorporation:                                donor.PathEnterTrustCorporation,

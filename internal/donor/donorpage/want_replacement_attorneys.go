@@ -2,10 +2,8 @@ package donorpage
 
 import (
 	"net/http"
-	"net/url"
 
 	"github.com/ministryofjustice/opg-go-common/template"
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor/actoruid"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/appcontext"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor/donordata"
@@ -20,8 +18,12 @@ type wantReplacementAttorneysData struct {
 	Donor  *donordata.Provided
 }
 
-func WantReplacementAttorneys(tmpl template.Template, donorStore DonorStore, newUID func() actoruid.UID) Handler {
+func WantReplacementAttorneys(tmpl template.Template, donorStore DonorStore) Handler {
 	return func(appData appcontext.Data, w http.ResponseWriter, r *http.Request, provided *donordata.Provided) error {
+		if provided.ReplacementAttorneys.Len() > 0 {
+			return donor.PathChooseReplacementAttorneysSummary.Redirect(w, r, appData, provided)
+		}
+
 		data := &wantReplacementAttorneysData{
 			App:   appData,
 			Donor: provided,
@@ -34,11 +36,6 @@ func WantReplacementAttorneys(tmpl template.Template, donorStore DonorStore, new
 
 			if data.Errors.None() {
 				provided.WantReplacementAttorneys = f.YesNo
-
-				if provided.WantReplacementAttorneys.IsNo() {
-					provided.ReplacementAttorneys = donordata.Attorneys{}
-				}
-
 				provided.Tasks.ChooseReplacementAttorneys = donordata.ChooseReplacementAttorneysState(provided)
 
 				if err := donorStore.Put(r.Context(), provided); err != nil {
@@ -46,15 +43,11 @@ func WantReplacementAttorneys(tmpl template.Template, donorStore DonorStore, new
 				}
 
 				if provided.WantReplacementAttorneys.IsYes() {
-					return donor.PathChooseReplacementAttorneys.RedirectQuery(w, r, appData, provided, url.Values{"id": {newUID().String()}})
+					return donor.PathChooseReplacementAttorneys.Redirect(w, r, appData, provided)
 				} else {
 					return donor.PathTaskList.Redirect(w, r, appData, provided)
 				}
 			}
-		}
-
-		if provided.ReplacementAttorneys.Len() > 0 {
-			return donor.PathChooseReplacementAttorneysSummary.Redirect(w, r, appData, provided)
 		}
 
 		return tmpl(w, data)

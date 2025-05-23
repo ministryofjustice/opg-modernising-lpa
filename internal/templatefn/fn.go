@@ -396,14 +396,14 @@ func listAttorneys(app appcontext.Data, attorneys any, attorneyType string, head
 	}
 
 	if attorneyType == "replacement" {
-		data.Link.Attorney = fmt.Sprintf("%s?from=%s", donor.PathChooseReplacementAttorneys.Format(app.LpaID), app.Page)
+		data.Link.Attorney = fmt.Sprintf("%s?from=%s", donor.PathEnterReplacementAttorney.Format(app.LpaID), app.Page)
 		data.Link.AttorneyAddress = fmt.Sprintf("%s?from=%s", donor.PathChooseReplacementAttorneysAddress.Format(app.LpaID), app.Page)
 		data.Link.RemoveAttorney = fmt.Sprintf("%s?from=%s", donor.PathRemoveReplacementAttorney.Format(app.LpaID), app.Page)
 		data.Link.TrustCorporation = fmt.Sprintf("%s?from=%s", donor.PathEnterReplacementTrustCorporation.Format(app.LpaID), app.Page)
 		data.Link.TrustCorporationAddress = fmt.Sprintf("%s?from=%s", donor.PathEnterReplacementTrustCorporationAddress.Format(app.LpaID), app.Page)
 		data.Link.RemoveTrustCorporation = fmt.Sprintf("%s?from=%s", donor.PathRemoveReplacementTrustCorporation.Format(app.LpaID), app.Page)
 	} else {
-		data.Link.Attorney = fmt.Sprintf("%s?from=%s", donor.PathChooseAttorneys.Format(app.LpaID), app.Page)
+		data.Link.Attorney = fmt.Sprintf("%s?from=%s", donor.PathEnterAttorney.Format(app.LpaID), app.Page)
 		data.Link.AttorneyAddress = fmt.Sprintf("%s?from=%s", donor.PathChooseAttorneysAddress.Format(app.LpaID), app.Page)
 		data.Link.RemoveAttorney = fmt.Sprintf("%s?from=%s", donor.PathRemoveAttorney.Format(app.LpaID), app.Page)
 		data.Link.TrustCorporation = fmt.Sprintf("%s?from=%s", donor.PathEnterTrustCorporation.Format(app.LpaID), app.Page)

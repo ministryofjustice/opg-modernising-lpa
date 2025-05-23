@@ -20,17 +20,17 @@ func (_m *mockSMS) EXPECT() *mockSMS_Expecter {
 	return &mockSMS_Expecter{mock: &_m.Mock}
 }
 
-// smsID provides a mock function with given fields: _a0, _a1
-func (_m *mockSMS) smsID(_a0 bool, _a1 localize.Lang) string {
-	ret := _m.Called(_a0, _a1)
+// smsID provides a mock function with given fields: _a0
+func (_m *mockSMS) smsID(_a0 localize.Lang) string {
+	ret := _m.Called(_a0)
 
 	if len(ret) == 0 {
 		panic("no return value specified for smsID")
 	}
 
 	var r0 string
-	if rf, ok := ret.Get(0).(func(bool, localize.Lang) string); ok {
-		r0 = rf(_a0, _a1)
+	if rf, ok := ret.Get(0).(func(localize.Lang) string); ok {
+		r0 = rf(_a0)
 	} else {
 		r0 = ret.Get(0).(string)
 	}
@@ -44,15 +44,14 @@ type mockSMS_smsID_Call struct {
 }
 
 // smsID is a helper method to define mock.On call
-//   - _a0 bool
-//   - _a1 localize.Lang
-func (_e *mockSMS_Expecter) smsID(_a0 interface{}, _a1 interface{}) *mockSMS_smsID_Call {
-	return &mockSMS_smsID_Call{Call: _e.mock.On("smsID", _a0, _a1)}
+//   - _a0 localize.Lang
+func (_e *mockSMS_Expecter) smsID(_a0 interface{}) *mockSMS_smsID_Call {
+	return &mockSMS_smsID_Call{Call: _e.mock.On("smsID", _a0)}
 }
 
-func (_c *mockSMS_smsID_Call) Run(run func(_a0 bool, _a1 localize.Lang)) *mockSMS_smsID_Call {
+func (_c *mockSMS_smsID_Call) Run(run func(_a0 localize.Lang)) *mockSMS_smsID_Call {
 	_c.Call.Run(func(args mock.Arguments) {
-		run(args[0].(bool), args[1].(localize.Lang))
+		run(args[0].(localize.Lang))
 	})
 	return _c
 }
@@ -62,7 +61,7 @@ func (_c *mockSMS_smsID_Call) Return(_a0 string) *mockSMS_smsID_Call {
 	return _c
 }
 
-func (_c *mockSMS_smsID_Call) RunAndReturn(run func(bool, localize.Lang) string) *mockSMS_smsID_Call {
+func (_c *mockSMS_smsID_Call) RunAndReturn(run func(localize.Lang) string) *mockSMS_smsID_Call {
 	_c.Call.Return(run)
 	return _c
 }

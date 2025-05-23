@@ -32,7 +32,7 @@ func EnterReplacementTrustCorporation(tmpl template.Template, donorStore DonorSt
 				Email:         trustCorporation.Email,
 			},
 			LpaID:                          provided.LpaID,
-			ChooseReplacementAttorneysPath: donor.PathChooseReplacementAttorneys.FormatQuery(provided.LpaID, url.Values{"id": {newUID().String()}}),
+			ChooseReplacementAttorneysPath: donor.PathEnterReplacementAttorney.FormatQuery(provided.LpaID, url.Values{"id": {newUID().String()}}),
 		}
 
 		if r.Method == http.MethodPost {

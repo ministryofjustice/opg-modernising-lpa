@@ -1,20 +1,29 @@
 {{ template "page" . }}
 
-{{ define "pageTitle" }}{{ tr .App "chooseCorrespondent" }}{{ end }}
+{{ define "pageTitle" }}{{ tr .App "chooseTrustCorporation" }}{{ end }}
 
 {{ define "main" }}
     <div class="govuk-grid-row">
         <div class="govuk-grid-column-two-thirds">
-            <h1 class="govuk-heading-xl">{{ tr .App "chooseCorrespondent" }}</h1>
-
             <form novalidate method="post">
                 <div class="govuk-form-group {{ if .Errors.Has "option" }}govuk-form-group--error{{ end }}">
                     <fieldset class="govuk-fieldset" {{ if .Errors.Has "option" }}aria-describedby="option-error"{{ end }}>
-                        <legend class="govuk-fieldset__legend govuk-fieldset__legend--s">{{ tr .App "chooseACorrespondentYouHaveUsed" }}</legend>
+                        <legend class="govuk-fieldset__legend govuk-fieldset__legend--xl">
+                            <h1 class="govuk-fieldset__heading">{{ tr .App "chooseTrustCorporation" }}</h1>
+                        </legend>
+
+                        <p class="govuk-body">{{ tr .App "youCanChooseTrustCorporationUsedInPrevious" }}</p>
+
+                        <p class="govuk-body">
+                            <a href="{{ link .App .ChooseAttorneysPath }}" class="govuk-link govuk-link--no-visited-state">
+                                {{ tr .App "myAttorneyIsNotTrustCorporation" }}
+                            </a>
+                        </p>
+
                         {{ template "error-message" (errorMessage . "option") }}
 
                         <div class="govuk-radios {{ if .Errors.Has "option" }}govuk-radios--error{{ end }}" data-module="govuk-radios">
-                            {{ range $i, $_ := .Correspondents }}
+                            {{ range $i, $_ := .TrustCorporations }}
                                 <div class="govuk-radios__item">
                                     <input class="govuk-radios__input"
                                         id="f-{{ fieldID "option" $i }}"
@@ -23,7 +32,7 @@
                                         value="{{ $i }}"
                                     >
                                     <label class="govuk-label govuk-radios__label" for="f-{{ fieldID "option" $i }}">
-                                        {{ trFormatHtml $.App "selectCorrespondent" "FullName" .FullName "Email" .Email }}
+                                        {{ trFormatHtml $.App "selectTrustCorporation" "Name" .Name "CompanyNumber" .CompanyNumber "Postcode" .Address.Postcode }}
                                     </label>
                                 </div>
                             {{ end }}
@@ -32,20 +41,20 @@
 
                             <div class="govuk-radios__item">
                                 <input class="govuk-radios__input"
-                                    id="f-{{ fieldID "option" (len .Correspondents) }}"
+                                    id="f-{{ fieldID "option" (len .TrustCorporations) }}"
                                     name="option"
                                     type="radio"
                                     value="new"
                                 >
-                                <label class="govuk-label govuk-radios__label" for="f-{{ fieldID "option" (len .Correspondents) }}">
-                                    {{ tr .App "iWantToAddNewCorrespondent" }}
+                                <label class="govuk-label govuk-radios__label" for="f-{{ fieldID "option" (len .TrustCorporations) }}">
+                                    {{ tr .App "iWantToAddNewTrustCorporation" }}
                                 </label>
                             </div>
                         </div>
                     </fieldset>
                 </div>
 
-                {{ template "buttons" (button .App "saveAndContinue") }}
+                {{ template "buttons" (button .App "continue") }}
                 {{ template "csrf-field" . }}
             </form>
         </div>

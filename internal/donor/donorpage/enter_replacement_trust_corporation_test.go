@@ -25,7 +25,7 @@ func TestGetEnterReplacementTrustCorporation(t *testing.T) {
 		Execute(w, &enterReplacementTrustCorporationData{
 			App:                            testAppData,
 			Form:                           &enterTrustCorporationForm{},
-			ChooseReplacementAttorneysPath: donor.PathChooseReplacementAttorneys.FormatQuery("", url.Values{"id": {testUID.String()}}),
+			ChooseReplacementAttorneysPath: donor.PathEnterReplacementAttorney.FormatQuery("", url.Values{"id": {testUID.String()}}),
 		}).
 		Return(nil)
 

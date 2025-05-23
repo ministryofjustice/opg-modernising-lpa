@@ -363,7 +363,7 @@ func TestPathCanGoTo(t *testing.T) {
 			donor: &donordata.Provided{
 				SignedAt: time.Now(),
 			},
-			path:     PathChooseAttorneys,
+			path:     PathEnterAttorney,
 			expected: false,
 		},
 	}

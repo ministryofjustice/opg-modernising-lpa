@@ -10,11 +10,18 @@
             {{ template "attorney-summary" (listAttorneys .App .Donor.Attorneys "attorney" 2 .Donor.CanChange) }}
 
             <form novalidate method="post">
-                {{ template "radios-fieldset" (fieldset . .Form.FieldName ""
-                    (legend "doYouWantToAddAnotherAttorney" "govuk-fieldset__legend--l")
-                    (item .Form.Options.Yes.String "yes")
-                    (item .Form.Options.No.String "no")
-                    ) }}
+                {{ if .CanChoose }}
+                    {{ template "radios-fieldset" (fieldset . "option" ""
+                        (legend "doYouWantToAddAnotherAttorney" "govuk-fieldset__legend--l")
+                        (item .Options.Maybe.String "yesWantToChoosePreviousAttorney")
+                        (item .Options.Yes.String "yesWantToAddNewAttorney")
+                        (item .Options.No.String "no")) }}
+                {{ else }}
+                    {{ template "radios-fieldset" (fieldset . "option" ""
+                        (legend "doYouWantToAddAnotherAttorney" "govuk-fieldset__legend--l")
+                        (item .Options.Yes.String "yes")
+                        (item .Options.No.String "no")) }}
+                {{ end }}
 
                 {{ template "buttons" (button .App "continue") }}
                 {{ template "csrf-field" . }}
