@@ -126,17 +126,17 @@
                 <dl class="govuk-summary-list">
                     {{ template "summary-row" (summaryRow $app "name"
                         .FullName
-                        (fromLinkActor $app global.Paths.ChooseAttorneys .UID "#f-first-names")
+                        (fromLinkActor $app global.Paths.EnterAttorney .UID "#f-first-names")
                         .FullName $canChange false) }}
 
                     {{ template "summary-row" (summaryRow $app "dateOfBirth"
                         (formatDate $app .DateOfBirth)
-                        (fromLinkActor $app global.Paths.ChooseAttorneys .UID "#f-date-of-birth")
+                        (fromLinkActor $app global.Paths.EnterAttorney .UID "#f-date-of-birth")
                         .FullName $canChange false) }}
 
                     {{ template "optional-summary-row" (summaryRow $app "email"
                         .Email
-                        (fromLinkActor $app global.Paths.ChooseAttorneys .UID "#f-email")
+                        (fromLinkActor $app global.Paths.EnterAttorney .UID "#f-email")
                         .FullName $canChange false) }}
 
                     {{ template "address-summary-row" (summaryRow $app "address"
@@ -206,17 +206,17 @@
                 <dl class="govuk-summary-list">
                     {{ template "summary-row" (summaryRow $app "name"
                         .FullName
-                        (fromLinkActor $app global.Paths.ChooseReplacementAttorneys .UID "#f-first-names")
+                        (fromLinkActor $app global.Paths.EnterReplacementAttorney .UID "#f-first-names")
                         .FullName $canChange (eq $app.AttorneyUID .UID)) }}
 
                     {{ template "summary-row" (summaryRow $app "dateOfBirth"
                         (formatDate $app .DateOfBirth)
-                        (fromLinkActor $app global.Paths.ChooseReplacementAttorneys .UID "#f-date-of-birth")
+                        (fromLinkActor $app global.Paths.EnterReplacementAttorney .UID "#f-date-of-birth")
                         .FullName $canChange false) }}
 
                     {{ template "optional-summary-row" (summaryRow $app "email"
                         .Email
-                        (fromLinkActor $app global.Paths.ChooseReplacementAttorneys .UID "#f-email")
+                        (fromLinkActor $app global.Paths.EnterReplacementAttorney .UID "#f-email")
                         .FullName $canChange false) }}
 
                     {{ template "address-summary-row" (summaryRow $app "address"

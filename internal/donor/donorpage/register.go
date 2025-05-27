@@ -66,6 +66,13 @@ type ReuseStore interface {
 	PutCorrespondent(ctx context.Context, correspondent donordata.Correspondent) error
 	Correspondents(ctx context.Context) ([]donordata.Correspondent, error)
 	DeleteCorrespondent(ctx context.Context, correspondent donordata.Correspondent) error
+	PutAttorney(ctx context.Context, attorney donordata.Attorney) error
+	PutAttorneys(ctx context.Context, attorneys []donordata.Attorney) error
+	Attorneys(ctx context.Context, provided *donordata.Provided) ([]donordata.Attorney, error)
+	DeleteAttorney(ctx context.Context, attorney donordata.Attorney) error
+	PutTrustCorporation(ctx context.Context, trustCorporation donordata.TrustCorporation) error
+	TrustCorporations(ctx context.Context) ([]donordata.TrustCorporation, error)
+	DeleteTrustCorporation(ctx context.Context, trustCorporation donordata.TrustCorporation) error
 }
 
 type CertificateProviderStore interface {
@@ -288,17 +295,21 @@ func Register(
 		TaskList(tmpls.Get("task_list.gohtml"), evidenceReceivedStore))
 
 	handleWithDonor(donor.PathChooseAttorneysGuidance, page.None,
-		ChooseAttorneysGuidance(tmpls.Get("choose_attorneys_guidance.gohtml"), actoruid.New))
+		Guidance(tmpls.Get("choose_attorneys_guidance.gohtml")))
 	handleWithDonor(donor.PathChooseAttorneys, page.CanGoBack,
-		ChooseAttorneys(tmpls.Get("choose_attorneys.gohtml"), donorStore))
+		ChooseAttorneys(tmpls.Get("choose_attorneys.gohtml"), donorStore, reuseStore, actoruid.New))
+	handleWithDonor(donor.PathEnterAttorney, page.CanGoBack,
+		EnterAttorney(tmpls.Get("enter_attorney.gohtml"), donorStore, reuseStore))
 	handleWithDonor(donor.PathChooseAttorneysAddress, page.CanGoBack,
-		ChooseAttorneysAddress(logger, tmpls.Get("choose_address.gohtml"), addressClient, donorStore))
+		ChooseAttorneysAddress(logger, tmpls.Get("choose_address.gohtml"), addressClient, donorStore, reuseStore))
+	handleWithDonor(donor.PathChooseTrustCorporation, page.CanGoBack,
+		ChooseTrustCorporation(tmpls.Get("choose_trust_corporation.gohtml"), donorStore, reuseStore, actoruid.New))
 	handleWithDonor(donor.PathEnterTrustCorporation, page.CanGoBack,
-		EnterTrustCorporation(tmpls.Get("enter_trust_corporation.gohtml"), donorStore, actoruid.New))
+		EnterTrustCorporation(tmpls.Get("enter_trust_corporation.gohtml"), donorStore, reuseStore, actoruid.New))
 	handleWithDonor(donor.PathEnterTrustCorporationAddress, page.CanGoBack,
-		EnterTrustCorporationAddress(logger, tmpls.Get("choose_address.gohtml"), addressClient, donorStore))
+		EnterTrustCorporationAddress(logger, tmpls.Get("choose_address.gohtml"), addressClient, donorStore, reuseStore))
 	handleWithDonor(donor.PathChooseAttorneysSummary, page.CanGoBack,
-		ChooseAttorneysSummary(tmpls.Get("choose_attorneys_summary.gohtml"), actoruid.New))
+		ChooseAttorneysSummary(tmpls.Get("choose_attorneys_summary.gohtml"), reuseStore, actoruid.New))
 	handleWithDonor(donor.PathRemoveAttorney, page.CanGoBack,
 		RemoveAttorney(tmpls.Get("remove_attorney.gohtml"), donorStore))
 	handleWithDonor(donor.PathRemoveTrustCorporation, page.CanGoBack,
@@ -311,17 +322,21 @@ func Register(
 		Guidance(tmpls.Get("because_you_have_chosen_jointly_for_some_severally_for_others.gohtml")))
 
 	handleWithDonor(donor.PathDoYouWantReplacementAttorneys, page.None,
-		WantReplacementAttorneys(tmpls.Get("do_you_want_replacement_attorneys.gohtml"), donorStore, actoruid.New))
+		WantReplacementAttorneys(tmpls.Get("do_you_want_replacement_attorneys.gohtml"), donorStore))
 	handleWithDonor(donor.PathChooseReplacementAttorneys, page.CanGoBack,
-		ChooseReplacementAttorneys(tmpls.Get("choose_replacement_attorneys.gohtml"), donorStore))
+		ChooseReplacementAttorneys(tmpls.Get("choose_replacement_attorneys.gohtml"), donorStore, reuseStore, actoruid.New))
+	handleWithDonor(donor.PathEnterReplacementAttorney, page.CanGoBack,
+		EnterReplacementAttorney(tmpls.Get("enter_replacement_attorney.gohtml"), donorStore))
 	handleWithDonor(donor.PathChooseReplacementAttorneysAddress, page.CanGoBack,
 		ChooseReplacementAttorneysAddress(logger, tmpls.Get("choose_address.gohtml"), addressClient, donorStore))
+	handleWithDonor(donor.PathChooseReplacementTrustCorporation, page.CanGoBack,
+		ChooseReplacementTrustCorporation(tmpls.Get("choose_trust_corporation.gohtml"), donorStore, reuseStore, actoruid.New))
 	handleWithDonor(donor.PathEnterReplacementTrustCorporation, page.CanGoBack,
 		EnterReplacementTrustCorporation(tmpls.Get("enter_replacement_trust_corporation.gohtml"), donorStore, actoruid.New))
 	handleWithDonor(donor.PathEnterReplacementTrustCorporationAddress, page.CanGoBack,
-		EnterReplacementTrustCorporationAddress(logger, tmpls.Get("choose_address.gohtml"), addressClient, donorStore))
+		EnterReplacementTrustCorporationAddress(logger, tmpls.Get("choose_address.gohtml"), addressClient, donorStore, reuseStore))
 	handleWithDonor(donor.PathChooseReplacementAttorneysSummary, page.CanGoBack,
-		ChooseReplacementAttorneysSummary(tmpls.Get("choose_replacement_attorneys_summary.gohtml"), actoruid.New))
+		ChooseReplacementAttorneysSummary(tmpls.Get("choose_replacement_attorneys_summary.gohtml"), reuseStore, actoruid.New))
 	handleWithDonor(donor.PathRemoveReplacementAttorney, page.CanGoBack,
 		RemoveReplacementAttorney(tmpls.Get("remove_attorney.gohtml"), donorStore))
 	handleWithDonor(donor.PathRemoveReplacementTrustCorporation, page.CanGoBack,
