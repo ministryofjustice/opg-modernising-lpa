@@ -26,8 +26,8 @@
         "totp-generator": "^1.0.0"
     },
     "devDependencies": {
-        "@axe-core/playwright": "^4.10.1",
-        "@playwright/test": "^1.52.0",
+        "@axe-core/playwright": "4.10.1",
+        "@playwright/test": "1.52.0",
         "axe-core": "4.10.3",
         "cypress": "14.3.3",
         "cypress-axe": "1.6.0",
@@ -35,7 +35,7 @@
         "cypress-multi-reporters": "2.0.5",
         "cypress-parallel": "0.15.0",
         "cypress-real-events": "1.14.0",
-        "playwright": "^1.52.0",
+        "playwright": "1.52.0",
         "stop-only": "3.4.2"
     },
     "engines": {
