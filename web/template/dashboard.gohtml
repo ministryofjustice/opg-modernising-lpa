@@ -98,6 +98,17 @@
 {{ define "attorneyCard" }}
     <div class="app-dashboard-card">
         <div class="app-dashboard-row">
+            {{ $signed := false }}
+            {{ $isPaperChannel := false }}
+
+            {{ if .Item.LpaTrustCorporation }}
+                {{ $signed := or .Item.Attorney.Signed .Item.LpaTrustCorporation.Signed }}
+                {{ $isPaperChannel := .Item.LpaTrustCorporation.Channel.IsPaper }}
+            {{ else }}
+                {{ $signed := or .Item.Attorney.Signed (and .Item.LpaAttorney.SignedAt .Item.LpaAttorney.SignedAt.IsZero) }}
+                {{ $isPaperChannel := .Item.LpaAttorney.Channel.IsPaper }}
+            {{ end }}
+
             {{ if .Item.Lpa.Status.IsRegistered }}<h4 class="govuk-heading-m">{{ else }}<h3 class="govuk-heading-m">{{ end }}
                 {{ tr .App .Item.Lpa.Type.String }}:
                 <span class="govuk-!-font-weight-regular">{{ .Item.Lpa.Donor.FullName }}</span>
@@ -109,7 +120,7 @@
                         <strong class="app-tag app-tag--black">{{ tr .App "registered" }}</strong>
                     {{ else if .Item.Lpa.Status.IsStatutoryWaitingPeriod }}
                         <strong class="app-tag govuk-tag--green">{{ tr .App "submittedToOpg" }}</strong>
-                    {{ else if or .Item.Attorney.Signed (and .Item.LpaAttorney.Channel.IsPaper (not .Item.LpaAttorney.SignedAt.IsZero)) }}
+                    {{ else if or $signed (and $isPaperChannel (not $signed)) }}
                         <strong class="app-tag govuk-tag--blue">{{ tr .App "inProgress" }}</strong>
                     {{ else }}
                         <strong class="app-tag govuk-tag--yellow">{{ tr .App "readyToSign" }}</strong>
@@ -138,10 +149,10 @@
                     {{ else if .Item.Lpa.Status.IsStatutoryWaitingPeriod }}
                         <a class="govuk-button" href="#">{{ tr .App "viewLpa" }}</a>
                         <a class="govuk-button govuk-button--secondary" href="{{ link .App (global.Paths.Attorney.Progress.Format .Item.Lpa.LpaID) }}">{{ tr .App "trackLpaProgress" }}</a>
-                    {{ else if and .Item.LpaAttorney.Channel.IsPaper (not .Item.LpaAttorney.SignedAt.IsZero) }}
+                    {{ else if and $isPaperChannel (not $signed) }}
                         <a class="govuk-button govuk-button--secondary" href="{{ link .App (global.Paths.Attorney.Progress.Format .Item.Lpa.LpaID) }}">{{ tr .App "trackLpaProgress" }}</a>
                         <a class="govuk-button govuk-button--secondary" href="#">{{ tr .App "viewLpa" }}</a>
-                    {{ else if .Item.Attorney.Signed }}
+                    {{ else if $signed }}
                         <a class="govuk-button" href="{{ link .App (global.Paths.Attorney.TaskList.Format .Item.Lpa.LpaID) }}">{{ tr .App "goToTaskList" }}</a>
                         <a class="govuk-button govuk-button--secondary" href="{{ link .App (global.Paths.Attorney.Progress.Format .Item.Lpa.LpaID) }}">{{ tr .App "trackLpaProgress" }}</a>
                         <a class="govuk-button govuk-button--secondary" href="#">{{ tr .App "viewLpa" }}</a>
