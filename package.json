@@ -14,7 +14,7 @@
         "cypress:parallel": "cypress-parallel -s cypress:run -t 6 --spec cypress/e2e/**/*.cy.js cypress/smoke/*.cy.js",
         "cypress:parallel-with-specs": "cypress-parallel -s cypress:run -t 2",
         "test": "jest",
-        "extractContent": "npx playwright test complete-section-1.spec.js"
+        "extractContent": "npx playwright test complete-donor-flow.spec.js"
     },
     "license": "MIT",
     "dependencies": {
