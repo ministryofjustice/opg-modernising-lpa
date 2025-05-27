@@ -129,7 +129,7 @@ describe('Choose attorneys summary', () => {
         cy.get('input[name="yes-no"]').check('yes', { force: true });
         cy.contains('button', 'Continue').click();
 
-        cy.url().should('contain', '/choose-attorneys');
+        cy.url().should('contain', '/enter-attorney');
     });
 
     it('errors when remove not selected', () => {
