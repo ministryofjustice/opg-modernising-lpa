@@ -12,7 +12,7 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/form"
 )
 
-func RemoveReplacementAttorney(tmpl template.Template, donorStore DonorStore) Handler {
+func RemoveReplacementAttorney(tmpl template.Template, donorStore DonorStore, reuseStore ReuseStore) Handler {
 	return func(appData appcontext.Data, w http.ResponseWriter, r *http.Request, provided *donordata.Provided) error {
 		attorney, found := provided.ReplacementAttorneys.Get(actoruid.FromRequest(r))
 
@@ -37,6 +37,10 @@ func RemoveReplacementAttorney(tmpl template.Template, donorStore DonorStore) Ha
 					provided.UpdateDecisions()
 
 					provided.Tasks.ChooseReplacementAttorneys = donordata.ChooseReplacementAttorneysState(provided)
+
+					if err := reuseStore.DeleteAttorney(r.Context(), attorney); err != nil {
+						return fmt.Errorf("removing reusable replacement attorney: %w", err)
+					}
 
 					if err := donorStore.Put(r.Context(), provided); err != nil {
 						return fmt.Errorf("error removing replacement Attorney from LPA: %w", err)

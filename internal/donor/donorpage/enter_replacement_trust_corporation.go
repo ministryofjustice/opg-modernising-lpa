@@ -20,7 +20,7 @@ type enterReplacementTrustCorporationData struct {
 	ChooseReplacementAttorneysPath string
 }
 
-func EnterReplacementTrustCorporation(tmpl template.Template, donorStore DonorStore, newUID func() actoruid.UID) Handler {
+func EnterReplacementTrustCorporation(tmpl template.Template, donorStore DonorStore, reuseStore ReuseStore, newUID func() actoruid.UID) Handler {
 	return func(appData appcontext.Data, w http.ResponseWriter, r *http.Request, provided *donordata.Provided) error {
 		trustCorporation := provided.ReplacementAttorneys.TrustCorporation
 
@@ -32,7 +32,7 @@ func EnterReplacementTrustCorporation(tmpl template.Template, donorStore DonorSt
 				Email:         trustCorporation.Email,
 			},
 			LpaID:                          provided.LpaID,
-			ChooseReplacementAttorneysPath: donor.PathChooseReplacementAttorneys.FormatQuery(provided.LpaID, url.Values{"id": {newUID().String()}}),
+			ChooseReplacementAttorneysPath: donor.PathEnterReplacementAttorney.FormatQuery(provided.LpaID, url.Values{"id": {newUID().String()}}),
 		}
 
 		if r.Method == http.MethodPost {
@@ -46,6 +46,12 @@ func EnterReplacementTrustCorporation(tmpl template.Template, donorStore DonorSt
 				provided.ReplacementAttorneys.TrustCorporation = trustCorporation
 
 				provided.Tasks.ChooseReplacementAttorneys = donordata.ChooseReplacementAttorneysState(provided)
+
+				if trustCorporation.Address.Line1 != "" {
+					if err := reuseStore.PutTrustCorporation(r.Context(), trustCorporation); err != nil {
+						return err
+					}
+				}
 
 				if err := donorStore.Put(r.Context(), provided); err != nil {
 					return err
