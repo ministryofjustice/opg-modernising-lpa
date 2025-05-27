@@ -1433,7 +1433,7 @@
     "selectYourAddress": "Dewiswch eich cyfeiriad",
     "confirmYourAddress": "Cadarnhewch eich cyfeiriad",
     "someOfTheDetailsOnTheLpaDoNotMatch": "Nid yw rhai o’r manylion ar yr LPA yn cyfateb i’ch manylion adnabod a gadarnhawyd",
-    "yourDetailsCannotBeUpdatedAsAlreadySigned": "<p class=\"govuk-body\">Does dim modd diweddaru eich manylion ar yr LPA i gyd-fynd â’ch manylion adnabod sydd wedi’u cadarnhau. Y rheswm am hyn yw bod {{.DonorFullName}} wedi llofnodi’r LPA yn barod.</p><p class=\"govuk-body\">Bydd rhywun yn Swyddfa’r Gwarcheidwad Cyhoeddus yn cymharu eich manylion adnabod. Byddwch chi’n cael y wybodaeth ddiweddaraf cyn hir.</p><div class=\"govuk-inset-text\"><p class=\"govuk-body\">Tra bod eich manylion yn cael eu hadolygu, gallwch fwrw ymlaen i ddarparu eich tystysgrif ar gyfer yr LPA hon os ydych chi’n dymuno.</p></div>",
+    "yourDetailsCannotBeUpdatedAsAlreadySigned": "<p class=\"govuk-body\">Welsh {{.DonorFullName}} {{.DonorFullName}} {{.DonorFullName}} </p> \n",
     "theCostOfYourRepeatApplication": "Cost eich ail gais",
     "theCostOfYourRepeatApplicationContent": "<p class=\"govuk-body\">Mae’n bosib bod Swyddfa’r Gwarcheidwad Cyhoeddus (OPG) wedi dweud nad oes angen i chi dalu ffi neu’ch bod yn gymwys i dalu hanner y ffi wreiddiol os ydych chi’n gwneud ail gais am LPA o fewn 3 mis ar ôl cyflwyno eich cais gwreiddiol.</p><p class=\"govuk-body\">Gallwch chi weld dyddiad y gwnaethoch gyflwyno eich cais gwreiddiol yn eich gohebiaeth gan Swyddfa’r Gwarcheidwad Cyhoeddus.</p>",
     "areYouEligibleToPayNoFeeOrHalfFee": "Ydych chi’n gymwys i beidio talu ffi neu ddim ond talu hanner y ffi?",
