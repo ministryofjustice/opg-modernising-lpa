@@ -22,6 +22,65 @@ func (_m *mockReuseStore) EXPECT() *mockReuseStore_Expecter {
 	return &mockReuseStore_Expecter{mock: &_m.Mock}
 }
 
+// Attorneys provides a mock function with given fields: ctx, provided
+func (_m *mockReuseStore) Attorneys(ctx context.Context, provided *donordata.Provided) ([]donordata.Attorney, error) {
+	ret := _m.Called(ctx, provided)
+
+	if len(ret) == 0 {
+		panic("no return value specified for Attorneys")
+	}
+
+	var r0 []donordata.Attorney
+	var r1 error
+	if rf, ok := ret.Get(0).(func(context.Context, *donordata.Provided) ([]donordata.Attorney, error)); ok {
+		return rf(ctx, provided)
+	}
+	if rf, ok := ret.Get(0).(func(context.Context, *donordata.Provided) []donordata.Attorney); ok {
+		r0 = rf(ctx, provided)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).([]donordata.Attorney)
+		}
+	}
+
+	if rf, ok := ret.Get(1).(func(context.Context, *donordata.Provided) error); ok {
+		r1 = rf(ctx, provided)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
+}
+
+// mockReuseStore_Attorneys_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'Attorneys'
+type mockReuseStore_Attorneys_Call struct {
+	*mock.Call
+}
+
+// Attorneys is a helper method to define mock.On call
+//   - ctx context.Context
+//   - provided *donordata.Provided
+func (_e *mockReuseStore_Expecter) Attorneys(ctx interface{}, provided interface{}) *mockReuseStore_Attorneys_Call {
+	return &mockReuseStore_Attorneys_Call{Call: _e.mock.On("Attorneys", ctx, provided)}
+}
+
+func (_c *mockReuseStore_Attorneys_Call) Run(run func(ctx context.Context, provided *donordata.Provided)) *mockReuseStore_Attorneys_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		run(args[0].(context.Context), args[1].(*donordata.Provided))
+	})
+	return _c
+}
+
+func (_c *mockReuseStore_Attorneys_Call) Return(_a0 []donordata.Attorney, _a1 error) *mockReuseStore_Attorneys_Call {
+	_c.Call.Return(_a0, _a1)
+	return _c
+}
+
+func (_c *mockReuseStore_Attorneys_Call) RunAndReturn(run func(context.Context, *donordata.Provided) ([]donordata.Attorney, error)) *mockReuseStore_Attorneys_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
 // Correspondents provides a mock function with given fields: ctx
 func (_m *mockReuseStore) Correspondents(ctx context.Context) ([]donordata.Correspondent, error) {
 	ret := _m.Called(ctx)
@@ -80,6 +139,53 @@ func (_c *mockReuseStore_Correspondents_Call) RunAndReturn(run func(context.Cont
 	return _c
 }
 
+// DeleteAttorney provides a mock function with given fields: ctx, attorney
+func (_m *mockReuseStore) DeleteAttorney(ctx context.Context, attorney donordata.Attorney) error {
+	ret := _m.Called(ctx, attorney)
+
+	if len(ret) == 0 {
+		panic("no return value specified for DeleteAttorney")
+	}
+
+	var r0 error
+	if rf, ok := ret.Get(0).(func(context.Context, donordata.Attorney) error); ok {
+		r0 = rf(ctx, attorney)
+	} else {
+		r0 = ret.Error(0)
+	}
+
+	return r0
+}
+
+// mockReuseStore_DeleteAttorney_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'DeleteAttorney'
+type mockReuseStore_DeleteAttorney_Call struct {
+	*mock.Call
+}
+
+// DeleteAttorney is a helper method to define mock.On call
+//   - ctx context.Context
+//   - attorney donordata.Attorney
+func (_e *mockReuseStore_Expecter) DeleteAttorney(ctx interface{}, attorney interface{}) *mockReuseStore_DeleteAttorney_Call {
+	return &mockReuseStore_DeleteAttorney_Call{Call: _e.mock.On("DeleteAttorney", ctx, attorney)}
+}
+
+func (_c *mockReuseStore_DeleteAttorney_Call) Run(run func(ctx context.Context, attorney donordata.Attorney)) *mockReuseStore_DeleteAttorney_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		run(args[0].(context.Context), args[1].(donordata.Attorney))
+	})
+	return _c
+}
+
+func (_c *mockReuseStore_DeleteAttorney_Call) Return(_a0 error) *mockReuseStore_DeleteAttorney_Call {
+	_c.Call.Return(_a0)
+	return _c
+}
+
+func (_c *mockReuseStore_DeleteAttorney_Call) RunAndReturn(run func(context.Context, donordata.Attorney) error) *mockReuseStore_DeleteAttorney_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
 // DeleteCorrespondent provides a mock function with given fields: ctx, correspondent
 func (_m *mockReuseStore) DeleteCorrespondent(ctx context.Context, correspondent donordata.Correspondent) error {
 	ret := _m.Called(ctx, correspondent)
@@ -127,6 +233,147 @@ func (_c *mockReuseStore_DeleteCorrespondent_Call) RunAndReturn(run func(context
 	return _c
 }
 
+// DeleteTrustCorporation provides a mock function with given fields: ctx, trustCorporation
+func (_m *mockReuseStore) DeleteTrustCorporation(ctx context.Context, trustCorporation donordata.TrustCorporation) error {
+	ret := _m.Called(ctx, trustCorporation)
+
+	if len(ret) == 0 {
+		panic("no return value specified for DeleteTrustCorporation")
+	}
+
+	var r0 error
+	if rf, ok := ret.Get(0).(func(context.Context, donordata.TrustCorporation) error); ok {
+		r0 = rf(ctx, trustCorporation)
+	} else {
+		r0 = ret.Error(0)
+	}
+
+	return r0
+}
+
+// mockReuseStore_DeleteTrustCorporation_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'DeleteTrustCorporation'
+type mockReuseStore_DeleteTrustCorporation_Call struct {
+	*mock.Call
+}
+
+// DeleteTrustCorporation is a helper method to define mock.On call
+//   - ctx context.Context
+//   - trustCorporation donordata.TrustCorporation
+func (_e *mockReuseStore_Expecter) DeleteTrustCorporation(ctx interface{}, trustCorporation interface{}) *mockReuseStore_DeleteTrustCorporation_Call {
+	return &mockReuseStore_DeleteTrustCorporation_Call{Call: _e.mock.On("DeleteTrustCorporation", ctx, trustCorporation)}
+}
+
+func (_c *mockReuseStore_DeleteTrustCorporation_Call) Run(run func(ctx context.Context, trustCorporation donordata.TrustCorporation)) *mockReuseStore_DeleteTrustCorporation_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		run(args[0].(context.Context), args[1].(donordata.TrustCorporation))
+	})
+	return _c
+}
+
+func (_c *mockReuseStore_DeleteTrustCorporation_Call) Return(_a0 error) *mockReuseStore_DeleteTrustCorporation_Call {
+	_c.Call.Return(_a0)
+	return _c
+}
+
+func (_c *mockReuseStore_DeleteTrustCorporation_Call) RunAndReturn(run func(context.Context, donordata.TrustCorporation) error) *mockReuseStore_DeleteTrustCorporation_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
+// PutAttorney provides a mock function with given fields: ctx, attorney
+func (_m *mockReuseStore) PutAttorney(ctx context.Context, attorney donordata.Attorney) error {
+	ret := _m.Called(ctx, attorney)
+
+	if len(ret) == 0 {
+		panic("no return value specified for PutAttorney")
+	}
+
+	var r0 error
+	if rf, ok := ret.Get(0).(func(context.Context, donordata.Attorney) error); ok {
+		r0 = rf(ctx, attorney)
+	} else {
+		r0 = ret.Error(0)
+	}
+
+	return r0
+}
+
+// mockReuseStore_PutAttorney_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'PutAttorney'
+type mockReuseStore_PutAttorney_Call struct {
+	*mock.Call
+}
+
+// PutAttorney is a helper method to define mock.On call
+//   - ctx context.Context
+//   - attorney donordata.Attorney
+func (_e *mockReuseStore_Expecter) PutAttorney(ctx interface{}, attorney interface{}) *mockReuseStore_PutAttorney_Call {
+	return &mockReuseStore_PutAttorney_Call{Call: _e.mock.On("PutAttorney", ctx, attorney)}
+}
+
+func (_c *mockReuseStore_PutAttorney_Call) Run(run func(ctx context.Context, attorney donordata.Attorney)) *mockReuseStore_PutAttorney_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		run(args[0].(context.Context), args[1].(donordata.Attorney))
+	})
+	return _c
+}
+
+func (_c *mockReuseStore_PutAttorney_Call) Return(_a0 error) *mockReuseStore_PutAttorney_Call {
+	_c.Call.Return(_a0)
+	return _c
+}
+
+func (_c *mockReuseStore_PutAttorney_Call) RunAndReturn(run func(context.Context, donordata.Attorney) error) *mockReuseStore_PutAttorney_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
+// PutAttorneys provides a mock function with given fields: ctx, attorneys
+func (_m *mockReuseStore) PutAttorneys(ctx context.Context, attorneys []donordata.Attorney) error {
+	ret := _m.Called(ctx, attorneys)
+
+	if len(ret) == 0 {
+		panic("no return value specified for PutAttorneys")
+	}
+
+	var r0 error
+	if rf, ok := ret.Get(0).(func(context.Context, []donordata.Attorney) error); ok {
+		r0 = rf(ctx, attorneys)
+	} else {
+		r0 = ret.Error(0)
+	}
+
+	return r0
+}
+
+// mockReuseStore_PutAttorneys_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'PutAttorneys'
+type mockReuseStore_PutAttorneys_Call struct {
+	*mock.Call
+}
+
+// PutAttorneys is a helper method to define mock.On call
+//   - ctx context.Context
+//   - attorneys []donordata.Attorney
+func (_e *mockReuseStore_Expecter) PutAttorneys(ctx interface{}, attorneys interface{}) *mockReuseStore_PutAttorneys_Call {
+	return &mockReuseStore_PutAttorneys_Call{Call: _e.mock.On("PutAttorneys", ctx, attorneys)}
+}
+
+func (_c *mockReuseStore_PutAttorneys_Call) Run(run func(ctx context.Context, attorneys []donordata.Attorney)) *mockReuseStore_PutAttorneys_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		run(args[0].(context.Context), args[1].([]donordata.Attorney))
+	})
+	return _c
+}
+
+func (_c *mockReuseStore_PutAttorneys_Call) Return(_a0 error) *mockReuseStore_PutAttorneys_Call {
+	_c.Call.Return(_a0)
+	return _c
+}
+
+func (_c *mockReuseStore_PutAttorneys_Call) RunAndReturn(run func(context.Context, []donordata.Attorney) error) *mockReuseStore_PutAttorneys_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
 // PutCorrespondent provides a mock function with given fields: ctx, correspondent
 func (_m *mockReuseStore) PutCorrespondent(ctx context.Context, correspondent donordata.Correspondent) error {
 	ret := _m.Called(ctx, correspondent)
@@ -170,6 +417,111 @@ func (_c *mockReuseStore_PutCorrespondent_Call) Return(_a0 error) *mockReuseStor
 }
 
 func (_c *mockReuseStore_PutCorrespondent_Call) RunAndReturn(run func(context.Context, donordata.Correspondent) error) *mockReuseStore_PutCorrespondent_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
+// PutTrustCorporation provides a mock function with given fields: ctx, trustCorporation
+func (_m *mockReuseStore) PutTrustCorporation(ctx context.Context, trustCorporation donordata.TrustCorporation) error {
+	ret := _m.Called(ctx, trustCorporation)
+
+	if len(ret) == 0 {
+		panic("no return value specified for PutTrustCorporation")
+	}
+
+	var r0 error
+	if rf, ok := ret.Get(0).(func(context.Context, donordata.TrustCorporation) error); ok {
+		r0 = rf(ctx, trustCorporation)
+	} else {
+		r0 = ret.Error(0)
+	}
+
+	return r0
+}
+
+// mockReuseStore_PutTrustCorporation_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'PutTrustCorporation'
+type mockReuseStore_PutTrustCorporation_Call struct {
+	*mock.Call
+}
+
+// PutTrustCorporation is a helper method to define mock.On call
+//   - ctx context.Context
+//   - trustCorporation donordata.TrustCorporation
+func (_e *mockReuseStore_Expecter) PutTrustCorporation(ctx interface{}, trustCorporation interface{}) *mockReuseStore_PutTrustCorporation_Call {
+	return &mockReuseStore_PutTrustCorporation_Call{Call: _e.mock.On("PutTrustCorporation", ctx, trustCorporation)}
+}
+
+func (_c *mockReuseStore_PutTrustCorporation_Call) Run(run func(ctx context.Context, trustCorporation donordata.TrustCorporation)) *mockReuseStore_PutTrustCorporation_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		run(args[0].(context.Context), args[1].(donordata.TrustCorporation))
+	})
+	return _c
+}
+
+func (_c *mockReuseStore_PutTrustCorporation_Call) Return(_a0 error) *mockReuseStore_PutTrustCorporation_Call {
+	_c.Call.Return(_a0)
+	return _c
+}
+
+func (_c *mockReuseStore_PutTrustCorporation_Call) RunAndReturn(run func(context.Context, donordata.TrustCorporation) error) *mockReuseStore_PutTrustCorporation_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
+// TrustCorporations provides a mock function with given fields: ctx
+func (_m *mockReuseStore) TrustCorporations(ctx context.Context) ([]donordata.TrustCorporation, error) {
+	ret := _m.Called(ctx)
+
+	if len(ret) == 0 {
+		panic("no return value specified for TrustCorporations")
+	}
+
+	var r0 []donordata.TrustCorporation
+	var r1 error
+	if rf, ok := ret.Get(0).(func(context.Context) ([]donordata.TrustCorporation, error)); ok {
+		return rf(ctx)
+	}
+	if rf, ok := ret.Get(0).(func(context.Context) []donordata.TrustCorporation); ok {
+		r0 = rf(ctx)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).([]donordata.TrustCorporation)
+		}
+	}
+
+	if rf, ok := ret.Get(1).(func(context.Context) error); ok {
+		r1 = rf(ctx)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
+}
+
+// mockReuseStore_TrustCorporations_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'TrustCorporations'
+type mockReuseStore_TrustCorporations_Call struct {
+	*mock.Call
+}
+
+// TrustCorporations is a helper method to define mock.On call
+//   - ctx context.Context
+func (_e *mockReuseStore_Expecter) TrustCorporations(ctx interface{}) *mockReuseStore_TrustCorporations_Call {
+	return &mockReuseStore_TrustCorporations_Call{Call: _e.mock.On("TrustCorporations", ctx)}
+}
+
+func (_c *mockReuseStore_TrustCorporations_Call) Run(run func(ctx context.Context)) *mockReuseStore_TrustCorporations_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		run(args[0].(context.Context))
+	})
+	return _c
+}
+
+func (_c *mockReuseStore_TrustCorporations_Call) Return(_a0 []donordata.TrustCorporation, _a1 error) *mockReuseStore_TrustCorporations_Call {
+	_c.Call.Return(_a0, _a1)
+	return _c
+}
+
+func (_c *mockReuseStore_TrustCorporations_Call) RunAndReturn(run func(context.Context) ([]donordata.TrustCorporation, error)) *mockReuseStore_TrustCorporations_Call {
 	_c.Call.Return(run)
 	return _c
 }
