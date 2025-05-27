@@ -396,6 +396,7 @@ func Attorney(
 				return err
 			}
 		}
+
 		if donorDetails.LpaUID != "" {
 			body := lpastore.CreateLpaFromDonorProvided(donorDetails)
 
@@ -425,6 +426,7 @@ func Attorney(
 				return fmt.Errorf("problem sending lpa: %w", err)
 			}
 		}
+
 		if err := certificateProviderStore.Put(certificateProviderCtx, certificateProvider); err != nil {
 			return err
 		}

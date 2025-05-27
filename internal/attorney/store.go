@@ -65,6 +65,16 @@ func (s *Store) Create(ctx context.Context, shareCode sharecodedata.Link, email 
 		Email:              email,
 	}
 
+	actorType := actor.TypeAttorney
+
+	if shareCode.IsTrustCorporation && shareCode.IsReplacementAttorney {
+		actorType = actor.TypeReplacementTrustCorporation
+	} else if shareCode.IsTrustCorporation {
+		actorType = actor.TypeTrustCorporation
+	} else if shareCode.IsReplacementAttorney {
+		actorType = actor.TypeReplacementAttorney
+	}
+
 	transaction := dynamo.NewTransaction().
 		Create(attorney).
 		Create(dashboarddata.LpaLink{
@@ -73,7 +83,7 @@ func (s *Store) Create(ctx context.Context, shareCode sharecodedata.Link, email 
 			LpaUID:    shareCode.LpaUID,
 			UID:       shareCode.ActorUID,
 			DonorKey:  shareCode.LpaOwnerKey,
-			ActorType: actor.TypeAttorney,
+			ActorType: actorType,
 			UpdatedAt: s.now(),
 		}).
 		Delete(dynamo.Keys{PK: shareCode.PK, SK: shareCode.SK})
