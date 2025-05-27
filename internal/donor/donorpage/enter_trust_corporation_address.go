@@ -11,7 +11,7 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/place"
 )
 
-func EnterTrustCorporationAddress(logger Logger, tmpl template.Template, addressClient AddressClient, donorStore DonorStore) Handler {
+func EnterTrustCorporationAddress(logger Logger, tmpl template.Template, addressClient AddressClient, donorStore DonorStore, reuseStore ReuseStore) Handler {
 	return func(appData appcontext.Data, w http.ResponseWriter, r *http.Request, provided *donordata.Provided) error {
 		trustCorporation := provided.Attorneys.TrustCorporation
 
@@ -37,6 +37,10 @@ func EnterTrustCorporationAddress(logger Logger, tmpl template.Template, address
 
 				provided.Tasks.ChooseAttorneys = donordata.ChooseAttorneysState(provided.Attorneys, provided.AttorneyDecisions)
 				provided.Tasks.ChooseReplacementAttorneys = donordata.ChooseReplacementAttorneysState(provided)
+
+				if err := reuseStore.PutTrustCorporation(r.Context(), trustCorporation); err != nil {
+					return err
+				}
 
 				if err := donorStore.Put(r.Context(), provided); err != nil {
 					return err
