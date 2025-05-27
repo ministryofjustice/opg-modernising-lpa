@@ -39,7 +39,7 @@ jobs:
           fi
       - name: Bump version
         id: bump_version
-        uses: anothrNick/github-tag-action@e528bc2b9628971ce0e6f823f3052d1dcd9d512c # 1.73.0
+        uses: anothrNick/github-tag-action@f278d49d30cdd8775cc3e7dd00b5ee11686ee297 # 1.71.0
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           INITIAL_VERSION: 0.0.0
@@ -47,7 +47,7 @@ jobs:
           PRERELEASE: true
           PRERELEASE_SUFFIX: ${{ env.BRANCH_NAME }}
           RELEASE_BRANCHES: main
-          TAG_PREFIX: v
+          WITH_V: true
     outputs:
       docker_tag: ${{ steps.bump_version.outputs.tag }}
 
