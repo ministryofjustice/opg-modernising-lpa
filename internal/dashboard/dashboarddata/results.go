@@ -22,6 +22,7 @@ func (r Results) Empty() bool {
 type Actor struct {
 	Lpa                 *lpadata.Lpa
 	LpaAttorney         *lpadata.Attorney
+	LpaTrustCorporation *lpadata.TrustCorporation
 	Donor               *donordata.Provided
 	CertificateProvider *certificateproviderdata.Provided
 	Attorney            *attorneydata.Provided
