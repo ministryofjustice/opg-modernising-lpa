@@ -49,10 +49,8 @@ func EnterTrustCorporation(tmpl template.Template, donorStore DonorStore, reuseS
 				provided.Tasks.ChooseAttorneys = donordata.ChooseAttorneysState(provided.Attorneys, provided.AttorneyDecisions)
 				provided.Tasks.ChooseReplacementAttorneys = donordata.ChooseReplacementAttorneysState(provided)
 
-				if trustCorporation.Address.Line1 != "" {
-					if err := reuseStore.PutTrustCorporation(r.Context(), trustCorporation); err != nil {
-						return err
-					}
+				if err := reuseStore.PutTrustCorporation(r.Context(), trustCorporation); err != nil {
+					return err
 				}
 
 				if err := donorStore.Put(r.Context(), provided); err != nil {
