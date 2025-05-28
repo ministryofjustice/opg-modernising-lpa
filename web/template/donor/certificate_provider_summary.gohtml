@@ -1,0 +1,58 @@
+{{ template "page" . }}
+
+{{ define "pageTitle" }}{{ tr .App "youveAddedACertificateProvider" }}{{ end }}
+
+{{ define "main" }}
+    <div class="govuk-grid-row">
+        <div class="govuk-grid-column-two-thirds">
+            <h1 class="govuk-heading-xl">{{ template "pageTitle" . }}</h1>
+
+            <div class="govuk-summary-card">
+                <div class="govuk-summary-card__title-wrapper">
+                    <h2 class="govuk-summary-card__title">{{ .Donor.CertificateProvider.FullName }}</h2>
+
+                    <ul class="govuk-summary-card__actions">
+                        <li class="govuk-summary-card__action">
+                            <a class="govuk-link govuk-link--no-visited-state" href="{{ link .App (global.Paths.RemoveCertificateProvider.Format .App.LpaID) }}">{{ tr $.App "removeCertificateProvider" }}</a>
+                        </li>
+                    </ul>
+                </div>
+                <div class="govuk-summary-card__content">
+                    <dl class="govuk-summary-list">
+                        {{ template "summary-row" (summaryRow .App "name" .Donor.CertificateProvider.FullName
+                            (fromLink .App global.Paths.CertificateProviderDetails "#f-first-names")
+                            .Donor.CertificateProvider.FullName true false) }}
+
+                        {{ template "summary-row" (summaryRow .App "mobile" .Donor.CertificateProvider.Mobile
+                            (fromLink .App global.Paths.CertificateProviderDetails "#f-mobile")
+                            .Donor.CertificateProvider.FullName true false) }}
+
+                        {{ $contactValue := tr .App "byEmail" }}
+                        {{ if .Donor.CertificateProvider.CarryOutBy.IsPaper }}
+                            {{ $contactValue = tr .App "usingPaperForms" }}
+                        {{ end }}
+                        {{ template "summary-row" (summaryRow .App "contactPreference" $contactValue
+                            (fromLink .App global.Paths.HowWouldCertificateProviderPreferToCarryOutTheirRole "#f-carry-out-by")
+                            .Donor.CertificateProvider.FullName true false) }}
+
+                        {{ if .Donor.CertificateProvider.CarryOutBy.IsOnline }}
+                            {{ template "summary-row" (summaryRow .App "email" .Donor.CertificateProvider.Email
+                                (fromLink .App global.Paths.HowWouldCertificateProviderPreferToCarryOutTheirRole "#f-email")
+                                .Donor.CertificateProvider.FullName true false) }}
+                        {{ end }}
+
+                        {{ $addressLabel := "address" }}
+                        {{ if .Donor.CertificateProvider.Relationship.IsProfessionally }}
+                            {{ $addressLabel = "workAddress" }}
+                        {{ end }}
+                        {{ template "address-summary-row" (summaryRow .App $addressLabel .Donor.CertificateProvider.Address
+                            (fromLink .App global.Paths.CertificateProviderAddress "#f-address-line-1")
+                            .Donor.CertificateProvider.FullName true false) }}
+                    </dl>
+                </div>
+            </div>
+
+            {{ template "button" (button .App "returnToTaskList" "link" (global.Paths.TaskList.Format .App.LpaID)) }}
+        </div>
+    </div>
+{{ end }}

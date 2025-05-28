@@ -1830,5 +1830,11 @@
     "youCanChooseTrustCorporationUsedInPrevious": "You can choose a trust corporation you have used in previous LPAs, or add a new trust corporation.",
     "selectTrustCorporation": "<span class=\"govuk-!-font-weight-bold\">Select {{.Name}}</span><br>Company number: {{.CompanyNumber}}<br>Postcode: {{.Postcode}}",
     "iWantToAddNewTrustCorporation": "I would like to add a new trust corporation",
-    "aTrustCorporationOrToAddANewTrustCorporation": "a trust corporation, or to add a new trust corporation"
+    "aTrustCorporationOrToAddANewTrustCorporation": "a trust corporation, or to add a new trust corporation",
+    "chooseCertificateProvider": "Choose your certificate provider",
+    "chooseACertificateProviderYouHaveUsed": "Choose a certificate provider you have used in previous LPAs, or add a new certificate provider",
+    "selectCertificateProvider": "<span class=\"govuk-!-font-weight-bold\">Select {{.FullName}}</span><br>Mobile number: {{.Mobile}}<br>Postcode: {{.Postcode}}",
+    "iWantToAddNewCertificateProvider": "I want to add a new certificate provider",
+    "youveAddedACertificateProvider": "You’ve added a certificate provider",
+    "removeCertificateProvider": "Remove certificate provider"
 }

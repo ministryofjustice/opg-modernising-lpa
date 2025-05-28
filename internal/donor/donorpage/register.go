@@ -73,6 +73,9 @@ type ReuseStore interface {
 	PutTrustCorporation(ctx context.Context, trustCorporation donordata.TrustCorporation) error
 	TrustCorporations(ctx context.Context) ([]donordata.TrustCorporation, error)
 	DeleteTrustCorporation(ctx context.Context, trustCorporation donordata.TrustCorporation) error
+	PutCertificateProvider(ctx context.Context, certificateProvider donordata.CertificateProvider) error
+	CertificateProviders(ctx context.Context) ([]donordata.CertificateProvider, error)
+	DeleteCertificateProvider(ctx context.Context, certificateProvider donordata.CertificateProvider) error
 }
 
 type CertificateProviderStore interface {
@@ -358,17 +361,23 @@ func Register(
 	handleWithDonor(donor.PathChooseYourCertificateProvider, page.None,
 		Guidance(tmpls.Get("choose_your_certificate_provider.gohtml")))
 	handleWithDonor(donor.PathChooseNewCertificateProvider, page.None,
-		ChooseNewCertificateProvider(tmpls.Get("choose_new_certificate_provider.gohtml"), donorStore))
+		RemoveCertificateProvider(tmpls.Get("choose_new_certificate_provider.gohtml"), donorStore, reuseStore))
+	handleWithDonor(donor.PathChooseCertificateProvider, page.None,
+		ChooseCertificateProvider(tmpls.Get("choose_certificate_provider.gohtml"), donorStore, reuseStore, actoruid.New))
 	handleWithDonor(donor.PathCertificateProviderDetails, page.CanGoBack,
-		CertificateProviderDetails(tmpls.Get("certificate_provider_details.gohtml"), donorStore, actoruid.New))
+		CertificateProviderDetails(tmpls.Get("certificate_provider_details.gohtml"), donorStore, reuseStore, actoruid.New))
 	handleWithDonor(donor.PathHowWouldCertificateProviderPreferToCarryOutTheirRole, page.CanGoBack,
-		HowWouldCertificateProviderPreferToCarryOutTheirRole(tmpls.Get("how_would_certificate_provider_prefer_to_carry_out_their_role.gohtml"), donorStore))
+		HowWouldCertificateProviderPreferToCarryOutTheirRole(tmpls.Get("how_would_certificate_provider_prefer_to_carry_out_their_role.gohtml"), donorStore, reuseStore))
 	handleWithDonor(donor.PathCertificateProviderAddress, page.CanGoBack,
-		CertificateProviderAddress(logger, tmpls.Get("choose_address.gohtml"), addressClient, donorStore))
+		CertificateProviderAddress(logger, tmpls.Get("choose_address.gohtml"), addressClient, donorStore, reuseStore))
 	handleWithDonor(donor.PathHowDoYouKnowYourCertificateProvider, page.CanGoBack,
-		HowDoYouKnowYourCertificateProvider(tmpls.Get("how_do_you_know_your_certificate_provider.gohtml"), donorStore))
+		HowDoYouKnowYourCertificateProvider(tmpls.Get("how_do_you_know_your_certificate_provider.gohtml"), donorStore, reuseStore))
 	handleWithDonor(donor.PathHowLongHaveYouKnownCertificateProvider, page.CanGoBack,
-		HowLongHaveYouKnownCertificateProvider(tmpls.Get("how_long_have_you_known_certificate_provider.gohtml"), donorStore))
+		HowLongHaveYouKnownCertificateProvider(tmpls.Get("how_long_have_you_known_certificate_provider.gohtml"), donorStore, reuseStore))
+	handleWithDonor(donor.PathRemoveCertificateProvider, page.None,
+		RemoveCertificateProvider(tmpls.Get("remove_certificate_provider.gohtml"), donorStore, reuseStore))
+	handleWithDonor(donor.PathCertificateProviderSummary, page.None,
+		Guidance(tmpls.Get("certificate_provider_summary.gohtml")))
 
 	handleWithDonor(donor.PathDoYouWantToNotifyPeople, page.CanGoBack,
 		DoYouWantToNotifyPeople(tmpls.Get("do_you_want_to_notify_people.gohtml"), donorStore))

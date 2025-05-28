@@ -1,6 +1,7 @@
 package donorpage
 
 import (
+	"fmt"
 	"net/http"
 
 	"github.com/ministryofjustice/opg-go-common/template"
@@ -20,7 +21,7 @@ type howWouldCertificateProviderPreferToCarryOutTheirRoleData struct {
 	Options             lpadata.ChannelOptions
 }
 
-func HowWouldCertificateProviderPreferToCarryOutTheirRole(tmpl template.Template, donorStore DonorStore) Handler {
+func HowWouldCertificateProviderPreferToCarryOutTheirRole(tmpl template.Template, donorStore DonorStore, reuseStore ReuseStore) Handler {
 	return func(appData appcontext.Data, w http.ResponseWriter, r *http.Request, provided *donordata.Provided) error {
 		data := &howWouldCertificateProviderPreferToCarryOutTheirRoleData{
 			App:                 appData,
@@ -39,6 +40,10 @@ func HowWouldCertificateProviderPreferToCarryOutTheirRole(tmpl template.Template
 			if data.Errors.None() {
 				provided.CertificateProvider.CarryOutBy = data.Form.CarryOutBy
 				provided.CertificateProvider.Email = data.Form.Email
+
+				if err := reuseStore.PutCertificateProvider(r.Context(), provided.CertificateProvider); err != nil {
+					return fmt.Errorf("put certificate provider reuse data: %w", err)
+				}
 
 				if err := donorStore.Put(r.Context(), provided); err != nil {
 					return err

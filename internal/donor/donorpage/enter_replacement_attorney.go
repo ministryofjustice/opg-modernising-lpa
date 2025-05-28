@@ -80,10 +80,8 @@ func EnterReplacementAttorney(tmpl template.Template, donorStore DonorStore, reu
 
 				provided.Tasks.ChooseReplacementAttorneys = donordata.ChooseReplacementAttorneysState(provided)
 
-				if attorney.Address.Line1 != "" {
-					if err := reuseStore.PutAttorney(r.Context(), attorney); err != nil {
-						return err
-					}
+				if err := reuseStore.PutAttorney(r.Context(), attorney); err != nil {
+					return err
 				}
 
 				if err := donorStore.Put(r.Context(), provided); err != nil {
