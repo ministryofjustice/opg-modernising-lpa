@@ -44,7 +44,7 @@ func TestGetRemoveAttorney(t *testing.T) {
 		}).
 		Return(nil)
 
-	err := RemoveAttorney(template.Execute, nil)(testAppData, w, r, &donordata.Provided{Attorneys: donordata.Attorneys{Attorneys: []donordata.Attorney{attorney}}})
+	err := RemoveAttorney(template.Execute, nil, nil)(testAppData, w, r, &donordata.Provided{Attorneys: donordata.Attorneys{Attorneys: []donordata.Attorney{attorney}}})
 
 	resp := w.Result()
 
@@ -65,7 +65,7 @@ func TestGetRemoveAttorneyAttorneyDoesNotExist(t *testing.T) {
 		},
 	}
 
-	err := RemoveAttorney(template.Execute, nil)(testAppData, w, r, &donordata.Provided{LpaID: "lpa-id", Attorneys: donordata.Attorneys{Attorneys: []donordata.Attorney{attorney}}})
+	err := RemoveAttorney(template.Execute, nil, nil)(testAppData, w, r, &donordata.Provided{LpaID: "lpa-id", Attorneys: donordata.Attorneys{Attorneys: []donordata.Attorney{attorney}}})
 
 	resp := w.Result()
 
@@ -131,12 +131,17 @@ func TestPostRemoveAttorney(t *testing.T) {
 			r, _ := http.NewRequest(http.MethodPost, "/?id="+attorneyWithoutAddress.UID.String(), strings.NewReader(f.Encode()))
 			r.Header.Add("Content-Type", page.FormUrlEncoded)
 
+			reuseStore := newMockReuseStore(t)
+			reuseStore.EXPECT().
+				DeleteAttorney(r.Context(), attorneyWithoutAddress).
+				Return(nil)
+
 			donorStore := newMockDonorStore(t)
 			donorStore.EXPECT().
 				Put(r.Context(), tc.updatedDonor).
 				Return(nil)
 
-			err := RemoveAttorney(nil, donorStore)(testAppData, w, r, tc.donor)
+			err := RemoveAttorney(nil, donorStore, reuseStore)(testAppData, w, r, tc.donor)
 			resp := w.Result()
 
 			assert.Nil(t, err)
@@ -167,7 +172,7 @@ func TestPostRemoveAttorneyWithFormValueNo(t *testing.T) {
 	r, _ := http.NewRequest(http.MethodPost, "/?id="+attorneyWithoutAddress.UID.String(), strings.NewReader(f.Encode()))
 	r.Header.Add("Content-Type", page.FormUrlEncoded)
 
-	err := RemoveAttorney(nil, nil)(testAppData, w, r, &donordata.Provided{LpaID: "lpa-id", Attorneys: donordata.Attorneys{Attorneys: []donordata.Attorney{attorneyWithoutAddress, attorneyWithAddress}}})
+	err := RemoveAttorney(nil, nil, nil)(testAppData, w, r, &donordata.Provided{LpaID: "lpa-id", Attorneys: donordata.Attorneys{Attorneys: []donordata.Attorney{attorneyWithoutAddress, attorneyWithAddress}}})
 	resp := w.Result()
 
 	assert.Nil(t, err)
@@ -175,7 +180,7 @@ func TestPostRemoveAttorneyWithFormValueNo(t *testing.T) {
 	assert.Equal(t, donor.PathChooseAttorneysSummary.Format("lpa-id"), resp.Header.Get("Location"))
 }
 
-func TestPostRemoveAttorneyErrorOnPutStore(t *testing.T) {
+func TestPostRemoveAttorneyWhenReuseStoreErrors(t *testing.T) {
 	f := url.Values{
 		form.FieldNames.YesNo: {form.Yes.String()},
 	}
@@ -196,18 +201,48 @@ func TestPostRemoveAttorneyErrorOnPutStore(t *testing.T) {
 	r, _ := http.NewRequest(http.MethodPost, "/?id="+attorneyWithoutAddress.UID.String(), strings.NewReader(f.Encode()))
 	r.Header.Add("Content-Type", page.FormUrlEncoded)
 
-	template := newMockTemplate(t)
+	reuseStore := newMockReuseStore(t)
+	reuseStore.EXPECT().
+		DeleteAttorney(mock.Anything, mock.Anything).
+		Return(expectedError)
+
+	err := RemoveAttorney(nil, nil, reuseStore)(testAppData, w, r, &donordata.Provided{Attorneys: donordata.Attorneys{Attorneys: []donordata.Attorney{attorneyWithoutAddress, attorneyWithAddress}}})
+	assert.ErrorIs(t, err, expectedError)
+}
+
+func TestPostRemoveAttorneyWhenDonorStoreErrors(t *testing.T) {
+	f := url.Values{
+		form.FieldNames.YesNo: {form.Yes.String()},
+	}
+
+	attorneyWithAddress := donordata.Attorney{
+		UID: actoruid.New(),
+		Address: place.Address{
+			Line1: "1 Road way",
+		},
+	}
+
+	attorneyWithoutAddress := donordata.Attorney{
+		UID:     actoruid.New(),
+		Address: place.Address{},
+	}
+
+	w := httptest.NewRecorder()
+	r, _ := http.NewRequest(http.MethodPost, "/?id="+attorneyWithoutAddress.UID.String(), strings.NewReader(f.Encode()))
+	r.Header.Add("Content-Type", page.FormUrlEncoded)
+
+	reuseStore := newMockReuseStore(t)
+	reuseStore.EXPECT().
+		DeleteAttorney(mock.Anything, mock.Anything).
+		Return(nil)
 
 	donorStore := newMockDonorStore(t)
 	donorStore.EXPECT().
 		Put(r.Context(), mock.Anything).
 		Return(expectedError)
 
-	err := RemoveAttorney(template.Execute, donorStore)(testAppData, w, r, &donordata.Provided{Attorneys: donordata.Attorneys{Attorneys: []donordata.Attorney{attorneyWithoutAddress, attorneyWithAddress}}})
-	resp := w.Result()
-
+	err := RemoveAttorney(nil, donorStore, reuseStore)(testAppData, w, r, &donordata.Provided{Attorneys: donordata.Attorneys{Attorneys: []donordata.Attorney{attorneyWithoutAddress, attorneyWithAddress}}})
 	assert.ErrorIs(t, err, expectedError)
-	assert.Equal(t, http.StatusOK, resp.StatusCode)
 }
 
 func TestRemoveAttorneyFormValidation(t *testing.T) {
@@ -229,7 +264,7 @@ func TestRemoveAttorneyFormValidation(t *testing.T) {
 		})).
 		Return(nil)
 
-	err := RemoveAttorney(template.Execute, nil)(testAppData, w, r, &donordata.Provided{
+	err := RemoveAttorney(template.Execute, nil, nil)(testAppData, w, r, &donordata.Provided{
 		Attorneys: donordata.Attorneys{
 			Attorneys: []donordata.Attorney{{
 				UID:     uid,

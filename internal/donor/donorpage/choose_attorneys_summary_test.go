@@ -10,7 +10,6 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor/actoruid"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor/donordata"
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/form"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/validation"
 	"github.com/stretchr/testify/assert"
@@ -32,16 +31,21 @@ func TestGetChooseAttorneysSummary(t *testing.T) {
 			w := httptest.NewRecorder()
 			r, _ := http.NewRequest(http.MethodGet, "/", nil)
 
+			reuseStore := newMockReuseStore(t)
+			reuseStore.EXPECT().
+				Attorneys(r.Context(), donor).
+				Return([]donordata.Attorney{}, nil)
+
 			template := newMockTemplate(t)
 			template.EXPECT().
 				Execute(w, &chooseAttorneysSummaryData{
-					App:   testAppData,
-					Donor: donor,
-					Form:  form.NewYesNoForm(form.YesNoUnknown),
+					App:     testAppData,
+					Donor:   donor,
+					Options: donordata.YesNoMaybeValues,
 				}).
 				Return(nil)
 
-			err := ChooseAttorneysSummary(template.Execute, nil)(testAppData, w, r, donor)
+			err := ChooseAttorneysSummary(template.Execute, reuseStore, nil)(testAppData, w, r, donor)
 			resp := w.Result()
 
 			assert.Nil(t, err)
@@ -50,41 +54,56 @@ func TestGetChooseAttorneysSummary(t *testing.T) {
 	}
 }
 
+func TestGetChooseAttorneysSummaryWhenReuseStoreErrors(t *testing.T) {
+	w := httptest.NewRecorder()
+	r, _ := http.NewRequest(http.MethodGet, "/", nil)
+
+	reuseStore := newMockReuseStore(t)
+	reuseStore.EXPECT().
+		Attorneys(mock.Anything, mock.Anything).
+		Return(nil, expectedError)
+
+	err := ChooseAttorneysSummary(nil, reuseStore, nil)(testAppData, w, r, &donordata.Provided{
+		Attorneys: donordata.Attorneys{Attorneys: []donordata.Attorney{{}}},
+	})
+	assert.Equal(t, expectedError, err)
+}
+
 func TestGetChooseAttorneysSummaryWhenNoAttorneysOrTrustCorporation(t *testing.T) {
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest(http.MethodGet, "/", nil)
 
-	err := ChooseAttorneysSummary(nil, testUIDFn)(testAppData, w, r, &donordata.Provided{LpaID: "lpa-id"})
+	err := ChooseAttorneysSummary(nil, nil, testUIDFn)(testAppData, w, r, &donordata.Provided{LpaID: "lpa-id"})
 	resp := w.Result()
 
 	assert.Nil(t, err)
 	assert.Equal(t, http.StatusFound, resp.StatusCode)
-	assert.Equal(t, donor.PathChooseAttorneys.Format("lpa-id")+"?id="+testUID.String(), resp.Header.Get("Location"))
+	assert.Equal(t, donor.PathChooseAttorneys.Format("lpa-id"), resp.Header.Get("Location"))
 }
 
 func TestPostChooseAttorneysSummaryAddAttorney(t *testing.T) {
 	testcases := map[string]struct {
-		addMoreFormValue form.YesNo
+		addMoreFormValue donordata.YesNoMaybe
 		expectedUrl      string
 		Attorneys        donordata.Attorneys
 	}{
-		"add attorney - no attorneys": {
-			addMoreFormValue: form.Yes,
-			expectedUrl:      donor.PathChooseAttorneys.Format("lpa-id") + "?id=" + testUID.String(),
-			Attorneys:        donordata.Attorneys{Attorneys: []donordata.Attorney{}},
-		},
 		"add attorney - with attorney": {
-			addMoreFormValue: form.Yes,
-			expectedUrl:      donor.PathChooseAttorneys.Format("lpa-id") + "?addAnother=1&id=" + testUID.String(),
+			addMoreFormValue: donordata.Yes,
+			expectedUrl:      donor.PathEnterAttorney.Format("lpa-id") + "?addAnother=1&id=" + testUID.String(),
+			Attorneys:        donordata.Attorneys{Attorneys: []donordata.Attorney{{UID: actoruid.New()}}},
+		},
+		"choose attorney": {
+			addMoreFormValue: donordata.Maybe,
+			expectedUrl:      donor.PathChooseAttorneys.Format("lpa-id"),
 			Attorneys:        donordata.Attorneys{Attorneys: []donordata.Attorney{{UID: actoruid.New()}}},
 		},
 		"do not add attorney - with single attorney": {
-			addMoreFormValue: form.No,
+			addMoreFormValue: donordata.No,
 			expectedUrl:      donor.PathTaskList.Format("lpa-id"),
 			Attorneys:        donordata.Attorneys{Attorneys: []donordata.Attorney{{UID: actoruid.New()}}},
 		},
 		"do not add attorney - with multiple attorneys": {
-			addMoreFormValue: form.No,
+			addMoreFormValue: donordata.No,
 			expectedUrl:      donor.PathHowShouldAttorneysMakeDecisions.Format("lpa-id"),
 			Attorneys:        donordata.Attorneys{Attorneys: []donordata.Attorney{{UID: actoruid.New()}, {UID: actoruid.New()}}},
 		},
@@ -93,14 +112,19 @@ func TestPostChooseAttorneysSummaryAddAttorney(t *testing.T) {
 	for testname, tc := range testcases {
 		t.Run(testname, func(t *testing.T) {
 			f := url.Values{
-				form.FieldNames.YesNo: {tc.addMoreFormValue.String()},
+				"option": {tc.addMoreFormValue.String()},
 			}
 
 			w := httptest.NewRecorder()
 			r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(f.Encode()))
 			r.Header.Add("Content-Type", page.FormUrlEncoded)
 
-			err := ChooseAttorneysSummary(nil, testUIDFn)(testAppData, w, r, &donordata.Provided{LpaID: "lpa-id", Attorneys: tc.Attorneys})
+			reuseStore := newMockReuseStore(t)
+			reuseStore.EXPECT().
+				Attorneys(mock.Anything, mock.Anything).
+				Return([]donordata.Attorney{}, nil)
+
+			err := ChooseAttorneysSummary(nil, reuseStore, testUIDFn)(testAppData, w, r, &donordata.Provided{LpaID: "lpa-id", Attorneys: tc.Attorneys})
 			resp := w.Result()
 
 			assert.Nil(t, err)
@@ -112,14 +136,19 @@ func TestPostChooseAttorneysSummaryAddAttorney(t *testing.T) {
 
 func TestPostChooseAttorneysSummaryFormValidation(t *testing.T) {
 	f := url.Values{
-		form.FieldNames.YesNo: {""},
+		"option": {""},
 	}
 
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(f.Encode()))
 	r.Header.Add("Content-Type", page.FormUrlEncoded)
 
-	validationError := validation.With(form.FieldNames.YesNo, validation.SelectError{Label: "yesToAddAnotherAttorney"})
+	validationError := validation.With("option", validation.SelectError{Label: "yesToAddAnotherAttorney"})
+
+	reuseStore := newMockReuseStore(t)
+	reuseStore.EXPECT().
+		Attorneys(mock.Anything, mock.Anything).
+		Return([]donordata.Attorney{}, nil)
 
 	template := newMockTemplate(t)
 	template.EXPECT().
@@ -128,7 +157,7 @@ func TestPostChooseAttorneysSummaryFormValidation(t *testing.T) {
 		})).
 		Return(nil)
 
-	err := ChooseAttorneysSummary(template.Execute, nil)(testAppData, w, r, &donordata.Provided{Attorneys: donordata.Attorneys{Attorneys: []donordata.Attorney{{}}}})
+	err := ChooseAttorneysSummary(template.Execute, reuseStore, nil)(testAppData, w, r, &donordata.Provided{Attorneys: donordata.Attorneys{Attorneys: []donordata.Attorney{{}}}})
 	resp := w.Result()
 
 	assert.Nil(t, err)
