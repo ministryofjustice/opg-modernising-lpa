@@ -1,5 +1,5 @@
 data "aws_kms_alias" "cloudwatch_application_logs_encryption" {
-  name     = "${data.aws_default_tags.current.tags.account-name}_cloudwatch_application_logs_encryption"
+  name     = "alias/${data.aws_default_tags.current.tags.account-name}_cloudwatch_application_logs_encryption"
   provider = aws.region
 }
 
