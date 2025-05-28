@@ -18,13 +18,17 @@ The URL is used to download the layer zip which is then unzipped to retrieve the
 
 versions of the arn;
 
+Check at <https://aws-otel.github.io/docs/getting-started/lambda/lambda-go#lambda-layer> for the current version
+
 - aws-otel-collector-amd64-ver-0-102-1:1
 - aws-otel-collector-arm64-ver-0-102-1:1
 - aws-otel-collector-amd64-ver-0-115-0:2
 - aws-otel-collector-arm64-ver-0-115-0:2
+- aws-otel-collector-amd64-ver-0-115-0:3
+- aws-otel-collector-arm64-ver-0-115-0:3
 
 ```sh
-export VERSION=amd64-ver-0-115-0:2
+export VERSION=amd64-ver-0-115-0:3
 URL=$(aws-vault exec management-operator -- aws lambda get-layer-version-by-arn --arn arn:aws:lambda:eu-west-1:901920570463:layer:aws-otel-collector-${VERSION} --query Content.Location --output text)
 curl $URL -o aws-otel-collector-amd64-ver-${VERSION}.zip
 unzip aws-otel-collector-amd64-ver-${VERSION}.zip
