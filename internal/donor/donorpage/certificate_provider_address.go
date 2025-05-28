@@ -1,6 +1,7 @@
 package donorpage
 
 import (
+	"fmt"
 	"net/http"
 
 	"github.com/ministryofjustice/opg-go-common/template"
@@ -12,7 +13,7 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/task"
 )
 
-func CertificateProviderAddress(logger Logger, tmpl template.Template, addressClient AddressClient, donorStore DonorStore) Handler {
+func CertificateProviderAddress(logger Logger, tmpl template.Template, addressClient AddressClient, donorStore DonorStore, reuseStore ReuseStore) Handler {
 	return func(appData appcontext.Data, w http.ResponseWriter, r *http.Request, provided *donordata.Provided) error {
 		data := newChooseAddressData(
 			appData,
@@ -53,11 +54,15 @@ func CertificateProviderAddress(logger Logger, tmpl template.Template, addressCl
 					provided.UpdateCheckedHash()
 				}
 
+				if err := reuseStore.PutCertificateProvider(r.Context(), provided.CertificateProvider); err != nil {
+					return fmt.Errorf("put certificate provider reuse data: %w", err)
+				}
+
 				if err := donorStore.Put(r.Context(), provided); err != nil {
 					return err
 				}
 
-				return donor.PathTaskList.Redirect(w, r, appData, provided)
+				return donor.PathCertificateProviderSummary.Redirect(w, r, appData, provided)
 			}
 
 			switch data.Form.Action {

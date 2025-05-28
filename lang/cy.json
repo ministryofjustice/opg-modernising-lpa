@@ -1930,5 +1930,11 @@
     "youCanChooseTrustCorporationUsedInPrevious": "Welsh",
     "selectTrustCorporation": "<span class=\"govuk-!-font-weight-bold\">Welsh {{.Name}}</span><br> {{.CompanyNumber}}<br> {{.Postcode}}",
     "iWantToAddNewTrustCorporation": "Welsh",
-    "aTrustCorporationOrToAddANewTrustCorporation": "Welsh"
+    "aTrustCorporationOrToAddANewTrustCorporation": "Welsh",
+    "chooseCertificateProvider": "Welsh",
+    "chooseACertificateProviderYouHaveUsed": "Welsh",
+    "selectCertificateProvider": "<span class=\"govuk-!-font-weight-bold\">Welsh {{.FullName}}</span><br>{{.Mobile}}<br>{{.Postcode}}",
+    "iWantToAddNewCertificateProvider": "Welsh",
+    "youveAddedACertificateProvider": "Welsh",
+    "removeCertificateProvider": "Welsh"
 }

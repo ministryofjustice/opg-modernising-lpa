@@ -1,6 +1,7 @@
 package donorpage
 
 import (
+	"fmt"
 	"net/http"
 
 	"github.com/ministryofjustice/opg-go-common/template"
@@ -21,7 +22,7 @@ type howDoYouKnowYourCertificateProviderData struct {
 	Form                *form.SelectForm[lpadata.CertificateProviderRelationship, lpadata.CertificateProviderRelationshipOptions, *lpadata.CertificateProviderRelationship]
 }
 
-func HowDoYouKnowYourCertificateProvider(tmpl template.Template, donorStore DonorStore) Handler {
+func HowDoYouKnowYourCertificateProvider(tmpl template.Template, donorStore DonorStore, reuseStore ReuseStore) Handler {
 	return func(appData appcontext.Data, w http.ResponseWriter, r *http.Request, provided *donordata.Provided) error {
 		data := &howDoYouKnowYourCertificateProviderData{
 			App:                 appData,
@@ -44,6 +45,10 @@ func HowDoYouKnowYourCertificateProvider(tmpl template.Template, donorStore Dono
 				}
 
 				provided.CertificateProvider.Relationship = data.Form.Selected
+
+				if err := reuseStore.PutCertificateProvider(r.Context(), provided.CertificateProvider); err != nil {
+					return fmt.Errorf("put certificate provider reuse data: %w", err)
+				}
 
 				if err := donorStore.Put(r.Context(), provided); err != nil {
 					return err

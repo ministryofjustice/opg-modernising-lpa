@@ -52,6 +52,14 @@ func TaskList(tmpl template.Template, evidenceReceivedStore EvidenceReceivedStor
 			chooseReplacementAttorneysLink = donor.PathChooseReplacementAttorneysSummary
 		}
 
+		certificateProviderLink := donor.PathWhatACertificateProviderDoes
+		switch provided.Tasks.CertificateProvider {
+		case task.StateCompleted:
+			certificateProviderLink = donor.PathCertificateProviderSummary
+		case task.StateInProgress:
+			certificateProviderLink = donor.PathCertificateProviderDetails
+		}
+
 		section1 := taskListSection{
 			Heading: "fillInTheLpa",
 			Items: []taskListItem{
@@ -80,7 +88,7 @@ func TaskList(tmpl template.Template, evidenceReceivedStore EvidenceReceivedStor
 				},
 				{
 					Name:  "chooseYourCertificateProvider",
-					Path:  donor.PathWhatACertificateProviderDoes,
+					Path:  certificateProviderLink,
 					State: provided.Tasks.CertificateProvider,
 				},
 				{
