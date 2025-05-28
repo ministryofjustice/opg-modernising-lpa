@@ -30,6 +30,7 @@ locals {
     business-unit    = "OPG"
     application      = "opg-modernising-lpa"
     environment-name = local.account.account_name
+    service-area     = "POAS"
     owner            = "OPG Webops: opgteam+modernising-lpa@digital.justice.gov.uk"
     is-production    = local.account.is_production
     runbook          = "https://github.com/ministryofjustice/opg-modernising-lpa"

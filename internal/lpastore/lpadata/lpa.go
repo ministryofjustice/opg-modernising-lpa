@@ -59,8 +59,8 @@ type Lpa struct {
 	// details.
 	CertificateProviderNotRelatedConfirmedAt time.Time
 
-	// Submitted is set if SubmittedAt is non-zero for online applications, or set
-	// to true for paper applications.
+	// Submitted is always set to true when the LPA is returned from the LPA store.
+	// It signifies the donor has submitted their application to OPG (for both online and paper donors)
 	Submitted bool
 
 	// Paid is set if the PayForLpa task has been completed for online
