@@ -54,7 +54,7 @@ func TestGetRemoveTrustCorporation(t *testing.T) {
 				}).
 				Return(nil)
 
-			err := RemoveTrustCorporation(template.Execute, nil, tc.isReplacement)(testAppData, w, r, tc.donor)
+			err := RemoveTrustCorporation(template.Execute, nil, nil, tc.isReplacement)(testAppData, w, r, tc.donor)
 
 			resp := w.Result()
 
@@ -161,14 +161,17 @@ func TestPostRemoveTrustCorporation(t *testing.T) {
 			r, _ := http.NewRequest(http.MethodPost, "/?id=without-address", strings.NewReader(f.Encode()))
 			r.Header.Add("Content-Type", page.FormUrlEncoded)
 
-			template := newMockTemplate(t)
+			reuseStore := newMockReuseStore(t)
+			reuseStore.EXPECT().
+				DeleteTrustCorporation(r.Context(), trustCorporation).
+				Return(nil)
 
 			donorStore := newMockDonorStore(t)
 			donorStore.EXPECT().
 				Put(r.Context(), tc.updatedDonor).
 				Return(nil)
 
-			err := RemoveTrustCorporation(template.Execute, donorStore, tc.isReplacement)(testAppData, w, r, tc.donor)
+			err := RemoveTrustCorporation(nil, donorStore, reuseStore, tc.isReplacement)(testAppData, w, r, tc.donor)
 
 			resp := w.Result()
 
@@ -203,7 +206,7 @@ func TestPostRemoveTrustCorporationWithFormValueNo(t *testing.T) {
 		Address: place.Address{},
 	}
 
-	err := RemoveTrustCorporation(template.Execute, nil, false)(testAppData, w, r, &donordata.Provided{LpaID: "lpa-id", Attorneys: donordata.Attorneys{Attorneys: []donordata.Attorney{attorneyWithoutAddress, attorneyWithAddress}}})
+	err := RemoveTrustCorporation(template.Execute, nil, nil, false)(testAppData, w, r, &donordata.Provided{LpaID: "lpa-id", Attorneys: donordata.Attorneys{Attorneys: []donordata.Attorney{attorneyWithoutAddress, attorneyWithAddress}}})
 
 	resp := w.Result()
 
@@ -212,7 +215,7 @@ func TestPostRemoveTrustCorporationWithFormValueNo(t *testing.T) {
 	assert.Equal(t, donor.PathChooseAttorneysSummary.Format("lpa-id"), resp.Header.Get("Location"))
 }
 
-func TestPostRemoveTrustCorporationErrorOnPutStore(t *testing.T) {
+func TestPostRemoveTrustCorporationWhenReuseStoreErrors(t *testing.T) {
 	f := url.Values{
 		form.FieldNames.YesNo: {form.Yes.String()},
 	}
@@ -236,17 +239,51 @@ func TestPostRemoveTrustCorporationErrorOnPutStore(t *testing.T) {
 		Address: place.Address{},
 	}
 
+	reuseStore := newMockReuseStore(t)
+	reuseStore.EXPECT().
+		DeleteTrustCorporation(mock.Anything, mock.Anything).
+		Return(expectedError)
+
+	err := RemoveTrustCorporation(template.Execute, nil, reuseStore, false)(testAppData, w, r, &donordata.Provided{Attorneys: donordata.Attorneys{Attorneys: []donordata.Attorney{attorneyWithoutAddress, attorneyWithAddress}}})
+	assert.Equal(t, expectedError, err)
+}
+
+func TestPostRemoveTrustCorporationWhenDonorStoreErrors(t *testing.T) {
+	f := url.Values{
+		form.FieldNames.YesNo: {form.Yes.String()},
+	}
+
+	uid := actoruid.New()
+	w := httptest.NewRecorder()
+	r, _ := http.NewRequest(http.MethodPost, "/?id="+uid.String(), strings.NewReader(f.Encode()))
+	r.Header.Add("Content-Type", page.FormUrlEncoded)
+
+	template := newMockTemplate(t)
+
+	attorneyWithAddress := donordata.Attorney{
+		UID: actoruid.New(),
+		Address: place.Address{
+			Line1: "1 Road way",
+		},
+	}
+
+	attorneyWithoutAddress := donordata.Attorney{
+		UID:     uid,
+		Address: place.Address{},
+	}
+
+	reuseStore := newMockReuseStore(t)
+	reuseStore.EXPECT().
+		DeleteTrustCorporation(mock.Anything, mock.Anything).
+		Return(nil)
+
 	donorStore := newMockDonorStore(t)
 	donorStore.EXPECT().
 		Put(r.Context(), mock.Anything).
 		Return(expectedError)
 
-	err := RemoveTrustCorporation(template.Execute, donorStore, false)(testAppData, w, r, &donordata.Provided{Attorneys: donordata.Attorneys{Attorneys: []donordata.Attorney{attorneyWithoutAddress, attorneyWithAddress}}})
-
-	resp := w.Result()
-
+	err := RemoveTrustCorporation(template.Execute, donorStore, reuseStore, false)(testAppData, w, r, &donordata.Provided{Attorneys: donordata.Attorneys{Attorneys: []donordata.Attorney{attorneyWithoutAddress, attorneyWithAddress}}})
 	assert.Equal(t, expectedError, err)
-	assert.Equal(t, http.StatusOK, resp.StatusCode)
 }
 
 func TestRemoveTrustCorporationFormValidation(t *testing.T) {
@@ -273,7 +310,7 @@ func TestRemoveTrustCorporationFormValidation(t *testing.T) {
 		})).
 		Return(nil)
 
-	err := RemoveTrustCorporation(template.Execute, nil, false)(testAppData, w, r, &donordata.Provided{Attorneys: donordata.Attorneys{Attorneys: []donordata.Attorney{attorneyWithoutAddress}}})
+	err := RemoveTrustCorporation(template.Execute, nil, nil, false)(testAppData, w, r, &donordata.Provided{Attorneys: donordata.Attorneys{Attorneys: []donordata.Attorney{attorneyWithoutAddress}}})
 	resp := w.Result()
 
 	assert.Nil(t, err)

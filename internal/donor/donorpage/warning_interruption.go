@@ -2,6 +2,7 @@ package donorpage
 
 import (
 	"net/http"
+	"net/url"
 	"strings"
 
 	"github.com/ministryofjustice/opg-go-common/template"
@@ -34,7 +35,7 @@ func WarningInterruption(tmpl template.Template) Handler {
 		}
 
 		switch data.From {
-		case donor.PathChooseAttorneys.Format(appData.LpaID):
+		case donor.PathEnterAttorney.Format(appData.LpaID):
 			uid, err := actoruid.Parse(r.FormValue("id"))
 			if err != nil {
 				return donor.PathTaskList.RedirectQuery(w, r, appData, provided, nil)
@@ -68,6 +69,8 @@ func WarningInterruption(tmpl template.Template) Handler {
 				}
 
 				data.PageTitle = "checkYourAttorneysDetails"
+			} else {
+				return donor.PathChooseAttorneysAddress.RedirectQuery(w, r, appData, provided, url.Values{"id": {uid.String()}})
 			}
 		}
 
