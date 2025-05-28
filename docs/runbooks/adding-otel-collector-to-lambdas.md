@@ -18,6 +18,8 @@ The URL is used to download the layer zip which is then unzipped to retrieve the
 
 versions of the arn;
 
+Check at <https://aws-otel.github.io/docs/getting-started/lambda/lambda-go#lambda-layer> for the current version
+
 - aws-otel-collector-amd64-ver-0-102-1:1
 - aws-otel-collector-arm64-ver-0-102-1:1
 - aws-otel-collector-amd64-ver-0-115-0:2
