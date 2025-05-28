@@ -1,9 +1,9 @@
-import {DateOfBirthAssertions, TestEmail} from "../../support/e2e";
+import { DateOfBirthAssertions, TestEmail } from "../../support/e2e";
 
-describe('Choose attorneys', () => {
+describe('Enter attorney', () => {
     beforeEach(() => {
         cy.visit('/fixtures?redirect=/choose-attorneys-guidance&progress=provideYourDetails');
-        cy.contains('button', 'Continue').click();
+        cy.contains('a', 'Continue').click();
     });
 
     it('can be submitted', () => {
@@ -100,7 +100,7 @@ describe('Choose attorneys', () => {
         cy.contains('This attorney is under 18 years old. You can continue making your LPA but you will not be able to sign it until they are 18.');
 
         cy.contains('a', 'Change date of birth for Sam Smith').click();
-        cy.url().should('contain', '/choose-attorneys');
+        cy.url().should('contain', '/enter-attorney');
 
         cy.contains('button', 'Save and continue').click();
         cy.url().should('contain', '/warning');
