@@ -12,6 +12,7 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/appcontext"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor/donordata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/dynamo"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/place"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
 )
@@ -24,74 +25,147 @@ func (c *mockDynamoClient_One_Call) SetData(data map[string]types.AttributeValue
 	})
 }
 
-func TestStorePutCorrespondent(t *testing.T) {
-	ctx := appcontext.ContextWithSession(context.Background(), &appcontext.Session{SessionID: "session-id"})
-	actorUID := actoruid.New()
-	value, _ := attributevalue.Marshal(donordata.Correspondent{FirstNames: "John"})
-
-	dynamoClient := newMockDynamoClient(t)
-	dynamoClient.EXPECT().
-		Update(ctx, dynamo.ReuseKey("session-id", actor.TypeCorrespondent.String()), dynamo.MetadataKey(""),
-			map[string]string{"#ActorUID": actorUID.String()},
-			map[string]types.AttributeValue{":Value": value},
-			"SET #ActorUID = :Value",
-		).
-		Return(expectedError)
-
-	err := NewStore(dynamoClient).PutCorrespondent(ctx, donordata.Correspondent{UID: actorUID, FirstNames: "John"})
-	assert.Equal(t, expectedError, err)
-}
-
-func TestStorePutCorrespondentWhenSupporter(t *testing.T) {
-	ctx := appcontext.ContextWithSession(context.Background(), &appcontext.Session{SessionID: "session-id", OrganisationID: "org"})
-
-	err := NewStore(nil).PutCorrespondent(ctx, donordata.Correspondent{})
-	assert.Nil(t, err)
-}
-
-func TestStorePutCorrespondentWhenMissingSession(t *testing.T) {
-	ctx := context.Background()
-
-	err := NewStore(nil).PutCorrespondent(ctx, donordata.Correspondent{})
-	assert.Equal(t, appcontext.SessionMissingError{}, err)
-}
-
-func TestStorePutCorrespondentWhenMissingSessionID(t *testing.T) {
-	ctx := appcontext.ContextWithSession(context.Background(), &appcontext.Session{})
-
-	err := NewStore(nil).PutCorrespondent(ctx, donordata.Correspondent{})
-	assert.Error(t, err)
-}
-
-func TestStoreDeleteCorrespondent(t *testing.T) {
-	ctx := appcontext.ContextWithSession(context.Background(), &appcontext.Session{SessionID: "session-id"})
+func TestStoreDeleteReusable(t *testing.T) {
 	actorUID := actoruid.New()
 
-	dynamoClient := newMockDynamoClient(t)
-	dynamoClient.EXPECT().
-		Update(ctx, dynamo.ReuseKey("session-id", actor.TypeCorrespondent.String()), dynamo.MetadataKey(""),
-			map[string]string{"#ActorUID": actorUID.String()},
-			map[string]types.AttributeValue(nil),
-			"REMOVE #ActorUID",
-		).
-		Return(expectedError)
+	testcases := map[actor.Type]func(s *Store, ctx context.Context) error{
+		actor.TypeCorrespondent: func(s *Store, ctx context.Context) error {
+			return s.DeleteCorrespondent(ctx, donordata.Correspondent{UID: actorUID})
+		},
+		actor.TypeAttorney: func(s *Store, ctx context.Context) error {
+			return s.DeleteAttorney(ctx, donordata.Attorney{UID: actorUID})
+		},
+		actor.TypeTrustCorporation: func(s *Store, ctx context.Context) error {
+			return s.DeleteTrustCorporation(ctx, donordata.TrustCorporation{UID: actorUID})
+		},
+		actor.TypeCertificateProvider: func(s *Store, ctx context.Context) error {
+			return s.DeleteCertificateProvider(ctx, donordata.CertificateProvider{UID: actorUID})
+		},
+	}
 
-	err := NewStore(dynamoClient).DeleteCorrespondent(ctx, donordata.Correspondent{UID: actorUID, FirstNames: "John"})
-	assert.Equal(t, expectedError, err)
+	for actorType, fn := range testcases {
+		t.Run(actorType.String(), func(t *testing.T) {
+			ctx := appcontext.ContextWithSession(context.Background(), &appcontext.Session{SessionID: "session-id"})
+
+			dynamoClient := newMockDynamoClient(t)
+			dynamoClient.EXPECT().
+				Update(ctx, dynamo.ReuseKey("session-id", actorType.String()), dynamo.MetadataKey(""),
+					map[string]string{"#ActorUID": actorUID.String()},
+					map[string]types.AttributeValue(nil),
+					"REMOVE #ActorUID",
+				).
+				Return(expectedError)
+
+			err := fn(NewStore(dynamoClient), ctx)
+			assert.Equal(t, expectedError, err)
+		})
+
+		t.Run(actorType.String()+"/MissingSession", func(t *testing.T) {
+			ctx := context.Background()
+
+			err := fn(NewStore(nil), ctx)
+			assert.Equal(t, appcontext.SessionMissingError{}, err)
+		})
+
+		t.Run(actorType.String()+"/MissingSessionID", func(t *testing.T) {
+			ctx := appcontext.ContextWithSession(context.Background(), &appcontext.Session{})
+
+			err := fn(NewStore(nil), ctx)
+			assert.Error(t, err)
+		})
+	}
 }
 
-func TestStoreDeleteCorrespondentWhenMissingSession(t *testing.T) {
-	ctx := context.Background()
+func TestStorePutReusable(t *testing.T) {
+	actorUID := actoruid.New()
 
-	err := NewStore(nil).DeleteCorrespondent(ctx, donordata.Correspondent{})
-	assert.Equal(t, appcontext.SessionMissingError{}, err)
-}
+	testcases := map[actor.Type]struct {
+		fn             func(s *Store, ctx context.Context, v any) error
+		item           any
+		withoutAddress any
+		updated        any
+	}{
+		actor.TypeCorrespondent: {
+			fn: func(s *Store, ctx context.Context, v any) error {
+				return s.PutCorrespondent(ctx, v.(donordata.Correspondent))
+			},
+			item:    donordata.Correspondent{UID: actorUID, FirstNames: "John"},
+			updated: donordata.Correspondent{FirstNames: "John"},
+		},
+		actor.TypeAttorney: {
+			fn: func(s *Store, ctx context.Context, v any) error {
+				return s.PutAttorney(ctx, v.(donordata.Attorney))
+			},
+			item:           donordata.Attorney{UID: actorUID, FirstNames: "John", Address: place.Address{Line1: "a"}},
+			withoutAddress: donordata.Attorney{UID: actorUID, FirstNames: "John"},
+			updated:        donordata.Attorney{FirstNames: "John", Address: place.Address{Line1: "a"}},
+		},
+		actor.TypeTrustCorporation: {
+			fn: func(s *Store, ctx context.Context, v any) error {
+				return s.PutTrustCorporation(ctx, v.(donordata.TrustCorporation))
+			},
+			item:           donordata.TrustCorporation{UID: actorUID, Name: "Corp", Address: place.Address{Line1: "a"}},
+			withoutAddress: donordata.TrustCorporation{UID: actorUID, Name: "Corp"},
+			updated:        donordata.TrustCorporation{Name: "Corp", Address: place.Address{Line1: "a"}},
+		},
+		actor.TypeCertificateProvider: {
+			fn: func(s *Store, ctx context.Context, v any) error {
+				return s.PutCertificateProvider(ctx, v.(donordata.CertificateProvider))
+			},
+			item:           donordata.CertificateProvider{UID: actorUID, FirstNames: "John", Address: place.Address{Line1: "a"}},
+			withoutAddress: donordata.CertificateProvider{UID: actorUID, FirstNames: "John"},
+			updated:        donordata.CertificateProvider{FirstNames: "John", Address: place.Address{Line1: "a"}},
+		},
+	}
 
-func TestStoreDeleteCorrespondentWhenMissingSessionID(t *testing.T) {
-	ctx := appcontext.ContextWithSession(context.Background(), &appcontext.Session{})
+	for actorType, tc := range testcases {
+		t.Run(actorType.String(), func(t *testing.T) {
+			ctx := appcontext.ContextWithSession(context.Background(), &appcontext.Session{SessionID: "session-id"})
+			value, _ := attributevalue.Marshal(tc.updated)
 
-	err := NewStore(nil).DeleteCorrespondent(ctx, donordata.Correspondent{})
-	assert.Error(t, err)
+			dynamoClient := newMockDynamoClient(t)
+			dynamoClient.EXPECT().
+				Update(ctx, dynamo.ReuseKey("session-id", actorType.String()), dynamo.MetadataKey(""),
+					map[string]string{"#ActorUID": actorUID.String()},
+					map[string]types.AttributeValue{":Value": value},
+					"SET #ActorUID = :Value",
+				).
+				Return(expectedError)
+
+			err := tc.fn(NewStore(dynamoClient), ctx, tc.item)
+			assert.Equal(t, expectedError, err)
+		})
+
+		t.Run(actorType.String()+"/Supporter", func(t *testing.T) {
+			ctx := appcontext.ContextWithSession(context.Background(), &appcontext.Session{SessionID: "session-id", OrganisationID: "org"})
+
+			err := tc.fn(NewStore(nil), ctx, tc.item)
+			assert.Nil(t, err)
+		})
+
+		t.Run(actorType.String()+"/MissingSession", func(t *testing.T) {
+			ctx := context.Background()
+
+			err := tc.fn(NewStore(nil), ctx, tc.item)
+			assert.Equal(t, appcontext.SessionMissingError{}, err)
+		})
+
+		t.Run(actorType.String()+"/MissingSessionID", func(t *testing.T) {
+			ctx := appcontext.ContextWithSession(context.Background(), &appcontext.Session{})
+
+			err := tc.fn(NewStore(nil), ctx, tc.item)
+			assert.Error(t, err)
+		})
+
+		if tc.withoutAddress != nil {
+			t.Run(actorType.String()+"/MissingAddress", func(t *testing.T) {
+				ctx := appcontext.ContextWithSession(context.Background(), &appcontext.Session{SessionID: "session-id"})
+
+				err := tc.fn(NewStore(nil), ctx, tc.withoutAddress)
+				assert.Nil(t, err)
+			})
+		}
+	}
 }
 
 func TestStoreCorrespondents(t *testing.T) {
@@ -194,37 +268,6 @@ func TestStorePutAttorneysWhenMissingSessionID(t *testing.T) {
 	assert.Error(t, err)
 }
 
-func TestStoreDeleteAttorney(t *testing.T) {
-	ctx := appcontext.ContextWithSession(context.Background(), &appcontext.Session{SessionID: "session-id"})
-	actorUID := actoruid.New()
-
-	dynamoClient := newMockDynamoClient(t)
-	dynamoClient.EXPECT().
-		Update(ctx, dynamo.ReuseKey("session-id", actor.TypeAttorney.String()), dynamo.MetadataKey(""),
-			map[string]string{"#ActorUID": actorUID.String()},
-			map[string]types.AttributeValue(nil),
-			"REMOVE #ActorUID",
-		).
-		Return(expectedError)
-
-	err := NewStore(dynamoClient).DeleteAttorney(ctx, donordata.Attorney{UID: actorUID, FirstNames: "John"})
-	assert.Equal(t, expectedError, err)
-}
-
-func TestStoreDeleteAttorneyWhenMissingSession(t *testing.T) {
-	ctx := context.Background()
-
-	err := NewStore(nil).DeleteAttorney(ctx, donordata.Attorney{})
-	assert.Equal(t, appcontext.SessionMissingError{}, err)
-}
-
-func TestStoreDeleteAttorneyWhenMissingSessionID(t *testing.T) {
-	ctx := appcontext.ContextWithSession(context.Background(), &appcontext.Session{})
-
-	err := NewStore(nil).DeleteAttorney(ctx, donordata.Attorney{})
-	assert.Error(t, err)
-}
-
 func TestStoreAttorneys(t *testing.T) {
 	ctx := appcontext.ContextWithSession(context.Background(), &appcontext.Session{SessionID: "session-id"})
 
@@ -293,76 +336,6 @@ func TestStoreAttorneysWhenMissingSessionID(t *testing.T) {
 	ctx := appcontext.ContextWithSession(context.Background(), &appcontext.Session{})
 
 	_, err := NewStore(nil).Attorneys(ctx, &donordata.Provided{})
-	assert.Error(t, err)
-}
-
-func TestStorePutTrustCorporation(t *testing.T) {
-	ctx := appcontext.ContextWithSession(context.Background(), &appcontext.Session{SessionID: "session-id"})
-	actorUID := actoruid.New()
-	value, _ := attributevalue.Marshal(donordata.TrustCorporation{Name: "Corp"})
-
-	dynamoClient := newMockDynamoClient(t)
-	dynamoClient.EXPECT().
-		Update(ctx, dynamo.ReuseKey("session-id", actor.TypeTrustCorporation.String()), dynamo.MetadataKey(""),
-			map[string]string{"#ActorUID": actorUID.String()},
-			map[string]types.AttributeValue{":Value": value},
-			"SET #ActorUID = :Value",
-		).
-		Return(expectedError)
-
-	err := NewStore(dynamoClient).PutTrustCorporation(ctx, donordata.TrustCorporation{UID: actorUID, Name: "Corp"})
-	assert.Equal(t, expectedError, err)
-}
-
-func TestStorePutTrustCorporationWhenSupporter(t *testing.T) {
-	ctx := appcontext.ContextWithSession(context.Background(), &appcontext.Session{SessionID: "session-id", OrganisationID: "org"})
-
-	err := NewStore(nil).PutTrustCorporation(ctx, donordata.TrustCorporation{})
-	assert.Nil(t, err)
-}
-
-func TestStorePutTrustCorporationWhenMissingSession(t *testing.T) {
-	ctx := context.Background()
-
-	err := NewStore(nil).PutTrustCorporation(ctx, donordata.TrustCorporation{})
-	assert.Equal(t, appcontext.SessionMissingError{}, err)
-}
-
-func TestStorePutTrustCorporationWhenMissingSessionID(t *testing.T) {
-	ctx := appcontext.ContextWithSession(context.Background(), &appcontext.Session{})
-
-	err := NewStore(nil).PutTrustCorporation(ctx, donordata.TrustCorporation{})
-	assert.Error(t, err)
-}
-
-func TestStoreDeleteTrustCorporation(t *testing.T) {
-	ctx := appcontext.ContextWithSession(context.Background(), &appcontext.Session{SessionID: "session-id"})
-	actorUID := actoruid.New()
-
-	dynamoClient := newMockDynamoClient(t)
-	dynamoClient.EXPECT().
-		Update(ctx, dynamo.ReuseKey("session-id", actor.TypeTrustCorporation.String()), dynamo.MetadataKey(""),
-			map[string]string{"#ActorUID": actorUID.String()},
-			map[string]types.AttributeValue(nil),
-			"REMOVE #ActorUID",
-		).
-		Return(expectedError)
-
-	err := NewStore(dynamoClient).DeleteTrustCorporation(ctx, donordata.TrustCorporation{UID: actorUID, Name: "Corp"})
-	assert.Equal(t, expectedError, err)
-}
-
-func TestStoreDeleteTrustCorporationWhenMissingSession(t *testing.T) {
-	ctx := context.Background()
-
-	err := NewStore(nil).DeleteTrustCorporation(ctx, donordata.TrustCorporation{})
-	assert.Equal(t, appcontext.SessionMissingError{}, err)
-}
-
-func TestStoreDeleteTrustCorporationWhenMissingSessionID(t *testing.T) {
-	ctx := appcontext.ContextWithSession(context.Background(), &appcontext.Session{})
-
-	err := NewStore(nil).DeleteTrustCorporation(ctx, donordata.TrustCorporation{})
 	assert.Error(t, err)
 }
 
