@@ -10,7 +10,7 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/form"
 )
 
-func RemoveTrustCorporation(tmpl template.Template, donorStore DonorStore, isReplacement bool) Handler {
+func RemoveTrustCorporation(tmpl template.Template, donorStore DonorStore, reuseStore ReuseStore, isReplacement bool) Handler {
 	redirect := donor.PathChooseAttorneysSummary
 	titleLabel := "removeTrustCorporation"
 	if isReplacement {
@@ -18,13 +18,17 @@ func RemoveTrustCorporation(tmpl template.Template, donorStore DonorStore, isRep
 		titleLabel = "removeReplacementTrustCorporation"
 	}
 
-	setTrustCorporation := func(donor *donordata.Provided) {
+	setTrustCorporation := func(donor *donordata.Provided) donordata.TrustCorporation {
+		previous := donor.Attorneys.TrustCorporation
 		donor.Attorneys.TrustCorporation = donordata.TrustCorporation{}
+		return previous
 	}
 
 	if isReplacement {
-		setTrustCorporation = func(donor *donordata.Provided) {
+		setTrustCorporation = func(donor *donordata.Provided) donordata.TrustCorporation {
+			previous := donor.ReplacementAttorneys.TrustCorporation
 			donor.ReplacementAttorneys.TrustCorporation = donordata.TrustCorporation{}
+			return previous
 		}
 	}
 
@@ -47,10 +51,14 @@ func RemoveTrustCorporation(tmpl template.Template, donorStore DonorStore, isRep
 
 			if data.Errors.None() {
 				if data.Form.YesNo.IsYes() {
-					setTrustCorporation(donor)
+					trustCorporation := setTrustCorporation(donor)
 					donor.UpdateDecisions()
 					donor.Tasks.ChooseAttorneys = donordata.ChooseAttorneysState(donor.Attorneys, donor.AttorneyDecisions)
 					donor.Tasks.ChooseReplacementAttorneys = donordata.ChooseReplacementAttorneysState(donor)
+
+					if err := reuseStore.DeleteTrustCorporation(r.Context(), trustCorporation); err != nil {
+						return err
+					}
 
 					if err := donorStore.Put(r.Context(), donor); err != nil {
 						return err

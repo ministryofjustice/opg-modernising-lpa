@@ -32,6 +32,7 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/pay"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/place"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/random"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/reuse"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/sesh"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/sharecode"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/sharecode/sharecodedata"
@@ -114,6 +115,7 @@ func Donor(
 	lpaStoreClient *lpastore.Client,
 	shareCodeStore *sharecode.Store,
 	voucherStore *voucher.Store,
+	reuseStore *reuse.Store,
 	notifyClient *notify.Client,
 	appPublicURL string,
 ) page.Handler {
@@ -176,13 +178,13 @@ func Donor(
 			return err
 		}
 
+		donorCtx := appcontext.ContextWithSession(r.Context(), &appcontext.Session{SessionID: donorSessionID, LpaID: donorDetails.LpaID})
+
 		var fns []func(context.Context, *lpastore.Client, *lpadata.Lpa) error
-		donorDetails, fns, err = updateLPAProgress(data, donorDetails, donorSessionID, r, certificateProviderStore, attorneyStore, documentStore, eventClient, shareCodeStore, voucherStore, notifyClient, appPublicURL)
+		donorDetails, fns, err = updateLPAProgress(donorCtx, data, donorDetails, donorSessionID, r, certificateProviderStore, attorneyStore, documentStore, eventClient, shareCodeStore, voucherStore, reuseStore, notifyClient, appPublicURL)
 		if err != nil {
 			return err
 		}
-
-		donorCtx := appcontext.ContextWithSession(r.Context(), &appcontext.Session{SessionID: donorSessionID, LpaID: donorDetails.LpaID})
 
 		if data.Progress >= slices.Index(progressValues, "checkAndSendToYourCertificateProvider") {
 			if err = donorDetails.UpdateCheckedHash(); err != nil {
@@ -223,6 +225,7 @@ func Donor(
 }
 
 func updateLPAProgress(
+	donorCtx context.Context,
 	data FixtureData,
 	donorDetails *donordata.Provided,
 	donorSessionID string,
@@ -233,6 +236,7 @@ func updateLPAProgress(
 	eventClient *event.Client,
 	shareCodeStore *sharecode.Store,
 	voucherStore *voucher.Store,
+	reuseStore *reuse.Store,
 	notifyClient *notify.Client,
 	appPublicURL string,
 ) (*donordata.Provided, []func(context.Context, *lpastore.Client, *lpadata.Lpa) error, error) {
@@ -341,6 +345,18 @@ func updateLPAProgress(
 		}
 
 		donorDetails.Tasks.ChooseReplacementAttorneys = task.StateCompleted
+	}
+
+	if attorneys := append(donorDetails.Attorneys.Attorneys, donorDetails.ReplacementAttorneys.Attorneys...); len(attorneys) > 0 {
+		if err := reuseStore.PutAttorneys(donorCtx, attorneys); err != nil {
+			return nil, nil, fmt.Errorf("reuse store put attorneys: %w", err)
+		}
+	}
+
+	if trustCorporation := donorDetails.TrustCorporation(); trustCorporation.Name != "" {
+		if err := reuseStore.PutTrustCorporation(donorCtx, trustCorporation); err != nil {
+			return nil, nil, fmt.Errorf("reuse store put trust corporation: %w", err)
+		}
 	}
 
 	if data.Progress >= slices.Index(progressValues, "chooseWhenTheLpaCanBeUsed") {
