@@ -1,6 +1,7 @@
 package donorpage
 
 import (
+	"fmt"
 	"net/http"
 	"strings"
 
@@ -22,7 +23,7 @@ type certificateProviderDetailsData struct {
 	NameWarning *actor.SameNameWarning
 }
 
-func CertificateProviderDetails(tmpl template.Template, donorStore DonorStore, newUID func() actoruid.UID) Handler {
+func CertificateProviderDetails(tmpl template.Template, donorStore DonorStore, reuseStore ReuseStore, newUID func() actoruid.UID) Handler {
 	return func(appData appcontext.Data, w http.ResponseWriter, r *http.Request, provided *donordata.Provided) error {
 		data := &certificateProviderDetailsData{
 			App: appData,
@@ -77,6 +78,10 @@ func CertificateProviderDetails(tmpl template.Template, donorStore DonorStore, n
 				// witness, without having to be notified.
 				if !provided.SignedAt.IsZero() {
 					provided.UpdateCheckedHash()
+				}
+
+				if err := reuseStore.PutCertificateProvider(r.Context(), provided.CertificateProvider); err != nil {
+					return fmt.Errorf("put certificate provider reuse data: %w", err)
 				}
 
 				if err := donorStore.Put(r.Context(), provided); err != nil {
