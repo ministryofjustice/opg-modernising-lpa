@@ -1,3 +1,5 @@
+import {AttorneyNames, DonorName, PeopleToNotifyNames} from "../../support/e2e.js";
+
 describe('People to notify', () => {
     it('can add people to notify', () => {
         cy.visit('/fixtures?redirect=/do-you-want-to-notify-people&progress=chooseYourAttorneys');
@@ -192,16 +194,30 @@ describe('People to notify', () => {
     });
 
     it('warns when name shared with other actor', () => {
-        cy.visit('/fixtures?redirect=/choose-people-to-notify&progress=chooseYourAttorneys');
+        cy.visit('/fixtures?redirect=/choose-people-to-notify-summary&progress=peopleToNotifyAboutYourLpa');
 
-        cy.get('#f-first-names').invoke('val', 'Sam');
-        cy.get('#f-last-name').invoke('val', 'Smith');
-        cy.contains('button', 'Save and continue').click();
-        cy.url().should('contain', '/choose-people-to-notify');
+        cy.contains('dd', `${PeopleToNotifyNames[1].FirstNames} ${PeopleToNotifyNames[1].LastName}`).parent().contains('a', 'Change').click();
 
-        cy.contains('You and your person to notify have the same name. As the donor, you cannot act as a person to notify for your LPA.');
+        changeNameTo(cy, DonorName.FirstNames, DonorName.LastName)
+        cy.contains('You and your person to notify have the same name. As the donor, you will automatically receive updates from the Office of the Public Guardian – you do not need to be a person to notify.');
+        cy.contains('dt', 'First names').parent().contains('a', 'Change').click();
 
-        cy.contains('button', 'Save and continue').click();
+        changeNameTo(cy, AttorneyNames[0].FirstNames, AttorneyNames[0].LastName)
+        cy.contains(`${AttorneyNames[0].FirstNames} ${AttorneyNames[0].LastName} has the same name as an attorney you’ve chosen for this LPA. Attorneys will automatically receive updates from the Office of the Public Guardian – you do not need to make them people to notify.`);
+        cy.contains('dt', 'First names').parent().contains('a', 'Change').click();
+
+        changeNameTo(cy, PeopleToNotifyNames[0].FirstNames, PeopleToNotifyNames[0].LastName)
+        cy.contains(`You have already entered ${PeopleToNotifyNames[0].FirstNames} ${PeopleToNotifyNames[0].LastName} as a person to notify on your LPA.`);
+
+        cy.contains('a', 'Continue').click();
         cy.url().should('contain', '/choose-people-to-notify-address');
     });
+
+    function changeNameTo(cy, firstNames, lastNames) {
+        cy.url().should('contain', '/choose-people-to-notify');
+        cy.get('#f-first-names').invoke('val', firstNames);
+        cy.get('#f-last-name').invoke('val', lastNames);
+        cy.contains('button', 'Save and continue').click();
+        cy.url().should('contain', '/warning');
+    }
 });

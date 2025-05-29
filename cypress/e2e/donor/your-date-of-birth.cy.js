@@ -1,4 +1,4 @@
-import { DateOfBirthAssertions } from "../../support/e2e";
+import {DateOfBirthAssertions} from "../../support/e2e";
 
 describe('Your date of birth', () => {
     describe('first time', () => {
@@ -37,11 +37,11 @@ describe('Your date of birth', () => {
             cy.get('#f-date-of-birth-month').invoke('val', '2');
             cy.get('#f-date-of-birth-year').invoke('val', '1900');
             cy.contains('button', 'Save and continue').click();
-            cy.url().should('contain', '/your-date-of-birth');
+            cy.url().should('contain', '/warning');
 
-            cy.contains('By continuing, you confirm that this person is more than 100 years old. If not, please change their date of birth.');
+            cy.contains('You are over 100 years old.');
 
-            cy.contains('button', 'Save and continue').click();
+            cy.contains('a', 'Continue').click();
             cy.url().should('contain', '/do-you-live-in-the-uk');
         });
     });

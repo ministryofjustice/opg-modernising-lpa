@@ -5,9 +5,9 @@ describe('High level navigation', () => {
             cy.contains('a', 'Choose your attorneys').click()
 
             cy.url().should('contain', '/choose-attorneys-guidance')
-            cy.contains('button', 'Continue').click()
+            cy.contains('a', 'Continue').click()
 
-            cy.url().should('contain', '/choose-attorneys')
+            cy.url().should('contain', '/enter-attorney')
             cy.contains('a', 'Back').click()
 
             cy.url().should('contain', '/choose-attorneys-guidance')
