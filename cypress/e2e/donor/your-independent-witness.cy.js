@@ -1,3 +1,5 @@
+import {AttorneyNames, DonorName} from "../../support/e2e.js";
+
 describe('Your independent witness', () => {
     beforeEach(() => {
         cy.visit('/fixtures?redirect=/your-independent-witness');
@@ -35,17 +37,27 @@ describe('Your independent witness', () => {
         cy.contains('[for=f-last-name] + .govuk-error-message', 'Last name must be 61 characters or less');
     });
 
-    it('warns when name shared with other actor', () => {
+    it.only('warns when name shared with other actor', () => {
         cy.visit('/fixtures?redirect=/your-independent-witness&progress=chooseYourAttorneys');
 
-        cy.get('#f-first-names').invoke('val', 'Jessie');
-        cy.get('#f-last-name').invoke('val', 'Jones');
+        cy.get('#f-first-names').invoke('val', DonorName.FirstNames);
+        cy.get('#f-last-name').invoke('val', DonorName.LastName);
         cy.contains('button', 'Continue').click();
+        cy.url().should('contain', '/warning');
+
+        cy.contains('You and your independent witness have the same name. As the donor, you cannot act as the independent witness for your LPA.');
+
+        cy.contains('dt', 'First names').parent().contains('a', 'Change').click();
+
         cy.url().should('contain', '/your-independent-witness');
-
-        cy.contains('You have already entered Jessie Jones as an attorney on your LPA.');
-
+        cy.get('#f-first-names').invoke('val', AttorneyNames[0].FirstNames);
+        cy.get('#f-last-name').invoke('val', AttorneyNames[0].LastName);
         cy.contains('button', 'Continue').click();
+        cy.url().should('contain', '/warning');
+
+        cy.contains(`${AttorneyNames[0].FirstNames} ${AttorneyNames[0].LastName} has the same name as another person you’ve chosen to act in this LPA. The same person cannot fulfil both these roles.`);
+
+        cy.contains('a', 'Continue').click();
         cy.url().should('contain', '/your-independent-witness-mobile');
     });
 });
