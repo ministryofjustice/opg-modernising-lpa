@@ -138,7 +138,7 @@ func TestPostEnterDateOfBirth(t *testing.T) {
 				"date-of-birth-day":   {"2"},
 				"date-of-birth-month": {"1"},
 				"date-of-birth-year":  {"1900"},
-				"ignore-dob-warning":  {"dateOfBirthIsOver100"},
+				"ignore-dob-warning":  {"dateOfBirthIsOver100DonorWarning"},
 			},
 			retrieved: &certificateproviderdata.Provided{LpaID: "lpa-id"},
 			updated: &certificateproviderdata.Provided{
@@ -259,7 +259,7 @@ func TestPostEnterDateOfBirthWhenInputRequired(t *testing.T) {
 				"date-of-birth-year":  {"1900"},
 			},
 			dataMatcher: func(t *testing.T, data *dateOfBirthData) bool {
-				return assert.Equal(t, "dateOfBirthIsOver100", data.DobWarning)
+				return assert.Equal(t, "dateOfBirthIsOver100DonorWarning", data.DobWarning)
 			},
 		},
 	}

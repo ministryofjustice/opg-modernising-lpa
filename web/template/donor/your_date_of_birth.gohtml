@@ -27,8 +27,6 @@
                         "hint" "dateOfBirthHint") }}
                 {{ end }}
 
-                {{ template "dob-warning" . }}
-
                 {{ if .MakingAnotherLPA }}
                     {{ template "continue-button" . }}
                 {{ else if .CanTaskList }}

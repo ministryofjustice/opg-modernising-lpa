@@ -5,6 +5,7 @@ import (
 	"net/url"
 
 	"github.com/ministryofjustice/opg-go-common/template"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/appcontext"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor/donordata"
@@ -50,19 +51,21 @@ func YourAddress(logger Logger, tmpl template.Template, addressClient AddressCli
 						}
 					}
 
-					if data.MakingAnotherLPA {
-						if !addressChangesMade {
-							return donor.PathMakeANewLPA.Redirect(w, r, appData, provided)
-						}
+					next := determineNext(appData, provided, addressChangesMade, data)
 
-						return donor.PathWeHaveUpdatedYourDetails.RedirectQuery(w, r, appData, provided, url.Values{"detail": {"address"}})
+					if addressChangesMade && provided.CertificateProvider.Address.Line1 == provided.Donor.Address.Line1 &&
+						provided.CertificateProvider.Address.Postcode == provided.Donor.Address.Postcode {
+						return donor.PathWarningInterruption.RedirectQuery(w, r, appData, provided, url.Values{
+							"warningFrom": {appData.Page},
+							"next":        {next.Path},
+							"actor":       {actor.TypeDonor.String()},
+						})
 					}
 
-					if appData.SupporterData != nil {
-						return donor.PathYourEmail.Redirect(w, r, appData, provided)
+					if next.QueryRedirect {
+						return next.QueryFunc(w, r, appData, provided, next.QueryValues)
 					}
-
-					return donor.PathReceivingUpdatesAboutYourLpa.Redirect(w, r, appData, provided)
+					return next.RedirectFunc(w, r, appData, provided)
 				}
 
 			case "postcode-select":
@@ -90,5 +93,42 @@ func YourAddress(logger Logger, tmpl template.Template, addressClient AddressCli
 		}
 
 		return tmpl(w, data)
+	}
+}
+
+type NavigationDecision struct {
+	Path          string
+	RedirectFunc  func(http.ResponseWriter, *http.Request, appcontext.Data, *donordata.Provided) error
+	QueryRedirect bool
+	QueryFunc     func(http.ResponseWriter, *http.Request, appcontext.Data, *donordata.Provided, url.Values) error
+	QueryValues   url.Values
+}
+
+func determineNext(appData appcontext.Data, provided *donordata.Provided, addressChangesMade bool, data *chooseAddressData) NavigationDecision {
+	if data.MakingAnotherLPA {
+		if !addressChangesMade {
+			return NavigationDecision{
+				Path:         donor.PathMakeANewLPA.Format(provided.LpaID),
+				RedirectFunc: donor.PathMakeANewLPA.Redirect,
+			}
+		}
+		return NavigationDecision{
+			Path:          donor.PathWeHaveUpdatedYourDetails.Format(provided.LpaID),
+			QueryRedirect: true,
+			QueryFunc:     donor.PathWeHaveUpdatedYourDetails.RedirectQuery,
+			QueryValues:   url.Values{"detail": {"address"}},
+		}
+	}
+
+	if appData.SupporterData != nil {
+		return NavigationDecision{
+			Path:         donor.PathYourEmail.Format(provided.LpaID),
+			RedirectFunc: donor.PathYourEmail.Redirect,
+		}
+	}
+
+	return NavigationDecision{
+		Path:         donor.PathReceivingUpdatesAboutYourLpa.Format(provided.LpaID),
+		RedirectFunc: donor.PathReceivingUpdatesAboutYourLpa.Redirect,
 	}
 }
