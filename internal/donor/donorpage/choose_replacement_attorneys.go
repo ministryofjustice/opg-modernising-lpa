@@ -11,17 +11,7 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor/donordata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/dynamo"
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/validation"
 )
-
-type chooseReplacementAttorneysData struct {
-	App                      appcontext.Data
-	Errors                   validation.List
-	Form                     *chooseAttorneysForm
-	Donor                    *donordata.Provided
-	Attorneys                []donordata.Attorney
-	ShowTrustCorporationLink bool
-}
 
 func ChooseReplacementAttorneys(tmpl template.Template, donorStore DonorStore, reuseStore ReuseStore, newUID func() actoruid.UID) Handler {
 	return func(appData appcontext.Data, w http.ResponseWriter, r *http.Request, provided *donordata.Provided) error {

@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"net/http"
 	"net/url"
-	"strings"
 
 	"github.com/ministryofjustice/opg-go-common/template"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
@@ -19,7 +18,6 @@ type yourNameData struct {
 	App              appcontext.Data
 	Errors           validation.List
 	Form             *yourNameForm
-	NameWarning      *actor.SameNameWarning
 	CanTaskList      bool
 	MakingAnotherLPA bool
 }
@@ -42,22 +40,10 @@ func YourName(tmpl template.Template, donorStore DonorStore, sessionStore Sessio
 		if r.Method == http.MethodPost {
 			data.Form = readYourNameForm(r)
 			data.Errors = data.Form.Validate()
+			nameHasChanged := provided.Donor.NameHasChanged(data.Form.FirstNames, data.Form.LastName, data.Form.OtherNames)
 
-			nameWarning := actor.NewSameNameWarning(
-				actor.TypeDonor,
-				donorMatches(provided, data.Form.FirstNames, data.Form.LastName),
-				data.Form.FirstNames,
-				data.Form.LastName,
-			)
-
-			if data.Errors.Any() ||
-				data.Form.IgnoreNameWarning != nameWarning.String() &&
-					provided.Donor.FullName() != fmt.Sprintf("%s %s", data.Form.FirstNames, data.Form.LastName) {
-				data.NameWarning = nameWarning
-			}
-
-			if data.Errors.None() && data.NameWarning == nil {
-				if !provided.NamesChanged(data.Form.FirstNames, data.Form.LastName, data.Form.OtherNames) {
+			if data.Errors.None() {
+				if !nameHasChanged {
 					if data.MakingAnotherLPA {
 						return donor.PathMakeANewLPA.Redirect(w, r, appData, provided)
 					}
@@ -86,11 +72,24 @@ func YourName(tmpl template.Template, donorStore DonorStore, sessionStore Sessio
 					return err
 				}
 
+				next := donor.PathYourDateOfBirth
 				if data.MakingAnotherLPA {
-					return donor.PathWeHaveUpdatedYourDetails.RedirectQuery(w, r, appData, provided, url.Values{"detail": {"name"}})
+					next = donor.PathWeHaveUpdatedYourDetails
 				}
 
-				return donor.PathYourDateOfBirth.Redirect(w, r, appData, provided)
+				if nameHasChanged && !donorMatches(provided, provided.Donor.FirstNames, provided.Donor.LastName).IsNone() {
+					return donor.PathWarningInterruption.RedirectQuery(w, r, appData, provided, url.Values{
+						"warningFrom": {appData.Page},
+						"next":        {next.Format(provided.LpaID)},
+						"actor":       {actor.TypeDonor.String()},
+					})
+				}
+
+				if data.MakingAnotherLPA {
+					return next.RedirectQuery(w, r, appData, provided, url.Values{"detail": {"name"}})
+				}
+
+				return next.Redirect(w, r, appData, provided)
 			}
 		}
 
@@ -99,18 +98,16 @@ func YourName(tmpl template.Template, donorStore DonorStore, sessionStore Sessio
 }
 
 type yourNameForm struct {
-	FirstNames        string
-	LastName          string
-	OtherNames        string
-	IgnoreNameWarning string
+	FirstNames string
+	LastName   string
+	OtherNames string
 }
 
 func readYourNameForm(r *http.Request) *yourNameForm {
 	return &yourNameForm{
-		FirstNames:        page.PostFormString(r, "first-names"),
-		LastName:          page.PostFormString(r, "last-name"),
-		OtherNames:        page.PostFormString(r, "other-names"),
-		IgnoreNameWarning: page.PostFormString(r, "ignore-name-warning"),
+		FirstNames: page.PostFormString(r, "first-names"),
+		LastName:   page.PostFormString(r, "last-name"),
+		OtherNames: page.PostFormString(r, "other-names"),
 	}
 }
 
@@ -129,20 +126,4 @@ func (f *yourNameForm) Validate() validation.List {
 		validation.StringTooLong(50))
 
 	return errors
-}
-
-func donorMatches(donor *donordata.Provided, firstNames, lastName string) actor.Type {
-	if firstNames == "" && lastName == "" {
-		return actor.TypeNone
-	}
-
-	for person := range donor.Actors() {
-		if !person.Type.IsDonor() &&
-			strings.EqualFold(person.FirstNames, firstNames) &&
-			strings.EqualFold(person.LastName, lastName) {
-			return person.Type
-		}
-	}
-
-	return actor.TypeNone
 }
