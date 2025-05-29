@@ -3,12 +3,12 @@ package donorpage
 import (
 	"net/http"
 	"net/url"
-	"strings"
 
 	"github.com/ministryofjustice/opg-go-common/template"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor/actoruid"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/appcontext"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/date"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor/donordata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/validation"
@@ -49,21 +49,18 @@ func EnterReplacementAttorney(tmpl template.Template, donorStore DonorStore, reu
 		if r.Method == http.MethodPost {
 			data.Form = readEnterAttorneyForm(r)
 			data.Errors = data.Form.Validate()
-			dobWarning := DateOfBirthWarning(data.Form.Dob, true)
+			redirectToWarning := false
 
-			nameWarning := actor.NewSameNameWarning(
-				actor.TypeReplacementAttorney,
-				replacementAttorneyMatches(provided, attorney.UID, data.Form.FirstNames, data.Form.LastName),
-				data.Form.FirstNames,
-				data.Form.LastName,
-			)
+			nameMatches := replacementAttorneyMatches(provided, attorney.UID, data.Form.FirstNames, data.Form.LastName)
 
-			if data.Form.Dob != attorney.DateOfBirth && (data.Errors.Any() || data.Form.IgnoreDobWarning != dobWarning) {
-				data.DobWarning = dobWarning
+			if attorney.NameHasChanged(data.Form.FirstNames, data.Form.LastName) && !nameMatches.IsNone() {
+				redirectToWarning = true
 			}
 
-			if attorney.NameHasChanged(data.Form.FirstNames, data.Form.LastName) && (data.Errors.Any() || data.Form.IgnoreNameWarning != nameWarning.String()) {
-				data.NameWarning = nameWarning
+			dobWarning := dateOfBirthWarning(data.Form.Dob, actor.TypeReplacementAttorney)
+
+			if (data.Form.Dob != attorney.DateOfBirth || attorney.DateOfBirth.After(date.Today().AddDate(-18, 0, 0))) && dobWarning != "" {
+				redirectToWarning = true
 			}
 
 			if data.Errors.None() && data.DobWarning == "" && data.NameWarning == nil {
@@ -88,30 +85,22 @@ func EnterReplacementAttorney(tmpl template.Template, donorStore DonorStore, reu
 					return err
 				}
 
+				if redirectToWarning {
+					return donor.PathWarningInterruption.RedirectQuery(w, r, appData, provided, url.Values{
+						"id":          {attorney.UID.String()},
+						"warningFrom": {appData.Page},
+						"next": {donor.PathChooseReplacementAttorneysAddress.FormatQuery(
+							provided.LpaID,
+							url.Values{"id": {attorney.UID.String()}}),
+						},
+						"actor": {actor.TypeReplacementAttorney.String()},
+					})
+				}
+
 				return donor.PathChooseReplacementAttorneysAddress.RedirectQuery(w, r, appData, provided, url.Values{"id": {attorney.UID.String()}})
 			}
 		}
 
-		if !attorney.DateOfBirth.IsZero() {
-			data.DobWarning = DateOfBirthWarning(data.Form.Dob, true)
-		}
-
 		return tmpl(w, data)
 	}
-}
-
-func replacementAttorneyMatches(donor *donordata.Provided, uid actoruid.UID, firstNames, lastName string) actor.Type {
-	if firstNames == "" && lastName == "" {
-		return actor.TypeNone
-	}
-
-	for person := range donor.Actors() {
-		if !(person.Type.IsReplacementAttorney() && person.UID == uid) &&
-			strings.EqualFold(person.FirstNames, firstNames) &&
-			strings.EqualFold(person.LastName, lastName) {
-			return person.Type
-		}
-	}
-
-	return actor.TypeNone
 }
