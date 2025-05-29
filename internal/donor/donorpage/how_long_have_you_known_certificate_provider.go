@@ -1,6 +1,7 @@
 package donorpage
 
 import (
+	"fmt"
 	"net/http"
 
 	"github.com/ministryofjustice/opg-go-common/template"
@@ -19,7 +20,7 @@ type howLongHaveYouKnownCertificateProviderData struct {
 	Options             donordata.CertificateProviderRelationshipLengthOptions
 }
 
-func HowLongHaveYouKnownCertificateProvider(tmpl template.Template, donorStore DonorStore) Handler {
+func HowLongHaveYouKnownCertificateProvider(tmpl template.Template, donorStore DonorStore, reuseStore ReuseStore) Handler {
 	return func(appData appcontext.Data, w http.ResponseWriter, r *http.Request, provided *donordata.Provided) error {
 		data := &howLongHaveYouKnownCertificateProviderData{
 			App:                 appData,
@@ -38,6 +39,11 @@ func HowLongHaveYouKnownCertificateProvider(tmpl template.Template, donorStore D
 				}
 
 				provided.CertificateProvider.RelationshipLength = form.RelationshipLength
+
+				if err := reuseStore.PutCertificateProvider(r.Context(), provided.CertificateProvider); err != nil {
+					return fmt.Errorf("put certificate provider reuse data: %w", err)
+				}
+
 				if err := donorStore.Put(r.Context(), provided); err != nil {
 					return err
 				}
