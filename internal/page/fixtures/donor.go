@@ -389,6 +389,10 @@ func updateLPAProgress(
 			donorDetails.CertificateProvider.Mobile = data.CertificateProviderMobile
 		}
 
+		if err := reuseStore.PutCertificateProvider(donorCtx, donorDetails.CertificateProvider); err != nil {
+			return nil, nil, fmt.Errorf("reuse store put certificate provider: %w", err)
+		}
+
 		donorDetails.Tasks.CertificateProvider = task.StateCompleted
 	}
 

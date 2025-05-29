@@ -81,6 +81,64 @@ func (_c *mockReuseStore_Attorneys_Call) RunAndReturn(run func(context.Context, 
 	return _c
 }
 
+// CertificateProviders provides a mock function with given fields: ctx
+func (_m *mockReuseStore) CertificateProviders(ctx context.Context) ([]donordata.CertificateProvider, error) {
+	ret := _m.Called(ctx)
+
+	if len(ret) == 0 {
+		panic("no return value specified for CertificateProviders")
+	}
+
+	var r0 []donordata.CertificateProvider
+	var r1 error
+	if rf, ok := ret.Get(0).(func(context.Context) ([]donordata.CertificateProvider, error)); ok {
+		return rf(ctx)
+	}
+	if rf, ok := ret.Get(0).(func(context.Context) []donordata.CertificateProvider); ok {
+		r0 = rf(ctx)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).([]donordata.CertificateProvider)
+		}
+	}
+
+	if rf, ok := ret.Get(1).(func(context.Context) error); ok {
+		r1 = rf(ctx)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
+}
+
+// mockReuseStore_CertificateProviders_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'CertificateProviders'
+type mockReuseStore_CertificateProviders_Call struct {
+	*mock.Call
+}
+
+// CertificateProviders is a helper method to define mock.On call
+//   - ctx context.Context
+func (_e *mockReuseStore_Expecter) CertificateProviders(ctx interface{}) *mockReuseStore_CertificateProviders_Call {
+	return &mockReuseStore_CertificateProviders_Call{Call: _e.mock.On("CertificateProviders", ctx)}
+}
+
+func (_c *mockReuseStore_CertificateProviders_Call) Run(run func(ctx context.Context)) *mockReuseStore_CertificateProviders_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		run(args[0].(context.Context))
+	})
+	return _c
+}
+
+func (_c *mockReuseStore_CertificateProviders_Call) Return(_a0 []donordata.CertificateProvider, _a1 error) *mockReuseStore_CertificateProviders_Call {
+	_c.Call.Return(_a0, _a1)
+	return _c
+}
+
+func (_c *mockReuseStore_CertificateProviders_Call) RunAndReturn(run func(context.Context) ([]donordata.CertificateProvider, error)) *mockReuseStore_CertificateProviders_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
 // Correspondents provides a mock function with given fields: ctx
 func (_m *mockReuseStore) Correspondents(ctx context.Context) ([]donordata.Correspondent, error) {
 	ret := _m.Called(ctx)
@@ -182,6 +240,53 @@ func (_c *mockReuseStore_DeleteAttorney_Call) Return(_a0 error) *mockReuseStore_
 }
 
 func (_c *mockReuseStore_DeleteAttorney_Call) RunAndReturn(run func(context.Context, donordata.Attorney) error) *mockReuseStore_DeleteAttorney_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
+// DeleteCertificateProvider provides a mock function with given fields: ctx, certificateProvider
+func (_m *mockReuseStore) DeleteCertificateProvider(ctx context.Context, certificateProvider donordata.CertificateProvider) error {
+	ret := _m.Called(ctx, certificateProvider)
+
+	if len(ret) == 0 {
+		panic("no return value specified for DeleteCertificateProvider")
+	}
+
+	var r0 error
+	if rf, ok := ret.Get(0).(func(context.Context, donordata.CertificateProvider) error); ok {
+		r0 = rf(ctx, certificateProvider)
+	} else {
+		r0 = ret.Error(0)
+	}
+
+	return r0
+}
+
+// mockReuseStore_DeleteCertificateProvider_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'DeleteCertificateProvider'
+type mockReuseStore_DeleteCertificateProvider_Call struct {
+	*mock.Call
+}
+
+// DeleteCertificateProvider is a helper method to define mock.On call
+//   - ctx context.Context
+//   - certificateProvider donordata.CertificateProvider
+func (_e *mockReuseStore_Expecter) DeleteCertificateProvider(ctx interface{}, certificateProvider interface{}) *mockReuseStore_DeleteCertificateProvider_Call {
+	return &mockReuseStore_DeleteCertificateProvider_Call{Call: _e.mock.On("DeleteCertificateProvider", ctx, certificateProvider)}
+}
+
+func (_c *mockReuseStore_DeleteCertificateProvider_Call) Run(run func(ctx context.Context, certificateProvider donordata.CertificateProvider)) *mockReuseStore_DeleteCertificateProvider_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		run(args[0].(context.Context), args[1].(donordata.CertificateProvider))
+	})
+	return _c
+}
+
+func (_c *mockReuseStore_DeleteCertificateProvider_Call) Return(_a0 error) *mockReuseStore_DeleteCertificateProvider_Call {
+	_c.Call.Return(_a0)
+	return _c
+}
+
+func (_c *mockReuseStore_DeleteCertificateProvider_Call) RunAndReturn(run func(context.Context, donordata.CertificateProvider) error) *mockReuseStore_DeleteCertificateProvider_Call {
 	_c.Call.Return(run)
 	return _c
 }
@@ -370,6 +475,53 @@ func (_c *mockReuseStore_PutAttorneys_Call) Return(_a0 error) *mockReuseStore_Pu
 }
 
 func (_c *mockReuseStore_PutAttorneys_Call) RunAndReturn(run func(context.Context, []donordata.Attorney) error) *mockReuseStore_PutAttorneys_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
+// PutCertificateProvider provides a mock function with given fields: ctx, certificateProvider
+func (_m *mockReuseStore) PutCertificateProvider(ctx context.Context, certificateProvider donordata.CertificateProvider) error {
+	ret := _m.Called(ctx, certificateProvider)
+
+	if len(ret) == 0 {
+		panic("no return value specified for PutCertificateProvider")
+	}
+
+	var r0 error
+	if rf, ok := ret.Get(0).(func(context.Context, donordata.CertificateProvider) error); ok {
+		r0 = rf(ctx, certificateProvider)
+	} else {
+		r0 = ret.Error(0)
+	}
+
+	return r0
+}
+
+// mockReuseStore_PutCertificateProvider_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'PutCertificateProvider'
+type mockReuseStore_PutCertificateProvider_Call struct {
+	*mock.Call
+}
+
+// PutCertificateProvider is a helper method to define mock.On call
+//   - ctx context.Context
+//   - certificateProvider donordata.CertificateProvider
+func (_e *mockReuseStore_Expecter) PutCertificateProvider(ctx interface{}, certificateProvider interface{}) *mockReuseStore_PutCertificateProvider_Call {
+	return &mockReuseStore_PutCertificateProvider_Call{Call: _e.mock.On("PutCertificateProvider", ctx, certificateProvider)}
+}
+
+func (_c *mockReuseStore_PutCertificateProvider_Call) Run(run func(ctx context.Context, certificateProvider donordata.CertificateProvider)) *mockReuseStore_PutCertificateProvider_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		run(args[0].(context.Context), args[1].(donordata.CertificateProvider))
+	})
+	return _c
+}
+
+func (_c *mockReuseStore_PutCertificateProvider_Call) Return(_a0 error) *mockReuseStore_PutCertificateProvider_Call {
+	_c.Call.Return(_a0)
+	return _c
+}
+
+func (_c *mockReuseStore_PutCertificateProvider_Call) RunAndReturn(run func(context.Context, donordata.CertificateProvider) error) *mockReuseStore_PutCertificateProvider_Call {
 	_c.Call.Return(run)
 	return _c
 }

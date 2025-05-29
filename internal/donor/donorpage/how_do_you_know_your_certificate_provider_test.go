@@ -31,7 +31,7 @@ func TestGetHowDoYouKnowYourCertificateProvider(t *testing.T) {
 		}).
 		Return(nil)
 
-	err := HowDoYouKnowYourCertificateProvider(template.Execute, nil)(testAppData, w, r, &donordata.Provided{})
+	err := HowDoYouKnowYourCertificateProvider(template.Execute, nil, nil)(testAppData, w, r, &donordata.Provided{})
 	resp := w.Result()
 
 	assert.Nil(t, err)
@@ -55,7 +55,7 @@ func TestGetHowDoYouKnowYourCertificateProviderFromStore(t *testing.T) {
 		}).
 		Return(nil)
 
-	err := HowDoYouKnowYourCertificateProvider(template.Execute, nil)(testAppData, w, r, &donordata.Provided{
+	err := HowDoYouKnowYourCertificateProvider(template.Execute, nil, nil)(testAppData, w, r, &donordata.Provided{
 		CertificateProvider: certificateProvider,
 	})
 	resp := w.Result()
@@ -73,7 +73,7 @@ func TestGetHowDoYouKnowYourCertificateProviderWhenTemplateErrors(t *testing.T) 
 		Execute(w, mock.Anything).
 		Return(expectedError)
 
-	err := HowDoYouKnowYourCertificateProvider(template.Execute, nil)(testAppData, w, r, &donordata.Provided{})
+	err := HowDoYouKnowYourCertificateProvider(template.Execute, nil, nil)(testAppData, w, r, &donordata.Provided{})
 	resp := w.Result()
 
 	assert.Equal(t, expectedError, err)
@@ -110,6 +110,11 @@ func TestPostHowDoYouKnowYourCertificateProvider(t *testing.T) {
 			r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(tc.form.Encode()))
 			r.Header.Add("Content-Type", page.FormUrlEncoded)
 
+			reuseStore := newMockReuseStore(t)
+			reuseStore.EXPECT().
+				PutCertificateProvider(r.Context(), tc.certificateProviderDetails).
+				Return(nil)
+
 			donorStore := newMockDonorStore(t)
 			donorStore.EXPECT().
 				Put(r.Context(), &donordata.Provided{
@@ -122,7 +127,7 @@ func TestPostHowDoYouKnowYourCertificateProvider(t *testing.T) {
 				}).
 				Return(nil)
 
-			err := HowDoYouKnowYourCertificateProvider(nil, donorStore)(testAppData, w, r, &donordata.Provided{
+			err := HowDoYouKnowYourCertificateProvider(nil, donorStore, reuseStore)(testAppData, w, r, &donordata.Provided{
 				LpaID:               "lpa-id",
 				CertificateProvider: donordata.CertificateProvider{FirstNames: "John"},
 				Tasks: donordata.Tasks{
@@ -180,6 +185,11 @@ func TestPostHowDoYouKnowYourCertificateProviderWhenSwitchingRelationship(t *tes
 			r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(tc.form.Encode()))
 			r.Header.Add("Content-Type", page.FormUrlEncoded)
 
+			reuseStore := newMockReuseStore(t)
+			reuseStore.EXPECT().
+				PutCertificateProvider(r.Context(), tc.updatedCertificateProviderDetails).
+				Return(nil)
+
 			donorStore := newMockDonorStore(t)
 			donorStore.EXPECT().
 				Put(r.Context(), &donordata.Provided{
@@ -193,7 +203,7 @@ func TestPostHowDoYouKnowYourCertificateProviderWhenSwitchingRelationship(t *tes
 				}).
 				Return(nil)
 
-			err := HowDoYouKnowYourCertificateProvider(nil, donorStore)(testAppData, w, r, &donordata.Provided{
+			err := HowDoYouKnowYourCertificateProvider(nil, donorStore, reuseStore)(testAppData, w, r, &donordata.Provided{
 				LpaID:               "lpa-id",
 				CertificateProvider: tc.existingCertificateProviderDetails,
 				Tasks: donordata.Tasks{
@@ -211,7 +221,7 @@ func TestPostHowDoYouKnowYourCertificateProviderWhenSwitchingRelationship(t *tes
 	}
 }
 
-func TestPostHowDoYouKnowYourCertificateProviderWhenStoreErrors(t *testing.T) {
+func TestPostHowDoYouKnowYourCertificateProviderWhenReuseStoreErrors(t *testing.T) {
 	form := url.Values{
 		form.FieldNames.Select: {lpadata.Personally.String()},
 	}
@@ -220,12 +230,36 @@ func TestPostHowDoYouKnowYourCertificateProviderWhenStoreErrors(t *testing.T) {
 	r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(form.Encode()))
 	r.Header.Add("Content-Type", page.FormUrlEncoded)
 
+	reuseStore := newMockReuseStore(t)
+	reuseStore.EXPECT().
+		PutCertificateProvider(r.Context(), mock.Anything).
+		Return(expectedError)
+
+	err := HowDoYouKnowYourCertificateProvider(nil, nil, reuseStore)(testAppData, w, r, &donordata.Provided{})
+
+	assert.ErrorIs(t, err, expectedError)
+}
+
+func TestPostHowDoYouKnowYourCertificateProviderWhenDonorStoreErrors(t *testing.T) {
+	form := url.Values{
+		form.FieldNames.Select: {lpadata.Personally.String()},
+	}
+
+	w := httptest.NewRecorder()
+	r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(form.Encode()))
+	r.Header.Add("Content-Type", page.FormUrlEncoded)
+
+	reuseStore := newMockReuseStore(t)
+	reuseStore.EXPECT().
+		PutCertificateProvider(r.Context(), mock.Anything).
+		Return(nil)
+
 	donorStore := newMockDonorStore(t)
 	donorStore.EXPECT().
 		Put(r.Context(), mock.Anything).
 		Return(expectedError)
 
-	err := HowDoYouKnowYourCertificateProvider(nil, donorStore)(testAppData, w, r, &donordata.Provided{})
+	err := HowDoYouKnowYourCertificateProvider(nil, donorStore, reuseStore)(testAppData, w, r, &donordata.Provided{})
 
 	assert.Equal(t, expectedError, err)
 }
@@ -242,7 +276,7 @@ func TestPostHowDoYouKnowYourCertificateProviderWhenValidationErrors(t *testing.
 		})).
 		Return(nil)
 
-	err := HowDoYouKnowYourCertificateProvider(template.Execute, nil)(testAppData, w, r, &donordata.Provided{})
+	err := HowDoYouKnowYourCertificateProvider(template.Execute, nil, nil)(testAppData, w, r, &donordata.Provided{})
 	resp := w.Result()
 
 	assert.Nil(t, err)
