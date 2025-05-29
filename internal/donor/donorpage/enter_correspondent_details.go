@@ -5,7 +5,6 @@ import (
 	"net/url"
 
 	"github.com/ministryofjustice/opg-go-common/template"
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor/actoruid"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/appcontext"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor"
@@ -19,10 +18,9 @@ import (
 )
 
 type enterCorrespondentDetailsData struct {
-	App         appcontext.Data
-	Errors      validation.List
-	Form        *enterCorrespondentDetailsForm
-	NameWarning *actor.SameNameWarning
+	App    appcontext.Data
+	Errors validation.List
+	Form   *enterCorrespondentDetailsForm
 }
 
 func EnterCorrespondentDetails(tmpl template.Template, donorStore DonorStore, reuseStore ReuseStore, eventClient EventClient, newUID func() actoruid.UID) Handler {
@@ -42,6 +40,13 @@ func EnterCorrespondentDetails(tmpl template.Template, donorStore DonorStore, re
 		if r.Method == http.MethodPost {
 			data.Form = readEnterCorrespondentDetailsForm(r, provided.Donor)
 			data.Errors = data.Form.Validate()
+
+			nameMatchesDonor := correspondentNameMatchesDonor(provided, data.Form.FirstNames, data.Form.LastName)
+			redirectToWarning := false
+
+			if provided.Correspondent.NameHasChanged(data.Form.FirstNames, data.Form.LastName) && nameMatchesDonor {
+				redirectToWarning = true
+			}
 
 			if data.Errors.None() {
 				if provided.Correspondent.UID.IsZero() {
@@ -87,6 +92,13 @@ func EnterCorrespondentDetails(tmpl template.Template, donorStore DonorStore, re
 
 				if err := donorStore.Put(r.Context(), provided); err != nil {
 					return err
+				}
+
+				if redirectToWarning {
+					return donor.PathWarningInterruption.RedirectQuery(w, r, appData, provided, url.Values{
+						"warningFrom": {appData.Page},
+						"next":        {redirect.Format(provided.LpaID)},
+					})
 				}
 
 				if !wantedAddress.IsYes() && provided.Correspondent.WantAddress.IsYes() {

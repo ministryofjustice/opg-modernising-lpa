@@ -2,10 +2,9 @@ package donorpage
 
 import (
 	"net/http"
-	"strings"
+	"net/url"
 
 	"github.com/ministryofjustice/opg-go-common/template"
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor/actoruid"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/appcontext"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor"
@@ -16,10 +15,9 @@ import (
 )
 
 type yourIndependentWitnessData struct {
-	App         appcontext.Data
-	Errors      validation.List
-	Form        *yourIndependentWitnessForm
-	NameWarning *actor.SameNameWarning
+	App    appcontext.Data
+	Errors validation.List
+	Form   *yourIndependentWitnessForm
 }
 
 func YourIndependentWitness(tmpl template.Template, donorStore DonorStore, newUID func() actoruid.UID) Handler {
@@ -36,18 +34,14 @@ func YourIndependentWitness(tmpl template.Template, donorStore DonorStore, newUI
 			data.Form = readYourIndependentWitnessForm(r)
 			data.Errors = data.Form.Validate()
 
-			nameWarning := actor.NewSameNameWarning(
-				actor.TypeIndependentWitness,
-				independentWitnessMatches(provided, data.Form.FirstNames, data.Form.LastName),
-				data.Form.FirstNames,
-				data.Form.LastName,
-			)
+			nameMatches := independentWitnessMatches(provided, data.Form.FirstNames, data.Form.LastName)
+			redirectToWarning := false
 
-			if data.Errors.Any() || data.Form.IgnoreNameWarning != nameWarning.String() {
-				data.NameWarning = nameWarning
+			if !nameMatches.IsNone() && provided.IndependentWitness.NameHasChanged(data.Form.FirstNames, data.Form.LastName) {
+				redirectToWarning = true
 			}
 
-			if data.Errors.None() && data.NameWarning == nil {
+			if data.Errors.None() {
 				if provided.IndependentWitness.UID.IsZero() {
 					provided.IndependentWitness.UID = newUID()
 				}
@@ -69,6 +63,13 @@ func YourIndependentWitness(tmpl template.Template, donorStore DonorStore, newUI
 					return err
 				}
 
+				if redirectToWarning {
+					return donor.PathWarningInterruption.RedirectQuery(w, r, appData, provided, url.Values{
+						"warningFrom": {appData.Page},
+						"next":        {donor.PathYourIndependentWitnessMobile.Format(provided.LpaID)},
+					})
+				}
+
 				return donor.PathYourIndependentWitnessMobile.Redirect(w, r, appData, provided)
 			}
 		}
@@ -78,16 +79,14 @@ func YourIndependentWitness(tmpl template.Template, donorStore DonorStore, newUI
 }
 
 type yourIndependentWitnessForm struct {
-	FirstNames        string
-	LastName          string
-	IgnoreNameWarning string
+	FirstNames string
+	LastName   string
 }
 
 func readYourIndependentWitnessForm(r *http.Request) *yourIndependentWitnessForm {
 	return &yourIndependentWitnessForm{
-		FirstNames:        page.PostFormString(r, "first-names"),
-		LastName:          page.PostFormString(r, "last-name"),
-		IgnoreNameWarning: page.PostFormString(r, "ignore-name-warning"),
+		FirstNames: page.PostFormString(r, "first-names"),
+		LastName:   page.PostFormString(r, "last-name"),
 	}
 }
 
@@ -103,21 +102,4 @@ func (f *yourIndependentWitnessForm) Validate() validation.List {
 		validation.StringTooLong(61))
 
 	return errors
-}
-
-func independentWitnessMatches(donor *donordata.Provided, firstNames, lastName string) actor.Type {
-	if firstNames == "" && lastName == "" {
-		return actor.TypeNone
-	}
-
-	for person := range donor.Actors() {
-		if !person.Type.IsIndependentWitness() &&
-			!person.Type.IsPersonToNotify() &&
-			strings.EqualFold(person.FirstNames, firstNames) &&
-			strings.EqualFold(person.LastName, lastName) {
-			return person.Type
-		}
-	}
-
-	return actor.TypeNone
 }

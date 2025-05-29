@@ -9,8 +9,8 @@ import (
 	"testing"
 	"time"
 
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor/actoruid"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/appcontext"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/date"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor/donordata"
@@ -101,38 +101,6 @@ func TestGetChooseReplacementAttorneysWhenNoID(t *testing.T) {
 	assert.Equal(t, donor.PathTaskList.Format("lpa-id"), resp.Header.Get("Location"))
 }
 
-func TestGetChooseReplacementAttorneysDobWarningIsAlwaysShown(t *testing.T) {
-	w := httptest.NewRecorder()
-	r, _ := http.NewRequest(http.MethodGet, "/?id="+testUID.String(), nil)
-
-	template := newMockTemplate(t)
-	template.EXPECT().
-		Execute(w, &chooseReplacementAttorneysData{
-			App: testAppData,
-			Donor: &donordata.Provided{
-				ReplacementAttorneys: donordata.Attorneys{Attorneys: []donordata.Attorney{
-					{UID: testUID, DateOfBirth: date.New("1900", "1", "2")},
-				}},
-			},
-			Form: &chooseAttorneysForm{
-				Dob: date.New("1900", "1", "2"),
-			},
-			DobWarning: "dateOfBirthIsOver100",
-		}).
-		Return(nil)
-
-	err := ChooseReplacementAttorneys(template.Execute, nil)(testAppData, w, r, &donordata.Provided{
-		Donor: donordata.Donor{},
-		ReplacementAttorneys: donordata.Attorneys{Attorneys: []donordata.Attorney{
-			{UID: testUID, DateOfBirth: date.New("1900", "1", "2")},
-		}},
-	})
-	resp := w.Result()
-
-	assert.Nil(t, err)
-	assert.Equal(t, http.StatusOK, resp.StatusCode)
-}
-
 func TestGetChooseReplacementAttorneysWhenTemplateErrors(t *testing.T) {
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest(http.MethodGet, "/?id="+testUID.String(), nil)
@@ -167,42 +135,6 @@ func TestPostChooseReplacementAttorneysAttorneyDoesNotExists(t *testing.T) {
 			},
 			attorney: donordata.Attorney{
 				FirstNames:  "John",
-				LastName:    "Doe",
-				Email:       "john@example.com",
-				DateOfBirth: date.New(validBirthYear, "1", "2"),
-				UID:         testUID,
-			},
-		},
-		"dob warning ignored": {
-			form: url.Values{
-				"first-names":         {"John"},
-				"last-name":           {"Doe"},
-				"email":               {"john@example.com"},
-				"date-of-birth-day":   {"2"},
-				"date-of-birth-month": {"1"},
-				"date-of-birth-year":  {"1900"},
-				"ignore-dob-warning":  {"dateOfBirthIsOver100"},
-			},
-			attorney: donordata.Attorney{
-				FirstNames:  "John",
-				LastName:    "Doe",
-				Email:       "john@example.com",
-				DateOfBirth: date.New("1900", "1", "2"),
-				UID:         testUID,
-			},
-		},
-		"name warning ignored": {
-			form: url.Values{
-				"first-names":         {"Jane"},
-				"last-name":           {"Doe"},
-				"email":               {"john@example.com"},
-				"date-of-birth-day":   {"2"},
-				"date-of-birth-month": {"1"},
-				"date-of-birth-year":  {validBirthYear},
-				"ignore-name-warning": {actor.NewSameNameWarning(actor.TypeReplacementAttorney, actor.TypeDonor, "Jane", "Doe").String()},
-			},
-			attorney: donordata.Attorney{
-				FirstNames:  "Jane",
 				LastName:    "Doe",
 				Email:       "john@example.com",
 				DateOfBirth: date.New(validBirthYear, "1", "2"),
@@ -263,44 +195,6 @@ func TestPostChooseReplacementAttorneysAttorneyExists(t *testing.T) {
 				UID:         uid,
 			},
 		},
-		"dob warning ignored": {
-			form: url.Values{
-				"first-names":         {"John"},
-				"last-name":           {"Doe"},
-				"email":               {"john@example.com"},
-				"date-of-birth-day":   {"2"},
-				"date-of-birth-month": {"1"},
-				"date-of-birth-year":  {"1900"},
-				"ignore-dob-warning":  {"dateOfBirthIsOver100"},
-			},
-			attorney: donordata.Attorney{
-				FirstNames:  "John",
-				LastName:    "Doe",
-				Email:       "john@example.com",
-				DateOfBirth: date.New("1900", "1", "2"),
-				Address:     place.Address{Line1: "abc"},
-				UID:         uid,
-			},
-		},
-		"name warning ignored": {
-			form: url.Values{
-				"first-names":         {"Jane"},
-				"last-name":           {"Doe"},
-				"email":               {"john@example.com"},
-				"date-of-birth-day":   {"2"},
-				"date-of-birth-month": {"1"},
-				"date-of-birth-year":  {validBirthYear},
-				"ignore-name-warning": {actor.NewSameNameWarning(actor.TypeReplacementAttorney, actor.TypeDonor, "Jane", "Doe").String()},
-			},
-			attorney: donordata.Attorney{
-				FirstNames:  "Jane",
-				LastName:    "Doe",
-				Email:       "john@example.com",
-				DateOfBirth: date.New(validBirthYear, "1", "2"),
-				Address:     place.Address{Line1: "abc"},
-				UID:         uid,
-			},
-		},
 	}
 
 	for name, tc := range testCases {
@@ -339,13 +233,14 @@ func TestPostChooseReplacementAttorneysAttorneyExists(t *testing.T) {
 	}
 }
 
-func TestPostChooseReplacementAttorneysNameWarningOnlyShownWhenAttorneyAndFormNamesAreDifferent(t *testing.T) {
+func TestPostChooseReplacementAttorneysWhenDOBWarning(t *testing.T) {
 	form := url.Values{
-		"first-names":         {"Jane"},
+		"first-names":         {"John"},
 		"last-name":           {"Doe"},
+		"email":               {"name@example.com"},
 		"date-of-birth-day":   {"2"},
 		"date-of-birth-month": {"1"},
-		"date-of-birth-year":  {"2000"},
+		"date-of-birth-year":  {"1900"},
 	}
 
 	w := httptest.NewRecorder()
@@ -354,39 +249,67 @@ func TestPostChooseReplacementAttorneysNameWarningOnlyShownWhenAttorneyAndFormNa
 
 	donorStore := newMockDonorStore(t)
 	donorStore.EXPECT().
-		Put(r.Context(), &donordata.Provided{
-			LpaID: "lpa-id",
-			Donor: donordata.Donor{FirstNames: "Jane", LastName: "Doe"},
-			ReplacementAttorneys: donordata.Attorneys{Attorneys: []donordata.Attorney{
-				{
-					FirstNames:  "Jane",
-					LastName:    "Doe",
-					UID:         testUID,
-					Address:     place.Address{Line1: "abc"},
-					DateOfBirth: date.New("2000", "1", "2"),
-				},
-			}},
-			Tasks: donordata.Tasks{ChooseReplacementAttorneys: task.StateCompleted},
-		}).
+		Put(r.Context(), mock.Anything).
 		Return(nil)
 
-	err := ChooseReplacementAttorneys(nil, donorStore)(testAppData, w, r, &donordata.Provided{
+	appData := appcontext.Data{Page: "/abc"}
+	err := ChooseReplacementAttorneys(nil, donorStore)(appData, w, r, &donordata.Provided{
 		LpaID: "lpa-id",
 		Donor: donordata.Donor{FirstNames: "Jane", LastName: "Doe"},
-		ReplacementAttorneys: donordata.Attorneys{Attorneys: []donordata.Attorney{
-			{FirstNames: "Jane", LastName: "Doe", UID: testUID, Address: place.Address{Line1: "abc"}},
-		}},
 	})
 	resp := w.Result()
 
 	assert.Nil(t, err)
 	assert.Equal(t, http.StatusFound, resp.StatusCode)
-	assert.Equal(t, donor.PathChooseReplacementAttorneysAddress.Format("lpa-id")+"?id="+testUID.String(), resp.Header.Get("Location"))
+	assert.Equal(t, donor.PathWarningInterruption.FormatQuery("lpa-id", url.Values{
+		"id":          {testUID.String()},
+		"warningFrom": {"/abc"},
+		"next": {donor.PathChooseReplacementAttorneysAddress.FormatQuery(
+			"lpa-id",
+			url.Values{"id": {testUID.String()}}),
+		},
+	}), resp.Header.Get("Location"))
+}
+
+func TestPostChooseReplacementAttorneysWhenNameWarning(t *testing.T) {
+	form := url.Values{
+		"first-names":         {"Jane"},
+		"last-name":           {"Doe"},
+		"email":               {"name@example.com"},
+		"date-of-birth-day":   {"2"},
+		"date-of-birth-month": {"1"},
+		"date-of-birth-year":  {"1990"},
+	}
+
+	w := httptest.NewRecorder()
+	r, _ := http.NewRequest(http.MethodPost, "/?id="+testUID.String(), strings.NewReader(form.Encode()))
+	r.Header.Add("Content-Type", page.FormUrlEncoded)
+
+	donorStore := newMockDonorStore(t)
+	donorStore.EXPECT().
+		Put(r.Context(), mock.Anything).
+		Return(nil)
+
+	appData := appcontext.Data{Page: "/abc"}
+	err := ChooseReplacementAttorneys(nil, donorStore)(appData, w, r, &donordata.Provided{
+		LpaID: "lpa-id",
+		Donor: donordata.Donor{FirstNames: "Jane", LastName: "Doe"},
+	})
+	resp := w.Result()
+
+	assert.Nil(t, err)
+	assert.Equal(t, http.StatusFound, resp.StatusCode)
+	assert.Equal(t, donor.PathWarningInterruption.FormatQuery("lpa-id", url.Values{
+		"id":          {testUID.String()},
+		"warningFrom": {"/abc"},
+		"next": {donor.PathChooseReplacementAttorneysAddress.FormatQuery(
+			"lpa-id",
+			url.Values{"id": {testUID.String()}}),
+		},
+	}), resp.Header.Get("Location"))
 }
 
 func TestPostChooseReplacementAttorneysWhenInputRequired(t *testing.T) {
-	validBirthYear := strconv.Itoa(time.Now().Year() - 40)
-
 	testCases := map[string]struct {
 		form        url.Values
 		dataMatcher func(t *testing.T, data *chooseReplacementAttorneysData) bool
@@ -400,92 +323,6 @@ func TestPostChooseReplacementAttorneysWhenInputRequired(t *testing.T) {
 			},
 			dataMatcher: func(t *testing.T, data *chooseReplacementAttorneysData) bool {
 				return assert.Equal(t, validation.With("first-names", validation.EnterError{Label: "firstNames"}), data.Errors)
-			},
-		},
-		"dob warning": {
-			form: url.Values{
-				"first-names":         {"John"},
-				"last-name":           {"Doe"},
-				"email":               {"name@example.com"},
-				"date-of-birth-day":   {"2"},
-				"date-of-birth-month": {"1"},
-				"date-of-birth-year":  {"1900"},
-			},
-			dataMatcher: func(t *testing.T, data *chooseReplacementAttorneysData) bool {
-				return assert.Equal(t, "dateOfBirthIsOver100", data.DobWarning) &&
-					assert.Nil(t, data.NameWarning) &&
-					assert.True(t, data.Errors.None())
-			},
-		},
-		"dob warning ignored but other errors": {
-			form: url.Values{
-				"first-names":         {"John"},
-				"date-of-birth-day":   {"2"},
-				"date-of-birth-month": {"1"},
-				"date-of-birth-year":  {"1900"},
-				"ignore-dob-warning":  {"dateOfBirthIsOver100"},
-			},
-			dataMatcher: func(t *testing.T, data *chooseReplacementAttorneysData) bool {
-				return assert.Equal(t, "dateOfBirthIsOver100", data.DobWarning)
-			},
-		},
-		"other dob warning ignored": {
-			form: url.Values{
-				"first-names":         {"John"},
-				"last-name":           {"Doe"},
-				"email":               {"name@example.com"},
-				"date-of-birth-day":   {"2"},
-				"date-of-birth-month": {"1"},
-				"date-of-birth-year":  {"1900"},
-				"ignore-dob-warning":  {"attorneyDateOfBirthIsUnder18"},
-			},
-			dataMatcher: func(t *testing.T, data *chooseReplacementAttorneysData) bool {
-				return assert.Equal(t, "dateOfBirthIsOver100", data.DobWarning) &&
-					assert.Nil(t, data.NameWarning) &&
-					assert.True(t, data.Errors.None())
-			},
-		},
-		"name warning": {
-			form: url.Values{
-				"first-names":         {"Jane"},
-				"last-name":           {"Doe"},
-				"date-of-birth-day":   {"2"},
-				"date-of-birth-month": {"1"},
-				"date-of-birth-year":  {validBirthYear},
-			},
-			dataMatcher: func(t *testing.T, data *chooseReplacementAttorneysData) bool {
-				return assert.Equal(t, "", data.DobWarning) &&
-					assert.Equal(t, actor.NewSameNameWarning(actor.TypeReplacementAttorney, actor.TypeDonor, "Jane", "Doe"), data.NameWarning) &&
-					assert.True(t, data.Errors.None())
-			},
-		},
-		"name warning ignored but other errors": {
-			form: url.Values{
-				"first-names":         {"Jane"},
-				"last-name":           {"Doe"},
-				"date-of-birth-day":   {"2"},
-				"date-of-birth-month": {"1"},
-				"ignore-name-warning": {"errorDonorMatchesActor|aReplacementAttorney|Jane|Doe"},
-			},
-			dataMatcher: func(t *testing.T, data *chooseReplacementAttorneysData) bool {
-				return assert.Equal(t, "", data.DobWarning) &&
-					assert.Equal(t, actor.NewSameNameWarning(actor.TypeReplacementAttorney, actor.TypeDonor, "Jane", "Doe"), data.NameWarning) &&
-					assert.Equal(t, validation.With("date-of-birth", validation.DateMissingError{Label: "dateOfBirth", MissingDay: false, MissingMonth: false, MissingYear: true}), data.Errors)
-			},
-		},
-		"other name warning ignored": {
-			form: url.Values{
-				"first-names":         {"Jane"},
-				"last-name":           {"Doe"},
-				"date-of-birth-day":   {"2"},
-				"date-of-birth-month": {"1"},
-				"date-of-birth-year":  {validBirthYear},
-				"ignore-name-warning": {"errorAttorneyMatchesActor|aReplacementAttorney|Jane|Doe"},
-			},
-			dataMatcher: func(t *testing.T, data *chooseReplacementAttorneysData) bool {
-				return assert.Equal(t, "", data.DobWarning) &&
-					assert.Equal(t, actor.NewSameNameWarning(actor.TypeReplacementAttorney, actor.TypeDonor, "Jane", "Doe"), data.NameWarning) &&
-					assert.True(t, data.Errors.None())
 			},
 		},
 	}
@@ -534,58 +371,4 @@ func TestPostChooseReplacementAttorneysWhenStoreErrors(t *testing.T) {
 	err := ChooseReplacementAttorneys(nil, donorStore)(testAppData, w, r, &donordata.Provided{})
 
 	assert.Equal(t, expectedError, err)
-}
-
-func TestReplacementAttorneyMatches(t *testing.T) {
-	uid := actoruid.New()
-	donor := &donordata.Provided{
-		Donor: donordata.Donor{FirstNames: "a", LastName: "b"},
-		Attorneys: donordata.Attorneys{Attorneys: []donordata.Attorney{
-			{FirstNames: "c", LastName: "d"},
-			{FirstNames: "e", LastName: "f"},
-		}},
-		ReplacementAttorneys: donordata.Attorneys{Attorneys: []donordata.Attorney{
-			{FirstNames: "g", LastName: "h"},
-			{UID: uid, FirstNames: "i", LastName: "j"},
-		}},
-		CertificateProvider: donordata.CertificateProvider{FirstNames: "k", LastName: "l"},
-		PeopleToNotify: donordata.PeopleToNotify{
-			{FirstNames: "m", LastName: "n"},
-			{FirstNames: "o", LastName: "p"},
-		},
-		AuthorisedSignatory: donordata.AuthorisedSignatory{FirstNames: "a", LastName: "s"},
-		IndependentWitness:  donordata.IndependentWitness{FirstNames: "i", LastName: "w"},
-	}
-
-	assert.Equal(t, actor.TypeNone, replacementAttorneyMatches(donor, uid, "x", "y"))
-	assert.Equal(t, actor.TypeDonor, replacementAttorneyMatches(donor, uid, "a", "b"))
-	assert.Equal(t, actor.TypeAttorney, replacementAttorneyMatches(donor, uid, "C", "D"))
-	assert.Equal(t, actor.TypeAttorney, replacementAttorneyMatches(donor, uid, "e", "f"))
-	assert.Equal(t, actor.TypeReplacementAttorney, replacementAttorneyMatches(donor, uid, "g", "h"))
-	assert.Equal(t, actor.TypeNone, replacementAttorneyMatches(donor, uid, "i", "j"))
-	assert.Equal(t, actor.TypeCertificateProvider, replacementAttorneyMatches(donor, uid, "K", "l"))
-	assert.Equal(t, actor.TypePersonToNotify, replacementAttorneyMatches(donor, uid, "m", "n"))
-	assert.Equal(t, actor.TypePersonToNotify, replacementAttorneyMatches(donor, uid, "O", "P"))
-	assert.Equal(t, actor.TypeAuthorisedSignatory, replacementAttorneyMatches(donor, uid, "a", "s"))
-	assert.Equal(t, actor.TypeIndependentWitness, replacementAttorneyMatches(donor, uid, "i", "w"))
-}
-
-func TestReplacementAttorneyMatchesEmptyNamesIgnored(t *testing.T) {
-	uid := actoruid.New()
-	donor := &donordata.Provided{
-		Donor: donordata.Donor{FirstNames: "", LastName: ""},
-		Attorneys: donordata.Attorneys{Attorneys: []donordata.Attorney{
-			{FirstNames: "", LastName: ""},
-		}},
-		ReplacementAttorneys: donordata.Attorneys{Attorneys: []donordata.Attorney{
-			{FirstNames: "", LastName: ""},
-			{UID: uid, FirstNames: "", LastName: ""},
-		}},
-		CertificateProvider: donordata.CertificateProvider{FirstNames: "", LastName: ""},
-		PeopleToNotify: donordata.PeopleToNotify{
-			{FirstNames: "", LastName: ""},
-		},
-	}
-
-	assert.Equal(t, actor.TypeNone, replacementAttorneyMatches(donor, uid, "", ""))
 }

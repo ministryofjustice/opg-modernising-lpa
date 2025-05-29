@@ -1813,5 +1813,11 @@
     "removeCorrespondent": "Remove correspondent",
     "yesToRemoveCorrespondent": "yes to remove the correspondent",
     "aCorrespondentOrToAddANewCorrespondent": "a correspondent, or to add a new correspondent",
-    "organisation": "Organisation"
+    "organisation": "Organisation",
+    "checkYourCertificateProvidersDetails": "Check your certificate provider’s details",
+    "checkYourReplacementAttorneysDetails": "Check your replacement attorney’s details",
+    "checkYourCorrespondentsDetails": "Check your correspondent’s details",
+    "checkYourPersonToNotifysDetails": "Check your person to notify’s details",
+    "checkYourAuthorisedSignatorysDetails": "Check your authorised signatory’s details",
+    "checkYourIndependentWitnesssDetails": "Check your independent witness’s details"
 }

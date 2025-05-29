@@ -267,7 +267,7 @@ func TestPostChooseAttorneysWhenDOBWarning(t *testing.T) {
 		Put(r.Context(), mock.Anything).
 		Return(nil)
 
-	appData := appcontext.Data{Page: "/a"}
+	appData := appcontext.Data{Page: "/abc"}
 	err := ChooseAttorneys(nil, donorStore)(appData, w, r, &donordata.Provided{
 		LpaID: "lpa-id",
 		Donor: donordata.Donor{FirstNames: "Jane", LastName: "Doe"},
@@ -276,7 +276,14 @@ func TestPostChooseAttorneysWhenDOBWarning(t *testing.T) {
 
 	assert.Nil(t, err)
 	assert.Equal(t, http.StatusFound, resp.StatusCode)
-	assert.Equal(t, donor.PathWarningInterruption.Format("lpa-id")+"?id="+testUID.String()+"&warningFrom=%2Fa", resp.Header.Get("Location"))
+	assert.Equal(t, donor.PathWarningInterruption.FormatQuery("lpa-id", url.Values{
+		"id":          {testUID.String()},
+		"warningFrom": {"/abc"},
+		"next": {donor.PathChooseAttorneysAddress.FormatQuery(
+			"lpa-id",
+			url.Values{"id": {testUID.String()}}),
+		},
+	}), resp.Header.Get("Location"))
 }
 
 func TestPostChooseAttorneysWhenNameWarning(t *testing.T) {
@@ -298,7 +305,7 @@ func TestPostChooseAttorneysWhenNameWarning(t *testing.T) {
 		Put(r.Context(), mock.Anything).
 		Return(nil)
 
-	appData := appcontext.Data{Page: "/a"}
+	appData := appcontext.Data{Page: "/abc"}
 	err := ChooseAttorneys(nil, donorStore)(appData, w, r, &donordata.Provided{
 		LpaID: "lpa-id",
 		Donor: donordata.Donor{FirstNames: "Jane", LastName: "Doe"},
@@ -306,7 +313,15 @@ func TestPostChooseAttorneysWhenNameWarning(t *testing.T) {
 	resp := w.Result()
 
 	assert.Nil(t, err)
-	assert.Equal(t, donor.PathWarningInterruption.Format("lpa-id")+"?id="+testUID.String()+"&warningFrom=%2Fa", resp.Header.Get("Location"))
+	assert.Equal(t, http.StatusFound, resp.StatusCode)
+	assert.Equal(t, donor.PathWarningInterruption.FormatQuery("lpa-id", url.Values{
+		"id":          {testUID.String()},
+		"warningFrom": {"/abc"},
+		"next": {donor.PathChooseAttorneysAddress.FormatQuery(
+			"lpa-id",
+			url.Values{"id": {testUID.String()}}),
+		},
+	}), resp.Header.Get("Location"))
 }
 
 func TestPostChooseAttorneysWhenStoreErrors(t *testing.T) {

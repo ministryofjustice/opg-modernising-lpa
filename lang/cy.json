@@ -1913,5 +1913,8 @@
     "removeCorrespondent": "Welsh",
     "yesToRemoveCorrespondent": "Welsh",
     "aCorrespondentOrToAddANewCorrespondent": "Welsh",
-    "organisation": "Welsh"
+    "organisation": "Welsh",
+    "checkYourCertificateProvidersDetails": "Welsh",
+    "checkYourReplacementAttorneysDetails": "Welsh",
+    "checkYourCorrespondentsDetails": "Welsh"
 }

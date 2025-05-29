@@ -8,6 +8,7 @@ import (
 	"strings"
 	"testing"
 
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/appcontext"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor/donordata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/form"
@@ -194,6 +195,42 @@ func TestPostCertificateProviderAddressManual(t *testing.T) {
 	assert.Nil(t, err)
 	assert.Equal(t, http.StatusFound, resp.StatusCode)
 	assert.Equal(t, donor.PathTaskList.Format("lpa-id"), resp.Header.Get("Location"))
+}
+
+func TestPostCertificateProviderAddressManualWhenSameAddressAsDonor(t *testing.T) {
+	f := url.Values{
+		form.FieldNames.Address.Action:     {"manual"},
+		form.FieldNames.Address.Line1:      {"a"},
+		form.FieldNames.Address.Line2:      {"b"},
+		form.FieldNames.Address.Line3:      {"c"},
+		form.FieldNames.Address.TownOrCity: {"d"},
+		form.FieldNames.Address.Postcode:   {"e"},
+	}
+
+	w := httptest.NewRecorder()
+	r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(f.Encode()))
+	r.Header.Add("Content-Type", page.FormUrlEncoded)
+
+	donorStore := newMockDonorStore(t)
+	donorStore.EXPECT().
+		Put(r.Context(), &donordata.Provided{
+			LpaID:               "lpa-id",
+			Donor:               donordata.Donor{Address: testAddress},
+			CertificateProvider: donordata.CertificateProvider{Address: testAddress},
+			Tasks:               donordata.Tasks{CertificateProvider: task.StateCompleted},
+		}).
+		Return(nil)
+
+	appData := appcontext.Data{Page: "/abc"}
+	err := CertificateProviderAddress(nil, nil, nil, donorStore)(appData, w, r, &donordata.Provided{LpaID: "lpa-id", Donor: donordata.Donor{Address: testAddress}})
+	resp := w.Result()
+
+	assert.Nil(t, err)
+	assert.Equal(t, http.StatusFound, resp.StatusCode)
+	assert.Equal(t, donor.PathWarningInterruption.FormatQuery("lpa-id", url.Values{
+		"warningFrom": {"/abc"},
+		"next":        {donor.PathTaskList.Format("lpa-id")},
+	}), resp.Header.Get("Location"))
 }
 
 func TestPostCertificateProviderAddressManualWhenSigned(t *testing.T) {

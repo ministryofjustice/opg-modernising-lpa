@@ -61,7 +61,7 @@ func (w *SameNameWarning) translationKey() string {
 		}
 		return "replacementAttorneyMatchesActorWarning"
 	case TypeCertificateProvider:
-		return "certificateProviderMatchesActorWarning"
+		return "actorMatchesDifferentActorTypeWarning"
 	case TypePersonToNotify:
 		if w.actor == TypePersonToNotify {
 			return "personToNotifyMatchesPersonToNotifyWarning"
@@ -71,6 +71,8 @@ func (w *SameNameWarning) translationKey() string {
 		return "authorisedSignatoryMatchesActorWarning"
 	case TypeIndependentWitness:
 		return "independentWitnessMatchesActorWarning"
+	case TypeCorrespondent:
+		return "correspondentMatchesActorWarning"
 	}
 
 	return ""
@@ -102,6 +104,8 @@ func articleAndType(comparator Type) string {
 		return "theIndependentWitness"
 	case TypeVoucher:
 		return "theVoucher"
+	case TypeCorrespondent:
+		return "theCorrespondent"
 	}
 
 	return ""
@@ -111,6 +115,12 @@ func (w *SameNameWarning) pluralActorType() string {
 	switch w.actor {
 	case TypeAttorney:
 		return "attorneys"
+	case TypeReplacementAttorney:
+		return "replacementAttorneys"
+	case TypeCertificateProvider:
+		return "certificateProviders"
+	case TypePersonToNotify:
+		return "peopleToNotify"
 	default:
 		return ""
 	}

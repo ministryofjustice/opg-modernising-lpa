@@ -20,3 +20,7 @@ type Correspondent struct {
 func (c Correspondent) FullName() string {
 	return c.FirstNames + " " + c.LastName
 }
+
+func (c Correspondent) NameHasChanged(firstNames, lastName string) bool {
+	return c.FirstNames != firstNames || c.LastName != lastName
+}

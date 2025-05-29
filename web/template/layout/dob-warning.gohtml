@@ -1,6 +1,0 @@
-{{ define "dob-warning" }}
-  {{ if .DobWarning }}
-    <input type="hidden" name="ignore-dob-warning" value="{{ .DobWarning }}" />
-    {{ template "information-banner" (content .App .DobWarning) }}
-  {{ end }}
-{{ end }}

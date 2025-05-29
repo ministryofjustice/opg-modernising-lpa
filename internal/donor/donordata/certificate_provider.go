@@ -44,3 +44,11 @@ type CertificateProvider struct {
 func (c CertificateProvider) FullName() string {
 	return fmt.Sprintf("%s %s", c.FirstNames, c.LastName)
 }
+
+func (c CertificateProvider) NameHasChanged(firstNames, lastName string) bool {
+	return c.FirstNames != firstNames || c.LastName != lastName
+}
+
+func (c CertificateProvider) AddressHasChanged(address place.Address) bool {
+	return c.Address != address
+}

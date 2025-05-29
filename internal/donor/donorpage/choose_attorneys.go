@@ -5,7 +5,6 @@ import (
 	"net/url"
 
 	"github.com/ministryofjustice/opg-go-common/template"
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor/actoruid"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/appcontext"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/date"
@@ -52,20 +51,15 @@ func ChooseAttorneys(tmpl template.Template, donorStore DonorStore) Handler {
 			data.Form = readChooseAttorneysForm(r)
 			data.Errors = data.Form.Validate()
 
-			dobWarning := DateOfBirthWarning(data.Form.Dob, false)
-			nameWarning := actor.NewSameNameWarning(
-				actor.TypeAttorney,
-				attorneyMatches(provided, attorney.UID, data.Form.FirstNames, data.Form.LastName),
-				data.Form.FirstNames,
-				data.Form.LastName,
-			)
+			dobWarning := dateOfBirthWarning(data.Form.Dob, false)
+			nameMatches := attorneyMatches(provided, attorney.UID, data.Form.FirstNames, data.Form.LastName)
 			redirectToWarning := false
 
 			if (data.Form.Dob != attorney.DateOfBirth || attorney.DateOfBirth.After(date.Today().AddDate(-18, 0, 0))) && dobWarning != "" {
 				redirectToWarning = true
 			}
 
-			if attorney.NameHasChanged(data.Form.FirstNames, data.Form.LastName) && nameWarning != nil {
+			if attorney.NameHasChanged(data.Form.FirstNames, data.Form.LastName) && !nameMatches.IsNone() {
 				redirectToWarning = true
 			}
 
@@ -92,6 +86,10 @@ func ChooseAttorneys(tmpl template.Template, donorStore DonorStore) Handler {
 					return donor.PathWarningInterruption.RedirectQuery(w, r, appData, provided, url.Values{
 						"id":          {attorney.UID.String()},
 						"warningFrom": {appData.Page},
+						"next": {donor.PathChooseAttorneysAddress.FormatQuery(
+							provided.LpaID,
+							url.Values{"id": {attorney.UID.String()}}),
+						},
 					})
 				}
 
