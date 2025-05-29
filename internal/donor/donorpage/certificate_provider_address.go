@@ -3,8 +3,10 @@ package donorpage
 import (
 	"fmt"
 	"net/http"
+	"net/url"
 
 	"github.com/ministryofjustice/opg-go-common/template"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/appcontext"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor/donordata"
@@ -45,6 +47,7 @@ func CertificateProviderAddress(logger Logger, tmpl template.Template, addressCl
 			data.Errors = data.Form.Validate(false)
 
 			setAddress := func(address place.Address) error {
+				addressHasChanged := provided.CertificateProvider.AddressHasChanged(address)
 				provided.CertificateProvider.Address = address
 				provided.Tasks.CertificateProvider = task.StateCompleted
 
@@ -60,6 +63,14 @@ func CertificateProviderAddress(logger Logger, tmpl template.Template, addressCl
 
 				if err := donorStore.Put(r.Context(), provided); err != nil {
 					return err
+				}
+
+				if addressHasChanged && provided.CertificateProviderSharesAddress() {
+					return donor.PathWarningInterruption.RedirectQuery(w, r, appData, provided, url.Values{
+						"warningFrom": {appData.Page},
+						"next":        {donor.PathCertificateProviderSummary.Format(provided.LpaID)},
+						"actor":       {actor.TypeCertificateProvider.String()},
+					})
 				}
 
 				return donor.PathCertificateProviderSummary.Redirect(w, r, appData, provided)
