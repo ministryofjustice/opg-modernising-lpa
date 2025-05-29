@@ -133,22 +133,6 @@ func TestPostEnterDateOfBirth(t *testing.T) {
 				},
 			},
 		},
-		"warning ignored": {
-			form: url.Values{
-				"date-of-birth-day":   {"2"},
-				"date-of-birth-month": {"1"},
-				"date-of-birth-year":  {"1900"},
-				"ignore-dob-warning":  {"dateOfBirthIsOver100"},
-			},
-			retrieved: &certificateproviderdata.Provided{LpaID: "lpa-id"},
-			updated: &certificateproviderdata.Provided{
-				LpaID:       "lpa-id",
-				DateOfBirth: date.New("1900", "1", "2"),
-				Tasks: certificateproviderdata.Tasks{
-					ConfirmYourDetails: task.StateInProgress,
-				},
-			},
-		},
 	}
 
 	for name, tc := range testCases {

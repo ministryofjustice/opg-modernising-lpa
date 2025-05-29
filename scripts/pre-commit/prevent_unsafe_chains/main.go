@@ -5,21 +5,10 @@ import (
 	"fmt"
 	"log"
 	"os"
-	"os/exec"
 	"regexp"
-	"strings"
+
+	"github.com/ministryofjustice/opg-modernising-lpa/scripts/pre-commit/shared"
 )
-
-func getChangedFiles() ([]string, error) {
-	cmd := exec.Command("git", "diff", "--cached", "--name-only", "--diff-filter=ACM", "*.cy.js")
-	output, err := cmd.Output()
-	if err != nil {
-		return nil, fmt.Errorf("error getting changed files: %v", err)
-	}
-
-	files := strings.Fields(string(output))
-	return files, nil
-}
 
 func checkCypressUnsafeChaining(filePath string) error {
 	content, err := os.ReadFile(filePath)
@@ -41,7 +30,7 @@ func checkCypressUnsafeChaining(filePath string) error {
 }
 
 func main() {
-	changedFiles, err := getChangedFiles()
+	changedFiles, err := shared.GetChangedFiles()
 	if err != nil {
 		log.Fatal(err)
 	}
