@@ -9,6 +9,7 @@ import (
 
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor/actoruid"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/appcontext"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor/donordata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
@@ -134,8 +135,9 @@ func TestGetChoosePeopleToNotifyPeopleLimitReached(t *testing.T) {
 
 func TestPostChoosePeopleToNotifyPersonDoesNotExists(t *testing.T) {
 	testCases := map[string]struct {
-		form           url.Values
-		personToNotify donordata.PersonToNotify
+		form             url.Values
+		personToNotify   donordata.PersonToNotify
+		expectedRedirect string
 	}{
 		"valid": {
 			form: url.Values{
@@ -147,18 +149,29 @@ func TestPostChoosePeopleToNotifyPersonDoesNotExists(t *testing.T) {
 				LastName:   "Doe",
 				UID:        testUID,
 			},
+			expectedRedirect: donor.PathChoosePeopleToNotifyAddress.FormatQuery("lpa-id", url.Values{
+				"id": {testUID.String()},
+			}),
 		},
-		"name warning ignored": {
+		"with name warning": {
 			form: url.Values{
-				"first-names":         {"Jane"},
-				"last-name":           {"Doe"},
-				"ignore-name-warning": {actor.NewSameNameWarning(actor.TypePersonToNotify, actor.TypeDonor, "Jane", "Doe").String()},
+				"first-names": {"Jane"},
+				"last-name":   {"Doe"},
 			},
 			personToNotify: donordata.PersonToNotify{
 				FirstNames: "Jane",
 				LastName:   "Doe",
 				UID:        testUID,
 			},
+			expectedRedirect: donor.PathWarningInterruption.FormatQuery("lpa-id", url.Values{
+				"id":          {testUID.String()},
+				"warningFrom": {"/abc"},
+				"next": {donor.PathChoosePeopleToNotifyAddress.FormatQuery(
+					"lpa-id",
+					url.Values{"id": {testUID.String()}}),
+				},
+				"actor": {actor.TypePersonToNotify.String()},
+			}),
 		},
 	}
 
@@ -178,7 +191,8 @@ func TestPostChoosePeopleToNotifyPersonDoesNotExists(t *testing.T) {
 				}).
 				Return(nil)
 
-			err := ChoosePeopleToNotify(nil, donorStore, testUIDFn)(testAppData, w, r, &donordata.Provided{
+			appData := appcontext.Data{Page: "/abc"}
+			err := ChoosePeopleToNotify(nil, donorStore, testUIDFn)(appData, w, r, &donordata.Provided{
 				LpaID: "lpa-id",
 				Donor: donordata.Donor{FirstNames: "Jane", LastName: "Doe"},
 			})
@@ -186,7 +200,7 @@ func TestPostChoosePeopleToNotifyPersonDoesNotExists(t *testing.T) {
 
 			assert.Nil(t, err)
 			assert.Equal(t, http.StatusFound, resp.StatusCode)
-			assert.Equal(t, donor.PathChoosePeopleToNotifyAddress.Format("lpa-id")+"?id="+testUID.String(), resp.Header.Get("Location"))
+			assert.Equal(t, tc.expectedRedirect, resp.Header.Get("Location"))
 		})
 	}
 }
@@ -240,29 +254,7 @@ func TestPostChoosePeopleToNotifyWhenInputRequired(t *testing.T) {
 				"last-name": {"Doe"},
 			},
 			dataMatcher: func(t *testing.T, data *choosePeopleToNotifyData) bool {
-				return assert.Nil(t, data.NameWarning) &&
-					assert.Equal(t, validation.With("first-names", validation.EnterError{Label: "firstNames"}), data.Errors)
-			},
-		},
-		"name warning": {
-			form: url.Values{
-				"first-names": {"Jane"},
-				"last-name":   {"Doe"},
-			},
-			dataMatcher: func(t *testing.T, data *choosePeopleToNotifyData) bool {
-				return assert.Equal(t, actor.NewSameNameWarning(actor.TypePersonToNotify, actor.TypeDonor, "Jane", "Doe"), data.NameWarning) &&
-					assert.True(t, data.Errors.None())
-			},
-		},
-		"other name warning ignored": {
-			form: url.Values{
-				"first-names":         {"Jane"},
-				"last-name":           {"Doe"},
-				"ignore-name-warning": {"errorDonorMatchesActor|aPersonToNotify|John|Doe"},
-			},
-			dataMatcher: func(t *testing.T, data *choosePeopleToNotifyData) bool {
-				return assert.Equal(t, actor.NewSameNameWarning(actor.TypePersonToNotify, actor.TypeDonor, "Jane", "Doe"), data.NameWarning) &&
-					assert.True(t, data.Errors.None())
+				return assert.Equal(t, validation.With("first-names", validation.EnterError{Label: "firstNames"}), data.Errors)
 			},
 		},
 	}
@@ -367,54 +359,4 @@ func TestChoosePeopleToNotifyFormValidate(t *testing.T) {
 			assert.Equal(t, tc.errors, tc.form.Validate())
 		})
 	}
-}
-
-func TestPersonToNotifyMatches(t *testing.T) {
-	uid := actoruid.New()
-	donor := &donordata.Provided{
-		Donor: donordata.Donor{FirstNames: "a", LastName: "b"},
-		Attorneys: donordata.Attorneys{Attorneys: []donordata.Attorney{
-			{FirstNames: "c", LastName: "d"},
-			{FirstNames: "e", LastName: "f"},
-		}},
-		ReplacementAttorneys: donordata.Attorneys{Attorneys: []donordata.Attorney{
-			{FirstNames: "g", LastName: "h"},
-			{FirstNames: "i", LastName: "j"},
-		}},
-		CertificateProvider: donordata.CertificateProvider{FirstNames: "k", LastName: "l"},
-		PeopleToNotify: donordata.PeopleToNotify{
-			{FirstNames: "m", LastName: "n"},
-			{UID: uid, FirstNames: "o", LastName: "p"},
-		},
-	}
-
-	assert.Equal(t, actor.TypeNone, personToNotifyMatches(donor, uid, "x", "y"))
-	assert.Equal(t, actor.TypeDonor, personToNotifyMatches(donor, uid, "a", "b"))
-	assert.Equal(t, actor.TypeAttorney, personToNotifyMatches(donor, uid, "C", "D"))
-	assert.Equal(t, actor.TypeAttorney, personToNotifyMatches(donor, uid, "e", "f"))
-	assert.Equal(t, actor.TypeReplacementAttorney, personToNotifyMatches(donor, uid, "G", "H"))
-	assert.Equal(t, actor.TypeReplacementAttorney, personToNotifyMatches(donor, uid, "i", "j"))
-	assert.Equal(t, actor.TypeNone, personToNotifyMatches(donor, uid, "k", "L"))
-	assert.Equal(t, actor.TypePersonToNotify, personToNotifyMatches(donor, uid, "m", "n"))
-	assert.Equal(t, actor.TypeNone, personToNotifyMatches(donor, uid, "o", "p"))
-}
-
-func TestPersonToNotifyMatchesEmptyNamesIgnored(t *testing.T) {
-	uid := actoruid.New()
-	donor := &donordata.Provided{
-		Donor: donordata.Donor{FirstNames: "", LastName: ""},
-		Attorneys: donordata.Attorneys{Attorneys: []donordata.Attorney{
-			{FirstNames: "", LastName: ""},
-		}},
-		ReplacementAttorneys: donordata.Attorneys{Attorneys: []donordata.Attorney{
-			{FirstNames: "", LastName: ""},
-		}},
-		CertificateProvider: donordata.CertificateProvider{FirstNames: "", LastName: ""},
-		PeopleToNotify: donordata.PeopleToNotify{
-			{FirstNames: "", LastName: ""},
-			{UID: uid, FirstNames: "", LastName: ""},
-		},
-	}
-
-	assert.Equal(t, actor.TypeNone, personToNotifyMatches(donor, uid, "", ""))
 }

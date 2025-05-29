@@ -2,7 +2,7 @@ package donorpage
 
 import (
 	"net/http"
-	"strings"
+	"net/url"
 
 	"github.com/ministryofjustice/opg-go-common/template"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
@@ -16,10 +16,9 @@ import (
 )
 
 type yourAuthorisedSignatoryData struct {
-	App         appcontext.Data
-	Errors      validation.List
-	Form        *yourAuthorisedSignatoryForm
-	NameWarning *actor.SameNameWarning
+	App    appcontext.Data
+	Errors validation.List
+	Form   *yourAuthorisedSignatoryForm
 }
 
 func YourAuthorisedSignatory(tmpl template.Template, donorStore DonorStore, newUID func() actoruid.UID) Handler {
@@ -36,18 +35,14 @@ func YourAuthorisedSignatory(tmpl template.Template, donorStore DonorStore, newU
 			data.Form = readYourAuthorisedSignatoryForm(r)
 			data.Errors = data.Form.Validate()
 
-			nameWarning := actor.NewSameNameWarning(
-				actor.TypeAuthorisedSignatory,
-				signatoryMatches(provided, data.Form.FirstNames, data.Form.LastName),
-				data.Form.FirstNames,
-				data.Form.LastName,
-			)
+			nameMatches := signatoryMatches(provided, data.Form.FirstNames, data.Form.LastName)
+			redirectToWarning := false
 
-			if data.Errors.Any() || data.Form.IgnoreNameWarning != nameWarning.String() {
-				data.NameWarning = nameWarning
+			if !nameMatches.IsNone() && provided.AuthorisedSignatory.NameHasChanged(data.Form.FirstNames, data.Form.LastName) {
+				redirectToWarning = true
 			}
 
-			if data.Errors.None() && data.NameWarning == nil {
+			if data.Errors.None() {
 				if provided.AuthorisedSignatory.UID.IsZero() {
 					provided.AuthorisedSignatory.UID = newUID()
 				}
@@ -63,6 +58,14 @@ func YourAuthorisedSignatory(tmpl template.Template, donorStore DonorStore, newU
 					return err
 				}
 
+				if redirectToWarning {
+					return donor.PathWarningInterruption.RedirectQuery(w, r, appData, provided, url.Values{
+						"warningFrom": {appData.Page},
+						"next":        {donor.PathYourIndependentWitness.Format(provided.LpaID)},
+						"actor":       {actor.TypeAuthorisedSignatory.String()},
+					})
+				}
+
 				return donor.PathYourIndependentWitness.Redirect(w, r, appData, provided)
 			}
 		}
@@ -72,16 +75,14 @@ func YourAuthorisedSignatory(tmpl template.Template, donorStore DonorStore, newU
 }
 
 type yourAuthorisedSignatoryForm struct {
-	FirstNames        string
-	LastName          string
-	IgnoreNameWarning string
+	FirstNames string
+	LastName   string
 }
 
 func readYourAuthorisedSignatoryForm(r *http.Request) *yourAuthorisedSignatoryForm {
 	return &yourAuthorisedSignatoryForm{
-		FirstNames:        page.PostFormString(r, "first-names"),
-		LastName:          page.PostFormString(r, "last-name"),
-		IgnoreNameWarning: page.PostFormString(r, "ignore-name-warning"),
+		FirstNames: page.PostFormString(r, "first-names"),
+		LastName:   page.PostFormString(r, "last-name"),
 	}
 }
 
@@ -97,21 +98,4 @@ func (f *yourAuthorisedSignatoryForm) Validate() validation.List {
 		validation.StringTooLong(61))
 
 	return errors
-}
-
-func signatoryMatches(donor *donordata.Provided, firstNames, lastName string) actor.Type {
-	if firstNames == "" && lastName == "" {
-		return actor.TypeNone
-	}
-
-	for person := range donor.Actors() {
-		if !person.Type.IsAuthorisedSignatory() &&
-			!person.Type.IsPersonToNotify() &&
-			strings.EqualFold(person.FirstNames, firstNames) &&
-			strings.EqualFold(person.LastName, lastName) {
-			return person.Type
-		}
-	}
-
-	return actor.TypeNone
 }

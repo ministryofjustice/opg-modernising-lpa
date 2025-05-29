@@ -1,29 +1,26 @@
 package actor
 
 import (
-	"fmt"
 	"strings"
 
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/localize"
 )
 
 type SameNameWarning struct {
-	actor      Type
-	matches    Type
-	firstNames string
-	lastName   string
+	actor    Type
+	matches  Type
+	fullName string
 }
 
-func NewSameNameWarning(actor, matches Type, firstNames, lastName string) *SameNameWarning {
+func NewSameNameWarning(actor, matches Type, fullName string) *SameNameWarning {
 	if actor == TypeNone || matches == TypeNone {
 		return nil
 	}
 
 	return &SameNameWarning{
-		actor:      actor,
-		matches:    matches,
-		firstNames: firstNames,
-		lastName:   lastName,
+		actor:    actor,
+		matches:  matches,
+		fullName: fullName,
 	}
 }
 
@@ -31,56 +28,76 @@ func (w *SameNameWarning) Format(l localize.Localizer) string {
 	return l.Format(w.translationKey(), map[string]any{
 		"Type":                l.T(w.actor.String()),
 		"TypePlural":          strings.ToLower(l.T(w.pluralActorType())),
-		"ArticleAndType":      l.T(w.actorType()),
-		"MatchArticleAndType": l.T(w.matchesType()),
-		"FirstNames":          w.firstNames,
-		"LastName":            w.lastName,
+		"ArticleAndType":      l.T(w.actorArticleType()),
+		"Match":               l.T(w.matches.String()),
+		"MatchArticleAndType": l.T(w.matchesArticleType()),
+		"FullName":            w.fullName,
 	})
 }
 
-func (w *SameNameWarning) String() string {
-	if w == nil {
-		return "<nil>"
-	}
-
-	return fmt.Sprintf("%d|%d|%s|%s", w.actor, w.matches, w.firstNames, w.lastName)
-}
-
 func (w *SameNameWarning) translationKey() string {
-	switch w.matches {
+	switch w.actor {
 	case TypeDonor:
-		return "donorMatchesActorWarning"
-	case TypeAttorney:
-		if w.actor == TypeAttorney {
-			return "actorMatchesSameActorTypeWarning"
+		if w.matches.IsAttorney() || w.matches.IsReplacementAttorney() || w.matches.IsIndependentWitness() || w.matches.IsAuthorisedSignatory() {
+			return "donorMatchesActorNameWarning"
 		}
-		return "actorMatchesDifferentActorTypeWarning"
-	case TypeReplacementAttorney:
-		if w.actor == TypeReplacementAttorney {
-			return "replacementAttorneyMatchesReplacementAttorneyWarning"
+
+		if w.matches.IsCertificateProvider() {
+			return "donorMatchesActorNameOrAddressWarning"
 		}
-		return "replacementAttorneyMatchesActorWarning"
+
+		if w.matches.IsCorrespondent() {
+			return "correspondentMatchesDonorNameWarning"
+		}
+
+		if w.matches.IsPersonToNotify() {
+			return "personToNotifyMatchesDonorNameWarning"
+		}
 	case TypeCertificateProvider:
-		return "certificateProviderMatchesActorWarning"
-	case TypePersonToNotify:
-		if w.actor == TypePersonToNotify {
-			return "personToNotifyMatchesPersonToNotifyWarning"
+		if w.matches.IsDonor() {
+			return "actorMatchesDonorNameOrAddressWarning"
 		}
-		return "personToNotifyMatchesActorWarning"
-	case TypeAuthorisedSignatory:
-		return "authorisedSignatoryMatchesActorWarning"
-	case TypeIndependentWitness:
-		return "independentWitnessMatchesActorWarning"
+
+		return "actorMatchesDifferentActorNameOrAddressWarningConfirmLater"
+	case TypeCorrespondent:
+		if w.matches.IsDonor() {
+			return "correspondentMatchesDonorNameWarning"
+		}
+	case TypePersonToNotify:
+		if w.matches.IsPersonToNotify() {
+			return "actorMatchesSameActorTypeNameWarning"
+		}
+
+		if w.matches.IsDonor() {
+			return "personToNotifyMatchesDonorNameWarning"
+		}
+
+		if w.matches.IsAttorney() {
+			return "personToNotifyMatchesAttorneyNameWarning"
+		}
+
+		// TODO Check with Abbi/Laura, do we want to show actorMatchesDifferentActorTypeNameWarning here?
+		//return "actorMatchesDifferentActorTypeNameWarning"
+	case TypeAttorney, TypeReplacementAttorney, TypeIndependentWitness, TypeAuthorisedSignatory:
+		if w.matches == w.actor {
+			return "actorMatchesSameActorTypeNameWarning"
+		}
+
+		if w.matches.IsDonor() {
+			return "actorMatchesDonorNameWarning"
+		}
+
+		return "actorMatchesDifferentActorTypeNameWarning"
 	}
 
 	return ""
 }
 
-func (w *SameNameWarning) actorType() string {
+func (w *SameNameWarning) actorArticleType() string {
 	return articleAndType(w.actor)
 }
 
-func (w *SameNameWarning) matchesType() string {
+func (w *SameNameWarning) matchesArticleType() string {
 	return articleAndType(w.matches)
 }
 
@@ -102,6 +119,8 @@ func articleAndType(comparator Type) string {
 		return "theIndependentWitness"
 	case TypeVoucher:
 		return "theVoucher"
+	case TypeCorrespondent:
+		return "theCorrespondent"
 	}
 
 	return ""
@@ -111,6 +130,12 @@ func (w *SameNameWarning) pluralActorType() string {
 	switch w.actor {
 	case TypeAttorney:
 		return "attorneys"
+	case TypeReplacementAttorney:
+		return "replacementAttorneys"
+	case TypeCertificateProvider:
+		return "certificateProviders"
+	case TypePersonToNotify:
+		return "peopleToNotify"
 	default:
 		return ""
 	}

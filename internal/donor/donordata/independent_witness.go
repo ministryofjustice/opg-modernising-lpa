@@ -20,3 +20,7 @@ type IndependentWitness struct {
 func (w IndependentWitness) FullName() string {
 	return fmt.Sprintf("%s %s", w.FirstNames, w.LastName)
 }
+
+func (w IndependentWitness) NameHasChanged(firstNames, lastName string) bool {
+	return w.FirstNames != firstNames || w.LastName != lastName
+}
