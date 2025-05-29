@@ -11,3 +11,8 @@ func TestAuthorisedSignatoryFullName(t *testing.T) {
 
 	assert.Equal(t, "Bob Alan George Smith Jones-Doe", d.FullName())
 }
+
+func TestAuthorisedSignatoryNameHasChanged(t *testing.T) {
+	assert.False(t, AuthorisedSignatory{FirstNames: "a", LastName: "b"}.NameHasChanged("a", "b"))
+	assert.True(t, AuthorisedSignatory{FirstNames: "a", LastName: "b"}.NameHasChanged("a", ""))
+}

@@ -52,20 +52,15 @@ func EnterAttorney(tmpl template.Template, donorStore DonorStore, reuseStore Reu
 			data.Form = readEnterAttorneyForm(r)
 			data.Errors = data.Form.Validate()
 
-			dobWarning := DateOfBirthWarning(data.Form.Dob, false)
-			nameWarning := actor.NewSameNameWarning(
-				actor.TypeAttorney,
-				attorneyMatches(provided, attorney.UID, data.Form.FirstNames, data.Form.LastName),
-				data.Form.FirstNames,
-				data.Form.LastName,
-			)
 			redirectToWarning := false
 
+			dobWarning := dateOfBirthWarning(data.Form.Dob, actor.TypeAttorney)
 			if (data.Form.Dob != attorney.DateOfBirth || attorney.DateOfBirth.After(date.Today().AddDate(-18, 0, 0))) && dobWarning != "" {
 				redirectToWarning = true
 			}
 
-			if attorney.NameHasChanged(data.Form.FirstNames, data.Form.LastName) && nameWarning != nil {
+			nameMatches := attorneyMatches(provided, attorney.UID, data.Form.FirstNames, data.Form.LastName)
+			if attorney.NameHasChanged(data.Form.FirstNames, data.Form.LastName) && !nameMatches.IsNone() {
 				redirectToWarning = true
 			}
 
@@ -96,6 +91,11 @@ func EnterAttorney(tmpl template.Template, donorStore DonorStore, reuseStore Reu
 					return donor.PathWarningInterruption.RedirectQuery(w, r, appData, provided, url.Values{
 						"id":          {attorney.UID.String()},
 						"warningFrom": {appData.Page},
+						"next": {donor.PathChooseAttorneysAddress.FormatQuery(
+							provided.LpaID,
+							url.Values{"id": {attorney.UID.String()}}),
+						},
+						"actor": {actor.TypeAttorney.String()},
 					})
 				}
 
@@ -108,12 +108,10 @@ func EnterAttorney(tmpl template.Template, donorStore DonorStore, reuseStore Reu
 }
 
 type enterAttorneyForm struct {
-	FirstNames        string
-	LastName          string
-	Email             string
-	Dob               date.Date
-	IgnoreDobWarning  string
-	IgnoreNameWarning string
+	FirstNames string
+	LastName   string
+	Email      string
+	Dob        date.Date
 }
 
 func readEnterAttorneyForm(r *http.Request) *enterAttorneyForm {
@@ -125,9 +123,6 @@ func readEnterAttorneyForm(r *http.Request) *enterAttorneyForm {
 		page.PostFormString(r, "date-of-birth-year"),
 		page.PostFormString(r, "date-of-birth-month"),
 		page.PostFormString(r, "date-of-birth-day"))
-
-	d.IgnoreDobWarning = page.PostFormString(r, "ignore-dob-warning")
-	d.IgnoreNameWarning = page.PostFormString(r, "ignore-name-warning")
 
 	return d
 }

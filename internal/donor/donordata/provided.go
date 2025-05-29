@@ -283,7 +283,7 @@ func (c toCheck) HashInclude(field string, _ any) (bool, error) {
 }
 
 // toConfirmCertificateProviderNotRelated filters the fields used for hashing to
-// only those used in CertificateProviderSharesDetails
+// only those used in CertificateProviderSharesLastName
 type toConfirmCertificateProviderNotRelated Provided
 
 func (c toConfirmCertificateProviderNotRelated) HashInclude(field string, _ any) (bool, error) {
@@ -292,10 +292,6 @@ func (c toConfirmCertificateProviderNotRelated) HashInclude(field string, _ any)
 	}
 
 	return field == "CertificateProvider" || field == "Donor" || field == "Attorneys" || field == "ReplacementAttorneys", nil
-}
-
-func (p *Provided) NamesChanged(firstNames, lastName, otherNames string) bool {
-	return p.Donor.FirstNames != firstNames || p.Donor.LastName != lastName || p.Donor.OtherNames != otherNames
 }
 
 func (p *Provided) HashChanged() bool {
@@ -553,11 +549,10 @@ func (p *Provided) PaidAt() time.Time {
 	return at
 }
 
-// CertificateProviderSharesDetails will return true if the last name or address
-// of the certificate provider matches that of the donor or one of the
-// attorneys. For a match of the last name we break on '-' to account for
-// double-barrelled names.
-func (p *Provided) CertificateProviderSharesDetails() bool {
+// CertificateProviderSharesLastName will return true if the last name of
+// the certificate provider matches that of the donor or one of the
+// attorneys. For a match we break on '-' to account for double-barrelled names.
+func (p *Provided) CertificateProviderSharesLastName() bool {
 	if !p.CertificateProviderNotRelatedConfirmedAt.IsZero() && !p.CertificateProviderNotRelatedConfirmedHashChanged() {
 		return false
 	}
@@ -569,11 +564,6 @@ func (p *Provided) CertificateProviderSharesDetails() bool {
 		if slices.Contains(donorParts, certificateProviderPart) {
 			return true
 		}
-
-		if p.CertificateProvider.Address.Line1 == p.Donor.Address.Line1 &&
-			p.CertificateProvider.Address.Postcode == p.Donor.Address.Postcode {
-			return true
-		}
 	}
 
 	for _, attorney := range append(p.Attorneys.Attorneys, p.ReplacementAttorneys.Attorneys...) {
@@ -583,11 +573,29 @@ func (p *Provided) CertificateProviderSharesDetails() bool {
 			if slices.Contains(attorneyParts, certificateProviderPart) {
 				return true
 			}
+		}
+	}
 
-			if p.CertificateProvider.Address.Line1 == attorney.Address.Line1 &&
-				p.CertificateProvider.Address.Postcode == attorney.Address.Postcode {
-				return true
-			}
+	return false
+}
+
+// CertificateProviderSharesAddress will return true if the address
+// of the certificate provider matches that of the donor or one of the
+// attorneys.
+func (p *Provided) CertificateProviderSharesAddress() bool {
+	if !p.CertificateProviderNotRelatedConfirmedAt.IsZero() && !p.CertificateProviderNotRelatedConfirmedHashChanged() {
+		return false
+	}
+
+	if p.CertificateProvider.Address.Line1 == p.Donor.Address.Line1 &&
+		p.CertificateProvider.Address.Postcode == p.Donor.Address.Postcode {
+		return true
+	}
+
+	for _, attorney := range append(p.Attorneys.Attorneys, p.ReplacementAttorneys.Attorneys...) {
+		if p.CertificateProvider.Address.Line1 == attorney.Address.Line1 &&
+			p.CertificateProvider.Address.Postcode == attorney.Address.Postcode {
+			return true
 		}
 	}
 
