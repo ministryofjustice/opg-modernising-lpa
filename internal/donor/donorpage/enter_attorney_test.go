@@ -155,6 +155,11 @@ func TestPostEnterAttorneyWhenAttorneyDoesNotExist(t *testing.T) {
 			r, _ := http.NewRequest(http.MethodPost, "/?id="+testUID.String(), strings.NewReader(tc.form.Encode()))
 			r.Header.Add("Content-Type", page.FormUrlEncoded)
 
+			reuseStore := newMockReuseStore(t)
+			reuseStore.EXPECT().
+				PutAttorney(r.Context(), tc.attorney).
+				Return(nil)
+
 			donorStore := newMockDonorStore(t)
 			donorStore.EXPECT().
 				Put(r.Context(), &donordata.Provided{
@@ -168,7 +173,7 @@ func TestPostEnterAttorneyWhenAttorneyDoesNotExist(t *testing.T) {
 				}).
 				Return(nil)
 
-			err := EnterAttorney(nil, donorStore, nil)(testAppData, w, r, &donordata.Provided{
+			err := EnterAttorney(nil, donorStore, reuseStore)(testAppData, w, r, &donordata.Provided{
 				LpaID: "lpa-id",
 				Donor: donordata.Donor{
 					FirstNames: "Jane",
@@ -257,13 +262,18 @@ func TestPostEnterAttorneyWhenDOBWarning(t *testing.T) {
 	r, _ := http.NewRequest(http.MethodPost, "/?id="+testUID.String(), strings.NewReader(form.Encode()))
 	r.Header.Add("Content-Type", page.FormUrlEncoded)
 
+	reuseStore := newMockReuseStore(t)
+	reuseStore.EXPECT().
+		PutAttorney(mock.Anything, mock.Anything).
+		Return(nil)
+
 	donorStore := newMockDonorStore(t)
 	donorStore.EXPECT().
 		Put(r.Context(), mock.Anything).
 		Return(nil)
 
 	appData := appcontext.Data{Page: "/a"}
-	err := EnterAttorney(nil, donorStore, nil)(appData, w, r, &donordata.Provided{
+	err := EnterAttorney(nil, donorStore, reuseStore)(appData, w, r, &donordata.Provided{
 		LpaID: "lpa-id",
 		Donor: donordata.Donor{FirstNames: "Jane", LastName: "Doe"},
 	})
@@ -288,13 +298,18 @@ func TestPostEnterAttorneyWhenNameWarning(t *testing.T) {
 	r, _ := http.NewRequest(http.MethodPost, "/?id="+testUID.String(), strings.NewReader(form.Encode()))
 	r.Header.Add("Content-Type", page.FormUrlEncoded)
 
+	reuseStore := newMockReuseStore(t)
+	reuseStore.EXPECT().
+		PutAttorney(mock.Anything, mock.Anything).
+		Return(nil)
+
 	donorStore := newMockDonorStore(t)
 	donorStore.EXPECT().
 		Put(r.Context(), mock.Anything).
 		Return(nil)
 
 	appData := appcontext.Data{Page: "/a"}
-	err := EnterAttorney(nil, donorStore, nil)(appData, w, r, &donordata.Provided{
+	err := EnterAttorney(nil, donorStore, reuseStore)(appData, w, r, &donordata.Provided{
 		LpaID: "lpa-id",
 		Donor: donordata.Donor{FirstNames: "Jane", LastName: "Doe"},
 	})
@@ -340,7 +355,7 @@ func TestPostEnterAttorneyWhenReuseStoreErrors(t *testing.T) {
 	assert.Equal(t, expectedError, err)
 }
 
-func TestPostEnterAttorneyWhenStoreErrors(t *testing.T) {
+func TestPostEnterAttorneyWhenDonorStoreErrors(t *testing.T) {
 	form := url.Values{
 		"first-names":         {"John"},
 		"last-name":           {"Doe"},
@@ -354,12 +369,17 @@ func TestPostEnterAttorneyWhenStoreErrors(t *testing.T) {
 	r, _ := http.NewRequest(http.MethodPost, "/?id="+testUID.String(), strings.NewReader(form.Encode()))
 	r.Header.Add("Content-Type", page.FormUrlEncoded)
 
+	reuseStore := newMockReuseStore(t)
+	reuseStore.EXPECT().
+		PutAttorney(mock.Anything, mock.Anything).
+		Return(nil)
+
 	donorStore := newMockDonorStore(t)
 	donorStore.EXPECT().
 		Put(r.Context(), mock.Anything).
 		Return(expectedError)
 
-	err := EnterAttorney(nil, donorStore, nil)(testAppData, w, r, &donordata.Provided{})
+	err := EnterAttorney(nil, donorStore, reuseStore)(testAppData, w, r, &donordata.Provided{})
 
 	assert.Equal(t, expectedError, err)
 }

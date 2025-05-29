@@ -163,6 +163,7 @@ type appPaths struct {
 	ChooseAttorneysAddress                               donor.Path
 	ChooseAttorneysGuidance                              donor.Path
 	ChooseAttorneysSummary                               donor.Path
+	ChooseCertificateProvider                            donor.Path
 	ChooseNewCertificateProvider                         donor.Path
 	ChoosePeopleToNotify                                 donor.Path
 	ChoosePeopleToNotifyAddress                          donor.Path
@@ -219,6 +220,7 @@ type appPaths struct {
 	ReceivingUpdatesAboutYourLpa                         donor.Path
 	RegisterWithCourtOfProtection                        donor.Path
 	RemoveAttorney                                       donor.Path
+	RemoveCertificateProvider                            donor.Path
 	RemoveCorrespondent                                  donor.Path
 	RemovePersonToNotify                                 donor.Path
 	RemoveReplacementAttorney                            donor.Path
@@ -415,12 +417,12 @@ var paths = appPaths{
 	ChooseAttorneysAddress:                               donor.PathChooseAttorneysAddress,
 	ChooseAttorneysGuidance:                              donor.PathChooseAttorneysGuidance,
 	ChooseAttorneysSummary:                               donor.PathChooseAttorneysSummary,
+	ChooseCertificateProvider:                            donor.PathChooseCertificateProvider,
 	ChooseNewCertificateProvider:                         donor.PathChooseNewCertificateProvider,
 	ChoosePeopleToNotify:                                 donor.PathChoosePeopleToNotify,
 	ChoosePeopleToNotifyAddress:                          donor.PathChoosePeopleToNotifyAddress,
 	ChoosePeopleToNotifySummary:                          donor.PathChoosePeopleToNotifySummary,
 	ChooseReplacementAttorneys:                           donor.PathChooseReplacementAttorneys,
-
 	ChooseReplacementAttorneysAddress:                    donor.PathChooseReplacementAttorneysAddress,
 	ChooseReplacementAttorneysSummary:                    donor.PathChooseReplacementAttorneysSummary,
 	ChooseReplacementTrustCorporation:                    donor.PathChooseReplacementTrustCorporation,
@@ -472,6 +474,7 @@ var paths = appPaths{
 	ReceivingUpdatesAboutYourLpa:                         donor.PathReceivingUpdatesAboutYourLpa,
 	RegisterWithCourtOfProtection:                        donor.PathRegisterWithCourtOfProtection,
 	RemoveAttorney:                                       donor.PathRemoveAttorney,
+	RemoveCertificateProvider:                            donor.PathRemoveCertificateProvider,
 	RemoveCorrespondent:                                  donor.PathRemoveCorrespondent,
 	RemovePersonToNotify:                                 donor.PathRemovePersonToNotify,
 	RemoveReplacementAttorney:                            donor.PathRemoveReplacementAttorney,

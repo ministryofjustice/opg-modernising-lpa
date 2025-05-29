@@ -1,4 +1,4 @@
-import {AddressFormAssertions, TestEmail, TestMobile} from "../../support/e2e";
+import { AddressFormAssertions, TestEmail, TestMobile } from "../../support/e2e";
 
 describe('Certificate provider task', () => {
     beforeEach(() => {
@@ -46,8 +46,10 @@ describe('Certificate provider task', () => {
 
         AddressFormAssertions.assertCanAddAddressFromSelect()
 
-        cy.url().should('contain', '/task-list');
-        cy.checkA11yApp({ rules: { 'aria-allowed-attr': { enabled: false } } });
+        cy.url().should('contain', '/certificate-provider-summary');
+        cy.checkA11yApp();
+
+        cy.contains('a', 'Return to task list').click();
 
         cy.contains('li', "Choose your certificate provider")
             .should('contain', 'Completed');
@@ -103,8 +105,10 @@ describe('Certificate provider task', () => {
 
         AddressFormAssertions.assertCanAddAddressFromSelect()
 
-        cy.url().should('contain', '/task-list');
-        cy.checkA11yApp({ rules: { 'aria-allowed-attr': { enabled: false } } });
+        cy.url().should('contain', '/certificate-provider-summary');
+        cy.checkA11yApp();
+
+        cy.contains('a', 'Return to task list').click();
 
         cy.contains('li', "Choose your certificate provider")
             .should('contain', 'Completed');
@@ -120,10 +124,6 @@ describe('Certificate provider task', () => {
         cy.checkA11yApp({ rules: { 'aria-allowed-attr': { enabled: false } } });
 
         cy.contains('button', 'Continue').click();
-
-        cy.url().should('contain', '/choose-your-certificate-provider');
-
-        cy.contains('a', 'Continue').click();
 
         cy.url().should('contain', '/certificate-provider-details');
 

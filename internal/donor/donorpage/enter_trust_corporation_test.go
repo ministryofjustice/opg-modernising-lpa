@@ -64,20 +64,27 @@ func TestPostEnterTrustCorporation(t *testing.T) {
 	r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(form.Encode()))
 	r.Header.Add("Content-Type", page.FormUrlEncoded)
 
+	trustCorporation := donordata.TrustCorporation{
+		Name:          "Co co.",
+		CompanyNumber: "453345",
+		Email:         "name@example.com",
+	}
+
+	reuseStore := newMockReuseStore(t)
+	reuseStore.EXPECT().
+		PutTrustCorporation(r.Context(), trustCorporation).
+		Return(nil)
+
 	donorStore := newMockDonorStore(t)
 	donorStore.EXPECT().
 		Put(r.Context(), &donordata.Provided{
-			LpaID: "lpa-id",
-			Attorneys: donordata.Attorneys{TrustCorporation: donordata.TrustCorporation{
-				Name:          "Co co.",
-				CompanyNumber: "453345",
-				Email:         "name@example.com",
-			}},
-			Tasks: donordata.Tasks{ChooseAttorneys: task.StateInProgress},
+			LpaID:     "lpa-id",
+			Attorneys: donordata.Attorneys{TrustCorporation: trustCorporation},
+			Tasks:     donordata.Tasks{ChooseAttorneys: task.StateInProgress},
 		}).
 		Return(nil)
 
-	err := EnterTrustCorporation(nil, donorStore, nil, testUIDFn)(testAppData, w, r, &donordata.Provided{
+	err := EnterTrustCorporation(nil, donorStore, reuseStore, testUIDFn)(testAppData, w, r, &donordata.Provided{
 		LpaID: "lpa-id",
 	})
 	resp := w.Result()
@@ -200,12 +207,17 @@ func TestPostEnterTrustCorporationWhenDonorStoreErrors(t *testing.T) {
 	r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(form.Encode()))
 	r.Header.Add("Content-Type", page.FormUrlEncoded)
 
+	reuseStore := newMockReuseStore(t)
+	reuseStore.EXPECT().
+		PutTrustCorporation(mock.Anything, mock.Anything).
+		Return(nil)
+
 	donorStore := newMockDonorStore(t)
 	donorStore.EXPECT().
 		Put(r.Context(), mock.Anything).
 		Return(expectedError)
 
-	err := EnterTrustCorporation(nil, donorStore, nil, testUIDFn)(testAppData, w, r, &donordata.Provided{})
+	err := EnterTrustCorporation(nil, donorStore, reuseStore, testUIDFn)(testAppData, w, r, &donordata.Provided{})
 
 	assert.Equal(t, expectedError, err)
 }

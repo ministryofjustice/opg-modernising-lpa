@@ -7,9 +7,10 @@
         <div class="govuk-grid-column-two-thirds">
             <h1 class="govuk-heading-xl">{{ tr .App "youMustChooseANewCertificateProvider" }}</h1>
 
-            {{ trFormatHtml .App "youMustChooseANewCertificateProviderContent" "CertificateProviderFullName" .Donor.CertificateProvider.FullName }}
+            {{ trFormatHtml .App "youMustChooseANewCertificateProviderContent" "CertificateProviderFullName" .Name }}
 
             <form novalidate method="post">
+                <input type="hidden" name="{{.Form.FieldName}}" value="{{.Form.Options.Yes.String}}">
                 {{ template "buttons" (button .App "continue") }}
                 {{ template "csrf-field" . }}
             </form>

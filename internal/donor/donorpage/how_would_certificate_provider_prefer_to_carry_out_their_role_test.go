@@ -29,7 +29,7 @@ func TestGetHowWouldCertificateProviderPreferToCarryOutTheirRole(t *testing.T) {
 		}).
 		Return(nil)
 
-	err := HowWouldCertificateProviderPreferToCarryOutTheirRole(template.Execute, nil)(testAppData, w, r, &donordata.Provided{})
+	err := HowWouldCertificateProviderPreferToCarryOutTheirRole(template.Execute, nil, nil)(testAppData, w, r, &donordata.Provided{})
 	resp := w.Result()
 
 	assert.Nil(t, err)
@@ -50,7 +50,7 @@ func TestGetHowWouldCertificateProviderPreferToCarryOutTheirRoleFromStore(t *tes
 		}).
 		Return(nil)
 
-	err := HowWouldCertificateProviderPreferToCarryOutTheirRole(template.Execute, nil)(testAppData, w, r, &donordata.Provided{
+	err := HowWouldCertificateProviderPreferToCarryOutTheirRole(template.Execute, nil, nil)(testAppData, w, r, &donordata.Provided{
 		CertificateProvider: donordata.CertificateProvider{CarryOutBy: lpadata.ChannelPaper},
 	})
 	resp := w.Result()
@@ -72,7 +72,7 @@ func TestGetHowWouldCertificateProviderPreferToCarryOutTheirRoleWhenTemplateErro
 		}).
 		Return(expectedError)
 
-	err := HowWouldCertificateProviderPreferToCarryOutTheirRole(template.Execute, nil)(testAppData, w, r, &donordata.Provided{})
+	err := HowWouldCertificateProviderPreferToCarryOutTheirRole(template.Execute, nil, nil)(testAppData, w, r, &donordata.Provided{})
 	resp := w.Result()
 
 	assert.Equal(t, expectedError, err)
@@ -104,6 +104,13 @@ func TestPostHowWouldCertificateProviderPreferToCarryOutTheirRole(t *testing.T) 
 			r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(form.Encode()))
 			r.Header.Add("Content-Type", page.FormUrlEncoded)
 
+			certificateProvider := donordata.CertificateProvider{CarryOutBy: tc.carryOutBy, Email: tc.email}
+
+			reuseStore := newMockReuseStore(t)
+			reuseStore.EXPECT().
+				PutCertificateProvider(r.Context(), certificateProvider).
+				Return(nil)
+
 			donorStore := newMockDonorStore(t)
 			donorStore.EXPECT().
 				Put(r.Context(), &donordata.Provided{
@@ -112,7 +119,7 @@ func TestPostHowWouldCertificateProviderPreferToCarryOutTheirRole(t *testing.T) 
 				}).
 				Return(nil)
 
-			err := HowWouldCertificateProviderPreferToCarryOutTheirRole(nil, donorStore)(testAppData, w, r, &donordata.Provided{LpaID: "lpa-id"})
+			err := HowWouldCertificateProviderPreferToCarryOutTheirRole(nil, donorStore, reuseStore)(testAppData, w, r, &donordata.Provided{LpaID: "lpa-id"})
 			resp := w.Result()
 
 			assert.Nil(t, err)
@@ -132,15 +139,22 @@ func TestPostHowWouldCertificateProviderPreferToCarryOutTheirRoleChangingFromOnl
 	r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(form.Encode()))
 	r.Header.Add("Content-Type", page.FormUrlEncoded)
 
+	certificateProvider := donordata.CertificateProvider{CarryOutBy: lpadata.ChannelPaper}
+
+	reuseStore := newMockReuseStore(t)
+	reuseStore.EXPECT().
+		PutCertificateProvider(r.Context(), certificateProvider).
+		Return(nil)
+
 	donorStore := newMockDonorStore(t)
 	donorStore.EXPECT().
 		Put(r.Context(), &donordata.Provided{
 			LpaID:               "lpa-id",
-			CertificateProvider: donordata.CertificateProvider{CarryOutBy: lpadata.ChannelPaper, Email: ""},
+			CertificateProvider: certificateProvider,
 		}).
 		Return(nil)
 
-	err := HowWouldCertificateProviderPreferToCarryOutTheirRole(nil, donorStore)(testAppData, w, r, &donordata.Provided{
+	err := HowWouldCertificateProviderPreferToCarryOutTheirRole(nil, donorStore, reuseStore)(testAppData, w, r, &donordata.Provided{
 		LpaID:               "lpa-id",
 		CertificateProvider: donordata.CertificateProvider{CarryOutBy: lpadata.ChannelOnline, Email: "a@b.com"},
 	})
@@ -151,7 +165,7 @@ func TestPostHowWouldCertificateProviderPreferToCarryOutTheirRoleChangingFromOnl
 	assert.Equal(t, donor.PathCertificateProviderAddress.Format("lpa-id"), resp.Header.Get("Location"))
 }
 
-func TestPostHowWouldCertificateProviderPreferToCarryOutTheirRoleWhenStoreErrors(t *testing.T) {
+func TestPostHowWouldCertificateProviderPreferToCarryOutTheirRoleWhenReuseStoreErrors(t *testing.T) {
 	form := url.Values{
 		"carry-out-by": {lpadata.ChannelPaper.String()},
 	}
@@ -160,12 +174,36 @@ func TestPostHowWouldCertificateProviderPreferToCarryOutTheirRoleWhenStoreErrors
 	r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(form.Encode()))
 	r.Header.Add("Content-Type", page.FormUrlEncoded)
 
+	reuseStore := newMockReuseStore(t)
+	reuseStore.EXPECT().
+		PutCertificateProvider(mock.Anything, mock.Anything).
+		Return(expectedError)
+
+	err := HowWouldCertificateProviderPreferToCarryOutTheirRole(nil, nil, reuseStore)(testAppData, w, r, &donordata.Provided{})
+
+	assert.ErrorIs(t, err, expectedError)
+}
+
+func TestPostHowWouldCertificateProviderPreferToCarryOutTheirRoleWhenDonorStoreErrors(t *testing.T) {
+	form := url.Values{
+		"carry-out-by": {lpadata.ChannelPaper.String()},
+	}
+
+	w := httptest.NewRecorder()
+	r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(form.Encode()))
+	r.Header.Add("Content-Type", page.FormUrlEncoded)
+
+	reuseStore := newMockReuseStore(t)
+	reuseStore.EXPECT().
+		PutCertificateProvider(mock.Anything, mock.Anything).
+		Return(nil)
+
 	donorStore := newMockDonorStore(t)
 	donorStore.EXPECT().
 		Put(r.Context(), mock.Anything).
 		Return(expectedError)
 
-	err := HowWouldCertificateProviderPreferToCarryOutTheirRole(nil, donorStore)(testAppData, w, r, &donordata.Provided{})
+	err := HowWouldCertificateProviderPreferToCarryOutTheirRole(nil, donorStore, reuseStore)(testAppData, w, r, &donordata.Provided{})
 
 	assert.Equal(t, expectedError, err)
 }
@@ -182,7 +220,7 @@ func TestPostHowWouldCertificateProviderPreferToCarryOutTheirRoleWhenValidationE
 		})).
 		Return(nil)
 
-	err := HowWouldCertificateProviderPreferToCarryOutTheirRole(template.Execute, nil)(testAppData, w, r, &donordata.Provided{})
+	err := HowWouldCertificateProviderPreferToCarryOutTheirRole(template.Execute, nil, nil)(testAppData, w, r, &donordata.Provided{})
 	resp := w.Result()
 
 	assert.Nil(t, err)
