@@ -411,31 +411,6 @@ func handleChangeConfirmed(ctx context.Context, client dynamodbClient, certifica
 	}
 
 	switch v.ActorType {
-	case actor.TypeDonor:
-		donor, err := getDonorByLpaUID(ctx, client, v.UID)
-		if err != nil {
-			return fmt.Errorf("failed to get donor: %w", err)
-		}
-
-		if donor.Tasks.ConfirmYourIdentity.IsPending() && (donor.ContinueWithMismatchedIdentity || !donor.SignedAt.IsZero()) {
-			if materialChange {
-				donor.MaterialChangeConfirmedAt = now()
-				donor.Tasks.ConfirmYourIdentity = task.IdentityStateProblem
-			} else {
-				donor.ImmaterialChangeConfirmedAt = now()
-				donor.Tasks.ConfirmYourIdentity = task.IdentityStateCompleted
-
-				if err := lpaStoreClient.SendDonorConfirmIdentity(ctx, donor); err != nil {
-					if !errors.Is(err, lpastore.ErrNotFound) {
-						return fmt.Errorf("failed to send donor confirmed identity to lpa store: %w", err)
-					}
-				}
-			}
-
-			if err := putDonor(ctx, donor, now, client); err != nil {
-				return fmt.Errorf("failed to update donor: %w", err)
-			}
-		}
 	case actor.TypeCertificateProvider:
 		certificateProvider, err := certificateProviderStore.OneByUID(ctx, v.UID)
 		if err != nil {
