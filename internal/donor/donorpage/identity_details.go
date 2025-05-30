@@ -8,6 +8,7 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/appcontext"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor/donordata"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/event"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/form"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/task"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/validation"
@@ -28,7 +29,7 @@ func (d identityDetailsData) DetailsMatch() bool {
 	return d.FirstNamesMatch && d.LastNameMatch && d.DateOfBirthMatch && d.AddressMatch
 }
 
-func IdentityDetails(tmpl template.Template, donorStore DonorStore) Handler {
+func IdentityDetails(tmpl template.Template, donorStore DonorStore, eventClient EventClient) Handler {
 	return func(appData appcontext.Data, w http.ResponseWriter, r *http.Request, provided *donordata.Provided) error {
 		data := &identityDetailsData{
 			App:              appData,
@@ -40,28 +41,49 @@ func IdentityDetails(tmpl template.Template, donorStore DonorStore) Handler {
 			AddressMatch:     provided.Donor.Address.Postcode == provided.IdentityUserData.CurrentAddress.Postcode,
 		}
 
-		if r.Method == http.MethodPost && provided.CanChange() {
-			f := form.ReadYesNoForm(r, "yesIfWouldLikeToUpdateDetails")
+		if r.Method == http.MethodPost {
+			errorLabel := "yesIfWouldLikeToUpdateDetails"
+			if !provided.CanChange() {
+				errorLabel = "yesToRevokeThisLpaAndMakeNew"
+			}
+
+			f := form.ReadYesNoForm(r, errorLabel)
 			data.Errors = f.Validate()
 
 			if data.Errors.None() {
 				var redirect donor.Path
 
-				if f.YesNo.IsYes() {
-					provided.Donor.FirstNames = provided.IdentityUserData.FirstNames
-					provided.Donor.LastName = provided.IdentityUserData.LastName
-					provided.Donor.DateOfBirth = provided.IdentityUserData.DateOfBirth
-					provided.Donor.Address = provided.IdentityUserData.CurrentAddress
-					provided.Tasks.CheckYourLpa = task.StateInProgress
-					provided.Tasks.ConfirmYourIdentity = task.IdentityStateCompleted
-					provided.IdentityDetailsCausedCheck = true
+				if provided.CanChange() {
+					if f.YesNo.IsYes() {
+						provided.Donor.FirstNames = provided.IdentityUserData.FirstNames
+						provided.Donor.LastName = provided.IdentityUserData.LastName
+						provided.Donor.DateOfBirth = provided.IdentityUserData.DateOfBirth
+						provided.Donor.Address = provided.IdentityUserData.CurrentAddress
+						provided.Tasks.CheckYourLpa = task.StateInProgress
+						provided.Tasks.ConfirmYourIdentity = task.IdentityStateCompleted
+						provided.IdentityDetailsCausedCheck = true
 
-					redirect = donor.PathIdentityDetailsUpdated
+						redirect = donor.PathIdentityDetailsUpdated
+					} else {
+						provided.Tasks.ConfirmYourIdentity = task.IdentityStatePending
+
+						redirect = donor.PathRegisterWithCourtOfProtection
+					}
 				} else {
-					provided.ContinueWithMismatchedIdentity = true
-					provided.Tasks.ConfirmYourIdentity = task.IdentityStatePending
+					if f.YesNo.IsYes() {
+						return donor.PathWithdrawThisLpa.Redirect(w, r, appData, provided)
+					} else {
+						provided.Tasks.ConfirmYourIdentity = task.IdentityStateProblem
+						provided.RegisteringWithCourtOfProtection = true
 
-					redirect = donor.PathIdentityDetails
+						redirect = donor.PathWhatHappensNextRegisteringWithCourtOfProtection
+
+						if err := eventClient.SendRegisterWithCourtOfProtection(r.Context(), event.RegisterWithCourtOfProtection{
+							UID: provided.LpaUID,
+						}); err != nil {
+							return err
+						}
+					}
 				}
 
 				if err := donorStore.Put(r.Context(), provided); err != nil {
