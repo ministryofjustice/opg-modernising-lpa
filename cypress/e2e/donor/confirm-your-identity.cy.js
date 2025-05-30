@@ -164,7 +164,7 @@ describe('Confirm your identity', () => {
                 cy.get('main').should('not.contain', '2 January 2000');
             })
 
-            it('can get OPG to check', () => {
+            it('can be taken to the court of protection', () => {
                 cy.visit('/fixtures?redirect=/task-list&progress=payForTheLpa');
                 cy.contains('li', "Confirm your identity")
                     .should('contain', 'Not started')
@@ -190,14 +190,7 @@ describe('Confirm your identity', () => {
                 cy.contains('label', 'No').click();
                 cy.contains('button', 'Continue').click();
 
-                cy.url().should('contain', '/identity-details');
-                cy.checkA11yApp();
-
-                cy.contains('The Office of the Public Guardian (OPG) is checking your mismatched identity details');
-                cy.contains('a', 'Return to task list').click();
-
-                cy.contains('li', "Confirm your identity")
-                    .should('contain', 'Pending');
+                cy.url().should('contain', '/register-with-court-of-protection');
             })
 
             it('errors when option not selected', () => {
@@ -230,7 +223,7 @@ describe('Confirm your identity', () => {
         });
 
         describe('after signing', () => {
-            it('cannot update details', () => {
+            beforeEach(() => {
                 cy.visit('/fixtures?redirect=/task-list&progress=signTheLpa&idStatus=donor:post-office');
                 cy.contains('li', "Sign the LPA")
                     .should('contain', 'Completed');
@@ -251,11 +244,27 @@ describe('Confirm your identity', () => {
                 cy.checkA11yApp();
                 cy.contains('Does not match');
                 cy.contains('cannot be updated');
-                cy.contains('button', 'Continue').should('not.exist');
-                cy.contains('a', 'Return to task list').click();
+            });
+
+            it('can revoke the LPA', () => {
+                cy.contains('label', 'Revoke this LPA').click();
+                cy.contains('button', 'Continue').click();
+
+                cy.url().should('contain', '/withdraw-this-lpa');
+            });
+
+            it('can be taken to the court of protection', () => {
+                cy.contains('label', 'Apply to the Court of Protection').click();
+                cy.contains('button', 'Continue').click();
+
+                cy.url().should('contain', '/what-happens-next-registering-with-court-of-protection');
+                cy.contains('a', 'Return to task list').click()
 
                 cy.contains('li', "Confirm your identity")
-                    .should('contain', 'Pending');
+                    .should('contain', 'There is a problem')
+                    .find('a')
+                    .click();
+                cy.url().should('contain', '/what-happens-next-registering-with-court-of-protection');
             });
         });
     });
