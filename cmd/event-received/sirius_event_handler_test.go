@@ -1639,100 +1639,6 @@ func TestHandleImmaterialChangeConfirmed(t *testing.T) {
 		setupLpaStoreClient           func(*testing.T) *mockLpaStoreClient
 		setupCertificateProviderStore func(*testing.T) *mockCertificateProviderStore
 	}{
-		"donor": {
-			setupDynamoClient: func(t *testing.T) *mockDynamodbClient {
-				updated := &donordata.Provided{
-					PK:                             dynamo.LpaKey("123"),
-					SK:                             dynamo.LpaOwnerKey(dynamo.DonorKey("456")),
-					Tasks:                          donordata.Tasks{ConfirmYourIdentity: task.IdentityStateCompleted},
-					ContinueWithMismatchedIdentity: true,
-					ImmaterialChangeConfirmedAt:    testNow,
-					UpdatedAt:                      testNow,
-				}
-				updated.UpdateHash()
-
-				c := newMockDynamodbClient(t)
-				c.EXPECT().
-					OneByUID(ctx, "M-1111-2222-3333").
-					Return(dynamo.Keys{PK: dynamo.LpaKey("123"), SK: dynamo.DonorKey("456")}, nil)
-				c.EXPECT().
-					One(ctx, dynamo.LpaKey("123"), dynamo.DonorKey("456"), mock.Anything).
-					Return(nil).
-					SetData(donordata.Provided{
-						PK:                             dynamo.LpaKey("123"),
-						SK:                             dynamo.LpaOwnerKey(dynamo.DonorKey("456")),
-						Tasks:                          donordata.Tasks{ConfirmYourIdentity: task.IdentityStatePending},
-						ContinueWithMismatchedIdentity: true,
-					})
-				c.EXPECT().
-					Put(ctx, updated).
-					Return(nil)
-
-				return c
-			},
-			setupLpaStoreClient: func(t *testing.T) *mockLpaStoreClient {
-				c := newMockLpaStoreClient(t)
-				c.EXPECT().
-					SendDonorConfirmIdentity(ctx, &donordata.Provided{
-						PK:                             dynamo.LpaKey("123"),
-						SK:                             dynamo.LpaOwnerKey(dynamo.DonorKey("456")),
-						Tasks:                          donordata.Tasks{ConfirmYourIdentity: task.IdentityStateCompleted},
-						ContinueWithMismatchedIdentity: true,
-						ImmaterialChangeConfirmedAt:    testNow,
-					}).
-					Return(nil)
-
-				return c
-			},
-			setupCertificateProviderStore: unusedCertificateProviderStore,
-		},
-		"donor when signed": {
-			setupDynamoClient: func(t *testing.T) *mockDynamodbClient {
-				updated := &donordata.Provided{
-					PK:                          dynamo.LpaKey("123"),
-					SK:                          dynamo.LpaOwnerKey(dynamo.DonorKey("456")),
-					Tasks:                       donordata.Tasks{ConfirmYourIdentity: task.IdentityStateCompleted},
-					SignedAt:                    testNow,
-					ImmaterialChangeConfirmedAt: testNow,
-					UpdatedAt:                   testNow,
-				}
-				updated.UpdateHash()
-
-				c := newMockDynamodbClient(t)
-				c.EXPECT().
-					OneByUID(ctx, "M-1111-2222-3333").
-					Return(dynamo.Keys{PK: dynamo.LpaKey("123"), SK: dynamo.DonorKey("456")}, nil)
-				c.EXPECT().
-					One(ctx, dynamo.LpaKey("123"), dynamo.DonorKey("456"), mock.Anything).
-					Return(nil).
-					SetData(donordata.Provided{
-						PK:       dynamo.LpaKey("123"),
-						SK:       dynamo.LpaOwnerKey(dynamo.DonorKey("456")),
-						Tasks:    donordata.Tasks{ConfirmYourIdentity: task.IdentityStatePending},
-						SignedAt: testNow,
-					})
-				c.EXPECT().
-					Put(ctx, updated).
-					Return(nil)
-
-				return c
-			},
-			setupLpaStoreClient: func(t *testing.T) *mockLpaStoreClient {
-				c := newMockLpaStoreClient(t)
-				c.EXPECT().
-					SendDonorConfirmIdentity(ctx, &donordata.Provided{
-						PK:                          dynamo.LpaKey("123"),
-						SK:                          dynamo.LpaOwnerKey(dynamo.DonorKey("456")),
-						Tasks:                       donordata.Tasks{ConfirmYourIdentity: task.IdentityStateCompleted},
-						SignedAt:                    testNow,
-						ImmaterialChangeConfirmedAt: testNow,
-					}).
-					Return(nil)
-
-				return c
-			},
-			setupCertificateProviderStore: unusedCertificateProviderStore,
-		},
 		"certificateProvider": {
 			setupDynamoClient: unusedDynamoClient,
 			setupLpaStoreClient: func(t *testing.T) *mockLpaStoreClient {
@@ -1807,25 +1713,6 @@ func TestHandleChangeConfirmedWhenIdentityTaskNotPending(t *testing.T) {
 		setupDynamoClient             func(*testing.T) *mockDynamodbClient
 		setupCertificateProviderStore func(*testing.T) *mockCertificateProviderStore
 	}{
-		"donor": {
-			setupDynamoClient: func(t *testing.T) *mockDynamodbClient {
-				c := newMockDynamodbClient(t)
-				c.EXPECT().
-					OneByUID(ctx, "M-1111-2222-3333").
-					Return(dynamo.Keys{PK: dynamo.LpaKey("123"), SK: dynamo.DonorKey("456")}, nil)
-				c.EXPECT().
-					One(ctx, dynamo.LpaKey("123"), dynamo.DonorKey("456"), mock.Anything).
-					Return(nil).
-					SetData(donordata.Provided{
-						PK:    dynamo.LpaKey("123"),
-						SK:    dynamo.LpaOwnerKey(dynamo.DonorKey("456")),
-						Tasks: donordata.Tasks{ConfirmYourIdentity: task.IdentityStateInProgress},
-					})
-
-				return c
-			},
-			setupCertificateProviderStore: unusedCertificateProviderStore,
-		},
 		"certificateProvider": {
 			setupDynamoClient: unusedDynamoClient,
 			setupCertificateProviderStore: func(t *testing.T) *mockCertificateProviderStore {
@@ -1865,68 +1752,6 @@ func TestHandleChangeConfirmedWhenLpaStoreClientError(t *testing.T) {
 		expectedError                 error
 		actorType                     string
 	}{
-		"donor": {
-			setupDynamoClient: func(t *testing.T) *mockDynamodbClient {
-				c := newMockDynamodbClient(t)
-				c.EXPECT().
-					OneByUID(mock.Anything, mock.Anything).
-					Return(dynamo.Keys{PK: dynamo.LpaKey("123"), SK: dynamo.DonorKey("456")}, nil)
-				c.EXPECT().
-					One(mock.Anything, mock.Anything, mock.Anything, mock.Anything).
-					Return(nil).
-					SetData(donordata.Provided{
-						PK:                             dynamo.LpaKey("123"),
-						SK:                             dynamo.LpaOwnerKey(dynamo.DonorKey("456")),
-						Tasks:                          donordata.Tasks{ConfirmYourIdentity: task.IdentityStatePending},
-						ContinueWithMismatchedIdentity: true,
-					})
-
-				return c
-			},
-			setupLpaStoreClient: func(t *testing.T) *mockLpaStoreClient {
-				c := newMockLpaStoreClient(t)
-				c.EXPECT().
-					SendDonorConfirmIdentity(ctx, mock.Anything).
-					Return(expectedError)
-
-				return c
-			},
-			setupCertificateProviderStore: unusedCertificateProviderStore,
-			expectedError:                 fmt.Errorf("failed to send donor confirmed identity to lpa store: %w", expectedError),
-			actorType:                     "donor",
-		},
-		"donor LPA not found": {
-			setupDynamoClient: func(t *testing.T) *mockDynamodbClient {
-				c := newMockDynamodbClient(t)
-				c.EXPECT().
-					OneByUID(mock.Anything, mock.Anything).
-					Return(dynamo.Keys{PK: dynamo.LpaKey("123"), SK: dynamo.DonorKey("456")}, nil)
-				c.EXPECT().
-					One(mock.Anything, mock.Anything, mock.Anything, mock.Anything).
-					Return(nil).
-					SetData(donordata.Provided{
-						PK:                             dynamo.LpaKey("123"),
-						SK:                             dynamo.LpaOwnerKey(dynamo.DonorKey("456")),
-						Tasks:                          donordata.Tasks{ConfirmYourIdentity: task.IdentityStatePending},
-						ContinueWithMismatchedIdentity: true,
-					})
-				c.EXPECT().
-					Put(mock.Anything, mock.Anything).
-					Return(nil)
-
-				return c
-			},
-			setupLpaStoreClient: func(t *testing.T) *mockLpaStoreClient {
-				c := newMockLpaStoreClient(t)
-				c.EXPECT().
-					SendDonorConfirmIdentity(ctx, mock.Anything).
-					Return(lpastore.ErrNotFound)
-
-				return c
-			},
-			setupCertificateProviderStore: unusedCertificateProviderStore,
-			actorType:                     "donor",
-		},
 		"certificateProvider": {
 			setupDynamoClient: unusedDynamoClient,
 			setupLpaStoreClient: func(t *testing.T) *mockLpaStoreClient {
@@ -1999,37 +1824,6 @@ func TestHandleChangeConfirmedWhenPutError(t *testing.T) {
 		setupLpaStoreClient           func(*testing.T) *mockLpaStoreClient
 		setupCertificateProviderStore func(*testing.T) *mockCertificateProviderStore
 	}{
-		"donor": {
-			setupDynamoClient: func(t *testing.T) *mockDynamodbClient {
-				c := newMockDynamodbClient(t)
-				c.EXPECT().
-					OneByUID(mock.Anything, mock.Anything).
-					Return(dynamo.Keys{PK: dynamo.LpaKey("123"), SK: dynamo.DonorKey("456")}, nil)
-				c.EXPECT().
-					One(mock.Anything, mock.Anything, mock.Anything, mock.Anything).
-					Return(nil).
-					SetData(donordata.Provided{
-						PK:                             dynamo.LpaKey("123"),
-						SK:                             dynamo.LpaOwnerKey(dynamo.DonorKey("456")),
-						Tasks:                          donordata.Tasks{ConfirmYourIdentity: task.IdentityStatePending},
-						ContinueWithMismatchedIdentity: true,
-					})
-				c.EXPECT().
-					Put(mock.Anything, mock.Anything).
-					Return(expectedError)
-
-				return c
-			},
-			setupLpaStoreClient: func(t *testing.T) *mockLpaStoreClient {
-				c := newMockLpaStoreClient(t)
-				c.EXPECT().
-					SendDonorConfirmIdentity(ctx, mock.Anything).
-					Return(nil)
-
-				return c
-			},
-			setupCertificateProviderStore: unusedCertificateProviderStore,
-		},
 		"certificateProvider": {
 			setupDynamoClient: unusedDynamoClient,
 			setupLpaStoreClient: func(t *testing.T) *mockLpaStoreClient {
@@ -2094,72 +1888,6 @@ func TestHandleMaterialChangeConfirmed(t *testing.T) {
 		setupDynamoClient             func(*testing.T) *mockDynamodbClient
 		setupCertificateProviderStore func(*testing.T) *mockCertificateProviderStore
 	}{
-		"donor": {
-			setupDynamoClient: func(t *testing.T) *mockDynamodbClient {
-				updated := &donordata.Provided{
-					PK:                             dynamo.LpaKey("123"),
-					SK:                             dynamo.LpaOwnerKey(dynamo.DonorKey("456")),
-					Tasks:                          donordata.Tasks{ConfirmYourIdentity: task.IdentityStateProblem},
-					ContinueWithMismatchedIdentity: true,
-					UpdatedAt:                      testNow,
-					MaterialChangeConfirmedAt:      testNow,
-				}
-				updated.UpdateHash()
-
-				c := newMockDynamodbClient(t)
-				c.EXPECT().
-					OneByUID(ctx, "M-1111-2222-3333").
-					Return(dynamo.Keys{PK: dynamo.LpaKey("123"), SK: dynamo.DonorKey("456")}, nil)
-				c.EXPECT().
-					One(ctx, dynamo.LpaKey("123"), dynamo.DonorKey("456"), mock.Anything).
-					Return(nil).
-					SetData(donordata.Provided{
-						PK:                             dynamo.LpaKey("123"),
-						SK:                             dynamo.LpaOwnerKey(dynamo.DonorKey("456")),
-						Tasks:                          donordata.Tasks{ConfirmYourIdentity: task.IdentityStatePending},
-						ContinueWithMismatchedIdentity: true,
-					})
-				c.EXPECT().
-					Put(ctx, updated).
-					Return(nil)
-
-				return c
-			},
-			setupCertificateProviderStore: unusedCertificateProviderStore,
-		},
-		"donor when signed": {
-			setupDynamoClient: func(t *testing.T) *mockDynamodbClient {
-				updated := &donordata.Provided{
-					PK:                        dynamo.LpaKey("123"),
-					SK:                        dynamo.LpaOwnerKey(dynamo.DonorKey("456")),
-					Tasks:                     donordata.Tasks{ConfirmYourIdentity: task.IdentityStateProblem},
-					SignedAt:                  testNow,
-					UpdatedAt:                 testNow,
-					MaterialChangeConfirmedAt: testNow,
-				}
-				updated.UpdateHash()
-
-				c := newMockDynamodbClient(t)
-				c.EXPECT().
-					OneByUID(ctx, "M-1111-2222-3333").
-					Return(dynamo.Keys{PK: dynamo.LpaKey("123"), SK: dynamo.DonorKey("456")}, nil)
-				c.EXPECT().
-					One(ctx, dynamo.LpaKey("123"), dynamo.DonorKey("456"), mock.Anything).
-					Return(nil).
-					SetData(donordata.Provided{
-						PK:       dynamo.LpaKey("123"),
-						SK:       dynamo.LpaOwnerKey(dynamo.DonorKey("456")),
-						Tasks:    donordata.Tasks{ConfirmYourIdentity: task.IdentityStatePending},
-						SignedAt: testNow,
-					})
-				c.EXPECT().
-					Put(ctx, updated).
-					Return(nil)
-
-				return c
-			},
-			setupCertificateProviderStore: unusedCertificateProviderStore,
-		},
 		"certificateProvider": {
 			setupDynamoClient: unusedDynamoClient,
 			setupCertificateProviderStore: func(t *testing.T) *mockCertificateProviderStore {
