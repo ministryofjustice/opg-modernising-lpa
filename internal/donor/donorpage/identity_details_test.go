@@ -79,7 +79,7 @@ func TestGetIdentityDetails(t *testing.T) {
 				}).
 				Return(nil)
 
-			err := IdentityDetails(template.Execute, nil)(testAppData, w, r, tc.donorProvided)
+			err := IdentityDetails(template.Execute, nil, nil)(testAppData, w, r, tc.donorProvided)
 			resp := w.Result()
 
 			assert.Nil(t, err)
@@ -111,13 +111,12 @@ func TestPostIdentityDetails(t *testing.T) {
 		},
 		form.No: {
 			provided: &donordata.Provided{
-				LpaID:                          "lpa-id",
-				Donor:                          donordata.Donor{FirstNames: "b", LastName: "b", DateOfBirth: existingDob, Address: testAddress},
-				IdentityUserData:               identity.UserData{FirstNames: "B", LastName: "B", DateOfBirth: identityDob, CurrentAddress: place.Address{Line1: "a"}},
-				Tasks:                          donordata.Tasks{ConfirmYourIdentity: task.IdentityStatePending},
-				ContinueWithMismatchedIdentity: true,
+				LpaID:            "lpa-id",
+				Donor:            donordata.Donor{FirstNames: "b", LastName: "b", DateOfBirth: existingDob, Address: testAddress},
+				IdentityUserData: identity.UserData{FirstNames: "B", LastName: "B", DateOfBirth: identityDob, CurrentAddress: place.Address{Line1: "a"}},
+				Tasks:            donordata.Tasks{ConfirmYourIdentity: task.IdentityStatePending},
 			},
-			redirect: donor.PathIdentityDetails.Format("lpa-id"),
+			redirect: donor.PathRegisterWithCourtOfProtection.Format("lpa-id"),
 		},
 	}
 
@@ -134,7 +133,7 @@ func TestPostIdentityDetails(t *testing.T) {
 				Put(r.Context(), tc.provided).
 				Return(nil)
 
-			err := IdentityDetails(nil, donorStore)(testAppData, w, r, &donordata.Provided{
+			err := IdentityDetails(nil, donorStore, nil)(testAppData, w, r, &donordata.Provided{
 				LpaID:            "lpa-id",
 				Donor:            donordata.Donor{FirstNames: "b", LastName: "b", DateOfBirth: existingDob, Address: testAddress},
 				IdentityUserData: identity.UserData{FirstNames: "B", LastName: "B", DateOfBirth: identityDob, CurrentAddress: place.Address{Line1: "a"}},
@@ -162,7 +161,7 @@ func TestPostIdentityDetailsWhenDonorStoreError(t *testing.T) {
 				Put(r.Context(), mock.Anything).
 				Return(expectedError)
 
-			err := IdentityDetails(nil, donorStore)(testAppData, w, r, &donordata.Provided{})
+			err := IdentityDetails(nil, donorStore, nil)(testAppData, w, r, &donordata.Provided{})
 			resp := w.Result()
 
 			assert.Equal(t, expectedError, err)
@@ -187,7 +186,7 @@ func TestPostIdentityDetailsWhenValidationError(t *testing.T) {
 		})).
 		Return(nil)
 
-	err := IdentityDetails(template.Execute, nil)(testAppData, w, r, &donordata.Provided{Donor: donordata.Donor{FirstNames: "a"}})
+	err := IdentityDetails(template.Execute, nil, nil)(testAppData, w, r, &donordata.Provided{Donor: donordata.Donor{FirstNames: "a"}})
 	resp := w.Result()
 
 	assert.Nil(t, err)

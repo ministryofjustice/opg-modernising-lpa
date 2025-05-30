@@ -622,7 +622,6 @@ func updateLPAProgress(
 				DateOfBirth: donorDetails.Donor.DateOfBirth,
 			}
 			donorDetails.Tasks.ConfirmYourIdentity = task.IdentityStatePending
-			donorDetails.ContinueWithMismatchedIdentity = true
 		default:
 			userData = identity.UserData{
 				Status:         identity.StatusConfirmed,
