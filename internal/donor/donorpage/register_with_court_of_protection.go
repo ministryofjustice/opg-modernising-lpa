@@ -16,13 +16,15 @@ type registerWithCourtOfProtectionData struct {
 	App    appcontext.Data
 	Errors validation.List
 	Form   *form.YesNoForm
+	Donor  *donordata.Provided
 }
 
 func RegisterWithCourtOfProtection(tmpl template.Template, donorStore DonorStore, eventClient EventClient) Handler {
 	return func(appData appcontext.Data, w http.ResponseWriter, r *http.Request, provided *donordata.Provided) error {
 		data := &registerWithCourtOfProtectionData{
-			App:  appData,
-			Form: form.NewYesNoForm(form.YesNoUnknown),
+			App:   appData,
+			Form:  form.NewYesNoForm(form.YesNoUnknown),
+			Donor: provided,
 		}
 
 		if r.Method == http.MethodPost {

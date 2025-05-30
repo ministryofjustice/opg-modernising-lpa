@@ -6,10 +6,12 @@ import (
 	"net/url"
 	"strings"
 	"testing"
+	"time"
 
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/date"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor/donordata"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/event"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/form"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/identity"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/place"
@@ -79,7 +81,7 @@ func TestGetIdentityDetails(t *testing.T) {
 				}).
 				Return(nil)
 
-			err := IdentityDetails(template.Execute, nil)(testAppData, w, r, tc.donorProvided)
+			err := IdentityDetails(template.Execute, nil, nil)(testAppData, w, r, tc.donorProvided)
 			resp := w.Result()
 
 			assert.Nil(t, err)
@@ -92,12 +94,21 @@ func TestPostIdentityDetails(t *testing.T) {
 	existingDob := date.New("1", "2", "3")
 	identityDob := date.New("4", "5", "6")
 
-	testcases := map[form.YesNo]struct {
-		provided *donordata.Provided
-		redirect string
+	testcases := map[string]struct {
+		yesNo       form.YesNo
+		provided    *donordata.Provided
+		updated     *donordata.Provided
+		eventClient func(*testing.T) *mockEventClient
+		redirect    string
 	}{
-		form.Yes: {
+		"yes can change": {
+			yesNo: form.Yes,
 			provided: &donordata.Provided{
+				LpaID:            "lpa-id",
+				Donor:            donordata.Donor{FirstNames: "b", LastName: "b", DateOfBirth: existingDob, Address: testAddress},
+				IdentityUserData: identity.UserData{FirstNames: "B", LastName: "B", DateOfBirth: identityDob, CurrentAddress: place.Address{Line1: "a"}},
+			},
+			updated: &donordata.Provided{
 				LpaID:            "lpa-id",
 				Donor:            donordata.Donor{FirstNames: "B", LastName: "B", DateOfBirth: identityDob, Address: place.Address{Line1: "a"}},
 				IdentityUserData: identity.UserData{FirstNames: "B", LastName: "B", DateOfBirth: identityDob, CurrentAddress: place.Address{Line1: "a"}},
@@ -107,38 +118,84 @@ func TestPostIdentityDetails(t *testing.T) {
 				},
 				IdentityDetailsCausedCheck: true,
 			},
-			redirect: donor.PathIdentityDetailsUpdated.Format("lpa-id"),
+			eventClient: func(*testing.T) *mockEventClient { return nil },
+			redirect:    donor.PathIdentityDetailsUpdated.Format("lpa-id"),
 		},
-		form.No: {
+		"no can change": {
+			yesNo: form.No,
 			provided: &donordata.Provided{
-				LpaID:                          "lpa-id",
-				Donor:                          donordata.Donor{FirstNames: "b", LastName: "b", DateOfBirth: existingDob, Address: testAddress},
-				IdentityUserData:               identity.UserData{FirstNames: "B", LastName: "B", DateOfBirth: identityDob, CurrentAddress: place.Address{Line1: "a"}},
-				Tasks:                          donordata.Tasks{ConfirmYourIdentity: task.IdentityStatePending},
-				ContinueWithMismatchedIdentity: true,
+				LpaID:            "lpa-id",
+				Donor:            donordata.Donor{FirstNames: "b", LastName: "b", DateOfBirth: existingDob, Address: testAddress},
+				IdentityUserData: identity.UserData{FirstNames: "B", LastName: "B", DateOfBirth: identityDob, CurrentAddress: place.Address{Line1: "a"}},
 			},
-			redirect: donor.PathIdentityDetails.Format("lpa-id"),
+			updated: &donordata.Provided{
+				LpaID:            "lpa-id",
+				Donor:            donordata.Donor{FirstNames: "b", LastName: "b", DateOfBirth: existingDob, Address: testAddress},
+				IdentityUserData: identity.UserData{FirstNames: "B", LastName: "B", DateOfBirth: identityDob, CurrentAddress: place.Address{Line1: "a"}},
+				Tasks:            donordata.Tasks{ConfirmYourIdentity: task.IdentityStatePending},
+			},
+			eventClient: func(*testing.T) *mockEventClient { return nil },
+			redirect:    donor.PathRegisterWithCourtOfProtection.Format("lpa-id"),
+		},
+		"yes cannot change": {
+			yesNo: form.Yes,
+			provided: &donordata.Provided{
+				LpaID:            "lpa-id",
+				Donor:            donordata.Donor{FirstNames: "b", LastName: "b", DateOfBirth: existingDob, Address: testAddress},
+				IdentityUserData: identity.UserData{FirstNames: "B", LastName: "B", DateOfBirth: identityDob, CurrentAddress: place.Address{Line1: "a"}},
+				SignedAt:         time.Now(),
+			},
+			eventClient: func(*testing.T) *mockEventClient { return nil },
+			redirect:    donor.PathWithdrawThisLpa.Format("lpa-id"),
+		},
+		"no cannot change": {
+			yesNo: form.No,
+			provided: &donordata.Provided{
+				LpaID:            "lpa-id",
+				LpaUID:           "lpa-uid",
+				Donor:            donordata.Donor{FirstNames: "b", LastName: "b", DateOfBirth: existingDob, Address: testAddress},
+				IdentityUserData: identity.UserData{FirstNames: "B", LastName: "B", DateOfBirth: identityDob, CurrentAddress: place.Address{Line1: "a"}},
+				SignedAt:         testNow,
+			},
+			updated: &donordata.Provided{
+				LpaID:                            "lpa-id",
+				LpaUID:                           "lpa-uid",
+				Donor:                            donordata.Donor{FirstNames: "b", LastName: "b", DateOfBirth: existingDob, Address: testAddress},
+				IdentityUserData:                 identity.UserData{FirstNames: "B", LastName: "B", DateOfBirth: identityDob, CurrentAddress: place.Address{Line1: "a"}},
+				Tasks:                            donordata.Tasks{ConfirmYourIdentity: task.IdentityStateProblem},
+				RegisteringWithCourtOfProtection: true,
+				SignedAt:                         testNow,
+			},
+			eventClient: func(*testing.T) *mockEventClient {
+				eventClient := newMockEventClient(t)
+				eventClient.EXPECT().
+					SendRegisterWithCourtOfProtection(mock.Anything, event.RegisterWithCourtOfProtection{
+						UID: "lpa-uid",
+					}).
+					Return(nil)
+
+				return eventClient
+			},
+			redirect: donor.PathWhatHappensNextRegisteringWithCourtOfProtection.Format("lpa-id"),
 		},
 	}
 
-	for yesNo, tc := range testcases {
-		t.Run(yesNo.String(), func(t *testing.T) {
-			f := url.Values{form.FieldNames.YesNo: {yesNo.String()}}
+	for name, tc := range testcases {
+		t.Run(name, func(t *testing.T) {
+			f := url.Values{form.FieldNames.YesNo: {tc.yesNo.String()}}
 
 			w := httptest.NewRecorder()
 			r := httptest.NewRequest(http.MethodPost, "/", strings.NewReader(f.Encode()))
 			r.Header.Set("Content-Type", "application/x-www-form-urlencoded")
 
 			donorStore := newMockDonorStore(t)
-			donorStore.EXPECT().
-				Put(r.Context(), tc.provided).
-				Return(nil)
+			if tc.updated != nil {
+				donorStore.EXPECT().
+					Put(r.Context(), tc.updated).
+					Return(nil)
+			}
 
-			err := IdentityDetails(nil, donorStore)(testAppData, w, r, &donordata.Provided{
-				LpaID:            "lpa-id",
-				Donor:            donordata.Donor{FirstNames: "b", LastName: "b", DateOfBirth: existingDob, Address: testAddress},
-				IdentityUserData: identity.UserData{FirstNames: "B", LastName: "B", DateOfBirth: identityDob, CurrentAddress: place.Address{Line1: "a"}},
-			})
+			err := IdentityDetails(nil, donorStore, tc.eventClient(t))(testAppData, w, r, tc.provided)
 			resp := w.Result()
 
 			assert.Nil(t, err)
@@ -162,7 +219,7 @@ func TestPostIdentityDetailsWhenDonorStoreError(t *testing.T) {
 				Put(r.Context(), mock.Anything).
 				Return(expectedError)
 
-			err := IdentityDetails(nil, donorStore)(testAppData, w, r, &donordata.Provided{})
+			err := IdentityDetails(nil, donorStore, nil)(testAppData, w, r, &donordata.Provided{})
 			resp := w.Result()
 
 			assert.Equal(t, expectedError, err)
@@ -172,24 +229,42 @@ func TestPostIdentityDetailsWhenDonorStoreError(t *testing.T) {
 }
 
 func TestPostIdentityDetailsWhenValidationError(t *testing.T) {
-	f := url.Values{form.FieldNames.YesNo: {""}}
+	testcases := map[string]struct {
+		provided *donordata.Provided
+		label    string
+	}{
+		"can change": {
+			provided: &donordata.Provided{Donor: donordata.Donor{FirstNames: "a"}},
+			label:    "yesIfWouldLikeToUpdateDetails",
+		},
+		"cannot change": {
+			provided: &donordata.Provided{Donor: donordata.Donor{FirstNames: "a"}, SignedAt: time.Now()},
+			label:    "yesToRevokeThisLpaAndMakeNew",
+		},
+	}
 
-	w := httptest.NewRecorder()
-	r := httptest.NewRequest(http.MethodPost, "/", strings.NewReader(f.Encode()))
-	r.Header.Set("Content-Type", "application/x-www-form-urlencoded")
+	for name, tc := range testcases {
+		t.Run(name, func(t *testing.T) {
+			f := url.Values{form.FieldNames.YesNo: {""}}
 
-	validationError := validation.With(form.FieldNames.YesNo, validation.SelectError{Label: "yesIfWouldLikeToUpdateDetails"})
+			w := httptest.NewRecorder()
+			r := httptest.NewRequest(http.MethodPost, "/", strings.NewReader(f.Encode()))
+			r.Header.Set("Content-Type", "application/x-www-form-urlencoded")
 
-	template := newMockTemplate(t)
-	template.EXPECT().
-		Execute(w, mock.MatchedBy(func(data *identityDetailsData) bool {
-			return assert.Equal(t, validationError, data.Errors)
-		})).
-		Return(nil)
+			validationError := validation.With(form.FieldNames.YesNo, validation.SelectError{Label: tc.label})
 
-	err := IdentityDetails(template.Execute, nil)(testAppData, w, r, &donordata.Provided{Donor: donordata.Donor{FirstNames: "a"}})
-	resp := w.Result()
+			template := newMockTemplate(t)
+			template.EXPECT().
+				Execute(w, mock.MatchedBy(func(data *identityDetailsData) bool {
+					return assert.Equal(t, validationError, data.Errors)
+				})).
+				Return(nil)
 
-	assert.Nil(t, err)
-	assert.Equal(t, http.StatusOK, resp.StatusCode)
+			err := IdentityDetails(template.Execute, nil, nil)(testAppData, w, r, tc.provided)
+			resp := w.Result()
+
+			assert.Nil(t, err)
+			assert.Equal(t, http.StatusOK, resp.StatusCode)
+		})
+	}
 }

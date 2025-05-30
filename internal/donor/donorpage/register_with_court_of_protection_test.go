@@ -25,8 +25,9 @@ func TestGetRegisterWithCourtOfProtection(t *testing.T) {
 	template := newMockTemplate(t)
 	template.EXPECT().
 		Execute(w, &registerWithCourtOfProtectionData{
-			App:  testAppData,
-			Form: form.NewYesNoForm(form.YesNoUnknown),
+			App:   testAppData,
+			Form:  form.NewYesNoForm(form.YesNoUnknown),
+			Donor: &donordata.Provided{},
 		}).
 		Return(nil)
 
