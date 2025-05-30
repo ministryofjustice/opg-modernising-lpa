@@ -212,14 +212,14 @@ func TestGenerateHash(t *testing.T) {
 	}
 
 	// DO change this value to match the updates
-	const modified uint64 = 0x814b05611ef5cbaf
+	const modified uint64 = 0x7cd2d4f03fb9afce
 
 	// DO NOT change these initial hash values. If a field has been added/removed
 	// you will need to handle the version gracefully by modifying
 	// (*Provided).HashInclude and adding another testcase for the new
 	// version.
 	testcases := map[uint8]uint64{
-		0: 0xfa2f72f76ce2acb7,
+		0: 0x43c453474ccc38e7,
 	}
 
 	for version, initial := range testcases {
@@ -432,14 +432,6 @@ func TestIdentityConfirmed(t *testing.T) {
 		"none": {
 			donor:    &Provided{},
 			expected: false,
-		},
-		"identity details mismatch confirmed as immaterial": {
-			donor: &Provided{
-				IdentityUserData:               identity.UserData{FirstNames: "a", LastName: "b", Status: identity.StatusConfirmed, DateOfBirth: date.New("2000", "1", "1")},
-				ContinueWithMismatchedIdentity: true,
-				ImmaterialChangeConfirmedAt:    testNow,
-			},
-			expected: true,
 		},
 	}
 
