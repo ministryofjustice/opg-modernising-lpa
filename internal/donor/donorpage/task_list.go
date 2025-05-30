@@ -183,6 +183,10 @@ func taskListSignSection(provided *donordata.Provided) taskListSection {
 	case identity.StatusConfirmed:
 		confirmYourIdentityPath = donor.PathIdentityDetails
 
+		if provided.RegisteringWithCourtOfProtection {
+			confirmYourIdentityPath = donor.PathWhatHappensNextRegisteringWithCourtOfProtection
+		}
+
 		if !provided.SignedAt.IsZero() {
 			signTheLpaPath = donor.PathWitnessingYourSignature
 		}
