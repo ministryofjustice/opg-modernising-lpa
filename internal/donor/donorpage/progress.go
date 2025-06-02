@@ -276,19 +276,6 @@ func Progress(tmpl template.Template, lpaStoreResolvingService LpaStoreResolving
 			data.addInfo("yourLpaIsAwaitingRegistration", "theOpgWillRegisterYourLpaAtEndOfWaitingPeriod")
 		}
 
-		if donor.Tasks.ConfirmYourIdentity.IsPending() &&
-			donor.ContinueWithMismatchedIdentity {
-			data.addInfo("confirmationOfIdentityPending", "youDoNotNeedToTakeAnyAction")
-		}
-
-		if donor.Tasks.ConfirmYourIdentity.IsCompleted() &&
-			donor.ContinueWithMismatchedIdentity &&
-			!donor.HasSeenIdentityMismatchResolvedNotification {
-			data.addSuccess("yourIdentityHadBeenConfirmed", "youDoNotNeedToTakeAnyAction")
-
-			donor.HasSeenIdentityMismatchResolvedNotification = true
-		}
-
 		if certificateProvider != nil &&
 			certificateProvider.Tasks.ConfirmYourIdentity.IsCompleted() &&
 			!certificateProvider.ImmaterialChangeConfirmedAt.IsZero() &&
@@ -311,18 +298,6 @@ func Progress(tmpl template.Template, lpaStoreResolvingService LpaStoreResolving
 				appData.Localizer.Format(
 					"weContactedYouOnWithGuidanceAboutWhatToDoNext",
 					map[string]any{"ContactedDate": appData.Localizer.FormatDate(donor.PriorityCorrespondenceSentAt)},
-				),
-			)
-		}
-
-		if donor.Tasks.ConfirmYourIdentity.IsProblem() &&
-			donor.ContinueWithMismatchedIdentity &&
-			!donor.MaterialChangeConfirmedAt.IsZero() {
-			data.addInfo(
-				"yourLPACannotBeRegisteredByOPG",
-				appData.Localizer.Format(
-					"weContactedYouOnWithGuidanceAboutWhatToDoNext",
-					map[string]any{"ContactedDate": appData.Localizer.FormatDate(donor.MaterialChangeConfirmedAt)},
 				),
 			)
 		}
