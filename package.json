@@ -21,7 +21,7 @@
         "@ministryofjustice/frontend": "5.1.3",
         "aws-rum-web": "^1.11.0",
         "esbuild": "^0.25.0",
-        "govuk-frontend": "5.10.1",
+        "govuk-frontend": "5.10.2",
         "sass": "^1.56.1",
         "totp-generator": "^1.0.0"
     },
