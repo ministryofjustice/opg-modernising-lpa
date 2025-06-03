@@ -409,25 +409,17 @@
             {{ end }}
         {{ end }}
 
-        {{ if .Donor.HowShouldReplacementAttorneysStepIn }}
-            {{ with .Donor.HowShouldReplacementAttorneysStepIn }}
-                {{ $label := "howReplacementAttorneysShouldStepIn" }}
-                {{ if $isDonor }}
-                    {{ $label = "howYourReplacementAttorneysShouldStepIn" }}
-                {{ end }}
+        {{ if .Donor.AttorneyDecisions.How.IsJointlyForSomeSeverallyForOthers }}
+            {{ $label := "decisionsAttorneysMustMakeJointly" }}
 
-                {{ $value := "otherWay" }}
-                {{ if .IsWhenOneCanNoLongerAct }}
-                    {{ $value = "whenOneCanNoLongerAct" }}
-                {{ else if .IsWhenAllCanNoLongerAct }}
-                    {{ $value = "whenNoneCanNoLongerAct" }}
-                {{ end }}
-
-                {{ template "summary-row" (summaryRow $app $label
-                    (trHtml $app $value)
-                    (fromLink $app global.Paths.HowShouldReplacementAttorneysStepIn "")
-                    $donorFullName $canChange $isDonor) }}
+            {{ if $isDonor }}
+                {{ $label = "decisionsYourAttorneysMustMakeJointly" }}
             {{ end }}
+
+            {{ template "summary-row" (summaryRow $app $label
+                (trHtml $app .Donor.AttorneyDecisions.Details)
+                (fromLink $app global.Paths.HowShouldAttorneysMakeDecisions "#f-mixed-details")
+                $donorFullName $canChange $isDonor) }}
         {{ end }}
 
         {{ if .Donor.ReplacementAttorneyDecisions.How }}
@@ -446,42 +438,6 @@
                     $donorFullName $canChange $isDonor) }}
             {{ end }}
         {{ end }}
-    </dl>
-
-    {{ template "contextual-lpa-warning" $app }}
-
-    {{ $hasOtherRestrictions := or .Donor.AttorneyDecisions.How.IsJointlyForSomeSeverallyForOthers .Donor.HowShouldReplacementAttorneysStepInDetails .Donor.ReplacementAttorneyDecisions.How.IsJointlyForSomeSeverallyForOthers }}
-
-    {{ if $hasOtherRestrictions}}
-        <h3 class="govuk-heading-m">{{ tr $app "restrictions" }}</h3>
-    {{ end }}
-
-    <dl class="govuk-summary-list app-stacked-summary-list">
-        {{ if .Donor.AttorneyDecisions.How.IsJointlyForSomeSeverallyForOthers }}
-            {{ $label := "decisionsAttorneysMustMakeJointly" }}
-
-            {{ if $isDonor }}
-                {{ $label = "decisionsYourAttorneysMustMakeJointly" }}
-            {{ end }}
-
-            {{ template "summary-row" (summaryRow $app $label
-                (trHtml $app .Donor.AttorneyDecisions.Details)
-                (fromLink $app global.Paths.HowShouldAttorneysMakeDecisions "#f-mixed-details")
-                $donorFullName $canChange $isDonor) }}
-        {{ end }}
-
-        {{ if .Donor.HowShouldReplacementAttorneysStepInDetails }}
-            {{ $label := "howReplacementAttorneysShouldStepIn" }}
-
-            {{ if $isDonor }}
-                {{ $label = "howYourReplacementAttorneysShouldStepIn" }}
-            {{ end }}
-
-            {{ template "summary-row" (summaryRow $app $label
-                .Donor.HowShouldReplacementAttorneysStepInDetails
-                (fromLink $app global.Paths.HowShouldReplacementAttorneysStepIn "#f-other-details")
-                $donorFullName $canChange $isDonor) }}
-        {{ end }}
 
         {{ if .Donor.ReplacementAttorneyDecisions.How.IsJointlyForSomeSeverallyForOthers }}
             {{ $label := "decisionsReplacementAttorneysMustMakeJointly" }}
@@ -495,37 +451,46 @@
                 (fromLink $app global.Paths.HowShouldReplacementAttorneysMakeDecisions "#f-mixed-details")
                 $donorFullName $canChange $isDonor) }}
         {{ end }}
+    </dl>
 
-        {{/* Not using summary-row here due to complexities with heading logic */}}
-        <div class="govuk-summary-list__row{{ if or (eq "" .Donor.Restrictions) (not $canChange) }} govuk-summary-list__row--no-actions{{ end }}">
-            <dt class="govuk-summary-list__key">
-                {{ if $hasOtherRestrictions }}
-                    {{ tr $app "restrictions" }}
-                {{ else }}
-                    <h3 class="govuk-heading-m govuk-!-margin-bottom-1">{{ (tr $app "restrictions") }}</h3>
-                {{end}}
-            </dt>
-            <dd class="govuk-summary-list__value">
-                {{ if .Donor.Restrictions }}
-                    {{ .Donor.Restrictions }}
-                {{ else }}
-                    <p class="govuk-body">{{ tr $app "noRestrictionsOrConditionsAddedToLPA" }}</p>
+    {{ template "contextual-lpa-warning" $app }}
 
-                    {{ if $canChange}}
-                        <a href="{{ (fromLink $app global.Paths.Restrictions "") }}" class="govuk-link">
-                            {{ tr $app "add" }} {{ lowerFirst (tr $app "restrictions") }} {{ if not $isDonor }} <span class="govuk-visually-hidden"> {{ trFormat $app "forFullName" "FullName" $donorFullName }}</span>{{ end }}
-                        </a>
-                    {{ end }}
+    <h3 class="govuk-heading-m">{{ tr $app "restrictions" }}</h3>
+
+    <dl class="govuk-summary-list app-stacked-summary-list">
+        {{ template "summary-row" (summaryRow $app "restrictTheDecisionsAttorneysCanMake"
+            .Donor.Restrictions
+            (fromLink $app global.Paths.Restrictions "#f-restrictions")
+            $donorFullName $canChange $isDonor) }}
+
+        {{ if .Donor.HowShouldReplacementAttorneysStepIn }}
+            {{ with .Donor.HowShouldReplacementAttorneysStepIn }}
+                {{ $label := "howReplacementAttorneysShouldStepIn" }}
+                {{ if $isDonor }}
+                    {{ $label = "howYourReplacementAttorneysShouldStepIn" }}
                 {{ end }}
-            </dd>
-            {{ if and .Donor.Restrictions $canChange }}
-                <dd class="govuk-summary-list__actions">
-                    <a class="govuk-link govuk-link--no-visited-state" href="{{ (fromLink $app global.Paths.Restrictions "") }}">{{ tr $app "change" }}<span class="govuk-visually-hidden">
-                    {{ lowerFirst (tr $app "restrictions") }}{{ if not $isDonor }} {{ trFormat $app "forFullName" "FullName" $donorFullName }}{{ end }}
-                </span></a>
-                </dd>
+
+                {{ $value := "otherWay" }}
+                {{ if .IsWhenOneCanNoLongerAct }}
+                    {{ $value = "whenOneCanNoLongerAct" }}
+                {{ else if .IsWhenAllCanNoLongerAct }}
+                    {{ $value = "whenNoneCanNoLongerAct" }}
+                {{ end }}
+
+                {{ if eq "otherWay" $value }}
+                    {{ template "summary-row" (summaryRow $app $label
+                        (trFormatHtml $app "inParticularWay" "Text" $.Donor.HowShouldReplacementAttorneysStepInDetails)
+                        (fromLink $app global.Paths.HowShouldReplacementAttorneysStepIn "#f-other-details")
+                        $donorFullName $canChange $isDonor) }}
+
+                {{ else }}
+                    {{ template "summary-row" (summaryRow $app $label
+                        (trHtml $app $value)
+                        (fromLink $app global.Paths.HowShouldReplacementAttorneysStepIn "")
+                        $donorFullName $canChange $isDonor) }}
+                {{ end }}
             {{ end }}
-        </div>
+        {{ end }}
     </dl>
 
     {{ template "contextual-lpa-warning" $app }}
