@@ -3,57 +3,63 @@
 {{ define "pageTitle" }}{{ tr .App "whenYourReplacementAttorneysStepIn" }}{{ end }}
 
 {{ define "main" }}
-  <div class="govuk-grid-row">
-    <div class="govuk-grid-column-two-thirds">
-      <h1 class="govuk-heading-xl">{{ tr .App "whenYourReplacementAttorneysStepIn" }}</h1>
+    <div class="govuk-grid-row">
+        <div class="govuk-grid-column-two-thirds">
+            <h1 class="govuk-heading-xl">{{ tr .App "whenYourReplacementAttorneysStepIn" }}</h1>
 
-      {{ trFormatHtml .App "howShouldReplacementAttorneysStepInDetailSomeOtherWay" "ReplacementAttorneysHelpLink" (link .App global.Paths.ReplacementAttorneys.Format) }}
+            {{ trFormatHtml .App "howShouldReplacementAttorneysStepInDetailSomeOtherWay" "ReplacementAttorneysHelpLink" (link .App global.Paths.ReplacementAttorneys.Format) }}
 
-      <form novalidate method="post">
-        <div class="govuk-form-group {{ if .Errors.Has "when-to-step-in" }}govuk-form-group--error{{ end }}">
-          <fieldset class="govuk-fieldset" {{ if .Errors.Has "when-to-step-in" }}aria-describedby="when-to-step-in-error"{{ end }}>
-            <legend class="govuk-fieldset__legend govuk-fieldset__legend--m">
-              {{ tr .App "howShouldYourReplacementAttorneysStepIn" }}
-            </legend>
+            <form novalidate method="post">
+                <div class="govuk-form-group {{ if .Errors.Has "when-to-step-in" }}govuk-form-group--error{{ end }}">
+                    <fieldset class="govuk-fieldset" {{ if .Errors.Has "when-to-step-in" }}aria-describedby="when-to-step-in-error"{{ end }}>
+                        <legend class="govuk-fieldset__legend govuk-fieldset__legend--m">
+                            {{ tr .App "howShouldYourReplacementAttorneysStepIn" }}
+                        </legend>
 
-            {{ template "error-message" (errorMessage . "when-to-step-in") }}
+                        {{ template "error-message" (errorMessage . "when-to-step-in") }}
 
-            <div class="govuk-radios {{ if .Errors.Has "when-to-step-in" }}govuk-radios--error{{ end }}" data-module="govuk-radios">
-              <div class="govuk-radios__item">
-                <input class="govuk-radios__input" id="f-when-to-step-in" name="when-to-step-in" type="radio" value="{{ .Options.WhenOneCanNoLongerAct.String }}" aria-describedby="when-to-step-in-item-hint" {{ if eq .Options.WhenOneCanNoLongerAct .Form.WhenToStepIn }}checked{{ end }}>
-                <label class="govuk-label govuk-radios__label" for="f-when-to-step-in">
-                  {{ trHtml .App "whenOneCanNoLongerAct" }}
-                </label>
-              </div>
-              <div class="govuk-radios__item">
-                <input class="govuk-radios__input" id="f-when-to-step-in-2" name="when-to-step-in" type="radio" value="{{ .Options.WhenAllCanNoLongerAct.String }}" aria-describedby="when-to-step-in-2-item-hint" {{ if eq .Options.WhenAllCanNoLongerAct .Form.WhenToStepIn }}checked{{ end }}>
-                <label class="govuk-label govuk-radios__label" for="f-when-to-step-in-2">
-                  {{ trHtml .App "whenNoneCanNoLongerAct" }}
-                </label>
-              </div>
-              <div class="govuk-radios__item">
-                <input class="govuk-radios__input" id="f-when-to-step-in-3" name="when-to-step-in" type="radio" value="{{ .Options.AnotherWay.String }}" aria-describedby="when-to-step-in-3-item-hint" aria-controls="when-to-step-in-3-conditional-div" {{ if or (eq .Options.AnotherWay .Form.WhenToStepIn) (.Errors.Has "other-details") }}checked{{ end }}>
-                <label class="govuk-label govuk-radios__label" for="f-when-to-step-in-3">
-                  {{ tr .App "otherWay" }}
-                </label>
-              </div>
-              <div class="govuk-radios__conditional govuk-radios__conditional--hidden" id="when-to-step-in-3-conditional-div">
-                <div class="govuk-form-group {{ if .Errors.Has "other-details" }}govuk-form-group--error{{ end }}">
-                  {{ trFormatHtml .App "otherWayHint" "ReplacementAttorneysHelpLink" (link .App global.Paths.ReplacementAttorneys.Format) }}
-                  <label class="govuk-label" for="f-other-details" {{ if .Errors.Has "other-details" }}aria-describedby="other-details-error"{{ end }}>
-                    {{ tr .App "details" }}
-                  </label>
-                  {{ template "error-message" (errorMessage . "other-details") }}
-                  <textarea class="govuk-textarea {{ if .Errors.Has "other-details" }}govuk-input--error{{ end }}" id="f-other-details" name="other-details" rows="10">{{ .Form.OtherDetails }}</textarea>
+                        <div class="govuk-radios {{ if .Errors.Has "when-to-step-in" }}govuk-radios--error{{ end }}" data-module="govuk-radios">
+                            <div class="govuk-radios__item">
+                                <input class="govuk-radios__input" id="f-when-to-step-in" name="when-to-step-in" type="radio" value="{{ .Options.WhenOneCanNoLongerAct.String }}" aria-describedby="when-to-step-in-item-hint" {{ if eq .Options.WhenOneCanNoLongerAct .Form.WhenToStepIn }}checked{{ end }}>
+                                <label class="govuk-label govuk-radios__label" for="f-when-to-step-in">
+                                    {{ trHtml .App "whenOneCanNoLongerAct" }}
+                                </label>
+                                <div id="when-to-step-in-item-hint" class="govuk-hint govuk-radios__hint">
+                                    {{ tr .App "whenOneCanNoLongerActHint" }}
+                                </div>
+                            </div>
+                            <div class="govuk-radios__item">
+                                <input class="govuk-radios__input" id="f-when-to-step-in-2" name="when-to-step-in" type="radio" value="{{ .Options.WhenAllCanNoLongerAct.String }}" aria-describedby="when-to-step-in-2-item-hint" {{ if eq .Options.WhenAllCanNoLongerAct .Form.WhenToStepIn }}checked{{ end }}>
+                                <label class="govuk-label govuk-radios__label" for="f-when-to-step-in-2">
+                                    {{ trHtml .App "whenNoneCanNoLongerAct" }}
+                                </label>
+                                <div id="when-to-step-in-2-item-hint" class="govuk-hint govuk-radios__hint">
+                                    {{ tr .App "whenNoneCanNoLongerActHint" }}
+                                </div>
+                            </div>
+                            <div class="govuk-radios__item">
+                                <input class="govuk-radios__input" id="f-when-to-step-in-3" name="when-to-step-in" type="radio" value="{{ .Options.AnotherWay.String }}" aria-controls="when-to-step-in-3-conditional-div" {{ if or (eq .Options.AnotherWay .Form.WhenToStepIn) (.Errors.Has "other-details") }}checked{{ end }}>
+                                <label class="govuk-label govuk-radios__label" for="f-when-to-step-in-3">
+                                    {{ tr .App "otherWay" }}
+                                </label>
+                            </div>
+                            <div class="govuk-radios__conditional govuk-radios__conditional--hidden" id="when-to-step-in-3-conditional-div">
+                                <div class="govuk-form-group {{ if .Errors.Has "other-details" }}govuk-form-group--error{{ end }}">
+                                    <label class="govuk-label" for="f-other-details" {{ if .Errors.Has "other-details" }}aria-describedby="other-details-error"{{ end }}>
+                                        {{ tr .App "explainHowYouWouldLikeReplacementAttorneysToStepIn" }}
+                                    </label>
+                                    <div id="other-details-hint" class="govuk-body govuk-!-margin-top-4">{{ trFormatHtml .App "readExamplesOfStepIn" "ReplacementAttorneysHelpLink" (link .App global.Paths.ReplacementAttorneys.Format) }}</div>
+                                    {{ template "error-message" (errorMessage . "other-details") }}
+                                    <textarea class="govuk-textarea {{ if .Errors.Has "other-details" }}govuk-input--error{{ end }}" id="f-other-details" name="other-details" aria-describedby="other-details-hint" rows="10">{{ .Form.OtherDetails }}</textarea>
+                                </div>
+                            </div>
+                        </div>
+                    </fieldset>
                 </div>
-              </div>
-            </div>
-          </fieldset>
-        </div>
 
-        {{ template "buttons" (button .App "saveAndContinue") }}
-        {{ template "csrf-field" . }}
-      </form>
+                {{ template "buttons" (button .App "saveAndContinue") }}
+                {{ template "csrf-field" . }}
+            </form>
+        </div>
     </div>
-  </div>
 {{ end }}
