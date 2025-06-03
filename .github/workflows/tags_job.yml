@@ -29,7 +29,6 @@ jobs:
         with:
           releases_enabled: false
           with_v: true
-          test: true
     outputs:
       docker_tag: ${{ steps.semver_tag.created_tag }}
 
