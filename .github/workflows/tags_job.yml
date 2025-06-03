@@ -30,7 +30,7 @@ jobs:
           releases_enabled: false
           with_v: true
     outputs:
-      docker_tag: ${{ steps.semver_tag.created_tag }}
+      docker_tag: ${{ steps.semver_tag.outputs.created_tag }}
 
   generate_environment_workspace_name:
     if: github.ref != 'refs/heads/main'
