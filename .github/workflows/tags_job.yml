@@ -23,33 +23,15 @@ jobs:
       - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
         with:
           fetch-depth: '0'
-      - name: Extract branch name
-        id: extract_branch
-        run: |
-          if [ "$GITHUB_EVENT_NAME" == "push" ]; then
-            echo BRANCH_NAME=main >> $GITHUB_ENV
-          elif [ "$GITHUB_EVENT_NAME" == "merge_group" ]; then
-            echo BRANCH_NAME=staging >> $GITHUB_ENV
-          else
-            branch=${{ github.head_ref }}
-            branch=${branch//-}
-            branch=${branch//_}
-            branch=${branch//\/}
-            echo BRANCH_NAME=${branch} >> $GITHUB_ENV
-          fi
-      - name: Bump version
-        id: bump_version
-        uses: anothrNick/github-tag-action@e528bc2b9628971ce0e6f823f3052d1dcd9d512c # 1.73.0
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          INITIAL_VERSION: 0.0.0
-          DEFAULT_BUMP: minor
-          PRERELEASE: true
-          PRERELEASE_SUFFIX: ${{ env.BRANCH_NAME }}
-          RELEASE_BRANCHES: main
-          WITH_V: true
+      - name: "Generate semver tag and release"
+        id: semver_tag
+        uses: ministryofjustice/opg-github-actions/.github/actions/semver-tag@v3.1.4
+        with:
+          releases_enabled: false
+          with_v: true
+          test: true
     outputs:
-      docker_tag: ${{ steps.bump_version.outputs.tag }}
+      docker_tag: ${{ steps.semver_tag.created_tag }}
 
   generate_environment_workspace_name:
     if: github.ref != 'refs/heads/main'
