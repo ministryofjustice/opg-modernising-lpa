@@ -228,19 +228,12 @@
             {{ end }}
         {{ end }}
 
-        {{ with .Lpa.HowShouldReplacementAttorneysStepIn }}
-            {{ $value := "otherWay" }}
-            {{ if .IsWhenOneCanNoLongerAct }}
-                {{ $value = "whenOneCanNoLongerAct" }}
-            {{ else if .IsWhenAllCanNoLongerAct }}
-                {{ $value = "whenNoneCanNoLongerAct" }}
-            {{ end }}
-
-            {{ template "summary-row" (staticSummaryRow $.App "howReplacementAttorneysShouldStepIn"
-                (trHtml $.App $value)) }}
+        {{ if .Lpa.AttorneyDecisions.How.IsJointlyForSomeSeverallyForOthers }}
+            {{ template "text-summary-row" (staticSummaryRow .App "decisionsAttorneysMustMakeJointly"
+                .Lpa.AttorneyDecisions.Details) }}
         {{ end }}
 
-        {{ if and (gt .Lpa.ReplacementAttorneys.Len 1) (or (not .Lpa.AttorneyDecisions.How.IsJointlyAndSeverally) .Lpa.HowShouldReplacementAttorneysStepIn.IsWhenAllCanNoLongerAct) }}
+        {{ if and (gt .Lpa.ReplacementAttorneys.Len 1) (or (eq .Lpa.Attorneys.Len 1) .Lpa.AttorneyDecisions.How.IsJointly (and .Lpa.AttorneyDecisions.How.IsJointlyAndSeverally .Lpa.HowShouldReplacementAttorneysStepIn.IsWhenAllCanNoLongerAct)) }}
             {{ with .Lpa.ReplacementAttorneyDecisions.How }}
                 {{ $data := (staticSummaryRow $.App "howReplacementAttorneysMustMakeDecisions"
                         (trHtml $.App .String)) }}
@@ -252,50 +245,42 @@
                 {{ end }}
             {{ end }}
         {{ end }}
-    </dl>
-
-    {{ template "contextual-lpa-warning" .App }}
-
-    {{ $hasOtherRestrictions := or .Lpa.AttorneyDecisions.How.IsJointlyForSomeSeverallyForOthers .Lpa.HowShouldReplacementAttorneysStepInDetails .Lpa.ReplacementAttorneyDecisions.How.IsJointlyForSomeSeverallyForOthers }}
-
-    {{ if $hasOtherRestrictions}}
-        <h3 class="govuk-heading-m">{{ tr .App "restrictions" }}</h3>
-    {{ end }}
-
-    <dl class="govuk-summary-list app-stacked-summary-list">
-        {{ if .Lpa.AttorneyDecisions.How.IsJointlyForSomeSeverallyForOthers }}
-            {{ template "text-summary-row" (staticSummaryRow .App "decisionsAttorneysMustMakeJointly"
-                .Lpa.AttorneyDecisions.Details) }}
-        {{ end }}
-
-        {{ if .Lpa.HowShouldReplacementAttorneysStepInDetails }}
-            {{ template "text-summary-row" (staticSummaryRow .App "howReplacementAttorneysShouldStepIn"
-                .Lpa.HowShouldReplacementAttorneysStepInDetails) }}
-        {{ end }}
 
         {{ if .Lpa.ReplacementAttorneyDecisions.How.IsJointlyForSomeSeverallyForOthers }}
             {{ template "text-summary-row" (staticSummaryRow .App "decisionsReplacementAttorneysMustMakeJointly"
                 .Lpa.ReplacementAttorneyDecisions.Details) }}
         {{ end }}
+    </dl>
 
-        {{/* Not using text-summary-row here due to complexities with heading logic */}}
-        <div class="govuk-summary-list__row govuk-summary-list__row--no-actions">
-            <dt class="govuk-summary-list__key">
-                {{ if $hasOtherRestrictions }}
-                    {{ tr .App "restrictions" }}
-                {{ else }}
-                    <h3 class="govuk-heading-m govuk-!-margin-bottom-1">{{ (tr .App "restrictions") }}</h3>
-                {{end}}
-            </dt>
-            <dd class="govuk-summary-list__value">
-                {{ if .Lpa.Restrictions }}
-                    {{ .Lpa.Restrictions }}
-                {{ else }}
-                    <p class="govuk-body">{{ tr .App "noRestrictionsOrConditionsAddedToLPA" }}</p>
-                {{ end }}
-            </dd>
-        </div>
+    {{ template "contextual-lpa-warning" .App }}
 
+    <h3 class="govuk-heading-m">{{ tr .App "restrictions" }}</h3>
+
+    <dl class="govuk-summary-list app-stacked-summary-list">
+        {{ $restrictions := .Lpa.Restrictions }}
+        {{ if not $restrictions }}
+            {{ $restrictions = tr .App "noRestrictionsOrConditionsAddedToLPA" }}
+        {{ end }}
+
+        {{ template "text-summary-row" (staticSummaryRow .App "restrictTheDecisionsAttorneysCanMake"
+            $restrictions) }}
+
+        {{ with .Lpa.HowShouldReplacementAttorneysStepIn }}
+            {{ $value := "otherWay" }}
+            {{ if .IsWhenOneCanNoLongerAct }}
+                {{ $value = "whenOneCanNoLongerAct" }}
+            {{ else if .IsWhenAllCanNoLongerAct }}
+                {{ $value = "whenNoneCanNoLongerAct" }}
+            {{ end }}
+
+            {{ if eq "otherWay" $value }}
+                {{ template "summary-row" (staticSummaryRow $.App "howReplacementAttorneysShouldStepIn"
+                    (trFormatHtml $.App "inParticularWay" "Text" $.Lpa.HowShouldReplacementAttorneysStepInDetails)) }}
+            {{ else }}
+                {{ template "summary-row" (staticSummaryRow $.App "howReplacementAttorneysShouldStepIn"
+                    (trHtml $.App $value)) }}
+            {{ end }}
+        {{ end }}
     </dl>
 
     {{ template "contextual-lpa-warning" .App }}
