@@ -16,7 +16,7 @@ data "aws_secretsmanager_secret" "gov_one_login_mrlpa_client_id" {
 }
 
 data "aws_secretsmanager_secret_version" "gov_one_login_mrlpa_client_id" {
-  secret_id = data.aws_secretsmanager_secret.gov_one_login_mrlpa_client_id
+  secret_id = data.aws_secretsmanager_secret.gov_one_login_mrlpa_client_id.id
   provider  = aws.region
 }
 
