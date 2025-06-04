@@ -1,3 +1,7 @@
+locals {
+  policy_region_prefix = lower(replace(data.aws_region.current.name, "-", ""))
+}
+
 variable "ecs_execution_role" {
   type = object({
     id  = string
