@@ -181,11 +181,6 @@ data "aws_secretsmanager_secret" "rum_monitor_identity_pool_id" {
   provider = aws.region
 }
 
-data "aws_secretsmanager_secret" "rum_monitor_identity_pool_id" {
-  name     = "rum-monitor-identity-pool-id-${data.aws_region.current.name}"
-  provider = aws.region
-}
-
 data "aws_secretsmanager_secret" "gov_one_login_mrlpa_client_id" {
   name     = "gov-one-login-mrlpa-client-id"
   provider = aws.region
