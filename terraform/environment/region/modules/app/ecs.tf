@@ -280,7 +280,6 @@ data "aws_iam_policy_document" "task_role_access_policy" {
       data.aws_secretsmanager_secret.os_postcode_lookup_api_key.arn,
       data.aws_secretsmanager_secret.private_jwt_key.arn,
       data.aws_secretsmanager_secret.lpa_store_jwt_key.arn,
-      # data.aws_secretsmanager_secret.gov_one_login_mrlpa_client_id.arn,
     ]
   }
 
