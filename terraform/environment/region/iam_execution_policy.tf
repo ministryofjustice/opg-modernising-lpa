@@ -10,12 +10,23 @@ data "aws_kms_alias" "secrets_manager_secret_encryption_key" {
   provider = aws.region
 }
 
+data "aws_secretsmanager_secret" "gov_one_login_mrlpa_client_id" {
+  name     = "gov-one-login-mrlpa-client-id"
+  provider = aws.region
+}
+
+data "aws_secretsmanager_secret_version" "gov_one_login_mrlpa_client_id" {
+  secret_id = data.aws_secretsmanager_secret.gov_one_login_mrlpa_client_id.id
+  provider  = aws.region
+}
+
 data "aws_iam_policy_document" "execution_role_region" {
   statement {
     effect = "Allow"
 
     resources = [
       data.aws_secretsmanager_secret_version.rum_monitor_identity_pool_id.arn,
+      data.aws_secretsmanager_secret_version.gov_one_login_mrlpa_client_id.arn,
       aws_secretsmanager_secret.rum_monitor_application_id.arn,
     ]
 
