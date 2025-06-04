@@ -74,3 +74,14 @@ resource "aws_secretsmanager_secret_version" "lpa_store_jwt_secret_key" {
   secret_string = data.aws_secretsmanager_secret_version.lpa_store_jwt_key.secret_string
   provider      = aws.eu_west_1
 }
+
+resource "aws_secretsmanager_secret" "gov_one_login_mrlpa_client_id" {
+  name       = "gov-one-login-mrlpa-client-id"
+  kms_key_id = module.secrets_manager_kms.eu_west_1_target_key_id
+
+  replica {
+    kms_key_id = module.secrets_manager_kms.eu_west_2_target_key_id
+    region     = data.aws_region.eu_west_2.name
+  }
+  provider = aws.eu_west_1
+}
