@@ -16,3 +16,7 @@ type AuthorisedSignatory struct {
 func (s AuthorisedSignatory) FullName() string {
 	return fmt.Sprintf("%s %s", s.FirstNames, s.LastName)
 }
+
+func (s AuthorisedSignatory) NameHasChanged(firstNames, lastName string) bool {
+	return s.FirstNames != firstNames || s.LastName != lastName
+}

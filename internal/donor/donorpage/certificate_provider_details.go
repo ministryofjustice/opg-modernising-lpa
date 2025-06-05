@@ -3,7 +3,7 @@ package donorpage
 import (
 	"fmt"
 	"net/http"
-	"strings"
+	"net/url"
 
 	"github.com/ministryofjustice/opg-go-common/template"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
@@ -17,10 +17,9 @@ import (
 )
 
 type certificateProviderDetailsData struct {
-	App         appcontext.Data
-	Errors      validation.List
-	Form        *certificateProviderDetailsForm
-	NameWarning *actor.SameNameWarning
+	App    appcontext.Data
+	Errors validation.List
+	Form   *certificateProviderDetailsForm
 }
 
 func CertificateProviderDetails(tmpl template.Template, donorStore DonorStore, reuseStore ReuseStore, newUID func() actoruid.UID) Handler {
@@ -44,18 +43,8 @@ func CertificateProviderDetails(tmpl template.Template, donorStore DonorStore, r
 			data.Form = readCertificateProviderDetailsForm(r)
 			data.Errors = data.Form.Validate()
 
-			sameNameWarning := actor.NewSameNameWarning(
-				actor.TypeCertificateProvider,
-				certificateProviderMatches(provided, data.Form.FirstNames, data.Form.LastName),
-				data.Form.FirstNames,
-				data.Form.LastName,
-			)
-
-			if data.Errors.Any() || data.Form.IgnoreNameWarning != sameNameWarning.String() {
-				data.NameWarning = sameNameWarning
-			}
-
-			if data.Errors.None() && data.NameWarning == nil {
+			if data.Errors.None() {
+				nameHasChanged := provided.CertificateProvider.NameHasChanged(data.Form.FirstNames, data.Form.LastName)
 				if provided.CertificateProvider.UID.IsZero() {
 					provided.CertificateProvider.UID = newUID()
 				}
@@ -88,6 +77,14 @@ func CertificateProviderDetails(tmpl template.Template, donorStore DonorStore, r
 					return err
 				}
 
+				if nameHasChanged && provided.CertificateProviderSharesLastName() {
+					return donor.PathWarningInterruption.RedirectQuery(w, r, appData, provided, url.Values{
+						"warningFrom": {appData.Page},
+						"next":        {donor.PathHowDoYouKnowYourCertificateProvider.Format(provided.LpaID)},
+						"actor":       {actor.TypeCertificateProvider.String()},
+					})
+				}
+
 				return donor.PathHowDoYouKnowYourCertificateProvider.Redirect(w, r, appData, provided)
 			}
 		}
@@ -97,24 +94,20 @@ func CertificateProviderDetails(tmpl template.Template, donorStore DonorStore, r
 }
 
 type certificateProviderDetailsForm struct {
-	FirstNames               string
-	LastName                 string
-	Mobile                   string
-	HasNonUKMobile           bool
-	NonUKMobile              string
-	IgnoreNameWarning        string
-	IgnoreSimilarNameWarning bool
+	FirstNames     string
+	LastName       string
+	Mobile         string
+	HasNonUKMobile bool
+	NonUKMobile    string
 }
 
 func readCertificateProviderDetailsForm(r *http.Request) *certificateProviderDetailsForm {
 	return &certificateProviderDetailsForm{
-		FirstNames:               page.PostFormString(r, "first-names"),
-		LastName:                 page.PostFormString(r, "last-name"),
-		Mobile:                   page.PostFormString(r, "mobile"),
-		HasNonUKMobile:           page.PostFormString(r, "has-non-uk-mobile") == "1",
-		NonUKMobile:              page.PostFormString(r, "non-uk-mobile"),
-		IgnoreNameWarning:        page.PostFormString(r, "ignore-name-warning"),
-		IgnoreSimilarNameWarning: page.PostFormString(r, "ignore-similar-name-warning") == "yes",
+		FirstNames:     page.PostFormString(r, "first-names"),
+		LastName:       page.PostFormString(r, "last-name"),
+		Mobile:         page.PostFormString(r, "mobile"),
+		HasNonUKMobile: page.PostFormString(r, "has-non-uk-mobile") == "1",
+		NonUKMobile:    page.PostFormString(r, "non-uk-mobile"),
 	}
 }
 
@@ -138,21 +131,4 @@ func (d *certificateProviderDetailsForm) Validate() validation.List {
 	}
 
 	return errors
-}
-
-func certificateProviderMatches(donor *donordata.Provided, firstNames, lastName string) actor.Type {
-	if firstNames == "" && lastName == "" {
-		return actor.TypeNone
-	}
-
-	for person := range donor.Actors() {
-		if !person.Type.IsCertificateProvider() &&
-			!person.Type.IsPersonToNotify() &&
-			strings.EqualFold(person.FirstNames, firstNames) &&
-			strings.EqualFold(person.LastName, lastName) {
-			return person.Type
-		}
-	}
-
-	return actor.TypeNone
 }

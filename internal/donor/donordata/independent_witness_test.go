@@ -11,3 +11,8 @@ func TestIndependentWitnessFullName(t *testing.T) {
 
 	assert.Equal(t, "Bob Alan George Smith Jones-Doe", d.FullName())
 }
+
+func TestIndependentWitnessNameHasChanged(t *testing.T) {
+	assert.False(t, IndependentWitness{FirstNames: "a", LastName: "b"}.NameHasChanged("a", "b"))
+	assert.True(t, IndependentWitness{FirstNames: "a", LastName: "b"}.NameHasChanged("a", ""))
+}

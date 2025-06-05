@@ -19,3 +19,7 @@ type PersonToNotify struct {
 func (p PersonToNotify) FullName() string {
 	return p.FirstNames + " " + p.LastName
 }
+
+func (p PersonToNotify) NameHasChanged(firstNames, lastName string) bool {
+	return p.FirstNames != firstNames || p.LastName != lastName
+}

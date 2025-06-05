@@ -5,6 +5,7 @@ import (
 	"net/url"
 
 	"github.com/ministryofjustice/opg-go-common/template"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/appcontext"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/date"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor"
@@ -17,7 +18,6 @@ type yourDateOfBirthData struct {
 	App              appcontext.Data
 	Errors           validation.List
 	Form             *yourDateOfBirthForm
-	DobWarning       string
 	CanTaskList      bool
 	MakingAnotherLPA bool
 }
@@ -36,13 +36,9 @@ func YourDateOfBirth(tmpl template.Template, donorStore DonorStore) Handler {
 		if r.Method == http.MethodPost {
 			data.Form = readYourDateOfBirthForm(r)
 			data.Errors = data.Form.Validate()
-			dobWarning := data.Form.DobWarning()
+			dobWarning := dateOfBirthWarning(data.Form.Dob, actor.TypeDonor)
 
-			if data.Errors.Any() || data.Form.IgnoreDobWarning != dobWarning {
-				data.DobWarning = dobWarning
-			}
-
-			if data.Errors.None() && data.DobWarning == "" {
+			if data.Errors.None() {
 				if provided.Donor.DateOfBirth == data.Form.Dob {
 					if data.MakingAnotherLPA {
 						return donor.PathMakeANewLPA.Redirect(w, r, appData, provided)
@@ -66,23 +62,33 @@ func YourDateOfBirth(tmpl template.Template, donorStore DonorStore) Handler {
 					})
 				}
 
+				next := donor.PathDoYouLiveInTheUK
 				if data.MakingAnotherLPA {
-					return donor.PathWeHaveUpdatedYourDetails.RedirectQuery(w, r, appData, provided, url.Values{"detail": {"dateOfBirth"}})
+					next = donor.PathWeHaveUpdatedYourDetails
 				}
 
-				return donor.PathDoYouLiveInTheUK.Redirect(w, r, appData, provided)
+				if dobWarning != "" {
+					return donor.PathWarningInterruption.RedirectQuery(w, r, appData, provided, url.Values{
+						"warningFrom": {appData.Page},
+						"next":        {next.Format(provided.LpaID)},
+						"actor":       {actor.TypeDonor.String()},
+					})
+				}
+
+				if data.MakingAnotherLPA {
+					return next.RedirectQuery(w, r, appData, provided, url.Values{"detail": {"dateOfBirth"}})
+				}
+
+				return next.Redirect(w, r, appData, provided)
 			}
 		}
-
-		data.DobWarning = data.Form.DobWarning()
 
 		return tmpl(w, data)
 	}
 }
 
 type yourDateOfBirthForm struct {
-	Dob              date.Date
-	IgnoreDobWarning string
+	Dob date.Date
 }
 
 func readYourDateOfBirthForm(r *http.Request) *yourDateOfBirthForm {
@@ -92,8 +98,6 @@ func readYourDateOfBirthForm(r *http.Request) *yourDateOfBirthForm {
 		page.PostFormString(r, "date-of-birth-year"),
 		page.PostFormString(r, "date-of-birth-month"),
 		page.PostFormString(r, "date-of-birth-day"))
-
-	d.IgnoreDobWarning = page.PostFormString(r, "ignore-dob-warning")
 
 	return d
 }
@@ -107,19 +111,4 @@ func (f *yourDateOfBirthForm) Validate() validation.List {
 		validation.DateMustBePast())
 
 	return errors
-}
-
-func (f *yourDateOfBirthForm) DobWarning() string {
-	var (
-		today               = date.Today()
-		hundredYearsEarlier = today.AddDate(-100, 0, 0)
-	)
-
-	if !f.Dob.IsZero() {
-		if f.Dob.Before(hundredYearsEarlier) {
-			return "dateOfBirthIsOver100"
-		}
-	}
-
-	return ""
 }

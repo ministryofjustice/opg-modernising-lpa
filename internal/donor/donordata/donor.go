@@ -49,6 +49,10 @@ func (d Donor) FullName() string {
 	return strings.Trim(fmt.Sprintf("%s %s", d.FirstNames, d.LastName), " ")
 }
 
+func (d Donor) NameHasChanged(firstNames, lastName, otherNames string) bool {
+	return d.FirstNames != firstNames || d.LastName != lastName || d.OtherNames != otherNames
+}
+
 func (d Donor) IsUnder18() bool {
 	return !d.Is18On(time.Now())
 }

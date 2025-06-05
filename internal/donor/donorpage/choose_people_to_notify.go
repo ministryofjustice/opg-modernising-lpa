@@ -3,7 +3,6 @@ package donorpage
 import (
 	"net/http"
 	"net/url"
-	"strings"
 
 	"github.com/ministryofjustice/opg-go-common/template"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
@@ -17,10 +16,9 @@ import (
 )
 
 type choosePeopleToNotifyData struct {
-	App         appcontext.Data
-	Errors      validation.List
-	Form        *choosePeopleToNotifyForm
-	NameWarning *actor.SameNameWarning
+	App    appcontext.Data
+	Errors validation.List
+	Form   *choosePeopleToNotifyForm
 }
 
 func ChoosePeopleToNotify(tmpl template.Template, donorStore DonorStore, newUID func() actoruid.UID) Handler {
@@ -48,18 +46,14 @@ func ChoosePeopleToNotify(tmpl template.Template, donorStore DonorStore, newUID 
 			data.Form = readChoosePeopleToNotifyForm(r)
 			data.Errors = data.Form.Validate()
 
-			nameWarning := actor.NewSameNameWarning(
-				actor.TypePersonToNotify,
-				personToNotifyMatches(provided, personToNotify.UID, data.Form.FirstNames, data.Form.LastName),
-				data.Form.FirstNames,
-				data.Form.LastName,
-			)
+			nameMatches := personToNotifyMatches(provided, personToNotify.UID, data.Form.FirstNames, data.Form.LastName)
+			redirectToWarning := false
 
-			if data.Errors.Any() || data.Form.IgnoreNameWarning != nameWarning.String() {
-				data.NameWarning = nameWarning
+			if !nameMatches.IsNone() && personToNotify.NameHasChanged(data.Form.FirstNames, data.Form.LastName) {
+				redirectToWarning = true
 			}
 
-			if data.Errors.None() && data.NameWarning == nil {
+			if data.Errors.None() {
 				if personFound == false {
 					personToNotify = donordata.PersonToNotify{
 						UID:        newUID(),
@@ -83,6 +77,18 @@ func ChoosePeopleToNotify(tmpl template.Template, donorStore DonorStore, newUID 
 					return err
 				}
 
+				if redirectToWarning {
+					return donor.PathWarningInterruption.RedirectQuery(w, r, appData, provided, url.Values{
+						"id":          {personToNotify.UID.String()},
+						"warningFrom": {appData.Page},
+						"next": {donor.PathChoosePeopleToNotifyAddress.FormatQuery(
+							provided.LpaID,
+							url.Values{"id": {personToNotify.UID.String()}}),
+						},
+						"actor": {actor.TypePersonToNotify.String()},
+					})
+				}
+
 				return donor.PathChoosePeopleToNotifyAddress.RedirectQuery(w, r, appData, provided, url.Values{"id": {personToNotify.UID.String()}})
 			}
 		}
@@ -92,16 +98,14 @@ func ChoosePeopleToNotify(tmpl template.Template, donorStore DonorStore, newUID 
 }
 
 type choosePeopleToNotifyForm struct {
-	FirstNames        string
-	LastName          string
-	IgnoreNameWarning string
+	FirstNames string
+	LastName   string
 }
 
 func readChoosePeopleToNotifyForm(r *http.Request) *choosePeopleToNotifyForm {
 	return &choosePeopleToNotifyForm{
-		FirstNames:        page.PostFormString(r, "first-names"),
-		LastName:          page.PostFormString(r, "last-name"),
-		IgnoreNameWarning: page.PostFormString(r, "ignore-name-warning"),
+		FirstNames: page.PostFormString(r, "first-names"),
+		LastName:   page.PostFormString(r, "last-name"),
 	}
 }
 
@@ -117,23 +121,4 @@ func (f *choosePeopleToNotifyForm) Validate() validation.List {
 		validation.StringTooLong(61))
 
 	return errors
-}
-
-func personToNotifyMatches(donor *donordata.Provided, uid actoruid.UID, firstNames, lastName string) actor.Type {
-	if firstNames == "" && lastName == "" {
-		return actor.TypeNone
-	}
-
-	for person := range donor.Actors() {
-		if !(person.Type.IsPersonToNotify() && person.UID == uid) &&
-			!person.Type.IsCertificateProvider() &&
-			!person.Type.IsAuthorisedSignatory() &&
-			!person.Type.IsIndependentWitness() &&
-			strings.EqualFold(person.FirstNames, firstNames) &&
-			strings.EqualFold(person.LastName, lastName) {
-			return person.Type
-		}
-	}
-
-	return actor.TypeNone
 }

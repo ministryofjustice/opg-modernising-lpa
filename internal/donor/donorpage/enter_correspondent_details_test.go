@@ -7,6 +7,8 @@ import (
 	"strings"
 	"testing"
 
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/appcontext"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor/donordata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/event"
@@ -183,6 +185,90 @@ func TestPostEnterCorrespondentDetailsWhenWantsAddress(t *testing.T) {
 	assert.Nil(t, err)
 	assert.Equal(t, http.StatusFound, resp.StatusCode)
 	assert.Equal(t, donor.PathEnterCorrespondentAddress.FormatQuery("lpa-id", url.Values{"from": {"/what"}}), resp.Header.Get("Location"))
+}
+
+func TestPostEnterCorrespondentDetailsWhenNameMatchesDonor(t *testing.T) {
+	testcases := map[form.YesNo]struct {
+		expectedNext     donor.Path
+		setupEventClient func(*testing.T) *mockEventClient
+		taskStatus       task.State
+	}{
+		form.Yes: {
+			expectedNext: donor.PathEnterCorrespondentAddress,
+			setupEventClient: func(t *testing.T) *mockEventClient {
+				return newMockEventClient(t)
+			},
+			taskStatus: task.StateInProgress,
+		},
+		form.No: {
+			expectedNext: donor.PathCorrespondentSummary,
+
+			setupEventClient: func(t *testing.T) *mockEventClient {
+				c := newMockEventClient(t)
+				c.EXPECT().
+					SendCorrespondentUpdated(mock.Anything, mock.Anything).
+					Return(nil)
+				return c
+			},
+			taskStatus: task.StateCompleted,
+		},
+	}
+
+	for wantAddress, tc := range testcases {
+		t.Run(wantAddress.String(), func(t *testing.T) {
+			f := url.Values{
+				"first-names":         {"John"},
+				"last-name":           {"Smith"},
+				"email":               {"email@example.com"},
+				form.FieldNames.YesNo: {wantAddress.String()},
+			}
+
+			w := httptest.NewRecorder()
+			r, _ := http.NewRequest(http.MethodPost, "/?from=/what", strings.NewReader(f.Encode()))
+			r.Header.Add("Content-Type", page.FormUrlEncoded)
+
+			correspondent := donordata.Correspondent{
+				UID:         testUID,
+				FirstNames:  "John",
+				LastName:    "Smith",
+				Email:       "email@example.com",
+				WantAddress: wantAddress,
+			}
+
+			reuseStore := newMockReuseStore(t)
+			reuseStore.EXPECT().
+				PutCorrespondent(r.Context(), correspondent).
+				Return(nil)
+
+			donorStore := newMockDonorStore(t)
+			donorStore.EXPECT().
+				Put(r.Context(), &donordata.Provided{
+					LpaID:         "lpa-id",
+					Donor:         donordata.Donor{FirstNames: "John", LastName: "Smith"},
+					Correspondent: correspondent,
+					Tasks:         donordata.Tasks{AddCorrespondent: tc.taskStatus},
+				}).
+				Return(nil)
+
+			appData := appcontext.Data{Page: "/abc"}
+
+			err := EnterCorrespondentDetails(nil, donorStore, reuseStore, tc.setupEventClient(t), testUIDFn)(appData, w, r, &donordata.Provided{
+				LpaID: "lpa-id",
+				Donor: donordata.Donor{FirstNames: "John", LastName: "Smith"},
+			})
+			resp := w.Result()
+
+			expectedRedirect := donor.PathWarningInterruption.FormatQuery("lpa-id", url.Values{
+				"next":        {tc.expectedNext.Format("lpa-id")},
+				"warningFrom": {"/abc"},
+				"actor":       {actor.TypeCorrespondent.String()},
+			})
+
+			assert.Nil(t, err)
+			assert.Equal(t, http.StatusFound, resp.StatusCode)
+			assert.Equal(t, expectedRedirect, resp.Header.Get("Location"))
+		})
+	}
 }
 
 func TestPostEnterCorrespondentDetailsWhenEventClientErrors(t *testing.T) {

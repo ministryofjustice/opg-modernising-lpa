@@ -8,6 +8,7 @@ import (
 	"testing"
 
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/appcontext"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor/donordata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
@@ -143,34 +144,6 @@ func TestPostCertificateProviderDetails(t *testing.T) {
 				HasNonUKMobile: true,
 			},
 		},
-		"name warning ignored": {
-			form: url.Values{
-				"first-names":         {"Jane"},
-				"last-name":           {"Doe"},
-				"mobile":              {"07535111111"},
-				"ignore-name-warning": {actor.NewSameNameWarning(actor.TypeCertificateProvider, actor.TypeDonor, "Jane", "Doe").String()},
-			},
-			certificateProviderDetails: donordata.CertificateProvider{
-				UID:        testUID,
-				FirstNames: "Jane",
-				LastName:   "Doe",
-				Mobile:     "07535111111",
-			},
-		},
-		"similar name warning ignored": {
-			form: url.Values{
-				"first-names":                 {"Joyce"},
-				"last-name":                   {"Doe"},
-				"mobile":                      {"07535111111"},
-				"ignore-similar-name-warning": {"yes"},
-			},
-			certificateProviderDetails: donordata.CertificateProvider{
-				UID:        testUID,
-				FirstNames: "Joyce",
-				LastName:   "Doe",
-				Mobile:     "07535111111",
-			},
-		},
 	}
 
 	for name, tc := range testCases {
@@ -211,6 +184,66 @@ func TestPostCertificateProviderDetails(t *testing.T) {
 			assert.Equal(t, donor.PathHowDoYouKnowYourCertificateProvider.Format("lpa-id"), resp.Header.Get("Location"))
 		})
 	}
+}
+
+func TestPostCertificateProviderDetailsWhenSharesDetail(t *testing.T) {
+	f := url.Values{
+		"first-names": {"John"},
+		"last-name":   {"Doe"},
+		"mobile":      {"07535111111"},
+	}
+
+	w := httptest.NewRecorder()
+	r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(f.Encode()))
+	r.Header.Add("Content-Type", page.FormUrlEncoded)
+
+	donorStore := newMockDonorStore(t)
+	donorStore.EXPECT().
+		Put(r.Context(), &donordata.Provided{
+			LpaID: "lpa-id",
+			Donor: donordata.Donor{
+				FirstNames: "Jane",
+				LastName:   "Doe",
+			},
+			CertificateProvider: donordata.CertificateProvider{
+				UID:        testUID,
+				FirstNames: "John",
+				LastName:   "Doe",
+				Mobile:     "07535111111",
+			},
+			Tasks: donordata.Tasks{CertificateProvider: task.StateInProgress},
+		}).
+		Return(nil)
+
+	reuseStore := newMockReuseStore(t)
+	reuseStore.EXPECT().
+		PutCertificateProvider(mock.Anything, mock.Anything).
+		Return(nil)
+
+	appData := appcontext.Data{Page: "/abc"}
+	err := CertificateProviderDetails(nil, donorStore, reuseStore, testUIDFn)(appData, w, r, &donordata.Provided{
+		LpaID: "lpa-id",
+		Donor: donordata.Donor{
+			FirstNames: "Jane",
+			LastName:   "Doe",
+		},
+		CertificateProvider: donordata.CertificateProvider{
+			UID:        testUID,
+			FirstNames: "Bob",
+			LastName:   "Doe",
+		},
+	})
+	resp := w.Result()
+
+	assert.Nil(t, err)
+	assert.Equal(t, http.StatusFound, resp.StatusCode)
+	assert.Equal(t, donor.PathWarningInterruption.FormatQuery("lpa-id",
+		url.Values{
+			"warningFrom": {"/abc"},
+			"next":        {donor.PathHowDoYouKnowYourCertificateProvider.Format("lpa-id")},
+			"actor":       {actor.TypeCertificateProvider.String()},
+		},
+	), resp.Header.Get("Location"))
 }
 
 func TestPostCertificateProviderDetailsWhenSigned(t *testing.T) {
@@ -325,55 +358,6 @@ func TestPostCertificateProviderDetailsWhenInputRequired(t *testing.T) {
 				return assert.Equal(t, validation.With("first-names", validation.EnterError{Label: "firstNames"}), data.Errors)
 			},
 		},
-		"name warning": {
-			form: url.Values{
-				"first-names": {"John"},
-				"last-name":   {"Doe"},
-				"mobile":      {"07535111111"},
-			},
-			existingDonor: &donordata.Provided{
-				Donor: donordata.Donor{
-					FirstNames: "John",
-					LastName:   "Doe",
-				},
-			},
-			dataMatcher: func(t *testing.T, data *certificateProviderDetailsData) bool {
-				return assert.Equal(t, actor.NewSameNameWarning(actor.TypeCertificateProvider, actor.TypeDonor, "John", "Doe"), data.NameWarning)
-			},
-		},
-		"name warning ignored but other errors": {
-			form: url.Values{
-				"first-names":         {"John"},
-				"last-name":           {"Doe"},
-				"ignore-name-warning": {"errorDonorMatchesActor|theCertificateProvider|John|Doe"},
-			},
-			existingDonor: &donordata.Provided{
-				Donor: donordata.Donor{
-					FirstNames: "John",
-					LastName:   "Doe",
-				},
-			},
-			dataMatcher: func(t *testing.T, data *certificateProviderDetailsData) bool {
-				return assert.Equal(t, actor.NewSameNameWarning(actor.TypeCertificateProvider, actor.TypeDonor, "John", "Doe"), data.NameWarning)
-			},
-		},
-		"other name warning ignored": {
-			form: url.Values{
-				"first-names":         {"John"},
-				"last-name":           {"Doe"},
-				"mobile":              {"07535111111"},
-				"ignore-name-warning": {"errorAttorneyMatchesActor|theCertificateProvider|John|Doe"},
-			},
-			existingDonor: &donordata.Provided{
-				Donor: donordata.Donor{
-					FirstNames: "John",
-					LastName:   "Doe",
-				},
-			},
-			dataMatcher: func(t *testing.T, data *certificateProviderDetailsData) bool {
-				return assert.Equal(t, actor.NewSameNameWarning(actor.TypeCertificateProvider, actor.TypeDonor, "John", "Doe"), data.NameWarning)
-			},
-		},
 	}
 
 	for name, tc := range testCases {
@@ -449,11 +433,9 @@ func TestReadCertificateProviderDetailsForm(t *testing.T) {
 	assert := assert.New(t)
 
 	form := url.Values{
-		"first-names":                 {"  John "},
-		"last-name":                   {"Doe"},
-		"mobile":                      {"07535111111"},
-		"ignore-name-warning":         {"a warning"},
-		"ignore-similar-name-warning": {"yes"},
+		"first-names": {"  John "},
+		"last-name":   {"Doe"},
+		"mobile":      {"07535111111"},
 	}
 
 	r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(form.Encode()))
@@ -464,8 +446,6 @@ func TestReadCertificateProviderDetailsForm(t *testing.T) {
 	assert.Equal("John", result.FirstNames)
 	assert.Equal("Doe", result.LastName)
 	assert.Equal("07535111111", result.Mobile)
-	assert.Equal("a warning", result.IgnoreNameWarning)
-	assert.Equal(true, result.IgnoreSimilarNameWarning)
 }
 
 func TestCertificateProviderDetailsFormValidate(t *testing.T) {
@@ -518,55 +498,4 @@ func TestCertificateProviderDetailsFormValidate(t *testing.T) {
 			assert.Equal(t, tc.errors, tc.form.Validate())
 		})
 	}
-}
-
-func TestCertificateProviderMatches(t *testing.T) {
-	donor := &donordata.Provided{
-		Donor: donordata.Donor{FirstNames: "a", LastName: "b"},
-		Attorneys: donordata.Attorneys{Attorneys: []donordata.Attorney{
-			{FirstNames: "c", LastName: "d"},
-			{FirstNames: "e", LastName: "f"},
-		}},
-		ReplacementAttorneys: donordata.Attorneys{Attorneys: []donordata.Attorney{
-			{FirstNames: "g", LastName: "h"},
-			{FirstNames: "i", LastName: "j"},
-		}},
-		CertificateProvider: donordata.CertificateProvider{FirstNames: "k", LastName: "l"},
-		PeopleToNotify: donordata.PeopleToNotify{
-			{FirstNames: "m", LastName: "n"},
-			{FirstNames: "o", LastName: "p"},
-		},
-		AuthorisedSignatory: donordata.AuthorisedSignatory{FirstNames: "a", LastName: "s"},
-		IndependentWitness:  donordata.IndependentWitness{FirstNames: "i", LastName: "w"},
-	}
-
-	assert.Equal(t, actor.TypeNone, certificateProviderMatches(donor, "x", "y"))
-	assert.Equal(t, actor.TypeDonor, certificateProviderMatches(donor, "a", "b"))
-	assert.Equal(t, actor.TypeAttorney, certificateProviderMatches(donor, "c", "d"))
-	assert.Equal(t, actor.TypeAttorney, certificateProviderMatches(donor, "E", "F"))
-	assert.Equal(t, actor.TypeReplacementAttorney, certificateProviderMatches(donor, "g", "h"))
-	assert.Equal(t, actor.TypeReplacementAttorney, certificateProviderMatches(donor, "I", "J"))
-	assert.Equal(t, actor.TypeNone, certificateProviderMatches(donor, "k", "l"))
-	assert.Equal(t, actor.TypeNone, certificateProviderMatches(donor, "m", "n"))
-	assert.Equal(t, actor.TypeNone, certificateProviderMatches(donor, "o", "p"))
-	assert.Equal(t, actor.TypeAuthorisedSignatory, certificateProviderMatches(donor, "a", "s"))
-	assert.Equal(t, actor.TypeIndependentWitness, certificateProviderMatches(donor, "i", "w"))
-}
-
-func TestCertificateProviderMatchesEmptyNamesIgnored(t *testing.T) {
-	donor := &donordata.Provided{
-		Donor: donordata.Donor{FirstNames: "", LastName: ""},
-		Attorneys: donordata.Attorneys{Attorneys: []donordata.Attorney{
-			{FirstNames: "", LastName: ""},
-		}},
-		ReplacementAttorneys: donordata.Attorneys{Attorneys: []donordata.Attorney{
-			{FirstNames: "", LastName: ""},
-		}},
-		CertificateProvider: donordata.CertificateProvider{FirstNames: "", LastName: ""},
-		PeopleToNotify: donordata.PeopleToNotify{
-			{FirstNames: "", LastName: ""},
-		},
-	}
-
-	assert.Equal(t, actor.TypeNone, certificateProviderMatches(donor, "", ""))
 }

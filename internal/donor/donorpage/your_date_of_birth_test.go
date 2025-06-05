@@ -9,6 +9,8 @@ import (
 	"testing"
 	"time"
 
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/appcontext"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/date"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor/donordata"
@@ -73,7 +75,6 @@ func TestGetYourDateOfBirthDobWarningIsAlwaysShown(t *testing.T) {
 			Form: &yourDateOfBirthForm{
 				Dob: date.New("1900", "01", "02"),
 			},
-			DobWarning: "dateOfBirthIsOver100",
 		}).
 		Return(nil)
 
@@ -107,6 +108,7 @@ func TestGetYourDateOfBirthWhenTemplateErrors(t *testing.T) {
 func TestPostYourDateOfBirth(t *testing.T) {
 	validBirthYear := strconv.Itoa(time.Now().Year() - 40)
 	under18BirthYear := strconv.Itoa(time.Now().Year() - 10)
+	over100BirthYear := strconv.Itoa(time.Now().Year() - 101)
 
 	testCases := map[string]struct {
 		url      string
@@ -123,19 +125,6 @@ func TestPostYourDateOfBirth(t *testing.T) {
 			},
 			person: donordata.Donor{
 				DateOfBirth: date.New(validBirthYear, "1", "2"),
-			},
-			redirect: donor.PathDoYouLiveInTheUK.Format("lpa-id"),
-		},
-		"warning ignored": {
-			url: "/",
-			form: url.Values{
-				"date-of-birth-day":   {"2"},
-				"date-of-birth-month": {"1"},
-				"date-of-birth-year":  {"1900"},
-				"ignore-dob-warning":  {"dateOfBirthIsOver100"},
-			},
-			person: donordata.Donor{
-				DateOfBirth: date.New("1900", "1", "2"),
 			},
 			redirect: donor.PathDoYouLiveInTheUK.Format("lpa-id"),
 		},
@@ -163,6 +152,25 @@ func TestPostYourDateOfBirth(t *testing.T) {
 			},
 			redirect: donor.PathYouHaveToldUsYouAreUnder18.FormatQuery("lpa-id", url.Values{"next": {"somewhere"}}),
 		},
+		"over 100": {
+			url: "/?from=somewhere",
+			form: url.Values{
+				"date-of-birth-day":   {"2"},
+				"date-of-birth-month": {"1"},
+				"date-of-birth-year":  {over100BirthYear},
+			},
+			person: donordata.Donor{
+				DateOfBirth: date.New(over100BirthYear, "1", "2"),
+			},
+			redirect: donor.PathWarningInterruption.FormatQuery(
+				"lpa-id",
+				url.Values{
+					"warningFrom": {"/abc"},
+					"next":        {donor.PathDoYouLiveInTheUK.Format("lpa-id")},
+					"actor":       {actor.TypeDonor.String()},
+				},
+			),
+		},
 	}
 
 	for name, tc := range testCases {
@@ -180,7 +188,8 @@ func TestPostYourDateOfBirth(t *testing.T) {
 				}).
 				Return(nil)
 
-			err := YourDateOfBirth(nil, donorStore)(testAppData, w, r, &donordata.Provided{
+			appData := appcontext.Data{Page: "/abc"}
+			err := YourDateOfBirth(nil, donorStore)(appData, w, r, &donordata.Provided{
 				LpaID: "lpa-id",
 				Donor: donordata.Donor{
 					DateOfBirth: date.New("2000", "1", "2"),
@@ -255,27 +264,6 @@ func TestPostYourDateOfBirthWhenInputRequired(t *testing.T) {
 			},
 			dataMatcher: func(t *testing.T, data *yourDateOfBirthData) bool {
 				return assert.Equal(t, validation.With("date-of-birth", validation.DateMustBePastError{Label: "dateOfBirth"}), data.Errors)
-			},
-		},
-		"dob warning": {
-			form: url.Values{
-				"date-of-birth-day":   {"2"},
-				"date-of-birth-month": {"1"},
-				"date-of-birth-year":  {"1900"},
-			},
-			dataMatcher: func(t *testing.T, data *yourDateOfBirthData) bool {
-				return assert.Equal(t, "dateOfBirthIsOver100", data.DobWarning)
-			},
-		},
-		"other dob warning ignored": {
-			form: url.Values{
-				"date-of-birth-day":   {"2"},
-				"date-of-birth-month": {"1"},
-				"date-of-birth-year":  {"1900"},
-				"ignore-dob-warning":  {"dateOfBirthIsUnder18"},
-			},
-			dataMatcher: func(t *testing.T, data *yourDateOfBirthData) bool {
-				return assert.Equal(t, "dateOfBirthIsOver100", data.DobWarning)
 			},
 		},
 	}
@@ -385,49 +373,6 @@ func TestYourDateOfBirthFormValidate(t *testing.T) {
 	for name, tc := range testCases {
 		t.Run(name, func(t *testing.T) {
 			assert.Equal(t, tc.errors, tc.form.Validate())
-		})
-	}
-}
-
-func TestYourDateOfBirthFormDobWarning(t *testing.T) {
-	now := date.Today()
-	validDob := now.AddDate(-18, 0, -1)
-
-	testCases := map[string]struct {
-		form    *yourDateOfBirthForm
-		warning string
-	}{
-		"valid": {
-			form: &yourDateOfBirthForm{
-				Dob: validDob,
-			},
-		},
-		"future-dob": {
-			form: &yourDateOfBirthForm{
-				Dob: now.AddDate(0, 0, 1),
-			},
-		},
-		"dob-is-18": {
-			form: &yourDateOfBirthForm{
-				Dob: now.AddDate(-18, 0, 0),
-			},
-		},
-		"dob-is-100": {
-			form: &yourDateOfBirthForm{
-				Dob: now.AddDate(-100, 0, 0),
-			},
-		},
-		"dob-over-100": {
-			form: &yourDateOfBirthForm{
-				Dob: now.AddDate(-100, 0, -1),
-			},
-			warning: "dateOfBirthIsOver100",
-		},
-	}
-
-	for name, tc := range testCases {
-		t.Run(name, func(t *testing.T) {
-			assert.Equal(t, tc.warning, tc.form.DobWarning())
 		})
 	}
 }

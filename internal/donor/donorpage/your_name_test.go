@@ -8,6 +8,7 @@ import (
 	"testing"
 
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/appcontext"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor/donordata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
@@ -103,19 +104,25 @@ func TestPostYourName(t *testing.T) {
 			},
 			redirect: donor.PathYourDateOfBirth.Format("lpa-id"),
 		},
-		"warning ignored": {
+		"shares name": {
 			url: "/",
 			form: url.Values{
-				"first-names":         {"Jane"},
-				"last-name":           {"Bloggs"},
-				"ignore-name-warning": {"1|4|Jane|Bloggs"},
+				"first-names": {"Jane"},
+				"last-name":   {"Bloggs"},
 			},
 			person: donordata.Donor{
 				FirstNames: "Jane",
 				LastName:   "Bloggs",
 				Email:      "what",
 			},
-			redirect: donor.PathYourDateOfBirth.Format("lpa-id"),
+			redirect: donor.PathWarningInterruption.FormatQuery(
+				"lpa-id",
+				url.Values{
+					"warningFrom": {"/abc"},
+					"next":        {donor.PathYourDateOfBirth.Format("lpa-id")},
+					"actor":       {actor.TypeDonor.String()},
+				},
+			),
 		},
 		"making another lpa": {
 			url: "/?makingAnotherLPA=1",
@@ -155,7 +162,8 @@ func TestPostYourName(t *testing.T) {
 				}).
 				Return(nil)
 
-			err := YourName(nil, donorStore, sessionStore)(testAppData, w, r, &donordata.Provided{
+			appData := appcontext.Data{Page: "/abc"}
+			err := YourName(nil, donorStore, sessionStore)(appData, w, r, &donordata.Provided{
 				LpaID:                          "lpa-id",
 				Donor:                          donordata.Donor{FirstNames: "John"},
 				CertificateProvider:            donordata.CertificateProvider{FirstNames: "Jane", LastName: "Bloggs"},
@@ -313,55 +321,4 @@ func TestPostYourNameWhenStoreErrors(t *testing.T) {
 
 	err := YourName(nil, donorStore, sessionStore)(testAppData, w, r, &donordata.Provided{})
 	assert.Equal(t, expectedError, err)
-}
-
-func TestDonorMatches(t *testing.T) {
-	donor := &donordata.Provided{
-		Donor: donordata.Donor{FirstNames: "a", LastName: "b"},
-		Attorneys: donordata.Attorneys{Attorneys: []donordata.Attorney{
-			{FirstNames: "c", LastName: "d"},
-			{FirstNames: "e", LastName: "f"},
-		}},
-		ReplacementAttorneys: donordata.Attorneys{Attorneys: []donordata.Attorney{
-			{FirstNames: "g", LastName: "h"},
-			{FirstNames: "i", LastName: "j"},
-		}},
-		CertificateProvider: donordata.CertificateProvider{FirstNames: "k", LastName: "l"},
-		PeopleToNotify: donordata.PeopleToNotify{
-			{FirstNames: "m", LastName: "n"},
-			{FirstNames: "o", LastName: "p"},
-		},
-		AuthorisedSignatory: donordata.AuthorisedSignatory{FirstNames: "a", LastName: "s"},
-		IndependentWitness:  donordata.IndependentWitness{FirstNames: "i", LastName: "w"},
-	}
-
-	assert.Equal(t, actor.TypeNone, donorMatches(donor, "x", "y"))
-	assert.Equal(t, actor.TypeNone, donorMatches(donor, "a", "b"))
-	assert.Equal(t, actor.TypeAttorney, donorMatches(donor, "C", "D"))
-	assert.Equal(t, actor.TypeAttorney, donorMatches(donor, "e", "f"))
-	assert.Equal(t, actor.TypeReplacementAttorney, donorMatches(donor, "G", "H"))
-	assert.Equal(t, actor.TypeReplacementAttorney, donorMatches(donor, "i", "j"))
-	assert.Equal(t, actor.TypeCertificateProvider, donorMatches(donor, "k", "l"))
-	assert.Equal(t, actor.TypePersonToNotify, donorMatches(donor, "m", "n"))
-	assert.Equal(t, actor.TypePersonToNotify, donorMatches(donor, "O", "P"))
-	assert.Equal(t, actor.TypeAuthorisedSignatory, donorMatches(donor, "a", "s"))
-	assert.Equal(t, actor.TypeIndependentWitness, donorMatches(donor, "i", "w"))
-}
-
-func TestDonorMatchesEmptyNamesIgnored(t *testing.T) {
-	donor := &donordata.Provided{
-		Donor: donordata.Donor{FirstNames: "", LastName: ""},
-		Attorneys: donordata.Attorneys{Attorneys: []donordata.Attorney{
-			{FirstNames: "", LastName: ""},
-		}},
-		ReplacementAttorneys: donordata.Attorneys{Attorneys: []donordata.Attorney{
-			{FirstNames: "", LastName: ""},
-		}},
-		CertificateProvider: donordata.CertificateProvider{FirstNames: "", LastName: ""},
-		PeopleToNotify: donordata.PeopleToNotify{
-			{FirstNames: "", LastName: ""},
-		},
-	}
-
-	assert.Equal(t, actor.TypeNone, donorMatches(donor, "", ""))
 }

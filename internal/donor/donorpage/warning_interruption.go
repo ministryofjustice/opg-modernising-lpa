@@ -17,60 +17,209 @@ import (
 )
 
 type WarningInterruptionData struct {
-	App           appcontext.Data
-	Errors        validation.List
-	Donor         *donordata.Provided
-	Attorney      donordata.Attorney
-	Notifications []page.Notification
-	PageTitle     string
-	From          string
+	App                 appcontext.Data
+	Errors              validation.List
+	Provided            *donordata.Provided
+	Donor               *donordata.Donor
+	Attorney            *donordata.Attorney
+	ReplacementAttorney *donordata.Attorney
+	CertificateProvider *donordata.CertificateProvider
+	Correspondent       *donordata.Correspondent
+	AuthorisedSignatory *donordata.AuthorisedSignatory
+	IndependentWitness  *donordata.IndependentWitness
+	PersonToNotify      *donordata.PersonToNotify
+	Notifications       []page.Notification
+	PageTitle           string
+	From                string
+	Next                string
 }
 
 func WarningInterruption(tmpl template.Template) Handler {
 	return func(appData appcontext.Data, w http.ResponseWriter, r *http.Request, provided *donordata.Provided) error {
-		data := WarningInterruptionData{
-			App:   appData,
-			Donor: provided,
-			From:  r.FormValue("warningFrom"),
+		actorType, err := actor.ParseType(r.FormValue("actor"))
+		if err != nil {
+			return donor.PathTaskList.Redirect(w, r, appData, provided)
 		}
 
-		switch data.From {
-		case donor.PathEnterAttorney.Format(appData.LpaID):
+		data := WarningInterruptionData{
+			App:      appData,
+			Provided: provided,
+			From:     r.FormValue("warningFrom"),
+			Next:     r.FormValue("next"),
+		}
+
+		switch actorType {
+		case actor.TypeDonor:
+			data.Donor = &provided.Donor
+			data.PageTitle = "checkYourDetails"
+
+			matches := donorMatches(provided, provided.Donor.FirstNames, provided.Donor.LastName)
+
+			if provided.CertificateProvider.Address.Line1 != "" && (provided.Donor.Address == provided.CertificateProvider.Address) {
+				matches = actor.TypeCertificateProvider
+			}
+
+			nameWarning := actor.NewSameNameWarning(
+				actor.TypeDonor,
+				matches,
+				provided.Donor.FullName(),
+			)
+			if nameWarning != nil {
+				data.Notifications = append(data.Notifications, page.Notification{
+					Heading:  "pleaseReviewTheInformationYouHaveEntered",
+					BodyHTML: nameWarning.Format(appData.Localizer),
+				})
+			}
+
+			dobWarning := dateOfBirthWarning(provided.Donor.DateOfBirth, actor.TypeDonor)
+			if dobWarning != "" {
+				data.Notifications = append(data.Notifications, page.Notification{
+					Heading:  "pleaseReviewTheInformationYouHaveEntered",
+					BodyHTML: appData.Localizer.T(dobWarning),
+				})
+			}
+		case actor.TypeAttorney, actor.TypeReplacementAttorney:
 			uid, err := actoruid.Parse(r.FormValue("id"))
 			if err != nil {
 				return donor.PathTaskList.RedirectQuery(w, r, appData, provided, nil)
 			}
 
 			attorney, found := provided.Attorneys.Get(uid)
+			matches := attorneyMatches(provided, uid, attorney.FirstNames, attorney.LastName)
+			attorneyType := actor.TypeAttorney
+
+			if actorType.IsReplacementAttorney() {
+				attorney, found = provided.ReplacementAttorneys.Get(uid)
+				matches = replacementAttorneyMatches(provided, uid, attorney.FirstNames, attorney.LastName)
+				attorneyType = actor.TypeReplacementAttorney
+
+				data.ReplacementAttorney = &attorney
+				data.PageTitle = "checkYourReplacementAttorneysDetails"
+			} else {
+				data.Attorney = &attorney
+				data.PageTitle = "checkYourAttorneysDetails"
+			}
 
 			if found {
-				data.Attorney = attorney
-
-				nameWarning := actor.NewSameNameWarning(
-					actor.TypeAttorney,
-					attorneyMatches(provided, uid, attorney.FirstNames, attorney.LastName),
-					attorney.FirstNames,
-					attorney.LastName,
-				)
-				dobWarning := DateOfBirthWarning(attorney.DateOfBirth, false)
-
+				dobWarning := dateOfBirthWarning(attorney.DateOfBirth, attorneyType)
 				if dobWarning != "" {
 					data.Notifications = append(data.Notifications, page.Notification{
 						Heading:  "pleaseReviewTheInformationYouHaveEntered",
-						BodyHTML: dobWarning,
+						BodyHTML: appData.Localizer.Format(dobWarning, map[string]any{"FullName": attorney.FullName()}),
 					})
 				}
 
+				nameWarning := actor.NewSameNameWarning(
+					attorneyType,
+					matches,
+					attorney.FullName(),
+				)
 				if nameWarning != nil {
 					data.Notifications = append(data.Notifications, page.Notification{
 						Heading:  "pleaseReviewTheInformationYouHaveEntered",
 						BodyHTML: nameWarning.Format(appData.Localizer),
 					})
 				}
+			}
+		case actor.TypeCertificateProvider:
+			data.CertificateProvider = &provided.CertificateProvider
+			data.PageTitle = "checkYourCertificateProvidersDetails"
 
-				data.PageTitle = "checkYourAttorneysDetails"
-			} else {
-				return donor.PathChooseAttorneysAddress.RedirectQuery(w, r, appData, provided, url.Values{"id": {uid.String()}})
+			matches := certificateProviderMatches(provided, provided.CertificateProvider.FirstNames, provided.CertificateProvider.LastName)
+
+			if provided.CertificateProvider.Address.Line1 != "" && (provided.Donor.Address == provided.CertificateProvider.Address) {
+				matches = actor.TypeDonor
+			}
+
+			nameWarning := actor.NewSameNameWarning(
+				actor.TypeCertificateProvider,
+				matches,
+				provided.CertificateProvider.FullName(),
+			)
+
+			if nameWarning != nil {
+				data.Notifications = append(data.Notifications, page.Notification{
+					Heading:  "pleaseReviewTheInformationYouHaveEntered",
+					BodyHTML: nameWarning.Format(appData.Localizer),
+				})
+			}
+		case actor.TypeCorrespondent:
+			data.Correspondent = &provided.Correspondent
+			data.PageTitle = "checkYourCorrespondentsDetails"
+
+			if correspondentNameMatchesDonor(provided, provided.Correspondent.FirstNames, provided.Correspondent.LastName) {
+				data.Notifications = append(data.Notifications, page.Notification{
+					Heading: "pleaseReviewTheInformationYouHaveEntered",
+					BodyHTML: actor.NewSameNameWarning(
+						actor.TypeCorrespondent,
+						actor.TypeDonor,
+						provided.Correspondent.FullName(),
+					).Format(appData.Localizer),
+				})
+			}
+		case actor.TypePersonToNotify:
+			uid, err := actoruid.Parse(r.FormValue("id"))
+			if err != nil {
+				return donor.PathTaskList.RedirectQuery(w, r, appData, provided, nil)
+			}
+
+			person, found := provided.PeopleToNotify.Get(uid)
+			if found {
+				nameWarning := actor.NewSameNameWarning(
+					actor.TypePersonToNotify,
+					personToNotifyMatches(provided, uid, person.FirstNames, person.LastName),
+					person.FullName(),
+				)
+
+				if nameWarning != nil {
+					data.Notifications = append(data.Notifications, page.Notification{
+						Heading:  "pleaseReviewTheInformationYouHaveEntered",
+						BodyHTML: nameWarning.Format(appData.Localizer),
+					})
+
+					data.PageTitle = "checkYourPersonToNotifysDetails"
+					data.PersonToNotify = &person
+
+					from, _ := url.Parse(data.From)
+					query := from.Query()
+					query.Set("id", uid.String())
+					from.RawQuery = query.Encode()
+
+					data.From = from.String()
+				}
+			}
+		case actor.TypeAuthorisedSignatory:
+			data.AuthorisedSignatory = &provided.AuthorisedSignatory
+			data.PageTitle = "checkYourAuthorisedSignatorysDetails"
+
+			matches := signatoryMatches(provided, provided.AuthorisedSignatory.FirstNames, provided.AuthorisedSignatory.LastName)
+
+			if !matches.IsNone() {
+				data.Notifications = append(data.Notifications, page.Notification{
+					Heading: "pleaseReviewTheInformationYouHaveEntered",
+					BodyHTML: actor.NewSameNameWarning(
+						actor.TypeAuthorisedSignatory,
+						matches,
+						provided.AuthorisedSignatory.FullName(),
+					).Format(appData.Localizer),
+				})
+			}
+
+		case actor.TypeIndependentWitness:
+			data.IndependentWitness = &provided.IndependentWitness
+			data.PageTitle = "checkYourIndependentWitnesssDetails"
+
+			matches := independentWitnessMatches(provided, provided.IndependentWitness.FirstNames, provided.IndependentWitness.LastName)
+
+			if !matches.IsNone() {
+				data.Notifications = append(data.Notifications, page.Notification{
+					Heading: "pleaseReviewTheInformationYouHaveEntered",
+					BodyHTML: actor.NewSameNameWarning(
+						actor.TypeIndependentWitness,
+						matches,
+						provided.IndependentWitness.FullName(),
+					).Format(appData.Localizer),
+				})
 			}
 		}
 
@@ -80,6 +229,27 @@ func WarningInterruption(tmpl template.Template) Handler {
 
 		return tmpl(w, data)
 	}
+}
+
+func donorMatches(donor *donordata.Provided, firstNames, lastName string) actor.Type {
+	if firstNames == "" && lastName == "" {
+		return actor.TypeNone
+	}
+
+	for person := range donor.Actors() {
+		if !person.Type.IsDonor() &&
+			strings.EqualFold(person.FirstNames, firstNames) &&
+			strings.EqualFold(person.LastName, lastName) {
+			return person.Type
+		}
+	}
+
+	if strings.EqualFold(donor.Correspondent.FirstNames, firstNames) &&
+		strings.EqualFold(donor.Correspondent.LastName, lastName) {
+		return actor.TypeCorrespondent
+	}
+
+	return actor.TypeNone
 }
 
 func attorneyMatches(donor *donordata.Provided, uid actoruid.UID, firstNames, lastName string) actor.Type {
@@ -98,7 +268,97 @@ func attorneyMatches(donor *donordata.Provided, uid actoruid.UID, firstNames, la
 	return actor.TypeNone
 }
 
-func DateOfBirthWarning(dateOfBirth date.Date, replacement bool) string {
+func replacementAttorneyMatches(donor *donordata.Provided, uid actoruid.UID, firstNames, lastName string) actor.Type {
+	if firstNames == "" && lastName == "" {
+		return actor.TypeNone
+	}
+
+	for person := range donor.Actors() {
+		if !(person.Type.IsReplacementAttorney() && person.UID == uid) &&
+			strings.EqualFold(person.FirstNames, firstNames) &&
+			strings.EqualFold(person.LastName, lastName) {
+			return person.Type
+		}
+	}
+
+	return actor.TypeNone
+}
+
+func certificateProviderMatches(donor *donordata.Provided, firstNames, lastName string) actor.Type {
+	if firstNames == "" && lastName == "" {
+		return actor.TypeNone
+	}
+
+	for person := range donor.Actors() {
+		if !person.Type.IsCertificateProvider() &&
+			!person.Type.IsPersonToNotify() &&
+			strings.EqualFold(person.FirstNames, firstNames) &&
+			strings.EqualFold(person.LastName, lastName) {
+			return person.Type
+		}
+	}
+
+	return actor.TypeNone
+}
+
+func correspondentNameMatchesDonor(donor *donordata.Provided, firstNames, lastName string) bool {
+	return strings.EqualFold(donor.Donor.FirstNames, firstNames) && strings.EqualFold(donor.Donor.LastName, lastName)
+}
+
+func personToNotifyMatches(donor *donordata.Provided, uid actoruid.UID, firstNames, lastName string) actor.Type {
+	if firstNames == "" && lastName == "" {
+		return actor.TypeNone
+	}
+
+	for person := range donor.Actors() {
+		if !(person.Type.IsPersonToNotify() && person.UID == uid) &&
+			!person.Type.IsCertificateProvider() &&
+			!person.Type.IsAuthorisedSignatory() &&
+			!person.Type.IsIndependentWitness() &&
+			strings.EqualFold(person.FirstNames, firstNames) &&
+			strings.EqualFold(person.LastName, lastName) {
+			return person.Type
+		}
+	}
+
+	return actor.TypeNone
+}
+
+func signatoryMatches(donor *donordata.Provided, firstNames, lastName string) actor.Type {
+	if firstNames == "" && lastName == "" {
+		return actor.TypeNone
+	}
+
+	for person := range donor.Actors() {
+		if !person.Type.IsAuthorisedSignatory() &&
+			!person.Type.IsPersonToNotify() &&
+			strings.EqualFold(person.FirstNames, firstNames) &&
+			strings.EqualFold(person.LastName, lastName) {
+			return person.Type
+		}
+	}
+
+	return actor.TypeNone
+}
+
+func independentWitnessMatches(donor *donordata.Provided, firstNames, lastName string) actor.Type {
+	if firstNames == "" && lastName == "" {
+		return actor.TypeNone
+	}
+
+	for person := range donor.Actors() {
+		if !person.Type.IsIndependentWitness() &&
+			!person.Type.IsPersonToNotify() &&
+			strings.EqualFold(person.FirstNames, firstNames) &&
+			strings.EqualFold(person.LastName, lastName) {
+			return person.Type
+		}
+	}
+
+	return actor.TypeNone
+}
+
+func dateOfBirthWarning(dateOfBirth date.Date, actorType actor.Type) string {
 	var (
 		today                = date.Today()
 		hundredYearsEarlier  = today.AddDate(-100, 0, 0)
@@ -107,14 +367,17 @@ func DateOfBirthWarning(dateOfBirth date.Date, replacement bool) string {
 
 	if !dateOfBirth.IsZero() {
 		if dateOfBirth.Before(hundredYearsEarlier) {
-			return "dateOfBirthIsOver100"
-		}
-		if dateOfBirth.Before(today) && dateOfBirth.After(eighteenYearsEarlier) {
-			//TODO drop as part of MLPAB-2990
-			if replacement {
-				return "attorneyDateOfBirthIsUnder18"
+			if actorType.IsAttorney() || actorType.IsReplacementAttorney() {
+				return "dateOfBirthIsOver100AttorneyWarning"
+			} else if actorType.IsDonor() {
+				return "dateOfBirthIsOver100DonorWarning"
 			}
-			return "dateOfBirthIsUnder18Attorney"
+		}
+
+		if dateOfBirth.Before(today) && dateOfBirth.After(eighteenYearsEarlier) {
+			if actorType.IsAttorney() || actorType.IsReplacementAttorney() {
+				return "dateOfBirthIsUnder18AttorneyWarning"
+			}
 		}
 	}
 

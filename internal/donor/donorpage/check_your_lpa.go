@@ -128,7 +128,7 @@ func CheckYourLpa(tmpl template.Template, donorStore DonorStore, shareCodeSender
 			return donor.PathYouCannotSignYourLpaYet.Redirect(w, r, appData, provided)
 		}
 
-		if provided.CertificateProviderSharesDetails() {
+		if provided.CertificateProviderSharesLastName() || provided.CertificateProviderSharesAddress() {
 			return donor.PathConfirmYourCertificateProviderIsNotRelated.Redirect(w, r, appData, provided)
 		}
 

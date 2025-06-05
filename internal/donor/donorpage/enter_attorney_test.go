@@ -9,6 +9,7 @@ import (
 	"testing"
 	"time"
 
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor/actoruid"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/appcontext"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/date"
@@ -272,7 +273,7 @@ func TestPostEnterAttorneyWhenDOBWarning(t *testing.T) {
 		Put(r.Context(), mock.Anything).
 		Return(nil)
 
-	appData := appcontext.Data{Page: "/a"}
+	appData := appcontext.Data{Page: "/abc"}
 	err := EnterAttorney(nil, donorStore, reuseStore)(appData, w, r, &donordata.Provided{
 		LpaID: "lpa-id",
 		Donor: donordata.Donor{FirstNames: "Jane", LastName: "Doe"},
@@ -281,7 +282,15 @@ func TestPostEnterAttorneyWhenDOBWarning(t *testing.T) {
 
 	assert.Nil(t, err)
 	assert.Equal(t, http.StatusFound, resp.StatusCode)
-	assert.Equal(t, donor.PathWarningInterruption.Format("lpa-id")+"?id="+testUID.String()+"&warningFrom=%2Fa", resp.Header.Get("Location"))
+	assert.Equal(t, donor.PathWarningInterruption.FormatQuery("lpa-id", url.Values{
+		"id":          {testUID.String()},
+		"warningFrom": {"/abc"},
+		"next": {donor.PathChooseAttorneysAddress.FormatQuery(
+			"lpa-id",
+			url.Values{"id": {testUID.String()}}),
+		},
+		"actor": {actor.TypeAttorney.String()},
+	}), resp.Header.Get("Location"))
 }
 
 func TestPostEnterAttorneyWhenNameWarning(t *testing.T) {
@@ -308,7 +317,7 @@ func TestPostEnterAttorneyWhenNameWarning(t *testing.T) {
 		Put(r.Context(), mock.Anything).
 		Return(nil)
 
-	appData := appcontext.Data{Page: "/a"}
+	appData := appcontext.Data{Page: "/abc"}
 	err := EnterAttorney(nil, donorStore, reuseStore)(appData, w, r, &donordata.Provided{
 		LpaID: "lpa-id",
 		Donor: donordata.Donor{FirstNames: "Jane", LastName: "Doe"},
@@ -316,7 +325,15 @@ func TestPostEnterAttorneyWhenNameWarning(t *testing.T) {
 	resp := w.Result()
 
 	assert.Nil(t, err)
-	assert.Equal(t, donor.PathWarningInterruption.Format("lpa-id")+"?id="+testUID.String()+"&warningFrom=%2Fa", resp.Header.Get("Location"))
+	assert.Equal(t, donor.PathWarningInterruption.FormatQuery("lpa-id", url.Values{
+		"id":          {testUID.String()},
+		"warningFrom": {"/abc"},
+		"next": {donor.PathChooseAttorneysAddress.FormatQuery(
+			"lpa-id",
+			url.Values{"id": {testUID.String()}}),
+		},
+		"actor": {actor.TypeAttorney.String()},
+	}), resp.Header.Get("Location"))
 }
 
 func TestPostEnterAttorneyWhenReuseStoreErrors(t *testing.T) {

@@ -8,6 +8,7 @@ import (
 	"strings"
 	"testing"
 
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/appcontext"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor/donordata"
@@ -317,6 +318,55 @@ func TestPostYourAddressManualFromStore(t *testing.T) {
 	assert.Nil(t, err)
 	assert.Equal(t, http.StatusFound, resp.StatusCode)
 	assert.Equal(t, donor.PathReceivingUpdatesAboutYourLpa.Format("lpa-id"), resp.Header.Get("Location"))
+}
+
+func TestPostYourAddressManualFromStoreWhenShareCertificateProviderAddress(t *testing.T) {
+	f := url.Values{
+		form.FieldNames.Address.Action:     {"manual"},
+		form.FieldNames.Address.Line1:      {"a"},
+		form.FieldNames.Address.Line2:      {"b"},
+		form.FieldNames.Address.Line3:      {"c"},
+		form.FieldNames.Address.TownOrCity: {"d"},
+		form.FieldNames.Address.Postcode:   {"e"},
+	}
+
+	w := httptest.NewRecorder()
+	r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(f.Encode()))
+	r.Header.Add("Content-Type", page.FormUrlEncoded)
+
+	donorStore := newMockDonorStore(t)
+	donorStore.EXPECT().
+		Put(r.Context(), &donordata.Provided{
+			LpaID: "lpa-id",
+			Donor: donordata.Donor{
+				FirstNames: "John",
+				Address:    testAddress,
+			},
+			CertificateProvider: donordata.CertificateProvider{Address: testAddress},
+		}).
+		Return(nil)
+
+	appData := appcontext.Data{Page: "/abc"}
+	err := YourAddress(nil, nil, nil, donorStore)(appData, w, r, &donordata.Provided{
+		LpaID: "lpa-id",
+		Donor: donordata.Donor{
+			FirstNames: "John",
+			Address:    place.Address{Line1: "abc"},
+		},
+		CertificateProvider: donordata.CertificateProvider{Address: testAddress},
+	})
+	resp := w.Result()
+
+	assert.Nil(t, err)
+	assert.Equal(t, http.StatusFound, resp.StatusCode)
+	assert.Equal(t, donor.PathWarningInterruption.FormatQuery(
+		"lpa-id",
+		url.Values{
+			"warningFrom": {"/abc"},
+			"next":        {donor.PathReceivingUpdatesAboutYourLpa.Format("lpa-id")},
+			"actor":       {actor.TypeDonor.String()},
+		},
+	), resp.Header.Get("Location"))
 }
 
 func TestPostYourAddressManualWhenValidationError(t *testing.T) {

@@ -8,6 +8,7 @@ import (
 	"testing"
 
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/appcontext"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor/donordata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
@@ -80,8 +81,9 @@ func TestGetYourIndependentWitnessWhenTemplateErrors(t *testing.T) {
 
 func TestPostYourIndependentWitness(t *testing.T) {
 	testCases := map[string]struct {
-		form   url.Values
-		person donordata.IndependentWitness
+		form             url.Values
+		person           donordata.IndependentWitness
+		expectedRedirect string
 	}{
 		"valid": {
 			form: url.Values{
@@ -93,18 +95,25 @@ func TestPostYourIndependentWitness(t *testing.T) {
 				FirstNames: "John",
 				LastName:   "Doe",
 			},
+			expectedRedirect: donor.PathYourIndependentWitnessMobile.Format("lpa-id"),
 		},
-		"warning ignored": {
+		"when name matches": {
 			form: url.Values{
-				"first-names":         {"John"},
-				"last-name":           {"Smith"},
-				"ignore-name-warning": {actor.NewSameNameWarning(actor.TypeIndependentWitness, actor.TypeDonor, "John", "Smith").String()},
+				"first-names": {"John"},
+				"last-name":   {"Smith"},
 			},
 			person: donordata.IndependentWitness{
 				UID:        testUID,
 				FirstNames: "John",
 				LastName:   "Smith",
 			},
+			expectedRedirect: donor.PathWarningInterruption.FormatQuery(
+				"lpa-id",
+				url.Values{
+					"warningFrom": {"/abc"},
+					"next":        {donor.PathYourIndependentWitnessMobile.Format("lpa-id")},
+					"actor":       {actor.TypeIndependentWitness.String()},
+				}),
 		},
 	}
 
@@ -125,7 +134,8 @@ func TestPostYourIndependentWitness(t *testing.T) {
 				}).
 				Return(nil)
 
-			err := YourIndependentWitness(nil, donorStore, testUIDFn)(testAppData, w, r, &donordata.Provided{
+			appData := appcontext.Data{Page: "/abc"}
+			err := YourIndependentWitness(nil, donorStore, testUIDFn)(appData, w, r, &donordata.Provided{
 				LpaID: "lpa-id",
 				Donor: donordata.Donor{FirstNames: "John", LastName: "Smith"},
 			})
@@ -133,7 +143,7 @@ func TestPostYourIndependentWitness(t *testing.T) {
 
 			assert.Nil(t, err)
 			assert.Equal(t, http.StatusFound, resp.StatusCode)
-			assert.Equal(t, donor.PathYourIndependentWitnessMobile.Format("lpa-id"), resp.Header.Get("Location"))
+			assert.Equal(t, tc.expectedRedirect, resp.Header.Get("Location"))
 		})
 	}
 }
@@ -228,34 +238,6 @@ func TestPostYourIndependentWitnessWhenInputRequired(t *testing.T) {
 				return assert.Equal(t, validation.With("first-names", validation.EnterError{Label: "firstNames"}), data.Errors)
 			},
 		},
-		"name warning": {
-			form: url.Values{
-				"first-names": {"John"},
-				"last-name":   {"Doe"},
-			},
-			dataMatcher: func(t *testing.T, data *yourIndependentWitnessData) bool {
-				return assert.Equal(t, actor.NewSameNameWarning(actor.TypeIndependentWitness, actor.TypeDonor, "John", "Doe"), data.NameWarning)
-			},
-		},
-		"name warning ignored but other errors": {
-			form: url.Values{
-				"first-names":         {"John"},
-				"ignore-name-warning": {actor.NewSameNameWarning(actor.TypeIndependentWitness, actor.TypeDonor, "John", "Doe").String()},
-			},
-			dataMatcher: func(t *testing.T, data *yourIndependentWitnessData) bool {
-				return assert.Equal(t, validation.With("last-name", validation.EnterError{Label: "lastName"}), data.Errors)
-			},
-		},
-		"other name warning ignored": {
-			form: url.Values{
-				"first-names":         {"John"},
-				"last-name":           {"Doe"},
-				"ignore-name-warning": {actor.NewSameNameWarning(actor.TypeIndependentWitness, actor.TypeDonor, "John", "John").String()},
-			},
-			dataMatcher: func(t *testing.T, data *yourIndependentWitnessData) bool {
-				return assert.Equal(t, actor.NewSameNameWarning(actor.TypeIndependentWitness, actor.TypeDonor, "John", "Doe"), data.NameWarning)
-			},
-		},
 	}
 
 	for name, tc := range testCases {
@@ -314,9 +296,8 @@ func TestReadYourIndependentWitnessForm(t *testing.T) {
 	assert := assert.New(t)
 
 	f := url.Values{
-		"first-names":         {"  John "},
-		"last-name":           {"Doe"},
-		"ignore-name-warning": {"xyz"},
+		"first-names": {"  John "},
+		"last-name":   {"Doe"},
 	}
 
 	r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(f.Encode()))
@@ -326,7 +307,6 @@ func TestReadYourIndependentWitnessForm(t *testing.T) {
 
 	assert.Equal("John", result.FirstNames)
 	assert.Equal("Doe", result.LastName)
-	assert.Equal("xyz", result.IgnoreNameWarning)
 }
 
 func TestYourIndependentWitnessFormValidate(t *testing.T) {
@@ -368,47 +348,4 @@ func TestYourIndependentWitnessFormValidate(t *testing.T) {
 			assert.Equal(t, tc.errors, tc.form.Validate())
 		})
 	}
-}
-
-func TestIndependentWitnessMatches(t *testing.T) {
-	donor := &donordata.Provided{
-		Donor: donordata.Donor{FirstNames: "a", LastName: "b"},
-		Attorneys: donordata.Attorneys{Attorneys: []donordata.Attorney{
-			{FirstNames: "c", LastName: "d"},
-			{FirstNames: "e", LastName: "f"},
-		}},
-		ReplacementAttorneys: donordata.Attorneys{Attorneys: []donordata.Attorney{
-			{FirstNames: "g", LastName: "h"},
-			{FirstNames: "i", LastName: "j"},
-		}},
-		CertificateProvider: donordata.CertificateProvider{FirstNames: "k", LastName: "l"},
-		PeopleToNotify: donordata.PeopleToNotify{
-			{FirstNames: "m", LastName: "n"},
-			{FirstNames: "o", LastName: "p"},
-		},
-		AuthorisedSignatory: donordata.AuthorisedSignatory{FirstNames: "a", LastName: "s"},
-		IndependentWitness:  donordata.IndependentWitness{FirstNames: "i", LastName: "w"},
-	}
-
-	assert.Equal(t, actor.TypeNone, independentWitnessMatches(donor, "x", "y"))
-	assert.Equal(t, actor.TypeDonor, independentWitnessMatches(donor, "a", "b"))
-	assert.Equal(t, actor.TypeAttorney, independentWitnessMatches(donor, "C", "D"))
-	assert.Equal(t, actor.TypeAttorney, independentWitnessMatches(donor, "e", "f"))
-	assert.Equal(t, actor.TypeReplacementAttorney, independentWitnessMatches(donor, "G", "H"))
-	assert.Equal(t, actor.TypeReplacementAttorney, independentWitnessMatches(donor, "i", "j"))
-	assert.Equal(t, actor.TypeCertificateProvider, independentWitnessMatches(donor, "k", "l"))
-	assert.Equal(t, actor.TypeNone, independentWitnessMatches(donor, "m", "n"))
-	assert.Equal(t, actor.TypeNone, independentWitnessMatches(donor, "O", "P"))
-	assert.Equal(t, actor.TypeAuthorisedSignatory, independentWitnessMatches(donor, "a", "s"))
-	assert.Equal(t, actor.TypeNone, independentWitnessMatches(donor, "i", "w"))
-}
-
-func TestIndependentWitnessMatchesEmptyNamesIgnored(t *testing.T) {
-	donor := &donordata.Provided{
-		Attorneys:            donordata.Attorneys{Attorneys: []donordata.Attorney{{}}},
-		ReplacementAttorneys: donordata.Attorneys{Attorneys: []donordata.Attorney{{}}},
-		PeopleToNotify:       donordata.PeopleToNotify{{}},
-	}
-
-	assert.Equal(t, actor.TypeNone, independentWitnessMatches(donor, "", ""))
 }
