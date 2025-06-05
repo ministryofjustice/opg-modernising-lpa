@@ -1843,5 +1843,10 @@
     "whenOneCanNoLongerActHint": "They’ll be able to make decisions jointly and severally with any original attorney who can still act",
     "whenNoneCanNoLongerActHint": "Your replacement attorneys only step in when all of your original attorneys can no longer act",
     "inParticularWay": "<p class=\"govuk-body\">In a particular way or order:</p><p class=\"app-wrap-text\">‘{{.Text}}’</p>",
-    "restrictTheDecisionsAttorneysCanMake": "Restrict the decisions your attorneys can make"
+    "restrictTheDecisionsAttorneysCanMake": "Restrict the decisions your attorneys can make",
+    "toProvideCertificateUseLanguage": "<p class=\"govuk-notification-banner__heading\">To provide {{possessive .DonorFullName}} certificate, you must view and sign it {{.InSelected}}.</p><p class=\"govuk-body\">You can select the ‘{{.Unselected}}’ language link to read the certificate for this LPA {{.InUnselected}}.</p><p class=\"govuk-body\">However, when you sign the certificate, it must be viewed in {{possessive .DonorFullName}} chosen language.</p>",
+    "viewThisPageIn": "View this page {{.In}}",
+    "toSignCertificateYouMustViewInLanguage": "To sign the certificate, you must view it {{.InLang}}",
+    "toSignLpaYouMustViewInLanguage": "To sign this LPA, you must view it {{.InLang}}",
+    "youMustViewAndSignLpaInLanguage": "<p class=\"govuk-notification-banner__heading\">You must view and sign {{possessive .DonorFullName}} LPA {{.InSelected}}.</p><p class=\"govuk-body\">You can select the ‘{{.Unselected}}’ language link to read this page {{.InUnselected}}.</p><p class=\"govuk-body\">However, when you sign the LPA, it must be viewed in {{possessive .DonorFullName}} chosen language.</p>"
 }

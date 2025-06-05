@@ -52,7 +52,7 @@ func ProvideCertificate(
 		}
 
 		if r.Method == http.MethodPost {
-			data.Form = readProvideCertificateForm(r)
+			data.Form = readProvideCertificateForm(r, lpa.Language)
 			data.Errors = data.Form.Validate()
 
 			if data.Errors.None() {
@@ -139,12 +139,14 @@ func ProvideCertificate(
 type provideCertificateForm struct {
 	Submittable      string
 	AgreeToStatement bool
+	lpaLanguage      localize.Lang
 }
 
-func readProvideCertificateForm(r *http.Request) *provideCertificateForm {
+func readProvideCertificateForm(r *http.Request, lang localize.Lang) *provideCertificateForm {
 	return &provideCertificateForm{
 		Submittable:      r.FormValue("submittable"),
 		AgreeToStatement: page.PostFormString(r, "agree-to-statement") == "1",
+		lpaLanguage:      lang,
 	}
 }
 
@@ -156,5 +158,19 @@ func (f *provideCertificateForm) Validate() validation.List {
 			validation.Selected())
 	}
 
+	if f.Submittable == "wrong-language" && f.AgreeToStatement {
+		errors.Add("agree-to-statement", toSignCertificateYouMustViewInLanguageError{LpaLanguage: f.lpaLanguage})
+	}
+
 	return errors
+}
+
+type toSignCertificateYouMustViewInLanguageError struct {
+	LpaLanguage localize.Lang
+}
+
+func (e toSignCertificateYouMustViewInLanguageError) Format(l validation.Localizer) string {
+	return l.Format("toSignCertificateYouMustViewInLanguage", map[string]any{
+		"InLang": l.T("in:" + e.LpaLanguage.String()),
+	})
 }
