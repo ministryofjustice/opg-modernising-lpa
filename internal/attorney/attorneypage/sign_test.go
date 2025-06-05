@@ -13,6 +13,7 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/attorney"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/attorney/attorneydata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/form"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/localize"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/lpastore/lpadata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/task"
@@ -139,6 +140,8 @@ func TestGetSign(t *testing.T) {
 		t.Run(name, func(t *testing.T) {
 			r, _ := http.NewRequest(http.MethodGet, "/", nil)
 			w := httptest.NewRecorder()
+
+			tc.data.Lpa = tc.lpa
 
 			template := newMockTemplate(t)
 			template.EXPECT().
@@ -771,12 +774,9 @@ func TestPostSignOnValidationError(t *testing.T) {
 
 	template := newMockTemplate(t)
 	template.EXPECT().
-		Execute(w, &signData{
-			App:      testAppData,
-			Form:     &signForm{},
-			Attorney: lpadata.Attorney{UID: testUID, FirstNames: "Bob", LastName: "Smith"},
-			Errors:   validation.With("confirm", validation.CustomError{Label: "youMustSelectTheBoxToSignAttorney"}),
-		}).
+		Execute(mock.Anything, mock.MatchedBy(func(data *signData) bool {
+			return assert.Equal(t, validation.With("confirm", validation.CustomError{Label: "youMustSelectTheBoxToSignAttorney"}), data.Errors)
+		})).
 		Return(nil)
 
 	err := Sign(template.Execute, nil, nil, time.Now)(testAppData, w, r, &attorneydata.Provided{}, &lpadata.Lpa{
@@ -799,7 +799,10 @@ func TestReadSignForm(t *testing.T) {
 	r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(form.Encode()))
 	r.Header.Add("Content-Type", page.FormUrlEncoded)
 
-	assert.Equal(t, &signForm{Confirm: true}, readSignForm(r))
+	assert.Equal(t, &signForm{
+		Confirm:     true,
+		lpaLanguage: localize.Cy,
+	}, readSignForm(r, localize.Cy))
 }
 
 func TestValidateSignForm(t *testing.T) {
@@ -829,8 +832,18 @@ func TestValidateSignForm(t *testing.T) {
 			},
 			isTrustCorporation: true,
 		},
+		"true with wrong language for attorney": {
+			form: signForm{
+				Confirm:       true,
+				WrongLanguage: true,
+				lpaLanguage:   localize.Cy,
+			},
+			errors: validation.With("confirm", toSignLpaYouMustViewInLanguageError{LpaLanguage: localize.Cy}),
+		},
 		"false for attorney": {
-			form:   signForm{},
+			form: signForm{
+				WrongLanguage: true,
+			},
 			errors: validation.With("confirm", validation.CustomError{Label: "youMustSelectTheBoxToSignAttorney"}),
 		},
 		"false for replacement attorney": {
@@ -846,6 +859,18 @@ func TestValidateSignForm(t *testing.T) {
 				With("confirm", validation.CustomError{Label: "youMustSelectTheBoxToSignAttorney"}),
 			isTrustCorporation: true,
 		},
+		"true with wrong language for empty trust corporation": {
+			form: signForm{
+				Confirm:       true,
+				WrongLanguage: true,
+				lpaLanguage:   localize.En,
+			},
+			errors: validation.With("first-names", validation.EnterError{Label: "firstNames"}).
+				With("last-name", validation.EnterError{Label: "lastName"}).
+				With("professional-title", validation.EnterError{Label: "professionalTitle"}).
+				With("confirm", toSignLpaYouMustViewInLanguageError{LpaLanguage: localize.En}),
+			isTrustCorporation: true,
+		},
 	}
 
 	for name, tc := range testCases {
@@ -853,4 +878,18 @@ func TestValidateSignForm(t *testing.T) {
 			assert.Equal(t, tc.errors, tc.form.Validate(tc.isTrustCorporation, tc.isReplacement))
 		})
 	}
+}
+
+func TestToSignLpaYouMustViewInLanguageError(t *testing.T) {
+	localizer := newMockLocalizer(t)
+	localizer.EXPECT().
+		T("in:cy").
+		Return("in Welsh")
+	localizer.EXPECT().
+		Format("toSignLpaYouMustViewInLanguage", map[string]any{
+			"InLang": "in Welsh",
+		}).
+		Return("some words")
+
+	assert.Equal(t, "some words", toSignLpaYouMustViewInLanguageError{LpaLanguage: localize.Cy}.Format(localizer))
 }
