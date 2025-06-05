@@ -107,7 +107,11 @@ func CreateLpaFromDonorProvided(donor *donordata.Provided) CreateLpa {
 		body.HowReplacementAttorneysStepInDetails = donor.HowShouldReplacementAttorneysStepInDetails
 	}
 
-	if donor.ReplacementAttorneys.Len() > 1 && (donor.HowShouldReplacementAttorneysStepIn.IsWhenAllCanNoLongerAct() || !donor.AttorneyDecisions.How.IsJointlyAndSeverally()) {
+	needsDecisions := donor.ReplacementAttorneys.Len() > 1 && (donor.Attorneys.Len() == 1 ||
+		donor.AttorneyDecisions.How.IsJointly() ||
+		(donor.AttorneyDecisions.How.IsJointlyAndSeverally() && donor.HowShouldReplacementAttorneysStepIn.IsWhenAllCanNoLongerAct()))
+
+	if needsDecisions {
 		body.HowReplacementAttorneysMakeDecisions = donor.ReplacementAttorneyDecisions.How
 		body.HowReplacementAttorneysMakeDecisionsDetails = donor.ReplacementAttorneyDecisions.Details
 	}
