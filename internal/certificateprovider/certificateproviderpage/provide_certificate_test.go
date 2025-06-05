@@ -991,7 +991,7 @@ func TestReadProvideCertificateForm(t *testing.T) {
 	r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(form.Encode()))
 	r.Header.Add("Content-Type", page.FormUrlEncoded)
 
-	result := readProvideCertificateForm(r)
+	result := readProvideCertificateForm(r, localize.En)
 
 	assert.Equal(true, result.AgreeToStatement)
 	assert.Equal("can-submit", result.Submittable)
@@ -1002,15 +1002,34 @@ func TestProvideCertificateFormValidate(t *testing.T) {
 		form   *provideCertificateForm
 		errors validation.List
 	}{
-		"valid": {
+		"selected": {
 			form: &provideCertificateForm{
 				AgreeToStatement: true,
 			},
 		},
-		"invalid": {
-			form: &provideCertificateForm{},
-			errors: validation.
-				With("agree-to-statement", validation.SelectError{Label: "toSignAsCertificateProvider"}),
+		"cannot submit": {
+			form: &provideCertificateForm{
+				Submittable: "cannot-submit",
+			},
+		},
+		"not selected": {
+			form:   &provideCertificateForm{},
+			errors: validation.With("agree-to-statement", validation.SelectError{Label: "toSignAsCertificateProvider"}),
+		},
+		"selected with wrong language": {
+			form: &provideCertificateForm{
+				AgreeToStatement: true,
+				Submittable:      "wrong-language",
+				lpaLanguage:      localize.Cy,
+			},
+			errors: validation.With("agree-to-statement", toSignCertificateYouMustViewInLanguageError{LpaLanguage: localize.Cy}),
+		},
+		"not selected with wrong language": {
+			form: &provideCertificateForm{
+				Submittable: "wrong-language",
+				lpaLanguage: localize.Cy,
+			},
+			errors: validation.With("agree-to-statement", validation.SelectError{Label: "toSignAsCertificateProvider"}),
 		},
 	}
 

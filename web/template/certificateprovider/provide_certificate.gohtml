@@ -3,12 +3,20 @@
 {{ define "pageTitle" }}{{ tr .App "provideTheCertificateForThisLpa" }}{{ end }}
 
 {{ define "main" }}
+    {{ $unselected := tr .App .App.Lang.String }}
+    {{ $inUnselected := tr .App (printf "in:%s" .App.Lang.String) }}
+    {{ $inSelected := tr .App (printf "in:%s" .Lpa.Language.String) }}
+
     <div class="govuk-grid-row">
         <div class="govuk-grid-column-two-thirds">
+            {{ if ne .App.Lang .Lpa.Language }}
+                {{ template "notification-banner" (notificationBanner .App "important" (trFormatHtml .App "toProvideCertificateUseLanguage" "DonorFullName" .Lpa.Donor.FullName "Unselected" $unselected "InUnselected" $inUnselected "InSelected" $inSelected) "contents") }}
+            {{ end }}
+
             <h1 class="govuk-heading-xl">{{ tr .App "provideTheCertificateForThisLpa" }}</h1>
 
             <h2 class="govuk-heading-m">{{ tr .App "yourStatementAsCertificateProvider" }}</h2>
-            
+
             {{ trHtml .App "provideTheCertificateForThisLpaContent" }}
 
             <form novalidate method="post">
@@ -37,8 +45,19 @@
                     </div>
                 </div>
 
+                {{ if ne .App.Lang .Lpa.Language }}
+                    <p class="govuk-body">
+                        {{ $prefix := "" }}
+                        {{ if isWelsh .Lpa.Language }}
+                            {{ $prefix = "/cy" }}
+                        {{ end }}
+
+                        <a href="{{ $prefix }}{{ .App.Path }}{{ .App.EncodeQuery }}" class="govuk-link">{{ trFormat .App "viewThisPageIn" "In" $inSelected }}</a>
+                    </p>
+                {{ end }}
+
                 <div class="govuk-button-group">
-                    <button class="govuk-button" data-module="govuk-button" value="can-submit" name="submittable">{{ tr .App "submitSignature" }}</button>
+                    <button class="govuk-button" data-module="govuk-button" value="{{ if eq .App.Lang .Lpa.Language }}can-submit{{ else }}wrong-language{{ end }}" name="submittable">{{ tr .App "submitSignature" }}</button>
                     <button class="govuk-button govuk-button--warning" data-module="govuk-button" value="cannot-submit" name="submittable">{{ tr .App "iCannotProvideTheCertificate" }}</button>
                 </div>
 

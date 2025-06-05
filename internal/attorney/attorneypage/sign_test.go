@@ -13,6 +13,7 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/attorney"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/attorney/attorneydata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/form"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/localize"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/lpastore/lpadata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/task"
@@ -139,6 +140,8 @@ func TestGetSign(t *testing.T) {
 		t.Run(name, func(t *testing.T) {
 			r, _ := http.NewRequest(http.MethodGet, "/", nil)
 			w := httptest.NewRecorder()
+
+			tc.data.Lpa = tc.lpa
 
 			template := newMockTemplate(t)
 			template.EXPECT().
@@ -771,12 +774,9 @@ func TestPostSignOnValidationError(t *testing.T) {
 
 	template := newMockTemplate(t)
 	template.EXPECT().
-		Execute(w, &signData{
-			App:      testAppData,
-			Form:     &signForm{},
-			Attorney: lpadata.Attorney{UID: testUID, FirstNames: "Bob", LastName: "Smith"},
-			Errors:   validation.With("confirm", validation.CustomError{Label: "youMustSelectTheBoxToSignAttorney"}),
-		}).
+		Execute(mock.Anything, mock.MatchedBy(func(data *signData) bool {
+			return assert.Equal(t, validation.With("confirm", validation.CustomError{Label: "youMustSelectTheBoxToSignAttorney"}), data.Errors)
+		})).
 		Return(nil)
 
 	err := Sign(template.Execute, nil, nil, time.Now)(testAppData, w, r, &attorneydata.Provided{}, &lpadata.Lpa{
@@ -799,7 +799,10 @@ func TestReadSignForm(t *testing.T) {
 	r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(form.Encode()))
 	r.Header.Add("Content-Type", page.FormUrlEncoded)
 
-	assert.Equal(t, &signForm{Confirm: true}, readSignForm(r))
+	assert.Equal(t, &signForm{
+		Confirm:     true,
+		lpaLanguage: localize.Cy,
+	}, readSignForm(r, localize.Cy))
 }
 
 func TestValidateSignForm(t *testing.T) {
