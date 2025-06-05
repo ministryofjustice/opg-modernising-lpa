@@ -181,6 +181,11 @@ data "aws_secretsmanager_secret" "rum_monitor_identity_pool_id" {
   provider = aws.region
 }
 
+data "aws_secretsmanager_secret" "gov_one_login_mrlpa_client_id" {
+  name     = "gov-one-login-mrlpa-client-id"
+  provider = aws.region
+}
+
 data "aws_iam_policy_document" "task_role_access_policy" {
   policy_id = "${local.policy_region_prefix}task_role_access_policy"
   statement {
@@ -386,6 +391,10 @@ locals {
         {
           name      = "AWS_RUM_APPLICATION_ID",
           valueFrom = var.rum_monitor_application_id_secretsmanager_secret_arn
+        },
+        {
+          name      = "CLIENT_ID",
+          valueFrom = data.aws_secretsmanager_secret.gov_one_login_mrlpa_client_id.arn
         }
       ],
       environment = [
@@ -396,10 +405,6 @@ locals {
         {
           name  = "APP_PORT",
           value = tostring(var.container_port)
-        },
-        {
-          name  = "CLIENT_ID",
-          value = "kr4jYy8X1CovT5KvhbwXb_DoMFo"
         },
         {
           name  = "ISSUER",

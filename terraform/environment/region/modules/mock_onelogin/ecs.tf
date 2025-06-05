@@ -130,6 +130,35 @@ resource "aws_ecs_task_definition" "mock_onelogin" {
   provider                 = aws.region
 }
 
+resource "aws_iam_role_policy" "mock_onelogin_task_role" {
+  name     = "${data.aws_default_tags.current.tags.environment-name}-${data.aws_region.current.name}-mock-onelogin-task-role"
+  policy   = data.aws_iam_policy_document.task_role_access_policy.json
+  role     = var.ecs_task_role.name
+  provider = aws.region
+}
+
+data "aws_secretsmanager_secret" "gov_one_login_mrlpa_client_id" {
+  name     = "gov-one-login-mrlpa-client-id"
+  provider = aws.region
+}
+
+data "aws_iam_policy_document" "task_role_access_policy" {
+  policy_id = "${local.policy_region_prefix}task_role_access_policy"
+  statement {
+    sid    = "${local.policy_region_prefix}EcsSecretAccess"
+    effect = "Allow"
+
+    actions = [
+      "secretsmanager:GetSecretValue",
+      "secretsmanager:DescribeSecret",
+    ]
+
+    resources = [
+      data.aws_secretsmanager_secret.gov_one_login_mrlpa_client_id.arn,
+    ]
+  }
+}
+
 locals {
   mock_onelogin_url = "https://${data.aws_default_tags.current.tags.environment-name}-mock-onelogin.app.modernising.opg.service.justice.gov.uk"
 
@@ -160,6 +189,12 @@ locals {
           max-buffer-size       = "25m"
         }
       },
+      secrets = [
+        {
+          name      = "CLIENT_ID",
+          valueFrom = data.aws_secretsmanager_secret.gov_one_login_mrlpa_client_id.arn
+        }
+      ],
       environment = [
         {
           name  = "PORT",
@@ -172,10 +207,6 @@ locals {
         {
           name  = "INTERNAL_URL",
           value = "http://${local.mock_onelogin_service_discovery_fqdn}:${var.container_port}"
-        },
-        {
-          name  = "CLIENT_ID",
-          value = "kr4jYy8X1CovT5KvhbwXb_DoMFo"
         },
         {
           name  = "REDIRECT_URL",
