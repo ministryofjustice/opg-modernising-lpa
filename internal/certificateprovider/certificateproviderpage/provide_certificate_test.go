@@ -991,7 +991,7 @@ func TestReadProvideCertificateForm(t *testing.T) {
 	r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(form.Encode()))
 	r.Header.Add("Content-Type", page.FormUrlEncoded)
 
-	result := readProvideCertificateForm(r)
+	result := readProvideCertificateForm(r, localize.En)
 
 	assert.Equal(true, result.AgreeToStatement)
 	assert.Equal("can-submit", result.Submittable)
@@ -1002,15 +1002,34 @@ func TestProvideCertificateFormValidate(t *testing.T) {
 		form   *provideCertificateForm
 		errors validation.List
 	}{
-		"valid": {
+		"selected": {
 			form: &provideCertificateForm{
 				AgreeToStatement: true,
 			},
 		},
-		"invalid": {
-			form: &provideCertificateForm{},
-			errors: validation.
-				With("agree-to-statement", validation.SelectError{Label: "toSignAsCertificateProvider"}),
+		"cannot submit": {
+			form: &provideCertificateForm{
+				Submittable: "cannot-submit",
+			},
+		},
+		"not selected": {
+			form:   &provideCertificateForm{},
+			errors: validation.With("agree-to-statement", validation.SelectError{Label: "toSignAsCertificateProvider"}),
+		},
+		"selected with wrong language": {
+			form: &provideCertificateForm{
+				AgreeToStatement: true,
+				Submittable:      "wrong-language",
+				lpaLanguage:      localize.Cy,
+			},
+			errors: validation.With("agree-to-statement", toSignCertificateYouMustViewInLanguageError{LpaLanguage: localize.Cy}),
+		},
+		"not selected with wrong language": {
+			form: &provideCertificateForm{
+				Submittable: "wrong-language",
+				lpaLanguage: localize.Cy,
+			},
+			errors: validation.With("agree-to-statement", validation.SelectError{Label: "toSignAsCertificateProvider"}),
 		},
 	}
 
@@ -1019,4 +1038,18 @@ func TestProvideCertificateFormValidate(t *testing.T) {
 			assert.Equal(t, tc.errors, tc.form.Validate())
 		})
 	}
+}
+
+func TestToSignCertificateYouMustViewInLanguageError(t *testing.T) {
+	localizer := newMockLocalizer(t)
+	localizer.EXPECT().
+		T("in:cy").
+		Return("in Welsh")
+	localizer.EXPECT().
+		Format("toSignCertificateYouMustViewInLanguage", map[string]any{
+			"InLang": "in Welsh",
+		}).
+		Return("some words")
+
+	assert.Equal(t, "some words", toSignCertificateYouMustViewInLanguageError{LpaLanguage: localize.Cy}.Format(localizer))
 }

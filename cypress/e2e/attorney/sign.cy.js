@@ -38,6 +38,19 @@ describe('Sign', () => {
 
             cy.contains('.govuk-form-group .govuk-error-message', 'You must select the box to sign as an attorney');
         });
+
+        it('shows an error when the wrong language is used', () => {
+            cy.contains('a', 'Cymraeg').click();
+
+            cy.contains('label', 'Rydw i, Jessie Jones, yn cadarnhau').click();
+            cy.contains('button', 'Cyflwyno llofnod').click();
+
+            cy.get('.govuk-error-summary').within(() => {
+                cy.contains('yn Saesneg');
+            });
+
+            cy.contains('.govuk-form-group .govuk-error-message', 'yn Saesneg');
+        });
     });
 
     describe('as a replacement attorney', () => {
@@ -78,6 +91,19 @@ describe('Sign', () => {
             });
 
             cy.contains('.govuk-form-group .govuk-error-message', 'You must select the box to sign as a replacement attorney');
+        });
+
+        it('shows an error when the wrong language is used', () => {
+            cy.contains('a', 'Cymraeg').click();
+
+            cy.contains('label', 'Rydw i, Blake Buckley, yn cadarnhau').click();
+            cy.contains('button', 'Cyflwyno llofnod').click();
+
+            cy.get('.govuk-error-summary').within(() => {
+                cy.contains('yn Saesneg');
+            });
+
+            cy.contains('.govuk-form-group .govuk-error-message', 'yn Saesneg');
         });
     });
 });

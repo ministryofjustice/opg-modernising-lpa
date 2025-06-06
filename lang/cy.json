@@ -1943,5 +1943,10 @@
     "whenOneCanNoLongerActHint": "Welsh",
     "whenNoneCanNoLongerActHint": "Welsh",
     "inParticularWay": "<p class=\"govuk-body\">Welsh:</p><p class=\"app-wrap-text\">‘{{.Text}}’</p>",
-    "restrictTheDecisionsAttorneysCanMake": "Welsh"
+    "restrictTheDecisionsAttorneysCanMake": "Welsh",
+    "toProvideCertificateUseLanguage": "<p class=\"govuk-notification-banner__heading\">Welsh {{.DonorFullName}} {{.InSelected}}.</p><p class=\"govuk-body\">‘{{.Unselected}}’ {{.InUnselected}}.</p><p class=\"govuk-body\">{{.DonorFullName}}</p>",
+    "viewThisPageIn": "Welsh {{.In}}",
+    "toSignCertificateYouMustViewInLanguage": "Welsh {{.InLang}}",
+    "toSignLpaYouMustViewInLanguage": "Welsh {{.InLang}}",
+    "youMustViewAndSignLpaInLanguage": "<p class=\"govuk-notification-banner__heading\">Welsh {{.DonorFullName}} {{.InSelected}}.</p><p class=\"govuk-body\">‘{{.Unselected}}’ {{.InUnselected}}.</p><p class=\"govuk-body\">{{.DonorFullName}}</p>"
 }

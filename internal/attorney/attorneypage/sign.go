@@ -8,6 +8,7 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/appcontext"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/attorney"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/attorney/attorneydata"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/localize"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/lpastore/lpadata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/task"
@@ -17,7 +18,7 @@ import (
 type signData struct {
 	App                         appcontext.Data
 	Errors                      validation.List
-	LpaID                       string
+	Lpa                         *lpadata.Lpa
 	Attorney                    lpadata.Attorney
 	TrustCorporation            lpadata.TrustCorporation
 	IsReplacement               bool
@@ -30,7 +31,7 @@ func Sign(tmpl template.Template, attorneyStore AttorneyStore, lpaStoreClient Lp
 	signAttorney := func(appData appcontext.Data, w http.ResponseWriter, r *http.Request, provided *attorneydata.Provided, lpa *lpadata.Lpa) error {
 		data := &signData{
 			App:                         appData,
-			LpaID:                       lpa.LpaID,
+			Lpa:                         lpa,
 			IsReplacement:               appData.IsReplacementAttorney(),
 			LpaCanBeUsedWhenHasCapacity: lpa.WhenCanTheLpaBeUsed.IsHasCapacity(),
 			Form:                        &signForm{},
@@ -51,7 +52,7 @@ func Sign(tmpl template.Template, attorneyStore AttorneyStore, lpaStoreClient Lp
 		}
 
 		if r.Method == http.MethodPost {
-			data.Form = readSignForm(r)
+			data.Form = readSignForm(r, lpa.Language)
 			data.Errors = data.Form.Validate(appData.IsTrustCorporation(), appData.IsReplacementAttorney())
 
 			if data.Errors.None() {
@@ -93,7 +94,7 @@ func Sign(tmpl template.Template, attorneyStore AttorneyStore, lpaStoreClient Lp
 
 		data := &signData{
 			App:                         appData,
-			LpaID:                       lpa.LpaID,
+			Lpa:                         lpa,
 			IsReplacement:               appData.IsReplacementAttorney(),
 			IsSecondSignatory:           signatoryIndex == 1,
 			LpaCanBeUsedWhenHasCapacity: lpa.WhenCanTheLpaBeUsed.IsHasCapacity(),
@@ -111,7 +112,7 @@ func Sign(tmpl template.Template, attorneyStore AttorneyStore, lpaStoreClient Lp
 		}
 
 		if r.Method == http.MethodPost {
-			data.Form = readSignForm(r)
+			data.Form = readSignForm(r, lpa.Language)
 			data.Errors = data.Form.Validate(appData.IsTrustCorporation(), appData.IsReplacementAttorney())
 
 			if data.Errors.None() {
@@ -175,14 +176,19 @@ type signForm struct {
 	LastName          string
 	ProfessionalTitle string
 	Confirm           bool
+	WrongLanguage     bool
+
+	lpaLanguage localize.Lang
 }
 
-func readSignForm(r *http.Request) *signForm {
+func readSignForm(r *http.Request, lang localize.Lang) *signForm {
 	return &signForm{
 		FirstNames:        page.PostFormString(r, "first-names"),
 		LastName:          page.PostFormString(r, "last-name"),
 		ProfessionalTitle: page.PostFormString(r, "professional-title"),
 		Confirm:           page.PostFormString(r, "confirm") == "1",
+		WrongLanguage:     page.PostFormString(r, "wrong-language") == "1",
+		lpaLanguage:       lang,
 	}
 }
 
@@ -206,5 +212,19 @@ func (f *signForm) Validate(isTrustCorporation, isReplacement bool) validation.L
 			validation.Selected().CustomError())
 	}
 
+	if f.Confirm && f.WrongLanguage {
+		errors.Add("confirm", toSignLpaYouMustViewInLanguageError{LpaLanguage: f.lpaLanguage})
+	}
+
 	return errors
+}
+
+type toSignLpaYouMustViewInLanguageError struct {
+	LpaLanguage localize.Lang
+}
+
+func (e toSignLpaYouMustViewInLanguageError) Format(l validation.Localizer) string {
+	return l.Format("toSignLpaYouMustViewInLanguage", map[string]any{
+		"InLang": l.T("in:" + e.LpaLanguage.String()),
+	})
 }

@@ -188,6 +188,9 @@ func Attorney(
 		donorDetails.WitnessedByCertificateProviderAt = testNow
 		donorDetails.Donor = makeDonor(testEmail, "Sam", "Smith")
 		donorDetails.Donor.LpaLanguagePreference, _ = localize.ParseLang(lpaLanguage)
+		if donorDetails.Donor.LpaLanguagePreference.Empty() {
+			donorDetails.Donor.LpaLanguagePreference = localize.En
+		}
 
 		if lpaType == "personal-welfare" && !isTrustCorporation {
 			donorDetails.Type = lpadata.LpaTypePersonalWelfare
