@@ -37,4 +37,16 @@ describe('Read the LPA', () => {
             cy.url().should('contain', '/task-list');
         });
     });
+
+    describe('when on task list in other language', () => {
+        beforeEach(() => {
+            cy.visit('/fixtures/certificate-provider?redirect=/task-list&progress=confirmYourIdentity');
+            cy.contains('a', 'Cymraeg').click();
+        });
+
+        it('displays the LPA details in the registration language first', () => {
+            cy.contains('a', 'Darparu eich tystysgrif').click();
+            cy.contains('h1', 'Read the LPA');
+        });
+    });
 });

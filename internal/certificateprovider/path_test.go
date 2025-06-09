@@ -3,6 +3,7 @@ package certificateprovider
 import (
 	"net/http"
 	"net/http/httptest"
+	"net/url"
 	"testing"
 	"time"
 
@@ -22,6 +23,10 @@ func TestCertificateProviderPathFormat(t *testing.T) {
 	assert.Equal(t, "/certificate-provider/abc/anything", Path("/anything").Format("abc"))
 }
 
+func TestCertificateProviderPathFormatQuery(t *testing.T) {
+	assert.Equal(t, "/certificate-provider/abc/anything?a=b", Path("/anything").FormatQuery("abc", url.Values{"a": {"b"}}))
+}
+
 func TestCertificateProviderPathRedirect(t *testing.T) {
 	testcases := map[Path]string{
 		Path("/something"): "/certificate-provider/lpa-id/something",
@@ -34,6 +39,27 @@ func TestCertificateProviderPathRedirect(t *testing.T) {
 			w := httptest.NewRecorder()
 
 			err := path.Redirect(w, r, appcontext.Data{Lang: localize.En}, "lpa-id")
+			resp := w.Result()
+
+			assert.Nil(t, err)
+			assert.Equal(t, http.StatusFound, resp.StatusCode)
+			assert.Equal(t, expectedURL, resp.Header.Get("Location"))
+		})
+	}
+}
+
+func TestCertificateProviderPathRedirectQuery(t *testing.T) {
+	testcases := map[Path]string{
+		Path("/something"): "/certificate-provider/lpa-id/something?a=b",
+		Path("/something?from=/certificate-provider/lpa-id/somewhere"): "/certificate-provider/lpa-id/somewhere",
+	}
+
+	for path, expectedURL := range testcases {
+		t.Run(path.String(), func(t *testing.T) {
+			r, _ := http.NewRequest(http.MethodGet, path.Format("lpa-id"), nil)
+			w := httptest.NewRecorder()
+
+			err := path.RedirectQuery(w, r, appcontext.Data{Lang: localize.En}, "lpa-id", url.Values{"a": {"b"}})
 			resp := w.Result()
 
 			assert.Nil(t, err)

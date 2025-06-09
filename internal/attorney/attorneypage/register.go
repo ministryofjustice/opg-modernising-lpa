@@ -95,6 +95,10 @@ type NotifyClient interface {
 
 type ErrorHandler func(http.ResponseWriter, *http.Request, error)
 
+type Bundle interface {
+	For(lang localize.Lang) localize.Localizer
+}
+
 func Register(
 	rootMux *http.ServeMux,
 	logger Logger,
@@ -108,6 +112,7 @@ func Register(
 	lpaStoreClient LpaStoreClient,
 	lpaStoreResolvingService LpaStoreResolvingService,
 	notifyClient NotifyClient,
+	bundle Bundle,
 	attorneyStartURL string,
 ) {
 	handleRoot := makeHandle(rootMux, sessionStore, errorHandler, attorneyStartURL)
@@ -138,7 +143,7 @@ func Register(
 	handleAttorney(attorney.PathConfirmYourDetails, None,
 		ConfirmYourDetails(tmpls.Get("confirm_your_details.gohtml"), attorneyStore))
 	handleAttorney(attorney.PathReadTheLpa, None,
-		ReadTheLpa(tmpls.Get("read_the_lpa.gohtml"), attorneyStore))
+		ReadTheLpa(tmpls.Get("read_the_lpa.gohtml"), attorneyStore, bundle))
 	handleAttorney(attorney.PathRightsAndResponsibilities, None,
 		Guidance(tmpls.Get("legal_rights_and_responsibilities.gohtml")))
 	handleAttorney(attorney.PathWhatHappensWhenYouSign, CanGoBack,

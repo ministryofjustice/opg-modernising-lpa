@@ -16,4 +16,12 @@ describe('Read the LPA', () => {
 
         cy.url().should('contain', '/task-list');
     });
+
+    it('redirects to registration language if on task list in other language', () => {
+        cy.visit('/fixtures/attorney?redirect=/task-list');
+        cy.contains('a', 'Cymraeg').click();
+        cy.contains('a', 'Darllen yr LPA').click();
+
+        cy.contains('h1', 'Read the LPA');
+    });
 });
