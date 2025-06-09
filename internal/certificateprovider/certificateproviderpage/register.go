@@ -119,6 +119,10 @@ type ScheduledStore interface {
 	Create(ctx context.Context, rows ...scheduled.Event) error
 }
 
+type Bundle interface {
+	For(lang localize.Lang) localize.Localizer
+}
+
 func Register(
 	rootMux *http.ServeMux,
 	logger Logger,
@@ -137,6 +141,7 @@ func Register(
 	donorStore DonorStore,
 	eventClient EventClient,
 	scheduledStore ScheduledStore,
+	bundle Bundle,
 	appPublicURL string,
 	donorStartURL string,
 	certificateProviderStartURL string,
@@ -193,7 +198,7 @@ func Register(
 		Guidance(tmpls.Get("identity_details.gohtml")))
 
 	handleCertificateProvider(certificateprovider.PathReadTheLpa, page.None,
-		ReadTheLpa(tmpls.Get("read_the_lpa.gohtml"), certificateProviderStore))
+		ReadTheLpa(tmpls.Get("read_the_lpa.gohtml"), certificateProviderStore, bundle))
 	handleCertificateProvider(certificateprovider.PathWhatHappensNext, page.CanGoBack,
 		Guidance(tmpls.Get("what_happens_next.gohtml")))
 	handleCertificateProvider(certificateprovider.PathProvideCertificate, page.CanGoBack,

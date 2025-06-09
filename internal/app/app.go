@@ -252,6 +252,7 @@ func App(
 		donorStore,
 		eventClient,
 		scheduledStore,
+		bundle,
 		appPublicURL,
 		donorStartURL,
 		certificateProviderStartURL,
@@ -271,6 +272,7 @@ func App(
 		lpaStoreClient,
 		lpaStoreResolvingService,
 		notifyClient,
+		bundle,
 		attorneyStartURL,
 	)
 
