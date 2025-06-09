@@ -2,6 +2,7 @@ package certificateprovider
 
 import (
 	"net/http"
+	"net/url"
 	"strings"
 
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/appcontext"
@@ -41,8 +42,22 @@ func (p Path) Format(id string) string {
 	return "/certificate-provider/" + id + string(p)
 }
 
+func (p Path) FormatQuery(id string, query url.Values) string {
+	return "/certificate-provider/" + id + string(p) + "?" + query.Encode()
+}
+
 func (p Path) Redirect(w http.ResponseWriter, r *http.Request, appData appcontext.Data, lpaID string) error {
 	rurl := p.Format(lpaID)
+	if fromURL := r.FormValue("from"); fromURL != "" && canFrom(fromURL, lpaID) {
+		rurl = fromURL
+	}
+
+	http.Redirect(w, r, appData.Lang.URL(rurl), http.StatusFound)
+	return nil
+}
+
+func (p Path) RedirectQuery(w http.ResponseWriter, r *http.Request, appData appcontext.Data, lpaID string, query url.Values) error {
+	rurl := p.FormatQuery(lpaID, query)
 	if fromURL := r.FormValue("from"); fromURL != "" && canFrom(fromURL, lpaID) {
 		rurl = fromURL
 	}
