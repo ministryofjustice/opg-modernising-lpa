@@ -9,6 +9,7 @@ import (
 	"time"
 
 	"github.com/ministryofjustice/opg-go-common/template"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor/actoruid"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/appcontext"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/attorney/attorneydata"
@@ -81,6 +82,7 @@ func Attorney(
 			redirect    = r.FormValue("redirect")
 			attorneySub = r.FormValue("attorneySub")
 			shareCode   = r.FormValue("withShareCode")
+			only        = r.FormValue("only")
 
 			progress = slices.Index(progressValues, r.FormValue("progress"))
 
@@ -93,6 +95,15 @@ func Attorney(
 			isPaperAttorney    = slices.Contains(options, "is-paper-attorney")
 			hasPhoneNumber     = slices.Contains(options, "has-phone-number")
 		)
+
+		var onlyType actor.Type
+		if only != "" {
+			var err error
+			onlyType, err = actor.ParseType(only)
+			if err != nil {
+				return fmt.Errorf("invalid value for 'only': %w", err)
+			}
+		}
 
 		if attorneySub == "" {
 			attorneySub = random.String(16)
@@ -476,6 +487,38 @@ func Attorney(
 
 			lpa.LpaKey = donorDetails.PK
 			lpa.LpaOwnerKey = donorDetails.SK
+
+			if !onlyType.IsNone() {
+				switch onlyType {
+				case actor.TypeReplacementTrustCorporation:
+					lpa.Attorneys = lpadata.Attorneys{}
+					lpa.ReplacementAttorneys = lpadata.Attorneys{
+						TrustCorporation: lpa.ReplacementAttorneys.TrustCorporation,
+					}
+					lpa.ReplacementAttorneys.TrustCorporation.Email = email
+				case actor.TypeTrustCorporation:
+					lpa.Attorneys = lpadata.Attorneys{
+						TrustCorporation: lpa.Attorneys.TrustCorporation,
+					}
+					lpa.ReplacementAttorneys = lpadata.Attorneys{}
+					lpa.Attorneys.TrustCorporation.Email = email
+				case actor.TypeReplacementAttorney:
+					lpa.Attorneys = lpadata.Attorneys{}
+					lpa.ReplacementAttorneys = lpadata.Attorneys{
+						Attorneys: lpa.ReplacementAttorneys.Attorneys,
+					}
+					lpa.ReplacementAttorneys.Attorneys[0].Email = email
+
+				case actor.TypeAttorney:
+					lpa.Attorneys = lpadata.Attorneys{
+						Attorneys: lpa.Attorneys.Attorneys,
+					}
+					lpa.ReplacementAttorneys = lpadata.Attorneys{}
+					lpa.Attorneys.Attorneys[0].Email = email
+				default:
+					return fmt.Errorf("unsupported value for only: %s", onlyType.String())
+				}
+			}
 
 			shareCodeSender.SendAttorneys(donorCtx, appcontext.Data{
 				SessionID: donorSessionID,

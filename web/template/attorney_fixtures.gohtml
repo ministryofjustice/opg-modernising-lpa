@@ -8,6 +8,21 @@
   <p class="govuk-body">Entering an email will cause a reference code to be sent and redirect you to the start page. Leave it blank to be signed in and taken to the dashboard instead.</p>
   {{ template "input" (input . "email" "Attorney email" "" "classes" "govuk-input--width-20" "type" "email" "spellcheck" "false" "autocomplete" "email") }}
 
+  <div class="govuk-form-group">
+      <label class="govuk-label" for="f-only">
+          Send to all attorneys OR specific attorney
+      </label>
+      <select class="govuk-select" id="f-only" name="only">
+          <option value="">All</option>
+          <option value="attorney">Attorney</option>
+          <option value="replacementAttorney">Replacement attorney</option>
+          <option value="trustCorporation">Trust corporation</option>
+          <option value="replacementTrustCorporation">Replacement trust corporation</option>
+      </select>
+  </div>
+
+  <hr class="govuk-section-break govuk-section-break--m govuk-section-break--visible">
+
   {{ template "input" (input . "attorneySub" "Attorney OneLogin sub" .Sub "classes" "govuk-input--width-20") }}
   <div class="govuk-hint govuk-!-padding-bottom-2">
     Copy this value or change to your own to log back in to an existing LPA from the <a class="govuk-link" href="{{ global.Paths.Attorney.Start.Format }}">start page</a>
