@@ -477,6 +477,28 @@ func Attorney(
 			lpa.LpaKey = donorDetails.PK
 			lpa.LpaOwnerKey = donorDetails.SK
 
+			if isTrustCorporation && isReplacement {
+				lpa.Attorneys = lpadata.Attorneys{}
+				lpa.ReplacementAttorneys = lpadata.Attorneys{
+					TrustCorporation: lpa.ReplacementAttorneys.TrustCorporation,
+				}
+			} else if isTrustCorporation {
+				lpa.Attorneys = lpadata.Attorneys{
+					TrustCorporation: lpa.Attorneys.TrustCorporation,
+				}
+				lpa.ReplacementAttorneys = lpadata.Attorneys{}
+			} else if isReplacement {
+				lpa.Attorneys = lpadata.Attorneys{}
+				lpa.ReplacementAttorneys = lpadata.Attorneys{
+					Attorneys: lpa.ReplacementAttorneys.Attorneys,
+				}
+			} else {
+				lpa.Attorneys = lpadata.Attorneys{
+					Attorneys: lpa.Attorneys.Attorneys,
+				}
+				lpa.ReplacementAttorneys = lpadata.Attorneys{}
+			}
+
 			shareCodeSender.SendAttorneys(donorCtx, appcontext.Data{
 				SessionID: donorSessionID,
 				LpaID:     donorDetails.LpaID,
