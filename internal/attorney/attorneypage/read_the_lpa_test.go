@@ -5,68 +5,128 @@ import (
 	"net/http/httptest"
 	"testing"
 
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor/actoruid"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/appcontext"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/attorney"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/attorney/attorneydata"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/localize"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/lpastore/lpadata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/task"
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/mock"
 )
 
-func TestGetReadTheLpaWithAttorney(t *testing.T) {
-	uid := actoruid.New()
-	w := httptest.NewRecorder()
-	r, _ := http.NewRequest(http.MethodGet, "/", nil)
+func TestGetReadTheLpa(t *testing.T) {
+	localizer := newMockLocalizer(t)
 
-	template := newMockTemplate(t)
-	template.EXPECT().
-		Execute(w, &readTheLpaData{
-			App: testAppData,
-			Lpa: &lpadata.Lpa{Attorneys: lpadata.Attorneys{Attorneys: []lpadata.Attorney{{UID: uid}}}},
-		}).
-		Return(nil)
+	testcases := map[string]struct {
+		url        string
+		bannerLang localize.Lang
+	}{
+		"en": {
+			url:        "/?bannerLanguage=en",
+			bannerLang: localize.En,
+		},
+		"cy": {
+			url:        "/?bannerLanguage=cy",
+			bannerLang: localize.Cy,
+		},
+	}
 
-	err := ReadTheLpa(template.Execute, nil)(testAppData, w, r, &attorneydata.Provided{}, &lpadata.Lpa{Attorneys: lpadata.Attorneys{Attorneys: []lpadata.Attorney{{UID: uid}}}})
-	resp := w.Result()
+	for name, tc := range testcases {
+		t.Run(name, func(t *testing.T) {
+			w := httptest.NewRecorder()
+			r, _ := http.NewRequest(http.MethodGet, tc.url, nil)
 
-	assert.Nil(t, err)
-	assert.Equal(t, http.StatusOK, resp.StatusCode)
+			bundle := newMockBundle(t)
+			bundle.EXPECT().
+				For(tc.bannerLang).
+				Return(localizer)
+
+			bannerAppData := testAppData
+			bannerAppData.Lang = tc.bannerLang
+			bannerAppData.Localizer = localizer
+
+			template := newMockTemplate(t)
+			template.EXPECT().
+				Execute(w, &readTheLpaData{
+					App:       testAppData,
+					BannerApp: bannerAppData,
+					Lpa:       &lpadata.Lpa{},
+				}).
+				Return(nil)
+
+			err := ReadTheLpa(template.Execute, nil, bundle)(testAppData, w, r, &attorneydata.Provided{}, &lpadata.Lpa{})
+			resp := w.Result()
+
+			assert.Nil(t, err)
+			assert.Equal(t, http.StatusOK, resp.StatusCode)
+		})
+	}
 }
 
-func TestGetReadTheLpaWithReplacementAttorney(t *testing.T) {
-	uid := actoruid.New()
-	w := httptest.NewRecorder()
-	r, _ := http.NewRequest(http.MethodGet, "/", nil)
+func TestGetReadTheLpaWhenNoBannerLanguage(t *testing.T) {
+	cyAppData := testAppData
+	cyAppData.Lang = localize.Cy
 
-	template := newMockTemplate(t)
-	template.EXPECT().
-		Execute(w, &readTheLpaData{
-			App: testReplacementAppData,
-			Lpa: &lpadata.Lpa{ReplacementAttorneys: lpadata.Attorneys{Attorneys: []lpadata.Attorney{{UID: uid}}}},
-		}).
-		Return(nil)
+	testcases := map[string]struct {
+		url            string
+		appData        appcontext.Data
+		bannerLanguage string
+	}{
+		"en missing": {
+			url:            "/",
+			appData:        testAppData,
+			bannerLanguage: "en",
+		},
+		"cy missing": {
+			url:            "/",
+			appData:        cyAppData,
+			bannerLanguage: "cy",
+		},
+		"en invalid": {
+			url:            "/?bannerLanguage=blah",
+			appData:        testAppData,
+			bannerLanguage: "en",
+		},
+		"cy invalid": {
+			url:            "/?bannerLanguage=blah",
+			appData:        cyAppData,
+			bannerLanguage: "cy",
+		},
+	}
 
-	err := ReadTheLpa(template.Execute, nil)(testReplacementAppData, w, r, &attorneydata.Provided{}, &lpadata.Lpa{ReplacementAttorneys: lpadata.Attorneys{Attorneys: []lpadata.Attorney{{UID: uid}}}})
-	resp := w.Result()
+	for name, tc := range testcases {
+		t.Run(name, func(t *testing.T) {
+			w := httptest.NewRecorder()
+			r, _ := http.NewRequest(http.MethodGet, tc.url, nil)
 
-	assert.Nil(t, err)
-	assert.Equal(t, http.StatusOK, resp.StatusCode)
+			err := ReadTheLpa(nil, nil, nil)(tc.appData, w, r, &attorneydata.Provided{}, &lpadata.Lpa{
+				LpaID: "lpa-id",
+			})
+			resp := w.Result()
+
+			assert.Nil(t, err)
+			assert.Equal(t, http.StatusFound, resp.StatusCode)
+			assert.Equal(t, attorney.PathReadTheLpa.Format("lpa-id")+"?bannerLanguage="+tc.bannerLanguage, resp.Header.Get("Location"))
+		})
+	}
 }
 
 func TestGetReadTheLpaWhenTemplateError(t *testing.T) {
-	uid := actoruid.New()
 	w := httptest.NewRecorder()
-	r, _ := http.NewRequest(http.MethodGet, "/", nil)
+	r, _ := http.NewRequest(http.MethodGet, "/?bannerLanguage=en", nil)
+
+	bundle := newMockBundle(t)
+	bundle.EXPECT().
+		For(mock.Anything).
+		Return(nil)
 
 	template := newMockTemplate(t)
 	template.EXPECT().
-		Execute(w, &readTheLpaData{
-			App: testAppData,
-			Lpa: &lpadata.Lpa{Attorneys: lpadata.Attorneys{Attorneys: []lpadata.Attorney{{UID: uid}}}},
-		}).
+		Execute(mock.Anything, mock.Anything).
 		Return(expectedError)
 
-	err := ReadTheLpa(template.Execute, nil)(testAppData, w, r, &attorneydata.Provided{}, &lpadata.Lpa{Attorneys: lpadata.Attorneys{Attorneys: []lpadata.Attorney{{UID: uid}}}})
+	err := ReadTheLpa(template.Execute, nil, bundle)(testAppData, w, r, &attorneydata.Provided{}, &lpadata.Lpa{})
 	resp := w.Result()
 
 	assert.Equal(t, expectedError, err)
@@ -75,7 +135,7 @@ func TestGetReadTheLpaWhenTemplateError(t *testing.T) {
 
 func TestPostReadTheLpa(t *testing.T) {
 	w := httptest.NewRecorder()
-	r, _ := http.NewRequest(http.MethodPost, "/", nil)
+	r, _ := http.NewRequest(http.MethodPost, "/?bannerLanguage=en", nil)
 
 	attorneyStore := newMockAttorneyStore(t)
 	attorneyStore.EXPECT().
@@ -87,7 +147,7 @@ func TestPostReadTheLpa(t *testing.T) {
 		}).
 		Return(nil)
 
-	err := ReadTheLpa(nil, attorneyStore)(testAppData, w, r, &attorneydata.Provided{LpaID: "lpa-id"}, &lpadata.Lpa{})
+	err := ReadTheLpa(nil, attorneyStore, nil)(testAppData, w, r, &attorneydata.Provided{LpaID: "lpa-id"}, &lpadata.Lpa{})
 	resp := w.Result()
 
 	assert.Nil(t, err)
