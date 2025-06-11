@@ -407,6 +407,10 @@ func updateLPAProgress(
 			donorDetails.PeopleToNotify = append(donorDetails.PeopleToNotify, makePersonToNotify(peopleToNotifyNames[2]), makePersonToNotify(peopleToNotifyNames[3]), makePersonToNotify(peopleToNotifyNames[4]))
 		}
 
+		if err := reuseStore.PutPeopleToNotify(donorCtx, donorDetails.PeopleToNotify); err != nil {
+			return nil, nil, fmt.Errorf("reuse store put people to notify: %w", err)
+		}
+
 		donorDetails.Tasks.PeopleToNotify = task.StateCompleted
 	}
 

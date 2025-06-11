@@ -21,7 +21,7 @@ type removePersonToNotifyData struct {
 	Form           *form.YesNoForm
 }
 
-func RemovePersonToNotify(tmpl template.Template, donorStore DonorStore) Handler {
+func RemovePersonToNotify(tmpl template.Template, donorStore DonorStore, reuseStore ReuseStore) Handler {
 	return func(appData appcontext.Data, w http.ResponseWriter, r *http.Request, provided *donordata.Provided) error {
 		person, found := provided.PeopleToNotify.Get(actoruid.FromRequest(r))
 
@@ -44,6 +44,10 @@ func RemovePersonToNotify(tmpl template.Template, donorStore DonorStore) Handler
 					provided.PeopleToNotify.Delete(person)
 					if len(provided.PeopleToNotify) == 0 {
 						provided.Tasks.PeopleToNotify = task.StateNotStarted
+					}
+
+					if err := reuseStore.DeletePersonToNotify(r.Context(), person); err != nil {
+						return fmt.Errorf("removing reusable person to notify: %w", err)
 					}
 
 					if err := donorStore.Put(r.Context(), provided); err != nil {
