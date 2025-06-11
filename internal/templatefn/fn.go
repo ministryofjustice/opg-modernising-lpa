@@ -549,6 +549,7 @@ type legendData struct {
 	Label   string
 	Classes string
 	H1      bool
+	Hint    string
 }
 
 func legend(label string, classes ...string) legendData {
@@ -558,12 +559,26 @@ func legend(label string, classes ...string) legendData {
 	}
 }
 
-func legendHeading(label string, classes ...string) legendData {
-	return legendData{
-		Label:   label,
-		Classes: strings.Join(classes, " "),
-		H1:      true,
+func legendHeading(label string, attrs ...string) legendData {
+	if len(attrs)%2 != 0 {
+		panic("must have even number of attrs")
 	}
+
+	data := legendData{
+		Label: label,
+		H1:    true,
+	}
+
+	for i := 0; i < len(attrs); i += 2 {
+		switch strings.ToLower(attrs[i]) {
+		case "classes":
+			data.Classes = attrs[i+1]
+		case "hint":
+			data.Hint = attrs[i+1]
+		}
+	}
+
+	return data
 }
 
 type fieldsetData struct {

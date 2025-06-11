@@ -1,6 +1,6 @@
 {{ template "page" . }}
 
-{{ define "pageTitle" }}{{ tr .App "myLastingPowersOfAttorney" }}{{ end }}
+{{ define "pageTitle" }}{{ tr .App "manageYourLpas" }}{{ end }}
 
 {{ define "donorCard" }}
     <div class="app-dashboard-card">
@@ -220,15 +220,6 @@
     <div class="govuk-grid-row">
         <div class="govuk-grid-column-two-thirds">
             <h1 class="govuk-heading-xl">{{ tr .App "manageYourLpas" }}</h1>
-
-            <div class="app-dashboard-card app-dashboard-card--dashed">
-                <p class="govuk-heading-m">{{ tr .App "makeNewLastingPowerOfAttorney" }}</p>
-                <form novalidate method="post">
-                    <button type="submit" class="govuk-button" data-module="govuk-button">{{ tr .App "startNow" }}</button>
-                    <input type="hidden" name="has-existing-donor-lpas" value="{{ or (gt (len .DonorLpas) 0) (gt (len .RegisteredDonorLpas) 0) }}" />
-                    {{ template "csrf-field" . }}
-                </form>
-            </div>
         </div>
     </div>
 
@@ -237,9 +228,11 @@
             {{ if .NeedsTabs }}
                 <div class="govuk-tabs app-tabs-no-border" data-module="govuk-tabs">
                     <ul class="govuk-tabs__list">
-                        <li class="govuk-tabs__list-item govuk-tabs__list-item--selected">
-                            <a class="govuk-tabs__tab" href="#donor">{{ tr .App "myLpas" }}</a>
-                        </li>
+                        {{ if .DonorLpas }}
+                            <li class="govuk-tabs__list-item govuk-tabs__list-item--selected">
+                                <a class="govuk-tabs__tab" href="#donor">{{ tr .App "myLpas" }}</a>
+                            </li>
+                        {{ end }}
                         {{ if or .AttorneyLpas .RegisteredAttorneyLpas }}
                             <li class="govuk-tabs__list-item">
                                 <a class="govuk-tabs__tab" href="#attorney">{{ tr .App "imAnAttorney" }}</a>
@@ -258,15 +251,9 @@
                     </ul>
             {{ end }}
 
-            {{ if .NeedsTabs }}<div class="govuk-tabs__panel" id="donor">{{ end }}
-                <h2 class="govuk-heading-l">{{ tr .App "myLpas" }}</h2>
-
-                <div class="app-dashboard-card app-dashboard-card--dashed">
-                    <p class="govuk-body">{{ tr .App "addAnotherLpaIfInvited:donor" }}</p>
-                    <a class="govuk-button govuk-button--secondary" href="{{ link .App (global.Paths.EnterAccessCode.Format ) }}" data-module="govuk-button">{{ tr .App "addMyLpa" }}</a>
-                </div>
-
-                {{ if or .DonorLpas .RegisteredDonorLpas }}
+            {{ if or .DonorLpas .RegisteredDonorLpas }}
+                {{ if .NeedsTabs }}<div class="govuk-tabs__panel" id="donor">{{ end }}
+                    <h2 class="govuk-heading-l">{{ tr .App "myLpas" }}</h2>
                     <p class="govuk-body">
                         {{ if .DonorLpas }}
                             {{ tr .App "viewAndManageDonor" }}
@@ -280,7 +267,7 @@
                     {{ end }}
 
                     {{ if .RegisteredDonorLpas }}
-                        <h3 class="govuk-heading-m">{{ tr .App "viewAndUseYourRegisteredLpas" }}</h3>
+                        <h3 class="govuk-heading-m">{{ tr .App "myRegisteredLPAs" }}</h3>
 
                         {{ trHtml .App "registeredLpasContent" }}
 
@@ -288,79 +275,62 @@
                             {{ template "donorCard" (card $.App .) }}
                         {{ end }}
 
-                        <a class="govuk-button" href="{{.UseURL}}">{{ tr .App "continueToUse" }}</a>
+                        <a class="govuk-button" href="{{.UseURL}}">{{ tr .App "useALpa" }}</a>
                     {{ end }}
-                {{ end }}
                 {{ if .NeedsTabs }}</div>{{ end }}
+            {{ end }}
 
-                {{ if or .AttorneyLpas .RegisteredAttorneyLpas }}
-                    {{ if .NeedsTabs }}<div class="govuk-tabs__panel" id="attorney">{{ end }}
-                        <h2 class="govuk-heading-l">{{ tr .App "imAnAttorney" }}</h2>
+            {{ if or .AttorneyLpas .RegisteredAttorneyLpas }}
+                {{ if .NeedsTabs }}<div class="govuk-tabs__panel" id="attorney">{{ end }}
+                    <h2 class="govuk-heading-l">{{ tr .App "imAnAttorney" }}</h2>
 
-                        <div class="app-dashboard-card app-dashboard-card--dashed">
-                            <p class="govuk-body">{{ tr .App "addAnotherLpaIfInvited:attorney" }}</p>
-                            <a class="govuk-button govuk-button--secondary" href="{{ link .App (global.Paths.Attorney.EnterReferenceNumber.Format ) }}" data-module="govuk-button">{{ tr .App "addAnLpa" }}</a>
-                        </div>
+                    <p class="govuk-body">
+                        {{ if .AttorneyLpas }}
+                            {{ tr .App "viewAndManageAttorney" }}
+                        {{ else }}
+                            {{ tr .App "theLpasNamedAsAttorneyHaveSuccessfullyRegistered" }}
+                        {{ end }}
+                    </p>
 
-                        <p class="govuk-body">
-                            {{ if .AttorneyLpas }}
-                                {{ tr .App "viewAndManageAttorney" }}
-                            {{ else }}
-                                {{ tr .App "theLpasNamedAsAttorneyHaveSuccessfullyRegistered" }}
-                            {{ end }}
-                        </p>
+                    {{ range .AttorneyLpas }}
+                        {{ template "attorneyCard" (card $.App .) }}
+                    {{ end }}
 
-                        {{ range .AttorneyLpas }}
-                            {{ template "attorneyCard" (card $.App .) }}
+                    {{ if .RegisteredAttorneyLpas }}
+                        <h3 class="govuk-heading-m">{{ tr .App "viewAndUseRegisteredLpasAsAttorney" }}</h3>
+
+                        {{ trHtml .App "registeredLpasContent" }}
+
+                        {{ range .RegisteredAttorneyLpas }}
+                            {{ template "donorCard" (card $.App .) }}
                         {{ end }}
 
-                        {{ if .RegisteredAttorneyLpas }}
-                            <h3 class="govuk-heading-m">{{ tr .App "viewAndUseRegisteredLpasAsAttorney" }}</h3>
-
-                            {{ trHtml .App "registeredLpasContent" }}
-
-                            {{ range .RegisteredAttorneyLpas }}
-                                {{ template "donorCard" (card $.App .) }}
-                            {{ end }}
-
-                            <a class="govuk-button" href="{{.UseURL}}">{{ tr .App "continueToUse" }}</a>
-                        {{ end }}
-                        {{ if .NeedsTabs }}</div>{{ end }}
-                {{ end }}
-
-                {{ if .CertificateProviderLpas }}
-                    {{ if .NeedsTabs }}<div class="govuk-tabs__panel" id="certificate-provider">{{ end }}
-                        <h2 class="govuk-heading-l">{{ tr .App "imACertificateProvider" }}</h2>
-
-                        <div class="app-dashboard-card app-dashboard-card--dashed">
-                            <p class="govuk-body">{{ tr .App "addAnotherLpaIfInvited:certificateProvider" }}</p>
-                            <a class="govuk-button govuk-button--secondary" href="{{ link .App (global.Paths.CertificateProvider.EnterReferenceNumber.Format ) }}" data-module="govuk-button">{{ tr .App "addAnLpa" }}</a>
-                        </div>
-
-                        <p class="govuk-body">{{ tr .App "viewAndManageCertificateProvider" }}</p>
-                        {{ range .CertificateProviderLpas }}
-                            {{ template "certificateProviderCard" (card $.App .) }}
-                        {{ end }}
-                        {{ if .NeedsTabs }}</div>{{ end }}
-                {{ end }}
-
-                {{ if .VoucherLpas }}
-                    {{ if .NeedsTabs }}<div class="govuk-tabs__panel" id="voucher">{{ end }}
-                        <h2 class="govuk-heading-l">{{ tr .App "imVouchingForSomeone" }}</h2>
-
-                        <div class="app-dashboard-card app-dashboard-card--dashed">
-                            <p class="govuk-body">{{ tr .App "addAnotherLpaIfInvited:voucher" }}</p>
-                            <a class="govuk-button govuk-button--secondary" href="{{ link .App (global.Paths.Voucher.EnterReferenceNumber.Format ) }}" data-module="govuk-button">{{ tr .App "addReferenceNumber" }}</a>
-                        </div>
-
-                        <p class="govuk-body">{{ tr .App "viewAndManageVouchingForSomeonesIdentity" }}</p>
-                        {{ range .VoucherLpas }}
-                            {{ template "voucherCard" (card $.App .) }}
-                        {{ end }}
-                        {{ if .NeedsTabs }}</div>{{ end }}
-                {{ end }}
-
+                        <a class="govuk-button" href="{{.UseURL}}">{{ tr .App "useALpa" }}</a>
+                    {{ end }}
                 {{ if .NeedsTabs }}</div>{{ end }}
+            {{ end }}
+
+            {{ if .CertificateProviderLpas }}
+                {{ if .NeedsTabs }}<div class="govuk-tabs__panel" id="certificate-provider">{{ end }}
+                    <h2 class="govuk-heading-l">{{ tr .App "imACertificateProvider" }}</h2>
+
+                    <p class="govuk-body">{{ tr .App "viewAndManageCertificateProvider" }}</p>
+                    {{ range .CertificateProviderLpas }}
+                        {{ template "certificateProviderCard" (card $.App .) }}
+                    {{ end }}
+                {{ if .NeedsTabs }}</div>{{ end }}
+            {{ end }}
+
+            {{ if .VoucherLpas }}
+                {{ if .NeedsTabs }}<div class="govuk-tabs__panel" id="voucher">{{ end }}
+                    <h2 class="govuk-heading-l">{{ tr .App "imVouchingForSomeone" }}</h2>
+
+                    <p class="govuk-body">{{ tr .App "viewAndManageVouchingForSomeonesIdentity" }}</p>
+                    {{ range .VoucherLpas }}
+                        {{ template "voucherCard" (card $.App .) }}
+                    {{ end }}
+                {{ if .NeedsTabs }}</div>{{ end }}
+            {{ end }}
         </div>
     </div>
 {{ end }}
