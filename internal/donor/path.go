@@ -35,6 +35,7 @@ const (
 	PathChooseCertificateProvider                            = Path("/choose-certificate-provider")
 	PathChooseCorrespondent                                  = Path("/choose-correspondent")
 	PathChooseNewCertificateProvider                         = Path("/choose-new-certificate-provider")
+	PathChoosePeopleToNotify                                 = Path("/choose-people-to-notify")
 	PathChoosePeopleToNotifySummary                          = Path("/choose-people-to-notify-summary")
 	PathChooseReplacementAttorneys                           = Path("/choose-replacement-attorneys")
 	PathChooseReplacementAttorneysAddress                    = Path("/choose-replacement-attorneys-address")

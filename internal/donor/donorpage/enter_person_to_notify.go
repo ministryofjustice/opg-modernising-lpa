@@ -21,9 +21,9 @@ type enterPersonToNotifyData struct {
 	Form   *enterPersonToNotifyForm
 }
 
-func EnterPersonToNotify(tmpl template.Template, donorStore DonorStore, newUID func() actoruid.UID) Handler {
+func EnterPersonToNotify(tmpl template.Template, donorStore DonorStore, reuseStore ReuseStore, newUID func() actoruid.UID) Handler {
 	return func(appData appcontext.Data, w http.ResponseWriter, r *http.Request, provided *donordata.Provided) error {
-		if len(provided.PeopleToNotify) > 4 {
+		if len(provided.PeopleToNotify) >= 5 {
 			return donor.PathChoosePeopleToNotifySummary.Redirect(w, r, appData, provided)
 		}
 
@@ -71,6 +71,10 @@ func EnterPersonToNotify(tmpl template.Template, donorStore DonorStore, newUID f
 
 				if !provided.Tasks.PeopleToNotify.IsCompleted() {
 					provided.Tasks.PeopleToNotify = task.StateInProgress
+				}
+
+				if err := reuseStore.PutPersonToNotify(r.Context(), personToNotify); err != nil {
+					return err
 				}
 
 				if err := donorStore.Put(r.Context(), provided); err != nil {
