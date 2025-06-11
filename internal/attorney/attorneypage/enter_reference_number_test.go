@@ -130,6 +130,13 @@ func TestPostEnterReferenceNumber(t *testing.T) {
 			sessionStore.EXPECT().
 				Login(r).
 				Return(&sesh.LoginSession{Sub: "hey", Email: "a@example.com"}, nil)
+			sessionStore.EXPECT().
+				SetLogin(r, w, &sesh.LoginSession{
+					Sub:     "hey",
+					Email:   "a@example.com",
+					HasLPAs: true,
+				}).
+				Return(nil)
 
 			lpaStoreClient := newMockLpaStoreClient(t)
 			lpaStoreClient.EXPECT().
@@ -353,7 +360,39 @@ func TestPostEnterReferenceNumberOnSessionGetError(t *testing.T) {
 
 	err := EnterReferenceNumber(nil, shareCodeStore, sessionStore, nil, lpaStoreClient)(testAppData, w, r)
 
-	assert.Equal(t, expectedError, err)
+	assert.ErrorIs(t, err, expectedError)
+}
+
+func TestPostEnterReferenceNumberOnSessionSetError(t *testing.T) {
+	form := url.Values{
+		"reference-number": {"abcdef123456"},
+	}
+
+	w := httptest.NewRecorder()
+	r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(form.Encode()))
+	r.Header.Add("Content-Type", page.FormUrlEncoded)
+
+	shareCodeStore := newMockShareCodeStore(t)
+	shareCodeStore.EXPECT().
+		Get(mock.Anything, mock.Anything, mock.Anything).
+		Return(sharecodedata.Link{LpaKey: dynamo.LpaKey("lpa-id"), LpaOwnerKey: dynamo.LpaOwnerKey(dynamo.DonorKey("")), LpaUID: "lpa-uid"}, nil)
+
+	lpaStoreClient := newMockLpaStoreClient(t)
+	lpaStoreClient.EXPECT().
+		Lpa(mock.Anything, mock.Anything).
+		Return(nil, lpastore.ErrNotFound)
+
+	sessionStore := newMockSessionStore(t)
+	sessionStore.EXPECT().
+		Login(mock.Anything).
+		Return(&sesh.LoginSession{Sub: "hey"}, nil)
+	sessionStore.EXPECT().
+		SetLogin(mock.Anything, mock.Anything, mock.Anything).
+		Return(expectedError)
+
+	err := EnterReferenceNumber(nil, shareCodeStore, sessionStore, nil, lpaStoreClient)(testAppData, w, r)
+
+	assert.ErrorIs(t, err, expectedError)
 }
 
 func TestPostEnterReferenceNumberOnAttorneyStoreError(t *testing.T) {
@@ -384,6 +423,9 @@ func TestPostEnterReferenceNumberOnAttorneyStoreError(t *testing.T) {
 	sessionStore.EXPECT().
 		Login(r).
 		Return(&sesh.LoginSession{Sub: "hey"}, nil)
+	sessionStore.EXPECT().
+		SetLogin(mock.Anything, mock.Anything, mock.Anything).
+		Return(nil)
 
 	err := EnterReferenceNumber(nil, shareCodeStore, sessionStore, attorneyStore, lpaStoreClient)(testAppData, w, r)
 

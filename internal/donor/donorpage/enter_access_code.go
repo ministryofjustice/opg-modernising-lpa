@@ -2,6 +2,7 @@ package donorpage
 
 import (
 	"errors"
+	"fmt"
 	"log/slog"
 	"net/http"
 
@@ -20,7 +21,7 @@ type enterAccessCodeData struct {
 	Form   *enterAccessCodeForm
 }
 
-func EnterAccessCode(logger Logger, tmpl template.Template, shareCodeStore ShareCodeStore, donorStore DonorStore) page.Handler {
+func EnterAccessCode(logger Logger, tmpl template.Template, shareCodeStore ShareCodeStore, donorStore DonorStore, sessionStore SessionStore) page.Handler {
 	return func(appData appcontext.Data, w http.ResponseWriter, r *http.Request) error {
 		data := enterAccessCodeData{
 			App:  appData,
@@ -45,7 +46,19 @@ func EnterAccessCode(logger Logger, tmpl template.Template, shareCodeStore Share
 				if err := donorStore.Link(r.Context(), shareCode, appData.LoginSessionEmail); err != nil {
 					return err
 				}
+
 				logger.InfoContext(r.Context(), "donor access added", slog.String("lpa_id", shareCode.LpaKey.ID()))
+
+				login, err := sessionStore.Login(r)
+				if err != nil {
+					return fmt.Errorf("error getting login session: %w", err)
+				}
+
+				login.HasLPAs = true
+
+				if err := sessionStore.SetLogin(r, w, login); err != nil {
+					return fmt.Errorf("error setting login session: %w", err)
+				}
 
 				return page.PathDashboard.Redirect(w, r, appData)
 			}

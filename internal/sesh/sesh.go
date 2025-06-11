@@ -153,6 +153,7 @@ type LoginSession struct {
 	Email            string
 	OrganisationID   string
 	OrganisationName string
+	HasLPAs          bool
 }
 
 // SessionID is a safe version of the OneLogin sub, that is used to form

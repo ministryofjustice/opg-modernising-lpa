@@ -1,3 +1,5 @@
+import {randomShareCode, TestEmail} from "../../support/e2e.js";
+
 describe('Dashboard', () => {
     context('with incomplete LPA', () => {
         beforeEach(() => {
@@ -16,10 +18,13 @@ describe('Dashboard', () => {
         });
 
         it('can create another LPA', () => {
-            cy.contains('button', 'Start now').click();
+            cy.contains('a', 'Make or add an LPA').click();
+
+            cy.url().should('contain', '/make-or-add-an-lpa');
+            cy.contains('button', 'Start').click();
+            cy.checkA11yApp();
 
             cy.url().should('contain', '/make-a-new-lpa');
-            cy.checkA11yApp();
         });
     })
 
@@ -148,7 +153,7 @@ describe('Dashboard', () => {
             cy.contains('Property and affairs');
             cy.contains('Sam Smith');
             cy.contains('strong', 'Registered');
-            cy.contains('a', 'Continue to Use a lasting power of attorney');
+            cy.contains('a', 'Use a lasting power of attorney');
         });
     });
 
@@ -175,4 +180,59 @@ describe('Dashboard', () => {
             cy.contains('a', 'Check LPA');
         });
     });
+
+    context('with a donor access code', () => {
+        it('can add a donor LPA', () => {
+            const randomCode = randomShareCode();
+            cy.visit(`/fixtures/supporter?redirect=/dashboard&organisation=1&accessCode=${randomCode}`);
+
+            cy.visit('/start')
+            cy.contains('a', 'Start').click();
+            cy.origin('http://localhost:7012', () => {
+                cy.contains('button', 'Continue').click();
+            });
+            cy.url().should('contain', '/make-or-add-an-lpa');
+
+            cy.contains('a', 'Continue').click();
+
+            cy.contains('label', 'I have a code inviting me to access my LPA').click();
+            cy.url().should('contain', '/add-an-lpa');
+            cy.checkA11yApp();
+            cy.contains('button', 'Continue').click();
+
+            cy.url().should('contain', '/enter-access-code');
+            cy.get('#f-reference-number').invoke('val', randomCode);
+            cy.checkA11yApp();
+
+            cy.contains('button', 'Continue').click();
+
+            cy.url().should('contain', '/dashboard');
+
+            cy.contains('a', 'Manage your LPAs');
+        })
+    })
+
+    context('with a certificate provider access code', () => {
+        it('can add a certificate provider LPA', () => {
+            const randomCode = randomShareCode();
+            cy.visit(`/fixtures/certificate-provider?redirect=/certificate-provider-start&withShareCode=${randomCode}&progress=signedByDonor&email=${TestEmail}`);
+            cy.visit(`/fixtures?redirect=/task-list&progress=provideYourDetails`);
+
+            cy.contains('a', 'Make or add an LPA').click();
+
+            cy.contains('a', 'Continue').click();
+
+            cy.contains('label', 'I have a code inviting me to be a certificate provider').click();
+            cy.url().should('contain', '/add-an-lpa');
+            cy.checkA11yApp();
+            cy.contains('button', 'Continue').click();
+
+            cy.url().should('contain', '/certificate-provider-enter-reference-number');
+            cy.get('#f-reference-number').invoke('val', randomCode);
+            cy.checkA11yApp();
+
+            cy.contains('button', 'Save and continue').click();
+            cy.contains('We have identified your certificate provider access code').click();
+        })
+    })
 });

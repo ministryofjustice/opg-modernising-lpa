@@ -6,7 +6,6 @@ describe('Attorney dashboard', () => {
             cy.url().should('contain', '/dashboard')
             cy.checkA11yApp();
 
-            cy.contains('a', 'I’m an attorney').click()
             cy.contains('a', 'Go to task list').click()
 
             cy.url().should('contain', '/task-list')
@@ -24,7 +23,6 @@ describe('Attorney dashboard', () => {
             cy.url().should('contain', '/dashboard')
             cy.checkA11yApp();
 
-            cy.contains('a', 'I’m an attorney').click()
             cy.contains('a', 'Go to task list').click()
 
             cy.url().should('contain', '/task-list')
@@ -42,7 +40,6 @@ describe('Attorney dashboard', () => {
             cy.url().should('contain', '/dashboard')
             cy.checkA11yApp();
 
-            cy.contains('a', 'I’m an attorney').click()
             cy.contains('a', 'Go to task list').click()
 
             cy.url().should('contain', '/task-list')
@@ -60,7 +57,6 @@ describe('Attorney dashboard', () => {
             cy.url().should('contain', '/dashboard')
             cy.checkA11yApp();
 
-            cy.contains('a', 'I’m an attorney').click()
             cy.contains('a', 'Go to task list').click()
 
             cy.url().should('contain', '/task-list')
