@@ -94,13 +94,14 @@
   <div class="service-header" data-one-login-header-nav>
     <div class="govuk-width-container">
       <div class="govuk-grid-row">
-        <div class="govuk-grid-column-one-half app-full-width-at-service-header-wrap">
+        {{ $fullWidthNav := and (not .App.SupporterData) .App.HasLpas }}
+        <div class="{{ if $fullWidthNav }}govuk-grid-column-full{{ else }}govuk-grid-column-one-half app-full-width-at-service-header-wrap{{ end }}">
           <h2 class="service-header__heading">{{ if .App.SupporterData }}{{ tr .App "helpSomeoneMakeLastingPowerOfAttorney" }}{{ else }}{{ tr .App "serviceName" }}{{ end }}</h2>
           {{ if and .App.SupporterData .App.SupporterData.OrganisationName }}
             <span class="govuk-caption-l app-service-header-caption">{{ .App.SupporterData.OrganisationName }}</span>
           {{ end }}
         </div>
-        <div class="govuk-grid-column-one-half app-full-width-at-service-header-wrap app-hide-print {{ if and .App.SupporterData .App.SupporterData.OrganisationName }}app-padding-top-7-non-mobile{{ end }}">
+        <div class="{{ if $fullWidthNav }}govuk-grid-column-full{{ else }}govuk-grid-column-one-half app-full-width-at-service-header-wrap{{ end }} app-hide-print {{ if and .App.SupporterData .App.SupporterData.OrganisationName }}app-padding-top-7-non-mobile{{ end }}">
           <button type="button"
                   aria-controls="service-header__nav"
                   data-open-class="cross-service-header__button--open"
@@ -114,7 +115,7 @@
             <span class="service-header__button-content">{{ tr .App "menu" }}</span>
           </button>
           <nav aria-label="{{ trFormat .App "serviceNameNavigationMenu" "ServiceName" (tr .App "serviceName") }}">
-            <ul class="service-header__nav-list service-header__nav" id="service-header__nav" data-open-class="service-header__nav--open">
+            <ul class="service-header__nav-list service-header__nav {{ if $fullWidthNav }}govuk-!-text-align-left{{ end }}" id="service-header__nav" data-open-class="service-header__nav--open">
               {{ if .App.SupporterData }}
                 {{ if .App.SupporterData.OrganisationName }}
                   <li class="service-header__nav-list-item {{ if eq .App.Page global.Paths.Supporter.Dashboard.Format }}service-header__nav-list-item--active{{ end }}">
@@ -133,8 +134,13 @@
                   <li class="govuk-!-padding-top-9"></li>
                 {{ end }}
               {{ else }}
-                <li class="service-header__nav-list-item">
-                  <a class="service-header__nav-list-item-link" href="{{ link .App global.Paths.Dashboard.Format }}">{{ tr .App "manageYourLpas" }}</a>
+                {{ if .App.HasLpas }}
+                    <li class="service-header__nav-list-item {{ if eq global.Paths.Dashboard.Format .App.Page }}service-header__nav-list-item--active{{ end }}">
+                        <a class="service-header__nav-list-item-link" href="{{ link .App global.Paths.Dashboard.Format }}">{{ tr .App "manageYourLpas" }}</a>
+                    </li>
+                {{ end}}
+                <li class="service-header__nav-list-item {{ if eq global.Paths.MakeOrAddAnLPA.Format .App.Page }}service-header__nav-list-item--active{{ end }}">
+                    <a class="service-header__nav-list-item-link" href="{{ link .App (global.Paths.MakeOrAddAnLPA.Format ) }}">{{ tr .App "makeOrAddAnLPA" }}</a>
                 </li>
                 <li class="service-header__nav-list-item">
                   <a class="service-header__nav-list-item-link" href="{{ link .App (global.Paths.HowToMakeAndRegisterYourLPA.Format ) }}" target="_blank" rel="noopener noreferrer">{{ tr .App "helpAndSupport" }} <span class="govuk-!-font-weight-regular">({{ tr .App "opensInNewTab" }})</span></a>

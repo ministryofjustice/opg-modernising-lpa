@@ -7,7 +7,7 @@
         <div class="govuk-grid-column-two-thirds">
             <form novalidate method="post">
                 {{ template "radios-fieldset" (fieldset . "fee-type" ""
-                    (legendHeading "whatWouldYouLikeToApplyFor" "govuk-fieldset__legend--xl")
+                    (legendHeading "whatWouldYouLikeToApplyFor" "" "govuk-fieldset__legend--xl")
                     (item .Options.NoFee.String "noFeeAnExemption")
                     (item .Options.HalfFee.String "halfFeeARemission")
                     (item .Options.RepeatApplicationFee.String "repeatApplicationDiscount")

@@ -1,7 +1,9 @@
 describe('Make a new LPA', () => {
     it('can create another reusing some previous details', () => {
         cy.visit('/fixtures/dashboard?asDonor=1&redirect=/dashboard');
-        cy.contains('button', 'Start now').click();
+
+        cy.contains('Make or add an LPA').click();
+        cy.contains('button', 'Start').click();
         cy.checkA11yApp();
 
         // Name
