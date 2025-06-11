@@ -11,6 +11,11 @@
                     {{ tr .Top.App .Legend.Label }}
                 {{ end }}
             </legend>
+            {{ if .Legend.Hint }}
+                <div class="govuk-hint">
+                    {{ tr .Top.App .Legend.Hint }}
+                </div>
+            {{ end }}
             {{ template "error-message" (errorMessage .Top .Name) }}
             {{ template "radios" .Items }}
         </fieldset>

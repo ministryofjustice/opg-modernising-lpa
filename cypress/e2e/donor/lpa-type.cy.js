@@ -38,6 +38,7 @@ describe('LPA type', () => {
 
         cy.contains('button', 'Save and continue').click();
         cy.url().should('contain', '/task-list');
+        cy.waitForTextVisibilityByReloading('.govuk-summary-list__value', 'M-');
 
         cy.url().then((url) => {
             cy.origin('http://localhost:9001', { args: { url } }, ({ url }) => {
@@ -48,7 +49,6 @@ describe('LPA type', () => {
 
         cy.visit('/dashboard')
 
-        cy.waitForTextVisibilityByReloading('.govuk-body-s', 'M-');
         cy.contains('.govuk-body-s', 'Reference number:')
             .invoke('text')
             .then((text) => {

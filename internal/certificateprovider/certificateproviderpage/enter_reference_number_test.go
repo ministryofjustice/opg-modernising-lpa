@@ -152,7 +152,14 @@ func TestPostEnterReferenceNumber(t *testing.T) {
 	sessionStore := newMockSessionStore(t)
 	sessionStore.EXPECT().
 		Login(r).
-		Return(&sesh.LoginSession{Sub: "hey", Email: "a@b.com"}, nil)
+		Return(&sesh.LoginSession{Sub: "hey", Email: "a@example.com"}, nil)
+	sessionStore.EXPECT().
+		SetLogin(r, w, &sesh.LoginSession{
+			Sub:     "hey",
+			Email:   "a@example.com",
+			HasLPAs: true,
+		}).
+		Return(nil)
 
 	certificateProviderStore := newMockCertificateProviderStore(t)
 	certificateProviderStore.EXPECT().
@@ -160,7 +167,7 @@ func TestPostEnterReferenceNumber(t *testing.T) {
 			session, _ := appcontext.SessionFromContext(ctx)
 
 			return assert.Equal(t, &appcontext.Session{SessionID: "aGV5", LpaID: "lpa-id"}, session)
-		}), shareCodeData, "a@b.com").
+		}), shareCodeData, "a@example.com").
 		Return(&certificateproviderdata.Provided{}, nil)
 
 	err := EnterReferenceNumber(nil, shareCodeStore, sessionStore, certificateProviderStore, lpaStoreClient, dashboardStore)(testAppData, w, r)
@@ -344,6 +351,84 @@ func TestPostEnterReferenceNumberWhenLpaStoreClientError(t *testing.T) {
 	assert.ErrorContains(t, err, "error getting LPA from LPA store: err")
 }
 
+func TestPostEnterReferenceNumberWhenSessionGetError(t *testing.T) {
+	form := url.Values{
+		"reference-number": {"abcdef 123-456"},
+	}
+
+	uid := actoruid.New()
+	w := httptest.NewRecorder()
+	r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(form.Encode()))
+	r.Header.Add("Content-Type", page.FormUrlEncoded)
+
+	dashboardStore := newMockDashboardStore(t)
+	dashboardStore.EXPECT().
+		GetAll(mock.Anything).
+		Return(dashboarddata.Results{}, nil)
+
+	shareCodeStore := newMockShareCodeStore(t)
+	shareCodeStore.EXPECT().
+		Get(mock.Anything, mock.Anything, mock.Anything).
+		Return(sharecodedata.Link{LpaKey: dynamo.LpaKey("lpa-id"), LpaOwnerKey: dynamo.LpaOwnerKey(dynamo.DonorKey("session-id")), ActorUID: uid, LpaUID: "lpa-uid"}, nil)
+
+	sessionStore := newMockSessionStore(t)
+	sessionStore.EXPECT().
+		Login(mock.Anything).
+		Return(&sesh.LoginSession{}, expectedError)
+	//sessionStore.EXPECT().
+	//	SetLogin(mock.Anything, mock.Anything, mock.Anything).
+	//	Return(nil)
+
+	lpaStoreClient := newMockLpaStoreClient(t)
+	lpaStoreClient.EXPECT().
+		Lpa(mock.Anything, mock.Anything).
+		Return(nil, lpastore.ErrNotFound)
+
+	testAppData.SessionID = ""
+
+	err := EnterReferenceNumber(nil, shareCodeStore, sessionStore, nil, lpaStoreClient, dashboardStore)(testAppData, w, r)
+	assert.ErrorIs(t, err, expectedError)
+}
+
+func TestPostEnterReferenceNumberWhenSessionSetError(t *testing.T) {
+	form := url.Values{
+		"reference-number": {"abcdef 123-456"},
+	}
+
+	uid := actoruid.New()
+	w := httptest.NewRecorder()
+	r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(form.Encode()))
+	r.Header.Add("Content-Type", page.FormUrlEncoded)
+
+	dashboardStore := newMockDashboardStore(t)
+	dashboardStore.EXPECT().
+		GetAll(mock.Anything).
+		Return(dashboarddata.Results{}, nil)
+
+	shareCodeStore := newMockShareCodeStore(t)
+	shareCodeStore.EXPECT().
+		Get(mock.Anything, mock.Anything, mock.Anything).
+		Return(sharecodedata.Link{LpaKey: dynamo.LpaKey("lpa-id"), LpaOwnerKey: dynamo.LpaOwnerKey(dynamo.DonorKey("session-id")), ActorUID: uid, LpaUID: "lpa-uid"}, nil)
+
+	sessionStore := newMockSessionStore(t)
+	sessionStore.EXPECT().
+		Login(mock.Anything).
+		Return(&sesh.LoginSession{}, nil)
+	sessionStore.EXPECT().
+		SetLogin(mock.Anything, mock.Anything, mock.Anything).
+		Return(expectedError)
+
+	lpaStoreClient := newMockLpaStoreClient(t)
+	lpaStoreClient.EXPECT().
+		Lpa(mock.Anything, mock.Anything).
+		Return(nil, lpastore.ErrNotFound)
+
+	testAppData.SessionID = ""
+
+	err := EnterReferenceNumber(nil, shareCodeStore, sessionStore, nil, lpaStoreClient, dashboardStore)(testAppData, w, r)
+	assert.ErrorIs(t, err, expectedError)
+}
+
 func TestPostEnterReferenceNumberWhenSendPaperCertificateProviderAccessOnlineError(t *testing.T) {
 	form := url.Values{
 		"reference-number": {"abcdef 123-456"},
@@ -452,7 +537,10 @@ func TestPostEnterReferenceNumberWhenCreateError(t *testing.T) {
 	sessionStore := newMockSessionStore(t)
 	sessionStore.EXPECT().
 		Login(mock.Anything).
-		Return(&sesh.LoginSession{Sub: "hey", Email: "a@b.com"}, nil)
+		Return(&sesh.LoginSession{Sub: "hey", Email: "a@example.com"}, nil)
+	sessionStore.EXPECT().
+		SetLogin(mock.Anything, mock.Anything, mock.Anything).
+		Return(nil)
 
 	lpaStoreClient := newMockLpaStoreClient(t)
 	lpaStoreClient.EXPECT().

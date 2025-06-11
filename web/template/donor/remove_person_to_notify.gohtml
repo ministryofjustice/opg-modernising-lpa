@@ -9,13 +9,13 @@
         <div class="govuk-grid-column-two-thirds">
             <form novalidate method="post">
                 {{ template "radios-fieldset" (fieldset . .Form.FieldName ""
-                    (legendHeading (trFormat .App "doYouWantToRemove" "Name" .PersonToNotify.FullName) "govuk-fieldset__legend--xl")
+                    (legendHeading (trFormat .App "doYouWantToRemove" "Name" .PersonToNotify.FullName) "Classes" "govuk-fieldset__legend--xl")
                     (item .Form.Options.Yes.String "yes")
                     (item .Form.Options.No.String "no")
                     ) }}
 
                 {{ template "button" (button .App "continue") }}
-                
+
                 {{ template "csrf-field" . }}
             </form>
         </div>

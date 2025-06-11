@@ -630,7 +630,8 @@ func TestLegendHeading(t *testing.T) {
 		Label:   "a-label",
 		Classes: "class-1 class-2",
 		H1:      true,
-	}, legendHeading("a-label", "class-1", "class-2"))
+		Hint:    "aHintTranslation",
+	}, legendHeading("a-label", "CLASSES", "class-1 class-2", "HinT", "aHintTranslation"))
 }
 
 func TestFieldset(t *testing.T) {
