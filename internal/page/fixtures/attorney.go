@@ -116,7 +116,7 @@ func Attorney(
 			attorneySessionID            = base64.StdEncoding.EncodeToString([]byte(mockGOLSubPrefix + encodedSub))
 		)
 
-		if err := sessionStore.SetLogin(r, w, &sesh.LoginSession{Sub: mockGOLSubPrefix + encodedSub, Email: testEmail}); err != nil {
+		if err := sessionStore.SetLogin(r, w, &sesh.LoginSession{Sub: mockGOLSubPrefix + encodedSub, Email: testEmail, HasLPAs: true}); err != nil {
 			return err
 		}
 

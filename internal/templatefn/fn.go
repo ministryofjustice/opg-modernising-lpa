@@ -549,6 +549,7 @@ type legendData struct {
 	Label   string
 	Classes string
 	H1      bool
+	Hint    string
 }
 
 func legend(label string, classes ...string) legendData {
@@ -558,11 +559,12 @@ func legend(label string, classes ...string) legendData {
 	}
 }
 
-func legendHeading(label string, classes ...string) legendData {
+func legendHeading(label, hint string, classes ...string) legendData {
 	return legendData{
 		Label:   label,
 		Classes: strings.Join(classes, " "),
 		H1:      true,
+		Hint:    hint,
 	}
 }
 

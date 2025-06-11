@@ -44,6 +44,7 @@ const (
 
 	PathAccessibilityStatement      = Path("/accessibility-statement")
 	PathAttorneyFixtures            = Path("/fixtures/attorney")
+	PathAddAnLPA                    = Path("/add-an-lpa")
 	PathAuthRedirect                = Path("/auth/redirect")
 	PathCertificateProviderFixtures = Path("/fixtures/certificate-provider")
 	PathCertificateProviderStart    = Path("/certificate-provider-start")
@@ -56,6 +57,7 @@ const (
 	PathLoginCallback               = Path("/login-callback")
 	PathLpaDeleted                  = Path("/lpa-deleted")
 	PathLpaWithdrawn                = Path("/lpa-withdrawn")
+	PathMakeOrAddAnLPA              = Path("/make-or-add-an-lpa")
 	PathRoot                        = Path("/")
 	PathSignOut                     = Path("/sign-out")
 	PathStart                       = Path("/start")

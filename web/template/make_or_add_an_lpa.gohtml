@@ -1,0 +1,33 @@
+{{ template "page" . }}
+
+{{ define "pageTitle" }}{{ tr .App "makeOrAddAnLPA" }}{{ end }}
+
+{{ define "main" }}
+    <div class="govuk-grid-row">
+        <div class="govuk-grid-column-two-thirds">
+            <h1 class="govuk-heading-xl">{{ tr .App "makeOrAddAnLPA" }}</h1>
+            <h2 class="govuk-heading-l">{{ tr .App "makeANewLPA" }}</h2>
+
+            {{ if .HasDonorLPAs }}
+                <p class="govuk-body">{{ tr .App "infoYouPreviouslyEnteredHasBeenStored" }}</p>
+            {{ else }}
+                <p class="govuk-body">{{ tr .App "youWillBeGuidedThroughTheProcess" }}</p>
+            {{ end }}
+
+            <form novalidate method="post">
+                <button type="submit" class="govuk-button" data-module="govuk-button">{{ tr .App "start" }}</button>
+                {{ template "csrf-field" . }}
+            </form>
+
+            {{ trHtml .App "makingAnLPAForSomeoneElseDetails" }}
+
+            <hr class="govuk-section-break govuk-section-break--m govuk-section-break--visible">
+
+            <h2 class="govuk-heading-l">{{ tr .App "addAnLPA" }}</h2>
+
+            <p class="govuk-body">{{ tr .App "addViewAndManageAnLPAUsingAccessCode" }}</p>
+
+            <a class="govuk-button govuk-button--secondary" href="{{ link .App (global.Paths.AddAnLPA.Format ) }}">{{ tr .App "continue" }}</a>
+        </div>
+    </div>
+{{ end }}
