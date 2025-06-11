@@ -1,4 +1,4 @@
-import {AttorneyNames, DonorName, PeopleToNotifyNames} from "../../support/e2e.js";
+import { AttorneyNames, DonorName, PeopleToNotifyNames } from "../../support/e2e.js";
 
 describe('People to notify', () => {
     it('can add people to notify', () => {
@@ -9,7 +9,7 @@ describe('People to notify', () => {
         cy.get('input[name="yes-no"]').check('yes', { force: true }, { force: true });
         cy.contains('button', 'Save and continue').click();
 
-        cy.url().should('contain', '/choose-people-to-notify');
+        cy.url().should('contain', '/enter-person-to-notify');
 
         cy.checkA11yApp();
 
@@ -21,18 +21,18 @@ describe('People to notify', () => {
         cy.contains('label', 'Enter a new address').click();
         cy.contains('button', 'Continue').click();
 
-        cy.url().should('contain', '/choose-people-to-notify-address');
+        cy.url().should('contain', '/enter-person-to-notify-address');
         cy.checkA11yApp();
 
         cy.get('#f-lookup-postcode').invoke('val', "B14 7ED")
         cy.contains('button', 'Find address').click();
 
-        cy.url().should('contain', '/choose-people-to-notify-address');
+        cy.url().should('contain', '/enter-person-to-notify-address');
         cy.checkA11yApp();
 
         cy.contains('a', "I can’t find their address in the list").click();
 
-        cy.url().should('contain', '/choose-people-to-notify-address');
+        cy.url().should('contain', '/enter-person-to-notify-address');
         cy.checkA11yApp();
 
         cy.get('#f-address-line-1').invoke('val', "4 RICHMOND PLACE");
@@ -69,7 +69,7 @@ describe('People to notify', () => {
 
         cy.contains('.govuk-summary-list__row', 'Jordan Jefferson').contains('a', 'Change').click();
 
-        cy.url().should('contain', '/choose-people-to-notify');
+        cy.url().should('contain', '/enter-person-to-notify');
 
         cy.checkA11yApp();
 
@@ -83,7 +83,7 @@ describe('People to notify', () => {
         cy.contains('.govuk-summary-card', 'Changed Altered');
         cy.contains('.govuk-summary-list__row', '4 RICHMOND PLACE').contains('a', 'Change').click();
 
-        cy.url().should('contain', '/choose-people-to-notify-address');
+        cy.url().should('contain', '/enter-person-to-notify-address');
 
         cy.checkA11yApp();
 
@@ -156,7 +156,7 @@ describe('People to notify', () => {
     });
 
     it('errors when people to notify details empty', () => {
-        cy.visit('/fixtures?redirect=/choose-people-to-notify&progress=chooseYourAttorneys');
+        cy.visit('/fixtures?redirect=/enter-person-to-notify&progress=chooseYourAttorneys');
         cy.contains('button', 'Save and continue').click();
 
         cy.get('.govuk-error-summary').within(() => {
@@ -169,7 +169,7 @@ describe('People to notify', () => {
     });
 
     it('errors when people to notify details invalid', () => {
-        cy.visit('/fixtures?redirect=/choose-people-to-notify&progress=chooseYourAttorneys');
+        cy.visit('/fixtures?redirect=/enter-person-to-notify&progress=chooseYourAttorneys');
 
         cy.get('#f-first-names').invoke('val', 'a'.repeat(54));
         cy.get('#f-last-name').invoke('val', 'b'.repeat(62));
@@ -210,11 +210,11 @@ describe('People to notify', () => {
         cy.contains(`You have already entered ${PeopleToNotifyNames[0].FirstNames} ${PeopleToNotifyNames[0].LastName} as a person to notify on your LPA.`);
 
         cy.contains('a', 'Continue').click();
-        cy.url().should('contain', '/choose-people-to-notify-address');
+        cy.url().should('contain', '/enter-person-to-notify-address');
     });
 
     function changeNameTo(cy, firstNames, lastNames) {
-        cy.url().should('contain', '/choose-people-to-notify');
+        cy.url().should('contain', '/enter-person-to-notify');
         cy.get('#f-first-names').invoke('val', firstNames);
         cy.get('#f-last-name').invoke('val', lastNames);
         cy.contains('button', 'Save and continue').click();
