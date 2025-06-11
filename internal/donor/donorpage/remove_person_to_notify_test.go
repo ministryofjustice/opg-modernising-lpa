@@ -41,7 +41,7 @@ func TestGetRemovePersonToNotify(t *testing.T) {
 		}).
 		Return(nil)
 
-	err := RemovePersonToNotify(template.Execute, nil)(testAppData, w, r, &donordata.Provided{PeopleToNotify: donordata.PeopleToNotify{personToNotify}})
+	err := RemovePersonToNotify(template.Execute, nil, nil)(testAppData, w, r, &donordata.Provided{PeopleToNotify: donordata.PeopleToNotify{personToNotify}})
 
 	resp := w.Result()
 
@@ -60,7 +60,7 @@ func TestGetRemovePersonToNotifyAttorneyDoesNotExist(t *testing.T) {
 		},
 	}
 
-	err := RemovePersonToNotify(nil, nil)(testAppData, w, r, &donordata.Provided{LpaID: "lpa-id", PeopleToNotify: donordata.PeopleToNotify{personToNotify}})
+	err := RemovePersonToNotify(nil, nil, nil)(testAppData, w, r, &donordata.Provided{LpaID: "lpa-id", PeopleToNotify: donordata.PeopleToNotify{personToNotify}})
 	resp := w.Result()
 
 	assert.Nil(t, err)
@@ -90,12 +90,17 @@ func TestPostRemovePersonToNotify(t *testing.T) {
 		Address: place.Address{},
 	}
 
+	reuseStore := newMockReuseStore(t)
+	reuseStore.EXPECT().
+		DeletePersonToNotify(r.Context(), personToNotifyWithoutAddress).
+		Return(nil)
+
 	donorStore := newMockDonorStore(t)
 	donorStore.EXPECT().
 		Put(r.Context(), &donordata.Provided{LpaID: "lpa-id", PeopleToNotify: donordata.PeopleToNotify{personToNotifyWithAddress}}).
 		Return(nil)
 
-	err := RemovePersonToNotify(nil, donorStore)(testAppData, w, r, &donordata.Provided{LpaID: "lpa-id", PeopleToNotify: donordata.PeopleToNotify{personToNotifyWithoutAddress, personToNotifyWithAddress}})
+	err := RemovePersonToNotify(nil, donorStore, reuseStore)(testAppData, w, r, &donordata.Provided{LpaID: "lpa-id", PeopleToNotify: donordata.PeopleToNotify{personToNotifyWithoutAddress, personToNotifyWithAddress}})
 	resp := w.Result()
 
 	assert.Nil(t, err)
@@ -125,7 +130,7 @@ func TestPostRemovePersonToNotifyWithFormValueNo(t *testing.T) {
 		Address: place.Address{},
 	}
 
-	err := RemovePersonToNotify(nil, nil)(testAppData, w, r, &donordata.Provided{LpaID: "lpa-id", PeopleToNotify: donordata.PeopleToNotify{personToNotifyWithoutAddress, personToNotifyWithAddress}})
+	err := RemovePersonToNotify(nil, nil, nil)(testAppData, w, r, &donordata.Provided{LpaID: "lpa-id", PeopleToNotify: donordata.PeopleToNotify{personToNotifyWithoutAddress, personToNotifyWithAddress}})
 	resp := w.Result()
 
 	assert.Nil(t, err)
@@ -133,7 +138,7 @@ func TestPostRemovePersonToNotifyWithFormValueNo(t *testing.T) {
 	assert.Equal(t, donor.PathChoosePeopleToNotifySummary.Format("lpa-id"), resp.Header.Get("Location"))
 }
 
-func TestPostRemovePersonToNotifyErrorOnPutStore(t *testing.T) {
+func TestPostRemovePersonToNotifyWhenReuseStoreErrors(t *testing.T) {
 	f := url.Values{
 		form.FieldNames.YesNo: {form.Yes.String()},
 	}
@@ -155,16 +160,49 @@ func TestPostRemovePersonToNotifyErrorOnPutStore(t *testing.T) {
 		Address: place.Address{},
 	}
 
-	donorStore := newMockDonorStore(t)
-	donorStore.EXPECT().
-		Put(r.Context(), &donordata.Provided{PeopleToNotify: donordata.PeopleToNotify{personToNotifyWithAddress}}).
+	reuseStore := newMockReuseStore(t)
+	reuseStore.EXPECT().
+		DeletePersonToNotify(mock.Anything, mock.Anything).
 		Return(expectedError)
 
-	err := RemovePersonToNotify(nil, donorStore)(testAppData, w, r, &donordata.Provided{PeopleToNotify: donordata.PeopleToNotify{personToNotifyWithoutAddress, personToNotifyWithAddress}})
-	resp := w.Result()
-
+	err := RemovePersonToNotify(nil, nil, reuseStore)(testAppData, w, r, &donordata.Provided{PeopleToNotify: donordata.PeopleToNotify{personToNotifyWithoutAddress, personToNotifyWithAddress}})
 	assert.ErrorIs(t, err, expectedError)
-	assert.Equal(t, http.StatusOK, resp.StatusCode)
+}
+
+func TestPostRemovePersonToNotifyWhenDonorStoreErrors(t *testing.T) {
+	f := url.Values{
+		form.FieldNames.YesNo: {form.Yes.String()},
+	}
+
+	uid := actoruid.New()
+	w := httptest.NewRecorder()
+	r, _ := http.NewRequest(http.MethodPost, "/?id="+uid.String(), strings.NewReader(f.Encode()))
+	r.Header.Add("Content-Type", page.FormUrlEncoded)
+
+	personToNotifyWithAddress := donordata.PersonToNotify{
+		UID: actoruid.New(),
+		Address: place.Address{
+			Line1: "1 Road way",
+		},
+	}
+
+	personToNotifyWithoutAddress := donordata.PersonToNotify{
+		UID:     uid,
+		Address: place.Address{},
+	}
+
+	reuseStore := newMockReuseStore(t)
+	reuseStore.EXPECT().
+		DeletePersonToNotify(mock.Anything, mock.Anything).
+		Return(nil)
+
+	donorStore := newMockDonorStore(t)
+	donorStore.EXPECT().
+		Put(mock.Anything, mock.Anything).
+		Return(expectedError)
+
+	err := RemovePersonToNotify(nil, donorStore, reuseStore)(testAppData, w, r, &donordata.Provided{PeopleToNotify: donordata.PeopleToNotify{personToNotifyWithoutAddress, personToNotifyWithAddress}})
+	assert.ErrorIs(t, err, expectedError)
 }
 
 func TestRemovePersonToNotifyFormValidation(t *testing.T) {
@@ -191,7 +229,7 @@ func TestRemovePersonToNotifyFormValidation(t *testing.T) {
 		})).
 		Return(nil)
 
-	err := RemovePersonToNotify(template.Execute, nil)(testAppData, w, r, &donordata.Provided{PeopleToNotify: donordata.PeopleToNotify{personToNotifyWithoutAddress}})
+	err := RemovePersonToNotify(template.Execute, nil, nil)(testAppData, w, r, &donordata.Provided{PeopleToNotify: donordata.PeopleToNotify{personToNotifyWithoutAddress}})
 	resp := w.Result()
 
 	assert.Nil(t, err)
@@ -213,6 +251,11 @@ func TestRemovePersonToNotifyRemoveLastPerson(t *testing.T) {
 		Address: place.Address{},
 	}
 
+	reuseStore := newMockReuseStore(t)
+	reuseStore.EXPECT().
+		DeletePersonToNotify(r.Context(), personToNotifyWithoutAddress).
+		Return(nil)
+
 	donorStore := newMockDonorStore(t)
 	donorStore.EXPECT().
 		Put(r.Context(), &donordata.Provided{
@@ -222,7 +265,7 @@ func TestRemovePersonToNotifyRemoveLastPerson(t *testing.T) {
 		}).
 		Return(nil)
 
-	err := RemovePersonToNotify(nil, donorStore)(testAppData, w, r, &donordata.Provided{
+	err := RemovePersonToNotify(nil, donorStore, reuseStore)(testAppData, w, r, &donordata.Provided{
 		LpaID:          "lpa-id",
 		PeopleToNotify: donordata.PeopleToNotify{personToNotifyWithoutAddress},
 		Tasks:          donordata.Tasks{YourDetails: task.StateCompleted, ChooseAttorneys: task.StateCompleted, PeopleToNotify: task.StateCompleted},

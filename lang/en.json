@@ -1854,5 +1854,17 @@
     "personToNotifyMatchesDonorNameWarning": "<p class=\"govuk-body\">You and your person to notify have the same name. As the donor, you will automatically receive updates from the Office of the Public Guardian – you do not need to be a person to notify.</p><p class=\"govuk-body\">By continuing, you’re confirming that you and your person to notify are different people with the same name.</p>",
     "personToNotifyMatchesAttorneyNameWarning": "<p class=\"govuk-body\">{{.FullName}} has the same name as an attorney you’ve chosen for this LPA. Attorneys will automatically receive updates from the Office of the Public Guardian – you do not need to make them people to notify.</p><p class=\"govuk-body\">By continuing, you’re confirming you’ve chosen different people with the same name to fulfil these roles.</p>",
     "donorMatchesActorNameWarning": "<p class=\"govuk-body\">You have the same name as your {{lowerFirst .Match}}. As the donor, you cannot act as {{lowerFirst .MatchArticleAndType}} for your LPA.</p><p class=\"govuk-body\">By continuing, you’re confirming that you and your {{lowerFirst .Match}} are different people with the same name.</p>",
-    "donorMatchesActorNameOrAddressWarning": "<p class=\"govuk-body\">You have the same name or address as your {{lowerFirst .Match}}. As the donor, you cannot act as {{lowerFirst .MatchArticleAndType}} for your LPA.</p><p class=\"govuk-body\">By continuing, you’re confirming that you and your {{lowerFirst .Match}} are different people with the same name or address.</p>"
+    "donorMatchesActorNameOrAddressWarning": "<p class=\"govuk-body\">You have the same name or address as your {{lowerFirst .Match}}. As the donor, you cannot act as {{lowerFirst .MatchArticleAndType}} for your LPA.</p><p class=\"govuk-body\">By continuing, you’re confirming that you and your {{lowerFirst .Match}} are different people with the same name or address.</p>",
+    "selectPersonToNotify": "<span class=\"govuk-!-font-weight-bold\">Select {{.FullName}}</span><br>Postcode: {{.Postcode}}",
+    "choosePeopleToNotifyAboutLpa": "Choose people to notify about your LPA",
+    "weCanNotifyUpto5PeopleYouCanChoose": "We can notify up to 5 people about your LPA on your behalf. You can choose people you have used in previous LPAs, add new people or use a combination of both.",
+    "choosePeopleToNotifyYouHaveUsedInPreviousLpasOptional": "Choose people to notify you have used in previous LPAs (optional)",
+    "selectOneOrMorePeopleToNotifyUsedInPreviousLpas": "Select one or more people to notify you have used in previous LPAs, or ‘Continue’ to add new people to notify.",
+    "youCannotSelectMoreThanFivePeopleToNotify": "You cannot select more than 5 people to notify.",
+    "yesWantToChoosePreviousPersonToNotify": "Yes, I want to choose a person I have used in previous LPAs",
+    "yesWantToAddNewPersonToNotify": "Yes, I want to add a new person to notify",
+    "youveAddedPersonToNotify": {
+        "one": "You’ve added a person to notify",
+        "other": "You’ve added people to notify"
+    }
 }
