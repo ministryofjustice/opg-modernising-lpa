@@ -45,7 +45,7 @@ describe('People to notify', () => {
 
         cy.checkA11yApp();
 
-        cy.contains('People to notify about your LPA');
+        cy.contains('You’ve added a person to notify');
 
         cy.contains('.govuk-summary-card', 'Brian Gooding').within(() => {
             cy.contains('Brian Gooding');
@@ -54,7 +54,7 @@ describe('People to notify', () => {
             cy.contains("B14 7ED");
         });
 
-        cy.get('input[name="yes-no"]').check('yes', { force: true })
+        cy.contains('label', 'Yes').click();
         cy.contains('button', 'Save and continue').click();
 
         cy.visitLpa('/task-list')

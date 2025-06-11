@@ -41,6 +41,9 @@ func TestStoreDeleteReusable(t *testing.T) {
 		actor.TypeCertificateProvider: func(s *Store, ctx context.Context) error {
 			return s.DeleteCertificateProvider(ctx, donordata.CertificateProvider{UID: actorUID})
 		},
+		actor.TypePersonToNotify: func(s *Store, ctx context.Context) error {
+			return s.DeletePersonToNotify(ctx, donordata.PersonToNotify{UID: actorUID})
+		},
 	}
 
 	for actorType, fn := range testcases {
@@ -115,6 +118,14 @@ func TestStorePutReusable(t *testing.T) {
 			item:           donordata.CertificateProvider{UID: actorUID, FirstNames: "John", Address: place.Address{Line1: "a"}},
 			withoutAddress: donordata.CertificateProvider{UID: actorUID, FirstNames: "John"},
 			updated:        donordata.CertificateProvider{FirstNames: "John", Address: place.Address{Line1: "a"}},
+		},
+		actor.TypePersonToNotify: {
+			fn: func(s *Store, ctx context.Context, v any) error {
+				return s.PutPersonToNotify(ctx, v.(donordata.PersonToNotify))
+			},
+			item:           donordata.PersonToNotify{UID: actorUID, FirstNames: "John", Address: place.Address{Line1: "a"}},
+			withoutAddress: donordata.PersonToNotify{UID: actorUID, FirstNames: "John"},
+			updated:        donordata.PersonToNotify{FirstNames: "John", Address: place.Address{Line1: "a"}},
 		},
 	}
 
@@ -450,5 +461,111 @@ func TestStoreCertificateProvidersWhenMissingSessionID(t *testing.T) {
 	ctx := appcontext.ContextWithSession(context.Background(), &appcontext.Session{})
 
 	_, err := NewStore(nil).CertificateProviders(ctx)
+	assert.Error(t, err)
+}
+
+func TestStorePutPeopleToNotify(t *testing.T) {
+	ctx := appcontext.ContextWithSession(context.Background(), &appcontext.Session{SessionID: "session-id"})
+	actorUID0, actorUID1 := actoruid.New(), actoruid.New()
+	value0, _ := attributevalue.Marshal(donordata.PersonToNotify{FirstNames: "John"})
+	value1, _ := attributevalue.Marshal(donordata.PersonToNotify{FirstNames: "Barry"})
+
+	dynamoClient := newMockDynamoClient(t)
+	dynamoClient.EXPECT().
+		Update(ctx, dynamo.ReuseKey("session-id", actor.TypePersonToNotify.String()), dynamo.MetadataKey(""),
+			map[string]string{"#ActorUID0": actorUID0.String(), "#ActorUID1": actorUID1.String()},
+			map[string]types.AttributeValue{":Value0": value0, ":Value1": value1},
+			"SET #ActorUID0 = :Value0, #ActorUID1 = :Value1",
+		).
+		Return(expectedError)
+
+	err := NewStore(dynamoClient).PutPeopleToNotify(ctx, []donordata.PersonToNotify{
+		{UID: actorUID0, FirstNames: "John"},
+		{UID: actorUID1, FirstNames: "Barry"},
+	})
+	assert.Equal(t, expectedError, err)
+}
+
+func TestStorePutPeopleToNotifyWhenSupporter(t *testing.T) {
+	ctx := appcontext.ContextWithSession(context.Background(), &appcontext.Session{SessionID: "session-id", OrganisationID: "org"})
+
+	err := NewStore(nil).PutPeopleToNotify(ctx, []donordata.PersonToNotify{})
+	assert.Nil(t, err)
+}
+
+func TestStorePutPeopleToNotifyWhenMissingSession(t *testing.T) {
+	ctx := context.Background()
+
+	err := NewStore(nil).PutPeopleToNotify(ctx, []donordata.PersonToNotify{})
+	assert.Equal(t, appcontext.SessionMissingError{}, err)
+}
+
+func TestStorePutPeopleToNotifyWhenMissingSessionID(t *testing.T) {
+	ctx := appcontext.ContextWithSession(context.Background(), &appcontext.Session{})
+
+	err := NewStore(nil).PutPeopleToNotify(ctx, []donordata.PersonToNotify{})
+	assert.Error(t, err)
+}
+
+func TestStorePeopleToNotify(t *testing.T) {
+	ctx := appcontext.ContextWithSession(context.Background(), &appcontext.Session{SessionID: "session-id"})
+
+	existingPersonToNotify := donordata.PersonToNotify{FirstNames: "Barry"}
+
+	expected := []donordata.PersonToNotify{
+		{FirstNames: "Adam"},
+		{FirstNames: "Dave"},
+		{FirstNames: "John"},
+	}
+
+	marshalled0, _ := attributevalue.Marshal(expected[0])
+	marshalled1, _ := attributevalue.Marshal(expected[1])
+	marshalled2, _ := attributevalue.Marshal(expected[2])
+	marshalled3, _ := attributevalue.Marshal(existingPersonToNotify)
+
+	dynamoClient := newMockDynamoClient(t)
+	dynamoClient.EXPECT().
+		One(ctx, dynamo.ReuseKey("session-id", actor.TypePersonToNotify.String()), dynamo.MetadataKey(""), mock.Anything).
+		Return(nil).
+		SetData(map[string]types.AttributeValue{
+			"PK":    &types.AttributeValueMemberS{Value: "REUSE#session-id"},
+			"SK":    &types.AttributeValueMemberS{Value: "METADATA#"},
+			"uid-a": marshalled2,
+			"uid-b": marshalled0,
+			"uid-c": marshalled1,
+			"uid-d": marshalled0,
+			"uid-e": marshalled3,
+		})
+
+	result, err := NewStore(dynamoClient).PeopleToNotify(ctx, &donordata.Provided{
+		PeopleToNotify: donordata.PeopleToNotify{existingPersonToNotify},
+	})
+	assert.Nil(t, err)
+	assert.Equal(t, expected, result)
+}
+
+func TestStorePeopleToNotifyWhenDynamoErrors(t *testing.T) {
+	ctx := appcontext.ContextWithSession(context.Background(), &appcontext.Session{SessionID: "session-id"})
+
+	dynamoClient := newMockDynamoClient(t)
+	dynamoClient.EXPECT().
+		One(mock.Anything, mock.Anything, mock.Anything, mock.Anything).
+		Return(expectedError)
+
+	_, err := NewStore(dynamoClient).PeopleToNotify(ctx, &donordata.Provided{})
+	assert.Equal(t, expectedError, err)
+}
+
+func TestStorePeopleToNotifyWhenMissingSession(t *testing.T) {
+	ctx := context.Background()
+
+	_, err := NewStore(nil).PeopleToNotify(ctx, &donordata.Provided{})
+	assert.Equal(t, appcontext.SessionMissingError{}, err)
+}
+
+func TestStorePeopleToNotifyWhenMissingSessionID(t *testing.T) {
+	ctx := appcontext.ContextWithSession(context.Background(), &appcontext.Session{})
+
+	_, err := NewStore(nil).PeopleToNotify(ctx, &donordata.Provided{})
 	assert.Error(t, err)
 }

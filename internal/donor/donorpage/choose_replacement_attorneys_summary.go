@@ -17,7 +17,7 @@ import (
 type chooseReplacementAttorneysSummaryData struct {
 	App       appcontext.Data
 	Errors    validation.List
-	Form      *chooseAttorneysSummaryForm
+	Form      *donordata.YesNoMaybeForm
 	Donor     *donordata.Provided
 	Options   donordata.YesNoMaybeOptions
 	CanChoose bool
@@ -42,7 +42,7 @@ func ChooseReplacementAttorneysSummary(tmpl template.Template, reuseStore ReuseS
 		}
 
 		if r.Method == http.MethodPost {
-			data.Form = readChooseAttorneysSummaryForm(r, "yesToAddAnotherReplacementAttorney")
+			data.Form = donordata.ReadYesNoMaybeForm(r, "yesToAddAnotherReplacementAttorney")
 			data.Errors = data.Form.Validate()
 
 			if data.Errors.None() {
