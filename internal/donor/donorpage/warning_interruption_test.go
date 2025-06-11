@@ -407,7 +407,7 @@ func TestGetWarningInterruptionEnterCorrespondentDetails(t *testing.T) {
 func TestGetWarningInterruptionChoosePeopleToNotify(t *testing.T) {
 	query := url.Values{
 		"id":          {testUID.String()},
-		"warningFrom": {donor.PathChoosePeopleToNotify.Format("lpa-id")},
+		"warningFrom": {donor.PathEnterPersonToNotify.Format("lpa-id")},
 		"next":        {"/next-page"},
 		"actor":       {actor.TypePersonToNotify.String()},
 	}
@@ -463,7 +463,7 @@ func TestGetWarningInterruptionChoosePeopleToNotify(t *testing.T) {
 				{Heading: "pleaseReviewTheInformationYouHaveEntered", BodyHTML: "translatedWarning"},
 			},
 			PageTitle: "checkYourPersonToNotifysDetails",
-			From:      donor.PathChoosePeopleToNotify.FormatQuery("lpa-id", url.Values{"id": {testUID.String()}}),
+			From:      donor.PathEnterPersonToNotify.FormatQuery("lpa-id", url.Values{"id": {testUID.String()}}),
 			Next:      "/next-page",
 		}).
 		Return(nil)

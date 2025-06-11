@@ -39,7 +39,7 @@ func ChoosePeopleToNotifySummary(tmpl template.Template) Handler {
 				if data.Form.YesNo == form.No {
 					return donor.PathTaskList.Redirect(w, r, appData, provided)
 				} else {
-					return donor.PathChoosePeopleToNotify.RedirectQuery(w, r, appData, provided, url.Values{"addAnother": {"1"}})
+					return donor.PathEnterPersonToNotify.RedirectQuery(w, r, appData, provided, url.Values{"addAnother": {"1"}})
 				}
 			}
 		}
