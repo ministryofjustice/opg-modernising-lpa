@@ -1,6 +1,6 @@
 {{ template "page" . }}
 
-{{ define "pageTitle" }}{{ tr .App "peopleToNotifyAboutYourLpa" }}{{ end }}
+{{ define "pageTitle" }}{{ tr .App "youveAddedPersonToNotify" }}{{ end }}
 
 {{ define "main" }}
     <div class="govuk-grid-row">
@@ -9,7 +9,7 @@
                 {{ template "notification-banner" (notificationBanner .App "important" (trHtml .App "youHaveAddedMaxPeople") "contents") }}
             {{ end }}
 
-            <h1 class="govuk-heading-xl">{{ tr .App "peopleToNotifyAboutYourLpa" }}</h1>
+            <h1 class="govuk-heading-xl">{{ tr .App "youveAddedPersonToNotify" }}</h1>
 
             {{ trHtml .App "weCanNotifyUpTo5PeopleContent" }}
 
@@ -17,15 +17,22 @@
 
             <form novalidate method="post">
                 {{ if eq 5 (len .Donor.PeopleToNotify) }}
-                    <input type="hidden" name="{{ .Form.FieldName }}" value="{{ .Form.Options.No.String }}">
+                    <input type="hidden" name="option" value="{{ .Options.No.String }}">
 
                     {{ template "buttons" (button .App "continue") }}
-                {{ else }}
-                    {{ template "radios-fieldset" (fieldset . .Form.FieldName ""
+                {{ else if .CanChoose }}
+                    {{ template "radios-fieldset" (fieldset . "option" ""
                         (legend "doYouWantToAddAnotherPersonToNotify" "govuk-fieldset__legend--l")
-                        (item .Form.Options.Yes.String "yes")
-                        (item .Form.Options.No.String "no")
-                        ) }}
+                        (item .Options.Maybe.String "yesWantToChoosePreviousPersonToNotify")
+                        (item .Options.Yes.String "yesWantToAddNewPersonToNotify")
+                        (item .Options.No.String "no")) }}
+
+                    {{ template "buttons" (button .App "saveAndContinue") }}
+                {{ else }}
+                    {{ template "radios-fieldset" (fieldset . "option" ""
+                        (legend "doYouWantToAddAnotherPersonToNotify" "govuk-fieldset__legend--l")
+                        (item .Options.Yes.String "yes")
+                        (item .Options.No.String "no")) }}
 
                     {{ template "buttons" (button .App "saveAndContinue") }}
                 {{ end }}

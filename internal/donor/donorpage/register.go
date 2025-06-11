@@ -76,6 +76,10 @@ type ReuseStore interface {
 	PutCertificateProvider(ctx context.Context, certificateProvider donordata.CertificateProvider) error
 	CertificateProviders(ctx context.Context) ([]donordata.CertificateProvider, error)
 	DeleteCertificateProvider(ctx context.Context, certificateProvider donordata.CertificateProvider) error
+	PutPersonToNotify(ctx context.Context, personToNotify donordata.PersonToNotify) error
+	PutPeopleToNotify(ctx context.Context, peopleToNotify []donordata.PersonToNotify) error
+	PeopleToNotify(ctx context.Context, provided *donordata.Provided) ([]donordata.PersonToNotify, error)
+	DeletePersonToNotify(ctx context.Context, personToNotify donordata.PersonToNotify) error
 }
 
 type CertificateProviderStore interface {
@@ -381,14 +385,16 @@ func Register(
 
 	handleWithDonor(donor.PathDoYouWantToNotifyPeople, page.CanGoBack,
 		DoYouWantToNotifyPeople(tmpls.Get("do_you_want_to_notify_people.gohtml"), donorStore))
+	handleWithDonor(donor.PathChoosePeopleToNotify, page.CanGoBack,
+		ChoosePeopleToNotify(tmpls.Get("choose_people_to_notify.gohtml"), donorStore, reuseStore, actoruid.New))
 	handleWithDonor(donor.PathEnterPersonToNotify, page.CanGoBack,
-		EnterPersonToNotify(tmpls.Get("enter_person_to_notify.gohtml"), donorStore, actoruid.New))
+		EnterPersonToNotify(tmpls.Get("enter_person_to_notify.gohtml"), donorStore, reuseStore, actoruid.New))
 	handleWithDonor(donor.PathEnterPersonToNotifyAddress, page.CanGoBack,
-		EnterPersonToNotifyAddress(logger, tmpls.Get("choose_address.gohtml"), addressClient, donorStore))
+		EnterPersonToNotifyAddress(logger, tmpls.Get("choose_address.gohtml"), addressClient, donorStore, reuseStore))
 	handleWithDonor(donor.PathChoosePeopleToNotifySummary, page.CanGoBack,
-		ChoosePeopleToNotifySummary(tmpls.Get("choose_people_to_notify_summary.gohtml")))
+		ChoosePeopleToNotifySummary(tmpls.Get("choose_people_to_notify_summary.gohtml"), reuseStore))
 	handleWithDonor(donor.PathRemovePersonToNotify, page.CanGoBack,
-		RemovePersonToNotify(tmpls.Get("remove_person_to_notify.gohtml"), donorStore))
+		RemovePersonToNotify(tmpls.Get("remove_person_to_notify.gohtml"), donorStore, reuseStore))
 
 	handleWithDonor(donor.PathAddCorrespondent, page.None,
 		AddCorrespondent(tmpls.Get("add_correspondent.gohtml"), donorStore, eventClient))
