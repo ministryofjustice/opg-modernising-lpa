@@ -356,6 +356,11 @@ func makeHandle(mux *http.ServeMux, errorHandler page.ErrorHandler, sessionStore
 				}
 
 				appData.SessionID = loginSession.SessionID()
+
+				if !appData.HasLpas {
+					appData.HasLpas = loginSession.HasLPAs
+				}
+
 				ctx = appcontext.ContextWithSession(ctx, &appcontext.Session{SessionID: appData.SessionID})
 			}
 

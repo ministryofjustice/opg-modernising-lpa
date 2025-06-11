@@ -20,6 +20,7 @@ type Data struct {
 	CanGoBack         bool
 	CookieConsentSet  bool
 	CsrfToken         string
+	HasLpas           bool
 	HideLoginNav      bool
 	Lang              localize.Lang
 	LoginSessionEmail string

@@ -24,7 +24,7 @@ type lpaTypeData struct {
 	CanChange   bool
 }
 
-func LpaType(tmpl template.Template, donorStore DonorStore, eventClient EventClient) Handler {
+func LpaType(tmpl template.Template, donorStore DonorStore, eventClient EventClient, sessionStore SessionStore) Handler {
 	return func(appData appcontext.Data, w http.ResponseWriter, r *http.Request, provided *donordata.Provided) error {
 		data := &lpaTypeData{
 			App: appData,
@@ -68,6 +68,17 @@ func LpaType(tmpl template.Template, donorStore DonorStore, eventClient EventCli
 						Postcode: provided.Donor.Address.Postcode,
 					},
 				}); err != nil {
+					return err
+				}
+
+				login, err := sessionStore.Login(r)
+				if err != nil {
+					return err
+				}
+
+				login.HasLPAs = true
+
+				if err := sessionStore.SetLogin(r, w, login); err != nil {
 					return err
 				}
 

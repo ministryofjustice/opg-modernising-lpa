@@ -1,7 +1,6 @@
 package page
 
 import (
-	"encoding/base64"
 	"errors"
 	"log/slog"
 	"net/http"
@@ -10,6 +9,7 @@ import (
 
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/appcontext"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/dashboard/dashboarddata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/onelogin"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/sesh"
 	"github.com/stretchr/testify/assert"
@@ -18,11 +18,16 @@ import (
 
 func TestLoginCallback(t *testing.T) {
 	testCases := map[string]struct {
-		subExists        bool
+		dashboardResults dashboarddata.Results
 		expectedRedirect Path
+		hasLPAs          bool
 	}{
-		"Sub exists":         {subExists: true, expectedRedirect: PathDashboard},
-		"Sub does not exist": {subExists: false, expectedRedirect: PathAttorneyEnterReferenceNumber},
+		"Has LPAs": {
+			dashboardResults: dashboarddata.Results{Attorney: []dashboarddata.Actor{{}}},
+			expectedRedirect: PathDashboard,
+			hasLPAs:          true,
+		},
+		"No LPAs": {expectedRedirect: PathAttorneyEnterReferenceNumber},
 	}
 
 	for name, tc := range testCases {
@@ -59,19 +64,24 @@ func TestLoginCallback(t *testing.T) {
 
 			dashboardStore := newMockDashboardStore(t)
 			dashboardStore.EXPECT().
-				SubExistsForActorType(r.Context(), base64.StdEncoding.EncodeToString([]byte("random")), actor.TypeAttorney).
-				Return(tc.subExists, nil)
+				GetAll(r.Context()).
+				Return(tc.dashboardResults, nil)
 
 			logger := newMockLogger(t)
 			logger.EXPECT().
 				InfoContext(r.Context(), "login", slog.String("session_id", session.SessionID()))
 
-			err := LoginCallback(logger, client, sessionStore, PathAttorneyEnterReferenceNumber, dashboardStore, actor.TypeAttorney)(appcontext.Data{}, w, r)
+			appData := appcontext.Data{}
+
+			err := LoginCallback(logger, client, sessionStore, PathAttorneyEnterReferenceNumber, dashboardStore, actor.TypeAttorney)(appData, w, r)
 			assert.Nil(t, err)
 			resp := w.Result()
 
 			assert.Equal(t, http.StatusFound, resp.StatusCode)
 			assert.Equal(t, tc.expectedRedirect.Format(), resp.Header.Get("Location"))
+
+			data := appcontext.DataFromContext(r.Context())
+			assert.Equal(t, tc.hasLPAs, data.HasLpas)
 		})
 	}
 }
@@ -200,8 +210,8 @@ func TestLoginCallbackWhenDashboardStoreError(t *testing.T) {
 
 	dashboardStore := newMockDashboardStore(t)
 	dashboardStore.EXPECT().
-		SubExistsForActorType(r.Context(), mock.Anything, mock.Anything).
-		Return(false, expectedError)
+		GetAll(r.Context()).
+		Return(dashboarddata.Results{}, expectedError)
 
 	logger := newMockLogger(t)
 	logger.EXPECT().

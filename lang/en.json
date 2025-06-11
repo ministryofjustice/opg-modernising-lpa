@@ -1863,5 +1863,6 @@
     "youCannotSelectMoreThanFivePeopleToNotify": "You cannot select more than 5 people to notify.",
     "yesWantToChoosePreviousPersonToNotify": "Yes, I want to choose a person I have used in previous LPAs",
     "yesWantToAddNewPersonToNotify": "Yes, I want to add a new person to notify",
-    "yourSelectionTakesPeopleToNotifyOverFive": "Your selection takes the total number of people you’ve chosen to notify to more than 5."
+    "yourSelectionTakesPeopleToNotifyOverFive": "Your selection takes the total number of people you’ve chosen to notify to more than 5.",
+    "makeOrAddAnLPA": "Make or add an LPA"
 }
