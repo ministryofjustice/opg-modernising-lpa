@@ -1,3 +1,5 @@
+import {randomShareCode, TestEmail} from "../../support/e2e.js";
+
 describe('Dashboard', () => {
     context('confirmed identity', () => {
         it('shows the certificate provider card', () => {
@@ -46,6 +48,30 @@ describe('Dashboard', () => {
             cy.contains('Sam Smith');
             cy.contains('strong', 'In progress');
             cy.contains('a', 'Go to task list')
+        })
+    })
+
+    context('with existing LPAs and a certificate provider share code', () => {
+        it('can add access to provide a certificate', () => {
+            const randomCode = randomShareCode();
+            cy.visit(`/fixtures/certificate-provider?redirect=&withShareCode=${randomCode}&progress=signedByDonor&email=${TestEmail}`);
+            cy.visit(`/fixtures?redirect=/task-list&progress=provideYourDetails`);
+
+            cy.contains('a', 'Make or add an LPA').click();
+
+            cy.contains('a', 'Continue').click();
+
+            cy.contains('label', 'I have a code inviting me to be a certificate provider').click();
+            cy.url().should('contain', '/add-an-lpa');
+            cy.checkA11yApp();
+            cy.contains('button', 'Continue').click();
+
+            cy.url().should('contain', '/certificate-provider-enter-reference-number');
+            cy.get('#f-reference-number').invoke('val', randomCode);
+            cy.checkA11yApp();
+
+            cy.contains('button', 'Save and continue').click();
+            cy.contains('We have identified your certificate provider access code').click();
         })
     })
 })

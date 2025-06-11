@@ -78,7 +78,7 @@
 
                     {{ template "button" (button .App "continue") }}
                     <input type="hidden" name="{{ .Form.FieldNames.Action }}" value="postcode-select" />
-                    
+
                 {{ else if eq .Form.Action "postcode" }}
                     <div id="find" class="govuk-form-group {{ if .Errors.Has "lookup-postcode" }}govuk-form-group--error{{ end }}">
                         <fieldset class="govuk-fieldset">
@@ -157,11 +157,11 @@
                             {{ $title = trFormat .App .TitleKeys.ReuseAndReuseSelect "FullName" (tr .App .ActorLabel | lowerFirst) }}
                         {{ else }}
                             {{ $title = trFormat .App .TitleKeys.ReuseOrNew "FullName" (tr .App .ActorLabel | lowerFirst) }}
-                        {{ end }}                    
+                        {{ end }}
                     {{ end }}
 
                     {{ template "radios-fieldset" (fieldset . .Form.FieldNames.Action .Form.Action
-                        (legendHeading $title "govuk-fieldset__legend--xl")
+                        (legendHeading $title "Classes" "govuk-fieldset__legend--xl")
                         (item "reuse" "useAnAddressYouAlreadyEntered")
                         (item "postcode" "enterNewAddress")
                         ) }}

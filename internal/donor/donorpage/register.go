@@ -267,9 +267,9 @@ func Register(
 	handleRoot(page.PathLogin, page.None,
 		page.Login(oneLoginClient, sessionStore, random.String, page.PathLoginCallback))
 	handleRoot(page.PathLoginCallback, page.None,
-		page.LoginCallback(logger, oneLoginClient, sessionStore, page.PathDashboard, dashboardStore, actor.TypeDonor))
+		page.LoginCallback(logger, oneLoginClient, sessionStore, page.PathMakeOrAddAnLPA, dashboardStore, actor.TypeDonor))
 	handleRoot(page.PathEnterAccessCode, page.RequireSession,
-		EnterAccessCode(logger, tmpls.Get("enter_access_code.gohtml"), shareCodeStore, donorStore))
+		EnterAccessCode(logger, tmpls.Get("enter_access_code.gohtml"), shareCodeStore, donorStore, sessionStore))
 
 	handleWithDonor := makeLpaHandle(rootMux, sessionStore, errorHandler, donorStore, donorStartURL)
 
@@ -316,7 +316,7 @@ func Register(
 	handleWithDonor(donor.PathYourLegalRightsAndResponsibilitiesIfYouMakeLpa, page.CanGoBack,
 		Guidance(tmpls.Get("your_legal_rights_and_responsibilities_if_you_make_lpa.gohtml")))
 	handleWithDonor(donor.PathLpaType, page.CanGoBack,
-		LpaType(tmpls.Get("lpa_type.gohtml"), donorStore, eventClient))
+		LpaType(tmpls.Get("lpa_type.gohtml"), donorStore, eventClient, sessionStore))
 	handleWithDonor(donor.PathNeedHelpSigningConfirmation, page.None,
 		Guidance(tmpls.Get("need_help_signing_confirmation.gohtml")))
 
@@ -593,14 +593,16 @@ func makeHandle(mux *http.ServeMux, store SessionStore, errorHandler page.ErrorH
 			appData.ActorType = actor.TypeDonor
 
 			if opt&page.RequireSession != 0 {
-				session, err := store.Login(r)
+				loginSession, err := store.Login(r)
 				if err != nil {
 					http.Redirect(w, r, donorStartURL, http.StatusFound)
 					return
 				}
 
-				appData.SessionID = session.SessionID()
-				appData.LoginSessionEmail = session.Email
+				appData.SessionID = loginSession.SessionID()
+				appData.LoginSessionEmail = loginSession.Email
+				appData.HasLpas = loginSession.HasLPAs
+
 				ctx = appcontext.ContextWithSession(ctx, &appcontext.Session{SessionID: appData.SessionID, LpaID: appData.LpaID, Email: appData.LoginSessionEmail})
 			}
 
@@ -628,6 +630,7 @@ func makeLpaHandle(mux *http.ServeMux, store SessionStore, errorHandler page.Err
 			appData.LpaID = r.PathValue("id")
 			appData.SessionID = loginSession.SessionID()
 			appData.LoginSessionEmail = loginSession.Email
+			appData.HasLpas = loginSession.HasLPAs
 
 			sessionData, err := appcontext.SessionFromContext(ctx)
 			if err == nil {
