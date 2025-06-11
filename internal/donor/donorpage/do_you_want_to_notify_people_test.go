@@ -157,7 +157,7 @@ func TestPostDoYouWantToNotifyPeople(t *testing.T) {
 		{
 			YesNo:            form.Yes,
 			ExistingAnswer:   form.No,
-			ExpectedRedirect: donor.PathEnterPersonToNotify,
+			ExpectedRedirect: donor.PathChoosePeopleToNotify,
 			ExpectedStatus:   task.StateInProgress,
 		},
 		{

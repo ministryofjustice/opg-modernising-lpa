@@ -10,7 +10,6 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor/actoruid"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor/donordata"
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/form"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/task"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/validation"
@@ -23,17 +22,24 @@ func TestGetChoosePeopleToNotifySummary(t *testing.T) {
 	r, _ := http.NewRequest(http.MethodGet, "/", nil)
 
 	donor := &donordata.Provided{PeopleToNotify: donordata.PeopleToNotify{{}}}
+	peopleToNotify := donordata.PeopleToNotify{{}}
+
+	reuseStore := newMockReuseStore(t)
+	reuseStore.EXPECT().
+		PeopleToNotify(r.Context(), donor).
+		Return(peopleToNotify, nil)
 
 	template := newMockTemplate(t)
 	template.EXPECT().
 		Execute(w, &choosePeopleToNotifySummaryData{
-			App:   testAppData,
-			Donor: donor,
-			Form:  form.NewYesNoForm(form.YesNoUnknown),
+			App:       testAppData,
+			Donor:     donor,
+			Options:   donordata.YesNoMaybeValues,
+			CanChoose: true,
 		}).
 		Return(nil)
 
-	err := ChoosePeopleToNotifySummary(template.Execute)(testAppData, w, r, donor)
+	err := ChoosePeopleToNotifySummary(template.Execute, reuseStore)(testAppData, w, r, donor)
 	resp := w.Result()
 
 	assert.Nil(t, err)
@@ -44,7 +50,7 @@ func TestGetChoosePeopleToNotifySummaryWhenNoPeopleToNotify(t *testing.T) {
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest(http.MethodGet, "/", nil)
 
-	err := ChoosePeopleToNotifySummary(nil)(testAppData, w, r, &donordata.Provided{
+	err := ChoosePeopleToNotifySummary(nil, nil)(testAppData, w, r, &donordata.Provided{
 		LpaID: "lpa-id",
 		Tasks: donordata.Tasks{
 			YourDetails:                task.StateCompleted,
@@ -65,14 +71,19 @@ func TestGetChoosePeopleToNotifySummaryWhenNoPeopleToNotify(t *testing.T) {
 
 func TestPostChoosePeopleToNotifySummaryAddPersonToNotify(t *testing.T) {
 	f := url.Values{
-		form.FieldNames.YesNo: {form.Yes.String()},
+		"option": {donordata.Yes.String()},
 	}
 
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(f.Encode()))
 	r.Header.Add("Content-Type", page.FormUrlEncoded)
 
-	err := ChoosePeopleToNotifySummary(nil)(testAppData, w, r, &donordata.Provided{LpaID: "lpa-id", PeopleToNotify: donordata.PeopleToNotify{{UID: actoruid.New()}}})
+	reuseStore := newMockReuseStore(t)
+	reuseStore.EXPECT().
+		PeopleToNotify(mock.Anything, mock.Anything).
+		Return(nil, nil)
+
+	err := ChoosePeopleToNotifySummary(nil, reuseStore)(testAppData, w, r, &donordata.Provided{LpaID: "lpa-id", PeopleToNotify: donordata.PeopleToNotify{{UID: actoruid.New()}}})
 	resp := w.Result()
 
 	assert.Nil(t, err)
@@ -82,14 +93,19 @@ func TestPostChoosePeopleToNotifySummaryAddPersonToNotify(t *testing.T) {
 
 func TestPostChoosePeopleToNotifySummaryNoFurtherPeopleToNotify(t *testing.T) {
 	f := url.Values{
-		form.FieldNames.YesNo: {form.No.String()},
+		"option": {donordata.No.String()},
 	}
 
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(f.Encode()))
 	r.Header.Add("Content-Type", page.FormUrlEncoded)
 
-	err := ChoosePeopleToNotifySummary(nil)(testAppData, w, r, &donordata.Provided{
+	reuseStore := newMockReuseStore(t)
+	reuseStore.EXPECT().
+		PeopleToNotify(mock.Anything, mock.Anything).
+		Return(nil, nil)
+
+	err := ChoosePeopleToNotifySummary(nil, reuseStore)(testAppData, w, r, &donordata.Provided{
 		LpaID:          "lpa-id",
 		PeopleToNotify: donordata.PeopleToNotify{{UID: actoruid.New()}},
 		Tasks: donordata.Tasks{
@@ -111,14 +127,19 @@ func TestPostChoosePeopleToNotifySummaryNoFurtherPeopleToNotify(t *testing.T) {
 
 func TestPostChoosePeopleToNotifySummaryFormValidation(t *testing.T) {
 	f := url.Values{
-		form.FieldNames.YesNo: {""},
+		"option": {""},
 	}
 
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(f.Encode()))
 	r.Header.Add("Content-Type", page.FormUrlEncoded)
 
-	validationError := validation.With(form.FieldNames.YesNo, validation.SelectError{Label: "yesToAddAnotherPersonToNotify"})
+	validationError := validation.With("option", validation.SelectError{Label: "yesToAddAnotherPersonToNotify"})
+
+	reuseStore := newMockReuseStore(t)
+	reuseStore.EXPECT().
+		PeopleToNotify(mock.Anything, mock.Anything).
+		Return(nil, nil)
 
 	template := newMockTemplate(t)
 	template.EXPECT().
@@ -127,7 +148,7 @@ func TestPostChoosePeopleToNotifySummaryFormValidation(t *testing.T) {
 		})).
 		Return(nil)
 
-	err := ChoosePeopleToNotifySummary(template.Execute)(testAppData, w, r, &donordata.Provided{PeopleToNotify: donordata.PeopleToNotify{{}}})
+	err := ChoosePeopleToNotifySummary(template.Execute, reuseStore)(testAppData, w, r, &donordata.Provided{PeopleToNotify: donordata.PeopleToNotify{{}}})
 	resp := w.Result()
 
 	assert.Nil(t, err)

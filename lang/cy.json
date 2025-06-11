@@ -1954,5 +1954,14 @@
     "personToNotifyMatchesDonorNameWarning": "<p class=\"govuk-body\">Welsh</p><p class=\"govuk-body\">Welsh</p>",
     "personToNotifyMatchesAttorneyNameWarning": "<p class=\"govuk-body\">{{.FullName}} Welsh</p><p class=\"govuk-body\">Welsh</p>",
     "donorMatchesActorNameWarning": "<p class=\"govuk-body\">Welsh {{lowerFirst .Match}}. {{lowerFirst .MatchArticleAndType}}</p><p class=\"govuk-body\">Welsh {{lowerFirst .Match}}</p>",
-    "donorMatchesActorNameOrAddressWarning": "<p class=\"govuk-body\">Welsh {{lowerFirst .Match}} {{lowerFirst .MatchArticleAndType}}</p><p class=\"govuk-body\">Welsh {{lowerFirst .Match}}</p>"
+    "donorMatchesActorNameOrAddressWarning": "<p class=\"govuk-body\">Welsh {{lowerFirst .Match}} {{lowerFirst .MatchArticleAndType}}</p><p class=\"govuk-body\">Welsh {{lowerFirst .Match}}</p>",
+    "selectPersonToNotify": "<span class=\"govuk-!-font-weight-bold\">Welsh {{.FullName}}</span><br> {{.Postcode}}",
+    "choosePeopleToNotifyAboutLpa": "Welsh",
+    "weCanNotifyUpto5PeopleYouCanChoose": "Welsh",
+    "choosePeopleToNotifyYouHaveUsedInPreviousLpasOptional": "Welsh",
+    "selectOneOrMorePeopleToNotifyUsedInPreviousLpas": "Welsh",
+    "youCannotSelectMoreThanFivePeopleToNotify": "Welsh",
+    "yesWantToChoosePreviousPersonToNotify": "Welsh",
+    "yesWantToAddNewPersonToNotify": "Welsh",
+    "youveAddedPersonToNotify": "Welsh"
 }

@@ -13,7 +13,7 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/task"
 )
 
-func EnterPersonToNotifyAddress(logger Logger, tmpl template.Template, addressClient AddressClient, donorStore DonorStore) Handler {
+func EnterPersonToNotifyAddress(logger Logger, tmpl template.Template, addressClient AddressClient, donorStore DonorStore, reuseStore ReuseStore) Handler {
 	return func(appData appcontext.Data, w http.ResponseWriter, r *http.Request, provided *donordata.Provided) error {
 		personToNotify, found := provided.PeopleToNotify.Get(actoruid.FromRequest(r))
 
@@ -41,6 +41,10 @@ func EnterPersonToNotifyAddress(logger Logger, tmpl template.Template, addressCl
 				personToNotify.Address = address
 				provided.PeopleToNotify.Put(personToNotify)
 				provided.Tasks.PeopleToNotify = task.StateCompleted
+
+				if err := reuseStore.PutPersonToNotify(r.Context(), personToNotify); err != nil {
+					return err
+				}
 
 				if err := donorStore.Put(r.Context(), provided); err != nil {
 					return err
