@@ -13,12 +13,12 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/task"
 )
 
-func ChoosePeopleToNotifyAddress(logger Logger, tmpl template.Template, addressClient AddressClient, donorStore DonorStore) Handler {
+func EnterPersonToNotifyAddress(logger Logger, tmpl template.Template, addressClient AddressClient, donorStore DonorStore) Handler {
 	return func(appData appcontext.Data, w http.ResponseWriter, r *http.Request, provided *donordata.Provided) error {
 		personToNotify, found := provided.PeopleToNotify.Get(actoruid.FromRequest(r))
 
 		if found == false {
-			return donor.PathChoosePeopleToNotify.Redirect(w, r, appData, provided)
+			return donor.PathEnterPersonToNotify.Redirect(w, r, appData, provided)
 		}
 
 		data := newChooseAddressData(

@@ -381,10 +381,10 @@ func Register(
 
 	handleWithDonor(donor.PathDoYouWantToNotifyPeople, page.CanGoBack,
 		DoYouWantToNotifyPeople(tmpls.Get("do_you_want_to_notify_people.gohtml"), donorStore))
-	handleWithDonor(donor.PathChoosePeopleToNotify, page.CanGoBack,
-		ChoosePeopleToNotify(tmpls.Get("choose_people_to_notify.gohtml"), donorStore, actoruid.New))
-	handleWithDonor(donor.PathChoosePeopleToNotifyAddress, page.CanGoBack,
-		ChoosePeopleToNotifyAddress(logger, tmpls.Get("choose_address.gohtml"), addressClient, donorStore))
+	handleWithDonor(donor.PathEnterPersonToNotify, page.CanGoBack,
+		EnterPersonToNotify(tmpls.Get("enter_person_to_notify.gohtml"), donorStore, actoruid.New))
+	handleWithDonor(donor.PathEnterPersonToNotifyAddress, page.CanGoBack,
+		EnterPersonToNotifyAddress(logger, tmpls.Get("choose_address.gohtml"), addressClient, donorStore))
 	handleWithDonor(donor.PathChoosePeopleToNotifySummary, page.CanGoBack,
 		ChoosePeopleToNotifySummary(tmpls.Get("choose_people_to_notify_summary.gohtml")))
 	handleWithDonor(donor.PathRemovePersonToNotify, page.CanGoBack,

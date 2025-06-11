@@ -20,7 +20,7 @@ import (
 	"github.com/stretchr/testify/mock"
 )
 
-func TestGetChoosePeopleToNotifyAddress(t *testing.T) {
+func TestGetEnterPersonToNotifyAddress(t *testing.T) {
 	uid := actoruid.New()
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest(http.MethodGet, "/?id="+uid.String(), nil)
@@ -44,14 +44,14 @@ func TestGetChoosePeopleToNotifyAddress(t *testing.T) {
 		}).
 		Return(nil)
 
-	err := ChoosePeopleToNotifyAddress(nil, template.Execute, nil, nil)(testAppData, w, r, &donordata.Provided{PeopleToNotify: donordata.PeopleToNotify{personToNotify}})
+	err := EnterPersonToNotifyAddress(nil, template.Execute, nil, nil)(testAppData, w, r, &donordata.Provided{PeopleToNotify: donordata.PeopleToNotify{personToNotify}})
 	resp := w.Result()
 
 	assert.Nil(t, err)
 	assert.Equal(t, http.StatusOK, resp.StatusCode)
 }
 
-func TestGetChoosePeopleToNotifyAddressFromStore(t *testing.T) {
+func TestGetEnterPersonToNotifyAddressFromStore(t *testing.T) {
 	uid := actoruid.New()
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest(http.MethodGet, "/?id="+uid.String(), nil)
@@ -72,7 +72,7 @@ func TestGetChoosePeopleToNotifyAddressFromStore(t *testing.T) {
 		}).
 		Return(nil)
 
-	err := ChoosePeopleToNotifyAddress(nil, template.Execute, nil, nil)(testAppData, w, r, &donordata.Provided{
+	err := EnterPersonToNotifyAddress(nil, template.Execute, nil, nil)(testAppData, w, r, &donordata.Provided{
 		PeopleToNotify: donordata.PeopleToNotify{{UID: uid, Address: testAddress}},
 	})
 	resp := w.Result()
@@ -81,7 +81,7 @@ func TestGetChoosePeopleToNotifyAddressFromStore(t *testing.T) {
 	assert.Equal(t, http.StatusOK, resp.StatusCode)
 }
 
-func TestGetChoosePeopleToNotifyAddressManual(t *testing.T) {
+func TestGetEnterPersonToNotifyAddressManual(t *testing.T) {
 	uid := actoruid.New()
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest(http.MethodGet, "/?action=manual&id="+uid.String(), nil)
@@ -102,14 +102,14 @@ func TestGetChoosePeopleToNotifyAddressManual(t *testing.T) {
 		}).
 		Return(nil)
 
-	err := ChoosePeopleToNotifyAddress(nil, template.Execute, nil, nil)(testAppData, w, r, &donordata.Provided{PeopleToNotify: donordata.PeopleToNotify{{UID: uid, Address: testAddress}}})
+	err := EnterPersonToNotifyAddress(nil, template.Execute, nil, nil)(testAppData, w, r, &donordata.Provided{PeopleToNotify: donordata.PeopleToNotify{{UID: uid, Address: testAddress}}})
 	resp := w.Result()
 
 	assert.Nil(t, err)
 	assert.Equal(t, http.StatusOK, resp.StatusCode)
 }
 
-func TestGetChoosePeopleToNotifyAddressWhenTemplateErrors(t *testing.T) {
+func TestGetEnterPersonToNotifyAddressWhenTemplateErrors(t *testing.T) {
 	uid := actoruid.New()
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest(http.MethodGet, "/?id="+uid.String(), nil)
@@ -131,14 +131,14 @@ func TestGetChoosePeopleToNotifyAddressWhenTemplateErrors(t *testing.T) {
 		}).
 		Return(expectedError)
 
-	err := ChoosePeopleToNotifyAddress(nil, template.Execute, nil, nil)(testAppData, w, r, &donordata.Provided{PeopleToNotify: donordata.PeopleToNotify{personToNotify}})
+	err := EnterPersonToNotifyAddress(nil, template.Execute, nil, nil)(testAppData, w, r, &donordata.Provided{PeopleToNotify: donordata.PeopleToNotify{personToNotify}})
 	resp := w.Result()
 
 	assert.Equal(t, expectedError, err)
 	assert.Equal(t, http.StatusOK, resp.StatusCode)
 }
 
-func TestPostChoosePeopleToNotifyAddressManual(t *testing.T) {
+func TestPostEnterPersonToNotifyAddressManual(t *testing.T) {
 	f := url.Values{
 		form.FieldNames.Address.Action:     {"manual"},
 		form.FieldNames.Address.Line1:      {"a"},
@@ -162,7 +162,7 @@ func TestPostChoosePeopleToNotifyAddressManual(t *testing.T) {
 		}).
 		Return(nil)
 
-	err := ChoosePeopleToNotifyAddress(nil, nil, nil, donorStore)(testAppData, w, r, &donordata.Provided{
+	err := EnterPersonToNotifyAddress(nil, nil, nil, donorStore)(testAppData, w, r, &donordata.Provided{
 		LpaID:          "lpa-id",
 		PeopleToNotify: donordata.PeopleToNotify{{UID: uid}},
 		Tasks:          donordata.Tasks{PeopleToNotify: task.StateInProgress},
@@ -174,7 +174,7 @@ func TestPostChoosePeopleToNotifyAddressManual(t *testing.T) {
 	assert.Equal(t, donor.PathChoosePeopleToNotifySummary.Format("lpa-id"), resp.Header.Get("Location"))
 }
 
-func TestPostChoosePeopleToNotifyAddressManualWhenStoreErrors(t *testing.T) {
+func TestPostEnterPersonToNotifyAddressManualWhenStoreErrors(t *testing.T) {
 	f := url.Values{
 		form.FieldNames.Address.Action:     {"manual"},
 		form.FieldNames.Address.Line1:      {"a"},
@@ -197,12 +197,12 @@ func TestPostChoosePeopleToNotifyAddressManualWhenStoreErrors(t *testing.T) {
 		}).
 		Return(expectedError)
 
-	err := ChoosePeopleToNotifyAddress(nil, nil, nil, donorStore)(testAppData, w, r, &donordata.Provided{PeopleToNotify: donordata.PeopleToNotify{{UID: uid}}})
+	err := EnterPersonToNotifyAddress(nil, nil, nil, donorStore)(testAppData, w, r, &donordata.Provided{PeopleToNotify: donordata.PeopleToNotify{{UID: uid}}})
 
 	assert.Equal(t, expectedError, err)
 }
 
-func TestPostChoosePeopleToNotifyAddressManualFromStore(t *testing.T) {
+func TestPostEnterPersonToNotifyAddressManualFromStore(t *testing.T) {
 	f := url.Values{
 		form.FieldNames.Address.Action:     {"manual"},
 		form.FieldNames.Address.Line1:      {"a"},
@@ -231,7 +231,7 @@ func TestPostChoosePeopleToNotifyAddressManualFromStore(t *testing.T) {
 		}).
 		Return(nil)
 
-	err := ChoosePeopleToNotifyAddress(nil, nil, nil, donorStore)(testAppData, w, r, &donordata.Provided{
+	err := EnterPersonToNotifyAddress(nil, nil, nil, donorStore)(testAppData, w, r, &donordata.Provided{
 		LpaID: "lpa-id",
 		PeopleToNotify: donordata.PeopleToNotify{donordata.PersonToNotify{
 			UID:        uid,
@@ -248,7 +248,7 @@ func TestPostChoosePeopleToNotifyAddressManualFromStore(t *testing.T) {
 	assert.Equal(t, donor.PathChoosePeopleToNotifySummary.Format("lpa-id"), resp.Header.Get("Location"))
 }
 
-func TestPostChoosePeopleToNotifyPostcodeSelect(t *testing.T) {
+func TestPostEnterPersonToNotifyPostcodeSelect(t *testing.T) {
 	f := url.Values{
 		form.FieldNames.Address.Action: {"postcode-select"},
 		"lookup-postcode":              {"NG1"},
@@ -277,7 +277,7 @@ func TestPostChoosePeopleToNotifyPostcodeSelect(t *testing.T) {
 		}).
 		Return(nil)
 
-	err := ChoosePeopleToNotifyAddress(nil, template.Execute, nil, nil)(testAppData, w, r, &donordata.Provided{
+	err := EnterPersonToNotifyAddress(nil, template.Execute, nil, nil)(testAppData, w, r, &donordata.Provided{
 		PeopleToNotify: donordata.PeopleToNotify{{
 			UID:        uid,
 			FirstNames: "John",
@@ -290,7 +290,7 @@ func TestPostChoosePeopleToNotifyPostcodeSelect(t *testing.T) {
 	assert.Equal(t, http.StatusOK, resp.StatusCode)
 }
 
-func TestPostChoosePeopleToNotifyPostcodeSelectWhenValidationError(t *testing.T) {
+func TestPostEnterPersonToNotifyPostcodeSelectWhenValidationError(t *testing.T) {
 	f := url.Values{
 		form.FieldNames.Address.Action: {"postcode-select"},
 		"lookup-postcode":              {"NG1"},
@@ -328,14 +328,14 @@ func TestPostChoosePeopleToNotifyPostcodeSelectWhenValidationError(t *testing.T)
 		}).
 		Return(nil)
 
-	err := ChoosePeopleToNotifyAddress(nil, template.Execute, addressClient, nil)(testAppData, w, r, &donordata.Provided{PeopleToNotify: donordata.PeopleToNotify{{UID: uid}}})
+	err := EnterPersonToNotifyAddress(nil, template.Execute, addressClient, nil)(testAppData, w, r, &donordata.Provided{PeopleToNotify: donordata.PeopleToNotify{{UID: uid}}})
 	resp := w.Result()
 
 	assert.Nil(t, err)
 	assert.Equal(t, http.StatusOK, resp.StatusCode)
 }
 
-func TestPostChoosePeopleToNotifyPostcodeLookup(t *testing.T) {
+func TestPostEnterPersonToNotifyPostcodeLookup(t *testing.T) {
 	f := url.Values{
 		form.FieldNames.Address.Action: {"postcode-lookup"},
 		"lookup-postcode":              {"NG1"},
@@ -372,14 +372,14 @@ func TestPostChoosePeopleToNotifyPostcodeLookup(t *testing.T) {
 		}).
 		Return(nil)
 
-	err := ChoosePeopleToNotifyAddress(nil, template.Execute, addressClient, nil)(testAppData, w, r, &donordata.Provided{PeopleToNotify: donordata.PeopleToNotify{{UID: uid, FirstNames: "John"}}})
+	err := EnterPersonToNotifyAddress(nil, template.Execute, addressClient, nil)(testAppData, w, r, &donordata.Provided{PeopleToNotify: donordata.PeopleToNotify{{UID: uid, FirstNames: "John"}}})
 	resp := w.Result()
 
 	assert.Nil(t, err)
 	assert.Equal(t, http.StatusOK, resp.StatusCode)
 }
 
-func TestPostChoosePeopleToNotifyPostcodeLookupError(t *testing.T) {
+func TestPostEnterPersonToNotifyPostcodeLookupError(t *testing.T) {
 	f := url.Values{
 		form.FieldNames.Address.Action: {"postcode-lookup"},
 		"lookup-postcode":              {"NG1"},
@@ -417,14 +417,14 @@ func TestPostChoosePeopleToNotifyPostcodeLookupError(t *testing.T) {
 		}).
 		Return(nil)
 
-	err := ChoosePeopleToNotifyAddress(logger, template.Execute, addressClient, nil)(testAppData, w, r, &donordata.Provided{PeopleToNotify: donordata.PeopleToNotify{{UID: uid}}})
+	err := EnterPersonToNotifyAddress(logger, template.Execute, addressClient, nil)(testAppData, w, r, &donordata.Provided{PeopleToNotify: donordata.PeopleToNotify{{UID: uid}}})
 	resp := w.Result()
 
 	assert.Nil(t, err)
 	assert.Equal(t, http.StatusOK, resp.StatusCode)
 }
 
-func TestPostChoosePeopleToNotifyPostcodeLookupInvalidPostcodeError(t *testing.T) {
+func TestPostEnterPersonToNotifyPostcodeLookupInvalidPostcodeError(t *testing.T) {
 	w := httptest.NewRecorder()
 	invalidPostcodeErr := place.BadRequestError{
 		Statuscode: 400,
@@ -467,14 +467,14 @@ func TestPostChoosePeopleToNotifyPostcodeLookupInvalidPostcodeError(t *testing.T
 		}).
 		Return(nil)
 
-	err := ChoosePeopleToNotifyAddress(logger, template.Execute, addressClient, nil)(testAppData, w, r, &donordata.Provided{PeopleToNotify: donordata.PeopleToNotify{{UID: uid}}})
+	err := EnterPersonToNotifyAddress(logger, template.Execute, addressClient, nil)(testAppData, w, r, &donordata.Provided{PeopleToNotify: donordata.PeopleToNotify{{UID: uid}}})
 	resp := w.Result()
 
 	assert.Nil(t, err)
 	assert.Equal(t, http.StatusOK, resp.StatusCode)
 }
 
-func TestPostChoosePeopleToNotifyPostcodeLookupValidPostcodeNoAddresses(t *testing.T) {
+func TestPostEnterPersonToNotifyPostcodeLookupValidPostcodeNoAddresses(t *testing.T) {
 	w := httptest.NewRecorder()
 
 	f := url.Values{
@@ -511,14 +511,14 @@ func TestPostChoosePeopleToNotifyPostcodeLookupValidPostcodeNoAddresses(t *testi
 		}).
 		Return(nil)
 
-	err := ChoosePeopleToNotifyAddress(logger, template.Execute, addressClient, nil)(testAppData, w, r, &donordata.Provided{PeopleToNotify: donordata.PeopleToNotify{{UID: uid}}})
+	err := EnterPersonToNotifyAddress(logger, template.Execute, addressClient, nil)(testAppData, w, r, &donordata.Provided{PeopleToNotify: donordata.PeopleToNotify{{UID: uid}}})
 	resp := w.Result()
 
 	assert.Nil(t, err)
 	assert.Equal(t, http.StatusOK, resp.StatusCode)
 }
 
-func TestPostChoosePeopleToNotifyPostcodeLookupWhenValidationError(t *testing.T) {
+func TestPostEnterPersonToNotifyPostcodeLookupWhenValidationError(t *testing.T) {
 	f := url.Values{
 		form.FieldNames.Address.Action: {"postcode-lookup"},
 	}
@@ -549,14 +549,14 @@ func TestPostChoosePeopleToNotifyPostcodeLookupWhenValidationError(t *testing.T)
 		}).
 		Return(nil)
 
-	err := ChoosePeopleToNotifyAddress(nil, template.Execute, nil, nil)(testAppData, w, r, &donordata.Provided{PeopleToNotify: donordata.PeopleToNotify{personToNotify}})
+	err := EnterPersonToNotifyAddress(nil, template.Execute, nil, nil)(testAppData, w, r, &donordata.Provided{PeopleToNotify: donordata.PeopleToNotify{personToNotify}})
 	resp := w.Result()
 
 	assert.Nil(t, err)
 	assert.Equal(t, http.StatusOK, resp.StatusCode)
 }
 
-func TestPostChoosePeopleToNotifyAddressReuse(t *testing.T) {
+func TestPostEnterPersonToNotifyAddressReuse(t *testing.T) {
 	f := url.Values{
 		form.FieldNames.Address.Action: {"reuse"},
 	}
@@ -582,7 +582,7 @@ func TestPostChoosePeopleToNotifyAddressReuse(t *testing.T) {
 		}).
 		Return(nil)
 
-	err := ChoosePeopleToNotifyAddress(nil, template.Execute, nil, nil)(testAppData, w, r, &donordata.Provided{
+	err := EnterPersonToNotifyAddress(nil, template.Execute, nil, nil)(testAppData, w, r, &donordata.Provided{
 		Donor:          donordata.Donor{Address: place.Address{Line1: "donor lane", Country: "GB"}},
 		PeopleToNotify: donordata.PeopleToNotify{{UID: uid}},
 	})
@@ -592,7 +592,7 @@ func TestPostChoosePeopleToNotifyAddressReuse(t *testing.T) {
 	assert.Equal(t, http.StatusOK, resp.StatusCode)
 }
 
-func TestPostChoosePeopleToNotifyAddressReuseSelect(t *testing.T) {
+func TestPostEnterPersonToNotifyAddressReuseSelect(t *testing.T) {
 	f := url.Values{
 		form.FieldNames.Address.Action: {"reuse-select"},
 		"select-address":               {testAddress.Encode()},
@@ -622,7 +622,7 @@ func TestPostChoosePeopleToNotifyAddressReuseSelect(t *testing.T) {
 		}).
 		Return(nil)
 
-	err := ChoosePeopleToNotifyAddress(nil, nil, nil, donorStore)(testAppData, w, r, &donordata.Provided{LpaID: "lpa-id", PeopleToNotify: donordata.PeopleToNotify{{UID: uid}}})
+	err := EnterPersonToNotifyAddress(nil, nil, nil, donorStore)(testAppData, w, r, &donordata.Provided{LpaID: "lpa-id", PeopleToNotify: donordata.PeopleToNotify{{UID: uid}}})
 	resp := w.Result()
 
 	assert.Nil(t, err)
@@ -630,7 +630,7 @@ func TestPostChoosePeopleToNotifyAddressReuseSelect(t *testing.T) {
 	assert.Equal(t, donor.PathChoosePeopleToNotifySummary.Format("lpa-id"), resp.Header.Get("Location"))
 }
 
-func TestPostChoosePeopleToNotifyAddressReuseSelectWhenValidationError(t *testing.T) {
+func TestPostEnterPersonToNotifyAddressReuseSelectWhenValidationError(t *testing.T) {
 	f := url.Values{
 		form.FieldNames.Address.Action: {"reuse-select"},
 	}
@@ -657,7 +657,7 @@ func TestPostChoosePeopleToNotifyAddressReuseSelectWhenValidationError(t *testin
 		}).
 		Return(nil)
 
-	err := ChoosePeopleToNotifyAddress(nil, template.Execute, nil, nil)(testAppData, w, r, &donordata.Provided{
+	err := EnterPersonToNotifyAddress(nil, template.Execute, nil, nil)(testAppData, w, r, &donordata.Provided{
 		Donor:          donordata.Donor{Address: place.Address{Line1: "donor lane", Country: "GB"}},
 		PeopleToNotify: donordata.PeopleToNotify{{UID: uid}},
 	})
