@@ -19,32 +19,32 @@ import (
 	"github.com/stretchr/testify/mock"
 )
 
-func TestGetChoosePeopleToNotify(t *testing.T) {
+func TestGetEnterPersonToNotify(t *testing.T) {
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest(http.MethodGet, "/", nil)
 
 	template := newMockTemplate(t)
 	template.EXPECT().
-		Execute(w, &choosePeopleToNotifyData{
+		Execute(w, &enterPersonToNotifyData{
 			App:  testAppData,
-			Form: &choosePeopleToNotifyForm{},
+			Form: &enterPersonToNotifyForm{},
 		}).
 		Return(nil)
 
-	err := ChoosePeopleToNotify(template.Execute, nil, testUIDFn)(testAppData, w, r, &donordata.Provided{})
+	err := EnterPersonToNotify(template.Execute, nil, testUIDFn)(testAppData, w, r, &donordata.Provided{})
 	resp := w.Result()
 
 	assert.Nil(t, err)
 	assert.Equal(t, http.StatusOK, resp.StatusCode)
 }
 
-func TestGetChoosePeopleToNotifyFromStore(t *testing.T) {
+func TestGetEnterPersonToNotifyFromStore(t *testing.T) {
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest(http.MethodGet, "/", nil)
 
 	template := newMockTemplate(t)
 
-	err := ChoosePeopleToNotify(template.Execute, nil, testUIDFn)(testAppData, w, r, &donordata.Provided{
+	err := EnterPersonToNotify(template.Execute, nil, testUIDFn)(testAppData, w, r, &donordata.Provided{
 		LpaID: "lpa-id",
 		PeopleToNotify: donordata.PeopleToNotify{
 			{
@@ -62,26 +62,26 @@ func TestGetChoosePeopleToNotifyFromStore(t *testing.T) {
 	assert.Equal(t, donor.PathChoosePeopleToNotifySummary.Format("lpa-id"), resp.Header.Get("Location"))
 }
 
-func TestGetChoosePeopleToNotifyWhenTemplateErrors(t *testing.T) {
+func TestGetEnterPersonToNotifyWhenTemplateErrors(t *testing.T) {
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest(http.MethodGet, "/", nil)
 
 	template := newMockTemplate(t)
 	template.EXPECT().
-		Execute(w, &choosePeopleToNotifyData{
+		Execute(w, &enterPersonToNotifyData{
 			App:  testAppData,
-			Form: &choosePeopleToNotifyForm{},
+			Form: &enterPersonToNotifyForm{},
 		}).
 		Return(expectedError)
 
-	err := ChoosePeopleToNotify(template.Execute, nil, testUIDFn)(testAppData, w, r, &donordata.Provided{})
+	err := EnterPersonToNotify(template.Execute, nil, testUIDFn)(testAppData, w, r, &donordata.Provided{})
 	resp := w.Result()
 
 	assert.Equal(t, expectedError, err)
 	assert.Equal(t, http.StatusOK, resp.StatusCode)
 }
 
-func TestGetChoosePeopleToNotifyPeopleLimitReached(t *testing.T) {
+func TestGetEnterPersonToNotifyPeopleLimitReached(t *testing.T) {
 	personToNotify := donordata.PersonToNotify{
 		FirstNames: "John",
 		LastName:   "Doe",
@@ -120,7 +120,7 @@ func TestGetChoosePeopleToNotifyPeopleLimitReached(t *testing.T) {
 			w := httptest.NewRecorder()
 			r, _ := http.NewRequest(http.MethodGet, "/", nil)
 
-			err := ChoosePeopleToNotify(nil, nil, testUIDFn)(testAppData, w, r, &donordata.Provided{
+			err := EnterPersonToNotify(nil, nil, testUIDFn)(testAppData, w, r, &donordata.Provided{
 				LpaID:          "lpa-id",
 				PeopleToNotify: tc.addedPeople,
 			})
@@ -133,7 +133,7 @@ func TestGetChoosePeopleToNotifyPeopleLimitReached(t *testing.T) {
 	}
 }
 
-func TestPostChoosePeopleToNotifyPersonDoesNotExists(t *testing.T) {
+func TestPostEnterPersonToNotifyPersonDoesNotExists(t *testing.T) {
 	testCases := map[string]struct {
 		form             url.Values
 		personToNotify   donordata.PersonToNotify
@@ -149,7 +149,7 @@ func TestPostChoosePeopleToNotifyPersonDoesNotExists(t *testing.T) {
 				LastName:   "Doe",
 				UID:        testUID,
 			},
-			expectedRedirect: donor.PathChoosePeopleToNotifyAddress.FormatQuery("lpa-id", url.Values{
+			expectedRedirect: donor.PathEnterPersonToNotifyAddress.FormatQuery("lpa-id", url.Values{
 				"id": {testUID.String()},
 			}),
 		},
@@ -166,7 +166,7 @@ func TestPostChoosePeopleToNotifyPersonDoesNotExists(t *testing.T) {
 			expectedRedirect: donor.PathWarningInterruption.FormatQuery("lpa-id", url.Values{
 				"id":          {testUID.String()},
 				"warningFrom": {"/abc"},
-				"next": {donor.PathChoosePeopleToNotifyAddress.FormatQuery(
+				"next": {donor.PathEnterPersonToNotifyAddress.FormatQuery(
 					"lpa-id",
 					url.Values{"id": {testUID.String()}}),
 				},
@@ -192,7 +192,7 @@ func TestPostChoosePeopleToNotifyPersonDoesNotExists(t *testing.T) {
 				Return(nil)
 
 			appData := appcontext.Data{Page: "/abc"}
-			err := ChoosePeopleToNotify(nil, donorStore, testUIDFn)(appData, w, r, &donordata.Provided{
+			err := EnterPersonToNotify(nil, donorStore, testUIDFn)(appData, w, r, &donordata.Provided{
 				LpaID: "lpa-id",
 				Donor: donordata.Donor{FirstNames: "Jane", LastName: "Doe"},
 			})
@@ -205,7 +205,7 @@ func TestPostChoosePeopleToNotifyPersonDoesNotExists(t *testing.T) {
 	}
 }
 
-func TestPostChoosePeopleToNotifyPersonExists(t *testing.T) {
+func TestPostEnterPersonToNotifyPersonExists(t *testing.T) {
 	form := url.Values{
 		"first-names": {"Johnny"},
 		"last-name":   {"Dear"},
@@ -229,7 +229,7 @@ func TestPostChoosePeopleToNotifyPersonExists(t *testing.T) {
 		}).
 		Return(nil)
 
-	err := ChoosePeopleToNotify(nil, donorStore, testUIDFn)(testAppData, w, r, &donordata.Provided{
+	err := EnterPersonToNotify(nil, donorStore, testUIDFn)(testAppData, w, r, &donordata.Provided{
 		LpaID: "lpa-id",
 		PeopleToNotify: donordata.PeopleToNotify{{
 			FirstNames: "John",
@@ -241,49 +241,35 @@ func TestPostChoosePeopleToNotifyPersonExists(t *testing.T) {
 
 	assert.Nil(t, err)
 	assert.Equal(t, http.StatusFound, resp.StatusCode)
-	assert.Equal(t, donor.PathChoosePeopleToNotifyAddress.Format("lpa-id")+"?id="+uid.String(), resp.Header.Get("Location"))
+	assert.Equal(t, donor.PathEnterPersonToNotifyAddress.Format("lpa-id")+"?id="+uid.String(), resp.Header.Get("Location"))
 }
 
-func TestPostChoosePeopleToNotifyWhenInputRequired(t *testing.T) {
-	testCases := map[string]struct {
-		form        url.Values
-		dataMatcher func(t *testing.T, data *choosePeopleToNotifyData) bool
-	}{
-		"validation error": {
-			form: url.Values{
-				"last-name": {"Doe"},
-			},
-			dataMatcher: func(t *testing.T, data *choosePeopleToNotifyData) bool {
-				return assert.Equal(t, validation.With("first-names", validation.EnterError{Label: "firstNames"}), data.Errors)
-			},
-		},
+func TestPostEnterPersonToNotifyWhenInputRequired(t *testing.T) {
+	form := url.Values{
+		"last-name": {"Doe"},
 	}
 
-	for name, tc := range testCases {
-		t.Run(name, func(t *testing.T) {
-			w := httptest.NewRecorder()
-			r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(tc.form.Encode()))
-			r.Header.Add("Content-Type", page.FormUrlEncoded)
+	w := httptest.NewRecorder()
+	r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(form.Encode()))
+	r.Header.Add("Content-Type", page.FormUrlEncoded)
 
-			template := newMockTemplate(t)
-			template.EXPECT().
-				Execute(w, mock.MatchedBy(func(data *choosePeopleToNotifyData) bool {
-					return tc.dataMatcher(t, data)
-				})).
-				Return(nil)
+	template := newMockTemplate(t)
+	template.EXPECT().
+		Execute(w, mock.MatchedBy(func(data *enterPersonToNotifyData) bool {
+			return assert.Equal(t, validation.With("first-names", validation.EnterError{Label: "firstNames"}), data.Errors)
+		})).
+		Return(nil)
 
-			err := ChoosePeopleToNotify(template.Execute, nil, testUIDFn)(testAppData, w, r, &donordata.Provided{
-				Donor: donordata.Donor{FirstNames: "Jane", LastName: "Doe"},
-			})
-			resp := w.Result()
+	err := EnterPersonToNotify(template.Execute, nil, testUIDFn)(testAppData, w, r, &donordata.Provided{
+		Donor: donordata.Donor{FirstNames: "Jane", LastName: "Doe"},
+	})
+	resp := w.Result()
 
-			assert.Nil(t, err)
-			assert.Equal(t, http.StatusOK, resp.StatusCode)
-		})
-	}
+	assert.Nil(t, err)
+	assert.Equal(t, http.StatusOK, resp.StatusCode)
 }
 
-func TestPostChoosePeopleToNotifyWhenStoreErrors(t *testing.T) {
+func TestPostEnterPersonToNotifyWhenStoreErrors(t *testing.T) {
 	form := url.Values{
 		"first-names": {"John"},
 		"last-name":   {"Doe"},
@@ -298,12 +284,12 @@ func TestPostChoosePeopleToNotifyWhenStoreErrors(t *testing.T) {
 		Put(r.Context(), mock.Anything).
 		Return(expectedError)
 
-	err := ChoosePeopleToNotify(nil, donorStore, testUIDFn)(testAppData, w, r, &donordata.Provided{})
+	err := EnterPersonToNotify(nil, donorStore, testUIDFn)(testAppData, w, r, &donordata.Provided{})
 
 	assert.Equal(t, expectedError, err)
 }
 
-func TestReadChoosePeopleToNotifyForm(t *testing.T) {
+func TestReadEnterPersonToNotifyForm(t *testing.T) {
 	assert := assert.New(t)
 
 	form := url.Values{
@@ -314,37 +300,37 @@ func TestReadChoosePeopleToNotifyForm(t *testing.T) {
 	r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(form.Encode()))
 	r.Header.Add("Content-Type", page.FormUrlEncoded)
 
-	result := readChoosePeopleToNotifyForm(r)
+	result := readEnterPersonToNotifyForm(r)
 
 	assert.Equal("John", result.FirstNames)
 	assert.Equal("Doe", result.LastName)
 }
 
-func TestChoosePeopleToNotifyFormValidate(t *testing.T) {
+func TestEnterPersonToNotifyFormValidate(t *testing.T) {
 	testCases := map[string]struct {
-		form   *choosePeopleToNotifyForm
+		form   *enterPersonToNotifyForm
 		errors validation.List
 	}{
 		"valid": {
-			form: &choosePeopleToNotifyForm{
+			form: &enterPersonToNotifyForm{
 				FirstNames: "A",
 				LastName:   "B",
 			},
 		},
 		"max length": {
-			form: &choosePeopleToNotifyForm{
+			form: &enterPersonToNotifyForm{
 				FirstNames: strings.Repeat("x", 53),
 				LastName:   strings.Repeat("x", 61),
 			},
 		},
 		"missing all": {
-			form: &choosePeopleToNotifyForm{},
+			form: &enterPersonToNotifyForm{},
 			errors: validation.
 				With("first-names", validation.EnterError{Label: "firstNames"}).
 				With("last-name", validation.EnterError{Label: "lastName"}),
 		},
 		"too long": {
-			form: &choosePeopleToNotifyForm{
+			form: &enterPersonToNotifyForm{
 				FirstNames: strings.Repeat("x", 54),
 				LastName:   strings.Repeat("x", 62),
 			},
