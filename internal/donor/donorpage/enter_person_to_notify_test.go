@@ -31,7 +31,7 @@ func TestGetEnterPersonToNotify(t *testing.T) {
 		}).
 		Return(nil)
 
-	err := EnterPersonToNotify(template.Execute, nil, testUIDFn)(testAppData, w, r, &donordata.Provided{})
+	err := EnterPersonToNotify(template.Execute, nil, nil, testUIDFn)(testAppData, w, r, &donordata.Provided{})
 	resp := w.Result()
 
 	assert.Nil(t, err)
@@ -44,7 +44,7 @@ func TestGetEnterPersonToNotifyFromStore(t *testing.T) {
 
 	template := newMockTemplate(t)
 
-	err := EnterPersonToNotify(template.Execute, nil, testUIDFn)(testAppData, w, r, &donordata.Provided{
+	err := EnterPersonToNotify(template.Execute, nil, nil, testUIDFn)(testAppData, w, r, &donordata.Provided{
 		LpaID: "lpa-id",
 		PeopleToNotify: donordata.PeopleToNotify{
 			{
@@ -74,7 +74,7 @@ func TestGetEnterPersonToNotifyWhenTemplateErrors(t *testing.T) {
 		}).
 		Return(expectedError)
 
-	err := EnterPersonToNotify(template.Execute, nil, testUIDFn)(testAppData, w, r, &donordata.Provided{})
+	err := EnterPersonToNotify(template.Execute, nil, nil, testUIDFn)(testAppData, w, r, &donordata.Provided{})
 	resp := w.Result()
 
 	assert.Equal(t, expectedError, err)
@@ -120,7 +120,7 @@ func TestGetEnterPersonToNotifyPeopleLimitReached(t *testing.T) {
 			w := httptest.NewRecorder()
 			r, _ := http.NewRequest(http.MethodGet, "/", nil)
 
-			err := EnterPersonToNotify(nil, nil, testUIDFn)(testAppData, w, r, &donordata.Provided{
+			err := EnterPersonToNotify(nil, nil, nil, testUIDFn)(testAppData, w, r, &donordata.Provided{
 				LpaID:          "lpa-id",
 				PeopleToNotify: tc.addedPeople,
 			})
@@ -181,6 +181,11 @@ func TestPostEnterPersonToNotifyPersonDoesNotExists(t *testing.T) {
 			r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(tc.form.Encode()))
 			r.Header.Add("Content-Type", page.FormUrlEncoded)
 
+			reuseStore := newMockReuseStore(t)
+			reuseStore.EXPECT().
+				PutPersonToNotify(r.Context(), tc.personToNotify).
+				Return(nil)
+
 			donorStore := newMockDonorStore(t)
 			donorStore.EXPECT().
 				Put(r.Context(), &donordata.Provided{
@@ -192,7 +197,7 @@ func TestPostEnterPersonToNotifyPersonDoesNotExists(t *testing.T) {
 				Return(nil)
 
 			appData := appcontext.Data{Page: "/abc"}
-			err := EnterPersonToNotify(nil, donorStore, testUIDFn)(appData, w, r, &donordata.Provided{
+			err := EnterPersonToNotify(nil, donorStore, reuseStore, testUIDFn)(appData, w, r, &donordata.Provided{
 				LpaID: "lpa-id",
 				Donor: donordata.Donor{FirstNames: "Jane", LastName: "Doe"},
 			})
@@ -216,6 +221,11 @@ func TestPostEnterPersonToNotifyPersonExists(t *testing.T) {
 	r, _ := http.NewRequest(http.MethodPost, "/?id="+uid.String(), strings.NewReader(form.Encode()))
 	r.Header.Add("Content-Type", page.FormUrlEncoded)
 
+	reuseStore := newMockReuseStore(t)
+	reuseStore.EXPECT().
+		PutPersonToNotify(mock.Anything, mock.Anything).
+		Return(nil)
+
 	donorStore := newMockDonorStore(t)
 	donorStore.EXPECT().
 		Put(r.Context(), &donordata.Provided{
@@ -229,7 +239,7 @@ func TestPostEnterPersonToNotifyPersonExists(t *testing.T) {
 		}).
 		Return(nil)
 
-	err := EnterPersonToNotify(nil, donorStore, testUIDFn)(testAppData, w, r, &donordata.Provided{
+	err := EnterPersonToNotify(nil, donorStore, reuseStore, testUIDFn)(testAppData, w, r, &donordata.Provided{
 		LpaID: "lpa-id",
 		PeopleToNotify: donordata.PeopleToNotify{{
 			FirstNames: "John",
@@ -260,7 +270,7 @@ func TestPostEnterPersonToNotifyWhenInputRequired(t *testing.T) {
 		})).
 		Return(nil)
 
-	err := EnterPersonToNotify(template.Execute, nil, testUIDFn)(testAppData, w, r, &donordata.Provided{
+	err := EnterPersonToNotify(template.Execute, nil, nil, testUIDFn)(testAppData, w, r, &donordata.Provided{
 		Donor: donordata.Donor{FirstNames: "Jane", LastName: "Doe"},
 	})
 	resp := w.Result()
@@ -269,7 +279,7 @@ func TestPostEnterPersonToNotifyWhenInputRequired(t *testing.T) {
 	assert.Equal(t, http.StatusOK, resp.StatusCode)
 }
 
-func TestPostEnterPersonToNotifyWhenStoreErrors(t *testing.T) {
+func TestPostEnterPersonToNotifyWhenReuseStoreErrors(t *testing.T) {
 	form := url.Values{
 		"first-names": {"John"},
 		"last-name":   {"Doe"},
@@ -279,12 +289,37 @@ func TestPostEnterPersonToNotifyWhenStoreErrors(t *testing.T) {
 	r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(form.Encode()))
 	r.Header.Add("Content-Type", page.FormUrlEncoded)
 
+	reuseStore := newMockReuseStore(t)
+	reuseStore.EXPECT().
+		PutPersonToNotify(mock.Anything, mock.Anything).
+		Return(expectedError)
+
+	err := EnterPersonToNotify(nil, nil, reuseStore, testUIDFn)(testAppData, w, r, &donordata.Provided{})
+
+	assert.Equal(t, expectedError, err)
+}
+
+func TestPostEnterPersonToNotifyWhenDonorStoreErrors(t *testing.T) {
+	form := url.Values{
+		"first-names": {"John"},
+		"last-name":   {"Doe"},
+	}
+
+	w := httptest.NewRecorder()
+	r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(form.Encode()))
+	r.Header.Add("Content-Type", page.FormUrlEncoded)
+
+	reuseStore := newMockReuseStore(t)
+	reuseStore.EXPECT().
+		PutPersonToNotify(mock.Anything, mock.Anything).
+		Return(nil)
+
 	donorStore := newMockDonorStore(t)
 	donorStore.EXPECT().
 		Put(r.Context(), mock.Anything).
 		Return(expectedError)
 
-	err := EnterPersonToNotify(nil, donorStore, testUIDFn)(testAppData, w, r, &donordata.Provided{})
+	err := EnterPersonToNotify(nil, donorStore, reuseStore, testUIDFn)(testAppData, w, r, &donordata.Provided{})
 
 	assert.Equal(t, expectedError, err)
 }
