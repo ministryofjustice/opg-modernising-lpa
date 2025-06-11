@@ -15,13 +15,13 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/validation"
 )
 
-type choosePeopleToNotifyData struct {
+type enterPersonToNotifyData struct {
 	App    appcontext.Data
 	Errors validation.List
-	Form   *choosePeopleToNotifyForm
+	Form   *enterPersonToNotifyForm
 }
 
-func ChoosePeopleToNotify(tmpl template.Template, donorStore DonorStore, newUID func() actoruid.UID) Handler {
+func EnterPersonToNotify(tmpl template.Template, donorStore DonorStore, newUID func() actoruid.UID) Handler {
 	return func(appData appcontext.Data, w http.ResponseWriter, r *http.Request, provided *donordata.Provided) error {
 		if len(provided.PeopleToNotify) > 4 {
 			return donor.PathChoosePeopleToNotifySummary.Redirect(w, r, appData, provided)
@@ -34,16 +34,16 @@ func ChoosePeopleToNotify(tmpl template.Template, donorStore DonorStore, newUID 
 			return donor.PathChoosePeopleToNotifySummary.Redirect(w, r, appData, provided)
 		}
 
-		data := &choosePeopleToNotifyData{
+		data := &enterPersonToNotifyData{
 			App: appData,
-			Form: &choosePeopleToNotifyForm{
+			Form: &enterPersonToNotifyForm{
 				FirstNames: personToNotify.FirstNames,
 				LastName:   personToNotify.LastName,
 			},
 		}
 
 		if r.Method == http.MethodPost {
-			data.Form = readChoosePeopleToNotifyForm(r)
+			data.Form = readEnterPersonToNotifyForm(r)
 			data.Errors = data.Form.Validate()
 
 			nameMatches := personToNotifyMatches(provided, personToNotify.UID, data.Form.FirstNames, data.Form.LastName)
@@ -81,7 +81,7 @@ func ChoosePeopleToNotify(tmpl template.Template, donorStore DonorStore, newUID 
 					return donor.PathWarningInterruption.RedirectQuery(w, r, appData, provided, url.Values{
 						"id":          {personToNotify.UID.String()},
 						"warningFrom": {appData.Page},
-						"next": {donor.PathChoosePeopleToNotifyAddress.FormatQuery(
+						"next": {donor.PathEnterPersonToNotifyAddress.FormatQuery(
 							provided.LpaID,
 							url.Values{"id": {personToNotify.UID.String()}}),
 						},
@@ -89,7 +89,7 @@ func ChoosePeopleToNotify(tmpl template.Template, donorStore DonorStore, newUID 
 					})
 				}
 
-				return donor.PathChoosePeopleToNotifyAddress.RedirectQuery(w, r, appData, provided, url.Values{"id": {personToNotify.UID.String()}})
+				return donor.PathEnterPersonToNotifyAddress.RedirectQuery(w, r, appData, provided, url.Values{"id": {personToNotify.UID.String()}})
 			}
 		}
 
@@ -97,19 +97,19 @@ func ChoosePeopleToNotify(tmpl template.Template, donorStore DonorStore, newUID 
 	}
 }
 
-type choosePeopleToNotifyForm struct {
+type enterPersonToNotifyForm struct {
 	FirstNames string
 	LastName   string
 }
 
-func readChoosePeopleToNotifyForm(r *http.Request) *choosePeopleToNotifyForm {
-	return &choosePeopleToNotifyForm{
+func readEnterPersonToNotifyForm(r *http.Request) *enterPersonToNotifyForm {
+	return &enterPersonToNotifyForm{
 		FirstNames: page.PostFormString(r, "first-names"),
 		LastName:   page.PostFormString(r, "last-name"),
 	}
 }
 
-func (f *choosePeopleToNotifyForm) Validate() validation.List {
+func (f *enterPersonToNotifyForm) Validate() validation.List {
 	var errors validation.List
 
 	errors.String("first-names", "firstNames", f.FirstNames,
