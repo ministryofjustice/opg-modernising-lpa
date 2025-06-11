@@ -103,7 +103,7 @@ func CertificateProvider(
 			certificateProviderSessionID = base64.StdEncoding.EncodeToString([]byte(mockGOLSubPrefix + encodedSub))
 		)
 
-		err := sessionStore.SetLogin(r, w, &sesh.LoginSession{Sub: mockGOLSubPrefix + encodedSub, Email: testEmail})
+		err := sessionStore.SetLogin(r, w, &sesh.LoginSession{Sub: mockGOLSubPrefix + encodedSub, Email: testEmail, HasLPAs: true})
 		if err != nil {
 			return err
 		}

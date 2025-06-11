@@ -93,6 +93,13 @@ func TestPostEnterReferenceNumber(t *testing.T) {
 	sessionStore.EXPECT().
 		Login(r).
 		Return(&sesh.LoginSession{Sub: "hey", Email: "a@example.com"}, nil)
+	sessionStore.EXPECT().
+		SetLogin(r, w, &sesh.LoginSession{
+			Sub:     "hey",
+			Email:   "a@example.com",
+			HasLPAs: true,
+		}).
+		Return(nil)
 
 	err := EnterReferenceNumber(nil, shareCodeStore, sessionStore, voucherStore)(testAppData, w, r)
 
@@ -182,7 +189,7 @@ func TestPostEnterReferenceNumberOnSessionGetError(t *testing.T) {
 	assert.ErrorIs(t, err, expectedError)
 }
 
-func TestPostEnterReferenceNumberOnVoucherStoreError(t *testing.T) {
+func TestPostEnterReferenceNumberOnSessionSetError(t *testing.T) {
 	form := url.Values{
 		"reference-number": {"abcdef123456"},
 	}
@@ -196,6 +203,33 @@ func TestPostEnterReferenceNumberOnVoucherStoreError(t *testing.T) {
 		Get(r.Context(), actor.TypeVoucher, sharecodedata.HashedFromString("abcdef123456")).
 		Return(sharecodedata.Link{LpaKey: dynamo.LpaKey("lpa-id"), LpaOwnerKey: dynamo.LpaOwnerKey(dynamo.DonorKey(""))}, nil)
 
+	sessionStore := newMockSessionStore(t)
+	sessionStore.EXPECT().
+		Login(r).
+		Return(&sesh.LoginSession{Sub: "hey"}, nil)
+	sessionStore.EXPECT().
+		SetLogin(mock.Anything, mock.Anything, mock.Anything).
+		Return(expectedError)
+
+	err := EnterReferenceNumber(nil, shareCodeStore, sessionStore, nil)(testAppData, w, r)
+
+	assert.ErrorIs(t, err, expectedError)
+}
+
+func TestPostEnterReferenceNumberOnVoucherStoreError(t *testing.T) {
+	form := url.Values{
+		"reference-number": {"abcdef123456"},
+	}
+
+	w := httptest.NewRecorder()
+	r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(form.Encode()))
+	r.Header.Add("Content-Type", page.FormUrlEncoded)
+
+	shareCodeStore := newMockShareCodeStore(t)
+	shareCodeStore.EXPECT().
+		Get(mock.Anything, mock.Anything, mock.Anything).
+		Return(sharecodedata.Link{LpaKey: dynamo.LpaKey("lpa-id"), LpaOwnerKey: dynamo.LpaOwnerKey(dynamo.DonorKey(""))}, nil)
+
 	voucherStore := newMockVoucherStore(t)
 	voucherStore.EXPECT().
 		Create(mock.Anything, mock.Anything, mock.Anything).
@@ -203,8 +237,11 @@ func TestPostEnterReferenceNumberOnVoucherStoreError(t *testing.T) {
 
 	sessionStore := newMockSessionStore(t)
 	sessionStore.EXPECT().
-		Login(r).
+		Login(mock.Anything).
 		Return(&sesh.LoginSession{Sub: "hey"}, nil)
+	sessionStore.EXPECT().
+		SetLogin(mock.Anything, mock.Anything, mock.Anything).
+		Return(nil)
 
 	err := EnterReferenceNumber(nil, shareCodeStore, sessionStore, voucherStore)(testAppData, w, r)
 

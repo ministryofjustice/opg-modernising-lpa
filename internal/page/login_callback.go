@@ -52,24 +52,33 @@ func LoginCallback(logger Logger, oneLoginClient LoginCallbackOneLoginClient, se
 			Email:   userInfo.Email,
 		}
 
-		logger.InfoContext(r.Context(), "login", slog.String("session_id", session.SessionID()))
+		results, err := dashboardStore.GetAll(appcontext.ContextWithSession(r.Context(), &appcontext.Session{SessionID: session.SessionID()}))
+		if err != nil {
+			return err
+		}
+
+		if !results.Empty() {
+			session.HasLPAs = true
+		}
 
 		if err := sessionStore.SetLogin(r, w, session); err != nil {
 			return err
 		}
 
-		if !actorType.IsDonor() {
-			exists, err := dashboardStore.SubExistsForActorType(r.Context(), session.SessionID(), actorType)
+		logger.InfoContext(r.Context(), "login", slog.String("session_id", session.SessionID()))
 
-			if err != nil {
-				return err
+		finalRedirect := redirect
+
+		if actorType.IsDonor() {
+			if len(results.Donor) == 0 {
+				finalRedirect = PathMakeOrAddAnLPA
 			}
-
-			if exists {
-				return appData.Redirect(w, r, PathDashboard.Format())
+		} else {
+			if len(results.ByActorType(actorType)) > 0 {
+				finalRedirect = PathDashboard
 			}
 		}
 
-		return appData.Redirect(w, r, redirect.Format())
+		return appData.Redirect(w, r, finalRedirect.Format())
 	}
 }

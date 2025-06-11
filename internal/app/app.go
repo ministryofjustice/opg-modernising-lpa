@@ -167,6 +167,10 @@ func App(
 		page.Guidance(tmpls.Get("voucher_start.gohtml")))
 	handleRoot(page.PathDashboard, RequireSession,
 		page.Dashboard(tmpls.Get("dashboard.gohtml"), donorStore, dashboardStore, useURL))
+	handleRoot(page.PathMakeOrAddAnLPA, RequireSession,
+		page.MakeOrAddAnLPA(tmpls.Get("make_or_add_an_lpa.gohtml"), donorStore, dashboardStore))
+	handleRoot(page.PathAddAnLPA, RequireSession,
+		page.AddAnLPA(tmpls.Get("add_an_lpa.gohtml")))
 	handleRoot(page.PathLpaDeleted, RequireSession,
 		page.Guidance(tmpls.Get("lpa_deleted.gohtml")))
 	handleRoot(page.PathLpaWithdrawn, RequireSession,
@@ -356,6 +360,11 @@ func makeHandle(mux *http.ServeMux, errorHandler page.ErrorHandler, sessionStore
 				}
 
 				appData.SessionID = loginSession.SessionID()
+
+				if !appData.HasLpas {
+					appData.HasLpas = loginSession.HasLPAs
+				}
+
 				ctx = appcontext.ContextWithSession(ctx, &appcontext.Session{SessionID: appData.SessionID})
 			}
 

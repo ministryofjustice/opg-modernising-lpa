@@ -7,7 +7,7 @@
         <div class="govuk-grid-column-two-thirds">
             <form novalidate method="post">
                 {{ template "radios-fieldset" (fieldset . .Form.FieldName .Form.YesNo.String
-                    (legendHeading "wouldYouLikeToAddSecondSignatory" "govuk-fieldset__legend--xl")
+                    (legendHeading "wouldYouLikeToAddSecondSignatory" "" "govuk-fieldset__legend--xl")
                     (item .Form.Options.Yes.String "yesByddwn")
                     (item .Form.Options.No.String "noNaFyddwn")
                     ) }}
