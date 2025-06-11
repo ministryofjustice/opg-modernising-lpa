@@ -152,7 +152,14 @@ func TestPostEnterReferenceNumber(t *testing.T) {
 	sessionStore := newMockSessionStore(t)
 	sessionStore.EXPECT().
 		Login(r).
-		Return(&sesh.LoginSession{Sub: "hey", Email: "a@b.com"}, nil)
+		Return(&sesh.LoginSession{Sub: "hey", Email: "a@example.com"}, nil)
+	sessionStore.EXPECT().
+		SetLogin(r, w, &sesh.LoginSession{
+			Sub:     "hey",
+			Email:   "a@example.com",
+			HasLPAs: true,
+		}).
+		Return(nil)
 
 	certificateProviderStore := newMockCertificateProviderStore(t)
 	certificateProviderStore.EXPECT().
@@ -160,7 +167,7 @@ func TestPostEnterReferenceNumber(t *testing.T) {
 			session, _ := appcontext.SessionFromContext(ctx)
 
 			return assert.Equal(t, &appcontext.Session{SessionID: "aGV5", LpaID: "lpa-id"}, session)
-		}), shareCodeData, "a@b.com").
+		}), shareCodeData, "a@example.com").
 		Return(&certificateproviderdata.Provided{}, nil)
 
 	err := EnterReferenceNumber(nil, shareCodeStore, sessionStore, certificateProviderStore, lpaStoreClient, dashboardStore)(testAppData, w, r)
@@ -452,7 +459,10 @@ func TestPostEnterReferenceNumberWhenCreateError(t *testing.T) {
 	sessionStore := newMockSessionStore(t)
 	sessionStore.EXPECT().
 		Login(mock.Anything).
-		Return(&sesh.LoginSession{Sub: "hey", Email: "a@b.com"}, nil)
+		Return(&sesh.LoginSession{Sub: "hey", Email: "a@example.com"}, nil)
+	sessionStore.EXPECT().
+		SetLogin(mock.Anything, mock.Anything, mock.Anything).
+		Return(nil)
 
 	lpaStoreClient := newMockLpaStoreClient(t)
 	lpaStoreClient.EXPECT().
