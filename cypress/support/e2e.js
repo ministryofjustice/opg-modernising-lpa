@@ -6,7 +6,23 @@ export const
     TestEmail = 'simulate-delivered@notifications.service.gov.uk',
     TestEmail2 = 'simulate-delivered-2@notifications.service.gov.uk',
     TestMobile = '07700900000',
-    TestMobile2 = '07700900111';
+    TestMobile2 = '07700900111',
+    DonorName = {FirstNames: "Sam", LastName: "Smith"},
+    CertificateProviderName = {FirstNames: "Charlie", LastName: "Cooper"},
+    AttorneyNames = [
+        {FirstNames: "Jessie", LastName: "Jones"},
+        {FirstNames: "Robin", LastName: "Redcar"}
+    ],
+    ReplacementAttorneyNames = [
+        {FirstNames: "Blake", LastName: "Buckley"},
+        {FirstNames: "Taylor", LastName: "Thompson"}
+    ],
+    PeopleToNotifyNames = [
+        {FirstNames: "Jordan", LastName: "Jefferson"},
+        {FirstNames: "Danni", LastName: "Davies"},
+    ],
+    CorrespondentName = {FirstNames: "John", LastName: "Smith"}
+
 
 export function randomShareCode() {
     const characters = 'abcdefghijklmnpqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ123456789'
@@ -46,7 +62,7 @@ export const AddressFormAssertions = {
         cy.contains('button', 'Save and continue').click();
     },
 
-    assertCanAddAddressFromSelect() {
+    assertCanAddAddressFromSelect(houseNumber = '2') {
         cy.checkA11yApp();
 
         cy.get('#f-lookup-postcode').invoke('val', 'B14 7ED');
@@ -54,12 +70,12 @@ export const AddressFormAssertions = {
 
         cy.checkA11yApp();
 
-        cy.get('#f-select-address').select('2 RICHMOND PLACE, BIRMINGHAM, B14 7ED');
+        cy.get('#f-select-address').select(`${houseNumber} RICHMOND PLACE, BIRMINGHAM, B14 7ED`);
         cy.contains('button', 'Continue').click();
 
         cy.checkA11yApp();
 
-        cy.get('#f-address-line-1').should('have.value', '2 RICHMOND PLACE');
+        cy.get('#f-address-line-1').should('have.value', `${houseNumber} RICHMOND PLACE`);
         cy.get('#f-address-line-2').should('have.value', '');
         cy.get('#f-address-line-3').should('have.value', '');
         cy.get('#f-address-town').should('have.value', 'BIRMINGHAM');
