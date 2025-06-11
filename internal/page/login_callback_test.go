@@ -10,6 +10,7 @@ import (
 
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/appcontext"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/dashboard/dashboarddata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/onelogin"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/sesh"
 	"github.com/stretchr/testify/assert"
@@ -18,17 +19,35 @@ import (
 
 func TestLoginCallback(t *testing.T) {
 	testCases := map[string]struct {
-		subExists        bool
+		dashboardResults dashboarddata.Results
+		redirect         Path
 		expectedRedirect Path
+		hasLPAs          bool
+		actorType        actor.Type
 	}{
-		"Sub exists":         {subExists: true, expectedRedirect: PathDashboard},
-		"Sub does not exist": {subExists: false, expectedRedirect: PathAttorneyEnterReferenceNumber},
+		"Has LPAs": {
+			dashboardResults: dashboarddata.Results{Attorney: []dashboarddata.Actor{{}}},
+			redirect:         PathAttorneyEnterReferenceNumber,
+			expectedRedirect: PathDashboard,
+			hasLPAs:          true,
+			actorType:        actor.TypeAttorney,
+		},
+		"No LPAs donor": {
+			redirect:         PathDashboard,
+			expectedRedirect: PathMakeOrAddAnLPA,
+			actorType:        actor.TypeDonor,
+		},
+		"No LPAs": {
+			redirect:         PathAttorneyEnterReferenceNumber,
+			expectedRedirect: PathAttorneyEnterReferenceNumber,
+			actorType:        actor.TypeAttorney,
+		},
 	}
 
 	for name, tc := range testCases {
 		t.Run(name, func(t *testing.T) {
 			w := httptest.NewRecorder()
-			r, _ := http.NewRequest(http.MethodGet, "/?code=auth-code&state=my-state", nil)
+			r := httptest.NewRequest(http.MethodGet, "/?code=auth-code&state=my-state", nil)
 
 			client := newMockOneLoginClient(t)
 			client.EXPECT().
@@ -37,12 +56,6 @@ func TestLoginCallback(t *testing.T) {
 			client.EXPECT().
 				UserInfo(r.Context(), "a JWT").
 				Return(onelogin.UserInfo{Sub: "random", Email: "name@example.com"}, nil)
-
-			session := &sesh.LoginSession{
-				IDToken: "id-token",
-				Sub:     "random",
-				Email:   "name@example.com",
-			}
 
 			sessionStore := newMockSessionStore(t)
 			sessionStore.EXPECT().
@@ -53,20 +66,31 @@ func TestLoginCallback(t *testing.T) {
 					Locale:   "en",
 					Redirect: "/redirect",
 				}, nil)
+
+			session := &sesh.LoginSession{
+				IDToken: "id-token",
+				Sub:     "random",
+				Email:   "name@example.com",
+				HasLPAs: tc.hasLPAs,
+			}
 			sessionStore.EXPECT().
 				SetLogin(r, w, session).
 				Return(nil)
 
+			ctx := appcontext.ContextWithSession(r.Context(), &appcontext.Session{SessionID: base64.StdEncoding.EncodeToString([]byte("random"))})
+
 			dashboardStore := newMockDashboardStore(t)
 			dashboardStore.EXPECT().
-				SubExistsForActorType(r.Context(), base64.StdEncoding.EncodeToString([]byte("random")), actor.TypeAttorney).
-				Return(tc.subExists, nil)
+				GetAll(ctx).
+				Return(tc.dashboardResults, nil)
 
 			logger := newMockLogger(t)
 			logger.EXPECT().
 				InfoContext(r.Context(), "login", slog.String("session_id", session.SessionID()))
 
-			err := LoginCallback(logger, client, sessionStore, PathAttorneyEnterReferenceNumber, dashboardStore, actor.TypeAttorney)(appcontext.Data{}, w, r)
+			appData := appcontext.Data{}
+
+			err := LoginCallback(logger, client, sessionStore, tc.redirect, dashboardStore, tc.actorType)(appData, w, r)
 			assert.Nil(t, err)
 			resp := w.Result()
 
@@ -140,6 +164,37 @@ func TestLoginCallbackWhenUserInfoError(t *testing.T) {
 	assert.Equal(t, expectedError, err)
 }
 
+func TestLoginCallbackWhenDashboardStoreError(t *testing.T) {
+	w := httptest.NewRecorder()
+	r, _ := http.NewRequest(http.MethodGet, "/?code=auth-code&state=my-state", nil)
+
+	client := newMockOneLoginClient(t)
+	client.EXPECT().
+		Exchange(mock.Anything, mock.Anything, mock.Anything).
+		Return("id-token", "a JWT", nil)
+	client.EXPECT().
+		UserInfo(mock.Anything, mock.Anything).
+		Return(onelogin.UserInfo{Sub: "random", Email: "name@example.com"}, nil)
+
+	sessionStore := newMockSessionStore(t)
+	sessionStore.EXPECT().
+		OneLogin(mock.Anything).
+		Return(&sesh.OneLoginSession{
+			State:    "my-state",
+			Nonce:    "my-nonce",
+			Locale:   "en",
+			Redirect: PathLoginCallback.Format(),
+		}, nil)
+
+	dashboardStore := newMockDashboardStore(t)
+	dashboardStore.EXPECT().
+		GetAll(mock.Anything).
+		Return(dashboarddata.Results{}, expectedError)
+
+	err := LoginCallback(nil, client, sessionStore, PathLoginCallback, dashboardStore, actor.TypeAttorney)(appcontext.Data{}, w, r)
+	assert.Equal(t, expectedError, err)
+}
+
 func TestLoginCallbackWhenSessionError(t *testing.T) {
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest(http.MethodGet, "/?code=auth-code&state=my-state", nil)
@@ -151,6 +206,11 @@ func TestLoginCallbackWhenSessionError(t *testing.T) {
 	client.EXPECT().
 		UserInfo(r.Context(), "a JWT").
 		Return(onelogin.UserInfo{Sub: "random", Email: "name@example.com"}, nil)
+
+	dashboardStore := newMockDashboardStore(t)
+	dashboardStore.EXPECT().
+		GetAll(mock.Anything).
+		Return(dashboarddata.Results{}, nil)
 
 	sessionStore := newMockSessionStore(t)
 	sessionStore.EXPECT().
@@ -165,48 +225,6 @@ func TestLoginCallbackWhenSessionError(t *testing.T) {
 		SetLogin(r, w, mock.Anything).
 		Return(expectedError)
 
-	logger := newMockLogger(t)
-	logger.EXPECT().
-		InfoContext(mock.Anything, mock.Anything, mock.Anything)
-
-	err := LoginCallback(logger, client, sessionStore, PathLoginCallback, nil, actor.TypeAttorney)(appcontext.Data{}, w, r)
-	assert.Equal(t, expectedError, err)
-}
-
-func TestLoginCallbackWhenDashboardStoreError(t *testing.T) {
-	w := httptest.NewRecorder()
-	r, _ := http.NewRequest(http.MethodGet, "/?code=auth-code&state=my-state", nil)
-
-	client := newMockOneLoginClient(t)
-	client.EXPECT().
-		Exchange(r.Context(), "auth-code", "my-nonce").
-		Return("id-token", "a JWT", nil)
-	client.EXPECT().
-		UserInfo(r.Context(), "a JWT").
-		Return(onelogin.UserInfo{Sub: "random", Email: "name@example.com"}, nil)
-
-	sessionStore := newMockSessionStore(t)
-	sessionStore.EXPECT().
-		OneLogin(r).
-		Return(&sesh.OneLoginSession{
-			State:    "my-state",
-			Nonce:    "my-nonce",
-			Locale:   "en",
-			Redirect: PathLoginCallback.Format(),
-		}, nil)
-	sessionStore.EXPECT().
-		SetLogin(r, w, mock.Anything).
-		Return(nil)
-
-	dashboardStore := newMockDashboardStore(t)
-	dashboardStore.EXPECT().
-		SubExistsForActorType(r.Context(), mock.Anything, mock.Anything).
-		Return(false, expectedError)
-
-	logger := newMockLogger(t)
-	logger.EXPECT().
-		InfoContext(mock.Anything, mock.Anything, mock.Anything)
-
-	err := LoginCallback(logger, client, sessionStore, PathLoginCallback, dashboardStore, actor.TypeAttorney)(appcontext.Data{}, w, r)
+	err := LoginCallback(nil, client, sessionStore, PathLoginCallback, dashboardStore, actor.TypeAttorney)(appcontext.Data{}, w, r)
 	assert.Equal(t, expectedError, err)
 }

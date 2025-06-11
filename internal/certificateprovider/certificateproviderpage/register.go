@@ -254,6 +254,7 @@ func makeCertificateProviderHandle(mux *http.ServeMux, sessionStore SessionStore
 			}
 
 			appData.SessionID = session.SessionID()
+			appData.HasLpas = session.HasLPAs
 
 			sessionData, err := appcontext.SessionFromContext(ctx)
 			if err == nil {

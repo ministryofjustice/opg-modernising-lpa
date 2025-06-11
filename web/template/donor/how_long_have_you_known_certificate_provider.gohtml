@@ -7,7 +7,7 @@
         <div class="govuk-grid-column-two-thirds">
             <form novalidate method="post">
                 {{ template "radios-fieldset" (fieldset . "relationship-length" .RelationshipLength.String
-                    (legendHeading (trFormat .App "howLongHaveYouKnownCertificateProvider" "FirstNames" .CertificateProvider.FirstNames "LastName" .CertificateProvider.LastName) "govuk-fieldset__legend--xl")
+                    (legendHeading (trFormat .App "howLongHaveYouKnownCertificateProvider" "FirstNames" .CertificateProvider.FirstNames "LastName" .CertificateProvider.LastName) "" "govuk-fieldset__legend--xl")
                     (item .Options.GreaterThanEqualToTwoYears.String "twoYearsOrMore")
                     (item .Options.LessThanTwoYears.String "lessThanTwoYears")
                     ) }}

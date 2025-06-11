@@ -161,7 +161,7 @@
                     {{ end }}
 
                     {{ template "radios-fieldset" (fieldset . .Form.FieldNames.Action .Form.Action
-                        (legendHeading $title "govuk-fieldset__legend--xl")
+                        (legendHeading $title "" "govuk-fieldset__legend--xl")
                         (item "reuse" "useAnAddressYouAlreadyEntered")
                         (item "postcode" "enterNewAddress")
                         ) }}

@@ -186,6 +186,8 @@ func makeHandle(mux *http.ServeMux, store SessionStore, errorHandler page.ErrorH
 				}
 
 				appData.SessionID = session.SessionID()
+				appData.HasLpas = session.HasLPAs
+
 				ctx = appcontext.ContextWithSession(ctx, &appcontext.Session{SessionID: appData.SessionID, LpaID: appData.LpaID})
 			}
 
@@ -212,6 +214,7 @@ func makeAttorneyHandle(mux *http.ServeMux, store SessionStore, errorHandler pag
 			}
 
 			appData.SessionID = session.SessionID()
+			appData.HasLpas = session.HasLPAs
 
 			sessionData, err := appcontext.SessionFromContext(ctx)
 			if err == nil {
