@@ -178,24 +178,7 @@ func TestPostDoYouWantToNotifyPeople(t *testing.T) {
 			r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(f.Encode()))
 			r.Header.Add("Content-Type", page.FormUrlEncoded)
 
-			donorStore := newMockDonorStore(t)
-			donorStore.EXPECT().
-				Put(r.Context(), &donordata.Provided{
-					LpaID:                   "lpa-id",
-					DoYouWantToNotifyPeople: tc.YesNo,
-					Tasks: donordata.Tasks{
-						YourDetails:                task.StateCompleted,
-						ChooseAttorneys:            task.StateCompleted,
-						ChooseReplacementAttorneys: task.StateCompleted,
-						WhenCanTheLpaBeUsed:        task.StateCompleted,
-						Restrictions:               task.StateCompleted,
-						CertificateProvider:        task.StateCompleted,
-						PeopleToNotify:             tc.ExpectedStatus,
-					},
-				}).
-				Return(nil)
-
-			err := DoYouWantToNotifyPeople(nil, donorStore)(testAppData, w, r, &donordata.Provided{
+			provided := &donordata.Provided{
 				LpaID:                   "lpa-id",
 				DoYouWantToNotifyPeople: tc.ExistingAnswer,
 				Tasks: donordata.Tasks{
@@ -206,7 +189,14 @@ func TestPostDoYouWantToNotifyPeople(t *testing.T) {
 					Restrictions:               task.StateCompleted,
 					CertificateProvider:        task.StateCompleted,
 				},
-			})
+			}
+
+			service := newMockPeopleToNotifyService(t)
+			service.EXPECT().
+				WantPeopleToNotify(r.Context(), provided, tc.YesNo).
+				Return(nil)
+
+			err := DoYouWantToNotifyPeople(nil, service)(testAppData, w, r, provided)
 			resp := w.Result()
 
 			assert.Nil(t, err)
@@ -216,7 +206,7 @@ func TestPostDoYouWantToNotifyPeople(t *testing.T) {
 	}
 }
 
-func TestPostDoYouWantToNotifyPeopleWhenStoreErrors(t *testing.T) {
+func TestPostDoYouWantToNotifyPeopleWhenServiceErrors(t *testing.T) {
 	f := url.Values{
 		form.FieldNames.YesNo: {form.Yes.String()},
 	}
@@ -225,16 +215,12 @@ func TestPostDoYouWantToNotifyPeopleWhenStoreErrors(t *testing.T) {
 	r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(f.Encode()))
 	r.Header.Add("Content-Type", page.FormUrlEncoded)
 
-	donorStore := newMockDonorStore(t)
-	donorStore.EXPECT().
-		Put(r.Context(), &donordata.Provided{
-			DoYouWantToNotifyPeople: form.Yes,
-			Tasks:                   donordata.Tasks{PeopleToNotify: task.StateInProgress},
-		}).
+	service := newMockPeopleToNotifyService(t)
+	service.EXPECT().
+		WantPeopleToNotify(mock.Anything, mock.Anything, mock.Anything).
 		Return(expectedError)
 
-	err := DoYouWantToNotifyPeople(nil, donorStore)(testAppData, w, r, &donordata.Provided{})
-
+	err := DoYouWantToNotifyPeople(nil, service)(testAppData, w, r, &donordata.Provided{})
 	assert.Equal(t, expectedError, err)
 }
 

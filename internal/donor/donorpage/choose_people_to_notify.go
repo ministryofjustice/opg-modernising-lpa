@@ -1,19 +1,15 @@
 package donorpage
 
 import (
-	"errors"
 	"net/http"
 	"net/url"
 	"slices"
 	"strconv"
 
 	"github.com/ministryofjustice/opg-go-common/template"
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor/actoruid"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/appcontext"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor/donordata"
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/dynamo"
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/task"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/validation"
 )
 
@@ -26,10 +22,10 @@ type choosePeopleToNotifyData struct {
 	ShowTrustCorporationLink bool
 }
 
-func ChoosePeopleToNotify(tmpl template.Template, donorStore DonorStore, reuseStore ReuseStore, newUID func() actoruid.UID) Handler {
+func ChoosePeopleToNotify(tmpl template.Template, service PeopleToNotifyService) Handler {
 	return func(appData appcontext.Data, w http.ResponseWriter, r *http.Request, provided *donordata.Provided) error {
-		peopleToNotify, err := reuseStore.PeopleToNotify(r.Context(), provided)
-		if err != nil && !errors.Is(err, dynamo.NotFoundError{}) {
+		peopleToNotify, err := service.Reusable(r.Context(), provided)
+		if err != nil {
 			return err
 		}
 		if len(peopleToNotify) == 0 {
@@ -57,19 +53,12 @@ func ChoosePeopleToNotify(tmpl template.Template, donorStore DonorStore, reuseSt
 					})
 				}
 
+				var people []donordata.PersonToNotify
 				for _, index := range data.Form.Indices {
-					person := peopleToNotify[index]
-					person.UID = newUID()
-					provided.PeopleToNotify = append(provided.PeopleToNotify, person)
+					people = append(people, peopleToNotify[index])
 				}
 
-				provided.Tasks.PeopleToNotify = task.StateCompleted
-
-				if err := reuseStore.PutPeopleToNotify(r.Context(), provided.PeopleToNotify); err != nil {
-					return err
-				}
-
-				if err := donorStore.Put(r.Context(), provided); err != nil {
+				if err := service.PutMany(r.Context(), provided, people); err != nil {
 					return err
 				}
 

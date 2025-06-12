@@ -1,7 +1,6 @@
 package donorpage
 
 import (
-	"fmt"
 	"net/http"
 
 	"github.com/ministryofjustice/opg-go-common/template"
@@ -10,7 +9,6 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor/donordata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/form"
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/task"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/validation"
 )
 
@@ -21,7 +19,7 @@ type removePersonToNotifyData struct {
 	Form           *form.YesNoForm
 }
 
-func RemovePersonToNotify(tmpl template.Template, donorStore DonorStore, reuseStore ReuseStore) Handler {
+func RemovePersonToNotify(tmpl template.Template, service PeopleToNotifyService) Handler {
 	return func(appData appcontext.Data, w http.ResponseWriter, r *http.Request, provided *donordata.Provided) error {
 		person, found := provided.PeopleToNotify.Get(actoruid.FromRequest(r))
 
@@ -41,17 +39,8 @@ func RemovePersonToNotify(tmpl template.Template, donorStore DonorStore, reuseSt
 
 			if data.Errors.None() {
 				if data.Form.YesNo == form.Yes {
-					provided.PeopleToNotify.Delete(person)
-					if len(provided.PeopleToNotify) == 0 {
-						provided.Tasks.PeopleToNotify = task.StateNotStarted
-					}
-
-					if err := reuseStore.DeletePersonToNotify(r.Context(), person); err != nil {
-						return fmt.Errorf("removing reusable person to notify: %w", err)
-					}
-
-					if err := donorStore.Put(r.Context(), provided); err != nil {
-						return fmt.Errorf("error removing PersonToNotify from LPA: %w", err)
+					if err := service.Delete(r.Context(), provided, person); err != nil {
+						return err
 					}
 				}
 

@@ -17,14 +17,13 @@ func (ps PeopleToNotify) Get(uid actoruid.UID) (PersonToNotify, bool) {
 	return ps[idx], true
 }
 
-func (ps PeopleToNotify) Put(person PersonToNotify) bool {
-	idx := slices.IndexFunc(ps, func(p PersonToNotify) bool { return p.UID == person.UID })
+func (ps *PeopleToNotify) Put(person PersonToNotify) {
+	idx := slices.IndexFunc(*ps, func(p PersonToNotify) bool { return p.UID == person.UID })
 	if idx == -1 {
-		return false
+		*ps = append(*ps, person)
+	} else {
+		(*ps)[idx] = person
 	}
-
-	ps[idx] = person
-	return true
 }
 
 func (ps *PeopleToNotify) Delete(personToNotify PersonToNotify) bool {
