@@ -44,7 +44,7 @@ func TestGetEnterPersonToNotifyAddress(t *testing.T) {
 		}).
 		Return(nil)
 
-	err := EnterPersonToNotifyAddress(nil, template.Execute, nil, nil, nil)(testAppData, w, r, &donordata.Provided{PeopleToNotify: donordata.PeopleToNotify{personToNotify}})
+	err := EnterPersonToNotifyAddress(nil, template.Execute, nil, nil)(testAppData, w, r, &donordata.Provided{PeopleToNotify: donordata.PeopleToNotify{personToNotify}})
 	resp := w.Result()
 
 	assert.Nil(t, err)
@@ -72,7 +72,7 @@ func TestGetEnterPersonToNotifyAddressFromStore(t *testing.T) {
 		}).
 		Return(nil)
 
-	err := EnterPersonToNotifyAddress(nil, template.Execute, nil, nil, nil)(testAppData, w, r, &donordata.Provided{
+	err := EnterPersonToNotifyAddress(nil, template.Execute, nil, nil)(testAppData, w, r, &donordata.Provided{
 		PeopleToNotify: donordata.PeopleToNotify{{UID: uid, Address: testAddress}},
 	})
 	resp := w.Result()
@@ -102,7 +102,7 @@ func TestGetEnterPersonToNotifyAddressManual(t *testing.T) {
 		}).
 		Return(nil)
 
-	err := EnterPersonToNotifyAddress(nil, template.Execute, nil, nil, nil)(testAppData, w, r, &donordata.Provided{PeopleToNotify: donordata.PeopleToNotify{{UID: uid, Address: testAddress}}})
+	err := EnterPersonToNotifyAddress(nil, template.Execute, nil, nil)(testAppData, w, r, &donordata.Provided{PeopleToNotify: donordata.PeopleToNotify{{UID: uid, Address: testAddress}}})
 	resp := w.Result()
 
 	assert.Nil(t, err)
@@ -131,7 +131,7 @@ func TestGetEnterPersonToNotifyAddressWhenTemplateErrors(t *testing.T) {
 		}).
 		Return(expectedError)
 
-	err := EnterPersonToNotifyAddress(nil, template.Execute, nil, nil, nil)(testAppData, w, r, &donordata.Provided{PeopleToNotify: donordata.PeopleToNotify{personToNotify}})
+	err := EnterPersonToNotifyAddress(nil, template.Execute, nil, nil)(testAppData, w, r, &donordata.Provided{PeopleToNotify: donordata.PeopleToNotify{personToNotify}})
 	resp := w.Result()
 
 	assert.Equal(t, expectedError, err)
@@ -155,25 +155,18 @@ func TestPostEnterPersonToNotifyAddressManual(t *testing.T) {
 
 	personToNotify := donordata.PersonToNotify{UID: uid, Address: testAddress}
 
-	reuseStore := newMockReuseStore(t)
-	reuseStore.EXPECT().
-		PutPersonToNotify(r.Context(), personToNotify).
-		Return(nil)
-
-	donorStore := newMockDonorStore(t)
-	donorStore.EXPECT().
-		Put(r.Context(), &donordata.Provided{
-			LpaID:          "lpa-id",
-			PeopleToNotify: donordata.PeopleToNotify{personToNotify},
-			Tasks:          donordata.Tasks{PeopleToNotify: task.StateCompleted},
-		}).
-		Return(nil)
-
-	err := EnterPersonToNotifyAddress(nil, nil, nil, donorStore, reuseStore)(testAppData, w, r, &donordata.Provided{
+	provided := &donordata.Provided{
 		LpaID:          "lpa-id",
 		PeopleToNotify: donordata.PeopleToNotify{{UID: uid}},
 		Tasks:          donordata.Tasks{PeopleToNotify: task.StateInProgress},
-	})
+	}
+
+	service := newMockPeopleToNotifyService(t)
+	service.EXPECT().
+		Put(r.Context(), provided, personToNotify).
+		Return(uid, nil)
+
+	err := EnterPersonToNotifyAddress(nil, nil, nil, service)(testAppData, w, r, provided)
 	resp := w.Result()
 
 	assert.Nil(t, err)
@@ -181,7 +174,7 @@ func TestPostEnterPersonToNotifyAddressManual(t *testing.T) {
 	assert.Equal(t, donor.PathChoosePeopleToNotifySummary.Format("lpa-id"), resp.Header.Get("Location"))
 }
 
-func TestPostEnterPersonToNotifyAddressManualWhenReuseStoreErrors(t *testing.T) {
+func TestPostEnterPersonToNotifyAddressManualWhenServiceErrors(t *testing.T) {
 	f := url.Values{
 		form.FieldNames.Address.Action:     {"manual"},
 		form.FieldNames.Address.Line1:      {"a"},
@@ -196,42 +189,12 @@ func TestPostEnterPersonToNotifyAddressManualWhenReuseStoreErrors(t *testing.T) 
 	r, _ := http.NewRequest(http.MethodPost, "/?id="+uid.String(), strings.NewReader(f.Encode()))
 	r.Header.Add("Content-Type", page.FormUrlEncoded)
 
-	reuseStore := newMockReuseStore(t)
-	reuseStore.EXPECT().
-		PutPersonToNotify(mock.Anything, mock.Anything).
-		Return(expectedError)
+	service := newMockPeopleToNotifyService(t)
+	service.EXPECT().
+		Put(mock.Anything, mock.Anything, mock.Anything).
+		Return(uid, expectedError)
 
-	err := EnterPersonToNotifyAddress(nil, nil, nil, nil, reuseStore)(testAppData, w, r, &donordata.Provided{PeopleToNotify: donordata.PeopleToNotify{{UID: uid}}})
-
-	assert.Equal(t, expectedError, err)
-}
-
-func TestPostEnterPersonToNotifyAddressManualWhenDonorStoreErrors(t *testing.T) {
-	f := url.Values{
-		form.FieldNames.Address.Action:     {"manual"},
-		form.FieldNames.Address.Line1:      {"a"},
-		form.FieldNames.Address.Line2:      {"b"},
-		form.FieldNames.Address.Line3:      {"c"},
-		form.FieldNames.Address.TownOrCity: {"d"},
-		form.FieldNames.Address.Postcode:   {"e"},
-	}
-
-	uid := actoruid.New()
-	w := httptest.NewRecorder()
-	r, _ := http.NewRequest(http.MethodPost, "/?id="+uid.String(), strings.NewReader(f.Encode()))
-	r.Header.Add("Content-Type", page.FormUrlEncoded)
-
-	reuseStore := newMockReuseStore(t)
-	reuseStore.EXPECT().
-		PutPersonToNotify(mock.Anything, mock.Anything).
-		Return(nil)
-
-	donorStore := newMockDonorStore(t)
-	donorStore.EXPECT().
-		Put(mock.Anything, mock.Anything).
-		Return(expectedError)
-
-	err := EnterPersonToNotifyAddress(nil, nil, nil, donorStore, reuseStore)(testAppData, w, r, &donordata.Provided{PeopleToNotify: donordata.PeopleToNotify{{UID: uid}}})
+	err := EnterPersonToNotifyAddress(nil, nil, nil, service)(testAppData, w, r, &donordata.Provided{PeopleToNotify: donordata.PeopleToNotify{{UID: uid}}})
 
 	assert.Equal(t, expectedError, err)
 }
@@ -257,21 +220,7 @@ func TestPostEnterPersonToNotifyAddressManualFromStore(t *testing.T) {
 		Address:    testAddress,
 	}
 
-	reuseStore := newMockReuseStore(t)
-	reuseStore.EXPECT().
-		PutPersonToNotify(r.Context(), personToNotify).
-		Return(nil)
-
-	donorStore := newMockDonorStore(t)
-	donorStore.EXPECT().
-		Put(r.Context(), &donordata.Provided{
-			LpaID:          "lpa-id",
-			PeopleToNotify: donordata.PeopleToNotify{personToNotify},
-			Tasks:          donordata.Tasks{PeopleToNotify: task.StateCompleted},
-		}).
-		Return(nil)
-
-	err := EnterPersonToNotifyAddress(nil, nil, nil, donorStore, reuseStore)(testAppData, w, r, &donordata.Provided{
+	provided := &donordata.Provided{
 		LpaID: "lpa-id",
 		PeopleToNotify: donordata.PeopleToNotify{donordata.PersonToNotify{
 			UID:        uid,
@@ -279,7 +228,14 @@ func TestPostEnterPersonToNotifyAddressManualFromStore(t *testing.T) {
 			Address:    place.Address{Line1: "line1"},
 		}},
 		Tasks: donordata.Tasks{PeopleToNotify: task.StateInProgress},
-	})
+	}
+
+	service := newMockPeopleToNotifyService(t)
+	service.EXPECT().
+		Put(r.Context(), provided, personToNotify).
+		Return(uid, nil)
+
+	err := EnterPersonToNotifyAddress(nil, nil, nil, service)(testAppData, w, r, provided)
 
 	resp := w.Result()
 
@@ -317,7 +273,7 @@ func TestPostEnterPersonToNotifyPostcodeSelect(t *testing.T) {
 		}).
 		Return(nil)
 
-	err := EnterPersonToNotifyAddress(nil, template.Execute, nil, nil, nil)(testAppData, w, r, &donordata.Provided{
+	err := EnterPersonToNotifyAddress(nil, template.Execute, nil, nil)(testAppData, w, r, &donordata.Provided{
 		PeopleToNotify: donordata.PeopleToNotify{{
 			UID:        uid,
 			FirstNames: "John",
@@ -368,7 +324,7 @@ func TestPostEnterPersonToNotifyPostcodeSelectWhenValidationError(t *testing.T) 
 		}).
 		Return(nil)
 
-	err := EnterPersonToNotifyAddress(nil, template.Execute, addressClient, nil, nil)(testAppData, w, r, &donordata.Provided{PeopleToNotify: donordata.PeopleToNotify{{UID: uid}}})
+	err := EnterPersonToNotifyAddress(nil, template.Execute, addressClient, nil)(testAppData, w, r, &donordata.Provided{PeopleToNotify: donordata.PeopleToNotify{{UID: uid}}})
 	resp := w.Result()
 
 	assert.Nil(t, err)
@@ -412,7 +368,7 @@ func TestPostEnterPersonToNotifyPostcodeLookup(t *testing.T) {
 		}).
 		Return(nil)
 
-	err := EnterPersonToNotifyAddress(nil, template.Execute, addressClient, nil, nil)(testAppData, w, r, &donordata.Provided{PeopleToNotify: donordata.PeopleToNotify{{UID: uid, FirstNames: "John"}}})
+	err := EnterPersonToNotifyAddress(nil, template.Execute, addressClient, nil)(testAppData, w, r, &donordata.Provided{PeopleToNotify: donordata.PeopleToNotify{{UID: uid, FirstNames: "John"}}})
 	resp := w.Result()
 
 	assert.Nil(t, err)
@@ -457,7 +413,7 @@ func TestPostEnterPersonToNotifyPostcodeLookupError(t *testing.T) {
 		}).
 		Return(nil)
 
-	err := EnterPersonToNotifyAddress(logger, template.Execute, addressClient, nil, nil)(testAppData, w, r, &donordata.Provided{PeopleToNotify: donordata.PeopleToNotify{{UID: uid}}})
+	err := EnterPersonToNotifyAddress(logger, template.Execute, addressClient, nil)(testAppData, w, r, &donordata.Provided{PeopleToNotify: donordata.PeopleToNotify{{UID: uid}}})
 	resp := w.Result()
 
 	assert.Nil(t, err)
@@ -507,7 +463,7 @@ func TestPostEnterPersonToNotifyPostcodeLookupInvalidPostcodeError(t *testing.T)
 		}).
 		Return(nil)
 
-	err := EnterPersonToNotifyAddress(logger, template.Execute, addressClient, nil, nil)(testAppData, w, r, &donordata.Provided{PeopleToNotify: donordata.PeopleToNotify{{UID: uid}}})
+	err := EnterPersonToNotifyAddress(logger, template.Execute, addressClient, nil)(testAppData, w, r, &donordata.Provided{PeopleToNotify: donordata.PeopleToNotify{{UID: uid}}})
 	resp := w.Result()
 
 	assert.Nil(t, err)
@@ -551,7 +507,7 @@ func TestPostEnterPersonToNotifyPostcodeLookupValidPostcodeNoAddresses(t *testin
 		}).
 		Return(nil)
 
-	err := EnterPersonToNotifyAddress(logger, template.Execute, addressClient, nil, nil)(testAppData, w, r, &donordata.Provided{PeopleToNotify: donordata.PeopleToNotify{{UID: uid}}})
+	err := EnterPersonToNotifyAddress(logger, template.Execute, addressClient, nil)(testAppData, w, r, &donordata.Provided{PeopleToNotify: donordata.PeopleToNotify{{UID: uid}}})
 	resp := w.Result()
 
 	assert.Nil(t, err)
@@ -589,7 +545,7 @@ func TestPostEnterPersonToNotifyPostcodeLookupWhenValidationError(t *testing.T) 
 		}).
 		Return(nil)
 
-	err := EnterPersonToNotifyAddress(nil, template.Execute, nil, nil, nil)(testAppData, w, r, &donordata.Provided{PeopleToNotify: donordata.PeopleToNotify{personToNotify}})
+	err := EnterPersonToNotifyAddress(nil, template.Execute, nil, nil)(testAppData, w, r, &donordata.Provided{PeopleToNotify: donordata.PeopleToNotify{personToNotify}})
 	resp := w.Result()
 
 	assert.Nil(t, err)
@@ -622,7 +578,7 @@ func TestPostEnterPersonToNotifyAddressReuse(t *testing.T) {
 		}).
 		Return(nil)
 
-	err := EnterPersonToNotifyAddress(nil, template.Execute, nil, nil, nil)(testAppData, w, r, &donordata.Provided{
+	err := EnterPersonToNotifyAddress(nil, template.Execute, nil, nil)(testAppData, w, r, &donordata.Provided{
 		Donor:          donordata.Donor{Address: place.Address{Line1: "donor lane", Country: "GB"}},
 		PeopleToNotify: donordata.PeopleToNotify{{UID: uid}},
 	})
@@ -655,21 +611,14 @@ func TestPostEnterPersonToNotifyAddressReuseSelect(t *testing.T) {
 		},
 	}
 
-	reuseStore := newMockReuseStore(t)
-	reuseStore.EXPECT().
-		PutPersonToNotify(r.Context(), personToNotify).
-		Return(nil)
+	provided := &donordata.Provided{LpaID: "lpa-id", PeopleToNotify: donordata.PeopleToNotify{{UID: uid}}}
 
-	donorStore := newMockDonorStore(t)
-	donorStore.EXPECT().
-		Put(r.Context(), &donordata.Provided{
-			LpaID:          "lpa-id",
-			PeopleToNotify: donordata.PeopleToNotify{personToNotify},
-			Tasks:          donordata.Tasks{PeopleToNotify: task.StateCompleted},
-		}).
-		Return(nil)
+	service := newMockPeopleToNotifyService(t)
+	service.EXPECT().
+		Put(r.Context(), provided, personToNotify).
+		Return(uid, nil)
 
-	err := EnterPersonToNotifyAddress(nil, nil, nil, donorStore, reuseStore)(testAppData, w, r, &donordata.Provided{LpaID: "lpa-id", PeopleToNotify: donordata.PeopleToNotify{{UID: uid}}})
+	err := EnterPersonToNotifyAddress(nil, nil, nil, service)(testAppData, w, r, provided)
 	resp := w.Result()
 
 	assert.Nil(t, err)
@@ -704,7 +653,7 @@ func TestPostEnterPersonToNotifyAddressReuseSelectWhenValidationError(t *testing
 		}).
 		Return(nil)
 
-	err := EnterPersonToNotifyAddress(nil, template.Execute, nil, nil, nil)(testAppData, w, r, &donordata.Provided{
+	err := EnterPersonToNotifyAddress(nil, template.Execute, nil, nil)(testAppData, w, r, &donordata.Provided{
 		Donor:          donordata.Donor{Address: place.Address{Line1: "donor lane", Country: "GB"}},
 		PeopleToNotify: donordata.PeopleToNotify{{UID: uid}},
 	})
