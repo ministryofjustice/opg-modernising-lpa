@@ -1,7 +1,6 @@
 package donorpage
 
 import (
-	"errors"
 	"fmt"
 	"net/http"
 	"net/url"
@@ -10,7 +9,6 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/appcontext"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor/donordata"
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/dynamo"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/validation"
 )
 
@@ -23,14 +21,14 @@ type choosePeopleToNotifySummaryData struct {
 	CanChoose bool
 }
 
-func ChoosePeopleToNotifySummary(tmpl template.Template, reuseStore ReuseStore) Handler {
+func ChoosePeopleToNotifySummary(tmpl template.Template, service PeopleToNotifyService) Handler {
 	return func(appData appcontext.Data, w http.ResponseWriter, r *http.Request, provided *donordata.Provided) error {
 		if len(provided.PeopleToNotify) == 0 {
 			return donor.PathDoYouWantToNotifyPeople.Redirect(w, r, appData, provided)
 		}
 
-		peopleToNotify, err := reuseStore.PeopleToNotify(r.Context(), provided)
-		if err != nil && !errors.Is(err, dynamo.NotFoundError{}) {
+		peopleToNotify, err := service.Reusable(r.Context(), provided)
+		if err != nil {
 			return fmt.Errorf("retrieving reusable people to notify: %w", err)
 		}
 

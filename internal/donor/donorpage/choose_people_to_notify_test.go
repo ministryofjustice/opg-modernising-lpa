@@ -9,10 +9,8 @@ import (
 
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor/donordata"
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/dynamo"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/place"
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/task"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/validation"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
@@ -25,9 +23,9 @@ func TestGetChoosePeopleToNotify(t *testing.T) {
 	provided := &donordata.Provided{}
 	personToNotifys := []donordata.PersonToNotify{{FirstNames: "John"}}
 
-	reuseStore := newMockReuseStore(t)
-	reuseStore.EXPECT().
-		PeopleToNotify(r.Context(), provided).
+	service := newMockPeopleToNotifyService(t)
+	service.EXPECT().
+		Reusable(r.Context(), provided).
 		Return(personToNotifys, nil)
 
 	template := newMockTemplate(t)
@@ -40,7 +38,7 @@ func TestGetChoosePeopleToNotify(t *testing.T) {
 		}).
 		Return(nil)
 
-	err := ChoosePeopleToNotify(template.Execute, nil, reuseStore, nil)(testAppData, w, r, provided)
+	err := ChoosePeopleToNotify(template.Execute, service)(testAppData, w, r, provided)
 	resp := w.Result()
 
 	assert.Nil(t, err)
@@ -48,43 +46,34 @@ func TestGetChoosePeopleToNotify(t *testing.T) {
 }
 
 func TestGetChoosePeopleToNotifyWhenNoReusablePeopleToNotify(t *testing.T) {
-	testcases := map[string]error{
-		"none":      nil,
-		"not found": dynamo.NotFoundError{},
-	}
+	w := httptest.NewRecorder()
+	r, _ := http.NewRequest(http.MethodGet, "/?addAnother=1", nil)
 
-	for name, reuseError := range testcases {
-		t.Run(name, func(t *testing.T) {
-			w := httptest.NewRecorder()
-			r, _ := http.NewRequest(http.MethodGet, "/?addAnother=1", nil)
+	provided := &donordata.Provided{LpaID: "lpa-id"}
 
-			provided := &donordata.Provided{LpaID: "lpa-id"}
+	service := newMockPeopleToNotifyService(t)
+	service.EXPECT().
+		Reusable(r.Context(), provided).
+		Return(nil, nil)
 
-			reuseStore := newMockReuseStore(t)
-			reuseStore.EXPECT().
-				PeopleToNotify(r.Context(), provided).
-				Return(nil, reuseError)
+	err := ChoosePeopleToNotify(nil, service)(testAppData, w, r, provided)
+	resp := w.Result()
 
-			err := ChoosePeopleToNotify(nil, nil, reuseStore, testUIDFn)(testAppData, w, r, provided)
-			resp := w.Result()
-
-			assert.Nil(t, err)
-			assert.Equal(t, http.StatusFound, resp.StatusCode)
-			assert.Equal(t, donor.PathEnterPersonToNotify.FormatQuery("lpa-id", url.Values{"addAnother": {"1"}}), resp.Header.Get("Location"))
-		})
-	}
+	assert.Nil(t, err)
+	assert.Equal(t, http.StatusFound, resp.StatusCode)
+	assert.Equal(t, donor.PathEnterPersonToNotify.FormatQuery("lpa-id", url.Values{"addAnother": {"1"}}), resp.Header.Get("Location"))
 }
 
 func TestGetChoosePeopleToNotifyWhenError(t *testing.T) {
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest(http.MethodGet, "/", nil)
 
-	reuseStore := newMockReuseStore(t)
-	reuseStore.EXPECT().
-		PeopleToNotify(r.Context(), mock.Anything).
+	service := newMockPeopleToNotifyService(t)
+	service.EXPECT().
+		Reusable(r.Context(), mock.Anything).
 		Return(nil, expectedError)
 
-	err := ChoosePeopleToNotify(nil, nil, reuseStore, nil)(testAppData, w, r, &donordata.Provided{LpaID: "lpa-id"})
+	err := ChoosePeopleToNotify(nil, service)(testAppData, w, r, &donordata.Provided{LpaID: "lpa-id"})
 	assert.Equal(t, expectedError, err)
 }
 
@@ -92,9 +81,9 @@ func TestGetChoosePeopleToNotifyWhenTemplateErrors(t *testing.T) {
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest(http.MethodGet, "/", nil)
 
-	reuseStore := newMockReuseStore(t)
-	reuseStore.EXPECT().
-		PeopleToNotify(r.Context(), mock.Anything).
+	service := newMockPeopleToNotifyService(t)
+	service.EXPECT().
+		Reusable(r.Context(), mock.Anything).
 		Return([]donordata.PersonToNotify{{FirstNames: "John"}}, nil)
 
 	template := newMockTemplate(t)
@@ -102,7 +91,7 @@ func TestGetChoosePeopleToNotifyWhenTemplateErrors(t *testing.T) {
 		Execute(w, mock.Anything).
 		Return(expectedError)
 
-	err := ChoosePeopleToNotify(template.Execute, nil, reuseStore, nil)(testAppData, w, r, &donordata.Provided{})
+	err := ChoosePeopleToNotify(template.Execute, service)(testAppData, w, r, &donordata.Provided{})
 	resp := w.Result()
 
 	assert.Equal(t, expectedError, err)
@@ -119,29 +108,17 @@ func TestPostChoosePeopleToNotify(t *testing.T) {
 	r.Header.Add("Content-Type", page.FormUrlEncoded)
 
 	personToNotifys := []donordata.PersonToNotify{{FirstNames: "John"}, {FirstNames: "Dave", Address: place.Address{Line1: "123"}}}
+	provided := &donordata.Provided{LpaID: "lpa-id"}
 
-	reuseStore := newMockReuseStore(t)
-	reuseStore.EXPECT().
-		PeopleToNotify(r.Context(), mock.Anything).
+	service := newMockPeopleToNotifyService(t)
+	service.EXPECT().
+		Reusable(r.Context(), mock.Anything).
 		Return(personToNotifys, nil)
-	reuseStore.EXPECT().
-		PutPeopleToNotify(r.Context(), []donordata.PersonToNotify{{
-			UID:        testUID,
-			FirstNames: "Dave",
-			Address:    place.Address{Line1: "123"},
-		}}).
+	service.EXPECT().
+		PutMany(r.Context(), provided, []donordata.PersonToNotify{personToNotifys[1]}).
 		Return(nil)
 
-	donorStore := newMockDonorStore(t)
-	donorStore.EXPECT().
-		Put(r.Context(), &donordata.Provided{
-			LpaID:          "lpa-id",
-			PeopleToNotify: []donordata.PersonToNotify{{UID: testUID, FirstNames: "Dave", Address: place.Address{Line1: "123"}}},
-			Tasks:          donordata.Tasks{PeopleToNotify: task.StateCompleted},
-		}).
-		Return(nil)
-
-	err := ChoosePeopleToNotify(nil, donorStore, reuseStore, testUIDFn)(testAppData, w, r, &donordata.Provided{LpaID: "lpa-id"})
+	err := ChoosePeopleToNotify(nil, service)(testAppData, w, r, provided)
 	resp := w.Result()
 
 	assert.Nil(t, err)
@@ -156,12 +133,12 @@ func TestPostChoosePeopleToNotifyWhenNoneSelected(t *testing.T) {
 	r, _ := http.NewRequest(http.MethodPost, "/?addAnother=hello", strings.NewReader(form.Encode()))
 	r.Header.Add("Content-Type", page.FormUrlEncoded)
 
-	reuseStore := newMockReuseStore(t)
-	reuseStore.EXPECT().
-		PeopleToNotify(r.Context(), mock.Anything).
+	service := newMockPeopleToNotifyService(t)
+	service.EXPECT().
+		Reusable(r.Context(), mock.Anything).
 		Return([]donordata.PersonToNotify{{}}, nil)
 
-	err := ChoosePeopleToNotify(nil, nil, reuseStore, testUIDFn)(testAppData, w, r, &donordata.Provided{LpaID: "lpa-id"})
+	err := ChoosePeopleToNotify(nil, service)(testAppData, w, r, &donordata.Provided{LpaID: "lpa-id"})
 	resp := w.Result()
 
 	assert.Nil(t, err)
@@ -178,41 +155,15 @@ func TestPostChoosePeopleToNotifyWhenReuseStoreError(t *testing.T) {
 	r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(form.Encode()))
 	r.Header.Add("Content-Type", page.FormUrlEncoded)
 
-	reuseStore := newMockReuseStore(t)
-	reuseStore.EXPECT().
-		PeopleToNotify(r.Context(), mock.Anything).
+	service := newMockPeopleToNotifyService(t)
+	service.EXPECT().
+		Reusable(r.Context(), mock.Anything).
 		Return([]donordata.PersonToNotify{{}}, nil)
-	reuseStore.EXPECT().
-		PutPeopleToNotify(mock.Anything, mock.Anything).
+	service.EXPECT().
+		PutMany(mock.Anything, mock.Anything, mock.Anything).
 		Return(expectedError)
 
-	err := ChoosePeopleToNotify(nil, nil, reuseStore, testUIDFn)(testAppData, w, r, &donordata.Provided{LpaID: "lpa-id"})
-	assert.Equal(t, expectedError, err)
-}
-
-func TestPostChoosePeopleToNotifyWhenDonorStoreError(t *testing.T) {
-	form := url.Values{
-		"option": {"0"},
-	}
-
-	w := httptest.NewRecorder()
-	r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(form.Encode()))
-	r.Header.Add("Content-Type", page.FormUrlEncoded)
-
-	reuseStore := newMockReuseStore(t)
-	reuseStore.EXPECT().
-		PeopleToNotify(r.Context(), mock.Anything).
-		Return([]donordata.PersonToNotify{{}}, nil)
-	reuseStore.EXPECT().
-		PutPeopleToNotify(mock.Anything, mock.Anything).
-		Return(nil)
-
-	donorStore := newMockDonorStore(t)
-	donorStore.EXPECT().
-		Put(mock.Anything, mock.Anything).
-		Return(expectedError)
-
-	err := ChoosePeopleToNotify(nil, donorStore, reuseStore, testUIDFn)(testAppData, w, r, &donordata.Provided{LpaID: "lpa-id"})
+	err := ChoosePeopleToNotify(nil, service)(testAppData, w, r, &donordata.Provided{LpaID: "lpa-id"})
 	assert.Equal(t, expectedError, err)
 }
 

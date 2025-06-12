@@ -9,7 +9,6 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor/donordata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/form"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/lpastore/lpadata"
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/task"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/validation"
 )
 
@@ -21,7 +20,7 @@ type doYouWantToNotifyPeopleData struct {
 	HowWorkTogether string
 }
 
-func DoYouWantToNotifyPeople(tmpl template.Template, donorStore DonorStore) Handler {
+func DoYouWantToNotifyPeople(tmpl template.Template, service PeopleToNotifyService) Handler {
 	return func(appData appcontext.Data, w http.ResponseWriter, r *http.Request, provided *donordata.Provided) error {
 		if len(provided.PeopleToNotify) > 0 {
 			return donor.PathChoosePeopleToNotifySummary.Redirect(w, r, appData, provided)
@@ -47,17 +46,12 @@ func DoYouWantToNotifyPeople(tmpl template.Template, donorStore DonorStore) Hand
 			data.Errors = data.Form.Validate()
 
 			if data.Errors.None() {
-				provided.DoYouWantToNotifyPeople = data.Form.YesNo
-				provided.Tasks.PeopleToNotify = task.StateInProgress
-
 				redirectPath := donor.PathChoosePeopleToNotify
-
-				if provided.DoYouWantToNotifyPeople == form.No {
+				if data.Form.YesNo.IsNo() {
 					redirectPath = donor.PathTaskList
-					provided.Tasks.PeopleToNotify = task.StateCompleted
 				}
 
-				if err := donorStore.Put(r.Context(), provided); err != nil {
+				if err := service.WantPeopleToNotify(r.Context(), provided, data.Form.YesNo); err != nil {
 					return err
 				}
 

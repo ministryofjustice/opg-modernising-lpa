@@ -17,6 +17,7 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor/donordata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/event"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/form"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/identity"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/localize"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/lpastore"
@@ -207,6 +208,14 @@ type Bundle interface {
 	For(lang localize.Lang) localize.Localizer
 }
 
+type PeopleToNotifyService interface {
+	Reusable(ctx context.Context, provided *donordata.Provided) ([]donordata.PersonToNotify, error)
+	WantPeopleToNotify(ctx context.Context, provided *donordata.Provided, yesNo form.YesNo) error
+	PutMany(ctx context.Context, provided *donordata.Provided, people []donordata.PersonToNotify) error
+	Put(ctx context.Context, provided *donordata.Provided, person donordata.PersonToNotify) (actoruid.UID, error)
+	Delete(ctx context.Context, provided *donordata.Provided, person donordata.PersonToNotify) error
+}
+
 func Register(
 	rootMux *http.ServeMux,
 	logger Logger,
@@ -383,18 +392,22 @@ func Register(
 	handleWithDonor(donor.PathCertificateProviderSummary, page.None,
 		Guidance(tmpls.Get("certificate_provider_summary.gohtml")))
 
-	handleWithDonor(donor.PathDoYouWantToNotifyPeople, page.CanGoBack,
-		DoYouWantToNotifyPeople(tmpls.Get("do_you_want_to_notify_people.gohtml"), donorStore))
-	handleWithDonor(donor.PathChoosePeopleToNotify, page.CanGoBack,
-		ChoosePeopleToNotify(tmpls.Get("choose_people_to_notify.gohtml"), donorStore, reuseStore, actoruid.New))
-	handleWithDonor(donor.PathEnterPersonToNotify, page.CanGoBack,
-		EnterPersonToNotify(tmpls.Get("enter_person_to_notify.gohtml"), donorStore, reuseStore, actoruid.New))
-	handleWithDonor(donor.PathEnterPersonToNotifyAddress, page.CanGoBack,
-		EnterPersonToNotifyAddress(logger, tmpls.Get("choose_address.gohtml"), addressClient, donorStore, reuseStore))
-	handleWithDonor(donor.PathChoosePeopleToNotifySummary, page.CanGoBack,
-		ChoosePeopleToNotifySummary(tmpls.Get("choose_people_to_notify_summary.gohtml"), reuseStore))
-	handleWithDonor(donor.PathRemovePersonToNotify, page.CanGoBack,
-		RemovePersonToNotify(tmpls.Get("remove_person_to_notify.gohtml"), donorStore, reuseStore))
+	{
+		service := donor.NewPeopleToNotifyService(donorStore, reuseStore)
+
+		handleWithDonor(donor.PathDoYouWantToNotifyPeople, page.CanGoBack,
+			DoYouWantToNotifyPeople(tmpls.Get("do_you_want_to_notify_people.gohtml"), service))
+		handleWithDonor(donor.PathChoosePeopleToNotify, page.CanGoBack,
+			ChoosePeopleToNotify(tmpls.Get("choose_people_to_notify.gohtml"), service))
+		handleWithDonor(donor.PathEnterPersonToNotify, page.CanGoBack,
+			EnterPersonToNotify(tmpls.Get("enter_person_to_notify.gohtml"), service))
+		handleWithDonor(donor.PathEnterPersonToNotifyAddress, page.CanGoBack,
+			EnterPersonToNotifyAddress(logger, tmpls.Get("choose_address.gohtml"), addressClient, service))
+		handleWithDonor(donor.PathChoosePeopleToNotifySummary, page.CanGoBack,
+			ChoosePeopleToNotifySummary(tmpls.Get("choose_people_to_notify_summary.gohtml"), service))
+		handleWithDonor(donor.PathRemovePersonToNotify, page.CanGoBack,
+			RemovePersonToNotify(tmpls.Get("remove_person_to_notify.gohtml"), service))
+	}
 
 	handleWithDonor(donor.PathAddCorrespondent, page.None,
 		AddCorrespondent(tmpls.Get("add_correspondent.gohtml"), donorStore, eventClient))
