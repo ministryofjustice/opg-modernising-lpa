@@ -24,9 +24,9 @@ func TestGetChoosePeopleToNotifySummary(t *testing.T) {
 	donor := &donordata.Provided{PeopleToNotify: donordata.PeopleToNotify{{}}}
 	peopleToNotify := donordata.PeopleToNotify{{}}
 
-	reuseStore := newMockReuseStore(t)
-	reuseStore.EXPECT().
-		PeopleToNotify(r.Context(), donor).
+	service := newMockPeopleToNotifyService(t)
+	service.EXPECT().
+		Reusable(r.Context(), donor).
 		Return(peopleToNotify, nil)
 
 	template := newMockTemplate(t)
@@ -39,7 +39,7 @@ func TestGetChoosePeopleToNotifySummary(t *testing.T) {
 		}).
 		Return(nil)
 
-	err := ChoosePeopleToNotifySummary(template.Execute, reuseStore)(testAppData, w, r, donor)
+	err := ChoosePeopleToNotifySummary(template.Execute, service)(testAppData, w, r, donor)
 	resp := w.Result()
 
 	assert.Nil(t, err)
@@ -52,12 +52,12 @@ func TestGetChoosePeopleToNotifySummaryWhenReuseStoreErrors(t *testing.T) {
 
 	donor := &donordata.Provided{PeopleToNotify: donordata.PeopleToNotify{{}}}
 
-	reuseStore := newMockReuseStore(t)
-	reuseStore.EXPECT().
-		PeopleToNotify(r.Context(), donor).
+	service := newMockPeopleToNotifyService(t)
+	service.EXPECT().
+		Reusable(r.Context(), donor).
 		Return(nil, expectedError)
 
-	err := ChoosePeopleToNotifySummary(nil, reuseStore)(testAppData, w, r, donor)
+	err := ChoosePeopleToNotifySummary(nil, service)(testAppData, w, r, donor)
 	assert.ErrorIs(t, err, expectedError)
 }
 
@@ -101,12 +101,12 @@ func TestPostChoosePeopleToNotifySummaryAddPersonToNotify(t *testing.T) {
 			r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(f.Encode()))
 			r.Header.Add("Content-Type", page.FormUrlEncoded)
 
-			reuseStore := newMockReuseStore(t)
-			reuseStore.EXPECT().
-				PeopleToNotify(mock.Anything, mock.Anything).
+			service := newMockPeopleToNotifyService(t)
+			service.EXPECT().
+				Reusable(mock.Anything, mock.Anything).
 				Return(nil, nil)
 
-			err := ChoosePeopleToNotifySummary(nil, reuseStore)(testAppData, w, r, &donordata.Provided{LpaID: "lpa-id", PeopleToNotify: donordata.PeopleToNotify{{UID: actoruid.New()}}})
+			err := ChoosePeopleToNotifySummary(nil, service)(testAppData, w, r, &donordata.Provided{LpaID: "lpa-id", PeopleToNotify: donordata.PeopleToNotify{{UID: actoruid.New()}}})
 			resp := w.Result()
 
 			assert.Nil(t, err)
@@ -125,12 +125,12 @@ func TestPostChoosePeopleToNotifySummaryNoFurtherPeopleToNotify(t *testing.T) {
 	r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(f.Encode()))
 	r.Header.Add("Content-Type", page.FormUrlEncoded)
 
-	reuseStore := newMockReuseStore(t)
-	reuseStore.EXPECT().
-		PeopleToNotify(mock.Anything, mock.Anything).
+	service := newMockPeopleToNotifyService(t)
+	service.EXPECT().
+		Reusable(mock.Anything, mock.Anything).
 		Return(nil, nil)
 
-	err := ChoosePeopleToNotifySummary(nil, reuseStore)(testAppData, w, r, &donordata.Provided{
+	err := ChoosePeopleToNotifySummary(nil, service)(testAppData, w, r, &donordata.Provided{
 		LpaID:          "lpa-id",
 		PeopleToNotify: donordata.PeopleToNotify{{UID: actoruid.New()}},
 		Tasks: donordata.Tasks{
@@ -161,9 +161,9 @@ func TestPostChoosePeopleToNotifySummaryFormValidation(t *testing.T) {
 
 	validationError := validation.With("option", validation.SelectError{Label: "yesToAddAnotherPersonToNotify"})
 
-	reuseStore := newMockReuseStore(t)
-	reuseStore.EXPECT().
-		PeopleToNotify(mock.Anything, mock.Anything).
+	service := newMockPeopleToNotifyService(t)
+	service.EXPECT().
+		Reusable(mock.Anything, mock.Anything).
 		Return(nil, nil)
 
 	template := newMockTemplate(t)
@@ -173,7 +173,7 @@ func TestPostChoosePeopleToNotifySummaryFormValidation(t *testing.T) {
 		})).
 		Return(nil)
 
-	err := ChoosePeopleToNotifySummary(template.Execute, reuseStore)(testAppData, w, r, &donordata.Provided{PeopleToNotify: donordata.PeopleToNotify{{}}})
+	err := ChoosePeopleToNotifySummary(template.Execute, service)(testAppData, w, r, &donordata.Provided{PeopleToNotify: donordata.PeopleToNotify{{}}})
 	resp := w.Result()
 
 	assert.Nil(t, err)

@@ -11,7 +11,6 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor/donordata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/task"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/validation"
 )
 
@@ -21,7 +20,7 @@ type enterPersonToNotifyData struct {
 	Form   *enterPersonToNotifyForm
 }
 
-func EnterPersonToNotify(tmpl template.Template, donorStore DonorStore, reuseStore ReuseStore, newUID func() actoruid.UID) Handler {
+func EnterPersonToNotify(tmpl template.Template, service PeopleToNotifyService) Handler {
 	return func(appData appcontext.Data, w http.ResponseWriter, r *http.Request, provided *donordata.Provided) error {
 		if len(provided.PeopleToNotify) >= 5 {
 			return donor.PathChoosePeopleToNotifySummary.Redirect(w, r, appData, provided)
@@ -54,46 +53,27 @@ func EnterPersonToNotify(tmpl template.Template, donorStore DonorStore, reuseSto
 			}
 
 			if data.Errors.None() {
-				if personFound == false {
-					personToNotify = donordata.PersonToNotify{
-						UID:        newUID(),
-						FirstNames: data.Form.FirstNames,
-						LastName:   data.Form.LastName,
-					}
+				personToNotify.FirstNames = data.Form.FirstNames
+				personToNotify.LastName = data.Form.LastName
 
-					provided.PeopleToNotify = append(provided.PeopleToNotify, personToNotify)
-				} else {
-					personToNotify.FirstNames = data.Form.FirstNames
-					personToNotify.LastName = data.Form.LastName
-
-					provided.PeopleToNotify.Put(personToNotify)
-				}
-
-				if !provided.Tasks.PeopleToNotify.IsCompleted() {
-					provided.Tasks.PeopleToNotify = task.StateInProgress
-				}
-
-				if err := reuseStore.PutPersonToNotify(r.Context(), personToNotify); err != nil {
-					return err
-				}
-
-				if err := donorStore.Put(r.Context(), provided); err != nil {
+				uid, err := service.Put(r.Context(), provided, personToNotify)
+				if err != nil {
 					return err
 				}
 
 				if redirectToWarning {
 					return donor.PathWarningInterruption.RedirectQuery(w, r, appData, provided, url.Values{
-						"id":          {personToNotify.UID.String()},
+						"id":          {uid.String()},
 						"warningFrom": {appData.Page},
 						"next": {donor.PathEnterPersonToNotifyAddress.FormatQuery(
 							provided.LpaID,
-							url.Values{"id": {personToNotify.UID.String()}}),
+							url.Values{"id": {uid.String()}}),
 						},
 						"actor": {actor.TypePersonToNotify.String()},
 					})
 				}
 
-				return donor.PathEnterPersonToNotifyAddress.RedirectQuery(w, r, appData, provided, url.Values{"id": {personToNotify.UID.String()}})
+				return donor.PathEnterPersonToNotifyAddress.RedirectQuery(w, r, appData, provided, url.Values{"id": {uid.String()}})
 			}
 		}
 
