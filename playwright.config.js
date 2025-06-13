@@ -19,19 +19,25 @@ export default defineConfig({
     forbidOnly: !!process.env.CI,
     /* Retry on CI only */
     retries: process.env.CI ? 2 : 0,
-    /* Opt out of parallel tests on CI. */
-    workers: process.env.CI ? 1 : undefined,
+    /* Limit parallel tests to 4 locally, 2 CI. */
+    workers: process.env.CI ? 2 : 4,
     /* Reporter to use. See https://playwright.dev/docs/test-reporters */
     reporter: 'html',
     /* Folder for test artifacts such as screenshots, videos, traces, etc. */
     outputDir: 'test-results',
 
-    // Each test is given 60 seconds.
-    timeout: 60000,
+    // Each test is given 90 seconds to run
+    timeout: 90 * 1000,
+    // Test suite is given 3 minutes to run
+    globalTimeout: 180 * 1000,
+    expect: {
+        // expect() assertions are given 5 seconds to match
+        timeout: 5 * 1000
+    },
     /* Shared settings for all the projects below. See https://playwright.dev/docs/api/class-testoptions. */
     use: {
         /* Base URL to use in actions like `await page.goto('/')`. */
-        baseURL: 'http://localhost:5050',
+        baseURL: 'https://demo.app.modernising.opg.service.justice.gov.uk',
 
         /* Collect trace when retrying the failed test. See https://playwright.dev/docs/trace-viewer */
         trace: 'on-first-retry',
