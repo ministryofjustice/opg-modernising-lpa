@@ -12,7 +12,6 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor/donordata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/task"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/validation"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
@@ -30,7 +29,7 @@ func TestGetCertificateProviderDetails(t *testing.T) {
 		}).
 		Return(nil)
 
-	err := CertificateProviderDetails(template.Execute, nil, nil, testUIDFn)(testAppData, w, r, &donordata.Provided{})
+	err := CertificateProviderDetails(template.Execute, nil)(testAppData, w, r, &donordata.Provided{})
 	resp := w.Result()
 
 	assert.Nil(t, err)
@@ -83,7 +82,7 @@ func TestGetCertificateProviderDetailsFromStore(t *testing.T) {
 				}).
 				Return(nil)
 
-			err := CertificateProviderDetails(template.Execute, nil, nil, testUIDFn)(testAppData, w, r, tc.donor)
+			err := CertificateProviderDetails(template.Execute, nil)(testAppData, w, r, tc.donor)
 			resp := w.Result()
 
 			assert.Nil(t, err)
@@ -104,7 +103,7 @@ func TestGetCertificateProviderDetailsWhenTemplateErrors(t *testing.T) {
 		}).
 		Return(expectedError)
 
-	err := CertificateProviderDetails(template.Execute, nil, nil, testUIDFn)(testAppData, w, r, &donordata.Provided{})
+	err := CertificateProviderDetails(template.Execute, nil)(testAppData, w, r, &donordata.Provided{})
 	resp := w.Result()
 
 	assert.Equal(t, expectedError, err)
@@ -123,7 +122,6 @@ func TestPostCertificateProviderDetails(t *testing.T) {
 				"mobile":      {"07535111111"},
 			},
 			certificateProviderDetails: donordata.CertificateProvider{
-				UID:        testUID,
 				FirstNames: "John",
 				LastName:   "Rey",
 				Mobile:     "07535111111",
@@ -137,7 +135,6 @@ func TestPostCertificateProviderDetails(t *testing.T) {
 				"non-uk-mobile":     {"+337575757"},
 			},
 			certificateProviderDetails: donordata.CertificateProvider{
-				UID:            testUID,
 				FirstNames:     "John",
 				LastName:       "Rey",
 				Mobile:         "+337575757",
@@ -152,13 +149,8 @@ func TestPostCertificateProviderDetails(t *testing.T) {
 			r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(tc.form.Encode()))
 			r.Header.Add("Content-Type", page.FormUrlEncoded)
 
-			reuseStore := newMockReuseStore(t)
-			reuseStore.EXPECT().
-				PutCertificateProvider(r.Context(), tc.certificateProviderDetails).
-				Return(nil)
-
-			donorStore := newMockDonorStore(t)
-			donorStore.EXPECT().
+			service := newMockCertificateProviderService(t)
+			service.EXPECT().
 				Put(r.Context(), &donordata.Provided{
 					LpaID: "lpa-id",
 					Donor: donordata.Donor{
@@ -166,11 +158,10 @@ func TestPostCertificateProviderDetails(t *testing.T) {
 						LastName:   "Doe",
 					},
 					CertificateProvider: tc.certificateProviderDetails,
-					Tasks:               donordata.Tasks{CertificateProvider: task.StateInProgress},
 				}).
 				Return(nil)
 
-			err := CertificateProviderDetails(nil, donorStore, reuseStore, testUIDFn)(testAppData, w, r, &donordata.Provided{
+			err := CertificateProviderDetails(nil, service)(testAppData, w, r, &donordata.Provided{
 				LpaID: "lpa-id",
 				Donor: donordata.Donor{
 					FirstNames: "Jane",
@@ -197,8 +188,8 @@ func TestPostCertificateProviderDetailsWhenSharesDetail(t *testing.T) {
 	r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(f.Encode()))
 	r.Header.Add("Content-Type", page.FormUrlEncoded)
 
-	donorStore := newMockDonorStore(t)
-	donorStore.EXPECT().
+	service := newMockCertificateProviderService(t)
+	service.EXPECT().
 		Put(r.Context(), &donordata.Provided{
 			LpaID: "lpa-id",
 			Donor: donordata.Donor{
@@ -211,17 +202,11 @@ func TestPostCertificateProviderDetailsWhenSharesDetail(t *testing.T) {
 				LastName:   "Doe",
 				Mobile:     "07535111111",
 			},
-			Tasks: donordata.Tasks{CertificateProvider: task.StateInProgress},
 		}).
 		Return(nil)
 
-	reuseStore := newMockReuseStore(t)
-	reuseStore.EXPECT().
-		PutCertificateProvider(mock.Anything, mock.Anything).
-		Return(nil)
-
 	appData := appcontext.Data{Page: "/abc"}
-	err := CertificateProviderDetails(nil, donorStore, reuseStore, testUIDFn)(appData, w, r, &donordata.Provided{
+	err := CertificateProviderDetails(nil, service)(appData, w, r, &donordata.Provided{
 		LpaID: "lpa-id",
 		Donor: donordata.Donor{
 			FirstNames: "Jane",
@@ -261,79 +246,21 @@ func TestPostCertificateProviderDetailsWhenSigned(t *testing.T) {
 		LpaID:    "lpa-id",
 		SignedAt: testNow,
 		CertificateProvider: donordata.CertificateProvider{
-			UID:        testUID,
 			FirstNames: "John",
 			LastName:   "Rey",
 			Mobile:     "07535111111",
 		},
-		Tasks: donordata.Tasks{CertificateProvider: task.StateInProgress},
 	}
 	updated.UpdateCheckedHash()
 
-	reuseStore := newMockReuseStore(t)
-	reuseStore.EXPECT().
-		PutCertificateProvider(r.Context(), updated.CertificateProvider).
-		Return(nil)
-
-	donorStore := newMockDonorStore(t)
-	donorStore.EXPECT().
+	service := newMockCertificateProviderService(t)
+	service.EXPECT().
 		Put(r.Context(), updated).
 		Return(nil)
 
-	err := CertificateProviderDetails(nil, donorStore, reuseStore, testUIDFn)(testAppData, w, r, &donordata.Provided{
+	err := CertificateProviderDetails(nil, service)(testAppData, w, r, &donordata.Provided{
 		LpaID:    "lpa-id",
 		SignedAt: testNow,
-	})
-	resp := w.Result()
-
-	assert.Nil(t, err)
-	assert.Equal(t, http.StatusFound, resp.StatusCode)
-	assert.Equal(t, donor.PathHowDoYouKnowYourCertificateProvider.Format("lpa-id"), resp.Header.Get("Location"))
-}
-
-func TestPostCertificateProviderDetailsWhenAmendingDetailsAfterStateComplete(t *testing.T) {
-	form := url.Values{
-		"first-names": {"John"},
-		"last-name":   {"Rey"},
-		"mobile":      {"07535111111"},
-	}
-
-	w := httptest.NewRecorder()
-	r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(form.Encode()))
-	r.Header.Add("Content-Type", page.FormUrlEncoded)
-
-	certificateProvider := donordata.CertificateProvider{
-		UID:        testUID,
-		FirstNames: "John",
-		LastName:   "Rey",
-		Mobile:     "07535111111",
-	}
-
-	reuseStore := newMockReuseStore(t)
-	reuseStore.EXPECT().
-		PutCertificateProvider(r.Context(), certificateProvider).
-		Return(nil)
-
-	donorStore := newMockDonorStore(t)
-	donorStore.EXPECT().
-		Put(r.Context(), &donordata.Provided{
-			LpaID: "lpa-id",
-			Donor: donordata.Donor{
-				FirstNames: "Jane",
-				LastName:   "Doe",
-			},
-			CertificateProvider: certificateProvider,
-			Tasks:               donordata.Tasks{CertificateProvider: task.StateCompleted},
-		}).
-		Return(nil)
-
-	err := CertificateProviderDetails(nil, donorStore, reuseStore, testUIDFn)(testAppData, w, r, &donordata.Provided{
-		LpaID: "lpa-id",
-		Donor: donordata.Donor{
-			FirstNames: "Jane",
-			LastName:   "Doe",
-		},
-		Tasks: donordata.Tasks{CertificateProvider: task.StateCompleted},
 	})
 	resp := w.Result()
 
@@ -373,7 +300,7 @@ func TestPostCertificateProviderDetailsWhenInputRequired(t *testing.T) {
 				})).
 				Return(nil)
 
-			err := CertificateProviderDetails(template.Execute, nil, nil, testUIDFn)(testAppData, w, r, tc.existingDonor)
+			err := CertificateProviderDetails(template.Execute, nil)(testAppData, w, r, tc.existingDonor)
 			resp := w.Result()
 
 			assert.Nil(t, err)
@@ -382,7 +309,7 @@ func TestPostCertificateProviderDetailsWhenInputRequired(t *testing.T) {
 	}
 }
 
-func TestPostCertificateProviderDetailsWhenReuseStoreErrors(t *testing.T) {
+func TestPostCertificateProviderDetailsWhenServiceErrors(t *testing.T) {
 	form := url.Values{
 		"first-names": {"John"},
 		"last-name":   {"Doe"},
@@ -393,38 +320,12 @@ func TestPostCertificateProviderDetailsWhenReuseStoreErrors(t *testing.T) {
 	r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(form.Encode()))
 	r.Header.Add("Content-Type", page.FormUrlEncoded)
 
-	reuseStore := newMockReuseStore(t)
-	reuseStore.EXPECT().
-		PutCertificateProvider(mock.Anything, mock.Anything).
-		Return(expectedError)
-
-	err := CertificateProviderDetails(nil, nil, reuseStore, testUIDFn)(testAppData, w, r, &donordata.Provided{})
-
-	assert.ErrorIs(t, err, expectedError)
-}
-
-func TestPostCertificateProviderDetailsWhenDonorStoreErrors(t *testing.T) {
-	form := url.Values{
-		"first-names": {"John"},
-		"last-name":   {"Doe"},
-		"mobile":      {"07535111111"},
-	}
-
-	w := httptest.NewRecorder()
-	r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(form.Encode()))
-	r.Header.Add("Content-Type", page.FormUrlEncoded)
-
-	reuseStore := newMockReuseStore(t)
-	reuseStore.EXPECT().
-		PutCertificateProvider(mock.Anything, mock.Anything).
-		Return(nil)
-
-	donorStore := newMockDonorStore(t)
-	donorStore.EXPECT().
+	service := newMockCertificateProviderService(t)
+	service.EXPECT().
 		Put(r.Context(), mock.Anything).
 		Return(expectedError)
 
-	err := CertificateProviderDetails(nil, donorStore, reuseStore, testUIDFn)(testAppData, w, r, &donordata.Provided{})
+	err := CertificateProviderDetails(nil, service)(testAppData, w, r, &donordata.Provided{})
 
 	assert.Equal(t, expectedError, err)
 }

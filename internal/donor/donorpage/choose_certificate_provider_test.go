@@ -9,9 +9,7 @@ import (
 
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor/donordata"
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/dynamo"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/task"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/validation"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
@@ -23,9 +21,9 @@ func TestGetChooseCertificateProvider(t *testing.T) {
 
 	certificateProviders := []donordata.CertificateProvider{{FirstNames: "John"}}
 
-	reuseStore := newMockReuseStore(t)
-	reuseStore.EXPECT().
-		CertificateProviders(r.Context()).
+	service := newMockCertificateProviderService(t)
+	service.EXPECT().
+		Reusable(r.Context()).
 		Return(certificateProviders, nil)
 
 	template := newMockTemplate(t)
@@ -38,7 +36,7 @@ func TestGetChooseCertificateProvider(t *testing.T) {
 		}).
 		Return(nil)
 
-	err := ChooseCertificateProvider(template.Execute, nil, reuseStore, nil)(testAppData, w, r, &donordata.Provided{})
+	err := ChooseCertificateProvider(template.Execute, service)(testAppData, w, r, &donordata.Provided{})
 	resp := w.Result()
 
 	assert.Nil(t, err)
@@ -46,41 +44,32 @@ func TestGetChooseCertificateProvider(t *testing.T) {
 }
 
 func TestGetChooseCertificateProviderWhenNoReusableCertificateProviders(t *testing.T) {
-	testcases := map[string]error{
-		"none":      nil,
-		"not found": dynamo.NotFoundError{},
-	}
+	w := httptest.NewRecorder()
+	r, _ := http.NewRequest(http.MethodGet, "/", nil)
 
-	for name, reuseError := range testcases {
-		t.Run(name, func(t *testing.T) {
-			w := httptest.NewRecorder()
-			r, _ := http.NewRequest(http.MethodGet, "/", nil)
+	service := newMockCertificateProviderService(t)
+	service.EXPECT().
+		Reusable(r.Context()).
+		Return(nil, nil)
 
-			reuseStore := newMockReuseStore(t)
-			reuseStore.EXPECT().
-				CertificateProviders(r.Context()).
-				Return(nil, reuseError)
+	err := ChooseCertificateProvider(nil, service)(testAppData, w, r, &donordata.Provided{LpaID: "lpa-id"})
+	resp := w.Result()
 
-			err := ChooseCertificateProvider(nil, nil, reuseStore, nil)(testAppData, w, r, &donordata.Provided{LpaID: "lpa-id"})
-			resp := w.Result()
-
-			assert.Nil(t, err)
-			assert.Equal(t, http.StatusFound, resp.StatusCode)
-			assert.Equal(t, donor.PathCertificateProviderDetails.Format("lpa-id"), resp.Header.Get("Location"))
-		})
-	}
+	assert.Nil(t, err)
+	assert.Equal(t, http.StatusFound, resp.StatusCode)
+	assert.Equal(t, donor.PathCertificateProviderDetails.Format("lpa-id"), resp.Header.Get("Location"))
 }
 
 func TestGetChooseCertificateProviderWhenError(t *testing.T) {
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest(http.MethodGet, "/", nil)
 
-	reuseStore := newMockReuseStore(t)
-	reuseStore.EXPECT().
-		CertificateProviders(r.Context()).
+	service := newMockCertificateProviderService(t)
+	service.EXPECT().
+		Reusable(r.Context()).
 		Return(nil, expectedError)
 
-	err := ChooseCertificateProvider(nil, nil, reuseStore, nil)(testAppData, w, r, &donordata.Provided{LpaID: "lpa-id"})
+	err := ChooseCertificateProvider(nil, service)(testAppData, w, r, &donordata.Provided{LpaID: "lpa-id"})
 	assert.Equal(t, expectedError, err)
 }
 
@@ -88,9 +77,9 @@ func TestGetChooseCertificateProviderWhenTemplateErrors(t *testing.T) {
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest(http.MethodGet, "/", nil)
 
-	reuseStore := newMockReuseStore(t)
-	reuseStore.EXPECT().
-		CertificateProviders(r.Context()).
+	service := newMockCertificateProviderService(t)
+	service.EXPECT().
+		Reusable(r.Context()).
 		Return([]donordata.CertificateProvider{{FirstNames: "John"}}, nil)
 
 	template := newMockTemplate(t)
@@ -98,7 +87,7 @@ func TestGetChooseCertificateProviderWhenTemplateErrors(t *testing.T) {
 		Execute(w, mock.Anything).
 		Return(expectedError)
 
-	err := ChooseCertificateProvider(template.Execute, nil, reuseStore, nil)(testAppData, w, r, &donordata.Provided{})
+	err := ChooseCertificateProvider(template.Execute, service)(testAppData, w, r, &donordata.Provided{})
 	resp := w.Result()
 
 	assert.Equal(t, expectedError, err)
@@ -116,27 +105,18 @@ func TestPostChooseCertificateProvider(t *testing.T) {
 
 	certificateProviders := []donordata.CertificateProvider{{FirstNames: "John"}, {FirstNames: "Dave"}}
 
-	reuseStore := newMockReuseStore(t)
-	reuseStore.EXPECT().
-		CertificateProviders(r.Context()).
+	service := newMockCertificateProviderService(t)
+	service.EXPECT().
+		Reusable(r.Context()).
 		Return(certificateProviders, nil)
-	reuseStore.EXPECT().
-		PutCertificateProvider(r.Context(), donordata.CertificateProvider{
-			UID:        testUID,
-			FirstNames: "Dave",
-		}).
-		Return(nil)
-
-	donorStore := newMockDonorStore(t)
-	donorStore.EXPECT().
+	service.EXPECT().
 		Put(r.Context(), &donordata.Provided{
 			LpaID:               "lpa-id",
-			CertificateProvider: donordata.CertificateProvider{UID: testUID, FirstNames: "Dave"},
-			Tasks:               donordata.Tasks{CertificateProvider: task.StateCompleted},
+			CertificateProvider: certificateProviders[1],
 		}).
 		Return(nil)
 
-	err := ChooseCertificateProvider(nil, donorStore, reuseStore, testUIDFn)(testAppData, w, r, &donordata.Provided{LpaID: "lpa-id"})
+	err := ChooseCertificateProvider(nil, service)(testAppData, w, r, &donordata.Provided{LpaID: "lpa-id"})
 	resp := w.Result()
 
 	assert.Nil(t, err)
@@ -155,12 +135,12 @@ func TestPostChooseCertificateProviderWhenNew(t *testing.T) {
 
 	certificateProviders := []donordata.CertificateProvider{{FirstNames: "John"}, {FirstNames: "Dave"}}
 
-	reuseStore := newMockReuseStore(t)
-	reuseStore.EXPECT().
-		CertificateProviders(r.Context()).
+	service := newMockCertificateProviderService(t)
+	service.EXPECT().
+		Reusable(r.Context()).
 		Return(certificateProviders, nil)
 
-	err := ChooseCertificateProvider(nil, nil, reuseStore, testUIDFn)(testAppData, w, r, &donordata.Provided{LpaID: "lpa-id"})
+	err := ChooseCertificateProvider(nil, service)(testAppData, w, r, &donordata.Provided{LpaID: "lpa-id"})
 	resp := w.Result()
 
 	assert.Nil(t, err)
@@ -168,7 +148,7 @@ func TestPostChooseCertificateProviderWhenNew(t *testing.T) {
 	assert.Equal(t, donor.PathCertificateProviderDetails.Format("lpa-id"), resp.Header.Get("Location"))
 }
 
-func TestPostChooseCertificateProviderWhenReuseStoreError(t *testing.T) {
+func TestPostChooseCertificateProviderWhenServiceError(t *testing.T) {
 	form := url.Values{
 		"option": {"0"},
 	}
@@ -177,41 +157,15 @@ func TestPostChooseCertificateProviderWhenReuseStoreError(t *testing.T) {
 	r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(form.Encode()))
 	r.Header.Add("Content-Type", page.FormUrlEncoded)
 
-	reuseStore := newMockReuseStore(t)
-	reuseStore.EXPECT().
-		CertificateProviders(r.Context()).
+	service := newMockCertificateProviderService(t)
+	service.EXPECT().
+		Reusable(r.Context()).
 		Return([]donordata.CertificateProvider{{}}, nil)
-	reuseStore.EXPECT().
-		PutCertificateProvider(mock.Anything, mock.Anything).
-		Return(expectedError)
-
-	err := ChooseCertificateProvider(nil, nil, reuseStore, testUIDFn)(testAppData, w, r, &donordata.Provided{LpaID: "lpa-id"})
-	assert.Equal(t, expectedError, err)
-}
-
-func TestPostChooseCertificateProviderWhenDonorStoreError(t *testing.T) {
-	form := url.Values{
-		"option": {"0"},
-	}
-
-	w := httptest.NewRecorder()
-	r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(form.Encode()))
-	r.Header.Add("Content-Type", page.FormUrlEncoded)
-
-	reuseStore := newMockReuseStore(t)
-	reuseStore.EXPECT().
-		CertificateProviders(r.Context()).
-		Return([]donordata.CertificateProvider{{}}, nil)
-	reuseStore.EXPECT().
-		PutCertificateProvider(mock.Anything, mock.Anything).
-		Return(nil)
-
-	donorStore := newMockDonorStore(t)
-	donorStore.EXPECT().
+	service.EXPECT().
 		Put(mock.Anything, mock.Anything).
 		Return(expectedError)
 
-	err := ChooseCertificateProvider(nil, donorStore, reuseStore, testUIDFn)(testAppData, w, r, &donordata.Provided{LpaID: "lpa-id"})
+	err := ChooseCertificateProvider(nil, service)(testAppData, w, r, &donordata.Provided{LpaID: "lpa-id"})
 	assert.Equal(t, expectedError, err)
 }
 
