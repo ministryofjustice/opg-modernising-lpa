@@ -1,18 +1,15 @@
 package donorpage
 
 import (
-	"fmt"
 	"net/http"
 	"net/url"
 
 	"github.com/ministryofjustice/opg-go-common/template"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor/actoruid"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/appcontext"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor/donordata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/task"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/validation"
 )
 
@@ -22,7 +19,7 @@ type certificateProviderDetailsData struct {
 	Form   *certificateProviderDetailsForm
 }
 
-func CertificateProviderDetails(tmpl template.Template, donorStore DonorStore, reuseStore ReuseStore, newUID func() actoruid.UID) Handler {
+func CertificateProviderDetails(tmpl template.Template, service CertificateProviderService) Handler {
 	return func(appData appcontext.Data, w http.ResponseWriter, r *http.Request, provided *donordata.Provided) error {
 		data := &certificateProviderDetailsData{
 			App: appData,
@@ -45,9 +42,6 @@ func CertificateProviderDetails(tmpl template.Template, donorStore DonorStore, r
 
 			if data.Errors.None() {
 				nameHasChanged := provided.CertificateProvider.NameHasChanged(data.Form.FirstNames, data.Form.LastName)
-				if provided.CertificateProvider.UID.IsZero() {
-					provided.CertificateProvider.UID = newUID()
-				}
 
 				provided.CertificateProvider.FirstNames = data.Form.FirstNames
 				provided.CertificateProvider.LastName = data.Form.LastName
@@ -59,21 +53,13 @@ func CertificateProviderDetails(tmpl template.Template, donorStore DonorStore, r
 					provided.CertificateProvider.Mobile = data.Form.Mobile
 				}
 
-				if !provided.Tasks.CertificateProvider.IsCompleted() {
-					provided.Tasks.CertificateProvider = task.StateInProgress
-				}
-
 				// Allow changing details for certificate provider on the page they
 				// witness, without having to be notified.
 				if !provided.SignedAt.IsZero() {
 					provided.UpdateCheckedHash()
 				}
 
-				if err := reuseStore.PutCertificateProvider(r.Context(), provided.CertificateProvider); err != nil {
-					return fmt.Errorf("put certificate provider reuse data: %w", err)
-				}
-
-				if err := donorStore.Put(r.Context(), provided); err != nil {
+				if err := service.Put(r.Context(), provided); err != nil {
 					return err
 				}
 
