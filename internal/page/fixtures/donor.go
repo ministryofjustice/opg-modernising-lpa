@@ -401,10 +401,14 @@ func updateLPAProgress(
 		donorDetails.PeopleToNotify = []donordata.PersonToNotify{makePersonToNotify(peopleToNotifyNames[0]), makePersonToNotify(peopleToNotifyNames[1])}
 		switch data.PeopleToNotify {
 		case "without-address":
-			donorDetails.PeopleToNotify[0].UID = withoutAddressUID
+			donorDetails.PeopleToNotify[0].UID, _ = actoruid.Parse("f46f0ebf-794e-446f-9bcf-3aa72c929921")
 			donorDetails.PeopleToNotify[0].Address = place.Address{}
 		case "max":
 			donorDetails.PeopleToNotify = append(donorDetails.PeopleToNotify, makePersonToNotify(peopleToNotifyNames[2]), makePersonToNotify(peopleToNotifyNames[3]), makePersonToNotify(peopleToNotifyNames[4]))
+		}
+
+		if err := reuseStore.PutPeopleToNotify(donorCtx, donorDetails.PeopleToNotify); err != nil {
+			return nil, nil, fmt.Errorf("reuse store put people to notify: %w", err)
 		}
 
 		donorDetails.Tasks.PeopleToNotify = task.StateCompleted

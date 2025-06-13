@@ -10,15 +10,13 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor/donordata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/form"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/place"
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/task"
 )
 
-func ChoosePeopleToNotifyAddress(logger Logger, tmpl template.Template, addressClient AddressClient, donorStore DonorStore) Handler {
+func EnterPersonToNotifyAddress(logger Logger, tmpl template.Template, addressClient AddressClient, service PeopleToNotifyService) Handler {
 	return func(appData appcontext.Data, w http.ResponseWriter, r *http.Request, provided *donordata.Provided) error {
 		personToNotify, found := provided.PeopleToNotify.Get(actoruid.FromRequest(r))
-
 		if found == false {
-			return donor.PathChoosePeopleToNotify.Redirect(w, r, appData, provided)
+			return donor.PathEnterPersonToNotify.Redirect(w, r, appData, provided)
 		}
 
 		data := newChooseAddressData(
@@ -39,10 +37,8 @@ func ChoosePeopleToNotifyAddress(logger Logger, tmpl template.Template, addressC
 
 			setAddress := func(address place.Address) error {
 				personToNotify.Address = address
-				provided.PeopleToNotify.Put(personToNotify)
-				provided.Tasks.PeopleToNotify = task.StateCompleted
 
-				if err := donorStore.Put(r.Context(), provided); err != nil {
+				if _, err := service.Put(r.Context(), provided, personToNotify); err != nil {
 					return err
 				}
 

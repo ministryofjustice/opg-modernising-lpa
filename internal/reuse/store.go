@@ -210,3 +210,97 @@ func (s *Store) CertificateProviders(ctx context.Context) ([]donordata.Certifica
 
 	return certificateProviders, nil
 }
+
+func (s *Store) PutPersonToNotify(ctx context.Context, personToNotify donordata.PersonToNotify) error {
+	if personToNotify.Address.Line1 == "" {
+		return nil
+	}
+
+	actorUID := personToNotify.UID
+	personToNotify.UID = actoruid.UID{}
+
+	return putReusable(ctx, s.dynamoClient, actor.TypePersonToNotify, actorUID, personToNotify)
+}
+
+func (s *Store) PutPeopleToNotify(ctx context.Context, peopleToNotify []donordata.PersonToNotify) error {
+	data, err := appcontext.SessionFromContext(ctx)
+	if err != nil {
+		return err
+	}
+
+	if data.OrganisationID != "" {
+		return nil
+	}
+
+	if data.SessionID == "" {
+		return errors.New("reuseStore.PutPeopleToNotify requires SessionID")
+	}
+
+	names := map[string]string{}
+	values := map[string]types.AttributeValue{}
+	var statements []string
+	for i, personToNotify := range peopleToNotify {
+		index := strconv.Itoa(i)
+
+		names["#ActorUID"+index] = personToNotify.UID.String()
+
+		personToNotify.UID = actoruid.UID{}
+		value, err := attributevalue.Marshal(personToNotify)
+		if err != nil {
+			return fmt.Errorf("marshal personToNotify: %w", err)
+		}
+
+		values[":Value"+index] = value
+
+		statements = append(statements, "#ActorUID"+index+" = :Value"+index)
+	}
+
+	return s.dynamoClient.Update(ctx, dynamo.ReuseKey(data.SessionID, actor.TypePersonToNotify.String()), dynamo.MetadataKey(""),
+		names,
+		values,
+		"SET "+strings.Join(statements, ", "),
+	)
+}
+
+func (s *Store) DeletePersonToNotify(ctx context.Context, personToNotify donordata.PersonToNotify) error {
+	return deleteReusable(ctx, s.dynamoClient, actor.TypePersonToNotify, personToNotify.UID)
+}
+
+func (s *Store) PeopleToNotify(ctx context.Context, provided *donordata.Provided) ([]donordata.PersonToNotify, error) {
+	data, err := appcontext.SessionFromContext(ctx)
+	if err != nil {
+		return nil, err
+	}
+
+	if data.SessionID == "" {
+		return nil, errors.New("reuseStore.PeopleToNotify requires SessionID")
+	}
+
+	var v map[string]orString[donordata.PersonToNotify]
+	if err := s.dynamoClient.One(ctx, dynamo.ReuseKey(data.SessionID, actor.TypePersonToNotify.String()), dynamo.MetadataKey(""), &v); err != nil {
+		return nil, err
+	}
+
+	delete(v, "PK")
+	delete(v, "SK")
+
+	seen := map[donordata.PersonToNotify]struct{}{}
+	for _, personToNotify := range provided.PeopleToNotify {
+		personToNotify.UID = actoruid.UID{}
+		seen[personToNotify] = struct{}{}
+	}
+
+	var peopleToNotify []donordata.PersonToNotify
+	for _, personToNotify := range v {
+		if _, ok := seen[personToNotify.v]; !ok {
+			peopleToNotify = append(peopleToNotify, personToNotify.v)
+			seen[personToNotify.v] = struct{}{}
+		}
+	}
+
+	slices.SortFunc(peopleToNotify, func(a, b donordata.PersonToNotify) int {
+		return strings.Compare(a.FullName(), b.FullName())
+	})
+
+	return peopleToNotify, nil
+}

@@ -3,93 +3,66 @@ package donorpage
 import (
 	"net/http"
 	"net/url"
+	"slices"
+	"strconv"
 
 	"github.com/ministryofjustice/opg-go-common/template"
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor/actoruid"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/appcontext"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor/donordata"
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/task"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/validation"
 )
 
 type choosePeopleToNotifyData struct {
-	App    appcontext.Data
-	Errors validation.List
-	Form   *choosePeopleToNotifyForm
+	App                      appcontext.Data
+	Errors                   validation.List
+	Form                     *choosePeopleToNotifyForm
+	Donor                    *donordata.Provided
+	PeopleToNotify           []donordata.PersonToNotify
+	ShowTrustCorporationLink bool
 }
 
-func ChoosePeopleToNotify(tmpl template.Template, donorStore DonorStore, newUID func() actoruid.UID) Handler {
+func ChoosePeopleToNotify(tmpl template.Template, service PeopleToNotifyService) Handler {
 	return func(appData appcontext.Data, w http.ResponseWriter, r *http.Request, provided *donordata.Provided) error {
-		if len(provided.PeopleToNotify) > 4 {
-			return donor.PathChoosePeopleToNotifySummary.Redirect(w, r, appData, provided)
+		peopleToNotify, err := service.Reusable(r.Context(), provided)
+		if err != nil {
+			return err
 		}
-
-		addAnother := r.FormValue("addAnother") == "1"
-		personToNotify, personFound := provided.PeopleToNotify.Get(actoruid.FromRequest(r))
-
-		if r.Method == http.MethodGet && len(provided.PeopleToNotify) > 0 && personFound == false && addAnother == false {
-			return donor.PathChoosePeopleToNotifySummary.Redirect(w, r, appData, provided)
+		if len(peopleToNotify) == 0 {
+			return donor.PathEnterPersonToNotify.RedirectQuery(w, r, appData, provided, url.Values{
+				"addAnother": {r.FormValue("addAnother")},
+			})
 		}
 
 		data := &choosePeopleToNotifyData{
-			App: appData,
-			Form: &choosePeopleToNotifyForm{
-				FirstNames: personToNotify.FirstNames,
-				LastName:   personToNotify.LastName,
-			},
+			App:                      appData,
+			Form:                     &choosePeopleToNotifyForm{},
+			Donor:                    provided,
+			PeopleToNotify:           peopleToNotify,
+			ShowTrustCorporationLink: provided.CanAddTrustCorporation(),
 		}
 
 		if r.Method == http.MethodPost {
 			data.Form = readChoosePeopleToNotifyForm(r)
-			data.Errors = data.Form.Validate()
-
-			nameMatches := personToNotifyMatches(provided, personToNotify.UID, data.Form.FirstNames, data.Form.LastName)
-			redirectToWarning := false
-
-			if !nameMatches.IsNone() && personToNotify.NameHasChanged(data.Form.FirstNames, data.Form.LastName) {
-				redirectToWarning = true
-			}
+			data.Errors = data.Form.Validate(len(provided.PeopleToNotify))
 
 			if data.Errors.None() {
-				if personFound == false {
-					personToNotify = donordata.PersonToNotify{
-						UID:        newUID(),
-						FirstNames: data.Form.FirstNames,
-						LastName:   data.Form.LastName,
-					}
-
-					provided.PeopleToNotify = append(provided.PeopleToNotify, personToNotify)
-				} else {
-					personToNotify.FirstNames = data.Form.FirstNames
-					personToNotify.LastName = data.Form.LastName
-
-					provided.PeopleToNotify.Put(personToNotify)
-				}
-
-				if !provided.Tasks.PeopleToNotify.IsCompleted() {
-					provided.Tasks.PeopleToNotify = task.StateInProgress
-				}
-
-				if err := donorStore.Put(r.Context(), provided); err != nil {
-					return err
-				}
-
-				if redirectToWarning {
-					return donor.PathWarningInterruption.RedirectQuery(w, r, appData, provided, url.Values{
-						"id":          {personToNotify.UID.String()},
-						"warningFrom": {appData.Page},
-						"next": {donor.PathChoosePeopleToNotifyAddress.FormatQuery(
-							provided.LpaID,
-							url.Values{"id": {personToNotify.UID.String()}}),
-						},
-						"actor": {actor.TypePersonToNotify.String()},
+				if len(data.Form.Indices) == 0 {
+					return donor.PathEnterPersonToNotify.RedirectQuery(w, r, appData, provided, url.Values{
+						"addAnother": {r.FormValue("addAnother")},
 					})
 				}
 
-				return donor.PathChoosePeopleToNotifyAddress.RedirectQuery(w, r, appData, provided, url.Values{"id": {personToNotify.UID.String()}})
+				var people []donordata.PersonToNotify
+				for _, index := range data.Form.Indices {
+					people = append(people, peopleToNotify[index])
+				}
+
+				if err := service.PutMany(r.Context(), provided, people); err != nil {
+					return err
+				}
+
+				return donor.PathChoosePeopleToNotifySummary.Redirect(w, r, appData, provided)
 			}
 		}
 
@@ -98,27 +71,34 @@ func ChoosePeopleToNotify(tmpl template.Template, donorStore DonorStore, newUID 
 }
 
 type choosePeopleToNotifyForm struct {
-	FirstNames string
-	LastName   string
+	Indices []int
 }
 
 func readChoosePeopleToNotifyForm(r *http.Request) *choosePeopleToNotifyForm {
+	r.ParseForm()
+
+	var indices []int
+	for _, v := range r.PostForm["option"] {
+		if index, err := strconv.Atoi(v); err == nil {
+			indices = append(indices, index)
+		}
+	}
+
 	return &choosePeopleToNotifyForm{
-		FirstNames: page.PostFormString(r, "first-names"),
-		LastName:   page.PostFormString(r, "last-name"),
+		Indices: indices,
 	}
 }
 
-func (f *choosePeopleToNotifyForm) Validate() validation.List {
-	var errors validation.List
-
-	errors.String("first-names", "firstNames", f.FirstNames,
-		validation.Empty(),
-		validation.StringTooLong(53))
-
-	errors.String("last-name", "lastName", f.LastName,
-		validation.Empty(),
-		validation.StringTooLong(61))
+func (f *choosePeopleToNotifyForm) Validate(currentCount int) (errors validation.List) {
+	if len(f.Indices) > 5 {
+		errors.Add("option", validation.CustomError{Label: "youCannotSelectMoreThanFivePeopleToNotify"})
+	} else if len(f.Indices)+currentCount > 5 {
+		errors.Add("option", validation.CustomError{Label: "yourSelectionTakesPeopleToNotifyOverFive"})
+	}
 
 	return errors
+}
+
+func (f *choosePeopleToNotifyForm) Selected(index int) bool {
+	return slices.Contains(f.Indices, index)
 }
