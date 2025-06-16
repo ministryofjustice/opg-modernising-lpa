@@ -1,18 +1,14 @@
 package donorpage
 
 import (
-	"errors"
 	"net/http"
 	"strconv"
 
 	"github.com/ministryofjustice/opg-go-common/template"
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor/actoruid"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/appcontext"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor/donordata"
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/dynamo"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/task"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/validation"
 )
 
@@ -24,10 +20,10 @@ type chooseCorrespondentData struct {
 	Correspondents []donordata.Correspondent
 }
 
-func ChooseCorrespondent(tmpl template.Template, donorStore DonorStore, reuseStore ReuseStore, newUID func() actoruid.UID) Handler {
+func ChooseCorrespondent(tmpl template.Template, service CorrespondentService) Handler {
 	return func(appData appcontext.Data, w http.ResponseWriter, r *http.Request, provided *donordata.Provided) error {
-		correspondents, err := reuseStore.Correspondents(r.Context())
-		if err != nil && !errors.Is(err, dynamo.NotFoundError{}) {
+		correspondents, err := service.Reusable(r.Context())
+		if err != nil {
 			return err
 		}
 		if len(correspondents) == 0 {
@@ -51,14 +47,8 @@ func ChooseCorrespondent(tmpl template.Template, donorStore DonorStore, reuseSto
 				}
 
 				provided.Correspondent = correspondents[data.Form.Index]
-				provided.Correspondent.UID = newUID()
-				provided.Tasks.AddCorrespondent = task.StateCompleted
 
-				if err := reuseStore.PutCorrespondent(r.Context(), provided.Correspondent); err != nil {
-					return err
-				}
-
-				if err := donorStore.Put(r.Context(), provided); err != nil {
+				if err := service.Put(r.Context(), provided); err != nil {
 					return err
 				}
 

@@ -1,18 +1,14 @@
 package donorpage
 
 import (
-	"errors"
 	"net/http"
 	"strconv"
 
 	"github.com/ministryofjustice/opg-go-common/template"
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor/actoruid"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/appcontext"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor/donordata"
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/dynamo"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/task"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/validation"
 )
 
@@ -24,10 +20,10 @@ type chooseCertificateProviderData struct {
 	CertificateProviders []donordata.CertificateProvider
 }
 
-func ChooseCertificateProvider(tmpl template.Template, donorStore DonorStore, reuseStore ReuseStore, newUID func() actoruid.UID) Handler {
+func ChooseCertificateProvider(tmpl template.Template, service CertificateProviderService) Handler {
 	return func(appData appcontext.Data, w http.ResponseWriter, r *http.Request, provided *donordata.Provided) error {
-		certificateProviders, err := reuseStore.CertificateProviders(r.Context())
-		if err != nil && !errors.Is(err, dynamo.NotFoundError{}) {
+		certificateProviders, err := service.Reusable(r.Context())
+		if err != nil {
 			return err
 		}
 		if len(certificateProviders) == 0 {
@@ -51,14 +47,7 @@ func ChooseCertificateProvider(tmpl template.Template, donorStore DonorStore, re
 				}
 
 				provided.CertificateProvider = certificateProviders[data.Form.Index]
-				provided.CertificateProvider.UID = newUID()
-				provided.Tasks.CertificateProvider = task.StateCompleted
-
-				if err := reuseStore.PutCertificateProvider(r.Context(), provided.CertificateProvider); err != nil {
-					return err
-				}
-
-				if err := donorStore.Put(r.Context(), provided); err != nil {
+				if err := service.Put(r.Context(), provided); err != nil {
 					return err
 				}
 

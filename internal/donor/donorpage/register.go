@@ -216,6 +216,19 @@ type PeopleToNotifyService interface {
 	Delete(ctx context.Context, provided *donordata.Provided, person donordata.PersonToNotify) error
 }
 
+type CertificateProviderService interface {
+	Reusable(ctx context.Context) ([]donordata.CertificateProvider, error)
+	Put(ctx context.Context, provided *donordata.Provided) error
+	Delete(ctx context.Context, provided *donordata.Provided) error
+}
+
+type CorrespondentService interface {
+	Reusable(ctx context.Context) ([]donordata.Correspondent, error)
+	NotWanted(ctx context.Context, provided *donordata.Provided) error
+	Put(ctx context.Context, provided *donordata.Provided) error
+	Delete(ctx context.Context, provided *donordata.Provided) error
+}
+
 func Register(
 	rootMux *http.ServeMux,
 	logger Logger,
@@ -369,28 +382,32 @@ func Register(
 	handleWithDonor(donor.PathRestrictions, page.None,
 		Restrictions(tmpls.Get("restrictions.gohtml"), donorStore))
 
-	handleWithDonor(donor.PathWhatACertificateProviderDoes, page.None,
-		Guidance(tmpls.Get("what_a_certificate_provider_does.gohtml")))
-	handleWithDonor(donor.PathChooseYourCertificateProvider, page.None,
-		Guidance(tmpls.Get("choose_your_certificate_provider.gohtml")))
-	handleWithDonor(donor.PathChooseNewCertificateProvider, page.None,
-		RemoveCertificateProvider(tmpls.Get("choose_new_certificate_provider.gohtml"), donorStore, reuseStore))
-	handleWithDonor(donor.PathChooseCertificateProvider, page.None,
-		ChooseCertificateProvider(tmpls.Get("choose_certificate_provider.gohtml"), donorStore, reuseStore, actoruid.New))
-	handleWithDonor(donor.PathCertificateProviderDetails, page.CanGoBack,
-		CertificateProviderDetails(tmpls.Get("certificate_provider_details.gohtml"), donorStore, reuseStore, actoruid.New))
-	handleWithDonor(donor.PathHowWouldCertificateProviderPreferToCarryOutTheirRole, page.CanGoBack,
-		HowWouldCertificateProviderPreferToCarryOutTheirRole(tmpls.Get("how_would_certificate_provider_prefer_to_carry_out_their_role.gohtml"), donorStore, reuseStore))
-	handleWithDonor(donor.PathCertificateProviderAddress, page.CanGoBack,
-		CertificateProviderAddress(logger, tmpls.Get("choose_address.gohtml"), addressClient, donorStore, reuseStore))
-	handleWithDonor(donor.PathHowDoYouKnowYourCertificateProvider, page.CanGoBack,
-		HowDoYouKnowYourCertificateProvider(tmpls.Get("how_do_you_know_your_certificate_provider.gohtml"), donorStore, reuseStore))
-	handleWithDonor(donor.PathHowLongHaveYouKnownCertificateProvider, page.CanGoBack,
-		HowLongHaveYouKnownCertificateProvider(tmpls.Get("how_long_have_you_known_certificate_provider.gohtml"), donorStore, reuseStore))
-	handleWithDonor(donor.PathRemoveCertificateProvider, page.None,
-		RemoveCertificateProvider(tmpls.Get("remove_certificate_provider.gohtml"), donorStore, reuseStore))
-	handleWithDonor(donor.PathCertificateProviderSummary, page.None,
-		Guidance(tmpls.Get("certificate_provider_summary.gohtml")))
+	{
+		service := donor.NewCertificateProviderService(donorStore, reuseStore)
+
+		handleWithDonor(donor.PathWhatACertificateProviderDoes, page.None,
+			Guidance(tmpls.Get("what_a_certificate_provider_does.gohtml")))
+		handleWithDonor(donor.PathChooseYourCertificateProvider, page.None,
+			Guidance(tmpls.Get("choose_your_certificate_provider.gohtml")))
+		handleWithDonor(donor.PathChooseNewCertificateProvider, page.None,
+			RemoveCertificateProvider(tmpls.Get("choose_new_certificate_provider.gohtml"), service))
+		handleWithDonor(donor.PathChooseCertificateProvider, page.None,
+			ChooseCertificateProvider(tmpls.Get("choose_certificate_provider.gohtml"), service))
+		handleWithDonor(donor.PathCertificateProviderDetails, page.CanGoBack,
+			CertificateProviderDetails(tmpls.Get("certificate_provider_details.gohtml"), service))
+		handleWithDonor(donor.PathHowWouldCertificateProviderPreferToCarryOutTheirRole, page.CanGoBack,
+			HowWouldCertificateProviderPreferToCarryOutTheirRole(tmpls.Get("how_would_certificate_provider_prefer_to_carry_out_their_role.gohtml"), donorStore, reuseStore))
+		handleWithDonor(donor.PathCertificateProviderAddress, page.CanGoBack,
+			CertificateProviderAddress(logger, tmpls.Get("choose_address.gohtml"), addressClient, donorStore, reuseStore))
+		handleWithDonor(donor.PathHowDoYouKnowYourCertificateProvider, page.CanGoBack,
+			HowDoYouKnowYourCertificateProvider(tmpls.Get("how_do_you_know_your_certificate_provider.gohtml"), donorStore, reuseStore))
+		handleWithDonor(donor.PathHowLongHaveYouKnownCertificateProvider, page.CanGoBack,
+			HowLongHaveYouKnownCertificateProvider(tmpls.Get("how_long_have_you_known_certificate_provider.gohtml"), donorStore, reuseStore))
+		handleWithDonor(donor.PathRemoveCertificateProvider, page.None,
+			RemoveCertificateProvider(tmpls.Get("remove_certificate_provider.gohtml"), service))
+		handleWithDonor(donor.PathCertificateProviderSummary, page.None,
+			Guidance(tmpls.Get("certificate_provider_summary.gohtml")))
+	}
 
 	{
 		service := donor.NewPeopleToNotifyService(donorStore, reuseStore)
@@ -409,18 +426,22 @@ func Register(
 			RemovePersonToNotify(tmpls.Get("remove_person_to_notify.gohtml"), service))
 	}
 
-	handleWithDonor(donor.PathAddCorrespondent, page.None,
-		AddCorrespondent(tmpls.Get("add_correspondent.gohtml"), donorStore, eventClient))
-	handleWithDonor(donor.PathChooseCorrespondent, page.CanGoBack,
-		ChooseCorrespondent(tmpls.Get("choose_correspondent.gohtml"), donorStore, reuseStore, actoruid.New))
-	handleWithDonor(donor.PathEnterCorrespondentDetails, page.CanGoBack,
-		EnterCorrespondentDetails(tmpls.Get("enter_correspondent_details.gohtml"), donorStore, reuseStore, eventClient, actoruid.New))
-	handleWithDonor(donor.PathEnterCorrespondentAddress, page.CanGoBack,
-		EnterCorrespondentAddress(logger, tmpls.Get("choose_address.gohtml"), addressClient, donorStore, reuseStore, eventClient))
-	handleWithDonor(donor.PathRemoveCorrespondent, page.CanGoBack,
-		RemoveCorrespondent(tmpls.Get("remove_correspondent.gohtml"), donorStore, reuseStore, eventClient))
-	handleWithDonor(donor.PathCorrespondentSummary, page.None,
-		Guidance(tmpls.Get("correspondent_summary.gohtml")))
+	{
+		service := donor.NewCorrespondentService(donorStore, reuseStore, eventClient)
+
+		handleWithDonor(donor.PathAddCorrespondent, page.None,
+			AddCorrespondent(tmpls.Get("add_correspondent.gohtml"), service))
+		handleWithDonor(donor.PathChooseCorrespondent, page.CanGoBack,
+			ChooseCorrespondent(tmpls.Get("choose_correspondent.gohtml"), service))
+		handleWithDonor(donor.PathEnterCorrespondentDetails, page.CanGoBack,
+			EnterCorrespondentDetails(tmpls.Get("enter_correspondent_details.gohtml"), service))
+		handleWithDonor(donor.PathEnterCorrespondentAddress, page.CanGoBack,
+			EnterCorrespondentAddress(logger, tmpls.Get("choose_address.gohtml"), addressClient, service))
+		handleWithDonor(donor.PathRemoveCorrespondent, page.CanGoBack,
+			RemoveCorrespondent(tmpls.Get("remove_correspondent.gohtml"), service))
+		handleWithDonor(donor.PathCorrespondentSummary, page.None,
+			Guidance(tmpls.Get("correspondent_summary.gohtml")))
+	}
 
 	handleWithDonor(donor.PathGettingHelpSigning, page.CanGoBack,
 		Guidance(tmpls.Get("getting_help_signing.gohtml")))

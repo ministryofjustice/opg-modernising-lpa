@@ -12,17 +12,6 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/task"
 )
 
-type ReuseStore interface {
-	PutPersonToNotify(ctx context.Context, personToNotify donordata.PersonToNotify) error
-	PutPeopleToNotify(ctx context.Context, peopleToNotify []donordata.PersonToNotify) error
-	PeopleToNotify(ctx context.Context, provided *donordata.Provided) ([]donordata.PersonToNotify, error)
-	DeletePersonToNotify(ctx context.Context, personToNotify donordata.PersonToNotify) error
-}
-
-type PutStore interface {
-	Put(ctx context.Context, donor *donordata.Provided) error
-}
-
 type PeopleToNotifyService struct {
 	donorStore PutStore
 	reuseStore ReuseStore

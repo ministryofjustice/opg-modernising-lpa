@@ -8,13 +8,11 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/appcontext"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor/donordata"
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/event"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/form"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/place"
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/task"
 )
 
-func EnterCorrespondentAddress(logger Logger, tmpl template.Template, addressClient AddressClient, donorStore DonorStore, reuseStore ReuseStore, eventClient EventClient) Handler {
+func EnterCorrespondentAddress(logger Logger, tmpl template.Template, addressClient AddressClient, service CorrespondentService) Handler {
 	return func(appData appcontext.Data, w http.ResponseWriter, r *http.Request, provided *donordata.Provided) error {
 		data := newChooseAddressData(
 			appData,
@@ -33,26 +31,9 @@ func EnterCorrespondentAddress(logger Logger, tmpl template.Template, addressCli
 			data.Errors = data.Form.Validate(false)
 
 			setAddress := func(address place.Address) error {
-				provided.Tasks.AddCorrespondent = task.StateCompleted
 				provided.Correspondent.Address = address
 
-				if err := eventClient.SendCorrespondentUpdated(r.Context(), event.CorrespondentUpdated{
-					UID:        provided.LpaUID,
-					ActorUID:   &provided.Correspondent.UID,
-					FirstNames: provided.Correspondent.FirstNames,
-					LastName:   provided.Correspondent.LastName,
-					Email:      provided.Correspondent.Email,
-					Phone:      provided.Correspondent.Phone,
-					Address:    &provided.Correspondent.Address,
-				}); err != nil {
-					return err
-				}
-
-				if err := reuseStore.PutCorrespondent(r.Context(), provided.Correspondent); err != nil {
-					return err
-				}
-
-				if err := donorStore.Put(r.Context(), provided); err != nil {
+				if err := service.Put(r.Context(), provided); err != nil {
 					return err
 				}
 

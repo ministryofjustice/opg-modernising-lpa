@@ -6,15 +6,11 @@ import (
 
 	"github.com/ministryofjustice/opg-go-common/template"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor/actoruid"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/appcontext"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor/donordata"
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/event"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/form"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/place"
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/task"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/validation"
 )
 
@@ -24,7 +20,7 @@ type enterCorrespondentDetailsData struct {
 	Form   *enterCorrespondentDetailsForm
 }
 
-func EnterCorrespondentDetails(tmpl template.Template, donorStore DonorStore, reuseStore ReuseStore, eventClient EventClient, newUID func() actoruid.UID) Handler {
+func EnterCorrespondentDetails(tmpl template.Template, service CorrespondentService) Handler {
 	return func(appData appcontext.Data, w http.ResponseWriter, r *http.Request, provided *donordata.Provided) error {
 		data := &enterCorrespondentDetailsData{
 			App: appData,
@@ -50,10 +46,6 @@ func EnterCorrespondentDetails(tmpl template.Template, donorStore DonorStore, re
 			}
 
 			if data.Errors.None() {
-				if provided.Correspondent.UID.IsZero() {
-					provided.Correspondent.UID = newUID()
-				}
-
 				provided.Correspondent.FirstNames = data.Form.FirstNames
 				provided.Correspondent.LastName = data.Form.LastName
 				provided.Correspondent.Email = data.Form.Email
@@ -64,34 +56,12 @@ func EnterCorrespondentDetails(tmpl template.Template, donorStore DonorStore, re
 
 				var redirect donor.Path
 				if provided.Correspondent.WantAddress.IsNo() {
-					provided.Correspondent.Address = place.Address{}
-					provided.Tasks.AddCorrespondent = task.StateCompleted
-
-					if err := eventClient.SendCorrespondentUpdated(r.Context(), event.CorrespondentUpdated{
-						UID:        provided.LpaUID,
-						ActorUID:   &provided.Correspondent.UID,
-						FirstNames: provided.Correspondent.FirstNames,
-						LastName:   provided.Correspondent.LastName,
-						Email:      provided.Correspondent.Email,
-						Phone:      provided.Correspondent.Phone,
-					}); err != nil {
-						return err
-					}
-
 					redirect = donor.PathCorrespondentSummary
 				} else {
-					if !provided.Tasks.AddCorrespondent.IsCompleted() && provided.Correspondent.Address.Line1 == "" {
-						provided.Tasks.AddCorrespondent = task.StateInProgress
-					}
-
 					redirect = donor.PathEnterCorrespondentAddress
 				}
 
-				if err := reuseStore.PutCorrespondent(r.Context(), provided.Correspondent); err != nil {
-					return err
-				}
-
-				if err := donorStore.Put(r.Context(), provided); err != nil {
+				if err := service.Put(r.Context(), provided); err != nil {
 					return err
 				}
 
