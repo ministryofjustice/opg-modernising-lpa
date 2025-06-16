@@ -3,8 +3,16 @@
 {{ define "pageTitle" }}{{ tr .App "signYourLpa" }}{{ end }}
 
 {{ define "main" }}
+    {{ $unselected := tr .App .App.Lang.String }}
+    {{ $inUnselected := tr .App (printf "in:%s" .App.Lang.String) }}
+    {{ $inSelected := tr .App (printf "in:%s" .Donor.Donor.LpaLanguagePreference.String) }}
+
     <div class="govuk-grid-row">
         <div class="govuk-grid-column-two-thirds">
+            {{ if and .Errors.None (ne .App.Lang .Donor.Donor.LpaLanguagePreference) }}
+                {{ template "notification-banner" (notificationBanner .App "important" (trFormatHtml .App "youMustViewAndSignYourLpaInLanguage" "Unselected" $unselected "InUnselected" $inUnselected "InSelected" $inSelected) "contents") }}
+            {{ end }}
+
             <h1 class="govuk-heading-xl">
                 {{ tr .App "signYourLpa" }}
             </h1>
@@ -58,14 +66,14 @@
 
                                 <div class="govuk-checkboxes {{ if .Errors.Has "sign-lpa" }}govuk-checkboxes--error{{ end }}">
                                     <div class="govuk-checkboxes__item">
-                                        <input class="govuk-checkboxes__input" id="f-sign-lpa" name="sign-lpa" type="checkbox" value="{{ .WantToSignFormValue }}" {{ if .Donor.WantToSignLpa }}checked{{ end }}>
+                                        <input class="govuk-checkboxes__input" id="f-sign-lpa" name="sign-lpa" type="checkbox" value="{{ .WantToSignFormValue }}" {{ if .Form.WantToSign }}checked{{ end }}>
                                         <label class="govuk-label govuk-checkboxes__label" for="f-sign-lpa">
                                             {{ tr .App "iWantToSignThisLpa" }}
                                         </label>
                                     </div>
 
                                     <div class="govuk-checkboxes__item">
-                                        <input class="govuk-checkboxes__input" id="f-sign-lpa-2" name="sign-lpa" type="checkbox" value="{{ .WantToApplyFormValue }}" {{ if .Donor.WantToApplyForLpa }}checked{{ end }}>
+                                        <input class="govuk-checkboxes__input" id="f-sign-lpa-2" name="sign-lpa" type="checkbox" value="{{ .WantToApplyFormValue }}" {{ if .Form.WantToApply }}checked{{ end }}>
                                         <label class="govuk-label govuk-checkboxes__label" for="f-sign-lpa-2">
                                             {{ tr .App "wantToApply" }}
                                         </label>
@@ -79,6 +87,19 @@
                 </div>
 
                 {{ template "details" (details . "howTickingActsAsSignature" "howTickingActsAsSignatureContent" false) }}
+
+                {{ if ne .App.Lang .Donor.Donor.LpaLanguagePreference }}
+                    <p class="govuk-body">
+                        {{ $prefix := "" }}
+                        {{ if isWelsh .Donor.Donor.LpaLanguagePreference }}
+                            {{ $prefix = "/cy" }}
+                        {{ end }}
+
+                        <a href="{{ $prefix }}{{ .App.Path }}{{ .App.EncodeQuery }}" class="govuk-link">{{ trFormat .App "viewThisPageIn" "In" $inSelected }}</a>
+                    </p>
+
+                    <input type="hidden" name="wrong-language" value="1">
+                {{ end }}
 
                 {{ template "buttons" (button .App "submitMySignature") }}
                 {{ template "csrf-field" . }}
