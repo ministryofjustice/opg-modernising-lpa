@@ -11,6 +11,7 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor/donordata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/identity"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/localize"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/scheduled"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/validation"
@@ -199,8 +200,9 @@ func TestReadSignYourLpaForm(t *testing.T) {
 	r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(form.Encode()))
 	r.Header.Add("Content-Type", page.FormUrlEncoded)
 
-	result := readSignYourLpaForm(r)
+	result := readSignYourLpaForm(r, localize.Cy)
 
+	assert.Equal(localize.Cy, result.lpaLanguage)
 	assert.Equal(true, result.WantToSign)
 	assert.Equal(true, result.WantToApply)
 }
@@ -216,17 +218,25 @@ func TestSignYourLpaFormValidate(t *testing.T) {
 				WantToSign:  true,
 			},
 		},
+		"valid but wrong language": {
+			form: &signYourLpaForm{
+				WantToApply:   true,
+				WantToSign:    true,
+				WrongLanguage: true,
+				lpaLanguage:   localize.Cy,
+			},
+			errors: validation.With("sign-lpa", youMustViewAndSignInLanguageError{LpaLanguage: localize.Cy}),
+		},
 		"only want-to-sign selected": {
 			form: &signYourLpaForm{
-				WantToApply: false,
-				WantToSign:  true,
+				WantToSign:    true,
+				WrongLanguage: true,
 			},
 			errors: validation.With("sign-lpa", validation.SelectError{Label: "bothBoxesToSignAndApply"}),
 		},
 		"only want-to-apply selected": {
 			form: &signYourLpaForm{
 				WantToApply: true,
-				WantToSign:  false,
 			},
 			errors: validation.With("sign-lpa", validation.SelectError{Label: "bothBoxesToSignAndApply"}),
 		},
