@@ -9,6 +9,8 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/appcontext"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor/donordata"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/localize"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/scheduled"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/validation"
 )
@@ -45,7 +47,7 @@ func SignYourLpa(tmpl template.Template, donorStore DonorStore, scheduledStore S
 		}
 
 		if r.Method == http.MethodPost {
-			data.Form = readSignYourLpaForm(r)
+			data.Form = readSignYourLpaForm(r, provided.Donor.LpaLanguagePreference)
 			data.Errors = data.Form.Validate()
 
 			if data.Errors.None() {
@@ -82,14 +84,19 @@ func SignYourLpa(tmpl template.Template, donorStore DonorStore, scheduledStore S
 }
 
 type signYourLpaForm struct {
-	WantToApply bool
-	WantToSign  bool
+	WantToApply   bool
+	WantToSign    bool
+	WrongLanguage bool
+	lpaLanguage   localize.Lang
 }
 
-func readSignYourLpaForm(r *http.Request) *signYourLpaForm {
+func readSignYourLpaForm(r *http.Request, lang localize.Lang) *signYourLpaForm {
 	r.ParseForm()
 
-	form := &signYourLpaForm{}
+	form := &signYourLpaForm{
+		WrongLanguage: page.PostFormString(r, "wrong-language") == "1",
+		lpaLanguage:   lang,
+	}
 
 	for _, checkBox := range r.PostForm["sign-lpa"] {
 		if checkBox == WantToSignLpa {
@@ -107,9 +114,21 @@ func readSignYourLpaForm(r *http.Request) *signYourLpaForm {
 func (f *signYourLpaForm) Validate() validation.List {
 	var errors validation.List
 
-	if !(f.WantToApply && f.WantToSign) {
+	if !f.WantToApply || !f.WantToSign {
 		errors.Add("sign-lpa", validation.SelectError{Label: "bothBoxesToSignAndApply"})
+	} else if f.WrongLanguage {
+		errors.Add("sign-lpa", youMustViewAndSignInLanguageError{LpaLanguage: f.lpaLanguage})
 	}
 
 	return errors
+}
+
+type youMustViewAndSignInLanguageError struct {
+	LpaLanguage localize.Lang
+}
+
+func (e youMustViewAndSignInLanguageError) Format(l validation.Localizer) string {
+	return l.Format("youMustViewAndSignInLanguage", map[string]any{
+		"InLang": l.T("in:" + e.LpaLanguage.String()),
+	})
 }
