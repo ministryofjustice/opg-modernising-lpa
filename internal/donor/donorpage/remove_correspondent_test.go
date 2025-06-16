@@ -10,7 +10,6 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor/actoruid"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor/donordata"
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/event"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/form"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/validation"
@@ -38,7 +37,7 @@ func TestGetRemoveCorrespondent(t *testing.T) {
 		}).
 		Return(nil)
 
-	err := RemoveCorrespondent(template.Execute, nil, nil, nil)(testAppData, w, r, &donordata.Provided{Correspondent: correspondent})
+	err := RemoveCorrespondent(template.Execute, nil)(testAppData, w, r, &donordata.Provided{Correspondent: correspondent})
 	resp := w.Result()
 
 	assert.Nil(t, err)
@@ -55,80 +54,27 @@ func TestPostRemoveCorrespondent(t *testing.T) {
 	r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(f.Encode()))
 	r.Header.Add("Content-Type", page.FormUrlEncoded)
 
-	correspondent := donordata.Correspondent{
-		UID:        uid,
-		FirstNames: "John",
-		LastName:   "Smith",
+	provided := &donordata.Provided{
+		LpaID:  "lpa-id",
+		LpaUID: "lpa-uid",
+		Correspondent: donordata.Correspondent{
+			UID:        uid,
+			FirstNames: "John",
+			LastName:   "Smith",
+		},
 	}
 
-	reuseStore := newMockReuseStore(t)
-	reuseStore.EXPECT().
-		DeleteCorrespondent(r.Context(), correspondent).
+	service := newMockCorrespondentService(t)
+	service.EXPECT().
+		Delete(r.Context(), provided).
 		Return(nil)
 
-	eventClient := newMockEventClient(t)
-	eventClient.EXPECT().
-		SendCorrespondentUpdated(r.Context(), event.CorrespondentUpdated{
-			UID: "lpa-uid",
-		}).
-		Return(nil)
-
-	donorStore := newMockDonorStore(t)
-	donorStore.EXPECT().
-		Put(r.Context(), &donordata.Provided{LpaID: "lpa-id", LpaUID: "lpa-uid"}).
-		Return(nil)
-
-	err := RemoveCorrespondent(nil, donorStore, reuseStore, eventClient)(testAppData, w, r, &donordata.Provided{
-		LpaID:         "lpa-id",
-		LpaUID:        "lpa-uid",
-		Correspondent: correspondent,
-	})
+	err := RemoveCorrespondent(nil, service)(testAppData, w, r, provided)
 	resp := w.Result()
 
 	assert.Nil(t, err)
 	assert.Equal(t, http.StatusFound, resp.StatusCode)
 	assert.Equal(t, donor.PathAddCorrespondent.Format("lpa-id"), resp.Header.Get("Location"))
-}
-
-func TestPostRemoveCorrespondentWhenReuseClientErrors(t *testing.T) {
-	f := url.Values{
-		form.FieldNames.YesNo: {form.Yes.String()},
-	}
-
-	w := httptest.NewRecorder()
-	r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(f.Encode()))
-	r.Header.Add("Content-Type", page.FormUrlEncoded)
-
-	reuseStore := newMockReuseStore(t)
-	reuseStore.EXPECT().
-		DeleteCorrespondent(mock.Anything, mock.Anything).
-		Return(expectedError)
-
-	err := RemoveCorrespondent(nil, nil, reuseStore, nil)(testAppData, w, r, &donordata.Provided{})
-	assert.ErrorIs(t, err, expectedError)
-}
-
-func TestPostRemoveCorrespondentWhenEventClientErrors(t *testing.T) {
-	f := url.Values{
-		form.FieldNames.YesNo: {form.Yes.String()},
-	}
-
-	w := httptest.NewRecorder()
-	r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(f.Encode()))
-	r.Header.Add("Content-Type", page.FormUrlEncoded)
-
-	reuseStore := newMockReuseStore(t)
-	reuseStore.EXPECT().
-		DeleteCorrespondent(mock.Anything, mock.Anything).
-		Return(nil)
-
-	eventClient := newMockEventClient(t)
-	eventClient.EXPECT().
-		SendCorrespondentUpdated(mock.Anything, mock.Anything).
-		Return(expectedError)
-
-	err := RemoveCorrespondent(nil, nil, reuseStore, eventClient)(testAppData, w, r, &donordata.Provided{})
-	assert.Equal(t, expectedError, err)
 }
 
 func TestPostRemoveCorrespondentWithFormValueNo(t *testing.T) {
@@ -140,7 +86,7 @@ func TestPostRemoveCorrespondentWithFormValueNo(t *testing.T) {
 	r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(f.Encode()))
 	r.Header.Add("Content-Type", page.FormUrlEncoded)
 
-	err := RemoveCorrespondent(nil, nil, nil, nil)(testAppData, w, r, &donordata.Provided{LpaID: "lpa-id"})
+	err := RemoveCorrespondent(nil, nil)(testAppData, w, r, &donordata.Provided{LpaID: "lpa-id"})
 	resp := w.Result()
 
 	assert.Nil(t, err)
@@ -157,22 +103,12 @@ func TestPostRemoveCorrespondentErrorOnPutStore(t *testing.T) {
 	r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(f.Encode()))
 	r.Header.Add("Content-Type", page.FormUrlEncoded)
 
-	reuseStore := newMockReuseStore(t)
-	reuseStore.EXPECT().
-		DeleteCorrespondent(mock.Anything, mock.Anything).
-		Return(nil)
-
-	eventClient := newMockEventClient(t)
-	eventClient.EXPECT().
-		SendCorrespondentUpdated(mock.Anything, mock.Anything).
-		Return(nil)
-
-	donorStore := newMockDonorStore(t)
-	donorStore.EXPECT().
-		Put(mock.Anything, mock.Anything).
+	service := newMockCorrespondentService(t)
+	service.EXPECT().
+		Delete(mock.Anything, mock.Anything).
 		Return(expectedError)
 
-	err := RemoveCorrespondent(nil, donorStore, reuseStore, eventClient)(testAppData, w, r, &donordata.Provided{})
+	err := RemoveCorrespondent(nil, service)(testAppData, w, r, &donordata.Provided{})
 	resp := w.Result()
 
 	assert.ErrorIs(t, err, expectedError)
@@ -197,7 +133,7 @@ func TestRemoveCorrespondentFormValidation(t *testing.T) {
 		})).
 		Return(nil)
 
-	err := RemoveCorrespondent(template.Execute, nil, nil, nil)(testAppData, w, r, &donordata.Provided{})
+	err := RemoveCorrespondent(template.Execute, nil)(testAppData, w, r, &donordata.Provided{})
 	resp := w.Result()
 
 	assert.Nil(t, err)

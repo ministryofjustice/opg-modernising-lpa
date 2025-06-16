@@ -9,9 +9,7 @@ import (
 
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor/donordata"
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/dynamo"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/task"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/validation"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
@@ -23,9 +21,9 @@ func TestGetChooseCorrespondent(t *testing.T) {
 
 	correspondents := []donordata.Correspondent{{FirstNames: "John"}}
 
-	reuseStore := newMockReuseStore(t)
-	reuseStore.EXPECT().
-		Correspondents(r.Context()).
+	service := newMockCorrespondentService(t)
+	service.EXPECT().
+		Reusable(r.Context()).
 		Return(correspondents, nil)
 
 	template := newMockTemplate(t)
@@ -38,7 +36,7 @@ func TestGetChooseCorrespondent(t *testing.T) {
 		}).
 		Return(nil)
 
-	err := ChooseCorrespondent(template.Execute, nil, reuseStore, nil)(testAppData, w, r, &donordata.Provided{})
+	err := ChooseCorrespondent(template.Execute, service)(testAppData, w, r, &donordata.Provided{})
 	resp := w.Result()
 
 	assert.Nil(t, err)
@@ -46,41 +44,32 @@ func TestGetChooseCorrespondent(t *testing.T) {
 }
 
 func TestGetChooseCorrespondentWhenNoReusableCorrespondents(t *testing.T) {
-	testcases := map[string]error{
-		"none":      nil,
-		"not found": dynamo.NotFoundError{},
-	}
+	w := httptest.NewRecorder()
+	r, _ := http.NewRequest(http.MethodGet, "/", nil)
 
-	for name, reuseError := range testcases {
-		t.Run(name, func(t *testing.T) {
-			w := httptest.NewRecorder()
-			r, _ := http.NewRequest(http.MethodGet, "/", nil)
+	service := newMockCorrespondentService(t)
+	service.EXPECT().
+		Reusable(r.Context()).
+		Return(nil, nil)
 
-			reuseStore := newMockReuseStore(t)
-			reuseStore.EXPECT().
-				Correspondents(r.Context()).
-				Return(nil, reuseError)
+	err := ChooseCorrespondent(nil, service)(testAppData, w, r, &donordata.Provided{LpaID: "lpa-id"})
+	resp := w.Result()
 
-			err := ChooseCorrespondent(nil, nil, reuseStore, nil)(testAppData, w, r, &donordata.Provided{LpaID: "lpa-id"})
-			resp := w.Result()
-
-			assert.Nil(t, err)
-			assert.Equal(t, http.StatusFound, resp.StatusCode)
-			assert.Equal(t, donor.PathEnterCorrespondentDetails.Format("lpa-id"), resp.Header.Get("Location"))
-		})
-	}
+	assert.Nil(t, err)
+	assert.Equal(t, http.StatusFound, resp.StatusCode)
+	assert.Equal(t, donor.PathEnterCorrespondentDetails.Format("lpa-id"), resp.Header.Get("Location"))
 }
 
 func TestGetChooseCorrespondentWhenError(t *testing.T) {
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest(http.MethodGet, "/", nil)
 
-	reuseStore := newMockReuseStore(t)
-	reuseStore.EXPECT().
-		Correspondents(r.Context()).
+	service := newMockCorrespondentService(t)
+	service.EXPECT().
+		Reusable(r.Context()).
 		Return(nil, expectedError)
 
-	err := ChooseCorrespondent(nil, nil, reuseStore, nil)(testAppData, w, r, &donordata.Provided{LpaID: "lpa-id"})
+	err := ChooseCorrespondent(nil, service)(testAppData, w, r, &donordata.Provided{LpaID: "lpa-id"})
 	assert.Equal(t, expectedError, err)
 }
 
@@ -88,9 +77,9 @@ func TestGetChooseCorrespondentWhenTemplateErrors(t *testing.T) {
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest(http.MethodGet, "/", nil)
 
-	reuseStore := newMockReuseStore(t)
-	reuseStore.EXPECT().
-		Correspondents(r.Context()).
+	service := newMockCorrespondentService(t)
+	service.EXPECT().
+		Reusable(r.Context()).
 		Return([]donordata.Correspondent{{FirstNames: "John"}}, nil)
 
 	template := newMockTemplate(t)
@@ -98,7 +87,7 @@ func TestGetChooseCorrespondentWhenTemplateErrors(t *testing.T) {
 		Execute(w, mock.Anything).
 		Return(expectedError)
 
-	err := ChooseCorrespondent(template.Execute, nil, reuseStore, nil)(testAppData, w, r, &donordata.Provided{})
+	err := ChooseCorrespondent(template.Execute, service)(testAppData, w, r, &donordata.Provided{})
 	resp := w.Result()
 
 	assert.Equal(t, expectedError, err)
@@ -116,27 +105,18 @@ func TestPostChooseCorrespondent(t *testing.T) {
 
 	correspondents := []donordata.Correspondent{{FirstNames: "John"}, {FirstNames: "Dave"}}
 
-	reuseStore := newMockReuseStore(t)
-	reuseStore.EXPECT().
-		Correspondents(r.Context()).
+	service := newMockCorrespondentService(t)
+	service.EXPECT().
+		Reusable(r.Context()).
 		Return(correspondents, nil)
-	reuseStore.EXPECT().
-		PutCorrespondent(r.Context(), donordata.Correspondent{
-			UID:        testUID,
-			FirstNames: "Dave",
-		}).
-		Return(nil)
-
-	donorStore := newMockDonorStore(t)
-	donorStore.EXPECT().
+	service.EXPECT().
 		Put(r.Context(), &donordata.Provided{
 			LpaID:         "lpa-id",
-			Correspondent: donordata.Correspondent{UID: testUID, FirstNames: "Dave"},
-			Tasks:         donordata.Tasks{AddCorrespondent: task.StateCompleted},
+			Correspondent: donordata.Correspondent{FirstNames: "Dave"},
 		}).
 		Return(nil)
 
-	err := ChooseCorrespondent(nil, donorStore, reuseStore, testUIDFn)(testAppData, w, r, &donordata.Provided{LpaID: "lpa-id"})
+	err := ChooseCorrespondent(nil, service)(testAppData, w, r, &donordata.Provided{LpaID: "lpa-id"})
 	resp := w.Result()
 
 	assert.Nil(t, err)
@@ -155,12 +135,12 @@ func TestPostChooseCorrespondentWhenNew(t *testing.T) {
 
 	correspondents := []donordata.Correspondent{{FirstNames: "John"}, {FirstNames: "Dave"}}
 
-	reuseStore := newMockReuseStore(t)
-	reuseStore.EXPECT().
-		Correspondents(r.Context()).
+	service := newMockCorrespondentService(t)
+	service.EXPECT().
+		Reusable(r.Context()).
 		Return(correspondents, nil)
 
-	err := ChooseCorrespondent(nil, nil, reuseStore, testUIDFn)(testAppData, w, r, &donordata.Provided{LpaID: "lpa-id"})
+	err := ChooseCorrespondent(nil, service)(testAppData, w, r, &donordata.Provided{LpaID: "lpa-id"})
 	resp := w.Result()
 
 	assert.Nil(t, err)
@@ -168,7 +148,7 @@ func TestPostChooseCorrespondentWhenNew(t *testing.T) {
 	assert.Equal(t, donor.PathEnterCorrespondentDetails.Format("lpa-id"), resp.Header.Get("Location"))
 }
 
-func TestPostChooseCorrespondentWhenReuseStoreError(t *testing.T) {
+func TestPostChooseCorrespondentWhenServiceError(t *testing.T) {
 	form := url.Values{
 		"option": {"0"},
 	}
@@ -177,41 +157,15 @@ func TestPostChooseCorrespondentWhenReuseStoreError(t *testing.T) {
 	r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(form.Encode()))
 	r.Header.Add("Content-Type", page.FormUrlEncoded)
 
-	reuseStore := newMockReuseStore(t)
-	reuseStore.EXPECT().
-		Correspondents(r.Context()).
+	service := newMockCorrespondentService(t)
+	service.EXPECT().
+		Reusable(r.Context()).
 		Return([]donordata.Correspondent{{}}, nil)
-	reuseStore.EXPECT().
-		PutCorrespondent(mock.Anything, mock.Anything).
-		Return(expectedError)
-
-	err := ChooseCorrespondent(nil, nil, reuseStore, testUIDFn)(testAppData, w, r, &donordata.Provided{LpaID: "lpa-id"})
-	assert.Equal(t, expectedError, err)
-}
-
-func TestPostChooseCorrespondentWhenDonorStoreError(t *testing.T) {
-	form := url.Values{
-		"option": {"0"},
-	}
-
-	w := httptest.NewRecorder()
-	r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(form.Encode()))
-	r.Header.Add("Content-Type", page.FormUrlEncoded)
-
-	reuseStore := newMockReuseStore(t)
-	reuseStore.EXPECT().
-		Correspondents(r.Context()).
-		Return([]donordata.Correspondent{{}}, nil)
-	reuseStore.EXPECT().
-		PutCorrespondent(mock.Anything, mock.Anything).
-		Return(nil)
-
-	donorStore := newMockDonorStore(t)
-	donorStore.EXPECT().
+	service.EXPECT().
 		Put(mock.Anything, mock.Anything).
 		Return(expectedError)
 
-	err := ChooseCorrespondent(nil, donorStore, reuseStore, testUIDFn)(testAppData, w, r, &donordata.Provided{LpaID: "lpa-id"})
+	err := ChooseCorrespondent(nil, service)(testAppData, w, r, &donordata.Provided{LpaID: "lpa-id"})
 	assert.Equal(t, expectedError, err)
 }
 

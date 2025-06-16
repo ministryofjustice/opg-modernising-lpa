@@ -222,6 +222,13 @@ type CertificateProviderService interface {
 	Delete(ctx context.Context, provided *donordata.Provided) error
 }
 
+type CorrespondentService interface {
+	Reusable(ctx context.Context) ([]donordata.Correspondent, error)
+	NotWanted(ctx context.Context, provided *donordata.Provided) error
+	Put(ctx context.Context, provided *donordata.Provided) error
+	Delete(ctx context.Context, provided *donordata.Provided) error
+}
+
 func Register(
 	rootMux *http.ServeMux,
 	logger Logger,
@@ -419,18 +426,22 @@ func Register(
 			RemovePersonToNotify(tmpls.Get("remove_person_to_notify.gohtml"), service))
 	}
 
-	handleWithDonor(donor.PathAddCorrespondent, page.None,
-		AddCorrespondent(tmpls.Get("add_correspondent.gohtml"), donorStore, eventClient))
-	handleWithDonor(donor.PathChooseCorrespondent, page.CanGoBack,
-		ChooseCorrespondent(tmpls.Get("choose_correspondent.gohtml"), donorStore, reuseStore, actoruid.New))
-	handleWithDonor(donor.PathEnterCorrespondentDetails, page.CanGoBack,
-		EnterCorrespondentDetails(tmpls.Get("enter_correspondent_details.gohtml"), donorStore, reuseStore, eventClient, actoruid.New))
-	handleWithDonor(donor.PathEnterCorrespondentAddress, page.CanGoBack,
-		EnterCorrespondentAddress(logger, tmpls.Get("choose_address.gohtml"), addressClient, donorStore, reuseStore, eventClient))
-	handleWithDonor(donor.PathRemoveCorrespondent, page.CanGoBack,
-		RemoveCorrespondent(tmpls.Get("remove_correspondent.gohtml"), donorStore, reuseStore, eventClient))
-	handleWithDonor(donor.PathCorrespondentSummary, page.None,
-		Guidance(tmpls.Get("correspondent_summary.gohtml")))
+	{
+		service := donor.NewCorrespondentService(donorStore, reuseStore, eventClient)
+
+		handleWithDonor(donor.PathAddCorrespondent, page.None,
+			AddCorrespondent(tmpls.Get("add_correspondent.gohtml"), service))
+		handleWithDonor(donor.PathChooseCorrespondent, page.CanGoBack,
+			ChooseCorrespondent(tmpls.Get("choose_correspondent.gohtml"), service))
+		handleWithDonor(donor.PathEnterCorrespondentDetails, page.CanGoBack,
+			EnterCorrespondentDetails(tmpls.Get("enter_correspondent_details.gohtml"), service))
+		handleWithDonor(donor.PathEnterCorrespondentAddress, page.CanGoBack,
+			EnterCorrespondentAddress(logger, tmpls.Get("choose_address.gohtml"), addressClient, service))
+		handleWithDonor(donor.PathRemoveCorrespondent, page.CanGoBack,
+			RemoveCorrespondent(tmpls.Get("remove_correspondent.gohtml"), service))
+		handleWithDonor(donor.PathCorrespondentSummary, page.None,
+			Guidance(tmpls.Get("correspondent_summary.gohtml")))
+	}
 
 	handleWithDonor(donor.PathGettingHelpSigning, page.CanGoBack,
 		Guidance(tmpls.Get("getting_help_signing.gohtml")))
