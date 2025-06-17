@@ -11,9 +11,17 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/place"
 )
 
-func EnterTrustCorporationAddress(logger Logger, tmpl template.Template, addressClient AddressClient, donorStore DonorStore, reuseStore ReuseStore) Handler {
+func EnterTrustCorporationAddress(logger Logger, tmpl template.Template, addressClient AddressClient, service AttorneyService) Handler {
+	summaryPath := donor.PathChooseAttorneysSummary
+	if service.IsReplacement() {
+		summaryPath = donor.PathChooseReplacementAttorneysSummary
+	}
+
 	return func(appData appcontext.Data, w http.ResponseWriter, r *http.Request, provided *donordata.Provided) error {
 		trustCorporation := provided.Attorneys.TrustCorporation
+		if service.IsReplacement() {
+			trustCorporation = provided.ReplacementAttorneys.TrustCorporation
+		}
 
 		data := newChooseAddressData(
 			appData,
@@ -33,20 +41,12 @@ func EnterTrustCorporationAddress(logger Logger, tmpl template.Template, address
 
 			setAddress := func(address place.Address) error {
 				trustCorporation.Address = address
-				provided.Attorneys.TrustCorporation = trustCorporation
 
-				provided.Tasks.ChooseAttorneys = donordata.ChooseAttorneysState(provided.Attorneys, provided.AttorneyDecisions)
-				provided.Tasks.ChooseReplacementAttorneys = donordata.ChooseReplacementAttorneysState(provided)
-
-				if err := reuseStore.PutTrustCorporation(r.Context(), trustCorporation); err != nil {
+				if err := service.PutTrustCorporation(r.Context(), provided, trustCorporation); err != nil {
 					return err
 				}
 
-				if err := donorStore.Put(r.Context(), provided); err != nil {
-					return err
-				}
-
-				return donor.PathChooseAttorneysSummary.Redirect(w, r, appData, provided)
+				return summaryPath.Redirect(w, r, appData, provided)
 			}
 
 			switch data.Form.Action {

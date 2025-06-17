@@ -1,7 +1,6 @@
 package donorpage
 
 import (
-	"fmt"
 	"net/http"
 
 	"github.com/ministryofjustice/opg-go-common/template"
@@ -21,42 +20,46 @@ type removeAttorneyData struct {
 	Form       *form.YesNoForm
 }
 
-func RemoveAttorney(tmpl template.Template, donorStore DonorStore, reuseStore ReuseStore) Handler {
-	return func(appData appcontext.Data, w http.ResponseWriter, r *http.Request, provided *donordata.Provided) error {
-		attorney, found := provided.Attorneys.Get(actoruid.FromRequest(r))
+func RemoveAttorney(tmpl template.Template, service AttorneyService) Handler {
+	titleLabel := "removeAnAttorney"
+	summaryPath := donor.PathChooseAttorneysSummary
+	errorLabel := "yesToRemoveAttorney"
+	if service.IsReplacement() {
+		titleLabel = "doYouWantToRemoveReplacementAttorney"
+		summaryPath = donor.PathChooseReplacementAttorneysSummary
+		errorLabel = "yesToRemoveReplacementAttorney"
+	}
 
+	return func(appData appcontext.Data, w http.ResponseWriter, r *http.Request, provided *donordata.Provided) error {
+		attorneys := provided.Attorneys
+		if service.IsReplacement() {
+			attorneys = provided.ReplacementAttorneys
+		}
+
+		attorney, found := attorneys.Get(actoruid.FromRequest(r))
 		if found == false {
-			return donor.PathChooseAttorneysSummary.Redirect(w, r, appData, provided)
+			return summaryPath.Redirect(w, r, appData, provided)
 		}
 
 		data := &removeAttorneyData{
 			App:        appData,
-			TitleLabel: "removeAnAttorney",
+			TitleLabel: titleLabel,
 			Name:       attorney.FullName(),
 			Form:       form.NewYesNoForm(form.YesNoUnknown),
 		}
 
 		if r.Method == http.MethodPost {
-			data.Form = form.ReadYesNoForm(r, "yesToRemoveAttorney")
+			data.Form = form.ReadYesNoForm(r, errorLabel)
 			data.Errors = data.Form.Validate()
 
 			if data.Errors.None() {
 				if data.Form.YesNo == form.Yes {
-					provided.Attorneys.Delete(attorney)
-					provided.UpdateDecisions()
-					provided.Tasks.ChooseAttorneys = donordata.ChooseAttorneysState(provided.Attorneys, provided.AttorneyDecisions)
-					provided.Tasks.ChooseReplacementAttorneys = donordata.ChooseReplacementAttorneysState(provided)
-
-					if err := reuseStore.DeleteAttorney(r.Context(), attorney); err != nil {
-						return fmt.Errorf("removing reusable attorney: %w", err)
-					}
-
-					if err := donorStore.Put(r.Context(), provided); err != nil {
-						return fmt.Errorf("error removing Attorney from LPA: %w", err)
+					if err := service.Delete(r.Context(), provided, attorney); err != nil {
+						return err
 					}
 				}
 
-				return donor.PathChooseAttorneysSummary.Redirect(w, r, appData, provided)
+				return summaryPath.Redirect(w, r, appData, provided)
 			}
 		}
 
