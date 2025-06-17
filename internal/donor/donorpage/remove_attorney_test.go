@@ -1,6 +1,7 @@
 package donorpage
 
 import (
+	"fmt"
 	"net/http"
 	"net/http/httptest"
 	"net/url"
@@ -14,42 +15,76 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/lpastore/lpadata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/place"
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/task"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/validation"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
 )
 
 func TestGetRemoveAttorney(t *testing.T) {
-	uid := actoruid.New()
-	w := httptest.NewRecorder()
-	r, _ := http.NewRequest(http.MethodGet, "/?id="+uid.String(), nil)
-
-	attorney := donordata.Attorney{
-		UID:        uid,
-		FirstNames: "John",
-		LastName:   "Smith",
-		Address: place.Address{
-			Line1: "1 Road way",
+	testcases := map[bool]struct {
+		provided   *donordata.Provided
+		titleLabel string
+	}{
+		false: {
+			titleLabel: "removeAnAttorney",
+			provided: &donordata.Provided{
+				Attorneys: donordata.Attorneys{
+					Attorneys: []donordata.Attorney{{
+						UID:        testUID,
+						FirstNames: "John",
+						LastName:   "Smith",
+						Address: place.Address{
+							Line1: "1 Road way",
+						},
+					}},
+				},
+			},
+		},
+		true: {
+			titleLabel: "doYouWantToRemoveReplacementAttorney",
+			provided: &donordata.Provided{
+				ReplacementAttorneys: donordata.Attorneys{
+					Attorneys: []donordata.Attorney{{
+						UID:        testUID,
+						FirstNames: "John",
+						LastName:   "Smith",
+						Address: place.Address{
+							Line1: "1 Road way",
+						},
+					}},
+				},
+			},
 		},
 	}
 
-	template := newMockTemplate(t)
-	template.EXPECT().
-		Execute(w, &removeAttorneyData{
-			App:        testAppData,
-			TitleLabel: "removeAnAttorney",
-			Name:       "John Smith",
-			Form:       form.NewYesNoForm(form.YesNoUnknown),
-		}).
-		Return(nil)
+	for isReplacement, tc := range testcases {
+		t.Run(fmt.Sprint(isReplacement), func(t *testing.T) {
+			w := httptest.NewRecorder()
+			r, _ := http.NewRequest(http.MethodGet, "/?id="+testUID.String(), nil)
 
-	err := RemoveAttorney(template.Execute, nil, nil)(testAppData, w, r, &donordata.Provided{Attorneys: donordata.Attorneys{Attorneys: []donordata.Attorney{attorney}}})
+			service := newMockAttorneyService(t)
+			service.EXPECT().
+				IsReplacement().
+				Return(isReplacement)
 
-	resp := w.Result()
+			template := newMockTemplate(t)
+			template.EXPECT().
+				Execute(w, &removeAttorneyData{
+					App:        testAppData,
+					TitleLabel: tc.titleLabel,
+					Name:       "John Smith",
+					Form:       form.NewYesNoForm(form.YesNoUnknown),
+				}).
+				Return(nil)
 
-	assert.Nil(t, err)
-	assert.Equal(t, http.StatusOK, resp.StatusCode)
+			err := RemoveAttorney(template.Execute, service)(testAppData, w, r, tc.provided)
+
+			resp := w.Result()
+
+			assert.Nil(t, err)
+			assert.Equal(t, http.StatusOK, resp.StatusCode)
+		})
+	}
 }
 
 func TestGetRemoveAttorneyAttorneyDoesNotExist(t *testing.T) {
@@ -65,7 +100,7 @@ func TestGetRemoveAttorneyAttorneyDoesNotExist(t *testing.T) {
 		},
 	}
 
-	err := RemoveAttorney(template.Execute, nil, nil)(testAppData, w, r, &donordata.Provided{LpaID: "lpa-id", Attorneys: donordata.Attorneys{Attorneys: []donordata.Attorney{attorney}}})
+	err := RemoveAttorney(template.Execute, testAttorneyService(t))(testAppData, w, r, &donordata.Provided{LpaID: "lpa-id", Attorneys: donordata.Attorneys{Attorneys: []donordata.Attorney{attorney}}})
 
 	resp := w.Result()
 
@@ -80,21 +115,14 @@ func TestPostRemoveAttorney(t *testing.T) {
 	attorneyWithoutAddress := donordata.Attorney{UID: actoruid.New()}
 
 	testcases := map[string]struct {
-		donor        *donordata.Provided
-		updatedDonor *donordata.Provided
-		redirect     donor.Path
+		donor    *donordata.Provided
+		redirect donor.Path
 	}{
 		"many left": {
 			donor: &donordata.Provided{
 				LpaID:             "lpa-id",
 				Attorneys:         donordata.Attorneys{Attorneys: []donordata.Attorney{attorneyWithEmail, attorneyWithAddress, attorneyWithoutAddress}},
 				AttorneyDecisions: donordata.AttorneyDecisions{How: lpadata.Jointly},
-			},
-			updatedDonor: &donordata.Provided{
-				LpaID:             "lpa-id",
-				Attorneys:         donordata.Attorneys{Attorneys: []donordata.Attorney{attorneyWithEmail, attorneyWithAddress}},
-				AttorneyDecisions: donordata.AttorneyDecisions{How: lpadata.Jointly},
-				Tasks:             donordata.Tasks{ChooseAttorneys: task.StateInProgress},
 			},
 			redirect: donor.PathChooseAttorneysSummary,
 		},
@@ -104,19 +132,10 @@ func TestPostRemoveAttorney(t *testing.T) {
 				Attorneys:         donordata.Attorneys{Attorneys: []donordata.Attorney{attorneyWithAddress, attorneyWithoutAddress}},
 				AttorneyDecisions: donordata.AttorneyDecisions{How: lpadata.Jointly},
 			},
-			updatedDonor: &donordata.Provided{
-				LpaID:     "lpa-id",
-				Attorneys: donordata.Attorneys{Attorneys: []donordata.Attorney{attorneyWithAddress}},
-				Tasks:     donordata.Tasks{ChooseAttorneys: task.StateInProgress},
-			},
 			redirect: donor.PathChooseAttorneysSummary,
 		},
 		"none left": {
-			donor: &donordata.Provided{LpaID: "lpa-id", Attorneys: donordata.Attorneys{Attorneys: []donordata.Attorney{attorneyWithoutAddress}}},
-			updatedDonor: &donordata.Provided{
-				LpaID:     "lpa-id",
-				Attorneys: donordata.Attorneys{Attorneys: []donordata.Attorney{}},
-			},
+			donor:    &donordata.Provided{LpaID: "lpa-id", Attorneys: donordata.Attorneys{Attorneys: []donordata.Attorney{attorneyWithoutAddress}}},
 			redirect: donor.PathChooseAttorneysSummary,
 		},
 	}
@@ -131,17 +150,12 @@ func TestPostRemoveAttorney(t *testing.T) {
 			r, _ := http.NewRequest(http.MethodPost, "/?id="+attorneyWithoutAddress.UID.String(), strings.NewReader(f.Encode()))
 			r.Header.Add("Content-Type", page.FormUrlEncoded)
 
-			reuseStore := newMockReuseStore(t)
-			reuseStore.EXPECT().
-				DeleteAttorney(r.Context(), attorneyWithoutAddress).
+			service := testAttorneyService(t)
+			service.EXPECT().
+				Delete(r.Context(), tc.donor, attorneyWithoutAddress).
 				Return(nil)
 
-			donorStore := newMockDonorStore(t)
-			donorStore.EXPECT().
-				Put(r.Context(), tc.updatedDonor).
-				Return(nil)
-
-			err := RemoveAttorney(nil, donorStore, reuseStore)(testAppData, w, r, tc.donor)
+			err := RemoveAttorney(nil, service)(testAppData, w, r, tc.donor)
 			resp := w.Result()
 
 			assert.Nil(t, err)
@@ -172,7 +186,7 @@ func TestPostRemoveAttorneyWithFormValueNo(t *testing.T) {
 	r, _ := http.NewRequest(http.MethodPost, "/?id="+attorneyWithoutAddress.UID.String(), strings.NewReader(f.Encode()))
 	r.Header.Add("Content-Type", page.FormUrlEncoded)
 
-	err := RemoveAttorney(nil, nil, nil)(testAppData, w, r, &donordata.Provided{LpaID: "lpa-id", Attorneys: donordata.Attorneys{Attorneys: []donordata.Attorney{attorneyWithoutAddress, attorneyWithAddress}}})
+	err := RemoveAttorney(nil, testAttorneyService(t))(testAppData, w, r, &donordata.Provided{LpaID: "lpa-id", Attorneys: donordata.Attorneys{Attorneys: []donordata.Attorney{attorneyWithoutAddress, attorneyWithAddress}}})
 	resp := w.Result()
 
 	assert.Nil(t, err)
@@ -180,7 +194,7 @@ func TestPostRemoveAttorneyWithFormValueNo(t *testing.T) {
 	assert.Equal(t, donor.PathChooseAttorneysSummary.Format("lpa-id"), resp.Header.Get("Location"))
 }
 
-func TestPostRemoveAttorneyWhenReuseStoreErrors(t *testing.T) {
+func TestPostRemoveAttorneyWhenServiceErrors(t *testing.T) {
 	f := url.Values{
 		form.FieldNames.YesNo: {form.Yes.String()},
 	}
@@ -201,47 +215,12 @@ func TestPostRemoveAttorneyWhenReuseStoreErrors(t *testing.T) {
 	r, _ := http.NewRequest(http.MethodPost, "/?id="+attorneyWithoutAddress.UID.String(), strings.NewReader(f.Encode()))
 	r.Header.Add("Content-Type", page.FormUrlEncoded)
 
-	reuseStore := newMockReuseStore(t)
-	reuseStore.EXPECT().
-		DeleteAttorney(mock.Anything, mock.Anything).
+	service := testAttorneyService(t)
+	service.EXPECT().
+		Delete(mock.Anything, mock.Anything, mock.Anything).
 		Return(expectedError)
 
-	err := RemoveAttorney(nil, nil, reuseStore)(testAppData, w, r, &donordata.Provided{Attorneys: donordata.Attorneys{Attorneys: []donordata.Attorney{attorneyWithoutAddress, attorneyWithAddress}}})
-	assert.ErrorIs(t, err, expectedError)
-}
-
-func TestPostRemoveAttorneyWhenDonorStoreErrors(t *testing.T) {
-	f := url.Values{
-		form.FieldNames.YesNo: {form.Yes.String()},
-	}
-
-	attorneyWithAddress := donordata.Attorney{
-		UID: actoruid.New(),
-		Address: place.Address{
-			Line1: "1 Road way",
-		},
-	}
-
-	attorneyWithoutAddress := donordata.Attorney{
-		UID:     actoruid.New(),
-		Address: place.Address{},
-	}
-
-	w := httptest.NewRecorder()
-	r, _ := http.NewRequest(http.MethodPost, "/?id="+attorneyWithoutAddress.UID.String(), strings.NewReader(f.Encode()))
-	r.Header.Add("Content-Type", page.FormUrlEncoded)
-
-	reuseStore := newMockReuseStore(t)
-	reuseStore.EXPECT().
-		DeleteAttorney(mock.Anything, mock.Anything).
-		Return(nil)
-
-	donorStore := newMockDonorStore(t)
-	donorStore.EXPECT().
-		Put(r.Context(), mock.Anything).
-		Return(expectedError)
-
-	err := RemoveAttorney(nil, donorStore, reuseStore)(testAppData, w, r, &donordata.Provided{Attorneys: donordata.Attorneys{Attorneys: []donordata.Attorney{attorneyWithoutAddress, attorneyWithAddress}}})
+	err := RemoveAttorney(nil, service)(testAppData, w, r, &donordata.Provided{Attorneys: donordata.Attorneys{Attorneys: []donordata.Attorney{attorneyWithoutAddress, attorneyWithAddress}}})
 	assert.ErrorIs(t, err, expectedError)
 }
 
@@ -264,7 +243,7 @@ func TestRemoveAttorneyFormValidation(t *testing.T) {
 		})).
 		Return(nil)
 
-	err := RemoveAttorney(template.Execute, nil, nil)(testAppData, w, r, &donordata.Provided{
+	err := RemoveAttorney(template.Execute, testAttorneyService(t))(testAppData, w, r, &donordata.Provided{
 		Attorneys: donordata.Attorneys{
 			Attorneys: []donordata.Attorney{{
 				UID:     uid,

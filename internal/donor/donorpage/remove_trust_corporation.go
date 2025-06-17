@@ -10,31 +10,17 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/form"
 )
 
-func RemoveTrustCorporation(tmpl template.Template, donorStore DonorStore, reuseStore ReuseStore, isReplacement bool) Handler {
+func RemoveTrustCorporation(tmpl template.Template, service AttorneyService) Handler {
 	redirect := donor.PathChooseAttorneysSummary
 	titleLabel := "removeTrustCorporation"
-	if isReplacement {
+	if service.IsReplacement() {
 		redirect = donor.PathChooseReplacementAttorneysSummary
 		titleLabel = "removeReplacementTrustCorporation"
 	}
 
-	setTrustCorporation := func(donor *donordata.Provided) donordata.TrustCorporation {
-		previous := donor.Attorneys.TrustCorporation
-		donor.Attorneys.TrustCorporation = donordata.TrustCorporation{}
-		return previous
-	}
-
-	if isReplacement {
-		setTrustCorporation = func(donor *donordata.Provided) donordata.TrustCorporation {
-			previous := donor.ReplacementAttorneys.TrustCorporation
-			donor.ReplacementAttorneys.TrustCorporation = donordata.TrustCorporation{}
-			return previous
-		}
-	}
-
 	return func(appData appcontext.Data, w http.ResponseWriter, r *http.Request, donor *donordata.Provided) error {
 		name := donor.Attorneys.TrustCorporation.Name
-		if isReplacement {
+		if service.IsReplacement() {
 			name = donor.ReplacementAttorneys.TrustCorporation.Name
 		}
 
@@ -51,16 +37,7 @@ func RemoveTrustCorporation(tmpl template.Template, donorStore DonorStore, reuse
 
 			if data.Errors.None() {
 				if data.Form.YesNo.IsYes() {
-					trustCorporation := setTrustCorporation(donor)
-					donor.UpdateDecisions()
-					donor.Tasks.ChooseAttorneys = donordata.ChooseAttorneysState(donor.Attorneys, donor.AttorneyDecisions)
-					donor.Tasks.ChooseReplacementAttorneys = donordata.ChooseReplacementAttorneysState(donor)
-
-					if err := reuseStore.DeleteTrustCorporation(r.Context(), trustCorporation); err != nil {
-						return err
-					}
-
-					if err := donorStore.Put(r.Context(), donor); err != nil {
+					if err := service.DeleteTrustCorporation(r.Context(), donor); err != nil {
 						return err
 					}
 				}
