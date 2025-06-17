@@ -1,6 +1,7 @@
 package donorpage
 
 import (
+	"fmt"
 	"net/http"
 	"net/http/httptest"
 	"net/url"
@@ -11,30 +12,65 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor/donordata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/place"
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/task"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/validation"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
 )
 
 func TestGetEnterTrustCorporation(t *testing.T) {
-	w := httptest.NewRecorder()
-	r, _ := http.NewRequest(http.MethodGet, "/", nil)
+	testcases := map[bool]struct {
+		provided  *donordata.Provided
+		enterPath donor.Path
+	}{
+		false: {
+			provided: &donordata.Provided{
+				LpaID: "lpa-id",
+				Attorneys: donordata.Attorneys{
+					TrustCorporation: donordata.TrustCorporation{Name: "X"},
+				},
+			},
+			enterPath: donor.PathEnterAttorney,
+		},
+		true: {
+			provided: &donordata.Provided{
+				LpaID: "lpa-id",
+				ReplacementAttorneys: donordata.Attorneys{
+					TrustCorporation: donordata.TrustCorporation{Name: "X"},
+				},
+			},
+			enterPath: donor.PathEnterReplacementAttorney,
+		},
+	}
 
-	template := newMockTemplate(t)
-	template.EXPECT().
-		Execute(w, &enterTrustCorporationData{
-			App:                 testAppData,
-			Form:                &enterTrustCorporationForm{},
-			ChooseAttorneysPath: donor.PathEnterAttorney.FormatQuery("", url.Values{"id": {testUID.String()}}),
-		}).
-		Return(nil)
+	for isReplacement, tc := range testcases {
+		t.Run(fmt.Sprint(isReplacement), func(t *testing.T) {
+			w := httptest.NewRecorder()
+			r, _ := http.NewRequest(http.MethodGet, "/", nil)
 
-	err := EnterTrustCorporation(template.Execute, nil, nil, testUIDFn)(testAppData, w, r, &donordata.Provided{})
-	resp := w.Result()
+			service := newMockAttorneyService(t)
+			service.EXPECT().
+				IsReplacement().
+				Return(isReplacement)
 
-	assert.Nil(t, err)
-	assert.Equal(t, http.StatusOK, resp.StatusCode)
+			template := newMockTemplate(t)
+			template.EXPECT().
+				Execute(w, &enterTrustCorporationData{
+					App: testAppData,
+					Form: &enterTrustCorporationForm{
+						Name: "X",
+					},
+					LpaID:               "lpa-id",
+					ChooseAttorneysPath: tc.enterPath.FormatQuery("lpa-id", url.Values{"id": {testUID.String()}}),
+				}).
+				Return(nil)
+
+			err := EnterTrustCorporation(template.Execute, service, testUIDFn)(testAppData, w, r, tc.provided)
+			resp := w.Result()
+
+			assert.Nil(t, err)
+			assert.Equal(t, http.StatusOK, resp.StatusCode)
+		})
+	}
 }
 
 func TestGetEnterTrustCorporationWhenTemplateErrors(t *testing.T) {
@@ -46,7 +82,7 @@ func TestGetEnterTrustCorporationWhenTemplateErrors(t *testing.T) {
 		Execute(w, mock.Anything).
 		Return(expectedError)
 
-	err := EnterTrustCorporation(template.Execute, nil, nil, testUIDFn)(testAppData, w, r, &donordata.Provided{})
+	err := EnterTrustCorporation(template.Execute, testAttorneyService(t), testUIDFn)(testAppData, w, r, &donordata.Provided{})
 	resp := w.Result()
 
 	assert.Equal(t, expectedError, err)
@@ -70,23 +106,16 @@ func TestPostEnterTrustCorporation(t *testing.T) {
 		Email:         "name@example.com",
 	}
 
-	reuseStore := newMockReuseStore(t)
-	reuseStore.EXPECT().
-		PutTrustCorporation(r.Context(), trustCorporation).
-		Return(nil)
-
-	donorStore := newMockDonorStore(t)
-	donorStore.EXPECT().
-		Put(r.Context(), &donordata.Provided{
-			LpaID:     "lpa-id",
-			Attorneys: donordata.Attorneys{TrustCorporation: trustCorporation},
-			Tasks:     donordata.Tasks{ChooseAttorneys: task.StateInProgress},
-		}).
-		Return(nil)
-
-	err := EnterTrustCorporation(nil, donorStore, reuseStore, testUIDFn)(testAppData, w, r, &donordata.Provided{
+	provided := &donordata.Provided{
 		LpaID: "lpa-id",
-	})
+	}
+
+	service := testAttorneyService(t)
+	service.EXPECT().
+		PutTrustCorporation(r.Context(), provided, trustCorporation).
+		Return(nil)
+
+	err := EnterTrustCorporation(nil, service, testUIDFn)(testAppData, w, r, provided)
 	resp := w.Result()
 
 	assert.Nil(t, err)
@@ -112,21 +141,7 @@ func TestPostEnterTrustCorporationWhenAddressSet(t *testing.T) {
 		Address:       place.Address{Line1: "123"},
 	}
 
-	reuseStore := newMockReuseStore(t)
-	reuseStore.EXPECT().
-		PutTrustCorporation(r.Context(), trustCorporation).
-		Return(nil)
-
-	donorStore := newMockDonorStore(t)
-	donorStore.EXPECT().
-		Put(r.Context(), &donordata.Provided{
-			LpaID:     "lpa-id",
-			Attorneys: donordata.Attorneys{TrustCorporation: trustCorporation},
-			Tasks:     donordata.Tasks{ChooseAttorneys: task.StateCompleted},
-		}).
-		Return(nil)
-
-	err := EnterTrustCorporation(nil, donorStore, reuseStore, testUIDFn)(testAppData, w, r, &donordata.Provided{
+	provided := &donordata.Provided{
 		LpaID: "lpa-id",
 		Attorneys: donordata.Attorneys{TrustCorporation: donordata.TrustCorporation{
 			Name:          "Other co.",
@@ -134,7 +149,14 @@ func TestPostEnterTrustCorporationWhenAddressSet(t *testing.T) {
 			Email:         "name@example.com",
 			Address:       place.Address{Line1: "123"},
 		}},
-	})
+	}
+
+	service := testAttorneyService(t)
+	service.EXPECT().
+		PutTrustCorporation(r.Context(), provided, trustCorporation).
+		Return(nil)
+
+	err := EnterTrustCorporation(nil, service, testUIDFn)(testAppData, w, r, provided)
 	resp := w.Result()
 
 	assert.Nil(t, err)
@@ -159,7 +181,7 @@ func TestPostEnterTrustCorporationWhenValidationError(t *testing.T) {
 		})).
 		Return(nil)
 
-	err := EnterTrustCorporation(template.Execute, nil, nil, testUIDFn)(testAppData, w, r, &donordata.Provided{
+	err := EnterTrustCorporation(template.Execute, testAttorneyService(t), testUIDFn)(testAppData, w, r, &donordata.Provided{
 		Donor: donordata.Donor{FirstNames: "Jane", LastName: "Doe"},
 	})
 	resp := w.Result()
@@ -179,12 +201,12 @@ func TestPostEnterTrustCorporationWhenReuseStoreErrors(t *testing.T) {
 	r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(form.Encode()))
 	r.Header.Add("Content-Type", page.FormUrlEncoded)
 
-	reuseStore := newMockReuseStore(t)
-	reuseStore.EXPECT().
-		PutTrustCorporation(mock.Anything, mock.Anything).
+	service := testAttorneyService(t)
+	service.EXPECT().
+		PutTrustCorporation(mock.Anything, mock.Anything, mock.Anything).
 		Return(expectedError)
 
-	err := EnterTrustCorporation(nil, nil, reuseStore, testUIDFn)(testAppData, w, r, &donordata.Provided{
+	err := EnterTrustCorporation(nil, service, testUIDFn)(testAppData, w, r, &donordata.Provided{
 		LpaID: "lpa-id",
 		Attorneys: donordata.Attorneys{TrustCorporation: donordata.TrustCorporation{
 			Name:          "Other co.",
@@ -193,32 +215,6 @@ func TestPostEnterTrustCorporationWhenReuseStoreErrors(t *testing.T) {
 			Address:       place.Address{Line1: "123"},
 		}},
 	})
-	assert.Equal(t, expectedError, err)
-}
-
-func TestPostEnterTrustCorporationWhenDonorStoreErrors(t *testing.T) {
-	form := url.Values{
-		"name":           {"Inc co."},
-		"company-number": {"64365634"},
-		"email":          {"john@example.com"},
-	}
-
-	w := httptest.NewRecorder()
-	r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(form.Encode()))
-	r.Header.Add("Content-Type", page.FormUrlEncoded)
-
-	reuseStore := newMockReuseStore(t)
-	reuseStore.EXPECT().
-		PutTrustCorporation(mock.Anything, mock.Anything).
-		Return(nil)
-
-	donorStore := newMockDonorStore(t)
-	donorStore.EXPECT().
-		Put(r.Context(), mock.Anything).
-		Return(expectedError)
-
-	err := EnterTrustCorporation(nil, donorStore, reuseStore, testUIDFn)(testAppData, w, r, &donordata.Provided{})
-
 	assert.Equal(t, expectedError, err)
 }
 

@@ -9,10 +9,8 @@ import (
 
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor/donordata"
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/dynamo"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/place"
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/task"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
 )
@@ -24,9 +22,9 @@ func TestGetChooseAttorneys(t *testing.T) {
 	provided := &donordata.Provided{}
 	attorneys := []donordata.Attorney{{FirstNames: "John"}}
 
-	reuseStore := newMockReuseStore(t)
-	reuseStore.EXPECT().
-		Attorneys(r.Context(), provided).
+	service := testAttorneyService(t)
+	service.EXPECT().
+		Reusable(r.Context(), provided).
 		Return(attorneys, nil)
 
 	template := newMockTemplate(t)
@@ -39,7 +37,7 @@ func TestGetChooseAttorneys(t *testing.T) {
 		}).
 		Return(nil)
 
-	err := ChooseAttorneys(template.Execute, nil, reuseStore, nil)(testAppData, w, r, provided)
+	err := ChooseAttorneys(template.Execute, service, nil)(testAppData, w, r, provided)
 	resp := w.Result()
 
 	assert.Nil(t, err)
@@ -47,43 +45,34 @@ func TestGetChooseAttorneys(t *testing.T) {
 }
 
 func TestGetChooseAttorneysWhenNoReusableAttorneys(t *testing.T) {
-	testcases := map[string]error{
-		"none":      nil,
-		"not found": dynamo.NotFoundError{},
-	}
+	w := httptest.NewRecorder()
+	r, _ := http.NewRequest(http.MethodGet, "/", nil)
 
-	for name, reuseError := range testcases {
-		t.Run(name, func(t *testing.T) {
-			w := httptest.NewRecorder()
-			r, _ := http.NewRequest(http.MethodGet, "/", nil)
+	provided := &donordata.Provided{LpaID: "lpa-id"}
 
-			provided := &donordata.Provided{LpaID: "lpa-id"}
+	service := testAttorneyService(t)
+	service.EXPECT().
+		Reusable(r.Context(), provided).
+		Return(nil, nil)
 
-			reuseStore := newMockReuseStore(t)
-			reuseStore.EXPECT().
-				Attorneys(r.Context(), provided).
-				Return(nil, reuseError)
+	err := ChooseAttorneys(nil, service, testUIDFn)(testAppData, w, r, provided)
+	resp := w.Result()
 
-			err := ChooseAttorneys(nil, nil, reuseStore, testUIDFn)(testAppData, w, r, provided)
-			resp := w.Result()
-
-			assert.Nil(t, err)
-			assert.Equal(t, http.StatusFound, resp.StatusCode)
-			assert.Equal(t, donor.PathEnterAttorney.FormatQuery("lpa-id", url.Values{"id": {testUID.String()}}), resp.Header.Get("Location"))
-		})
-	}
+	assert.Nil(t, err)
+	assert.Equal(t, http.StatusFound, resp.StatusCode)
+	assert.Equal(t, donor.PathEnterAttorney.FormatQuery("lpa-id", url.Values{"id": {testUID.String()}}), resp.Header.Get("Location"))
 }
 
 func TestGetChooseAttorneysWhenError(t *testing.T) {
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest(http.MethodGet, "/", nil)
 
-	reuseStore := newMockReuseStore(t)
-	reuseStore.EXPECT().
-		Attorneys(r.Context(), mock.Anything).
+	service := testAttorneyService(t)
+	service.EXPECT().
+		Reusable(r.Context(), mock.Anything).
 		Return(nil, expectedError)
 
-	err := ChooseAttorneys(nil, nil, reuseStore, nil)(testAppData, w, r, &donordata.Provided{LpaID: "lpa-id"})
+	err := ChooseAttorneys(nil, service, nil)(testAppData, w, r, &donordata.Provided{LpaID: "lpa-id"})
 	assert.Equal(t, expectedError, err)
 }
 
@@ -91,9 +80,9 @@ func TestGetChooseAttorneysWhenTemplateErrors(t *testing.T) {
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest(http.MethodGet, "/", nil)
 
-	reuseStore := newMockReuseStore(t)
-	reuseStore.EXPECT().
-		Attorneys(r.Context(), mock.Anything).
+	service := testAttorneyService(t)
+	service.EXPECT().
+		Reusable(r.Context(), mock.Anything).
 		Return([]donordata.Attorney{{FirstNames: "John"}}, nil)
 
 	template := newMockTemplate(t)
@@ -101,7 +90,7 @@ func TestGetChooseAttorneysWhenTemplateErrors(t *testing.T) {
 		Execute(w, mock.Anything).
 		Return(expectedError)
 
-	err := ChooseAttorneys(template.Execute, nil, reuseStore, nil)(testAppData, w, r, &donordata.Provided{})
+	err := ChooseAttorneys(template.Execute, service, nil)(testAppData, w, r, &donordata.Provided{})
 	resp := w.Result()
 
 	assert.Equal(t, expectedError, err)
@@ -118,31 +107,20 @@ func TestPostChooseAttorneys(t *testing.T) {
 	r.Header.Add("Content-Type", page.FormUrlEncoded)
 
 	attorneys := []donordata.Attorney{{FirstNames: "John"}, {FirstNames: "Dave", Address: place.Address{Line1: "123"}}}
+	provided := &donordata.Provided{LpaID: "lpa-id"}
 
-	reuseStore := newMockReuseStore(t)
-	reuseStore.EXPECT().
-		Attorneys(r.Context(), mock.Anything).
+	service := testAttorneyService(t)
+	service.EXPECT().
+		Reusable(r.Context(), mock.Anything).
 		Return(attorneys, nil)
-	reuseStore.EXPECT().
-		PutAttorneys(r.Context(), []donordata.Attorney{{
-			UID:        testUID,
+	service.EXPECT().
+		PutMany(r.Context(), provided, []donordata.Attorney{{
 			FirstNames: "Dave",
 			Address:    place.Address{Line1: "123"},
 		}}).
 		Return(nil)
 
-	donorStore := newMockDonorStore(t)
-	donorStore.EXPECT().
-		Put(r.Context(), &donordata.Provided{
-			LpaID: "lpa-id",
-			Attorneys: donordata.Attorneys{
-				Attorneys: []donordata.Attorney{{UID: testUID, FirstNames: "Dave", Address: place.Address{Line1: "123"}}},
-			},
-			Tasks: donordata.Tasks{ChooseAttorneys: task.StateCompleted},
-		}).
-		Return(nil)
-
-	err := ChooseAttorneys(nil, donorStore, reuseStore, testUIDFn)(testAppData, w, r, &donordata.Provided{LpaID: "lpa-id"})
+	err := ChooseAttorneys(nil, service, testUIDFn)(testAppData, w, r, provided)
 	resp := w.Result()
 
 	assert.Nil(t, err)
@@ -157,12 +135,12 @@ func TestPostChooseAttorneysWhenNoneSelected(t *testing.T) {
 	r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(form.Encode()))
 	r.Header.Add("Content-Type", page.FormUrlEncoded)
 
-	reuseStore := newMockReuseStore(t)
-	reuseStore.EXPECT().
-		Attorneys(r.Context(), mock.Anything).
+	service := testAttorneyService(t)
+	service.EXPECT().
+		Reusable(r.Context(), mock.Anything).
 		Return([]donordata.Attorney{{}}, nil)
 
-	err := ChooseAttorneys(nil, nil, reuseStore, testUIDFn)(testAppData, w, r, &donordata.Provided{LpaID: "lpa-id"})
+	err := ChooseAttorneys(nil, service, testUIDFn)(testAppData, w, r, &donordata.Provided{LpaID: "lpa-id"})
 	resp := w.Result()
 
 	assert.Nil(t, err)
@@ -170,7 +148,7 @@ func TestPostChooseAttorneysWhenNoneSelected(t *testing.T) {
 	assert.Equal(t, donor.PathEnterAttorney.FormatQuery("lpa-id", url.Values{"id": {testUID.String()}}), resp.Header.Get("Location"))
 }
 
-func TestPostChooseAttorneysWhenReuseStoreError(t *testing.T) {
+func TestPostChooseAttorneysWhenServiceError(t *testing.T) {
 	form := url.Values{
 		"option": {"0"},
 	}
@@ -179,41 +157,15 @@ func TestPostChooseAttorneysWhenReuseStoreError(t *testing.T) {
 	r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(form.Encode()))
 	r.Header.Add("Content-Type", page.FormUrlEncoded)
 
-	reuseStore := newMockReuseStore(t)
-	reuseStore.EXPECT().
-		Attorneys(r.Context(), mock.Anything).
+	service := testAttorneyService(t)
+	service.EXPECT().
+		Reusable(r.Context(), mock.Anything).
 		Return([]donordata.Attorney{{}}, nil)
-	reuseStore.EXPECT().
-		PutAttorneys(mock.Anything, mock.Anything).
+	service.EXPECT().
+		PutMany(mock.Anything, mock.Anything, mock.Anything).
 		Return(expectedError)
 
-	err := ChooseAttorneys(nil, nil, reuseStore, testUIDFn)(testAppData, w, r, &donordata.Provided{LpaID: "lpa-id"})
-	assert.Equal(t, expectedError, err)
-}
-
-func TestPostChooseAttorneysWhenDonorStoreError(t *testing.T) {
-	form := url.Values{
-		"option": {"0"},
-	}
-
-	w := httptest.NewRecorder()
-	r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(form.Encode()))
-	r.Header.Add("Content-Type", page.FormUrlEncoded)
-
-	reuseStore := newMockReuseStore(t)
-	reuseStore.EXPECT().
-		Attorneys(r.Context(), mock.Anything).
-		Return([]donordata.Attorney{{}}, nil)
-	reuseStore.EXPECT().
-		PutAttorneys(mock.Anything, mock.Anything).
-		Return(nil)
-
-	donorStore := newMockDonorStore(t)
-	donorStore.EXPECT().
-		Put(mock.Anything, mock.Anything).
-		Return(expectedError)
-
-	err := ChooseAttorneys(nil, donorStore, reuseStore, testUIDFn)(testAppData, w, r, &donordata.Provided{LpaID: "lpa-id"})
+	err := ChooseAttorneys(nil, service, testUIDFn)(testAppData, w, r, &donordata.Provided{LpaID: "lpa-id"})
 	assert.Equal(t, expectedError, err)
 }
 

@@ -1,7 +1,6 @@
 package donorpage
 
 import (
-	"errors"
 	"net/http"
 	"net/url"
 
@@ -10,7 +9,6 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/appcontext"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor/donordata"
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/dynamo"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/validation"
 )
 
@@ -23,14 +21,14 @@ type chooseReplacementAttorneysSummaryData struct {
 	CanChoose bool
 }
 
-func ChooseReplacementAttorneysSummary(tmpl template.Template, reuseStore ReuseStore, newUID func() actoruid.UID) Handler {
+func ChooseReplacementAttorneysSummary(tmpl template.Template, service AttorneyService, newUID func() actoruid.UID) Handler {
 	return func(appData appcontext.Data, w http.ResponseWriter, r *http.Request, provided *donordata.Provided) error {
 		if provided.ReplacementAttorneys.Len() == 0 {
 			return donor.PathDoYouWantReplacementAttorneys.Redirect(w, r, appData, provided)
 		}
 
-		attorneys, err := reuseStore.Attorneys(r.Context(), provided)
-		if err != nil && !errors.Is(err, dynamo.NotFoundError{}) {
+		attorneys, err := service.Reusable(r.Context(), provided)
+		if err != nil {
 			return err
 		}
 

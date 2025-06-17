@@ -20,11 +20,19 @@ type enterAttorneyData struct {
 	Errors                   validation.List
 	Donor                    *donordata.Provided
 	Form                     *enterAttorneyForm
-	ShowDetails              bool
 	ShowTrustCorporationLink bool
 }
 
-func EnterAttorney(tmpl template.Template, donorStore DonorStore, reuseStore ReuseStore) Handler {
+func EnterAttorney(tmpl template.Template, service AttorneyService) Handler {
+	matches := attorneyMatches
+	addressPath := donor.PathChooseAttorneysAddress
+	actorType := actor.TypeAttorney
+	if service.IsReplacement() {
+		matches = replacementAttorneyMatches
+		addressPath = donor.PathChooseReplacementAttorneysAddress
+		actorType = actor.TypeReplacementAttorney
+	}
+
 	return func(appData appcontext.Data, w http.ResponseWriter, r *http.Request, provided *donordata.Provided) error {
 		uid := actoruid.FromRequest(r)
 
@@ -32,8 +40,15 @@ func EnterAttorney(tmpl template.Template, donorStore DonorStore, reuseStore Reu
 			return donor.PathTaskList.Redirect(w, r, appData, provided)
 		}
 
-		addAnother := r.FormValue("addAnother") == "1"
-		attorney, attorneyFound := provided.Attorneys.Get(uid)
+		var (
+			attorney      donordata.Attorney
+			attorneyFound bool
+		)
+		if service.IsReplacement() {
+			attorney, attorneyFound = provided.ReplacementAttorneys.Get(uid)
+		} else {
+			attorney, attorneyFound = provided.Attorneys.Get(uid)
+		}
 
 		data := &enterAttorneyData{
 			App:   appData,
@@ -44,23 +59,21 @@ func EnterAttorney(tmpl template.Template, donorStore DonorStore, reuseStore Reu
 				Email:      attorney.Email,
 				Dob:        attorney.DateOfBirth,
 			},
-			ShowDetails:              attorneyFound == false && addAnother == false,
 			ShowTrustCorporationLink: provided.CanAddTrustCorporation(),
 		}
 
 		if r.Method == http.MethodPost {
 			data.Form = readEnterAttorneyForm(r)
 			data.Errors = data.Form.Validate()
-
 			redirectToWarning := false
 
-			dobWarning := dateOfBirthWarning(data.Form.Dob, actor.TypeAttorney)
-			if (data.Form.Dob != attorney.DateOfBirth || attorney.DateOfBirth.After(date.Today().AddDate(-18, 0, 0))) && dobWarning != "" {
+			nameMatches := matches(provided, attorney.UID, data.Form.FirstNames, data.Form.LastName)
+			if attorney.NameHasChanged(data.Form.FirstNames, data.Form.LastName) && !nameMatches.IsNone() {
 				redirectToWarning = true
 			}
 
-			nameMatches := attorneyMatches(provided, attorney.UID, data.Form.FirstNames, data.Form.LastName)
-			if attorney.NameHasChanged(data.Form.FirstNames, data.Form.LastName) && !nameMatches.IsNone() {
+			dobWarning := dateOfBirthWarning(data.Form.Dob, actorType)
+			if (data.Form.Dob != attorney.DateOfBirth || attorney.DateOfBirth.After(date.Today().AddDate(-18, 0, 0))) && dobWarning != "" {
 				redirectToWarning = true
 			}
 
@@ -74,16 +87,7 @@ func EnterAttorney(tmpl template.Template, donorStore DonorStore, reuseStore Reu
 				attorney.Email = data.Form.Email
 				attorney.DateOfBirth = data.Form.Dob
 
-				provided.Attorneys.Put(attorney)
-				provided.UpdateDecisions()
-				provided.Tasks.ChooseAttorneys = donordata.ChooseAttorneysState(provided.Attorneys, provided.AttorneyDecisions)
-				provided.Tasks.ChooseReplacementAttorneys = donordata.ChooseReplacementAttorneysState(provided)
-
-				if err := reuseStore.PutAttorney(r.Context(), attorney); err != nil {
-					return err
-				}
-
-				if err := donorStore.Put(r.Context(), provided); err != nil {
+				if err := service.Put(r.Context(), provided, attorney); err != nil {
 					return err
 				}
 
@@ -91,15 +95,15 @@ func EnterAttorney(tmpl template.Template, donorStore DonorStore, reuseStore Reu
 					return donor.PathWarningInterruption.RedirectQuery(w, r, appData, provided, url.Values{
 						"id":          {attorney.UID.String()},
 						"warningFrom": {appData.Page},
-						"next": {donor.PathChooseAttorneysAddress.FormatQuery(
+						"next": {addressPath.FormatQuery(
 							provided.LpaID,
 							url.Values{"id": {attorney.UID.String()}}),
 						},
-						"actor": {actor.TypeAttorney.String()},
+						"actor": {actorType.String()},
 					})
 				}
 
-				return donor.PathChooseAttorneysAddress.RedirectQuery(w, r, appData, provided, url.Values{"id": {attorney.UID.String()}})
+				return addressPath.RedirectQuery(w, r, appData, provided, url.Values{"id": {attorney.UID.String()}})
 			}
 		}
 

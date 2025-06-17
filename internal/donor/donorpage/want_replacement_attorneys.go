@@ -18,7 +18,7 @@ type wantReplacementAttorneysData struct {
 	Donor  *donordata.Provided
 }
 
-func WantReplacementAttorneys(tmpl template.Template, donorStore DonorStore) Handler {
+func WantReplacementAttorneys(tmpl template.Template, service AttorneyService) Handler {
 	return func(appData appcontext.Data, w http.ResponseWriter, r *http.Request, provided *donordata.Provided) error {
 		if provided.ReplacementAttorneys.Len() > 0 {
 			return donor.PathChooseReplacementAttorneysSummary.Redirect(w, r, appData, provided)
@@ -35,14 +35,11 @@ func WantReplacementAttorneys(tmpl template.Template, donorStore DonorStore) Han
 			data.Errors = f.Validate()
 
 			if data.Errors.None() {
-				provided.WantReplacementAttorneys = f.YesNo
-				provided.Tasks.ChooseReplacementAttorneys = donordata.ChooseReplacementAttorneysState(provided)
-
-				if err := donorStore.Put(r.Context(), provided); err != nil {
+				if err := service.WantReplacements(r.Context(), provided, f.YesNo); err != nil {
 					return err
 				}
 
-				if provided.WantReplacementAttorneys.IsYes() {
+				if f.YesNo.IsYes() {
 					return donor.PathChooseReplacementAttorneys.Redirect(w, r, appData, provided)
 				} else {
 					return donor.PathTaskList.Redirect(w, r, appData, provided)

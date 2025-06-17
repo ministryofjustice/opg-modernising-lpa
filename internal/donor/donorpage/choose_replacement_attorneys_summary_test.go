@@ -32,9 +32,9 @@ func TestGetChooseReplacementAttorneysSummary(t *testing.T) {
 
 			donor := &donordata.Provided{ReplacementAttorneys: attorneys}
 
-			reuseStore := newMockReuseStore(t)
-			reuseStore.EXPECT().
-				Attorneys(r.Context(), donor).
+			service := newMockAttorneyService(t)
+			service.EXPECT().
+				Reusable(r.Context(), donor).
 				Return([]donordata.Attorney{}, nil)
 
 			template := newMockTemplate(t)
@@ -46,7 +46,7 @@ func TestGetChooseReplacementAttorneysSummary(t *testing.T) {
 				}).
 				Return(nil)
 
-			err := ChooseReplacementAttorneysSummary(template.Execute, reuseStore, nil)(testAppData, w, r, donor)
+			err := ChooseReplacementAttorneysSummary(template.Execute, service, nil)(testAppData, w, r, donor)
 			resp := w.Result()
 
 			assert.Nil(t, err)
@@ -59,12 +59,12 @@ func TestGetChooseReplacementAttorneysSummaryWhenReuseStoreErrors(t *testing.T) 
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest(http.MethodGet, "/", nil)
 
-	reuseStore := newMockReuseStore(t)
-	reuseStore.EXPECT().
-		Attorneys(r.Context(), mock.Anything).
+	service := newMockAttorneyService(t)
+	service.EXPECT().
+		Reusable(mock.Anything, mock.Anything).
 		Return(nil, expectedError)
 
-	err := ChooseReplacementAttorneysSummary(nil, reuseStore, nil)(testAppData, w, r, &donordata.Provided{
+	err := ChooseReplacementAttorneysSummary(nil, service, nil)(testAppData, w, r, &donordata.Provided{
 		ReplacementAttorneys: donordata.Attorneys{Attorneys: []donordata.Attorney{{}}},
 	})
 	assert.Equal(t, expectedError, err)
@@ -103,12 +103,12 @@ func TestPostChooseReplacementAttorneysSummaryAddAttorney(t *testing.T) {
 
 			provided := &donordata.Provided{LpaID: "lpa-id", ReplacementAttorneys: donordata.Attorneys{Attorneys: []donordata.Attorney{{}}}}
 
-			reuseStore := newMockReuseStore(t)
-			reuseStore.EXPECT().
-				Attorneys(r.Context(), provided).
+			service := newMockAttorneyService(t)
+			service.EXPECT().
+				Reusable(r.Context(), provided).
 				Return(nil, nil)
 
-			err := ChooseReplacementAttorneysSummary(nil, reuseStore, testUIDFn)(testAppData, w, r, provided)
+			err := ChooseReplacementAttorneysSummary(nil, service, testUIDFn)(testAppData, w, r, provided)
 			resp := w.Result()
 
 			assert.Nil(t, err)
@@ -179,12 +179,12 @@ func TestPostChooseReplacementAttorneysSummaryDoNotAddAttorney(t *testing.T) {
 			r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(f.Encode()))
 			r.Header.Add("Content-Type", page.FormUrlEncoded)
 
-			reuseStore := newMockReuseStore(t)
-			reuseStore.EXPECT().
-				Attorneys(mock.Anything, mock.Anything).
+			service := newMockAttorneyService(t)
+			service.EXPECT().
+				Reusable(mock.Anything, mock.Anything).
 				Return(nil, nil)
 
-			err := ChooseReplacementAttorneysSummary(nil, reuseStore, nil)(testAppData, w, r, &donordata.Provided{
+			err := ChooseReplacementAttorneysSummary(nil, service, nil)(testAppData, w, r, &donordata.Provided{
 				LpaID:                "lpa-id",
 				ReplacementAttorneys: tc.replacementAttorneys,
 				AttorneyDecisions: donordata.AttorneyDecisions{
@@ -217,9 +217,9 @@ func TestPostChooseReplacementAttorneySummaryFormValidation(t *testing.T) {
 
 	validationError := validation.With("option", validation.SelectError{Label: "yesToAddAnotherReplacementAttorney"})
 
-	reuseStore := newMockReuseStore(t)
-	reuseStore.EXPECT().
-		Attorneys(mock.Anything, mock.Anything).
+	service := newMockAttorneyService(t)
+	service.EXPECT().
+		Reusable(mock.Anything, mock.Anything).
 		Return(nil, nil)
 
 	template := newMockTemplate(t)
@@ -229,7 +229,7 @@ func TestPostChooseReplacementAttorneySummaryFormValidation(t *testing.T) {
 		})).
 		Return(nil)
 
-	err := ChooseReplacementAttorneysSummary(template.Execute, reuseStore, nil)(testAppData, w, r, &donordata.Provided{ReplacementAttorneys: donordata.Attorneys{Attorneys: []donordata.Attorney{{}}}})
+	err := ChooseReplacementAttorneysSummary(template.Execute, service, nil)(testAppData, w, r, &donordata.Provided{ReplacementAttorneys: donordata.Attorneys{Attorneys: []donordata.Attorney{{}}}})
 	resp := w.Result()
 
 	assert.Nil(t, err)

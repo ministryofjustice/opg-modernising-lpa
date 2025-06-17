@@ -115,23 +115,17 @@ func TestPostWantReplacementAttorneys(t *testing.T) {
 			r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(f.Encode()))
 			r.Header.Add("Content-Type", page.FormUrlEncoded)
 
-			donorStore := newMockDonorStore(t)
-			donorStore.EXPECT().
-				Put(r.Context(), &donordata.Provided{
-					LpaID:                    "lpa-id",
-					WantReplacementAttorneys: tc.yesNo,
-					Tasks: donordata.Tasks{
-						YourDetails:                task.StateCompleted,
-						ChooseAttorneys:            task.StateCompleted,
-						ChooseReplacementAttorneys: tc.taskState,
-					},
-				}).
-				Return(nil)
-
-			err := WantReplacementAttorneys(nil, donorStore)(testAppData, w, r, &donordata.Provided{
+			provided := &donordata.Provided{
 				LpaID: "lpa-id",
 				Tasks: donordata.Tasks{YourDetails: task.StateCompleted, ChooseAttorneys: task.StateCompleted},
-			})
+			}
+
+			service := newMockAttorneyService(t)
+			service.EXPECT().
+				WantReplacements(r.Context(), provided, tc.yesNo).
+				Return(nil)
+
+			err := WantReplacementAttorneys(nil, service)(testAppData, w, r, provided)
 			resp := w.Result()
 
 			assert.Nil(t, err)
@@ -150,12 +144,12 @@ func TestPostWantReplacementAttorneysWhenStoreErrors(t *testing.T) {
 	r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(f.Encode()))
 	r.Header.Add("Content-Type", page.FormUrlEncoded)
 
-	donorStore := newMockDonorStore(t)
-	donorStore.EXPECT().
-		Put(r.Context(), mock.Anything).
+	service := newMockAttorneyService(t)
+	service.EXPECT().
+		WantReplacements(mock.Anything, mock.Anything, mock.Anything).
 		Return(expectedError)
 
-	err := WantReplacementAttorneys(nil, donorStore)(testAppData, w, r, &donordata.Provided{})
+	err := WantReplacementAttorneys(nil, service)(testAppData, w, r, &donordata.Provided{})
 
 	assert.Equal(t, expectedError, err)
 }

@@ -12,16 +12,30 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/place"
 )
 
-func ChooseAttorneysAddress(logger Logger, tmpl template.Template, addressClient AddressClient, donorStore DonorStore, reuseStore ReuseStore) Handler {
+func ChooseAttorneysAddress(logger Logger, tmpl template.Template, addressClient AddressClient, service AttorneyService) Handler {
+	actorLabel := "attorney"
+	choosePath := donor.PathChooseAttorneys
+	summaryPath := donor.PathChooseAttorneysSummary
+	if service.IsReplacement() {
+		actorLabel = "replacementAttorney"
+		choosePath = donor.PathChooseReplacementAttorneys
+		summaryPath = donor.PathChooseReplacementAttorneysSummary
+	}
+
 	return func(appData appcontext.Data, w http.ResponseWriter, r *http.Request, provided *donordata.Provided) error {
-		attorney, found := provided.Attorneys.Get(actoruid.FromRequest(r))
+		attorneys := provided.Attorneys
+		if service.IsReplacement() {
+			attorneys = provided.ReplacementAttorneys
+		}
+
+		attorney, found := attorneys.Get(actoruid.FromRequest(r))
 		if found == false {
-			return donor.PathChooseAttorneys.Redirect(w, r, appData, provided)
+			return choosePath.Redirect(w, r, appData, provided)
 		}
 
 		data := newChooseAddressData(
 			appData,
-			"attorney",
+			actorLabel,
 			attorney.FullName(),
 			attorney.UID,
 		)
@@ -37,20 +51,12 @@ func ChooseAttorneysAddress(logger Logger, tmpl template.Template, addressClient
 
 			setAddress := func(address place.Address) error {
 				attorney.Address = address
-				provided.Attorneys.Put(attorney)
-				provided.UpdateDecisions()
-				provided.Tasks.ChooseAttorneys = donordata.ChooseAttorneysState(provided.Attorneys, provided.AttorneyDecisions)
-				provided.Tasks.ChooseReplacementAttorneys = donordata.ChooseReplacementAttorneysState(provided)
 
-				if err := reuseStore.PutAttorney(r.Context(), attorney); err != nil {
+				if err := service.Put(r.Context(), provided, attorney); err != nil {
 					return err
 				}
 
-				if err := donorStore.Put(r.Context(), provided); err != nil {
-					return err
-				}
-
-				return donor.PathChooseAttorneysSummary.Redirect(w, r, appData, provided)
+				return summaryPath.Redirect(w, r, appData, provided)
 			}
 
 			switch data.Form.Action {
