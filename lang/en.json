@@ -1863,5 +1863,7 @@
     "youCannotSelectMoreThanFivePeopleToNotify": "You cannot select more than 5 people to notify.",
     "yesWantToChoosePreviousPersonToNotify": "Yes, I want to choose a person I have used in previous LPAs",
     "yesWantToAddNewPersonToNotify": "Yes, I want to add a new person to notify",
-    "yourSelectionTakesPeopleToNotifyOverFive": "Your selection takes the total number of people you’ve chosen to notify to more than 5."
+    "yourSelectionTakesPeopleToNotifyOverFive": "Your selection takes the total number of people you’ve chosen to notify to more than 5.",
+    "youMustViewAndSignYourLpaInLanguage": "<p class=\"govuk-notification-banner__heading\">You must view and sign your LPA {{.InSelected}}.</p><p class=\"govuk-body\">You can select the ‘{{.Unselected}}’ language link to read this page {{.InUnselected}}.</p><p class=\"govuk-body\">However, when you sign the LPA, the page must be viewed in the language in which you’ve chosen to register the LPA.</p>",
+    "youMustViewAndSignInLanguage": "You must view and sign your LPA {{.InLang}}."
 }
