@@ -25,14 +25,23 @@ type chooseTrustCorporationData struct {
 	ChooseAttorneysPath string
 }
 
-func ChooseTrustCorporation(tmpl template.Template, donorStore DonorStore, reuseStore ReuseStore, newUID func() actoruid.UID) Handler {
+func ChooseTrustCorporation(tmpl template.Template, service AttorneyService, newUID func() actoruid.UID) Handler {
+	enterAttorneyPath := donor.PathEnterAttorney
+	enterTrustCorporationPath := donor.PathEnterTrustCorporation
+	summaryPath := donor.PathChooseAttorneysSummary
+	if service.IsReplacement() {
+		enterAttorneyPath = donor.PathEnterReplacementAttorney
+		enterTrustCorporationPath = donor.PathEnterReplacementTrustCorporation
+		summaryPath = donor.PathChooseReplacementAttorneysSummary
+	}
+
 	return func(appData appcontext.Data, w http.ResponseWriter, r *http.Request, provided *donordata.Provided) error {
-		trustCorporations, err := reuseStore.TrustCorporations(r.Context())
+		trustCorporations, err := service.ReusableTrustCorporations(r.Context())
 		if err != nil && !errors.Is(err, dynamo.NotFoundError{}) {
 			return err
 		}
 		if len(trustCorporations) == 0 {
-			return donor.PathEnterTrustCorporation.Redirect(w, r, appData, provided)
+			return enterTrustCorporationPath.Redirect(w, r, appData, provided)
 		}
 
 		data := &chooseTrustCorporationData{
@@ -40,7 +49,7 @@ func ChooseTrustCorporation(tmpl template.Template, donorStore DonorStore, reuse
 			Form:                &chooseTrustCorporationForm{},
 			Donor:               provided,
 			TrustCorporations:   trustCorporations,
-			ChooseAttorneysPath: donor.PathEnterAttorney.FormatQuery(provided.LpaID, url.Values{"id": {newUID().String()}}),
+			ChooseAttorneysPath: enterAttorneyPath.FormatQuery(provided.LpaID, url.Values{"id": {newUID().String()}}),
 		}
 
 		if r.Method == http.MethodPost {
@@ -49,25 +58,14 @@ func ChooseTrustCorporation(tmpl template.Template, donorStore DonorStore, reuse
 
 			if data.Errors.None() {
 				if data.Form.New {
-					return donor.PathEnterTrustCorporation.Redirect(w, r, appData, provided)
+					return enterTrustCorporationPath.Redirect(w, r, appData, provided)
 				}
 
-				provided.Attorneys.TrustCorporation = trustCorporations[data.Form.Index]
-				provided.Attorneys.TrustCorporation.UID = newUID()
-
-				provided.UpdateDecisions()
-				provided.Tasks.ChooseAttorneys = donordata.ChooseAttorneysState(provided.Attorneys, provided.AttorneyDecisions)
-				provided.Tasks.ChooseReplacementAttorneys = donordata.ChooseReplacementAttorneysState(provided)
-
-				if err := reuseStore.PutTrustCorporation(r.Context(), provided.Attorneys.TrustCorporation); err != nil {
+				if err := service.PutTrustCorporation(r.Context(), provided, trustCorporations[data.Form.Index]); err != nil {
 					return err
 				}
 
-				if err := donorStore.Put(r.Context(), provided); err != nil {
-					return err
-				}
-
-				return donor.PathChooseAttorneysSummary.Redirect(w, r, appData, provided)
+				return summaryPath.Redirect(w, r, appData, provided)
 			}
 		}
 

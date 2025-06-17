@@ -14,7 +14,6 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/lpastore/lpadata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/place"
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/task"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/validation"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
@@ -44,6 +43,11 @@ func TestGetRemoveTrustCorporation(t *testing.T) {
 			w := httptest.NewRecorder()
 			r, _ := http.NewRequest(http.MethodGet, "/?id=123", nil)
 
+			service := newMockAttorneyService(t)
+			service.EXPECT().
+				IsReplacement().
+				Return(tc.isReplacement)
+
 			template := newMockTemplate(t)
 			template.EXPECT().
 				Execute(w, &removeAttorneyData{
@@ -54,7 +58,7 @@ func TestGetRemoveTrustCorporation(t *testing.T) {
 				}).
 				Return(nil)
 
-			err := RemoveTrustCorporation(template.Execute, nil, nil, tc.isReplacement)(testAppData, w, r, tc.donor)
+			err := RemoveTrustCorporation(template.Execute, service)(testAppData, w, r, tc.donor)
 
 			resp := w.Result()
 
@@ -71,7 +75,6 @@ func TestPostRemoveTrustCorporation(t *testing.T) {
 	testcases := map[string]struct {
 		isReplacement bool
 		donor         *donordata.Provided
-		updatedDonor  *donordata.Provided
 		redirect      donor.Path
 	}{
 		"many left": {
@@ -79,12 +82,6 @@ func TestPostRemoveTrustCorporation(t *testing.T) {
 				LpaID:             "lpa-id",
 				Attorneys:         donordata.Attorneys{TrustCorporation: trustCorporation, Attorneys: []donordata.Attorney{attorney, attorney}},
 				AttorneyDecisions: donordata.AttorneyDecisions{How: lpadata.Jointly},
-			},
-			updatedDonor: &donordata.Provided{
-				LpaID:             "lpa-id",
-				Attorneys:         donordata.Attorneys{Attorneys: []donordata.Attorney{attorney, attorney}},
-				AttorneyDecisions: donordata.AttorneyDecisions{How: lpadata.Jointly},
-				Tasks:             donordata.Tasks{ChooseAttorneys: task.StateInProgress},
 			},
 			redirect: donor.PathChooseAttorneysSummary,
 		},
@@ -96,13 +93,6 @@ func TestPostRemoveTrustCorporation(t *testing.T) {
 				ReplacementAttorneys:         donordata.Attorneys{TrustCorporation: trustCorporation, Attorneys: []donordata.Attorney{attorney, attorney}},
 				ReplacementAttorneyDecisions: donordata.AttorneyDecisions{How: lpadata.Jointly},
 			},
-			updatedDonor: &donordata.Provided{
-				LpaID:                        "lpa-id",
-				Attorneys:                    donordata.Attorneys{Attorneys: []donordata.Attorney{attorney}},
-				ReplacementAttorneys:         donordata.Attorneys{Attorneys: []donordata.Attorney{attorney, attorney}},
-				ReplacementAttorneyDecisions: donordata.AttorneyDecisions{How: lpadata.Jointly},
-				Tasks:                        donordata.Tasks{ChooseAttorneys: task.StateInProgress, ChooseReplacementAttorneys: task.StateInProgress},
-			},
 			redirect: donor.PathChooseReplacementAttorneysSummary,
 		},
 		"one left": {
@@ -110,11 +100,6 @@ func TestPostRemoveTrustCorporation(t *testing.T) {
 				LpaID:             "lpa-id",
 				Attorneys:         donordata.Attorneys{TrustCorporation: trustCorporation, Attorneys: []donordata.Attorney{attorney}},
 				AttorneyDecisions: donordata.AttorneyDecisions{How: lpadata.Jointly},
-			},
-			updatedDonor: &donordata.Provided{
-				LpaID:     "lpa-id",
-				Attorneys: donordata.Attorneys{Attorneys: []donordata.Attorney{attorney}},
-				Tasks:     donordata.Tasks{ChooseAttorneys: task.StateInProgress},
 			},
 			redirect: donor.PathChooseAttorneysSummary,
 		},
@@ -125,29 +110,16 @@ func TestPostRemoveTrustCorporation(t *testing.T) {
 				ReplacementAttorneys:         donordata.Attorneys{TrustCorporation: trustCorporation, Attorneys: []donordata.Attorney{attorney}},
 				ReplacementAttorneyDecisions: donordata.AttorneyDecisions{How: lpadata.Jointly},
 			},
-			updatedDonor: &donordata.Provided{
-				LpaID:                "lpa-id",
-				ReplacementAttorneys: donordata.Attorneys{Attorneys: []donordata.Attorney{attorney}},
-				Tasks:                donordata.Tasks{ChooseReplacementAttorneys: task.StateInProgress},
-			},
 			redirect: donor.PathChooseReplacementAttorneysSummary,
 		},
 		"none left": {
-			donor: &donordata.Provided{LpaID: "lpa-id", Attorneys: donordata.Attorneys{TrustCorporation: trustCorporation}},
-			updatedDonor: &donordata.Provided{
-				LpaID:     "lpa-id",
-				Attorneys: donordata.Attorneys{},
-			},
+			donor:    &donordata.Provided{LpaID: "lpa-id", Attorneys: donordata.Attorneys{TrustCorporation: trustCorporation}},
 			redirect: donor.PathChooseAttorneysSummary,
 		},
 		"replacement none left": {
 			isReplacement: true,
 			donor:         &donordata.Provided{LpaID: "lpa-id", ReplacementAttorneys: donordata.Attorneys{TrustCorporation: trustCorporation}},
-			updatedDonor: &donordata.Provided{
-				LpaID:                "lpa-id",
-				ReplacementAttorneys: donordata.Attorneys{},
-			},
-			redirect: donor.PathChooseReplacementAttorneysSummary,
+			redirect:      donor.PathChooseReplacementAttorneysSummary,
 		},
 	}
 
@@ -161,17 +133,15 @@ func TestPostRemoveTrustCorporation(t *testing.T) {
 			r, _ := http.NewRequest(http.MethodPost, "/?id=without-address", strings.NewReader(f.Encode()))
 			r.Header.Add("Content-Type", page.FormUrlEncoded)
 
-			reuseStore := newMockReuseStore(t)
-			reuseStore.EXPECT().
-				DeleteTrustCorporation(r.Context(), trustCorporation).
+			service := newMockAttorneyService(t)
+			service.EXPECT().
+				IsReplacement().
+				Return(tc.isReplacement)
+			service.EXPECT().
+				DeleteTrustCorporation(r.Context(), tc.donor).
 				Return(nil)
 
-			donorStore := newMockDonorStore(t)
-			donorStore.EXPECT().
-				Put(r.Context(), tc.updatedDonor).
-				Return(nil)
-
-			err := RemoveTrustCorporation(nil, donorStore, reuseStore, tc.isReplacement)(testAppData, w, r, tc.donor)
+			err := RemoveTrustCorporation(nil, service)(testAppData, w, r, tc.donor)
 
 			resp := w.Result()
 
@@ -206,7 +176,7 @@ func TestPostRemoveTrustCorporationWithFormValueNo(t *testing.T) {
 		Address: place.Address{},
 	}
 
-	err := RemoveTrustCorporation(template.Execute, nil, nil, false)(testAppData, w, r, &donordata.Provided{LpaID: "lpa-id", Attorneys: donordata.Attorneys{Attorneys: []donordata.Attorney{attorneyWithoutAddress, attorneyWithAddress}}})
+	err := RemoveTrustCorporation(template.Execute, testAttorneyService(t))(testAppData, w, r, &donordata.Provided{LpaID: "lpa-id", Attorneys: donordata.Attorneys{Attorneys: []donordata.Attorney{attorneyWithoutAddress, attorneyWithAddress}}})
 
 	resp := w.Result()
 
@@ -215,7 +185,7 @@ func TestPostRemoveTrustCorporationWithFormValueNo(t *testing.T) {
 	assert.Equal(t, donor.PathChooseAttorneysSummary.Format("lpa-id"), resp.Header.Get("Location"))
 }
 
-func TestPostRemoveTrustCorporationWhenReuseStoreErrors(t *testing.T) {
+func TestPostRemoveTrustCorporationWhenServiceErrors(t *testing.T) {
 	f := url.Values{
 		form.FieldNames.YesNo: {form.Yes.String()},
 	}
@@ -239,50 +209,12 @@ func TestPostRemoveTrustCorporationWhenReuseStoreErrors(t *testing.T) {
 		Address: place.Address{},
 	}
 
-	reuseStore := newMockReuseStore(t)
-	reuseStore.EXPECT().
+	service := testAttorneyService(t)
+	service.EXPECT().
 		DeleteTrustCorporation(mock.Anything, mock.Anything).
 		Return(expectedError)
 
-	err := RemoveTrustCorporation(template.Execute, nil, reuseStore, false)(testAppData, w, r, &donordata.Provided{Attorneys: donordata.Attorneys{Attorneys: []donordata.Attorney{attorneyWithoutAddress, attorneyWithAddress}}})
-	assert.Equal(t, expectedError, err)
-}
-
-func TestPostRemoveTrustCorporationWhenDonorStoreErrors(t *testing.T) {
-	f := url.Values{
-		form.FieldNames.YesNo: {form.Yes.String()},
-	}
-
-	uid := actoruid.New()
-	w := httptest.NewRecorder()
-	r, _ := http.NewRequest(http.MethodPost, "/?id="+uid.String(), strings.NewReader(f.Encode()))
-	r.Header.Add("Content-Type", page.FormUrlEncoded)
-
-	template := newMockTemplate(t)
-
-	attorneyWithAddress := donordata.Attorney{
-		UID: actoruid.New(),
-		Address: place.Address{
-			Line1: "1 Road way",
-		},
-	}
-
-	attorneyWithoutAddress := donordata.Attorney{
-		UID:     uid,
-		Address: place.Address{},
-	}
-
-	reuseStore := newMockReuseStore(t)
-	reuseStore.EXPECT().
-		DeleteTrustCorporation(mock.Anything, mock.Anything).
-		Return(nil)
-
-	donorStore := newMockDonorStore(t)
-	donorStore.EXPECT().
-		Put(r.Context(), mock.Anything).
-		Return(expectedError)
-
-	err := RemoveTrustCorporation(template.Execute, donorStore, reuseStore, false)(testAppData, w, r, &donordata.Provided{Attorneys: donordata.Attorneys{Attorneys: []donordata.Attorney{attorneyWithoutAddress, attorneyWithAddress}}})
+	err := RemoveTrustCorporation(template.Execute, service)(testAppData, w, r, &donordata.Provided{Attorneys: donordata.Attorneys{Attorneys: []donordata.Attorney{attorneyWithoutAddress, attorneyWithAddress}}})
 	assert.Equal(t, expectedError, err)
 }
 
@@ -310,7 +242,7 @@ func TestRemoveTrustCorporationFormValidation(t *testing.T) {
 		})).
 		Return(nil)
 
-	err := RemoveTrustCorporation(template.Execute, nil, nil, false)(testAppData, w, r, &donordata.Provided{Attorneys: donordata.Attorneys{Attorneys: []donordata.Attorney{attorneyWithoutAddress}}})
+	err := RemoveTrustCorporation(template.Execute, testAttorneyService(t))(testAppData, w, r, &donordata.Provided{Attorneys: donordata.Attorneys{Attorneys: []donordata.Attorney{attorneyWithoutAddress}}})
 	resp := w.Result()
 
 	assert.Nil(t, err)

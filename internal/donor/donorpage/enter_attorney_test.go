@@ -18,7 +18,6 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/lpastore/lpadata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/place"
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/task"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/validation"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
@@ -74,12 +73,11 @@ func TestGetEnterAttorney(t *testing.T) {
 						ReplacementAttorneys: tc.replacementAttorneys,
 					},
 					Form:                     &enterAttorneyForm{},
-					ShowDetails:              true,
 					ShowTrustCorporationLink: tc.expectedShowTrustCorpLink,
 				}).
 				Return(nil)
 
-			err := EnterAttorney(template.Execute, nil, nil)(testAppData, w, r, &donordata.Provided{
+			err := EnterAttorney(template.Execute, testAttorneyService(t))(testAppData, w, r, &donordata.Provided{
 				Type:                 tc.lpaType,
 				ReplacementAttorneys: tc.replacementAttorneys,
 			})
@@ -95,7 +93,7 @@ func TestGetEnterAttorneyWhenNoID(t *testing.T) {
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest(http.MethodGet, "/", nil)
 
-	err := EnterAttorney(nil, nil, nil)(testAppData, w, r, &donordata.Provided{
+	err := EnterAttorney(nil, testAttorneyService(t))(testAppData, w, r, &donordata.Provided{
 		LpaID: "lpa-id",
 		Attorneys: donordata.Attorneys{Attorneys: []donordata.Attorney{
 			{FirstNames: "John", UID: testUID},
@@ -117,7 +115,7 @@ func TestGetEnterAttorneyWhenTemplateErrors(t *testing.T) {
 		Execute(w, mock.Anything).
 		Return(expectedError)
 
-	err := EnterAttorney(template.Execute, nil, nil)(testAppData, w, r, &donordata.Provided{})
+	err := EnterAttorney(template.Execute, testAttorneyService(t))(testAppData, w, r, &donordata.Provided{})
 	resp := w.Result()
 
 	assert.Equal(t, expectedError, err)
@@ -156,31 +154,20 @@ func TestPostEnterAttorneyWhenAttorneyDoesNotExist(t *testing.T) {
 			r, _ := http.NewRequest(http.MethodPost, "/?id="+testUID.String(), strings.NewReader(tc.form.Encode()))
 			r.Header.Add("Content-Type", page.FormUrlEncoded)
 
-			reuseStore := newMockReuseStore(t)
-			reuseStore.EXPECT().
-				PutAttorney(r.Context(), tc.attorney).
-				Return(nil)
-
-			donorStore := newMockDonorStore(t)
-			donorStore.EXPECT().
-				Put(r.Context(), &donordata.Provided{
-					LpaID: "lpa-id",
-					Donor: donordata.Donor{
-						FirstNames: "Jane",
-						LastName:   "Doe",
-					},
-					Attorneys: donordata.Attorneys{Attorneys: []donordata.Attorney{tc.attorney}},
-					Tasks:     donordata.Tasks{ChooseAttorneys: task.StateInProgress},
-				}).
-				Return(nil)
-
-			err := EnterAttorney(nil, donorStore, reuseStore)(testAppData, w, r, &donordata.Provided{
+			provided := &donordata.Provided{
 				LpaID: "lpa-id",
 				Donor: donordata.Donor{
 					FirstNames: "Jane",
 					LastName:   "Doe",
 				},
-			})
+			}
+
+			service := testAttorneyService(t)
+			service.EXPECT().
+				Put(r.Context(), provided, tc.attorney).
+				Return(nil)
+
+			err := EnterAttorney(nil, service)(testAppData, w, r, provided)
 			resp := w.Result()
 
 			assert.Nil(t, err)
@@ -216,22 +203,7 @@ func TestPostEnterAttorneyWhenAttorneyExists(t *testing.T) {
 		UID:         uid,
 	}
 
-	reuseStore := newMockReuseStore(t)
-	reuseStore.EXPECT().
-		PutAttorney(r.Context(), attorney).
-		Return(nil)
-
-	donorStore := newMockDonorStore(t)
-	donorStore.EXPECT().
-		Put(r.Context(), &donordata.Provided{
-			LpaID:     "lpa-id",
-			Donor:     donordata.Donor{FirstNames: "Jane", LastName: "Doe"},
-			Attorneys: donordata.Attorneys{Attorneys: []donordata.Attorney{attorney}},
-			Tasks:     donordata.Tasks{ChooseAttorneys: task.StateCompleted},
-		}).
-		Return(nil)
-
-	err := EnterAttorney(nil, donorStore, reuseStore)(testAppData, w, r, &donordata.Provided{
+	provided := &donordata.Provided{
 		LpaID: "lpa-id",
 		Donor: donordata.Donor{FirstNames: "Jane", LastName: "Doe"},
 		Attorneys: donordata.Attorneys{Attorneys: []donordata.Attorney{
@@ -241,7 +213,14 @@ func TestPostEnterAttorneyWhenAttorneyExists(t *testing.T) {
 				Address:    place.Address{Line1: "abc"},
 			},
 		}},
-	})
+	}
+
+	service := testAttorneyService(t)
+	service.EXPECT().
+		Put(r.Context(), provided, attorney).
+		Return(nil)
+
+	err := EnterAttorney(nil, service)(testAppData, w, r, provided)
 	resp := w.Result()
 
 	assert.Nil(t, err)
@@ -263,18 +242,13 @@ func TestPostEnterAttorneyWhenDOBWarning(t *testing.T) {
 	r, _ := http.NewRequest(http.MethodPost, "/?id="+testUID.String(), strings.NewReader(form.Encode()))
 	r.Header.Add("Content-Type", page.FormUrlEncoded)
 
-	reuseStore := newMockReuseStore(t)
-	reuseStore.EXPECT().
-		PutAttorney(mock.Anything, mock.Anything).
-		Return(nil)
-
-	donorStore := newMockDonorStore(t)
-	donorStore.EXPECT().
-		Put(r.Context(), mock.Anything).
+	service := testAttorneyService(t)
+	service.EXPECT().
+		Put(mock.Anything, mock.Anything, mock.Anything).
 		Return(nil)
 
 	appData := appcontext.Data{Page: "/abc"}
-	err := EnterAttorney(nil, donorStore, reuseStore)(appData, w, r, &donordata.Provided{
+	err := EnterAttorney(nil, service)(appData, w, r, &donordata.Provided{
 		LpaID: "lpa-id",
 		Donor: donordata.Donor{FirstNames: "Jane", LastName: "Doe"},
 	})
@@ -307,18 +281,13 @@ func TestPostEnterAttorneyWhenNameWarning(t *testing.T) {
 	r, _ := http.NewRequest(http.MethodPost, "/?id="+testUID.String(), strings.NewReader(form.Encode()))
 	r.Header.Add("Content-Type", page.FormUrlEncoded)
 
-	reuseStore := newMockReuseStore(t)
-	reuseStore.EXPECT().
-		PutAttorney(mock.Anything, mock.Anything).
-		Return(nil)
-
-	donorStore := newMockDonorStore(t)
-	donorStore.EXPECT().
-		Put(r.Context(), mock.Anything).
+	service := testAttorneyService(t)
+	service.EXPECT().
+		Put(mock.Anything, mock.Anything, mock.Anything).
 		Return(nil)
 
 	appData := appcontext.Data{Page: "/abc"}
-	err := EnterAttorney(nil, donorStore, reuseStore)(appData, w, r, &donordata.Provided{
+	err := EnterAttorney(nil, service)(appData, w, r, &donordata.Provided{
 		LpaID: "lpa-id",
 		Donor: donordata.Donor{FirstNames: "Jane", LastName: "Doe"},
 	})
@@ -336,43 +305,7 @@ func TestPostEnterAttorneyWhenNameWarning(t *testing.T) {
 	}), resp.Header.Get("Location"))
 }
 
-func TestPostEnterAttorneyWhenReuseStoreErrors(t *testing.T) {
-	uid := actoruid.New()
-
-	form := url.Values{
-		"first-names":         {"John"},
-		"last-name":           {"Doe"},
-		"email":               {"john@example.com"},
-		"date-of-birth-day":   {"2"},
-		"date-of-birth-month": {"1"},
-		"date-of-birth-year":  {"1990"},
-	}
-
-	w := httptest.NewRecorder()
-	r, _ := http.NewRequest(http.MethodPost, "/?id="+uid.String(), strings.NewReader(form.Encode()))
-	r.Header.Add("Content-Type", page.FormUrlEncoded)
-
-	reuseStore := newMockReuseStore(t)
-	reuseStore.EXPECT().
-		PutAttorney(mock.Anything, mock.Anything).
-		Return(expectedError)
-
-	err := EnterAttorney(nil, nil, reuseStore)(testAppData, w, r, &donordata.Provided{
-		LpaID: "lpa-id",
-		Donor: donordata.Donor{FirstNames: "Jane", LastName: "Doe"},
-		Attorneys: donordata.Attorneys{Attorneys: []donordata.Attorney{
-			{
-				FirstNames: "John",
-				UID:        uid,
-				Address:    place.Address{Line1: "abc"},
-			},
-		}},
-	})
-
-	assert.Equal(t, expectedError, err)
-}
-
-func TestPostEnterAttorneyWhenDonorStoreErrors(t *testing.T) {
+func TestPostEnterAttorneyWhenServiceErrors(t *testing.T) {
 	form := url.Values{
 		"first-names":         {"John"},
 		"last-name":           {"Doe"},
@@ -386,17 +319,12 @@ func TestPostEnterAttorneyWhenDonorStoreErrors(t *testing.T) {
 	r, _ := http.NewRequest(http.MethodPost, "/?id="+testUID.String(), strings.NewReader(form.Encode()))
 	r.Header.Add("Content-Type", page.FormUrlEncoded)
 
-	reuseStore := newMockReuseStore(t)
-	reuseStore.EXPECT().
-		PutAttorney(mock.Anything, mock.Anything).
-		Return(nil)
-
-	donorStore := newMockDonorStore(t)
-	donorStore.EXPECT().
-		Put(r.Context(), mock.Anything).
+	service := testAttorneyService(t)
+	service.EXPECT().
+		Put(mock.Anything, mock.Anything, mock.Anything).
 		Return(expectedError)
 
-	err := EnterAttorney(nil, donorStore, reuseStore)(testAppData, w, r, &donordata.Provided{})
+	err := EnterAttorney(nil, service)(testAppData, w, r, &donordata.Provided{})
 
 	assert.Equal(t, expectedError, err)
 }

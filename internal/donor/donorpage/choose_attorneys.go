@@ -1,7 +1,6 @@
 package donorpage
 
 import (
-	"errors"
 	"net/http"
 	"net/url"
 	"strconv"
@@ -11,7 +10,6 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/appcontext"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor/donordata"
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/dynamo"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/validation"
 )
 
@@ -24,14 +22,21 @@ type chooseAttorneysData struct {
 	ShowTrustCorporationLink bool
 }
 
-func ChooseAttorneys(tmpl template.Template, donorStore DonorStore, reuseStore ReuseStore, newUID func() actoruid.UID) Handler {
+func ChooseAttorneys(tmpl template.Template, service AttorneyService, newUID func() actoruid.UID) Handler {
+	enterPath := donor.PathEnterAttorney
+	summaryPath := donor.PathChooseAttorneysSummary
+	if service.IsReplacement() {
+		enterPath = donor.PathEnterReplacementAttorney
+		summaryPath = donor.PathChooseReplacementAttorneysSummary
+	}
+
 	return func(appData appcontext.Data, w http.ResponseWriter, r *http.Request, provided *donordata.Provided) error {
-		attorneys, err := reuseStore.Attorneys(r.Context(), provided)
-		if err != nil && !errors.Is(err, dynamo.NotFoundError{}) {
+		attorneys, err := service.Reusable(r.Context(), provided)
+		if err != nil {
 			return err
 		}
 		if len(attorneys) == 0 {
-			return donor.PathEnterAttorney.RedirectQuery(w, r, appData, provided, url.Values{"id": {newUID().String()}})
+			return enterPath.RedirectQuery(w, r, appData, provided, url.Values{"id": {newUID().String()}})
 		}
 
 		data := &chooseAttorneysData{
@@ -47,28 +52,19 @@ func ChooseAttorneys(tmpl template.Template, donorStore DonorStore, reuseStore R
 
 			if data.Errors.None() {
 				if len(data.Form.Indices) == 0 {
-					return donor.PathEnterAttorney.RedirectQuery(w, r, appData, provided, url.Values{"id": {newUID().String()}})
+					return enterPath.RedirectQuery(w, r, appData, provided, url.Values{"id": {newUID().String()}})
 				}
 
+				var chosen []donordata.Attorney
 				for _, index := range data.Form.Indices {
-					attorney := attorneys[index]
-					attorney.UID = newUID()
-					provided.Attorneys.Attorneys = append(provided.Attorneys.Attorneys, attorney)
+					chosen = append(chosen, attorneys[index])
 				}
 
-				provided.UpdateDecisions()
-				provided.Tasks.ChooseAttorneys = donordata.ChooseAttorneysState(provided.Attorneys, provided.AttorneyDecisions)
-				provided.Tasks.ChooseReplacementAttorneys = donordata.ChooseReplacementAttorneysState(provided)
-
-				if err := reuseStore.PutAttorneys(r.Context(), provided.Attorneys.Attorneys); err != nil {
+				if err := service.PutMany(r.Context(), provided, chosen); err != nil {
 					return err
 				}
 
-				if err := donorStore.Put(r.Context(), provided); err != nil {
-					return err
-				}
-
-				return donor.PathChooseAttorneysSummary.Redirect(w, r, appData, provided)
+				return summaryPath.Redirect(w, r, appData, provided)
 			}
 		}
 

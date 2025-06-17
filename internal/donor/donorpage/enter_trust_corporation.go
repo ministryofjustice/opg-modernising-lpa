@@ -21,9 +21,19 @@ type enterTrustCorporationData struct {
 	ChooseAttorneysPath string
 }
 
-func EnterTrustCorporation(tmpl template.Template, donorStore DonorStore, reuseStore ReuseStore, newUID func() actoruid.UID) Handler {
+func EnterTrustCorporation(tmpl template.Template, service AttorneyService, newUID func() actoruid.UID) Handler {
+	enterPath := donor.PathEnterAttorney
+	addressPath := donor.PathEnterTrustCorporationAddress
+	if service.IsReplacement() {
+		enterPath = donor.PathEnterReplacementAttorney
+		addressPath = donor.PathEnterReplacementTrustCorporationAddress
+	}
+
 	return func(appData appcontext.Data, w http.ResponseWriter, r *http.Request, provided *donordata.Provided) error {
 		trustCorporation := provided.Attorneys.TrustCorporation
+		if service.IsReplacement() {
+			trustCorporation = provided.ReplacementAttorneys.TrustCorporation
+		}
 
 		data := &enterTrustCorporationData{
 			App: appData,
@@ -33,7 +43,7 @@ func EnterTrustCorporation(tmpl template.Template, donorStore DonorStore, reuseS
 				Email:         trustCorporation.Email,
 			},
 			LpaID:               provided.LpaID,
-			ChooseAttorneysPath: donor.PathEnterAttorney.FormatQuery(provided.LpaID, url.Values{"id": {newUID().String()}}),
+			ChooseAttorneysPath: enterPath.FormatQuery(provided.LpaID, url.Values{"id": {newUID().String()}}),
 		}
 
 		if r.Method == http.MethodPost {
@@ -44,20 +54,12 @@ func EnterTrustCorporation(tmpl template.Template, donorStore DonorStore, reuseS
 				trustCorporation.Name = data.Form.Name
 				trustCorporation.CompanyNumber = data.Form.CompanyNumber
 				trustCorporation.Email = data.Form.Email
-				provided.Attorneys.TrustCorporation = trustCorporation
-				provided.UpdateDecisions()
-				provided.Tasks.ChooseAttorneys = donordata.ChooseAttorneysState(provided.Attorneys, provided.AttorneyDecisions)
-				provided.Tasks.ChooseReplacementAttorneys = donordata.ChooseReplacementAttorneysState(provided)
 
-				if err := reuseStore.PutTrustCorporation(r.Context(), trustCorporation); err != nil {
+				if err := service.PutTrustCorporation(r.Context(), provided, trustCorporation); err != nil {
 					return err
 				}
 
-				if err := donorStore.Put(r.Context(), provided); err != nil {
-					return err
-				}
-
-				return donor.PathEnterTrustCorporationAddress.Redirect(w, r, appData, provided)
+				return addressPath.Redirect(w, r, appData, provided)
 			}
 		}
 

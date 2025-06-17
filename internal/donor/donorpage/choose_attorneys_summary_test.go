@@ -31,9 +31,9 @@ func TestGetChooseAttorneysSummary(t *testing.T) {
 			w := httptest.NewRecorder()
 			r, _ := http.NewRequest(http.MethodGet, "/", nil)
 
-			reuseStore := newMockReuseStore(t)
-			reuseStore.EXPECT().
-				Attorneys(r.Context(), donor).
+			service := newMockAttorneyService(t)
+			service.EXPECT().
+				Reusable(r.Context(), donor).
 				Return([]donordata.Attorney{}, nil)
 
 			template := newMockTemplate(t)
@@ -45,7 +45,7 @@ func TestGetChooseAttorneysSummary(t *testing.T) {
 				}).
 				Return(nil)
 
-			err := ChooseAttorneysSummary(template.Execute, reuseStore, nil)(testAppData, w, r, donor)
+			err := ChooseAttorneysSummary(template.Execute, service, nil)(testAppData, w, r, donor)
 			resp := w.Result()
 
 			assert.Nil(t, err)
@@ -58,12 +58,12 @@ func TestGetChooseAttorneysSummaryWhenReuseStoreErrors(t *testing.T) {
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest(http.MethodGet, "/", nil)
 
-	reuseStore := newMockReuseStore(t)
-	reuseStore.EXPECT().
-		Attorneys(mock.Anything, mock.Anything).
+	service := newMockAttorneyService(t)
+	service.EXPECT().
+		Reusable(mock.Anything, mock.Anything).
 		Return(nil, expectedError)
 
-	err := ChooseAttorneysSummary(nil, reuseStore, nil)(testAppData, w, r, &donordata.Provided{
+	err := ChooseAttorneysSummary(nil, service, nil)(testAppData, w, r, &donordata.Provided{
 		Attorneys: donordata.Attorneys{Attorneys: []donordata.Attorney{{}}},
 	})
 	assert.Equal(t, expectedError, err)
@@ -119,12 +119,12 @@ func TestPostChooseAttorneysSummaryAddAttorney(t *testing.T) {
 			r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(f.Encode()))
 			r.Header.Add("Content-Type", page.FormUrlEncoded)
 
-			reuseStore := newMockReuseStore(t)
-			reuseStore.EXPECT().
-				Attorneys(mock.Anything, mock.Anything).
+			service := newMockAttorneyService(t)
+			service.EXPECT().
+				Reusable(mock.Anything, mock.Anything).
 				Return([]donordata.Attorney{}, nil)
 
-			err := ChooseAttorneysSummary(nil, reuseStore, testUIDFn)(testAppData, w, r, &donordata.Provided{LpaID: "lpa-id", Attorneys: tc.Attorneys})
+			err := ChooseAttorneysSummary(nil, service, testUIDFn)(testAppData, w, r, &donordata.Provided{LpaID: "lpa-id", Attorneys: tc.Attorneys})
 			resp := w.Result()
 
 			assert.Nil(t, err)
@@ -145,9 +145,9 @@ func TestPostChooseAttorneysSummaryFormValidation(t *testing.T) {
 
 	validationError := validation.With("option", validation.SelectError{Label: "yesToAddAnotherAttorney"})
 
-	reuseStore := newMockReuseStore(t)
-	reuseStore.EXPECT().
-		Attorneys(mock.Anything, mock.Anything).
+	service := newMockAttorneyService(t)
+	service.EXPECT().
+		Reusable(mock.Anything, mock.Anything).
 		Return([]donordata.Attorney{}, nil)
 
 	template := newMockTemplate(t)
@@ -157,7 +157,7 @@ func TestPostChooseAttorneysSummaryFormValidation(t *testing.T) {
 		})).
 		Return(nil)
 
-	err := ChooseAttorneysSummary(template.Execute, reuseStore, nil)(testAppData, w, r, &donordata.Provided{Attorneys: donordata.Attorneys{Attorneys: []donordata.Attorney{{}}}})
+	err := ChooseAttorneysSummary(template.Execute, service, nil)(testAppData, w, r, &donordata.Provided{Attorneys: donordata.Attorneys{Attorneys: []donordata.Attorney{{}}}})
 	resp := w.Result()
 
 	assert.Nil(t, err)

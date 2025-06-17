@@ -4,6 +4,7 @@ import (
 	"errors"
 	"net/http"
 	"net/http/httptest"
+	"testing"
 	"time"
 
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor/actoruid"
@@ -44,6 +45,16 @@ var (
 		return &donordata.Limiter{TokensAt: testNow, MaxTokens: 1, TokenPer: time.Second, Tokens: 1}
 	}
 )
+
+func testAttorneyService(t *testing.T) *mockAttorneyService {
+	service := newMockAttorneyService(t)
+	service.EXPECT().
+		IsReplacement().
+		Return(false).
+		Maybe()
+
+	return service
+}
 
 func (m *mockSessionStore) withPaySession(r *http.Request) *mockSessionStore {
 	m.EXPECT().Payment(r).Return(&sesh.PaymentSession{PaymentID: "abc123"}, nil)
