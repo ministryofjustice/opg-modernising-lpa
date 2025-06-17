@@ -1,41 +1,39 @@
 {{ define "changeable-contextual-lpa" }}
     <div class="app-print-background"></div>
 
-    {{ $app := .LpaLanguageApp }}
-
     {{ $donorFullName := .Donor.Donor.FullName }}
     {{ $isPropertyAndAffairs := .Donor.Type.IsPropertyAndAffairs }}
-    {{ $isDonor := $app.IsDonor }}
+    {{ $isDonor := $.App.IsDonor }}
     {{ $canChange := and $isDonor .Donor.CanChange }}
     {{ $canChangePersonalDetails := and .Donor.CanChangePersonalDetails $canChange }}
 
-    <h2 class="govuk-heading-l">{{ trFormat $app "donorsTypeLpa" "DonorFullName" .Donor.Donor.FullName "LpaType" (tr $app .Donor.Type.String) }}</h2>
+    <h2 class="govuk-heading-l">{{ trFormat $.App "donorsTypeLpa" "DonorFullName" .Donor.Donor.FullName "LpaType" (tr $.App .Donor.Type.String) }}</h2>
 
-    {{ template "contextual-lpa-warning" $app }}
+    {{ template "contextual-lpa-warning" $.App }}
 
     {{ with .Donor.Donor }}
         <div class="govuk-summary-card">
             <div class="govuk-summary-card__title-wrapper">
-                <h3 class="govuk-summary-card__title">{{ tr $app "donor" }}: <span class="app-unbold">{{ .FullName }}</span></h3>
+                <h3 class="govuk-summary-card__title">{{ tr $.App "donor" }}: <span class="app-unbold">{{ .FullName }}</span></h3>
             </div>
             <div class="govuk-summary-card__content">
                 <dl class="govuk-summary-list">
-                    {{ template "summary-row" (summaryRow $app "name"
+                    {{ template "summary-row" (summaryRow $.App "name"
                         .FullName
-                        (fromLink $app global.Paths.YourName "#f-first-names")
+                        (fromLink $.App global.Paths.YourName "#f-first-names")
                         .FullName $canChangePersonalDetails $isDonor) }}
 
-                    {{ template "optional-summary-row" (summaryRow $app "otherNamesYouAreKnownBy"
+                    {{ template "optional-summary-row" (summaryRow $.App "otherNamesYouAreKnownBy"
                         .OtherNames
-                        (fromLink $app global.Paths.YourName "#f-other-names")
+                        (fromLink $.App global.Paths.YourName "#f-other-names")
                         .FullName $canChangePersonalDetails $isDonor) }}
 
-                    {{ template "summary-row" (summaryRow $app "dateOfBirth"
-                        (formatDate $app .DateOfBirth)
-                        (fromLink $app global.Paths.YourDateOfBirth "#f-date-of-birth")
+                    {{ template "summary-row" (summaryRow $.App "dateOfBirth"
+                        (formatDate $.App .DateOfBirth)
+                        (fromLink $.App global.Paths.YourDateOfBirth "#f-date-of-birth")
                         .FullName $canChangePersonalDetails $isDonor) }}
 
-                    {{ template "summary-row" (summaryRow $app "email"
+                    {{ template "summary-row" (summaryRow $.App "email"
                         .Email
                         ""
                         .FullName false $isDonor) }}
@@ -45,15 +43,15 @@
                         {{ $addressChangeLink = fromLink $.App global.Paths.YourNonUKAddress "" }}
                     {{ end }}
 
-                    {{ template "address-summary-row" (summaryRow $app "address"
+                    {{ template "address-summary-row" (summaryRow $.App "address"
                         .Address
                         $addressChangeLink
                         .FullName $canChange $isDonor) }}
 
                     {{ if $isDonor }}
-                        {{ template "summary-row" (summaryRow $app "preferredContactLanguage"
-                            (tr $app .ContactLanguagePreference.String)
-                            (fromLink $app global.Paths.YourPreferredLanguage "")
+                        {{ template "summary-row" (summaryRow $.App "preferredContactLanguage"
+                            (tr $.App .ContactLanguagePreference.String)
+                            (fromLink $.App global.Paths.YourPreferredLanguage "")
                             .FullName $canChange $isDonor) }}
                     {{ end }}
                 </dl>
@@ -64,45 +62,45 @@
     {{ with .Donor.CertificateProvider }}
         <div class="govuk-summary-card">
             <div class="govuk-summary-card__title-wrapper">
-                <h3 class="govuk-summary-card__title">{{ tr $app "certificateProvider" }}: <span class="app-unbold">{{ .FullName }}</span></h3>
+                <h3 class="govuk-summary-card__title">{{ tr $.App "certificateProvider" }}: <span class="app-unbold">{{ .FullName }}</span></h3>
             </div>
             <div class="govuk-summary-card__content">
                 <dl class="govuk-summary-list">
                     {{ $contactValue := "" }}
                     {{ if .CarryOutBy.IsPaper }}
-                        {{ $contactValue = tr $app "usingPaperForms" }}
+                        {{ $contactValue = tr $.App "usingPaperForms" }}
                     {{ else if .CarryOutBy.IsOnline }}
-                        {{ $contactValue = tr $app "byEmail" }}
+                        {{ $contactValue = tr $.App "byEmail" }}
                     {{ end }}
 
-                    {{ $addressLabel := tr $app "address" }}
+                    {{ $addressLabel := tr $.App "address" }}
                     {{ if .Relationship.IsProfessionally }}
-                        {{ $addressLabel = tr $app "workAddress" }}
+                        {{ $addressLabel = tr $.App "workAddress" }}
                     {{ end }}
 
-                    {{ template "summary-row" (summaryRow $app "name"
+                    {{ template "summary-row" (summaryRow $.App "name"
                         .FullName
-                        (fromLink $app global.Paths.CertificateProviderDetails "#f-first-names")
+                        (fromLink $.App global.Paths.CertificateProviderDetails "#f-first-names")
                         .FullName $canChange false ) }}
 
-                    {{ template "summary-row" (summaryRow $app "mobile"
+                    {{ template "summary-row" (summaryRow $.App "mobile"
                         (formatPhone .Mobile)
-                        (fromLink $app global.Paths.CertificateProviderDetails "#f-mobile")
+                        (fromLink $.App global.Paths.CertificateProviderDetails "#f-mobile")
                         .FullName $canChange false ) }}
 
-                    {{ template "summary-row" (summaryRow $app "contactPreference"
+                    {{ template "summary-row" (summaryRow $.App "contactPreference"
                         $contactValue
-                        (fromLink $app global.Paths.HowWouldCertificateProviderPreferToCarryOutTheirRole "")
+                        (fromLink $.App global.Paths.HowWouldCertificateProviderPreferToCarryOutTheirRole "")
                         .FullName $canChange false ) }}
 
-                    {{ template "optional-summary-row" (summaryRow $app "email"
+                    {{ template "optional-summary-row" (summaryRow $.App "email"
                         .Email
-                        (fromLink $app global.Paths.HowWouldCertificateProviderPreferToCarryOutTheirRole "#f-email")
+                        (fromLink $.App global.Paths.HowWouldCertificateProviderPreferToCarryOutTheirRole "#f-email")
                         .FullName $canChange false ) }}
 
-                    {{ template "address-summary-row" (summaryRow $app $addressLabel
+                    {{ template "address-summary-row" (summaryRow $.App $addressLabel
                         .Address
-                        (fromLink $app global.Paths.CertificateProviderAddress "#f-address-line-1")
+                        (fromLink $.App global.Paths.CertificateProviderAddress "#f-address-line-1")
                         .FullName $canChange false ) }}
                 </dl>
             </div>
@@ -112,36 +110,36 @@
     {{ range .Donor.Attorneys.Attorneys }}
         <div class="govuk-summary-card">
             <div class="govuk-summary-card__title-wrapper">
-                <h3 class="govuk-summary-card__title">{{ tr $app "attorney" }}: <span class="app-unbold">{{ .FullName }}</span></h3>
+                <h3 class="govuk-summary-card__title">{{ tr $.App "attorney" }}: <span class="app-unbold">{{ .FullName }}</span></h3>
 
                 {{ if $canChange }}
                     <ul class="govuk-summary-card__actions">
                         <li class="govuk-summary-card__action">
-                            <a class="govuk-link govuk-link--no-visited-state" href="{{ fromLinkActor $app global.Paths.RemoveAttorney .UID "" }}">{{ tr $app "removeAttorney" }}</a>
+                            <a class="govuk-link govuk-link--no-visited-state" href="{{ fromLinkActor $.App global.Paths.RemoveAttorney .UID "" }}">{{ tr $.App "removeAttorney" }}</a>
                         </li>
                     </ul>
                 {{ end }}
             </div>
             <div class="govuk-summary-card__content">
                 <dl class="govuk-summary-list">
-                    {{ template "summary-row" (summaryRow $app "name"
+                    {{ template "summary-row" (summaryRow $.App "name"
                         .FullName
-                        (fromLinkActor $app global.Paths.EnterAttorney .UID "#f-first-names")
+                        (fromLinkActor $.App global.Paths.EnterAttorney .UID "#f-first-names")
                         .FullName $canChange false) }}
 
-                    {{ template "summary-row" (summaryRow $app "dateOfBirth"
-                        (formatDate $app .DateOfBirth)
-                        (fromLinkActor $app global.Paths.EnterAttorney .UID "#f-date-of-birth")
+                    {{ template "summary-row" (summaryRow $.App "dateOfBirth"
+                        (formatDate $.App .DateOfBirth)
+                        (fromLinkActor $.App global.Paths.EnterAttorney .UID "#f-date-of-birth")
                         .FullName $canChange false) }}
 
-                    {{ template "optional-summary-row" (summaryRow $app "email"
+                    {{ template "optional-summary-row" (summaryRow $.App "email"
                         .Email
-                        (fromLinkActor $app global.Paths.EnterAttorney .UID "#f-email")
+                        (fromLinkActor $.App global.Paths.EnterAttorney .UID "#f-email")
                         .FullName $canChange false) }}
 
-                    {{ template "address-summary-row" (summaryRow $app "address"
+                    {{ template "address-summary-row" (summaryRow $.App "address"
                         .Address
-                        (fromLinkActor $app global.Paths.ChooseAttorneysAddress .UID "#f-address-line-1")
+                        (fromLinkActor $.App global.Paths.ChooseAttorneysAddress .UID "#f-address-line-1")
                         .FullName $canChange false) }}
                 </dl>
             </div>
@@ -152,36 +150,36 @@
         {{ with .Donor.Attorneys.TrustCorporation }}
             <div class="govuk-summary-card">
                 <div class="govuk-summary-card__title-wrapper">
-                    <h3 class="govuk-summary-card__title">{{ tr $app "trustCorporationAttorney" }}: <span class="app-unbold">{{ .Name }}</span></h3>
+                    <h3 class="govuk-summary-card__title">{{ tr $.App "trustCorporationAttorney" }}: <span class="app-unbold">{{ .Name }}</span></h3>
 
                     {{ if $canChange }}
                         <ul class="govuk-summary-card__actions">
                             <li class="govuk-summary-card__action">
-                                <a class="govuk-link govuk-link--no-visited-state" href="{{ fromLink $app global.Paths.RemoveTrustCorporation "" }}">{{ tr $app "removeTrustCorporation" }}</a>
+                                <a class="govuk-link govuk-link--no-visited-state" href="{{ fromLink $.App global.Paths.RemoveTrustCorporation "" }}">{{ tr $.App "removeTrustCorporation" }}</a>
                             </li>
                         </ul>
                     {{ end }}
                 </div>
                 <div class="govuk-summary-card__content">
                     <dl class="govuk-summary-list">
-                        {{ template "summary-row" (summaryRow $app "name"
+                        {{ template "summary-row" (summaryRow $.App "name"
                             .Name
-                            (fromLink $app global.Paths.EnterTrustCorporation "#f-name")
+                            (fromLink $.App global.Paths.EnterTrustCorporation "#f-name")
                             .Name $canChange false) }}
 
-                        {{ template "summary-row" (summaryRow $app "companyNumber"
+                        {{ template "summary-row" (summaryRow $.App "companyNumber"
                             .CompanyNumber
-                            (fromLink $app global.Paths.EnterTrustCorporation "#f-company-number")
+                            (fromLink $.App global.Paths.EnterTrustCorporation "#f-company-number")
                             .Name $canChange false) }}
 
-                        {{ template "optional-summary-row" (summaryRow $app "companyEmailAddress"
+                        {{ template "optional-summary-row" (summaryRow $.App "companyEmailAddress"
                             .Email
-                            (fromLink $app global.Paths.EnterTrustCorporation "#f-email")
+                            (fromLink $.App global.Paths.EnterTrustCorporation "#f-email")
                             .Name $canChange false) }}
 
-                        {{ template "address-summary-row" (summaryRow $app "address"
+                        {{ template "address-summary-row" (summaryRow $.App "address"
                             .Address
-                            (fromLink $app global.Paths.EnterTrustCorporationAddress "#f-address-line-1")
+                            (fromLink $.App global.Paths.EnterTrustCorporationAddress "#f-address-line-1")
                             .Name $canChange false) }}
                     </dl>
                 </div>
@@ -192,36 +190,36 @@
     {{ range .Donor.ReplacementAttorneys.Attorneys }}
         <div class="govuk-summary-card">
             <div class="govuk-summary-card__title-wrapper">
-                <h3 class="govuk-summary-card__title">{{ tr $app "replacementAttorney" }}: <span class="app-unbold">{{ .FullName }}</span></h3>
+                <h3 class="govuk-summary-card__title">{{ tr $.App "replacementAttorney" }}: <span class="app-unbold">{{ .FullName }}</span></h3>
 
                 {{ if $canChange }}
                     <ul class="govuk-summary-card__actions">
                         <li class="govuk-summary-card__action">
-                            <a class="govuk-link govuk-link--no-visited-state" href="{{ fromLinkActor $app global.Paths.RemoveReplacementAttorney .UID "" }}">{{ tr $app "removeAttorney" }}</a>
+                            <a class="govuk-link govuk-link--no-visited-state" href="{{ fromLinkActor $.App global.Paths.RemoveReplacementAttorney .UID "" }}">{{ tr $.App "removeAttorney" }}</a>
                         </li>
                     </ul>
                 {{ end }}
             </div>
             <div class="govuk-summary-card__content">
                 <dl class="govuk-summary-list">
-                    {{ template "summary-row" (summaryRow $app "name"
+                    {{ template "summary-row" (summaryRow $.App "name"
                         .FullName
-                        (fromLinkActor $app global.Paths.EnterReplacementAttorney .UID "#f-first-names")
-                        .FullName $canChange (eq $app.AttorneyUID .UID)) }}
+                        (fromLinkActor $.App global.Paths.EnterReplacementAttorney .UID "#f-first-names")
+                        .FullName $canChange (eq $.App.AttorneyUID .UID)) }}
 
-                    {{ template "summary-row" (summaryRow $app "dateOfBirth"
-                        (formatDate $app .DateOfBirth)
-                        (fromLinkActor $app global.Paths.EnterReplacementAttorney .UID "#f-date-of-birth")
+                    {{ template "summary-row" (summaryRow $.App "dateOfBirth"
+                        (formatDate $.App .DateOfBirth)
+                        (fromLinkActor $.App global.Paths.EnterReplacementAttorney .UID "#f-date-of-birth")
                         .FullName $canChange false) }}
 
-                    {{ template "optional-summary-row" (summaryRow $app "email"
+                    {{ template "optional-summary-row" (summaryRow $.App "email"
                         .Email
-                        (fromLinkActor $app global.Paths.EnterReplacementAttorney .UID "#f-email")
+                        (fromLinkActor $.App global.Paths.EnterReplacementAttorney .UID "#f-email")
                         .FullName $canChange false) }}
 
-                    {{ template "address-summary-row" (summaryRow $app "address"
+                    {{ template "address-summary-row" (summaryRow $.App "address"
                         .Address
-                        (fromLinkActor $app global.Paths.ChooseReplacementAttorneysAddress .UID "#f-address-line-1")
+                        (fromLinkActor $.App global.Paths.ChooseReplacementAttorneysAddress .UID "#f-address-line-1")
                         .FullName $canChange false) }}
                 </dl>
             </div>
@@ -232,36 +230,36 @@
         {{ with .Donor.ReplacementAttorneys.TrustCorporation }}
             <div class="govuk-summary-card">
                 <div class="govuk-summary-card__title-wrapper">
-                    <h3 class="govuk-summary-card__title">{{ tr $app "replacementTrustCorporationAttorney" }}: <span class="app-unbold">{{ .Name }}</span></h3>
+                    <h3 class="govuk-summary-card__title">{{ tr $.App "replacementTrustCorporationAttorney" }}: <span class="app-unbold">{{ .Name }}</span></h3>
 
                     {{ if $canChange }}
                         <ul class="govuk-summary-card__actions">
                             <li class="govuk-summary-card__action">
-                                <a class="govuk-link govuk-link--no-visited-state" href="{{ fromLink $app global.Paths.RemoveReplacementTrustCorporation "" }}">{{ tr $app "removeTrustCorporation" }}</a>
+                                <a class="govuk-link govuk-link--no-visited-state" href="{{ fromLink $.App global.Paths.RemoveReplacementTrustCorporation "" }}">{{ tr $.App "removeTrustCorporation" }}</a>
                             </li>
                         </ul>
                     {{ end }}
                 </div>
                 <div class="govuk-summary-card__content">
                     <dl class="govuk-summary-list">
-                        {{ template "summary-row" (summaryRow $app "name"
+                        {{ template "summary-row" (summaryRow $.App "name"
                             .Name
-                            (fromLink $app global.Paths.EnterReplacementTrustCorporation "#f-name")
+                            (fromLink $.App global.Paths.EnterReplacementTrustCorporation "#f-name")
                             .Name $canChange false) }}
 
-                        {{ template "summary-row" (summaryRow $app "companyNumber"
+                        {{ template "summary-row" (summaryRow $.App "companyNumber"
                             .CompanyNumber
-                            (fromLink $app global.Paths.EnterReplacementTrustCorporation "#f-company-number")
+                            (fromLink $.App global.Paths.EnterReplacementTrustCorporation "#f-company-number")
                             .Name $canChange false) }}
 
-                        {{ template "optional-summary-row" (summaryRow $app "companyEmailAddress"
+                        {{ template "optional-summary-row" (summaryRow $.App "companyEmailAddress"
                             .Email
-                            (fromLink $app global.Paths.EnterReplacementTrustCorporation "#f-email")
+                            (fromLink $.App global.Paths.EnterReplacementTrustCorporation "#f-email")
                             .Name $canChange false) }}
 
-                        {{ template "address-summary-row" (summaryRow $app "address"
+                        {{ template "address-summary-row" (summaryRow $.App "address"
                             .Address
-                            (fromLink $app global.Paths.EnterReplacementTrustCorporationAddress "#f-address-line-1")
+                            (fromLink $.App global.Paths.EnterReplacementTrustCorporationAddress "#f-address-line-1")
                             .Name $canChange false) }}
                     </dl>
                 </div>
@@ -273,26 +271,26 @@
         {{ range .Donor.PeopleToNotify }}
             <div class="govuk-summary-card">
                 <div class="govuk-summary-card__title-wrapper">
-                    <h3 class="govuk-summary-card__title">{{ tr $app "personToNotify" }}: <span class="app-unbold">{{ .FullName }}</span></h3>
+                    <h3 class="govuk-summary-card__title">{{ tr $.App "personToNotify" }}: <span class="app-unbold">{{ .FullName }}</span></h3>
 
                     {{ if $canChange }}
                         <ul class="govuk-summary-card__actions">
                             <li class="govuk-summary-card__action">
-                                <a class="govuk-link govuk-link--no-visited-state" href="{{ fromLinkActor $app global.Paths.RemovePersonToNotify .UID "" }}">{{ tr $app "removePersonToNotify" }}</a>
+                                <a class="govuk-link govuk-link--no-visited-state" href="{{ fromLinkActor $.App global.Paths.RemovePersonToNotify .UID "" }}">{{ tr $.App "removePersonToNotify" }}</a>
                             </li>
                         </ul>
                     {{ end }}
                 </div>
                 <div class="govuk-summary-card__content">
                     <dl class="govuk-summary-list">
-                        {{ template "summary-row" (summaryRow $app "name"
+                        {{ template "summary-row" (summaryRow $.App "name"
                             .FullName
-                            (fromLinkActor $app global.Paths.ChoosePeopleToNotify .UID "#f-first-names")
+                            (fromLinkActor $.App global.Paths.ChoosePeopleToNotify .UID "#f-first-names")
                             .FullName $canChange false ) }}
 
-                        {{ template "address-summary-row" (summaryRow $app "address"
+                        {{ template "address-summary-row" (summaryRow $.App "address"
                             .Address
-                            (fromLinkActor $app global.Paths.ChoosePeopleToNotifyAddress .UID "#f-address-line-1")
+                            (fromLinkActor $.App global.Paths.ChoosePeopleToNotifyAddress .UID "#f-address-line-1")
                             .FullName $canChange false ) }}
                     </dl>
                 </div>
@@ -306,10 +304,10 @@
 
         <div class="govuk-summary-card">
             <div class="govuk-summary-card__title-wrapper">
-                <h3 class="govuk-summary-card__title">{{ tr $app "personToNotify" }}:</h3>
+                <h3 class="govuk-summary-card__title">{{ tr $.App "personToNotify" }}:</h3>
             </div>
             <div class="govuk-summary-card__content">
-                <p class="govuk-body">{{ tr $app $label }}</p>
+                <p class="govuk-body">{{ tr $.App $label }}</p>
             </div>
         </div>
     {{ end }}
@@ -318,13 +316,13 @@
         {{ with .Donor.AuthorisedSignatory }}
             <div class="govuk-summary-card">
                 <div class="govuk-summary-card__title-wrapper">
-                    <h3 class="govuk-summary-card__title">{{ tr $app "authorisedSignatory" }}: <span class="app-unbold">{{ .FullName }}</span></h3>
+                    <h3 class="govuk-summary-card__title">{{ tr $.App "authorisedSignatory" }}: <span class="app-unbold">{{ .FullName }}</span></h3>
                 </div>
                 <div class="govuk-summary-card__content">
                     <dl class="govuk-summary-list">
-                        {{ template "summary-row" (summaryRow $app "name"
+                        {{ template "summary-row" (summaryRow $.App "name"
                             .FullName
-                            (fromLink $app global.Paths.YourAuthorisedSignatory "#f-first-names")
+                            (fromLink $.App global.Paths.YourAuthorisedSignatory "#f-first-names")
                             .FullName $canChange false ) }}
                     </dl>
                 </div>
@@ -336,23 +334,23 @@
         {{ with .Donor.IndependentWitness }}
             <div class="govuk-summary-card">
                 <div class="govuk-summary-card__title-wrapper">
-                    <h3 class="govuk-summary-card__title">{{ tr $app "independentWitness" }}: <span class="app-unbold">{{ .FullName }}</span></h3>
+                    <h3 class="govuk-summary-card__title">{{ tr $.App "independentWitness" }}: <span class="app-unbold">{{ .FullName }}</span></h3>
                 </div>
                 <div class="govuk-summary-card__content">
                     <dl class="govuk-summary-list">
-                        {{ template "summary-row" (summaryRow $app "name"
+                        {{ template "summary-row" (summaryRow $.App "name"
                             .FullName
-                            (fromLink $app global.Paths.YourIndependentWitness "#f-first-names")
+                            (fromLink $.App global.Paths.YourIndependentWitness "#f-first-names")
                             .FullName $canChange false ) }}
 
-                        {{ template "summary-row" (summaryRow $app "mobile"
+                        {{ template "summary-row" (summaryRow $.App "mobile"
                             (formatPhone .Mobile)
-                            (fromLink $app global.Paths.YourIndependentWitnessMobile "#f-mobile")
+                            (fromLink $.App global.Paths.YourIndependentWitnessMobile "#f-mobile")
                             .FullName $canChange false ) }}
 
-                        {{ template "address-summary-row" (summaryRow $app "address"
+                        {{ template "address-summary-row" (summaryRow $.App "address"
                             .Address
-                            (fromLink $app global.Paths.YourIndependentWitnessAddress "#f-address-line-1")
+                            (fromLink $.App global.Paths.YourIndependentWitnessAddress "#f-address-line-1")
                             .FullName $canChange false) }}
                     </dl>
                 </div>
@@ -360,9 +358,9 @@
         {{ end }}
     {{ end }}
 
-    {{ template "contextual-lpa-warning" $app }}
+    {{ template "contextual-lpa-warning" $.App }}
 
-    <h3 class="govuk-heading-m">{{ tr $app "howLpaCanBeUsed" }}</h3>
+    <h3 class="govuk-heading-m">{{ tr $.App "howLpaCanBeUsed" }}</h3>
 
     <dl class="govuk-summary-list app-stacked-summary-list">
         {{ with .Donor.WhenCanTheLpaBeUsed }}
@@ -374,9 +372,9 @@
                 {{ $value = .String }}
             {{ end }}
 
-            {{ template "summary-row" (summaryRow $app $label
-                (tr $app $value)
-                (fromLink $app global.Paths.WhenCanTheLpaBeUsed "")
+            {{ template "summary-row" (summaryRow $.App $label
+                (tr $.App $value)
+                (fromLink $.App global.Paths.WhenCanTheLpaBeUsed "")
                 $donorFullName (and $canChange $isPropertyAndAffairs) $isDonor) }}
         {{ end }}
 
@@ -386,9 +384,9 @@
                 {{ $value = "optionA" }}
             {{ end }}
 
-            {{ template "summary-row" (summaryRow $app "lifeSustainingTreatment"
-                (trHtml $app $value)
-                (fromLink $app global.Paths.LifeSustainingTreatment "")
+            {{ template "summary-row" (summaryRow $.App "lifeSustainingTreatment"
+                (trHtml $.App $value)
+                (fromLink $.App global.Paths.LifeSustainingTreatment "")
                 $donorFullName $canChange $isDonor) }}
         {{ end }}
 
@@ -402,9 +400,9 @@
                     {{ $value = printf "your-%s" .String }}
                 {{ end }}
 
-                {{ template "summary-row" (summaryRow $app $label
-                    (tr $app $value)
-                    (fromLink $app global.Paths.HowShouldAttorneysMakeDecisions "")
+                {{ template "summary-row" (summaryRow $.App $label
+                    (tr $.App $value)
+                    (fromLink $.App global.Paths.HowShouldAttorneysMakeDecisions "")
                     $donorFullName $canChange $isDonor) }}
             {{ end }}
         {{ end }}
@@ -416,9 +414,9 @@
                 {{ $label = "decisionsYourAttorneysMustMakeJointly" }}
             {{ end }}
 
-            {{ template "text-summary-row" (summaryRow $app $label
-                (trHtml $app .Donor.AttorneyDecisions.Details)
-                (fromLink $app global.Paths.HowShouldAttorneysMakeDecisions "#f-mixed-details")
+            {{ template "text-summary-row" (summaryRow $.App $label
+                (trHtml $.App .Donor.AttorneyDecisions.Details)
+                (fromLink $.App global.Paths.HowShouldAttorneysMakeDecisions "#f-mixed-details")
                 $donorFullName $canChange $isDonor) }}
         {{ end }}
 
@@ -432,9 +430,9 @@
                     {{ $value = printf "your-%s" .String }}
                 {{ end }}
 
-                {{ template "summary-row" (summaryRow $app $label
-                    (tr $app $value)
-                    (fromLink $app global.Paths.HowShouldReplacementAttorneysMakeDecisions "")
+                {{ template "summary-row" (summaryRow $.App $label
+                    (tr $.App $value)
+                    (fromLink $.App global.Paths.HowShouldReplacementAttorneysMakeDecisions "")
                     $donorFullName $canChange $isDonor) }}
             {{ end }}
         {{ end }}
@@ -446,21 +444,21 @@
                 {{ $label = "decisionsYourReplacementAttorneysMustMakeJointly" }}
             {{ end }}
 
-            {{ template "text-summary-row" (summaryRow $app $label
-                (trHtml $app .Donor.ReplacementAttorneyDecisions.Details)
-                (fromLink $app global.Paths.HowShouldReplacementAttorneysMakeDecisions "#f-mixed-details")
+            {{ template "text-summary-row" (summaryRow $.App $label
+                (trHtml $.App .Donor.ReplacementAttorneyDecisions.Details)
+                (fromLink $.App global.Paths.HowShouldReplacementAttorneysMakeDecisions "#f-mixed-details")
                 $donorFullName $canChange $isDonor) }}
         {{ end }}
     </dl>
 
-    {{ template "contextual-lpa-warning" $app }}
+    {{ template "contextual-lpa-warning" $.App }}
 
-    <h3 class="govuk-heading-m">{{ tr $app "restrictions" }}</h3>
+    <h3 class="govuk-heading-m">{{ tr $.App "restrictions" }}</h3>
 
     <dl class="govuk-summary-list app-stacked-summary-list">
-        {{ template "summary-row" (summaryRow $app "restrictTheDecisionsAttorneysCanMake"
+        {{ template "summary-row" (summaryRow $.App "restrictTheDecisionsAttorneysCanMake"
             .Donor.Restrictions
-            (fromLink $app global.Paths.Restrictions "#f-restrictions")
+            (fromLink $.App global.Paths.Restrictions "#f-restrictions")
             $donorFullName $canChange $isDonor) }}
 
         {{ if .Donor.HowShouldReplacementAttorneysStepIn }}
@@ -478,20 +476,20 @@
                 {{ end }}
 
                 {{ if eq "otherWay" $value }}
-                    {{ template "summary-row" (summaryRow $app $label
-                        (trFormatHtml $app "inParticularWay" "Text" $.Donor.HowShouldReplacementAttorneysStepInDetails)
-                        (fromLink $app global.Paths.HowShouldReplacementAttorneysStepIn "#f-other-details")
+                    {{ template "summary-row" (summaryRow $.App $label
+                        (trFormatHtml $.App "inParticularWay" "Text" $.Donor.HowShouldReplacementAttorneysStepInDetails)
+                        (fromLink $.App global.Paths.HowShouldReplacementAttorneysStepIn "#f-other-details")
                         $donorFullName $canChange $isDonor) }}
 
                 {{ else }}
-                    {{ template "summary-row" (summaryRow $app $label
-                        (trHtml $app $value)
-                        (fromLink $app global.Paths.HowShouldReplacementAttorneysStepIn "")
+                    {{ template "summary-row" (summaryRow $.App $label
+                        (trHtml $.App $value)
+                        (fromLink $.App global.Paths.HowShouldReplacementAttorneysStepIn "")
                         $donorFullName $canChange $isDonor) }}
                 {{ end }}
             {{ end }}
         {{ end }}
     </dl>
 
-    {{ template "contextual-lpa-warning" $app }}
+    {{ template "contextual-lpa-warning" $.App }}
 {{ end }}
