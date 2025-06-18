@@ -49,6 +49,7 @@ var (
 	certificateProviderStartURL = os.Getenv("CERTIFICATE_PROVIDER_START_URL")
 	attorneyStartURL            = os.Getenv("ATTORNEY_START_URL")
 	appPublicURL                = os.Getenv("APP_PUBLIC_URL")
+	environment                 = os.Getenv("ENVIRONMENT")
 
 	Tag string
 
@@ -73,7 +74,9 @@ func handleRunSchedule(ctx context.Context) error {
 		return err
 	}
 
-	notifyClient, err := notify.New(logger, notifyBaseURL, notifyApiKey, httpClient, event.NewClient(cfg, eventBusName), bundle)
+	eventClient := event.NewClient(cfg, eventBusName, environment)
+
+	notifyClient, err := notify.New(logger, notifyBaseURL, notifyApiKey, httpClient, eventClient, bundle)
 	if err != nil {
 		return err
 	}
@@ -82,8 +85,6 @@ func handleRunSchedule(ctx context.Context) error {
 	if err != nil {
 		return fmt.Errorf("failed to create dynamodb client: %w", err)
 	}
-
-	eventClient := event.NewClient(cfg, eventBusName)
 
 	searchClient, err := search.NewClient(cfg, searchEndpoint, searchIndexName, searchIndexingEnabled)
 	if err != nil {

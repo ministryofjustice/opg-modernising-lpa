@@ -15,6 +15,7 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/attorney"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/attorney/attorneydata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/dashboard/dashboarddata"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/event"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/localize"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/lpastore/lpadata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/notify"
@@ -95,6 +96,10 @@ type NotifyClient interface {
 
 type ErrorHandler func(http.ResponseWriter, *http.Request, error)
 
+type EventClient interface {
+	SendMetric(ctx context.Context, category event.Category, measure event.Measure) error
+}
+
 type Bundle interface {
 	For(lang localize.Lang) localize.Localizer
 }
@@ -112,6 +117,7 @@ func Register(
 	lpaStoreClient LpaStoreClient,
 	lpaStoreResolvingService LpaStoreResolvingService,
 	notifyClient NotifyClient,
+	eventClient EventClient,
 	bundle Bundle,
 	attorneyStartURL string,
 ) {
@@ -122,7 +128,7 @@ func Register(
 	handleRoot(page.PathAttorneyLoginCallback, None,
 		page.LoginCallback(logger, oneLoginClient, sessionStore, page.PathAttorneyEnterReferenceNumber, dashboardStore, actor.TypeAttorney))
 	handleRoot(page.PathAttorneyEnterReferenceNumber, RequireSession,
-		EnterReferenceNumber(tmpls.Get("enter_reference_number.gohtml"), shareCodeStore, sessionStore, attorneyStore, lpaStoreClient))
+		EnterReferenceNumber(tmpls.Get("enter_reference_number.gohtml"), shareCodeStore, sessionStore, attorneyStore, lpaStoreClient, eventClient))
 	handleRoot(page.PathAttorneyEnterReferenceNumberOptOut, None,
 		EnterReferenceNumberOptOut(tmpls.Get("enter_reference_number_opt_out.gohtml"), shareCodeStore, sessionStore))
 	handleRoot(page.PathAttorneyConfirmDontWantToBeAttorneyLoggedOut, None,
