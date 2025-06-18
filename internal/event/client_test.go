@@ -5,7 +5,9 @@ import (
 	"encoding/json"
 	"errors"
 	"os"
+	"strconv"
 	"testing"
+	"time"
 
 	"github.com/aws/aws-sdk-go-v2/aws"
 	"github.com/aws/aws-sdk-go-v2/service/eventbridge"
@@ -16,7 +18,11 @@ import (
 	"github.com/stretchr/testify/mock"
 )
 
-var expectedError = errors.New("err")
+var (
+	expectedError = errors.New("err")
+	testNow       = time.Date(2023, time.April, 2, 3, 4, 5, 6, time.UTC)
+	testNowFn     = func() time.Time { return testNow }
+)
 
 func TestClientSendEvents(t *testing.T) {
 	ctx := context.Background()
@@ -98,6 +104,24 @@ func TestClientSendEvents(t *testing.T) {
 
 			return func(client *Client) error { return client.SendRegisterWithCourtOfProtection(ctx, event) }, event
 		},
+		"metric": func() (func(*Client) error, any) {
+			event := Metrics{
+				Metrics: []MetricWrapper{{
+					Metric: Metric{
+						Project:          "MRLPA",
+						Category:         "metric",
+						Subcategory:      "CAT",
+						Environment:      "ENV",
+						MeasureName:      "ME",
+						MeasureValue:     "1",
+						MeasureValueType: "BIGINT",
+						Time:             strconv.FormatInt(testNow.UnixMilli(), 10),
+					},
+				}},
+			}
+
+			return func(client *Client) error { return client.SendMetric(ctx, Category("CAT"), Measure("ME")) }, event
+		},
 	}
 
 	for eventName, setup := range testcases {
@@ -117,7 +141,7 @@ func TestClientSendEvents(t *testing.T) {
 				}).
 				Return(nil, expectedError)
 
-			client := &Client{svc: svc, eventBusName: "my-bus"}
+			client := &Client{svc: svc, eventBusName: "my-bus", environment: "ENV", now: testNowFn}
 			err := fn(client)
 
 			assert.Equal(t, expectedError, err)

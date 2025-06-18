@@ -38,6 +38,7 @@ type LpaStoreResolvingService interface {
 
 type EventClient interface {
 	SendIdentityCheckMismatched(ctx context.Context, e event.IdentityCheckMismatched) error
+	SendMetric(ctx context.Context, category event.Category, measure event.Measure) error
 }
 
 type Logger interface {
@@ -152,7 +153,7 @@ func Register(
 	handleRoot(page.PathCertificateProviderLoginCallback, page.None,
 		page.LoginCallback(logger, oneLoginClient, sessionStore, page.PathCertificateProviderEnterReferenceNumber, dashboardStore, actor.TypeCertificateProvider))
 	handleRoot(page.PathCertificateProviderEnterReferenceNumber, page.RequireSession,
-		EnterReferenceNumber(tmpls.Get("enter_reference_number.gohtml"), shareCodeStore, sessionStore, certificateProviderStore, lpaStoreClient, dashboardStore))
+		EnterReferenceNumber(tmpls.Get("enter_reference_number.gohtml"), shareCodeStore, sessionStore, certificateProviderStore, lpaStoreClient, dashboardStore, eventClient))
 	handleRoot(page.PathCertificateProviderEnterReferenceNumberOptOut, page.None,
 		EnterReferenceNumberOptOut(tmpls.Get("enter_reference_number_opt_out.gohtml"), shareCodeStore, sessionStore))
 	handleRoot(page.PathCertificateProviderConfirmDontWantToBeCertificateProviderLoggedOut, page.None,

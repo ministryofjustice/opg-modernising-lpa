@@ -209,6 +209,22 @@ var eventTests = map[string]map[string]any{
 			UID: "M-1111-2222-3333",
 		},
 	},
+	"metric": {
+		"valid": Metrics{
+			Metrics: []MetricWrapper{{
+				Metric: Metric{
+					Project:          "X",
+					Category:         "Y",
+					Subcategory:      "Z",
+					Environment:      "E",
+					MeasureName:      "N",
+					MeasureValue:     "0123456",
+					MeasureValueType: "BIGINT",
+					Time:             "8898902348789",
+				},
+			}},
+		},
+	},
 }
 
 func TestEventSchema(t *testing.T) {

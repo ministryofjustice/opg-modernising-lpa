@@ -21,7 +21,7 @@ import (
 
 func TestRegister(t *testing.T) {
 	mux := http.NewServeMux()
-	Register(mux, &mockLogger{}, template.Templates{}, template.Templates{}, nil, nil, nil, nil, nil, &mockDashboardStore{}, &lpastore.Client{}, &lpastore.ResolvingService{}, &mockNotifyClient{}, &mockBundle{}, "attorneyStartURL")
+	Register(mux, &mockLogger{}, template.Templates{}, template.Templates{}, nil, nil, nil, nil, nil, &mockDashboardStore{}, &lpastore.Client{}, &lpastore.ResolvingService{}, &mockNotifyClient{}, &mockEventClient{}, &mockBundle{}, "attorneyStartURL")
 
 	assert.Implements(t, (*http.Handler)(nil), mux)
 }

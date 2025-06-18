@@ -5,6 +5,8 @@ import (
 	"context"
 	"encoding/json"
 	"errors"
+	"strconv"
+	"time"
 
 	"github.com/aws/aws-sdk-go-v2/aws"
 	"github.com/aws/aws-sdk-go-v2/service/eventbridge"
@@ -29,6 +31,7 @@ var events = map[any]string{
 	(*LetterRequested)(nil):               "letter-requested",
 	(*ConfirmAtPostOfficeSelected)(nil):   "confirm-at-post-office-selected",
 	(*RegisterWithCourtOfProtection)(nil): "register-with-court-of-protection",
+	(*Metrics)(nil):                       "metric",
 }
 
 type eventbridgeClient interface {
@@ -38,12 +41,16 @@ type eventbridgeClient interface {
 type Client struct {
 	svc          eventbridgeClient
 	eventBusName string
+	environment  string
+	now          func() time.Time
 }
 
-func NewClient(cfg aws.Config, eventBusName string) *Client {
+func NewClient(cfg aws.Config, eventBusName, environment string) *Client {
 	return &Client{
 		svc:          eventbridge.NewFromConfig(cfg),
 		eventBusName: eventBusName,
+		environment:  environment,
+		now:          time.Now,
 	}
 }
 
@@ -105,6 +112,23 @@ func (c *Client) SendConfirmAtPostOfficeSelected(ctx context.Context, event Conf
 
 func (c *Client) SendRegisterWithCourtOfProtection(ctx context.Context, event RegisterWithCourtOfProtection) error {
 	return send[RegisterWithCourtOfProtection](ctx, c, event)
+}
+
+func (c *Client) SendMetric(ctx context.Context, category Category, measure Measure) error {
+	return send[Metrics](ctx, c, Metrics{
+		Metrics: []MetricWrapper{{
+			Metric: Metric{
+				Project:          "MRLPA",
+				Category:         "metric",
+				Subcategory:      category,
+				Environment:      c.environment,
+				MeasureName:      measure,
+				MeasureValue:     "1",
+				MeasureValueType: "BIGINT",
+				Time:             strconv.FormatInt(c.now().UnixMilli(), 10),
+			},
+		}},
+	})
 }
 
 func send[T any](ctx context.Context, c *Client, detail any) error {

@@ -171,6 +171,7 @@ type EventClient interface {
 	SendCorrespondentUpdated(ctx context.Context, e event.CorrespondentUpdated) error
 	SendConfirmAtPostOfficeSelected(ctx context.Context, e event.ConfirmAtPostOfficeSelected) error
 	SendRegisterWithCourtOfProtection(ctx context.Context, e event.RegisterWithCourtOfProtection) error
+	SendMetric(ctx context.Context, category event.Category, measure event.Measure) error
 }
 
 type DashboardStore interface {
@@ -281,7 +282,7 @@ func Register(
 	handleRoot(page.PathLoginCallback, page.None,
 		page.LoginCallback(logger, oneLoginClient, sessionStore, page.PathMakeOrAddAnLPA, dashboardStore, actor.TypeDonor))
 	handleRoot(page.PathEnterAccessCode, page.RequireSession,
-		EnterAccessCode(logger, tmpls.Get("enter_access_code.gohtml"), shareCodeStore, donorStore, sessionStore))
+		EnterAccessCode(logger, tmpls.Get("enter_access_code.gohtml"), shareCodeStore, donorStore, sessionStore, eventClient))
 
 	handleWithDonor := makeLpaHandle(rootMux, sessionStore, errorHandler, donorStore, donorStartURL)
 

@@ -118,6 +118,7 @@ func run(ctx context.Context, logger *slog.Logger) error {
 		useURL                = os.Getenv("USE_A_LASTING_POWER_OF_ATTORNEY_URL")
 		kmsKeyAlias           = cmp.Or(os.Getenv("S3_UPLOADS_KMS_KEY_ALIAS"), "alias/custom-key")
 		useTestWitnessCode    = cmp.Or(os.Getenv("USE_TEST_WITNESS_CODE") == "1", false)
+		environment           = os.Getenv("ENVIRONMENT")
 	)
 
 	staticHash, err := dirhash.HashDir(webDir+"/static", webDir, dirhash.DefaultHash)
@@ -219,7 +220,7 @@ func run(ctx context.Context, logger *slog.Logger) error {
 		return err
 	}
 
-	eventClient := event.NewClient(cfg, eventBusName)
+	eventClient := event.NewClient(cfg, eventBusName, environment)
 
 	searchClient, err := search.NewClient(cfg, searchEndpoint, searchIndexName, searchIndexingEnabled)
 	if err != nil {
