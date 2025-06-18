@@ -210,6 +210,54 @@ func (_c *mockEventClient_SendIdentityCheckMismatched_Call) RunAndReturn(run fun
 	return _c
 }
 
+// SendMetric provides a mock function with given fields: ctx, category, measure
+func (_m *mockEventClient) SendMetric(ctx context.Context, category event.Category, measure event.Measure) error {
+	ret := _m.Called(ctx, category, measure)
+
+	if len(ret) == 0 {
+		panic("no return value specified for SendMetric")
+	}
+
+	var r0 error
+	if rf, ok := ret.Get(0).(func(context.Context, event.Category, event.Measure) error); ok {
+		r0 = rf(ctx, category, measure)
+	} else {
+		r0 = ret.Error(0)
+	}
+
+	return r0
+}
+
+// mockEventClient_SendMetric_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'SendMetric'
+type mockEventClient_SendMetric_Call struct {
+	*mock.Call
+}
+
+// SendMetric is a helper method to define mock.On call
+//   - ctx context.Context
+//   - category event.Category
+//   - measure event.Measure
+func (_e *mockEventClient_Expecter) SendMetric(ctx interface{}, category interface{}, measure interface{}) *mockEventClient_SendMetric_Call {
+	return &mockEventClient_SendMetric_Call{Call: _e.mock.On("SendMetric", ctx, category, measure)}
+}
+
+func (_c *mockEventClient_SendMetric_Call) Run(run func(ctx context.Context, category event.Category, measure event.Measure)) *mockEventClient_SendMetric_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		run(args[0].(context.Context), args[1].(event.Category), args[2].(event.Measure))
+	})
+	return _c
+}
+
+func (_c *mockEventClient_SendMetric_Call) Return(_a0 error) *mockEventClient_SendMetric_Call {
+	_c.Call.Return(_a0)
+	return _c
+}
+
+func (_c *mockEventClient_SendMetric_Call) RunAndReturn(run func(context.Context, event.Category, event.Measure) error) *mockEventClient_SendMetric_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
 // SendPaymentReceived provides a mock function with given fields: ctx, e
 func (_m *mockEventClient) SendPaymentReceived(ctx context.Context, e event.PaymentReceived) error {
 	ret := _m.Called(ctx, e)
