@@ -166,7 +166,7 @@ func App(
 	handleRoot(page.PathVoucherStart, None,
 		page.Guidance(tmpls.Get("voucher_start.gohtml")))
 	handleRoot(page.PathDashboard, RequireSession,
-		page.Dashboard(tmpls.Get("dashboard.gohtml"), donorStore, dashboardStore, useURL))
+		page.Dashboard(tmpls.Get("dashboard.gohtml"), donorStore, dashboardStore, eventClient, useURL))
 	handleRoot(page.PathLpaDeleted, RequireSession,
 		page.Guidance(tmpls.Get("lpa_deleted.gohtml")))
 	handleRoot(page.PathLpaWithdrawn, RequireSession,
@@ -272,6 +272,7 @@ func App(
 		lpaStoreClient,
 		lpaStoreResolvingService,
 		notifyClient,
+		eventClient,
 		bundle,
 		attorneyStartURL,
 	)

@@ -2,6 +2,7 @@ package page
 
 import (
 	"context"
+	"fmt"
 	"net/http"
 
 	"github.com/ministryofjustice/opg-go-common/template"
@@ -9,6 +10,7 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/appcontext"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/dashboard/dashboarddata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/event"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/validation"
 )
 
@@ -34,7 +36,7 @@ type dashboardData struct {
 	UseURL                  string
 }
 
-func Dashboard(tmpl template.Template, donorStore DonorStore, dashboardStore DashboardStore, useURL string) Handler {
+func Dashboard(tmpl template.Template, donorStore DonorStore, dashboardStore DashboardStore, eventClient EventClient, useURL string) Handler {
 	return func(appData appcontext.Data, w http.ResponseWriter, r *http.Request) error {
 		if r.Method == http.MethodPost {
 			form := readDashboardForm(r)
@@ -42,6 +44,10 @@ func Dashboard(tmpl template.Template, donorStore DonorStore, dashboardStore Das
 			lpa, err := donorStore.Create(r.Context())
 			if err != nil {
 				return err
+			}
+
+			if err := eventClient.SendMetric(r.Context(), event.CategoryFunnelStartRate, event.MeasureOnlineDonor); err != nil {
+				return fmt.Errorf("sending metric: %w", err)
 			}
 
 			path := donor.PathYourName

@@ -520,6 +520,10 @@ locals {
           name  = "USE_TEST_WITNESS_CODE",
           value = var.app_env_vars.use_test_witness_code
         },
+        {
+          name  = "ENVIRONMENT",
+          value = data.aws_default_tags.current.tags.environment-name
+        }
       ]
     }
   )

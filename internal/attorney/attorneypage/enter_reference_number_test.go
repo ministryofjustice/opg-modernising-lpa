@@ -13,6 +13,7 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/attorney"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/attorney/attorneydata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/dynamo"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/event"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/lpastore"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/lpastore/lpadata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
@@ -43,7 +44,7 @@ func TestGetEnterReferenceNumber(t *testing.T) {
 		Execute(w, data).
 		Return(nil)
 
-	err := EnterReferenceNumber(template.Execute, nil, nil, nil, nil)(testAppData, w, r)
+	err := EnterReferenceNumber(template.Execute, nil, nil, nil, nil, nil)(testAppData, w, r)
 
 	resp := w.Result()
 
@@ -65,7 +66,7 @@ func TestGetEnterReferenceNumberOnTemplateError(t *testing.T) {
 		Execute(w, data).
 		Return(expectedError)
 
-	err := EnterReferenceNumber(template.Execute, nil, nil, nil, nil)(testAppData, w, r)
+	err := EnterReferenceNumber(template.Execute, nil, nil, nil, nil, nil)(testAppData, w, r)
 
 	resp := w.Result()
 
@@ -112,6 +113,12 @@ func TestPostEnterReferenceNumber(t *testing.T) {
 			r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(form.Encode()))
 			r.Header.Add("Content-Type", page.FormUrlEncoded)
 
+			newCtx := mock.MatchedBy(func(ctx context.Context) bool {
+				session, _ := appcontext.SessionFromContext(ctx)
+
+				return assert.Equal(t, &appcontext.Session{SessionID: "aGV5", LpaID: "lpa-id"}, session)
+			})
+
 			shareCodeStore := newMockShareCodeStore(t)
 			shareCodeStore.EXPECT().
 				Get(r.Context(), actor.TypeAttorney, sharecodedata.HashedFromString("abcdef123456")).
@@ -119,11 +126,7 @@ func TestPostEnterReferenceNumber(t *testing.T) {
 
 			attorneyStore := newMockAttorneyStore(t)
 			attorneyStore.EXPECT().
-				Create(mock.MatchedBy(func(ctx context.Context) bool {
-					session, _ := appcontext.SessionFromContext(ctx)
-
-					return assert.Equal(t, &appcontext.Session{SessionID: "aGV5", LpaID: "lpa-id"}, session)
-				}), tc.shareCode, "a@example.com").
+				Create(newCtx, tc.shareCode, "a@example.com").
 				Return(&attorneydata.Provided{}, nil)
 
 			sessionStore := newMockSessionStore(t)
@@ -136,7 +139,12 @@ func TestPostEnterReferenceNumber(t *testing.T) {
 				Lpa(r.Context(), "lpa-uid").
 				Return(nil, lpastore.ErrNotFound)
 
-			err := EnterReferenceNumber(nil, shareCodeStore, sessionStore, attorneyStore, lpaStoreClient)(testAppData, w, r)
+			eventClient := newMockEventClient(t)
+			eventClient.EXPECT().
+				SendMetric(newCtx, event.CategoryFunnelStartRate, event.MeasureOnlineAttorney).
+				Return(nil)
+
+			err := EnterReferenceNumber(nil, shareCodeStore, sessionStore, attorneyStore, lpaStoreClient, eventClient)(testAppData, w, r)
 
 			resp := w.Result()
 
@@ -202,7 +210,7 @@ func TestPostEnterReferenceNumberWhenAttorneyAlreadySubmittedOnPaper(t *testing.
 				Return(nil)
 
 			testAppData.LoginSessionEmail = "a@example.com"
-			err := EnterReferenceNumber(nil, shareCodeStore, nil, nil, lpaStoreClient)(testAppData, w, r)
+			err := EnterReferenceNumber(nil, shareCodeStore, nil, nil, lpaStoreClient, nil)(testAppData, w, r)
 
 			resp := w.Result()
 
@@ -227,7 +235,7 @@ func TestPostEnterReferenceNumberOnShareCodeStoreError(t *testing.T) {
 		Get(r.Context(), actor.TypeAttorney, sharecodedata.HashedFromString("abcdef123456")).
 		Return(sharecodedata.Link{LpaKey: dynamo.LpaKey("lpa-id"), LpaOwnerKey: dynamo.LpaOwnerKey(dynamo.DonorKey(""))}, expectedError)
 
-	err := EnterReferenceNumber(nil, shareCodeStore, nil, nil, nil)(testAppData, w, r)
+	err := EnterReferenceNumber(nil, shareCodeStore, nil, nil, nil, nil)(testAppData, w, r)
 
 	resp := w.Result()
 
@@ -260,7 +268,7 @@ func TestPostEnterReferenceNumberOnShareCodeStoreNotFoundError(t *testing.T) {
 		Get(r.Context(), actor.TypeAttorney, sharecodedata.HashedFromString("abcdef123456")).
 		Return(sharecodedata.Link{LpaKey: dynamo.LpaKey("lpa-id"), LpaOwnerKey: dynamo.LpaOwnerKey(dynamo.DonorKey(""))}, dynamo.NotFoundError{})
 
-	err := EnterReferenceNumber(template.Execute, shareCodeStore, nil, nil, nil)(testAppData, w, r)
+	err := EnterReferenceNumber(template.Execute, shareCodeStore, nil, nil, nil, nil)(testAppData, w, r)
 
 	resp := w.Result()
 
@@ -287,7 +295,7 @@ func TestPostEnterReferenceNumberOnLpaStoreLpaError(t *testing.T) {
 		Lpa(mock.Anything, mock.Anything).
 		Return(nil, expectedError)
 
-	err := EnterReferenceNumber(nil, shareCodeStore, nil, nil, lpaStoreClient)(testAppData, w, r)
+	err := EnterReferenceNumber(nil, shareCodeStore, nil, nil, lpaStoreClient, nil)(testAppData, w, r)
 
 	resp := w.Result()
 
@@ -319,7 +327,7 @@ func TestPostEnterReferenceNumberOnLpaStoreSendPaperAttorneyAccessOnlineError(t 
 		SendPaperAttorneyAccessOnline(mock.Anything, mock.Anything, mock.Anything, mock.Anything).
 		Return(expectedError)
 
-	err := EnterReferenceNumber(nil, shareCodeStore, nil, nil, lpaStoreClient)(testAppData, w, r)
+	err := EnterReferenceNumber(nil, shareCodeStore, nil, nil, lpaStoreClient, nil)(testAppData, w, r)
 
 	resp := w.Result()
 
@@ -351,7 +359,7 @@ func TestPostEnterReferenceNumberOnSessionGetError(t *testing.T) {
 		Login(r).
 		Return(&sesh.LoginSession{Sub: "hey"}, expectedError)
 
-	err := EnterReferenceNumber(nil, shareCodeStore, sessionStore, nil, lpaStoreClient)(testAppData, w, r)
+	err := EnterReferenceNumber(nil, shareCodeStore, sessionStore, nil, lpaStoreClient, nil)(testAppData, w, r)
 
 	assert.Equal(t, expectedError, err)
 }
@@ -385,12 +393,51 @@ func TestPostEnterReferenceNumberOnAttorneyStoreError(t *testing.T) {
 		Login(r).
 		Return(&sesh.LoginSession{Sub: "hey"}, nil)
 
-	err := EnterReferenceNumber(nil, shareCodeStore, sessionStore, attorneyStore, lpaStoreClient)(testAppData, w, r)
+	err := EnterReferenceNumber(nil, shareCodeStore, sessionStore, attorneyStore, lpaStoreClient, nil)(testAppData, w, r)
 
 	resp := w.Result()
 
 	assert.Equal(t, expectedError, err)
 	assert.Equal(t, http.StatusOK, resp.StatusCode)
+}
+
+func TestPostEnterReferenceNumberOnEventClientError(t *testing.T) {
+	form := url.Values{
+		"reference-number": {"abcdef123456"},
+	}
+
+	w := httptest.NewRecorder()
+	r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(form.Encode()))
+	r.Header.Add("Content-Type", page.FormUrlEncoded)
+
+	shareCodeStore := newMockShareCodeStore(t)
+	shareCodeStore.EXPECT().
+		Get(r.Context(), actor.TypeAttorney, sharecodedata.HashedFromString("abcdef123456")).
+		Return(sharecodedata.Link{LpaKey: dynamo.LpaKey("lpa-id"), LpaOwnerKey: dynamo.LpaOwnerKey(dynamo.DonorKey("")), LpaUID: "lpa-uid"}, nil)
+
+	lpaStoreClient := newMockLpaStoreClient(t)
+	lpaStoreClient.EXPECT().
+		Lpa(r.Context(), "lpa-uid").
+		Return(nil, lpastore.ErrNotFound)
+
+	attorneyStore := newMockAttorneyStore(t)
+	attorneyStore.EXPECT().
+		Create(mock.Anything, mock.Anything, mock.Anything).
+		Return(&attorneydata.Provided{}, nil)
+
+	sessionStore := newMockSessionStore(t)
+	sessionStore.EXPECT().
+		Login(r).
+		Return(&sesh.LoginSession{Sub: "hey"}, nil)
+
+	eventClient := newMockEventClient(t)
+	eventClient.EXPECT().
+		SendMetric(mock.Anything, mock.Anything, mock.Anything).
+		Return(expectedError)
+
+	err := EnterReferenceNumber(nil, shareCodeStore, sessionStore, attorneyStore, lpaStoreClient, eventClient)(testAppData, w, r)
+
+	assert.ErrorIs(t, err, expectedError)
 }
 
 func TestPostEnterReferenceNumberOnValidationError(t *testing.T) {
@@ -413,7 +460,7 @@ func TestPostEnterReferenceNumberOnValidationError(t *testing.T) {
 		Execute(w, data).
 		Return(nil)
 
-	err := EnterReferenceNumber(template.Execute, nil, nil, nil, nil)(testAppData, w, r)
+	err := EnterReferenceNumber(template.Execute, nil, nil, nil, nil, nil)(testAppData, w, r)
 
 	resp := w.Result()
 

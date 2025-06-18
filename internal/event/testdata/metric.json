@@ -1,0 +1,80 @@
+{
+    "$id": "https://opg.service.justice.gov.uk/opg.poas.makeregister/metric.json",
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "title": "opg.poas.makeregister/metric",
+    "type": "object",
+    "properties": {
+        "metrics": {
+            "type": "array",
+            "maxItems": 20,
+            "minItems": 1,
+            "items": {
+                "type": "object",
+                "required": [
+                    "metric"
+                ],
+                "properties": {
+                    "metric": {
+                        "type": "object",
+                        "properties": {
+                            "Project": {
+                                "type": "string",
+                                "description": "The service or project name",
+                                "pattern": "^[a-zA-Z-_0-9]{1,32}$"
+                            },
+                            "Category": {
+                                "type": "string",
+                                "description": "Assign metric a Category",
+                                "pattern": "^[a-zA-Z-_0-9]{1,25}$"
+                            },
+                            "Subcategory": {
+                                "type": "string",
+                                "description": "Assign metric a Subcategory",
+                                "pattern": "^[a-zA-Z-_0-9]{1,25}$"
+                            },
+                            "Environment": {
+                                "type": "string",
+                                "description": "Sets the environment the metric has come from",
+                                "pattern": "^[a-zA-Z-_0-9]{1,25}$"
+                            },
+                            "MeasureName": {
+                                "type": "string",
+                                "description": "The metric name",
+                                "pattern": "^[a-zA-Z-_0-9]{1,64}$"
+                            },
+                            "MeasureValue": {
+                                "type": "string",
+                                "description": "The metric value",
+                                "pattern": "^[0-9\\.]{1,20}$"
+                            },
+                            "MeasureValueType": {
+                                "type": "string",
+                                "description": "The metric value type",
+                                "enum": [
+                                    "DOUBLE",
+                                    "BIGINT",
+                                    "VARCHAR",
+                                    "BOOLEAN"
+                                ]
+                            },
+                            "Time": {
+                                "type": "string",
+                                "description": "The type of LPA being created",
+                                "pattern": "^[0-9]{13}$"
+                            }
+                        },
+                        "required": [
+                            "Project",
+                            "Category",
+                            "Subcategory",
+                            "Environment",
+                            "MeasureName",
+                            "MeasureValue",
+                            "Time"
+                        ]
+                    }
+                }
+            }
+        }
+    }
+}
