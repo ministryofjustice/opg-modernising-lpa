@@ -11,6 +11,7 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/appcontext"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/certificateprovider"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/dynamo"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/event"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/lpastore"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/sharecode/sharecodedata"
@@ -24,7 +25,7 @@ type enterReferenceNumberData struct {
 	HideLoginNav bool
 }
 
-func EnterReferenceNumber(tmpl template.Template, shareCodeStore ShareCodeStore, sessionStore SessionStore, certificateProviderStore CertificateProviderStore, lpaStoreClient LpaStoreClient, dashboardStore DashboardStore) page.Handler {
+func EnterReferenceNumber(tmpl template.Template, shareCodeStore ShareCodeStore, sessionStore SessionStore, certificateProviderStore CertificateProviderStore, lpaStoreClient LpaStoreClient, dashboardStore DashboardStore, eventClient EventClient) page.Handler {
 	return func(appData appcontext.Data, w http.ResponseWriter, r *http.Request) error {
 		data := enterReferenceNumberData{
 			App:  appData,
@@ -91,6 +92,10 @@ func EnterReferenceNumber(tmpl template.Template, shareCodeStore ShareCodeStore,
 
 				if _, err := certificateProviderStore.Create(ctx, shareCode, session.Email); err != nil {
 					return fmt.Errorf("error creating certificate provider: %w", err)
+				}
+
+				if err := eventClient.SendMetric(ctx, event.CategoryFunnelStartRate, event.MeasureOnlineCertificateProvider); err != nil {
+					return fmt.Errorf("sending metric: %w", err)
 				}
 
 				appData.LpaID = shareCode.LpaKey.ID()
