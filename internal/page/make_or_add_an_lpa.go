@@ -1,16 +1,18 @@
 package page
 
 import (
+	"fmt"
 	"net/http"
 
 	"github.com/ministryofjustice/opg-go-common/template"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/appcontext"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/event"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/validation"
 )
 
-func MakeOrAddAnLPA(tmpl template.Template, donorStore DonorStore, dashboardStore DashboardStore) Handler {
+func MakeOrAddAnLPA(tmpl template.Template, donorStore DonorStore, dashboardStore DashboardStore, eventClient EventClient) Handler {
 	return func(appData appcontext.Data, w http.ResponseWriter, r *http.Request) error {
 		results, err := dashboardStore.GetAll(r.Context())
 		if err != nil {
@@ -31,6 +33,10 @@ func MakeOrAddAnLPA(tmpl template.Template, donorStore DonorStore, dashboardStor
 			path := donor.PathYourName
 			if data.HasDonorLPAs {
 				path = donor.PathMakeANewLPA
+			}
+
+			if err := eventClient.SendMetric(r.Context(), event.CategoryFunnelStartRate, event.MeasureOnlineDonor); err != nil {
+				return fmt.Errorf("sending metric: %w", err)
 			}
 
 			return path.Redirect(w, r, appData, provided)

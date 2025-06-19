@@ -49,3 +49,12 @@ resource "aws_cloudwatch_event_target" "opg_metrics" {
   input_path = "$.detail"
   provider   = aws.region
 }
+
+resource "aws_cloudwatch_event_target" "metrics_emitted" {
+  count          = var.log_emitted_events ? 1 : 0
+  target_id      = "${data.aws_default_tags.current.tags.environment-name}-metrics-emitted-target"
+  event_bus_name = aws_cloudwatch_event_bus.main.name
+  rule           = aws_cloudwatch_event_rule.metric_events.name
+  arn            = aws_cloudwatch_log_group.events_emitted[0].arn
+  provider       = aws.region
+}

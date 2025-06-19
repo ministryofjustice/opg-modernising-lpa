@@ -17,8 +17,9 @@ for v in uid-requested \
              lpa-access-granted \
              letter-requested \
              confirm-at-post-office-selected \
-             register-with-court-of-protection
+             register-with-court-of-protection \
+             metric
 do
     echo $v
-    curl -o internal/event/testdata/$v.json "https://raw.githubusercontent.com/ministryofjustice/opg-event-store/main/domains/POAS/events/$v/schema.json"
+    curl -o internal/event/testdata/$v.json "https://raw.githubusercontent.com/ministryofjustice/opg-event-store/main/src/domains/POAS/events/$v/schema.json"
 done

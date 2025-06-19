@@ -9,6 +9,7 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/dashboard/dashboarddata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor/donordata"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/event"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
 )
@@ -30,7 +31,7 @@ func TestGetMakeOrAddAnLPA(t *testing.T) {
 		}).
 		Return(nil)
 
-	err := MakeOrAddAnLPA(template.Execute, nil, dashboardStore)(appcontext.Data{}, w, r)
+	err := MakeOrAddAnLPA(template.Execute, nil, dashboardStore, nil)(appcontext.Data{}, w, r)
 
 	assert.Nil(t, err)
 }
@@ -44,7 +45,7 @@ func TestGetMakeOrAddAnLPAWhenDashboardStoreError(t *testing.T) {
 		GetAll(mock.Anything).
 		Return(dashboarddata.Results{}, expectedError)
 
-	err := MakeOrAddAnLPA(nil, nil, dashboardStore)(appcontext.Data{Path: "/"}, w, r)
+	err := MakeOrAddAnLPA(nil, nil, dashboardStore, nil)(appcontext.Data{Path: "/"}, w, r)
 
 	assert.Equal(t, expectedError, err)
 }
@@ -63,7 +64,7 @@ func TestGetMakeOrAddAnLPAWhenTemplateError(t *testing.T) {
 		Execute(mock.Anything, mock.Anything).
 		Return(expectedError)
 
-	err := MakeOrAddAnLPA(template.Execute, nil, dashboardStore)(appcontext.Data{Path: "/"}, w, r)
+	err := MakeOrAddAnLPA(template.Execute, nil, dashboardStore, nil)(appcontext.Data{Path: "/"}, w, r)
 
 	assert.Equal(t, expectedError, err)
 }
@@ -98,7 +99,12 @@ func TestPostMakeOrAddAnLPA(t *testing.T) {
 				Create(r.Context()).
 				Return(&donordata.Provided{LpaID: "lpa-id"}, nil)
 
-			err := MakeOrAddAnLPA(nil, donorStore, dashboardStore)(appcontext.Data{}, w, r)
+			eventClient := newMockEventClient(t)
+			eventClient.EXPECT().
+				SendMetric(r.Context(), event.CategoryFunnelStartRate, event.MeasureOnlineDonor).
+				Return(nil)
+
+			err := MakeOrAddAnLPA(nil, donorStore, dashboardStore, eventClient)(appcontext.Data{}, w, r)
 			resp := w.Result()
 
 			assert.Nil(t, err)
@@ -123,7 +129,32 @@ func TestPostMakeOrAddAnLPAWhenDonorStoreError(t *testing.T) {
 		Create(r.Context()).
 		Return(nil, expectedError)
 
-	err := MakeOrAddAnLPA(nil, donorStore, dashboardStore)(appcontext.Data{}, w, r)
+	err := MakeOrAddAnLPA(nil, donorStore, dashboardStore, nil)(appcontext.Data{}, w, r)
+
+	assert.ErrorIs(t, err, expectedError)
+}
+
+func TestPostMakeOrAddAnLPAWhenEventClientError(t *testing.T) {
+	w := httptest.NewRecorder()
+	r := httptest.NewRequest(http.MethodPost, "/", nil)
+	r.Header.Add("Content-Type", FormUrlEncoded)
+
+	dashboardStore := newMockDashboardStore(t)
+	dashboardStore.EXPECT().
+		GetAll(mock.Anything).
+		Return(dashboarddata.Results{}, nil)
+
+	donorStore := newMockDonorStore(t)
+	donorStore.EXPECT().
+		Create(mock.Anything).
+		Return(nil, nil)
+
+	eventClient := newMockEventClient(t)
+	eventClient.EXPECT().
+		SendMetric(mock.Anything, mock.Anything, mock.Anything).
+		Return(expectedError)
+
+	err := MakeOrAddAnLPA(nil, donorStore, dashboardStore, eventClient)(appcontext.Data{}, w, r)
 
 	assert.ErrorIs(t, err, expectedError)
 }

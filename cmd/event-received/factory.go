@@ -86,6 +86,7 @@ type Factory struct {
 	searchIndexingEnabled       bool
 	eventClient                 EventClient
 	httpClient                  *http.Client
+	environment                 string
 
 	// previously constructed values
 	appData                  *appcontext.Data
@@ -174,7 +175,7 @@ func (f *Factory) ShareCodeSender(ctx context.Context) (ShareCodeSender, error) 
 			f.appPublicURL,
 			f.certificateProviderStartURL,
 			f.attorneyStartURL,
-			event.NewClient(f.cfg, f.eventBusName),
+			f.EventClient(),
 			certificateprovider.NewStore(f.dynamoClient),
 			scheduled.NewStore(f.dynamoClient),
 		)
@@ -219,7 +220,7 @@ func (f *Factory) UidClient() UidClient {
 
 func (f *Factory) EventClient() EventClient {
 	if f.eventClient == nil {
-		f.eventClient = event.NewClient(f.cfg, f.eventBusName)
+		f.eventClient = event.NewClient(f.cfg, f.environment, f.eventBusName)
 	}
 
 	return f.eventClient
@@ -250,7 +251,7 @@ func (f *Factory) NotifyClient(ctx context.Context) (NotifyClient, error) {
 			return nil, fmt.Errorf("failed to get notify API secret: %w", err)
 		}
 
-		notifyClient, err := notify.New(f.logger, f.notifyBaseURL, notifyApiKey, f.httpClient, event.NewClient(f.cfg, f.eventBusName), bundle)
+		notifyClient, err := notify.New(f.logger, f.notifyBaseURL, notifyApiKey, f.httpClient, f.EventClient(), bundle)
 		if err != nil {
 			return nil, err
 		}

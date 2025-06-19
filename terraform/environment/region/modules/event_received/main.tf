@@ -19,6 +19,7 @@ module "event_received" {
     EVENT_BUS_NAME                 = var.event_bus_name
     JWT_KEY_SECRET_ARN             = data.aws_secretsmanager_secret.lpa_store_jwt_key.arn
     XRAY_ENABLED                   = 1
+    ENVIRONMENT                    = data.aws_default_tags.current.tags.environment-name
   }
   image_uri            = "${var.lambda_function_image_ecr_url}:${var.lambda_function_image_tag}"
   aws_iam_role         = var.event_received_lambda_role

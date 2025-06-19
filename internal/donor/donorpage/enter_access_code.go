@@ -10,6 +10,7 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/appcontext"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/dynamo"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/event"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/sharecode/sharecodedata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/validation"
@@ -21,7 +22,7 @@ type enterAccessCodeData struct {
 	Form   *enterAccessCodeForm
 }
 
-func EnterAccessCode(logger Logger, tmpl template.Template, shareCodeStore ShareCodeStore, donorStore DonorStore, sessionStore SessionStore) page.Handler {
+func EnterAccessCode(logger Logger, tmpl template.Template, shareCodeStore ShareCodeStore, donorStore DonorStore, sessionStore SessionStore, eventClient EventClient) page.Handler {
 	return func(appData appcontext.Data, w http.ResponseWriter, r *http.Request) error {
 		data := enterAccessCodeData{
 			App:  appData,
@@ -58,6 +59,10 @@ func EnterAccessCode(logger Logger, tmpl template.Template, shareCodeStore Share
 
 				if err := sessionStore.SetLogin(r, w, login); err != nil {
 					return fmt.Errorf("error setting login session: %w", err)
+				}
+
+				if err := eventClient.SendMetric(r.Context(), event.CategoryFunnelStartRate, event.MeasureOnlineDonor); err != nil {
+					return fmt.Errorf("sending metric: %w", err)
 				}
 
 				return page.PathDashboard.Redirect(w, r, appData)

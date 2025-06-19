@@ -59,6 +59,7 @@ var (
 	searchIndexingEnabled       = os.Getenv("SEARCH_INDEXING_DISABLED") != "1"
 	xrayEnabled                 = os.Getenv("XRAY_ENABLED") == "1"
 	kmsKeyAlias                 = cmp.Or(os.Getenv("S3_UPLOADS_KMS_KEY_ALIAS"), "alias/custom-key")
+	environment                 = os.Getenv("ENVIRONMENT")
 
 	cfg        aws.Config
 	httpClient *http.Client
@@ -131,6 +132,9 @@ type EventClient interface {
 	SendApplicationUpdated(ctx context.Context, event event.ApplicationUpdated) error
 	SendCertificateProviderStarted(ctx context.Context, event event.CertificateProviderStarted) error
 	SendLpaAccessGranted(ctx context.Context, event event.LpaAccessGranted) error
+	SendAttorneyStarted(ctx context.Context, event event.AttorneyStarted) error
+	SendNotificationSent(ctx context.Context, notificationSentEvent event.NotificationSent) error
+	SendPaperFormRequested(ctx context.Context, paperFormRequestedEvent event.PaperFormRequested) error
 }
 
 type ScheduledStore interface {
@@ -213,6 +217,7 @@ func handler(ctx context.Context, event Event) (map[string]any, error) {
 		searchIndexName:             searchIndexName,
 		searchIndexingEnabled:       searchIndexingEnabled,
 		httpClient:                  httpClient,
+		environment:                 environment,
 	}
 
 	if event.SQSEvent != nil {
