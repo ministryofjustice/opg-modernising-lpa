@@ -139,7 +139,7 @@ data "aws_iam_policy_document" "lpas_table" {
     principals {
       type = "AWS"
       identifiers = [
-        local.account.account_name == "development" ? "arn:aws:iam::${data.aws_caller_identity.global.account_id}:role/operator" : "arn:aws:iam::${data.aws_caller_identity.global.account_id}:role/data-access",
+        local.environment.account_name == "development" ? "arn:aws:iam::${data.aws_caller_identity.global.account_id}:role/operator" : "arn:aws:iam::${data.aws_caller_identity.global.account_id}:role/data-access",
       ]
     }
   }
