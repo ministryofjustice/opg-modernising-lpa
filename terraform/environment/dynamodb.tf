@@ -80,11 +80,6 @@ resource "aws_dynamodb_resource_policy" "lpas_table" {
   provider     = aws.eu_west_1
 }
 
-data "aws_iam_role" "aws_backup_role" {
-  name     = "aws-backup-role"
-  provider = aws.global
-}
-
 data "aws_iam_policy_document" "lpas_table" {
   statement {
     sid    = "AllowAccessForAppAndEventsReceived"
