@@ -159,5 +159,5 @@ data "aws_iam_policy_document" "lpas_table" {
       ]
     }
   }
-  provider = aws.region
+  provider = aws.global
 }
