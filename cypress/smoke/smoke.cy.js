@@ -41,8 +41,8 @@ describe('Smoke tests', () => {
                     cy.wait(10000);
                 });
 
-                cy.url().should('contain', '/dashboard');
-                cy.contains('Manage your LPAs');
+                cy.url().should('contain', '/make-or-add-an-lpa');
+                cy.contains('Make or add an LPA');
             } else {
                 cy.contains('a', 'Start');
             }
