@@ -42,7 +42,7 @@ func Dashboard(
 			donorSessionID = base64.StdEncoding.EncodeToString([]byte(donorSub))
 		)
 
-		if err := sessionStore.SetLogin(r, w, &sesh.LoginSession{Sub: meSub, Email: testEmail}); err != nil {
+		if err := sessionStore.SetLogin(r, w, &sesh.LoginSession{Sub: meSub, Email: testEmail, HasLPAs: true}); err != nil {
 			return err
 		}
 

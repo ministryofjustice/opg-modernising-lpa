@@ -34,7 +34,7 @@ type dashboardData struct {
 	UseURL                  string
 }
 
-func Dashboard(tmpl template.Template, donorStore DonorStore, dashboardStore DashboardStore, useURL string) Handler {
+func Dashboard(tmpl template.Template, donorStore DonorStore, dashboardStore DashboardStore, useURL string, sessionStore SessionStore) Handler {
 	return func(appData appcontext.Data, w http.ResponseWriter, r *http.Request) error {
 		if r.Method == http.MethodPost {
 			form := readDashboardForm(r)
@@ -57,6 +57,21 @@ func Dashboard(tmpl template.Template, donorStore DonorStore, dashboardStore Das
 			return err
 		}
 
+		if results.Empty() {
+			login, err := sessionStore.Login(r)
+			if err != nil {
+				return err
+			}
+
+			login.HasLPAs = false
+
+			if err := sessionStore.SetLogin(r, w, login); err != nil {
+				return err
+			}
+
+			return PathMakeOrAddAnLPA.Redirect(w, r, appData)
+		}
+
 		var donorLpas, registeredDonorLpas []dashboarddata.Actor
 		for _, lpa := range results.Donor {
 			if lpa.Lpa.RegisteredAt.IsZero() {
@@ -75,9 +90,26 @@ func Dashboard(tmpl template.Template, donorStore DonorStore, dashboardStore Das
 			}
 		}
 
+		lpaTypes := 0
+		if len(results.CertificateProvider) > 0 {
+			lpaTypes++
+		}
+
+		if len(results.Attorney) > 0 {
+			lpaTypes++
+		}
+
+		if len(results.Voucher) > 0 {
+			lpaTypes++
+		}
+
+		if len(results.Donor) > 0 {
+			lpaTypes++
+		}
+
 		data := &dashboardData{
 			App:                     appData,
-			NeedsTabs:               len(results.CertificateProvider) > 0 || len(results.Attorney) > 0 || len(results.Voucher) > 0,
+			NeedsTabs:               lpaTypes > 1,
 			DonorLpas:               donorLpas,
 			RegisteredDonorLpas:     registeredDonorLpas,
 			CertificateProviderLpas: results.CertificateProvider,

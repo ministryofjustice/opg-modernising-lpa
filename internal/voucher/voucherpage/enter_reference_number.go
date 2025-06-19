@@ -50,6 +50,11 @@ func EnterReferenceNumber(tmpl template.Template, shareCodeStore ShareCodeStore,
 					return fmt.Errorf("error getting login session: %w", err)
 				}
 
+				session.HasLPAs = true
+				if err := sessionStore.SetLogin(r, w, session); err != nil {
+					return fmt.Errorf("error saving login session: %w", err)
+				}
+
 				ctx := appcontext.ContextWithSession(r.Context(), &appcontext.Session{
 					SessionID: session.SessionID(),
 					LpaID:     shareCode.LpaKey.ID(),

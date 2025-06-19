@@ -55,7 +55,7 @@ func Voucher(
 
 		encodedSub := encodeSub(voucherSub)
 
-		if err := sessionStore.SetLogin(r, w, &sesh.LoginSession{Sub: mockGOLSubPrefix + encodedSub, Email: testEmail}); err != nil {
+		if err := sessionStore.SetLogin(r, w, &sesh.LoginSession{Sub: mockGOLSubPrefix + encodedSub, Email: testEmail, HasLPAs: true}); err != nil {
 			return err
 		}
 

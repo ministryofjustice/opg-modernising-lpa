@@ -113,6 +113,7 @@ type appPaths struct {
 
 	AccessibilityStatement      page.Path
 	AttorneyFixtures            page.Path
+	AddAnLPA                    page.Path
 	AuthRedirect                page.Path
 	CertificateProviderFixtures page.Path
 	CertificateProviderStart    page.Path
@@ -125,6 +126,7 @@ type appPaths struct {
 	LoginCallback               page.Path
 	LpaDeleted                  page.Path
 	LpaWithdrawn                page.Path
+	MakeOrAddAnLPA              page.Path
 	Root                        page.Path
 	SignOut                     page.Path
 	Start                       page.Path
@@ -367,6 +369,7 @@ var paths = appPaths{
 
 	AccessibilityStatement:      page.PathAccessibilityStatement,
 	AttorneyFixtures:            page.PathAttorneyFixtures,
+	AddAnLPA:                    page.PathAddAnLPA,
 	AuthRedirect:                page.PathAuthRedirect,
 	CertificateProviderFixtures: page.PathCertificateProviderFixtures,
 	CertificateProviderStart:    page.PathCertificateProviderStart,
@@ -379,6 +382,7 @@ var paths = appPaths{
 	LoginCallback:               page.PathLoginCallback,
 	LpaDeleted:                  page.PathLpaDeleted,
 	LpaWithdrawn:                page.PathLpaWithdrawn,
+	MakeOrAddAnLPA:              page.PathMakeOrAddAnLPA,
 	Root:                        page.PathRoot,
 	SignOut:                     page.PathSignOut,
 	Start:                       page.PathStart,

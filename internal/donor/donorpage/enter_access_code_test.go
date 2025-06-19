@@ -11,6 +11,7 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/dynamo"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/sesh"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/sharecode/sharecodedata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/validation"
 	"github.com/stretchr/testify/assert"
@@ -31,7 +32,7 @@ func TestGetEnterAccessCode(t *testing.T) {
 		Execute(w, data).
 		Return(nil)
 
-	err := EnterAccessCode(nil, template.Execute, nil, nil)(testAppData, w, r)
+	err := EnterAccessCode(nil, template.Execute, nil, nil, nil)(testAppData, w, r)
 	resp := w.Result()
 
 	assert.Nil(t, err)
@@ -52,7 +53,7 @@ func TestGetEnterAccessCodeOnTemplateError(t *testing.T) {
 		Execute(w, data).
 		Return(expectedError)
 
-	err := EnterAccessCode(nil, template.Execute, nil, nil)(testAppData, w, r)
+	err := EnterAccessCode(nil, template.Execute, nil, nil, nil)(testAppData, w, r)
 	resp := w.Result()
 
 	assert.Equal(t, expectedError, err)
@@ -84,7 +85,22 @@ func TestPostEnterAccessCode(t *testing.T) {
 	logger.EXPECT().
 		InfoContext(r.Context(), "donor access added", slog.String("lpa_id", "lpa-id"))
 
-	err := EnterAccessCode(logger, nil, shareCodeStore, donorStore)(testAppData, w, r)
+	sessionStore := newMockSessionStore(t)
+	sessionStore.EXPECT().
+		Login(r).
+		Return(&sesh.LoginSession{
+			Sub:   "random",
+			Email: "logged-in@example.com",
+		}, nil)
+	sessionStore.EXPECT().
+		SetLogin(r, w, &sesh.LoginSession{
+			Sub:     "random",
+			Email:   "logged-in@example.com",
+			HasLPAs: true,
+		}).
+		Return(nil)
+
+	err := EnterAccessCode(logger, nil, shareCodeStore, donorStore, sessionStore)(testAppData, w, r)
 	resp := w.Result()
 
 	assert.Nil(t, err)
@@ -106,7 +122,7 @@ func TestPostEnterAccessCodeOnShareCodeStoreError(t *testing.T) {
 		Get(r.Context(), actor.TypeDonor, sharecodedata.HashedFromString("abcdef123456")).
 		Return(sharecodedata.Link{LpaKey: "lpa-id", LpaOwnerKey: dynamo.LpaOwnerKey(dynamo.DonorKey(""))}, expectedError)
 
-	err := EnterAccessCode(nil, nil, shareCodeStore, nil)(testAppData, w, r)
+	err := EnterAccessCode(nil, nil, shareCodeStore, nil, nil)(testAppData, w, r)
 	resp := w.Result()
 
 	assert.Equal(t, expectedError, err)
@@ -138,7 +154,7 @@ func TestPostEnterAccessCodeOnShareCodeStoreNotFoundError(t *testing.T) {
 		Get(r.Context(), actor.TypeDonor, sharecodedata.HashedFromString("abcdef123456")).
 		Return(sharecodedata.Link{LpaKey: "lpa-id", LpaOwnerKey: dynamo.LpaOwnerKey(dynamo.DonorKey(""))}, dynamo.NotFoundError{})
 
-	err := EnterAccessCode(nil, template.Execute, shareCodeStore, nil)(testAppData, w, r)
+	err := EnterAccessCode(nil, template.Execute, shareCodeStore, nil, nil)(testAppData, w, r)
 	resp := w.Result()
 
 	assert.Nil(t, err)
@@ -164,10 +180,83 @@ func TestPostEnterAccessCodeOnDonorStoreError(t *testing.T) {
 		Link(mock.Anything, mock.Anything, mock.Anything).
 		Return(expectedError)
 
-	err := EnterAccessCode(nil, nil, shareCodeStore, donorStore)(testAppData, w, r)
+	err := EnterAccessCode(nil, nil, shareCodeStore, donorStore, nil)(testAppData, w, r)
 	resp := w.Result()
 
 	assert.Equal(t, expectedError, err)
+	assert.Equal(t, http.StatusOK, resp.StatusCode)
+}
+
+func TestPostEnterAccessCodeOnSessionGetError(t *testing.T) {
+	form := url.Values{
+		"reference-number": {"abcdef123456"},
+	}
+
+	w := httptest.NewRecorder()
+	r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(form.Encode()))
+	r.Header.Add("Content-Type", page.FormUrlEncoded)
+
+	shareCodeStore := newMockShareCodeStore(t)
+	shareCodeStore.EXPECT().
+		Get(mock.Anything, mock.Anything, mock.Anything).
+		Return(sharecodedata.Link{LpaKey: "lpa-id", LpaOwnerKey: dynamo.LpaOwnerKey(dynamo.DonorKey(""))}, nil)
+
+	donorStore := newMockDonorStore(t)
+	donorStore.EXPECT().
+		Link(mock.Anything, mock.Anything, mock.Anything).
+		Return(nil)
+
+	logger := newMockLogger(t)
+	logger.EXPECT().
+		InfoContext(mock.Anything, mock.Anything, mock.Anything)
+
+	sessionStore := newMockSessionStore(t)
+	sessionStore.EXPECT().
+		Login(mock.Anything).
+		Return(nil, expectedError)
+
+	err := EnterAccessCode(logger, nil, shareCodeStore, donorStore, sessionStore)(testAppData, w, r)
+	resp := w.Result()
+
+	assert.ErrorIs(t, err, expectedError)
+	assert.Equal(t, http.StatusOK, resp.StatusCode)
+}
+
+func TestPostEnterAccessCodeOnSessionSetError(t *testing.T) {
+	form := url.Values{
+		"reference-number": {"abcdef123456"},
+	}
+
+	w := httptest.NewRecorder()
+	r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(form.Encode()))
+	r.Header.Add("Content-Type", page.FormUrlEncoded)
+
+	shareCodeStore := newMockShareCodeStore(t)
+	shareCodeStore.EXPECT().
+		Get(mock.Anything, mock.Anything, mock.Anything).
+		Return(sharecodedata.Link{LpaKey: "lpa-id", LpaOwnerKey: dynamo.LpaOwnerKey(dynamo.DonorKey(""))}, nil)
+
+	donorStore := newMockDonorStore(t)
+	donorStore.EXPECT().
+		Link(mock.Anything, mock.Anything, mock.Anything).
+		Return(nil)
+
+	logger := newMockLogger(t)
+	logger.EXPECT().
+		InfoContext(mock.Anything, mock.Anything, mock.Anything)
+
+	sessionStore := newMockSessionStore(t)
+	sessionStore.EXPECT().
+		Login(mock.Anything).
+		Return(&sesh.LoginSession{}, nil)
+	sessionStore.EXPECT().
+		SetLogin(mock.Anything, mock.Anything, mock.Anything).
+		Return(expectedError)
+
+	err := EnterAccessCode(logger, nil, shareCodeStore, donorStore, sessionStore)(testAppData, w, r)
+	resp := w.Result()
+
+	assert.ErrorIs(t, err, expectedError)
 	assert.Equal(t, http.StatusOK, resp.StatusCode)
 }
 
@@ -191,7 +280,7 @@ func TestPostEnterAccessCodeOnValidationError(t *testing.T) {
 		Execute(w, data).
 		Return(nil)
 
-	err := EnterAccessCode(nil, template.Execute, nil, nil)(testAppData, w, r)
+	err := EnterAccessCode(nil, template.Execute, nil, nil, nil)(testAppData, w, r)
 	resp := w.Result()
 
 	assert.Nil(t, err)
