@@ -73,7 +73,6 @@ resource "aws_dynamodb_table_replica" "lpas_table" {
   provider               = aws.eu_west_2
 }
 
-
 resource "aws_dynamodb_resource_policy" "lpas_table" {
   resource_arn = aws_dynamodb_table.lpas_table.arn
   policy       = data.aws_iam_policy_document.lpas_table.json
