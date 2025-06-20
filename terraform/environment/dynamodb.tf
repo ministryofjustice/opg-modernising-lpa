@@ -73,6 +73,13 @@ resource "aws_dynamodb_table_replica" "lpas_table" {
   provider               = aws.eu_west_2
 }
 
+resource "aws_dynamodb_resource_policy" "lpas_table_replica" {
+  count        = local.environment.dynamodb.region_replica_enabled ? 1 : 0
+  resource_arn = aws_dynamodb_table_replica.lpas_table[0].arn
+  policy       = data.aws_iam_policy_document.lpas_table.json
+  provider     = aws.eu_west_2
+}
+
 resource "aws_dynamodb_resource_policy" "lpas_table" {
   resource_arn = aws_dynamodb_table.lpas_table.arn
   policy       = data.aws_iam_policy_document.lpas_table.json
@@ -92,7 +99,7 @@ data "aws_iam_policy_document" "lpas_table" {
       "dynamodb:Scan",
       "dynamodb:UpdateItem",
     ]
-    resources = [aws_dynamodb_table.lpas_table.arn]
+    resources = ["*"]
 
     principals {
       type = "AWS"
@@ -114,7 +121,7 @@ data "aws_iam_policy_document" "lpas_table" {
       "dynamodb:Query",
       "dynamodb:UpdateItem",
     ]
-    resources = [aws_dynamodb_table.lpas_table.arn]
+    resources = ["*"]
 
     principals {
       type = "AWS"
@@ -132,7 +139,7 @@ data "aws_iam_policy_document" "lpas_table" {
       "dynamodb:DescribeContinuousBackups",
       "dynamodb:ExportTableToPointInTime",
     ]
-    resources = [aws_dynamodb_table.lpas_table.arn]
+    resources = ["*"]
 
     principals {
       type = "AWS"
@@ -149,7 +156,7 @@ data "aws_iam_policy_document" "lpas_table" {
       "dynamodb:DescribeExport",
     ]
     resources = [
-      "${aws_dynamodb_table.lpas_table.arn}/export/*",
+      "*",
     ]
     principals {
       type = "AWS"
@@ -168,7 +175,7 @@ data "aws_iam_policy_document" "lpas_table" {
       "dynamodb:Query",
       "dynamodb:Scan",
     ]
-    resources = [aws_dynamodb_table.lpas_table.arn]
+    resources = ["*"]
 
     principals {
       type = "AWS"
@@ -184,7 +191,7 @@ data "aws_iam_policy_document" "lpas_table" {
     actions = [
       "dynamodb:*",
     ]
-    resources = [aws_dynamodb_table.lpas_table.arn]
+    resources = ["*"]
 
     principals {
       type = "AWS"
