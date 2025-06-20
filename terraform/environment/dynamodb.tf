@@ -152,6 +152,12 @@ data "aws_iam_policy_document" "lpas_table" {
     resources = [
       "${aws_dynamodb_table.lpas_table.arn}/export/*",
     ]
+    principals {
+      type = "AWS"
+      identifiers = [
+        module.global.iam_roles.opensearch_pipeline.arn,
+      ]
+    }
   }
 
   statement {
@@ -165,6 +171,12 @@ data "aws_iam_policy_document" "lpas_table" {
     resources = [
       "${aws_dynamodb_table.lpas_table.arn}/stream/*",
     ]
+    principals {
+      type = "AWS"
+      identifiers = [
+        module.global.iam_roles.opensearch_pipeline.arn,
+      ]
+    }
   }
 
   statement {
