@@ -125,6 +125,49 @@ data "aws_iam_policy_document" "lpas_table" {
   }
 
   statement {
+    sid    = "AllowAccessForOpensearchPipeline"
+    effect = "Allow"
+    actions = [
+      "dynamodb:DescribeTable",
+      "dynamodb:DescribeContinuousBackups",
+      "dynamodb:ExportTableToPointInTime",
+      "dynamodb:ListExports",
+    ]
+    resources = [aws_dynamodb_table.lpas_table.arn]
+
+    principals {
+      type = "AWS"
+      identifiers = [
+        module.global.iam_roles.opensearch_pipeline.arn,
+      ]
+    }
+  }
+
+  statement {
+    sid    = "DescribeExports"
+    effect = "Allow"
+    actions = [
+      "dynamodb:DescribeExport",
+    ]
+    resources = [
+      "${aws_dynamodb_table.lpas_table.arn}/export/*",
+    ]
+  }
+
+  statement {
+    sid    = "allowReadFromStream"
+    effect = "Allow"
+    actions = [
+      "dynamodb:DescribeStream",
+      "dynamodb:GetRecords",
+      "dynamodb:GetShardIterator",
+    ]
+    resources = [
+      "${aws_dynamodb_table.lpas_table.arn}/stream/*",
+    ]
+  }
+
+  statement {
     sid    = "AllowReadAccessForUserRoles"
     effect = "Allow"
     actions = [
