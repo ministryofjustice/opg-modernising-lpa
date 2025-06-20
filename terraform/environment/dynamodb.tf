@@ -72,3 +72,133 @@ resource "aws_dynamodb_table_replica" "lpas_table" {
   point_in_time_recovery = true
   provider               = aws.eu_west_2
 }
+
+resource "aws_dynamodb_resource_policy" "lpas_table_replica" {
+  count        = local.environment.dynamodb.region_replica_enabled ? 1 : 0
+  resource_arn = aws_dynamodb_table_replica.lpas_table[0].arn
+  policy       = data.aws_iam_policy_document.lpas_table.json
+  provider     = aws.eu_west_2
+}
+
+resource "aws_dynamodb_resource_policy" "lpas_table" {
+  resource_arn = aws_dynamodb_table.lpas_table.arn
+  policy       = data.aws_iam_policy_document.lpas_table.json
+  provider     = aws.eu_west_1
+}
+
+data "aws_iam_policy_document" "lpas_table" {
+  statement {
+    sid    = "AllowAccessForAppAndEventsReceived"
+    effect = "Allow"
+    actions = [
+      "dynamodb:BatchGetItem",
+      "dynamodb:DeleteItem",
+      "dynamodb:GetItem",
+      "dynamodb:PutItem",
+      "dynamodb:Query",
+      "dynamodb:Scan",
+      "dynamodb:UpdateItem",
+    ]
+    resources = ["*"]
+
+    principals {
+      type = "AWS"
+      identifiers = [
+        module.global.iam_roles.app_ecs_task_role.arn,
+        module.global.iam_roles.event_received_lambda.arn,
+        data.aws_iam_role.aws_backup_role.arn,
+      ]
+    }
+  }
+
+  statement {
+    sid    = "AllowAccessForScheduleRunner"
+    effect = "Allow"
+    actions = [
+      "dynamodb:DeleteItem",
+      "dynamodb:GetItem",
+      "dynamodb:PutItem",
+      "dynamodb:Query",
+      "dynamodb:UpdateItem",
+    ]
+    resources = ["*"]
+
+    principals {
+      type = "AWS"
+      identifiers = [
+        module.global.iam_roles.schedule_runner_lambda.arn,
+      ]
+    }
+  }
+
+  statement {
+    sid    = "AllowAccessForOpensearchPipeline"
+    effect = "Allow"
+    actions = [
+      "dynamodb:DescribeTable",
+      "dynamodb:DescribeContinuousBackups",
+      "dynamodb:ExportTableToPointInTime",
+    ]
+    resources = ["*"]
+
+    principals {
+      type = "AWS"
+      identifiers = [
+        module.global.iam_roles.opensearch_pipeline.arn,
+      ]
+    }
+  }
+
+  statement {
+    sid    = "DescribeExports"
+    effect = "Allow"
+    actions = [
+      "dynamodb:DescribeExport",
+    ]
+    resources = [
+      "*",
+    ]
+    principals {
+      type = "AWS"
+      identifiers = [
+        module.global.iam_roles.opensearch_pipeline.arn,
+      ]
+    }
+  }
+
+  statement {
+    sid    = "AllowReadAccessForUserRoles"
+    effect = "Allow"
+    actions = [
+      "dynamodb:BatchGetItem",
+      "dynamodb:GetItem",
+      "dynamodb:Query",
+      "dynamodb:Scan",
+    ]
+    resources = ["*"]
+
+    principals {
+      type = "AWS"
+      identifiers = [
+        local.environment.account_name == "development" ? "arn:aws:iam::${data.aws_caller_identity.global.account_id}:role/operator" : "arn:aws:iam::${data.aws_caller_identity.global.account_id}:role/data-access",
+      ]
+    }
+  }
+
+  statement {
+    sid    = "AllowAccessForBreakglass"
+    effect = "Allow"
+    actions = [
+      "dynamodb:*",
+    ]
+    resources = ["*"]
+
+    principals {
+      type = "AWS"
+      identifiers = [
+        "arn:aws:iam::${data.aws_caller_identity.global.account_id}:role/breakglass"
+      ]
+    }
+  }
+  provider = aws.global
+}
