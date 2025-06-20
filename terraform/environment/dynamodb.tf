@@ -131,7 +131,6 @@ data "aws_iam_policy_document" "lpas_table" {
       "dynamodb:DescribeTable",
       "dynamodb:DescribeContinuousBackups",
       "dynamodb:ExportTableToPointInTime",
-      "dynamodb:ListExports",
     ]
     resources = [aws_dynamodb_table.lpas_table.arn]
 
@@ -142,6 +141,22 @@ data "aws_iam_policy_document" "lpas_table" {
       ]
     }
   }
+
+  # statement {
+  #   sid    = "AllowAccessForOpensearchPipeline2"
+  #   effect = "Allow"
+  #   actions = [
+  #     "dynamodb:ListExports",
+  #   ]
+
+  #   principals {
+  #     type = "AWS"
+  #     identifiers = [
+  #       module.global.iam_roles.opensearch_pipeline.arn,
+  #     ]
+  #   }
+  #   resources = [aws_dynamodb_table.lpas_table.arn]
+  # }
 
   statement {
     sid    = "DescribeExports"
@@ -160,24 +175,24 @@ data "aws_iam_policy_document" "lpas_table" {
     }
   }
 
-  statement {
-    sid    = "allowReadFromStream"
-    effect = "Allow"
-    actions = [
-      "dynamodb:DescribeStream",
-      "dynamodb:GetRecords",
-      "dynamodb:GetShardIterator",
-    ]
-    resources = [
-      "${aws_dynamodb_table.lpas_table.arn}/stream/*",
-    ]
-    principals {
-      type = "AWS"
-      identifiers = [
-        module.global.iam_roles.opensearch_pipeline.arn,
-      ]
-    }
-  }
+  # statement {
+  #   sid    = "allowReadFromStream"
+  #   effect = "Allow"
+  #   actions = [
+  #     "dynamodb:DescribeStream",
+  #     "dynamodb:GetRecords",
+  #     "dynamodb:GetShardIterator",
+  #   ]
+  #   resources = [
+  #     "${aws_dynamodb_table.lpas_table.arn}/stream/*",
+  #   ]
+  #   principals {
+  #     type = "AWS"
+  #     identifiers = [
+  #       module.global.iam_roles.opensearch_pipeline.arn,
+  #     ]
+  #   }
+  # }
 
   statement {
     sid    = "AllowReadAccessForUserRoles"
