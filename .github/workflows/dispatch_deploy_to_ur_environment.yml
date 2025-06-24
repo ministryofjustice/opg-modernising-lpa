@@ -64,21 +64,16 @@ jobs:
         github_access_token: ${{ secrets.GITHUB_TOKEN }}
         pagerduty_api_key: ${{ secrets.PAGERDUTY_API_KEY }}
 
-  ui_tests_env:
-    name: Run Cypress UI Tests On ur Environment
-    uses: ./.github/workflows/ui_test_job.yml
+  check_health_endpoints_after_deployment:
+    name: Check Health Endpoints
+    uses: ./.github/workflows/curl_health_checks.yml
     needs: [deploy]
     with:
-      run_against_image: false
       base_url: "https://${{ needs.deploy.outputs.url }}"
-      tag: ur-${{ inputs.tag_to_deploy}}
-      checkout_tag: ${{ inputs.tag_to_deploy}}
       environment_config_json: ${{ needs.deploy.outputs.environment_config_json }}
-      specs: 'cypress/smoke/*.cy.js'
     secrets:
       aws_access_key_id: ${{ secrets.AWS_ACCESS_KEY_ID_ACTIONS }}
       aws_secret_access_key: ${{ secrets.AWS_SECRET_ACCESS_KEY_ACTIONS }}
-      cypress_record_key: ${{ secrets.CYPRESS_RECORD_KEY }}
       github_access_token: ${{ secrets.GITHUB_TOKEN }}
 
   always_remove_ingress:
