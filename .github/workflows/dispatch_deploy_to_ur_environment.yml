@@ -80,7 +80,7 @@ jobs:
     name: Remove CI ingress from ur environment
     if: always()
     uses: ./.github/workflows/remove_ingress_job.yml
-    needs: [ui_tests_env, deploy]
+    needs: [check_health_endpoints_after_deployment, deploy]
     with:
       environment_config_json: ${{ needs.deploy.outputs.environment_config_json }}
     secrets:
