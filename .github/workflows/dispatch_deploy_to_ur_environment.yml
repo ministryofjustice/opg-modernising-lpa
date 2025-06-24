@@ -93,7 +93,7 @@ jobs:
     environment:
       name: "ur"
       url: "https://${{ needs.deploy.outputs.url }}"
-    needs: [ui_tests_env]
+    needs: [check_health_endpoints_after_deployment]
     steps:
       - name: End of ur Deployment Workflow
         run: |
