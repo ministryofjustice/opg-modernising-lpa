@@ -72,7 +72,7 @@ func (s *Store) PutDonor(ctx context.Context, shareCode sharecodedata.Hashed, da
 
 	data.PK = dynamo.ShareKey(dynamo.DonorShareKey(shareCode.String()))
 	data.SK = dynamo.ShareSortKey(dynamo.DonorInviteKey(organisationKey, data.LpaKey))
-	data.UpdatedAt = s.now()
+	data.CreatedAt = s.now()
 
 	return s.dynamoClient.CreateOnly(ctx, data)
 }

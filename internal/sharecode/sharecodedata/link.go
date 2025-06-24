@@ -11,7 +11,7 @@ import (
 type Link struct {
 	PK        dynamo.ShareKeyType
 	SK        dynamo.ShareSortKeyType
-	UpdatedAt time.Time
+	CreatedAt time.Time
 
 	// LpaKey is the key for the LPA that will be accessed
 	LpaKey dynamo.LpaKeyType

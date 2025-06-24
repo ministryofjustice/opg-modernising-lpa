@@ -26,7 +26,7 @@ func TestStoreCreate(t *testing.T) {
 		PK:          dynamo.ShareKey(dynamo.CertificateProviderShareKey("share-key")),
 		SK:          dynamo.ShareSortKey(dynamo.MetadataKey("share-key")),
 		ActorUID:    uid,
-		UpdatedAt:   testNow,
+		CreatedAt:   testNow,
 		LpaOwnerKey: dynamo.LpaOwnerKey(dynamo.DonorKey("donor")),
 	}
 

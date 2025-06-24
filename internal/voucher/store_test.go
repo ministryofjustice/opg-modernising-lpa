@@ -65,7 +65,7 @@ func TestVoucherStoreCreate(t *testing.T) {
 		PK:          dynamo.ShareKey(dynamo.VoucherShareKey("123")),
 		SK:          dynamo.ShareSortKey(dynamo.MetadataKey("123")),
 		ActorUID:    uid,
-		UpdatedAt:   now,
+		CreatedAt:   now,
 		LpaOwnerKey: dynamo.LpaOwnerKey(dynamo.DonorKey("donor")),
 	}
 

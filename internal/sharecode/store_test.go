@@ -241,7 +241,7 @@ func TestShareCodeStorePutDonor(t *testing.T) {
 			SK:          dynamo.ShareSortKey(dynamo.DonorInviteKey(dynamo.OrganisationKey("org-id"), dynamo.LpaKey("lpa-id"))),
 			LpaOwnerKey: dynamo.LpaOwnerKey(dynamo.OrganisationKey("org-id")),
 			LpaKey:      dynamo.LpaKey("lpa-id"),
-			UpdatedAt:   testNow,
+			CreatedAt:   testNow,
 		}).
 		Return(nil)
 

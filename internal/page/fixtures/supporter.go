@@ -167,7 +167,7 @@ func Supporter(
 				if linkDonor {
 					shareCodeData.PK = dynamo.ShareKey(dynamo.DonorShareKey(hashedCode.String()))
 					shareCodeData.SK = dynamo.ShareSortKey(dynamo.DonorInviteKey(org.PK, shareCodeData.LpaKey))
-					shareCodeData.UpdatedAt = time.Now()
+					shareCodeData.CreatedAt = time.Now()
 
 					if err := donorStore.Link(donorCtx, shareCodeData, donor.Donor.Email); err != nil {
 						return fmt.Errorf("error linking: %w", err)
