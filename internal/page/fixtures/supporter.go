@@ -81,7 +81,7 @@ func Supporter(
 		)
 
 		if supporterSub == "" {
-			supporterSub = random.String(16)
+			supporterSub = random.AlphaNumeric(16)
 		}
 
 		encodedSub := encodeSub(supporterSub)
@@ -106,12 +106,12 @@ func Supporter(
 		}
 
 		if organisation == "1" {
-			member, err := memberStore.Create(supporterCtx, random.String(12), random.String(12))
+			member, err := memberStore.Create(supporterCtx, random.AlphaNumeric(12), random.AlphaNumeric(12))
 			if err != nil {
 				return err
 			}
 
-			org, err := organisationStore.Create(supporterCtx, member, random.String(12))
+			org, err := organisationStore.Create(supporterCtx, member, random.AlphaNumeric(12))
 			if err != nil {
 				return err
 			}
@@ -134,7 +134,7 @@ func Supporter(
 				if err != nil {
 					return fmt.Errorf("error creating organisation: %w", err)
 				}
-				donorCtx := appcontext.ContextWithSession(r.Context(), &appcontext.Session{OrganisationID: org.ID, LpaID: donor.LpaID, SessionID: random.String(12)})
+				donorCtx := appcontext.ContextWithSession(r.Context(), &appcontext.Session{OrganisationID: org.ID, LpaID: donor.LpaID, SessionID: random.AlphaNumeric(12)})
 
 				donor.LpaUID = makeUID()
 				donor.Donor = makeDonor(testEmail, "Sam", "Smith")
@@ -197,7 +197,7 @@ func Supporter(
 
 					var fns []func(context.Context, *lpastore.Client, *lpadata.Lpa) error
 					if setLPAProgress {
-						donor, fns, err = updateLPAProgress(donorCtx, donorFixtureData, donor, random.String(16), r, certificateProviderStore, attorneyStore, documentStore, eventClient, shareCodeStore, voucherStore, reuseStore, notifyClient, appPublicURL)
+						donor, fns, err = updateLPAProgress(donorCtx, donorFixtureData, donor, random.AlphaNumeric(16), r, certificateProviderStore, attorneyStore, documentStore, eventClient, shareCodeStore, voucherStore, reuseStore, notifyClient, appPublicURL)
 						if err != nil {
 							return fmt.Errorf("error updating lpa progress: %w", err)
 						}
@@ -283,15 +283,15 @@ func Supporter(
 					}
 
 					email := strings.ToLower(fmt.Sprintf("%s-%s@example.org", member.Firstnames, member.Lastname))
-					sub := []byte(random.String(16))
+					sub := []byte(random.AlphaNumeric(16))
 					memberCtx := appcontext.ContextWithSession(r.Context(), &appcontext.Session{SessionID: base64.StdEncoding.EncodeToString(sub), Email: email})
 					_, hashedCode := sharecodedata.Generate()
 
 					if err = memberStore.CreateFromInvite(
 						memberCtx,
 						&supporterdata.MemberInvite{
-							PK:              dynamo.OrganisationKey(random.String(12)),
-							SK:              dynamo.MemberInviteKey(random.String(12)),
+							PK:              dynamo.OrganisationKey(random.AlphaNumeric(12)),
+							SK:              dynamo.MemberInviteKey(random.AlphaNumeric(12)),
 							CreatedAt:       time.Now(),
 							UpdatedAt:       time.Now(),
 							OrganisationID:  org.ID,

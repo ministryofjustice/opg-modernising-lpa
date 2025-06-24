@@ -10,7 +10,7 @@ import (
 )
 
 func Generate() (PlainText, Hashed) {
-	plain := random.String(12)
+	plain := random.Friendly(8)
 
 	return PlainText(plain), HashedFromString(plain)
 }

@@ -123,7 +123,7 @@ func TestPostRestrictionsWhenStoreErrors(t *testing.T) {
 
 func TestPostRestrictionsWhenValidationErrors(t *testing.T) {
 	form := url.Values{
-		"restrictions": {random.String(10001)},
+		"restrictions": {random.AlphaNumeric(10001)},
 	}
 
 	w := httptest.NewRecorder()
@@ -172,7 +172,7 @@ func TestRestrictionsFormValidate(t *testing.T) {
 		},
 		"too long": {
 			form: &restrictionsForm{
-				Restrictions: random.String(10001),
+				Restrictions: random.AlphaNumeric(10001),
 			},
 			errors: validation.With("restrictions", validation.StringTooLongError{Label: "restrictions", Length: 10000}),
 		},

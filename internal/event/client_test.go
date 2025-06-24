@@ -50,7 +50,7 @@ func TestClientSendEvents(t *testing.T) {
 			return func(client *Client) error { return client.SendReducedFeeRequested(ctx, event) }, event
 		},
 		"notification-sent": func() (func(*Client) error, any) {
-			event := NotificationSent{UID: "a", NotificationID: random.UuidString()}
+			event := NotificationSent{UID: "a", NotificationID: random.UUID()}
 
 			return func(client *Client) error { return client.SendNotificationSent(ctx, event) }, event
 		},

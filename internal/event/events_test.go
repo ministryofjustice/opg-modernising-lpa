@@ -74,7 +74,7 @@ var eventTests = map[string]map[string]any{
 	"notification-sent": {
 		"valid": NotificationSent{
 			UID:            "M-0000-0000-0000",
-			NotificationID: random.UuidString(),
+			NotificationID: random.UUID(),
 		},
 	},
 	"paper-form-requested": {

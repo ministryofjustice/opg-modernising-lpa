@@ -57,7 +57,7 @@ func CertificateProvider(
 		var (
 			email                  = r.FormValue("email")
 			phone                  = r.FormValue("phone")
-			certificateProviderSub = cmp.Or(r.FormValue("certificateProviderSub"), random.String(16))
+			certificateProviderSub = cmp.Or(r.FormValue("certificateProviderSub"), random.AlphaNumeric(16))
 			donorEmail             = cmp.Or(r.FormValue("donorEmail"), testEmail)
 			lpaType                = r.FormValue("lpa-type")
 			lpaLanguage, _         = localize.ParseLang(r.FormValue("lpa-language"))
@@ -98,7 +98,7 @@ func CertificateProvider(
 		encodedSub := encodeSub(certificateProviderSub)
 
 		var (
-			donorSub                     = random.String(16)
+			donorSub                     = random.AlphaNumeric(16)
 			donorSessionID               = base64.StdEncoding.EncodeToString([]byte(donorSub))
 			certificateProviderSessionID = base64.StdEncoding.EncodeToString([]byte(mockGOLSubPrefix + encodedSub))
 		)
@@ -119,7 +119,7 @@ func CertificateProvider(
 		var donorDetails *donordata.Provided
 
 		if isPaperDonor {
-			lpaID := random.UuidString()
+			lpaID := random.UUID()
 			donorDetails = &donordata.Provided{
 				PK:                               dynamo.LpaKey(lpaID),
 				SK:                               dynamo.LpaOwnerKey(dynamo.DonorKey("PAPER")),
@@ -249,12 +249,12 @@ func CertificateProvider(
 		} else if isSupported {
 			supporterCtx := appcontext.ContextWithSession(r.Context(), &appcontext.Session{SessionID: donorSessionID, Email: testEmail})
 
-			member, err := memberStore.Create(supporterCtx, random.String(12), random.String(12))
+			member, err := memberStore.Create(supporterCtx, random.AlphaNumeric(12), random.AlphaNumeric(12))
 			if err != nil {
 				return err
 			}
 
-			org, err := organisationStore.Create(supporterCtx, member, random.String(12))
+			org, err := organisationStore.Create(supporterCtx, member, random.AlphaNumeric(12))
 			if err != nil {
 				return err
 			}
@@ -333,8 +333,8 @@ func CertificateProvider(
 
 			if progress >= slices.Index(progressValues, "paid") {
 				donorDetails.PaymentDetails = append(donorDetails.PaymentDetails, donordata.Payment{
-					PaymentReference: random.String(12),
-					PaymentID:        random.String(12),
+					PaymentReference: random.AlphaNumeric(12),
+					PaymentID:        random.AlphaNumeric(12),
 				})
 				donorDetails.Tasks.PayForLpa = task.PaymentStateCompleted
 			}
