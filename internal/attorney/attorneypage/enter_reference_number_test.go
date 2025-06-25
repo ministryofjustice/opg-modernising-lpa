@@ -106,7 +106,7 @@ func TestPostEnterReferenceNumber(t *testing.T) {
 	for name, tc := range testcases {
 		t.Run(name, func(t *testing.T) {
 			form := url.Values{
-				"reference-number": {"abcdef123456"},
+				"reference-number": {"abcd1234"},
 			}
 
 			w := httptest.NewRecorder()
@@ -121,7 +121,7 @@ func TestPostEnterReferenceNumber(t *testing.T) {
 
 			shareCodeStore := newMockShareCodeStore(t)
 			shareCodeStore.EXPECT().
-				Get(r.Context(), actor.TypeAttorney, sharecodedata.HashedFromString("abcdef123456")).
+				Get(r.Context(), actor.TypeAttorney, sharecodedata.HashedFromString("abcd1234")).
 				Return(tc.shareCode, nil)
 
 			attorneyStore := newMockAttorneyStore(t)
@@ -194,7 +194,7 @@ func TestPostEnterReferenceNumberWhenAttorneyAlreadySubmittedOnPaper(t *testing.
 	for name, tc := range testcases {
 		t.Run(name, func(t *testing.T) {
 			form := url.Values{
-				"reference-number": {"abcdef123456"},
+				"reference-number": {"abcd1234"},
 			}
 
 			w := httptest.NewRecorder()
@@ -203,7 +203,7 @@ func TestPostEnterReferenceNumberWhenAttorneyAlreadySubmittedOnPaper(t *testing.
 
 			shareCodeStore := newMockShareCodeStore(t)
 			shareCodeStore.EXPECT().
-				Get(r.Context(), actor.TypeAttorney, sharecodedata.HashedFromString("abcdef123456")).
+				Get(r.Context(), actor.TypeAttorney, sharecodedata.HashedFromString("abcd1234")).
 				Return(tc.shareCode, nil)
 
 			lpaStoreClient := newMockLpaStoreClient(t)
@@ -230,7 +230,7 @@ func TestPostEnterReferenceNumberWhenAttorneyAlreadySubmittedOnPaper(t *testing.
 
 func TestPostEnterReferenceNumberOnShareCodeStoreError(t *testing.T) {
 	form := url.Values{
-		"reference-number": {" abcdef123456  "},
+		"reference-number": {" abcd1234  "},
 	}
 
 	w := httptest.NewRecorder()
@@ -239,7 +239,7 @@ func TestPostEnterReferenceNumberOnShareCodeStoreError(t *testing.T) {
 
 	shareCodeStore := newMockShareCodeStore(t)
 	shareCodeStore.EXPECT().
-		Get(r.Context(), actor.TypeAttorney, sharecodedata.HashedFromString("abcdef123456")).
+		Get(r.Context(), actor.TypeAttorney, sharecodedata.HashedFromString("abcd1234")).
 		Return(sharecodedata.Link{LpaKey: dynamo.LpaKey("lpa-id"), LpaOwnerKey: dynamo.LpaOwnerKey(dynamo.DonorKey(""))}, expectedError)
 
 	err := EnterReferenceNumber(nil, shareCodeStore, nil, nil, nil, nil)(testAppData, w, r)
@@ -252,7 +252,7 @@ func TestPostEnterReferenceNumberOnShareCodeStoreError(t *testing.T) {
 
 func TestPostEnterReferenceNumberOnShareCodeStoreNotFoundError(t *testing.T) {
 	form := url.Values{
-		"reference-number": {"abcde f-123456 "},
+		"reference-number": {"abcd 1-234 "},
 	}
 
 	w := httptest.NewRecorder()
@@ -261,7 +261,7 @@ func TestPostEnterReferenceNumberOnShareCodeStoreNotFoundError(t *testing.T) {
 
 	data := enterReferenceNumberData{
 		App:    testAppData,
-		Form:   &enterReferenceNumberForm{ReferenceNumber: "abcdef123456", ReferenceNumberRaw: "abcde f-123456"},
+		Form:   &enterReferenceNumberForm{ReferenceNumber: "abcd1234", ReferenceNumberRaw: "abcd 1-234"},
 		Errors: validation.With("reference-number", validation.CustomError{Label: "incorrectReferenceNumber"}),
 	}
 
@@ -272,7 +272,7 @@ func TestPostEnterReferenceNumberOnShareCodeStoreNotFoundError(t *testing.T) {
 
 	shareCodeStore := newMockShareCodeStore(t)
 	shareCodeStore.EXPECT().
-		Get(r.Context(), actor.TypeAttorney, sharecodedata.HashedFromString("abcdef123456")).
+		Get(r.Context(), actor.TypeAttorney, sharecodedata.HashedFromString("abcd1234")).
 		Return(sharecodedata.Link{LpaKey: dynamo.LpaKey("lpa-id"), LpaOwnerKey: dynamo.LpaOwnerKey(dynamo.DonorKey(""))}, dynamo.NotFoundError{})
 
 	err := EnterReferenceNumber(template.Execute, shareCodeStore, nil, nil, nil, nil)(testAppData, w, r)
@@ -285,7 +285,7 @@ func TestPostEnterReferenceNumberOnShareCodeStoreNotFoundError(t *testing.T) {
 
 func TestPostEnterReferenceNumberOnLpaStoreLpaError(t *testing.T) {
 	form := url.Values{
-		"reference-number": {"abcdef123456"},
+		"reference-number": {"abcd1234"},
 	}
 
 	w := httptest.NewRecorder()
@@ -312,7 +312,7 @@ func TestPostEnterReferenceNumberOnLpaStoreLpaError(t *testing.T) {
 
 func TestPostEnterReferenceNumberOnLpaStoreSendPaperAttorneyAccessOnlineError(t *testing.T) {
 	form := url.Values{
-		"reference-number": {"abcdef123456"},
+		"reference-number": {"abcd1234"},
 	}
 
 	w := httptest.NewRecorder()
@@ -344,7 +344,7 @@ func TestPostEnterReferenceNumberOnLpaStoreSendPaperAttorneyAccessOnlineError(t 
 
 func TestPostEnterReferenceNumberOnSessionGetError(t *testing.T) {
 	form := url.Values{
-		"reference-number": {"abcdef123456"},
+		"reference-number": {"abcd1234"},
 	}
 
 	w := httptest.NewRecorder()
@@ -353,7 +353,7 @@ func TestPostEnterReferenceNumberOnSessionGetError(t *testing.T) {
 
 	shareCodeStore := newMockShareCodeStore(t)
 	shareCodeStore.EXPECT().
-		Get(r.Context(), actor.TypeAttorney, sharecodedata.HashedFromString("abcdef123456")).
+		Get(r.Context(), actor.TypeAttorney, sharecodedata.HashedFromString("abcd1234")).
 		Return(sharecodedata.Link{LpaKey: dynamo.LpaKey("lpa-id"), LpaOwnerKey: dynamo.LpaOwnerKey(dynamo.DonorKey("")), LpaUID: "lpa-uid"}, nil)
 
 	lpaStoreClient := newMockLpaStoreClient(t)
@@ -373,7 +373,7 @@ func TestPostEnterReferenceNumberOnSessionGetError(t *testing.T) {
 
 func TestPostEnterReferenceNumberOnSessionSetError(t *testing.T) {
 	form := url.Values{
-		"reference-number": {"abcdef123456"},
+		"reference-number": {"abcd1234"},
 	}
 
 	w := httptest.NewRecorder()
@@ -405,7 +405,7 @@ func TestPostEnterReferenceNumberOnSessionSetError(t *testing.T) {
 
 func TestPostEnterReferenceNumberOnAttorneyStoreError(t *testing.T) {
 	form := url.Values{
-		"reference-number": {"abcdef123456"},
+		"reference-number": {"abcd1234"},
 	}
 
 	w := httptest.NewRecorder()
@@ -414,7 +414,7 @@ func TestPostEnterReferenceNumberOnAttorneyStoreError(t *testing.T) {
 
 	shareCodeStore := newMockShareCodeStore(t)
 	shareCodeStore.EXPECT().
-		Get(r.Context(), actor.TypeAttorney, sharecodedata.HashedFromString("abcdef123456")).
+		Get(r.Context(), actor.TypeAttorney, sharecodedata.HashedFromString("abcd1234")).
 		Return(sharecodedata.Link{LpaKey: dynamo.LpaKey("lpa-id"), LpaOwnerKey: dynamo.LpaOwnerKey(dynamo.DonorKey("")), LpaUID: "lpa-uid"}, nil)
 
 	lpaStoreClient := newMockLpaStoreClient(t)
@@ -445,7 +445,7 @@ func TestPostEnterReferenceNumberOnAttorneyStoreError(t *testing.T) {
 
 func TestPostEnterReferenceNumberOnEventClientError(t *testing.T) {
 	form := url.Values{
-		"reference-number": {"abcdef123456"},
+		"reference-number": {"abcd1234"},
 	}
 
 	w := httptest.NewRecorder()
@@ -519,21 +519,21 @@ func TestValidateEnterReferenceNumberForm(t *testing.T) {
 		errors validation.List
 	}{
 		"valid": {
-			form:   &enterReferenceNumberForm{ReferenceNumber: "abcdef123456"},
+			form:   &enterReferenceNumberForm{ReferenceNumber: "abcd1234"},
 			errors: nil,
 		},
 		"too short": {
 			form: &enterReferenceNumberForm{ReferenceNumber: "1"},
 			errors: validation.With("reference-number", validation.StringLengthError{
 				Label:  "theReferenceNumberYouEnter",
-				Length: 12,
+				Length: 8,
 			}),
 		},
 		"too long": {
 			form: &enterReferenceNumberForm{ReferenceNumber: "123456789ABCD"},
 			errors: validation.With("reference-number", validation.StringLengthError{
 				Label:  "theReferenceNumberYouEnter",
-				Length: 12,
+				Length: 8,
 			}),
 		},
 		"empty": {

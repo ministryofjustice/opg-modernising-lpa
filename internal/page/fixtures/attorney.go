@@ -95,7 +95,7 @@ func Attorney(
 		)
 
 		if attorneySub == "" {
-			attorneySub = random.String(16)
+			attorneySub = random.AlphaNumeric(16)
 		}
 
 		if r.Method != http.MethodPost && !r.URL.Query().Has("redirect") {
@@ -109,8 +109,8 @@ func Attorney(
 		encodedSub := encodeSub(attorneySub)
 
 		var (
-			donorSub                     = random.String(16)
-			certificateProviderSub       = random.String(16)
+			donorSub                     = random.AlphaNumeric(16)
+			certificateProviderSub       = random.AlphaNumeric(16)
 			donorSessionID               = base64.StdEncoding.EncodeToString([]byte(donorSub))
 			certificateProviderSessionID = base64.StdEncoding.EncodeToString([]byte(certificateProviderSub))
 			attorneySessionID            = base64.StdEncoding.EncodeToString([]byte(mockGOLSubPrefix + encodedSub))
@@ -122,7 +122,7 @@ func Attorney(
 
 		var donorDetails *donordata.Provided
 		if isPaperDonor {
-			lpaID := random.UuidString()
+			lpaID := random.UUID()
 
 			donorDetails = &donordata.Provided{
 				PK:        dynamo.LpaKey(lpaID),
@@ -149,12 +149,12 @@ func Attorney(
 
 				supporterCtx := appcontext.ContextWithSession(r.Context(), &appcontext.Session{SessionID: donorSessionID, Email: testEmail})
 
-				member, err := memberStore.Create(supporterCtx, random.String(12), random.String(12))
+				member, err := memberStore.Create(supporterCtx, random.AlphaNumeric(12), random.AlphaNumeric(12))
 				if err != nil {
 					return err
 				}
 
-				org, err := organisationStore.Create(supporterCtx, member, random.String(12))
+				org, err := organisationStore.Create(supporterCtx, member, random.AlphaNumeric(12))
 				if err != nil {
 					return err
 				}
@@ -316,7 +316,7 @@ func Attorney(
 		if progress >= slices.Index(progressValues, "signedByAllAttorneys") {
 			for isReplacement, list := range map[bool]donordata.Attorneys{false: donorDetails.Attorneys, true: donorDetails.ReplacementAttorneys} {
 				for _, a := range list.Attorneys {
-					ctx := appcontext.ContextWithSession(r.Context(), &appcontext.Session{SessionID: random.String(16), LpaID: donorDetails.LpaID})
+					ctx := appcontext.ContextWithSession(r.Context(), &appcontext.Session{SessionID: random.AlphaNumeric(16), LpaID: donorDetails.LpaID})
 
 					attorney, err := createAttorney(
 						ctx,
@@ -347,7 +347,7 @@ func Attorney(
 				}
 
 				if list.TrustCorporation.Name != "" {
-					ctx := appcontext.ContextWithSession(r.Context(), &appcontext.Session{SessionID: random.String(16), LpaID: donorDetails.LpaID})
+					ctx := appcontext.ContextWithSession(r.Context(), &appcontext.Session{SessionID: random.AlphaNumeric(16), LpaID: donorDetails.LpaID})
 
 					attorney, err := createAttorney(
 						ctx,

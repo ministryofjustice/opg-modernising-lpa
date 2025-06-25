@@ -64,7 +64,7 @@ func TestGetEnterReferenceNumberOptOutOnTemplateError(t *testing.T) {
 
 func TestPostEnterReferenceNumberOptOut(t *testing.T) {
 	form := url.Values{
-		"reference-number": {"abcdef 123-456"},
+		"reference-number": {"abcd 123-4"},
 	}
 
 	uid := actoruid.New()
@@ -74,7 +74,7 @@ func TestPostEnterReferenceNumberOptOut(t *testing.T) {
 
 	shareCodeStore := newMockShareCodeStore(t)
 	shareCodeStore.EXPECT().
-		Get(r.Context(), actor.TypeCertificateProvider, sharecodedata.HashedFromString("abcdef123456")).
+		Get(r.Context(), actor.TypeCertificateProvider, sharecodedata.HashedFromString("abcd1234")).
 		Return(sharecodedata.Link{LpaKey: dynamo.LpaKey("lpa-id"), LpaOwnerKey: dynamo.LpaOwnerKey(dynamo.DonorKey("session-id")), ActorUID: uid}, nil)
 
 	sessionStore := newMockSessionStore(t)
@@ -88,12 +88,12 @@ func TestPostEnterReferenceNumberOptOut(t *testing.T) {
 
 	assert.Nil(t, err)
 	assert.Equal(t, http.StatusFound, resp.StatusCode)
-	assert.Equal(t, page.PathCertificateProviderConfirmDontWantToBeCertificateProviderLoggedOut.Format()+"?code=da4ec3358a10c9b0872eb877953cc7b07af5f4d75e4c1cb0597cbbf41e5dbe35", resp.Header.Get("Location"))
+	assert.Equal(t, page.PathCertificateProviderConfirmDontWantToBeCertificateProviderLoggedOut.Format()+"?code=e9cee71ab932fde863338d08be4de9dfe39ea049bdafb342ce659ec5450b69ae", resp.Header.Get("Location"))
 }
 
 func TestPostEnterReferenceNumberOptOutErrors(t *testing.T) {
 	form := url.Values{
-		"reference-number": {"abcdef 123-456"},
+		"reference-number": {"abcd 123-4"},
 	}
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(form.Encode()))
@@ -148,7 +148,7 @@ func TestPostEnterReferenceNumberOptOutErrors(t *testing.T) {
 
 func TestPostEnterReferenceNumberOptOutOnShareCodeStoreNotFoundError(t *testing.T) {
 	form := url.Values{
-		"reference-number": {"abcdef 123456"},
+		"reference-number": {"abcd 1234"},
 	}
 
 	w := httptest.NewRecorder()
@@ -157,7 +157,7 @@ func TestPostEnterReferenceNumberOptOutOnShareCodeStoreNotFoundError(t *testing.
 
 	data := enterReferenceNumberData{
 		App:    testAppData,
-		Form:   &enterReferenceNumberForm{ReferenceNumber: "abcdef123456", ReferenceNumberRaw: "abcdef 123456"},
+		Form:   &enterReferenceNumberForm{ReferenceNumber: "abcd1234", ReferenceNumberRaw: "abcd 1234"},
 		Errors: validation.With("reference-number", validation.CustomError{Label: "incorrectReferenceNumber"}),
 	}
 
@@ -168,7 +168,7 @@ func TestPostEnterReferenceNumberOptOutOnShareCodeStoreNotFoundError(t *testing.
 
 	shareCodeStore := newMockShareCodeStore(t)
 	shareCodeStore.EXPECT().
-		Get(r.Context(), actor.TypeCertificateProvider, sharecodedata.HashedFromString("abcdef123456")).
+		Get(r.Context(), actor.TypeCertificateProvider, sharecodedata.HashedFromString("abcd1234")).
 		Return(sharecodedata.Link{LpaKey: dynamo.LpaKey("lpa-id"), LpaOwnerKey: dynamo.LpaOwnerKey(dynamo.DonorKey("session-id"))}, dynamo.NotFoundError{})
 
 	err := EnterReferenceNumberOptOut(template.Execute, shareCodeStore, nil)(testAppData, w, r)

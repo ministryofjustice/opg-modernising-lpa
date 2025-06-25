@@ -8,12 +8,12 @@ describe('Enter access code', () => {
 
             cy.visit(`/fixtures/certificate-provider?redirect=/certificate-provider-start&withShareCode=${shareCode}&email=${TestEmail}`);
 
-        cy.contains('a', 'Start').click()
-        cy.origin('http://localhost:7012', () => {
-            cy.contains('button', 'Continue').click();
+            cy.contains('a', 'Start').click()
+            cy.origin('http://localhost:7012', () => {
+                cy.contains('button', 'Continue').click();
+            });
+            cy.url().should('contain', '/certificate-provider-enter-reference-number')
         });
-        cy.url().should('contain', '/certificate-provider-enter-reference-number')
-    });
 
         it('can enter a valid access code', { pageLoadTimeout: 6000 }, () => {
             cy.checkA11yApp();
@@ -37,7 +37,7 @@ describe('Enter access code', () => {
         });
 
         it('errors when incorrect code', () => {
-            cy.get('#f-reference-number').invoke('val', 'i-am-very-wrong');
+            cy.get('#f-reference-number').invoke('val', 'wrongish');
             cy.contains('Save and continue').click();
 
             cy.checkA11yApp();
@@ -56,10 +56,10 @@ describe('Enter access code', () => {
             cy.checkA11yApp();
 
             cy.get('.govuk-error-summary').within(() => {
-                cy.contains('The access code you enter must be 12 characters');
+                cy.contains('The access code you enter must be 8 characters');
             });
 
-            cy.contains('[for=f-reference-number] ~ .govuk-error-message', 'The access code you enter must be 12 characters');
+            cy.contains('[for=f-reference-number] ~ .govuk-error-message', 'The access code you enter must be 8 characters');
         });
     })
 

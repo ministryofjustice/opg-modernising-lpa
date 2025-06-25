@@ -60,7 +60,7 @@ func NewStore(dynamoClient DynamoClient, s3Client S3Client, eventClient EventCli
 		dynamoClient: dynamoClient,
 		s3Client:     s3Client,
 		eventClient:  eventClient,
-		randomUUID:   random.UuidString,
+		randomUUID:   random.UUID,
 		now:          time.Now,
 	}
 }

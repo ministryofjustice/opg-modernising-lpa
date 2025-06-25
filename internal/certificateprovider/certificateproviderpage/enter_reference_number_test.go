@@ -124,7 +124,7 @@ func TestGetEnterReferenceNumberOnTemplateError(t *testing.T) {
 
 func TestPostEnterReferenceNumber(t *testing.T) {
 	form := url.Values{
-		"reference-number": {"abcdef 123-456"},
+		"reference-number": {"abcd 123-4"},
 	}
 
 	uid := actoruid.New()
@@ -142,7 +142,7 @@ func TestPostEnterReferenceNumber(t *testing.T) {
 	shareCodeData := sharecodedata.Link{LpaKey: dynamo.LpaKey("lpa-id"), LpaOwnerKey: dynamo.LpaOwnerKey(dynamo.DonorKey("session-id")), ActorUID: uid, LpaUID: "lpa-uid"}
 	shareCodeStore := newMockShareCodeStore(t)
 	shareCodeStore.EXPECT().
-		Get(r.Context(), actor.TypeCertificateProvider, sharecodedata.HashedFromString("abcdef123456")).
+		Get(r.Context(), actor.TypeCertificateProvider, sharecodedata.HashedFromString("abcd1234")).
 		Return(shareCodeData, nil)
 
 	lpaStoreClient := newMockLpaStoreClient(t)
@@ -204,7 +204,7 @@ func TestPostEnterReferenceNumberWhenPaperCertificateExists(t *testing.T) {
 	for name, tc := range testcases {
 		t.Run(name, func(t *testing.T) {
 			form := url.Values{
-				"reference-number": {"abcdef 123-456"},
+				"reference-number": {"abcd 123-4"},
 			}
 
 			w := httptest.NewRecorder()
@@ -267,7 +267,7 @@ func TestPostEnterReferenceNumberWhenPaperCertificateExists(t *testing.T) {
 
 func TestPostEnterReferenceNumberOnShareCodeStoreError(t *testing.T) {
 	form := url.Values{
-		"reference-number": {"abcdef123456"},
+		"reference-number": {"abcd1234"},
 	}
 
 	w := httptest.NewRecorder()
@@ -294,7 +294,7 @@ func TestPostEnterReferenceNumberOnShareCodeStoreError(t *testing.T) {
 
 func TestPostEnterReferenceNumberOnShareCodeStoreNotFoundError(t *testing.T) {
 	form := url.Values{
-		"reference-number": {"abcdef 123456"},
+		"reference-number": {"abcd 1234"},
 	}
 
 	w := httptest.NewRecorder()
@@ -303,7 +303,7 @@ func TestPostEnterReferenceNumberOnShareCodeStoreNotFoundError(t *testing.T) {
 
 	data := enterReferenceNumberData{
 		App:    testAppData,
-		Form:   &enterReferenceNumberForm{ReferenceNumber: "abcdef123456", ReferenceNumberRaw: "abcdef 123456"},
+		Form:   &enterReferenceNumberForm{ReferenceNumber: "abcd1234", ReferenceNumberRaw: "abcd 1234"},
 		Errors: validation.With("reference-number", validation.CustomError{Label: "incorrectReferenceNumber"}),
 	}
 
@@ -332,7 +332,7 @@ func TestPostEnterReferenceNumberOnShareCodeStoreNotFoundError(t *testing.T) {
 
 func TestPostEnterReferenceNumberWhenLpaStoreClientError(t *testing.T) {
 	form := url.Values{
-		"reference-number": {"abcdef 123-456"},
+		"reference-number": {"abcd 123-4"},
 	}
 
 	uid := actoruid.New()
@@ -361,7 +361,7 @@ func TestPostEnterReferenceNumberWhenLpaStoreClientError(t *testing.T) {
 
 func TestPostEnterReferenceNumberWhenSessionGetError(t *testing.T) {
 	form := url.Values{
-		"reference-number": {"abcdef 123-456"},
+		"reference-number": {"abcd 123-4"},
 	}
 
 	uid := actoruid.New()
@@ -397,7 +397,7 @@ func TestPostEnterReferenceNumberWhenSessionGetError(t *testing.T) {
 
 func TestPostEnterReferenceNumberWhenSessionSetError(t *testing.T) {
 	form := url.Values{
-		"reference-number": {"abcdef 123-456"},
+		"reference-number": {"abcd 123-4"},
 	}
 
 	uid := actoruid.New()
@@ -436,7 +436,7 @@ func TestPostEnterReferenceNumberWhenSessionSetError(t *testing.T) {
 
 func TestPostEnterReferenceNumberWhenSendPaperCertificateProviderAccessOnlineError(t *testing.T) {
 	form := url.Values{
-		"reference-number": {"abcdef 123-456"},
+		"reference-number": {"abcd 123-4"},
 	}
 
 	w := httptest.NewRecorder()
@@ -476,7 +476,7 @@ func TestPostEnterReferenceNumberWhenSendPaperCertificateProviderAccessOnlineErr
 
 func TestPostEnterReferenceNumberWhenClearLoginError(t *testing.T) {
 	form := url.Values{
-		"reference-number": {"abcdef 123-456"},
+		"reference-number": {"abcd 123-4"},
 	}
 
 	w := httptest.NewRecorder()
@@ -521,7 +521,7 @@ func TestPostEnterReferenceNumberWhenClearLoginError(t *testing.T) {
 
 func TestPostEnterReferenceNumberWhenCreateError(t *testing.T) {
 	form := url.Values{
-		"reference-number": {"abcdef 123-456"},
+		"reference-number": {"abcd 123-4"},
 	}
 
 	uid := actoruid.New()
@@ -565,7 +565,7 @@ func TestPostEnterReferenceNumberWhenCreateError(t *testing.T) {
 
 func TestPostEnterReferenceNumberWhenEventClientError(t *testing.T) {
 	form := url.Values{
-		"reference-number": {"abcdef 123-456"},
+		"reference-number": {"abcd 123-4"},
 	}
 
 	uid := actoruid.New()
@@ -651,21 +651,21 @@ func TestValidateEnterReferenceNumberForm(t *testing.T) {
 		errors validation.List
 	}{
 		"valid": {
-			form:   &enterReferenceNumberForm{ReferenceNumber: "abcdef123456"},
+			form:   &enterReferenceNumberForm{ReferenceNumber: "abcd1234"},
 			errors: nil,
 		},
 		"too short": {
-			form: &enterReferenceNumberForm{ReferenceNumber: "abcdef12345"},
+			form: &enterReferenceNumberForm{ReferenceNumber: "abcd123"},
 			errors: validation.With("reference-number", validation.StringLengthError{
 				Label:  "theReferenceNumberYouEnter",
-				Length: 12,
+				Length: 8,
 			}),
 		},
 		"too long": {
-			form: &enterReferenceNumberForm{ReferenceNumber: "abcdef1234567"},
+			form: &enterReferenceNumberForm{ReferenceNumber: "abcd12347"},
 			errors: validation.With("reference-number", validation.StringLengthError{
 				Label:  "theReferenceNumberYouEnter",
-				Length: 12,
+				Length: 8,
 			}),
 		},
 		"empty": {

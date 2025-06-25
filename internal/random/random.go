@@ -7,12 +7,20 @@ import (
 	"github.com/google/uuid"
 )
 
-func String(length int) string {
+func AlphaNumeric(length int) string {
 	return fromCharset(length, "abcdefghijklmnpqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ123456789")
 }
 
-func Code(length int) string {
+func Friendly(length int) string {
+	return fromCharset(length, "346789BCDFGHJKMPQRTVWXY")
+}
+
+func Numeric(length int) string {
 	return fromCharset(length, "0123456789")
+}
+
+func UUID() string {
+	return uuid.NewString()
 }
 
 func fromCharset(length int, charset string) string {
@@ -25,8 +33,4 @@ func fromCharset(length int, charset string) string {
 		bytes[i] = charset[b%byte(len(charset))]
 	}
 	return string(bytes)
-}
-
-func UuidString() string {
-	return uuid.NewString()
 }

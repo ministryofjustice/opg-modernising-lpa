@@ -36,7 +36,7 @@ describe('Enter access code', () => {
     });
 
     it('errors when incorrect code', () => {
-        cy.get('#f-reference-number').invoke('val', 'i-am-very-wrong');
+        cy.get('#f-reference-number').invoke('val', 'wrongish');
         cy.contains('Save and continue').click();
 
         cy.checkA11yApp();
@@ -55,10 +55,10 @@ describe('Enter access code', () => {
         cy.checkA11yApp();
 
         cy.get('.govuk-error-summary').within(() => {
-            cy.contains('The access code you enter must be 12 characters');
+            cy.contains('The access code you enter must be 8 characters');
         });
 
-        cy.contains('[for=f-reference-number] ~ .govuk-error-message', 'The access code you enter must be 12 characters');
+        cy.contains('[for=f-reference-number] ~ .govuk-error-message', 'The access code you enter must be 8 characters');
     });
 
 });
