@@ -30,7 +30,9 @@ func (PlainText) LogValue() slog.Value {
 }
 
 func (p PlainText) Plain() string {
-	return string(p)
+	s := string(p)
+
+	return s[:4] + "-" + s[4:]
 }
 
 type Hashed [32]byte
@@ -44,7 +46,14 @@ func (h Hashed) Query() url.Values {
 }
 
 func HashedFromString(plain string) Hashed {
-	hash := sha256.Sum256([]byte(plain))
+	var s []byte
+	for _, b := range []byte(plain) {
+		if b != ' ' && b != '\t' && b != '-' {
+			s = append(s, b)
+		}
+	}
+
+	hash := sha256.Sum256(s)
 
 	return Hashed(hash)
 }
