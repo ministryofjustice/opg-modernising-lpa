@@ -201,7 +201,7 @@ func handler(ctx context.Context, event Event) (map[string]any, error) {
 	factory := &Factory{
 		logger:                      logger,
 		now:                         time.Now,
-		uuidString:                  random.UuidString,
+		uuidString:                  random.UUID,
 		cfg:                         cfg,
 		dynamoClient:                dynamoClient,
 		appPublicURL:                appPublicURL,

@@ -312,7 +312,7 @@ func App(
 		attorneyStartURL,
 	)
 
-	return withAppData(page.ValidateCsrf(rootMux, sessionStore, random.String, errorHandler), localizer, lang)
+	return withAppData(page.ValidateCsrf(rootMux, sessionStore, random.AlphaNumeric, errorHandler), localizer, lang)
 }
 
 func withAppData(next http.Handler, localizer localize.Localizer, lang localize.Lang) http.HandlerFunc {

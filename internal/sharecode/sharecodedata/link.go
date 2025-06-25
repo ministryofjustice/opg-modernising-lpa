@@ -39,3 +39,7 @@ type Link struct {
 	// using the code
 	LpaLinkedTo string
 }
+
+func (l Link) HasExpired(now time.Time) bool {
+	return l.UpdatedAt.AddDate(2, 0, 0).Before(now)
+}

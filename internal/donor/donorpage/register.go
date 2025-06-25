@@ -278,7 +278,7 @@ func Register(
 	handleRoot := makeHandle(rootMux, sessionStore, errorHandler, donorStartURL)
 
 	handleRoot(page.PathLogin, page.None,
-		page.Login(oneLoginClient, sessionStore, random.String, page.PathLoginCallback))
+		page.Login(oneLoginClient, sessionStore, random.AlphaNumeric, page.PathLoginCallback))
 	handleRoot(page.PathLoginCallback, page.None,
 		page.LoginCallback(logger, oneLoginClient, sessionStore, page.PathMakeOrAddAnLPA, dashboardStore, actor.TypeDonor))
 	handleRoot(page.PathEnterAccessCode, page.RequireSession,
@@ -526,7 +526,7 @@ func Register(
 	handleWithDonor(donor.PathCompletingYourIdentityConfirmation, page.None,
 		CompletingYourIdentityConfirmation(tmpls.Get("completing_your_identity_confirmation.gohtml")))
 	handleWithDonor(donor.PathIdentityWithOneLogin, page.CanGoBack,
-		IdentityWithOneLogin(oneLoginClient, sessionStore, random.String))
+		IdentityWithOneLogin(oneLoginClient, sessionStore, random.AlphaNumeric))
 	handleWithDonor(donor.PathIdentityWithOneLoginCallback, page.CanGoBack,
 		IdentityWithOneLoginCallback(oneLoginClient, sessionStore, donorStore, scheduledStore, eventClient))
 	handleWithDonor(donor.PathIdentityDetails, page.None,

@@ -94,7 +94,7 @@ func handleAddScheduledTasks(ctx context.Context, taskCountEvent TaskCountEvent)
 			TargetLpaOwnerKey: donor.SK,
 			LpaUID:            lpaUID,
 			PK:                dynamo.ScheduledDayKey(now),
-			SK:                dynamo.ScheduledKey(now, random.UuidString()),
+			SK:                dynamo.ScheduledKey(now, random.UUID()),
 		}
 
 		items = append(items, donor, event)

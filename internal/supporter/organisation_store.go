@@ -25,9 +25,9 @@ type OrganisationStore struct {
 func NewOrganisationStore(dynamoClient DynamoClient) *OrganisationStore {
 	return &OrganisationStore{
 		dynamoClient: dynamoClient,
-		uuidString:   random.UuidString,
+		uuidString:   random.UUID,
 		newUID:       actoruid.New,
-		randomString: random.String,
+		randomString: random.AlphaNumeric,
 		now:          time.Now,
 	}
 }
