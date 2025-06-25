@@ -35,7 +35,7 @@ type MemberStore struct {
 func NewMemberStore(dynamoClient DynamoClient) *MemberStore {
 	return &MemberStore{
 		dynamoClient: dynamoClient,
-		uuidString:   random.UuidString,
+		uuidString:   random.UUID,
 		now:          time.Now,
 	}
 }

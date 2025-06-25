@@ -122,7 +122,7 @@ func Register(
 	handleRoot := makeHandle(rootMux, sessionStore, errorHandler)
 
 	handleRoot(page.PathVoucherLogin, None,
-		page.Login(oneLoginClient, sessionStore, random.String, page.PathVoucherLoginCallback))
+		page.Login(oneLoginClient, sessionStore, random.AlphaNumeric, page.PathVoucherLoginCallback))
 	handleRoot(page.PathVoucherLoginCallback, None,
 		page.LoginCallback(logger, oneLoginClient, sessionStore, page.PathVoucherEnterReferenceNumber, dashboardStore, actor.TypeVoucher))
 	handleRoot(page.PathVoucherEnterReferenceNumber, RequireSession,
@@ -156,7 +156,7 @@ func Register(
 	handleVoucher(voucher.PathCompletingYourIdentityConfirmation, None,
 		CompletingYourIdentityConfirmation(tmpls.Get("completing_your_identity_confirmation.gohtml"), lpaStoreResolvingService))
 	handleVoucher(voucher.PathIdentityWithOneLogin, None,
-		IdentityWithOneLogin(oneLoginClient, sessionStore, random.String))
+		IdentityWithOneLogin(oneLoginClient, sessionStore, random.AlphaNumeric))
 	handleVoucher(voucher.PathIdentityWithOneLoginCallback, None,
 		IdentityWithOneLoginCallback(oneLoginClient, sessionStore, voucherStore, lpaStoreResolvingService, vouchFailed))
 	handleVoucher(voucher.PathOneLoginIdentityDetails, None,

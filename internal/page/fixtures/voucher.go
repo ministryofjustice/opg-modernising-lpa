@@ -43,7 +43,7 @@ func Voucher(
 		acceptCookiesConsent(w)
 
 		var (
-			voucherSub   = cmp.Or(r.FormValue("voucherSub"), random.String(16))
+			voucherSub   = cmp.Or(r.FormValue("voucherSub"), random.AlphaNumeric(16))
 			shareCode    = r.FormValue("withShareCode")
 			voucherEmail = r.FormValue("voucherEmail")
 			donorEmail   = r.FormValue("donorEmail")
@@ -64,7 +64,7 @@ func Voucher(
 		}
 
 		var (
-			donorSub         = random.String(16)
+			donorSub         = random.AlphaNumeric(16)
 			donorSessionID   = base64.StdEncoding.EncodeToString([]byte(donorSub))
 			voucherSessionID = base64.StdEncoding.EncodeToString([]byte(mockGOLSubPrefix + encodedSub))
 		)

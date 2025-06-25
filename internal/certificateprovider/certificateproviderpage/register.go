@@ -149,7 +149,7 @@ func Register(
 	handleRoot := makeHandle(rootMux, errorHandler, sessionStore, certificateProviderStartURL)
 
 	handleRoot(page.PathCertificateProviderLogin, page.None,
-		page.Login(oneLoginClient, sessionStore, random.String, page.PathCertificateProviderLoginCallback))
+		page.Login(oneLoginClient, sessionStore, random.AlphaNumeric, page.PathCertificateProviderLoginCallback))
 	handleRoot(page.PathCertificateProviderLoginCallback, page.None,
 		page.LoginCallback(logger, oneLoginClient, sessionStore, page.PathCertificateProviderEnterReferenceNumber, dashboardStore, actor.TypeCertificateProvider))
 	handleRoot(page.PathCertificateProviderEnterReferenceNumber, page.RequireSession,
@@ -191,7 +191,7 @@ func Register(
 	handleCertificateProvider(certificateprovider.PathCompletingYourIdentityConfirmation, page.None,
 		CompletingYourIdentityConfirmation(tmpls.Get("completing_your_identity_confirmation.gohtml")))
 	handleCertificateProvider(certificateprovider.PathIdentityWithOneLogin, page.None,
-		IdentityWithOneLogin(oneLoginClient, sessionStore, random.String))
+		IdentityWithOneLogin(oneLoginClient, sessionStore, random.AlphaNumeric))
 	handleCertificateProvider(certificateprovider.PathIdentityWithOneLoginCallback, page.None,
 		IdentityWithOneLoginCallback(oneLoginClient, sessionStore, certificateProviderStore, lpaStoreClient, eventClient))
 	handleCertificateProvider(certificateprovider.PathIdentityDetails, page.None,

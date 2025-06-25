@@ -62,14 +62,14 @@ func TestGetEnterReferenceNumberWhenTemplateError(t *testing.T) {
 }
 
 func TestPostEnterReferenceNumber(t *testing.T) {
-	form := url.Values{"reference-number": {"abcd12345678"}}
+	form := url.Values{"reference-number": {"abcd1234"}}
 
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(form.Encode()))
 	r.Header.Add("Content-Type", page.FormUrlEncoded)
 
 	invite := &supporterdata.MemberInvite{
-		ReferenceNumber:  sharecodedata.HashedFromString("abcd12345678"),
+		ReferenceNumber:  sharecodedata.HashedFromString("abcd1234"),
 		OrganisationID:   "org-id",
 		OrganisationName: "org name",
 		CreatedAt:        time.Now().Add(-47 * time.Hour),
@@ -106,7 +106,7 @@ func TestPostEnterReferenceNumber(t *testing.T) {
 }
 
 func TestPostEnterReferenceNumberWhenIncorrectReferenceNumber(t *testing.T) {
-	form := url.Values{"reference-number": {"not-match-1234"}}
+	form := url.Values{"reference-number": {"not-match"}}
 
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(form.Encode()))
@@ -123,8 +123,8 @@ func TestPostEnterReferenceNumberWhenIncorrectReferenceNumber(t *testing.T) {
 			App: testAppData,
 			Form: &referenceNumberForm{
 				Label:              "referenceNumber",
-				ReferenceNumber:    "notmatch1234",
-				ReferenceNumberRaw: "not-match-1234",
+				ReferenceNumber:    "notmatch",
+				ReferenceNumberRaw: "not-match",
 			},
 			Errors: validation.With("reference-number", validation.CustomError{Label: "incorrectReferenceNumber"}),
 		}).
@@ -138,7 +138,7 @@ func TestPostEnterReferenceNumberWhenIncorrectReferenceNumber(t *testing.T) {
 }
 
 func TestPostEnterReferenceNumberWhenInviteExpired(t *testing.T) {
-	form := url.Values{"reference-number": {"match-1234-789"}}
+	form := url.Values{"reference-number": {"match-123"}}
 
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(form.Encode()))
@@ -148,7 +148,7 @@ func TestPostEnterReferenceNumberWhenInviteExpired(t *testing.T) {
 	memberStore.EXPECT().
 		InvitedMember(r.Context()).
 		Return(&supporterdata.MemberInvite{
-			ReferenceNumber: sharecodedata.HashedFromString("match1234789"),
+			ReferenceNumber: sharecodedata.HashedFromString("match123"),
 			OrganisationID:  "org-id",
 			CreatedAt:       time.Now().Add(-49 * time.Hour),
 		}, nil)
@@ -162,7 +162,7 @@ func TestPostEnterReferenceNumberWhenInviteExpired(t *testing.T) {
 }
 
 func TestPostEnterReferenceNumberWhenMemberStoreInvitedMemberError(t *testing.T) {
-	form := url.Values{"reference-number": {"abcd12345678"}}
+	form := url.Values{"reference-number": {"abcd1234"}}
 
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(form.Encode()))
@@ -181,7 +181,7 @@ func TestPostEnterReferenceNumberWhenMemberStoreInvitedMemberError(t *testing.T)
 }
 
 func TestPostEnterReferenceNumberWhenMemberStoreCreateError(t *testing.T) {
-	form := url.Values{"reference-number": {"abcd12345678"}}
+	form := url.Values{"reference-number": {"abcd1234"}}
 
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(form.Encode()))
@@ -191,7 +191,7 @@ func TestPostEnterReferenceNumberWhenMemberStoreCreateError(t *testing.T) {
 	memberStore.EXPECT().
 		InvitedMember(mock.Anything).
 		Return(&supporterdata.MemberInvite{
-			ReferenceNumber: sharecodedata.HashedFromString("abcd12345678"),
+			ReferenceNumber: sharecodedata.HashedFromString("abcd1234"),
 			OrganisationID:  "org-id",
 			CreatedAt:       time.Now(),
 		}, nil)
@@ -208,7 +208,7 @@ func TestPostEnterReferenceNumberWhenMemberStoreCreateError(t *testing.T) {
 }
 
 func TestPostEnterReferenceNumberWhenSessionGetError(t *testing.T) {
-	form := url.Values{"reference-number": {"abcd12345678"}}
+	form := url.Values{"reference-number": {"abcd1234"}}
 
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(form.Encode()))
@@ -218,7 +218,7 @@ func TestPostEnterReferenceNumberWhenSessionGetError(t *testing.T) {
 	memberStore.EXPECT().
 		InvitedMember(mock.Anything).
 		Return(&supporterdata.MemberInvite{
-			ReferenceNumber: sharecodedata.HashedFromString("abcd12345678"),
+			ReferenceNumber: sharecodedata.HashedFromString("abcd1234"),
 			OrganisationID:  "org-id",
 			CreatedAt:       time.Now(),
 		}, nil)
@@ -241,7 +241,7 @@ func TestPostEnterReferenceNumberWhenSessionGetError(t *testing.T) {
 }
 
 func TestPostEnterReferenceNumberWhenSessionSaveError(t *testing.T) {
-	form := url.Values{"reference-number": {"abcd12345678"}}
+	form := url.Values{"reference-number": {"abcd1234"}}
 
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(form.Encode()))
@@ -251,7 +251,7 @@ func TestPostEnterReferenceNumberWhenSessionSaveError(t *testing.T) {
 	memberStore.EXPECT().
 		InvitedMember(mock.Anything).
 		Return(&supporterdata.MemberInvite{
-			ReferenceNumber: sharecodedata.HashedFromString("abcd12345678"),
+			ReferenceNumber: sharecodedata.HashedFromString("abcd1234"),
 			OrganisationID:  "org-id",
 			CreatedAt:       time.Now(),
 		}, nil)
@@ -293,7 +293,7 @@ func TestPostEnterReferenceNumberWhenValidationError(t *testing.T) {
 			Form: &referenceNumberForm{
 				Label: "referenceNumber",
 			},
-			Errors: validation.With("reference-number", validation.EnterError{Label: "twelveCharactersReferenceNumber"}),
+			Errors: validation.With("reference-number", validation.EnterError{Label: "yourAccessCode"}),
 		}).
 		Return(nil)
 
@@ -310,27 +310,27 @@ func TestReferenceNumberFormValidate(t *testing.T) {
 		errors validation.List
 	}{
 		"valid": {
-			form:   &referenceNumberForm{ReferenceNumber: "abcdef123456"},
+			form:   &referenceNumberForm{ReferenceNumber: "abcd1234"},
 			errors: nil,
 		},
 		"too short": {
-			form: &referenceNumberForm{ReferenceNumber: "abcdef12345"},
+			form: &referenceNumberForm{ReferenceNumber: "abcd123"},
 			errors: validation.With("reference-number", validation.StringLengthError{
 				Label:  "theReferenceNumberYouEnter",
-				Length: 12,
+				Length: 8,
 			}),
 		},
 		"too long": {
-			form: &referenceNumberForm{ReferenceNumber: "abcdef1234567"},
+			form: &referenceNumberForm{ReferenceNumber: "abcd12345"},
 			errors: validation.With("reference-number", validation.StringLengthError{
 				Label:  "theReferenceNumberYouEnter",
-				Length: 12,
+				Length: 8,
 			}),
 		},
 		"empty": {
 			form: &referenceNumberForm{},
 			errors: validation.With("reference-number", validation.EnterError{
-				Label: "twelveCharactersReferenceNumber",
+				Label: "yourAccessCode",
 			}),
 		},
 	}
