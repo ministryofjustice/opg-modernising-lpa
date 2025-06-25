@@ -12,11 +12,12 @@ import (
 func TestGenerate(t *testing.T) {
 	plain, hashed := Generate()
 
-	assert.Equal(t, HashedFromString(plain.Plain()), hashed)
+	s := plain.Plain()
+	assert.Equal(t, HashedFromString(s[:4]+s[5:]), hashed)
 }
 
 func TestPlainText(t *testing.T) {
-	plain := PlainText("abc")
+	plain := PlainText("abcdefgh")
 
 	assert.Equal(t, "<sharecode>", plain.String())
 	assert.Equal(t, "<sharecode>", plain.GoString())
@@ -27,7 +28,7 @@ func TestPlainText(t *testing.T) {
 	assert.NotContains(t, buf.String(), "abc")
 	assert.Contains(t, buf.String(), "code=<sharecode>")
 
-	assert.Equal(t, "abc", plain.Plain())
+	assert.Equal(t, "abcd-efgh", plain.Plain())
 }
 
 func TestHashed(t *testing.T) {

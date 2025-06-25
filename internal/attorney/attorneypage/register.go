@@ -124,7 +124,7 @@ func Register(
 	handleRoot := makeHandle(rootMux, sessionStore, errorHandler, attorneyStartURL)
 
 	handleRoot(page.PathAttorneyLogin, None,
-		page.Login(oneLoginClient, sessionStore, random.String, page.PathAttorneyLoginCallback))
+		page.Login(oneLoginClient, sessionStore, random.AlphaNumeric, page.PathAttorneyLoginCallback))
 	handleRoot(page.PathAttorneyLoginCallback, None,
 		page.LoginCallback(logger, oneLoginClient, sessionStore, page.PathAttorneyEnterReferenceNumber, dashboardStore, actor.TypeAttorney))
 	handleRoot(page.PathAttorneyEnterReferenceNumber, RequireSession,

@@ -219,7 +219,7 @@ func makeVoucher(name Name) donordata.Voucher {
 }
 
 func makeUID() string {
-	return strings.ToUpper("M-" + "FAKE" + "-" + random.String(4) + "-" + random.String(4))
+	return strings.ToUpper("M-" + "FAKE" + "-" + random.AlphaNumeric(4) + "-" + random.AlphaNumeric(4))
 }
 
 func acceptCookiesConsent(w http.ResponseWriter) {

@@ -30,7 +30,7 @@ type Store struct {
 func NewStore(dynamoClient DynamoClient) *Store {
 	return &Store{
 		dynamoClient: dynamoClient,
-		uuidString:   random.UuidString,
+		uuidString:   random.UUID,
 		now:          time.Now,
 	}
 }

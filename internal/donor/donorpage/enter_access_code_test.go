@@ -63,7 +63,7 @@ func TestGetEnterAccessCodeOnTemplateError(t *testing.T) {
 
 func TestPostEnterAccessCode(t *testing.T) {
 	form := url.Values{
-		"reference-number": {"abcdef123456"},
+		"reference-number": {"abcd1234"},
 	}
 
 	w := httptest.NewRecorder()
@@ -74,7 +74,7 @@ func TestPostEnterAccessCode(t *testing.T) {
 
 	shareCodeStore := newMockShareCodeStore(t)
 	shareCodeStore.EXPECT().
-		Get(r.Context(), actor.TypeDonor, sharecodedata.HashedFromString("abcdef123456")).
+		Get(r.Context(), actor.TypeDonor, sharecodedata.HashedFromString("abcd1234")).
 		Return(shareCode, nil)
 
 	donorStore := newMockDonorStore(t)
@@ -116,7 +116,7 @@ func TestPostEnterAccessCode(t *testing.T) {
 
 func TestPostEnterAccessCodeOnShareCodeStoreError(t *testing.T) {
 	form := url.Values{
-		"reference-number": {" abcdef123456  "},
+		"reference-number": {" abcd1234  "},
 	}
 
 	w := httptest.NewRecorder()
@@ -125,7 +125,7 @@ func TestPostEnterAccessCodeOnShareCodeStoreError(t *testing.T) {
 
 	shareCodeStore := newMockShareCodeStore(t)
 	shareCodeStore.EXPECT().
-		Get(r.Context(), actor.TypeDonor, sharecodedata.HashedFromString("abcdef123456")).
+		Get(r.Context(), actor.TypeDonor, sharecodedata.HashedFromString("abcd1234")).
 		Return(sharecodedata.Link{LpaKey: "lpa-id", LpaOwnerKey: dynamo.LpaOwnerKey(dynamo.DonorKey(""))}, expectedError)
 
 	err := EnterAccessCode(nil, nil, shareCodeStore, nil, nil, nil)(testAppData, w, r)
@@ -137,7 +137,7 @@ func TestPostEnterAccessCodeOnShareCodeStoreError(t *testing.T) {
 
 func TestPostEnterAccessCodeOnShareCodeStoreNotFoundError(t *testing.T) {
 	form := url.Values{
-		"reference-number": {"abcde f-123456 "},
+		"reference-number": {"abcd 12-34 "},
 	}
 
 	w := httptest.NewRecorder()
@@ -146,7 +146,7 @@ func TestPostEnterAccessCodeOnShareCodeStoreNotFoundError(t *testing.T) {
 
 	data := enterAccessCodeData{
 		App:    testAppData,
-		Form:   &enterAccessCodeForm{AccessCode: "abcdef123456", AccessCodeRaw: "abcde f-123456"},
+		Form:   &enterAccessCodeForm{AccessCode: "abcd1234", AccessCodeRaw: "abcd 12-34"},
 		Errors: validation.With("reference-number", validation.CustomError{Label: "incorrectAccessCode"}),
 	}
 
@@ -157,7 +157,7 @@ func TestPostEnterAccessCodeOnShareCodeStoreNotFoundError(t *testing.T) {
 
 	shareCodeStore := newMockShareCodeStore(t)
 	shareCodeStore.EXPECT().
-		Get(r.Context(), actor.TypeDonor, sharecodedata.HashedFromString("abcdef123456")).
+		Get(r.Context(), actor.TypeDonor, sharecodedata.HashedFromString("abcd1234")).
 		Return(sharecodedata.Link{LpaKey: "lpa-id", LpaOwnerKey: dynamo.LpaOwnerKey(dynamo.DonorKey(""))}, dynamo.NotFoundError{})
 
 	err := EnterAccessCode(nil, template.Execute, shareCodeStore, nil, nil, nil)(testAppData, w, r)
@@ -169,7 +169,7 @@ func TestPostEnterAccessCodeOnShareCodeStoreNotFoundError(t *testing.T) {
 
 func TestPostEnterAccessCodeOnDonorStoreError(t *testing.T) {
 	form := url.Values{
-		"reference-number": {"abcdef123456"},
+		"reference-number": {"abcd1234"},
 	}
 
 	w := httptest.NewRecorder()
@@ -178,7 +178,7 @@ func TestPostEnterAccessCodeOnDonorStoreError(t *testing.T) {
 
 	shareCodeStore := newMockShareCodeStore(t)
 	shareCodeStore.EXPECT().
-		Get(r.Context(), actor.TypeDonor, sharecodedata.HashedFromString("abcdef123456")).
+		Get(r.Context(), actor.TypeDonor, sharecodedata.HashedFromString("abcd1234")).
 		Return(sharecodedata.Link{LpaKey: "lpa-id", LpaOwnerKey: dynamo.LpaOwnerKey(dynamo.DonorKey(""))}, nil)
 
 	donorStore := newMockDonorStore(t)
@@ -195,7 +195,7 @@ func TestPostEnterAccessCodeOnDonorStoreError(t *testing.T) {
 
 func TestPostEnterAccessCodeOnSessionGetError(t *testing.T) {
 	form := url.Values{
-		"reference-number": {"abcdef123456"},
+		"reference-number": {"abcd1234"},
 	}
 
 	w := httptest.NewRecorder()
@@ -230,7 +230,7 @@ func TestPostEnterAccessCodeOnSessionGetError(t *testing.T) {
 
 func TestPostEnterAccessCodeOnSessionSetError(t *testing.T) {
 	form := url.Values{
-		"reference-number": {"abcdef123456"},
+		"reference-number": {"abcd1234"},
 	}
 
 	w := httptest.NewRecorder()
@@ -268,7 +268,7 @@ func TestPostEnterAccessCodeOnSessionSetError(t *testing.T) {
 
 func TestPostEnterAccessCodeOnEventClientError(t *testing.T) {
 	form := url.Values{
-		"reference-number": {"abcdef123456"},
+		"reference-number": {"abcd1234"},
 	}
 
 	w := httptest.NewRecorder()
@@ -342,21 +342,21 @@ func TestValidateEnterAccessCodeForm(t *testing.T) {
 		errors validation.List
 	}{
 		"valid": {
-			form:   &enterAccessCodeForm{AccessCode: "abcdef123456"},
+			form:   &enterAccessCodeForm{AccessCode: "abcd1234"},
 			errors: nil,
 		},
 		"too short": {
 			form: &enterAccessCodeForm{AccessCode: "1"},
 			errors: validation.With("reference-number", validation.StringLengthError{
 				Label:  "accessCode",
-				Length: 12,
+				Length: 8,
 			}),
 		},
 		"too long": {
 			form: &enterAccessCodeForm{AccessCode: "123456789ABCD"},
 			errors: validation.With("reference-number", validation.StringLengthError{
 				Label:  "accessCode",
-				Length: 12,
+				Length: 8,
 			}),
 		},
 		"empty": {

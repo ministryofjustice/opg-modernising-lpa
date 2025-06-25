@@ -90,7 +90,7 @@ func (f *enterAccessCodeForm) Validate() validation.List {
 
 	errors.String("reference-number", "accessCode", f.AccessCode,
 		validation.Empty(),
-		validation.StringLength(12))
+		validation.StringLength(8))
 
 	return errors
 }

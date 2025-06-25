@@ -138,7 +138,7 @@ func Register(
 	handleRoot(page.PathSupporterSigningInAdvice, None,
 		page.Guidance(tmpls.Get("signing_in_advice.gohtml")))
 	handleRoot(page.PathSupporterLogin, None,
-		page.Login(oneLoginClient, sessionStore, random.String, page.PathSupporterLoginCallback))
+		page.Login(oneLoginClient, sessionStore, random.AlphaNumeric, page.PathSupporterLoginCallback))
 	handleRoot(page.PathSupporterLoginCallback, None,
 		LoginCallback(logger, oneLoginClient, sessionStore, organisationStore, time.Now, memberStore))
 	handleRoot(page.PathSupporterEnterYourName, RequireSession,

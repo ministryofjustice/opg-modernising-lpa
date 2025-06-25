@@ -135,7 +135,7 @@ func (f *enterReferenceNumberForm) Validate() validation.List {
 		validation.Empty())
 
 	errors.String("reference-number", "theReferenceNumberYouEnter", f.ReferenceNumber,
-		validation.StringLength(12))
+		validation.StringLength(8))
 
 	return errors
 }
