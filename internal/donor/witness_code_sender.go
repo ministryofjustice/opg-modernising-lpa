@@ -50,7 +50,7 @@ func NewWitnessCodeSender(donorStore DonorStore, certificateProviderStore Certif
 		certificateProviderStore: certificateProviderStore,
 		notifyClient:             notifyClient,
 		localizer:                localizer,
-		randomCode:               random.Code,
+		randomCode:               random.Numeric,
 		now:                      time.Now,
 		useTestCode:              useTestCode,
 	}

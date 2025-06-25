@@ -18,10 +18,9 @@ import (
 )
 
 var (
-	testStringCode = "abcde"
-	testHashedCode = sharecodedata.HashedFromString(testStringCode)
-	testGenerateFn = func() (sharecodedata.PlainText, sharecodedata.Hashed) {
-		return sharecodedata.PlainText(testStringCode), testHashedCode
+	testPlainCode, testHashedCode = sharecodedata.Generate()
+	testGenerateFn                = func() (sharecodedata.PlainText, sharecodedata.Hashed) {
+		return testPlainCode, testHashedCode
 	}
 )
 
@@ -138,7 +137,7 @@ func TestPostManageTeamMembers(t *testing.T) {
 		DeleteMemberInvite(r.Context(), organisation.ID, "email@example.com").
 		Return(nil)
 	memberStore.EXPECT().
-		CreateMemberInvite(r.Context(), organisation, "a", "b", "email@example.com", sharecodedata.HashedFromString("abcde"), supporterdata.PermissionAdmin).
+		CreateMemberInvite(r.Context(), organisation, "a", "b", "email@example.com", testHashedCode, supporterdata.PermissionAdmin).
 		Return(nil)
 
 	notifyClient := newMockNotifyClient(t)
@@ -146,7 +145,7 @@ func TestPostManageTeamMembers(t *testing.T) {
 		SendEmail(r.Context(), notify.ToCustomEmail(localize.En, "email@example.com"), notify.OrganisationMemberInviteEmail{
 			OrganisationName:      "My organisation",
 			InviterEmail:          "supporter@example.com",
-			InviteCode:            "abcde",
+			InviteCode:            testPlainCode.Plain(),
 			JoinAnOrganisationURL: "http://base" + page.PathSupporterStart.Format(),
 		}).
 		Return(nil)

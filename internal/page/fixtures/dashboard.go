@@ -36,8 +36,8 @@ func Dashboard(
 		}
 
 		var (
-			meSub          = random.String(16)
-			donorSub       = random.String(16)
+			meSub          = random.AlphaNumeric(16)
+			donorSub       = random.AlphaNumeric(16)
 			meSessionID    = base64.StdEncoding.EncodeToString([]byte(meSub))
 			donorSessionID = base64.StdEncoding.EncodeToString([]byte(donorSub))
 		)

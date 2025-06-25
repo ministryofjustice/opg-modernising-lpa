@@ -68,7 +68,7 @@ func TestPostEnterReferenceNumber(t *testing.T) {
 	shareCode := sharecodedata.Link{LpaKey: dynamo.LpaKey("lpa-id"), LpaOwnerKey: dynamo.LpaOwnerKey(dynamo.DonorKey(""))}
 
 	form := url.Values{
-		"reference-number": {"abcdef123456"},
+		"reference-number": {"abcd1234"},
 	}
 
 	w := httptest.NewRecorder()
@@ -77,7 +77,7 @@ func TestPostEnterReferenceNumber(t *testing.T) {
 
 	shareCodeStore := newMockShareCodeStore(t)
 	shareCodeStore.EXPECT().
-		Get(r.Context(), actor.TypeVoucher, sharecodedata.HashedFromString("abcdef123456")).
+		Get(r.Context(), actor.TypeVoucher, sharecodedata.HashedFromString("abcd1234")).
 		Return(shareCode, nil)
 
 	voucherStore := newMockVoucherStore(t)
@@ -112,7 +112,7 @@ func TestPostEnterReferenceNumber(t *testing.T) {
 
 func TestPostEnterReferenceNumberOnDonorStoreError(t *testing.T) {
 	form := url.Values{
-		"reference-number": {" abcdef123456  "},
+		"reference-number": {" abcd1234  "},
 	}
 
 	w := httptest.NewRecorder()
@@ -121,7 +121,7 @@ func TestPostEnterReferenceNumberOnDonorStoreError(t *testing.T) {
 
 	shareCodeStore := newMockShareCodeStore(t)
 	shareCodeStore.EXPECT().
-		Get(r.Context(), actor.TypeVoucher, sharecodedata.HashedFromString("abcdef123456")).
+		Get(r.Context(), actor.TypeVoucher, sharecodedata.HashedFromString("abcd1234")).
 		Return(sharecodedata.Link{LpaKey: dynamo.LpaKey("lpa-id"), LpaOwnerKey: dynamo.LpaOwnerKey(dynamo.DonorKey(""))}, expectedError)
 
 	err := EnterReferenceNumber(nil, shareCodeStore, nil, nil)(testAppData, w, r)
@@ -134,7 +134,7 @@ func TestPostEnterReferenceNumberOnDonorStoreError(t *testing.T) {
 
 func TestPostEnterReferenceNumberOnShareCodeStoreNotFoundError(t *testing.T) {
 	form := url.Values{
-		"reference-number": {"abcde f-123456 "},
+		"reference-number": {" ab cd-12 34 "},
 	}
 
 	w := httptest.NewRecorder()
@@ -143,7 +143,7 @@ func TestPostEnterReferenceNumberOnShareCodeStoreNotFoundError(t *testing.T) {
 
 	data := enterReferenceNumberData{
 		App:    testAppData,
-		Form:   &enterReferenceNumberForm{ReferenceNumber: "abcdef123456", ReferenceNumberRaw: "abcde f-123456"},
+		Form:   &enterReferenceNumberForm{ReferenceNumber: "abcd1234", ReferenceNumberRaw: "ab cd-12 34"},
 		Errors: validation.With("reference-number", validation.CustomError{Label: "incorrectReferenceNumber"}),
 	}
 
@@ -154,7 +154,7 @@ func TestPostEnterReferenceNumberOnShareCodeStoreNotFoundError(t *testing.T) {
 
 	shareCodeStore := newMockShareCodeStore(t)
 	shareCodeStore.EXPECT().
-		Get(r.Context(), actor.TypeVoucher, sharecodedata.HashedFromString("abcdef123456")).
+		Get(r.Context(), actor.TypeVoucher, sharecodedata.HashedFromString("abcd1234")).
 		Return(sharecodedata.Link{LpaKey: dynamo.LpaKey("lpa-id"), LpaOwnerKey: dynamo.LpaOwnerKey(dynamo.DonorKey(""))}, dynamo.NotFoundError{})
 
 	err := EnterReferenceNumber(template.Execute, shareCodeStore, nil, nil)(testAppData, w, r)
@@ -167,7 +167,7 @@ func TestPostEnterReferenceNumberOnShareCodeStoreNotFoundError(t *testing.T) {
 
 func TestPostEnterReferenceNumberOnSessionGetError(t *testing.T) {
 	form := url.Values{
-		"reference-number": {"abcdef123456"},
+		"reference-number": {"abcd1234"},
 	}
 
 	w := httptest.NewRecorder()
@@ -176,7 +176,7 @@ func TestPostEnterReferenceNumberOnSessionGetError(t *testing.T) {
 
 	shareCodeStore := newMockShareCodeStore(t)
 	shareCodeStore.EXPECT().
-		Get(r.Context(), actor.TypeVoucher, sharecodedata.HashedFromString("abcdef123456")).
+		Get(r.Context(), actor.TypeVoucher, sharecodedata.HashedFromString("abcd1234")).
 		Return(sharecodedata.Link{LpaKey: dynamo.LpaKey("lpa-id"), LpaOwnerKey: dynamo.LpaOwnerKey(dynamo.DonorKey(""))}, nil)
 
 	sessionStore := newMockSessionStore(t)
@@ -191,7 +191,7 @@ func TestPostEnterReferenceNumberOnSessionGetError(t *testing.T) {
 
 func TestPostEnterReferenceNumberOnSessionSetError(t *testing.T) {
 	form := url.Values{
-		"reference-number": {"abcdef123456"},
+		"reference-number": {"abcd1234"},
 	}
 
 	w := httptest.NewRecorder()
@@ -200,7 +200,7 @@ func TestPostEnterReferenceNumberOnSessionSetError(t *testing.T) {
 
 	shareCodeStore := newMockShareCodeStore(t)
 	shareCodeStore.EXPECT().
-		Get(r.Context(), actor.TypeVoucher, sharecodedata.HashedFromString("abcdef123456")).
+		Get(r.Context(), actor.TypeVoucher, sharecodedata.HashedFromString("abcd1234")).
 		Return(sharecodedata.Link{LpaKey: dynamo.LpaKey("lpa-id"), LpaOwnerKey: dynamo.LpaOwnerKey(dynamo.DonorKey(""))}, nil)
 
 	sessionStore := newMockSessionStore(t)
@@ -218,7 +218,7 @@ func TestPostEnterReferenceNumberOnSessionSetError(t *testing.T) {
 
 func TestPostEnterReferenceNumberOnVoucherStoreError(t *testing.T) {
 	form := url.Values{
-		"reference-number": {"abcdef123456"},
+		"reference-number": {"abcd1234"},
 	}
 
 	w := httptest.NewRecorder()
@@ -263,7 +263,7 @@ func TestPostEnterReferenceNumberOnValidationError(t *testing.T) {
 	data := enterReferenceNumberData{
 		App:    testAppData,
 		Form:   &enterReferenceNumberForm{},
-		Errors: validation.With("reference-number", validation.EnterError{Label: "twelveCharactersReferenceNumber"}),
+		Errors: validation.With("reference-number", validation.EnterError{Label: "yourAccessCode"}),
 	}
 
 	template := newMockTemplate(t)
@@ -285,27 +285,27 @@ func TestValidateEnterReferenceNumberForm(t *testing.T) {
 		errors validation.List
 	}{
 		"valid": {
-			form:   &enterReferenceNumberForm{ReferenceNumber: "abcdef123456"},
+			form:   &enterReferenceNumberForm{ReferenceNumber: "abcd1234"},
 			errors: nil,
 		},
 		"too short": {
 			form: &enterReferenceNumberForm{ReferenceNumber: "1"},
 			errors: validation.With("reference-number", validation.StringLengthError{
 				Label:  "theReferenceNumberYouEnter",
-				Length: 12,
+				Length: 8,
 			}),
 		},
 		"too long": {
 			form: &enterReferenceNumberForm{ReferenceNumber: "123456789ABCD"},
 			errors: validation.With("reference-number", validation.StringLengthError{
 				Label:  "theReferenceNumberYouEnter",
-				Length: 12,
+				Length: 8,
 			}),
 		},
 		"empty": {
 			form: &enterReferenceNumberForm{},
 			errors: validation.With("reference-number", validation.EnterError{
-				Label: "twelveCharactersReferenceNumber",
+				Label: "yourAccessCode",
 			}),
 		},
 	}

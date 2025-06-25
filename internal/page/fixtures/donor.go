@@ -137,11 +137,11 @@ func Donor(
 		}
 
 		if data.DonorSub == "" {
-			data.DonorSub = random.String(16)
+			data.DonorSub = random.AlphaNumeric(16)
 		}
 
 		if data.CertificateProviderSub == "" {
-			data.CertificateProviderSub = random.String(16)
+			data.CertificateProviderSub = random.AlphaNumeric(16)
 		}
 
 		if r.Method != http.MethodPost && !r.URL.Query().Has("redirect") {
@@ -477,8 +477,8 @@ func updateLPAProgress(
 		}
 
 		donorDetails.PaymentDetails = append(donorDetails.PaymentDetails, donordata.Payment{
-			PaymentReference: random.String(12),
-			PaymentID:        random.String(12),
+			PaymentReference: random.AlphaNumeric(12),
+			PaymentID:        random.AlphaNumeric(12),
 		})
 
 		donorDetails.Tasks.PayForLpa = task.PaymentStateCompleted
@@ -559,7 +559,7 @@ func updateLPAProgress(
 			donorDetails.Voucher.Allowed = true
 			donorDetails.Tasks.ConfirmYourIdentity = task.IdentityStateInProgress
 
-			ctx := appcontext.ContextWithSession(r.Context(), &appcontext.Session{SessionID: random.String(16), LpaID: donorDetails.LpaID})
+			ctx := appcontext.ContextWithSession(r.Context(), &appcontext.Session{SessionID: random.AlphaNumeric(16), LpaID: donorDetails.LpaID})
 
 			voucherDetails, err := createVoucher(ctx, shareCodeStore, voucherStore, donorDetails)
 			if err != nil {
@@ -746,7 +746,7 @@ func updateLPAProgress(
 	if data.Progress >= slices.Index(progressValues, "signedByAttorneys") {
 		for isReplacement, list := range map[bool]donordata.Attorneys{false: donorDetails.Attorneys, true: donorDetails.ReplacementAttorneys} {
 			for _, a := range list.Attorneys {
-				ctx := appcontext.ContextWithSession(r.Context(), &appcontext.Session{SessionID: random.String(16), LpaID: donorDetails.LpaID})
+				ctx := appcontext.ContextWithSession(r.Context(), &appcontext.Session{SessionID: random.AlphaNumeric(16), LpaID: donorDetails.LpaID})
 
 				attorney, err := createAttorney(
 					ctx,
@@ -779,7 +779,7 @@ func updateLPAProgress(
 			}
 
 			if list.TrustCorporation.Name != "" {
-				ctx := appcontext.ContextWithSession(r.Context(), &appcontext.Session{SessionID: random.String(16), LpaID: donorDetails.LpaID})
+				ctx := appcontext.ContextWithSession(r.Context(), &appcontext.Session{SessionID: random.AlphaNumeric(16), LpaID: donorDetails.LpaID})
 
 				attorney, err := createAttorney(
 					ctx,

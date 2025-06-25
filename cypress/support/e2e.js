@@ -1,34 +1,34 @@
-import './commands'
 import 'cypress-axe'
 import "cypress-real-events"
+import './commands'
 
 export const
     TestEmail = 'simulate-delivered@notifications.service.gov.uk',
     TestEmail2 = 'simulate-delivered-2@notifications.service.gov.uk',
     TestMobile = '07700900000',
     TestMobile2 = '07700900111',
-    DonorName = {FirstNames: "Sam", LastName: "Smith"},
-    CertificateProviderName = {FirstNames: "Charlie", LastName: "Cooper"},
+    DonorName = { FirstNames: "Sam", LastName: "Smith" },
+    CertificateProviderName = { FirstNames: "Charlie", LastName: "Cooper" },
     AttorneyNames = [
-        {FirstNames: "Jessie", LastName: "Jones"},
-        {FirstNames: "Robin", LastName: "Redcar"}
+        { FirstNames: "Jessie", LastName: "Jones" },
+        { FirstNames: "Robin", LastName: "Redcar" }
     ],
     ReplacementAttorneyNames = [
-        {FirstNames: "Blake", LastName: "Buckley"},
-        {FirstNames: "Taylor", LastName: "Thompson"}
+        { FirstNames: "Blake", LastName: "Buckley" },
+        { FirstNames: "Taylor", LastName: "Thompson" }
     ],
     PeopleToNotifyNames = [
-        {FirstNames: "Jordan", LastName: "Jefferson"},
-        {FirstNames: "Danni", LastName: "Davies"},
+        { FirstNames: "Jordan", LastName: "Jefferson" },
+        { FirstNames: "Danni", LastName: "Davies" },
     ],
-    CorrespondentName = {FirstNames: "John", LastName: "Smith"}
+    CorrespondentName = { FirstNames: "John", LastName: "Smith" }
 
 
 export function randomShareCode() {
-    const characters = 'abcdefghijklmnpqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ123456789'
+    const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ123456789'
     let result = [];
 
-    for (let i = 0; i < 12; i++) {
+    for (let i = 0; i < 8; i++) {
         result.push(characters.charAt(Math.floor(Math.random() * characters.length)));
     }
 

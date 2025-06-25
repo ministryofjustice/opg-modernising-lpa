@@ -159,7 +159,7 @@ func TestPostDonorAccess(t *testing.T) {
 			LpaReferenceNumber: "lpa-uid",
 			DonorName:          "Barry Boy",
 			URL:                "http://whatever/start",
-			ShareCode:          testStringCode,
+			ShareCode:          testPlainCode.Plain(),
 		}).
 		Return(nil)
 
