@@ -153,9 +153,11 @@ func Register(
 	handleRoot(page.PathCertificateProviderLoginCallback, page.None,
 		page.LoginCallback(logger, oneLoginClient, sessionStore, page.PathCertificateProviderEnterReferenceNumber, dashboardStore, actor.TypeCertificateProvider))
 	handleRoot(page.PathCertificateProviderEnterReferenceNumber, page.RequireSession,
-		EnterReferenceNumber(tmpls.Get("enter_reference_number.gohtml"), shareCodeStore, sessionStore, certificateProviderStore, lpaStoreClient, dashboardStore, eventClient))
+		page.EnterAccessCode(tmpls.Get("enter_reference_number.gohtml"), shareCodeStore, sessionStore, lpaStoreResolvingService, actor.TypeCertificateProvider,
+			EnterAccessCode(sessionStore, certificateProviderStore, lpaStoreClient, dashboardStore, eventClient)))
 	handleRoot(page.PathCertificateProviderEnterReferenceNumberOptOut, page.None,
-		EnterReferenceNumberOptOut(tmpls.Get("enter_reference_number_opt_out.gohtml"), shareCodeStore, sessionStore))
+		page.EnterAccessCodeOptOut(tmpls.Get("enter_reference_number_opt_out.gohtml"), shareCodeStore, sessionStore, lpaStoreResolvingService,
+			page.PathCertificateProviderConfirmDontWantToBeCertificateProviderLoggedOut))
 	handleRoot(page.PathCertificateProviderConfirmDontWantToBeCertificateProviderLoggedOut, page.None,
 		ConfirmDontWantToBeCertificateProviderLoggedOut(tmpls.Get("confirm_dont_want_to_be_certificate_provider.gohtml"), shareCodeStore, lpaStoreResolvingService, lpaStoreClient, donorStore, sessionStore, notifyClient, donorStartURL))
 	handleRoot(page.PathCertificateProviderYouHaveDecidedNotToBeCertificateProvider, page.None,
@@ -224,6 +226,8 @@ func makeHandle(mux *http.ServeMux, errorHandler page.ErrorHandler, sessionStore
 				}
 
 				appData.SessionID = loginSession.SessionID()
+				appData.HasLpas = loginSession.HasLPAs
+
 				ctx = appcontext.ContextWithSession(ctx, &appcontext.Session{SessionID: appData.SessionID})
 			}
 

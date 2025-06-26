@@ -4,11 +4,11 @@ describe('Choose not to be a certificate provider', () => {
     describe('can enter reference number to not be a certificate provider', () => {
         it('when LPA has been signed and witnessed', () => {
             const shareCode = randomShareCode()
-            cy.visit(`/fixtures/certificate-provider?redirect=/certificate-provider-enter-reference-number-opt-out&withShareCode=${shareCode}&email=${TestEmail}&progress=signedByDonor`)
+            cy.visit(`/fixtures/certificate-provider?redirect=/certificate-provider-enter-access-code-opt-out&withShareCode=${shareCode}&email=${TestEmail}&progress=signedByDonor`)
 
             cy.checkA11yApp();
 
-            cy.get('#f-reference-number').invoke('val', shareCode);
+            cy.get('#f-access-code').invoke('val', shareCode);
             cy.contains('Continue').click();
 
             cy.url().should('contain', '/confirm-you-do-not-want-to-be-a-certificate-provider')
@@ -27,11 +27,11 @@ describe('Choose not to be a certificate provider', () => {
 
         it('when LPA has not been signed and witnessed', () => {
             const shareCode = randomShareCode()
-            cy.visit(`/fixtures/certificate-provider?redirect=/certificate-provider-enter-reference-number-opt-out&withShareCode=${shareCode}&email=${TestEmail}`)
+            cy.visit(`/fixtures/certificate-provider?redirect=/certificate-provider-enter-access-code-opt-out&withShareCode=${shareCode}&email=${TestEmail}`)
 
             cy.checkA11yApp();
 
-            cy.get('#f-reference-number').invoke('val', shareCode);
+            cy.get('#f-access-code').invoke('val', shareCode);
             cy.contains('Continue').click();
 
             cy.url().should('contain', '/confirm-you-do-not-want-to-be-a-certificate-provider')
