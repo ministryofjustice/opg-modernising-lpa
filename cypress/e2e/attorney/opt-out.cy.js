@@ -5,9 +5,10 @@ describe('Opting out', () => {
         const shareCode = randomShareCode();
         cy.visit(`/fixtures/attorney?redirect=&withShareCode=${shareCode}&email=${TestEmail}`);
 
-        cy.visit('/attorney-enter-reference-number-opt-out');
+        cy.visit('/attorney-enter-access-code-opt-out');
         cy.checkA11yApp();
-        cy.get('#f-reference-number').invoke('val', shareCode);
+        cy.get('#f-donor-last-name').type('Smith');
+        cy.get('#f-access-code').invoke('val', shareCode);
         cy.contains('button', 'Continue').click();
 
         cy.url().should('contain', '/confirm-you-do-not-want-to-be-an-attorney');

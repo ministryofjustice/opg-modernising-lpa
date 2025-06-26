@@ -192,6 +192,16 @@ func (e NoLinksError) Format(l Localizer) string {
 	})
 }
 
+type IncorrectError struct {
+	Label string
+}
+
+func (e IncorrectError) Format(l Localizer) string {
+	return l.Format("errorIncorrect", map[string]any{
+		"Label": l.T(e.Label),
+	})
+}
+
 func lowerFirst(s string) string {
 	r, n := utf8.DecodeRuneInString(s)
 	return string(unicode.ToLower(r)) + s[n:]

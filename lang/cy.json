@@ -55,6 +55,7 @@
     "errorPostcode": "Rhaid i’r {{lowerFirst .Label}} fod yn god post yn y DU",
     "errorReferenceNumber": "Rhaid i’r {{lowerFirst .Label}} ddechrau â’r rhif 7 neu’r llythyren M",
     "errorNoLinks": "Does dim modd cynnwys dolenni i wefannau yn {{lowerFirst .Label}} gan y byddan nhw’n gwneud eich LPA yn annilys",
+    "errorIncorrect": "Welsh {{lowerFirst .Label}}",
     "bySavingThisSectionDifferentPeople": "Drwy gadw’r adran hon, rydych yn cadarnhau bod y rhain yn 2 berson gwahanol sydd â’r un enw.",
     "theDonor": "y rhoddwr",
     "anAttorney": "atwrnai",
@@ -1978,5 +1979,6 @@
     "iHaveACodeInvitingMeToBeACertificateProvider": "Welsh",
     "iHaveACodeInvitingMeToBeAnAttorney": "Welsh",
     "iHaveACodeInvitingMeToBeAReplacementAttorney": "Welsh",
-    "iHaveACodeInvitingMeToVerifySomeonesIdentity": "Welsh"
+    "iHaveACodeInvitingMeToVerifySomeonesIdentity": "Welsh",
+    "donorLastName": "Welsh"
 }

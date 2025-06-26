@@ -128,9 +128,11 @@ func Register(
 	handleRoot(page.PathAttorneyLoginCallback, None,
 		page.LoginCallback(logger, oneLoginClient, sessionStore, page.PathAttorneyEnterReferenceNumber, dashboardStore, actor.TypeAttorney))
 	handleRoot(page.PathAttorneyEnterReferenceNumber, RequireSession,
-		EnterReferenceNumber(tmpls.Get("enter_reference_number.gohtml"), shareCodeStore, sessionStore, attorneyStore, lpaStoreClient, eventClient))
+		page.EnterAccessCode(tmpls.Get("enter_reference_number.gohtml"), shareCodeStore, sessionStore, lpaStoreResolvingService, actor.TypeAttorney,
+			EnterAccessCode(attorneyStore, lpaStoreClient, eventClient)))
 	handleRoot(page.PathAttorneyEnterReferenceNumberOptOut, None,
-		EnterReferenceNumberOptOut(tmpls.Get("enter_reference_number_opt_out.gohtml"), shareCodeStore, sessionStore))
+		page.EnterAccessCodeOptOut(tmpls.Get("enter_reference_number_opt_out.gohtml"), shareCodeStore, sessionStore, lpaStoreResolvingService, actor.TypeAttorney,
+			page.PathAttorneyConfirmDontWantToBeAttorneyLoggedOut))
 	handleRoot(page.PathAttorneyConfirmDontWantToBeAttorneyLoggedOut, None,
 		ConfirmDontWantToBeAttorneyLoggedOut(tmpls.Get("confirm_dont_want_to_be_attorney.gohtml"), shareCodeStore, lpaStoreResolvingService, sessionStore, notifyClient, lpaStoreClient))
 	handleRoot(page.PathAttorneyYouHaveDecidedNotToBeAttorney, None,
