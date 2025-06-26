@@ -282,7 +282,8 @@ func Register(
 	handleRoot(page.PathLoginCallback, page.None,
 		page.LoginCallback(logger, oneLoginClient, sessionStore, page.PathMakeOrAddAnLPA, dashboardStore, actor.TypeDonor))
 	handleRoot(page.PathEnterAccessCode, page.RequireSession,
-		EnterAccessCode(logger, tmpls.Get("enter_access_code.gohtml"), shareCodeStore, donorStore, sessionStore, eventClient))
+		page.EnterAccessCode(tmpls.Get("enter_access_code.gohtml"), shareCodeStore, sessionStore, lpaStoreResolvingService, actor.TypeDonor,
+			EnterAccessCode(logger, donorStore, eventClient)))
 
 	handleWithDonor := makeLpaHandle(rootMux, sessionStore, errorHandler, donorStore, donorStartURL)
 

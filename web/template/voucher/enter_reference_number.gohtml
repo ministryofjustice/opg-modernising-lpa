@@ -3,21 +3,23 @@
 {{ define "pageTitle" }}{{ tr .App "enterYourVouchingReferenceNumber" }}{{ end }}
 
 {{ define "main" }}
-  <div class="govuk-grid-row">
-    <div class="govuk-grid-column-two-thirds">
-      <h1 class="govuk-heading-xl">{{ tr .App "enterYourVouchingReferenceNumber" }}</h1>
+    <div class="govuk-grid-row">
+        <div class="govuk-grid-column-two-thirds">
+            <h1 class="govuk-heading-xl">{{ tr .App "enterYourVouchingReferenceNumber" }}</h1>
 
-      {{ trHtml .App "vouchingReferenceNumberContent" }}
+            {{ trHtml .App "vouchingReferenceNumberContent" }}
 
-      <form novalidate method="post">
-        {{ template "input" (input . "reference-number" "vouchingReferenceNumber" .Form.ReferenceNumberRaw
-            "classes" "govuk-input--width-20 govuk-!-margin-bottom-3 govuk-input--extra-letter-spacing"
-            "labelClasses" "govuk-label--s"
-            "hint" "referenceNumberHint") }}
-          
-        <button type="submit" class="govuk-button" data-module="govuk-button">{{ tr .App "saveAndContinue" }}</button>
-        {{ template "csrf-field" . }}
-      </form>
+            <form novalidate method="post">
+                {{ template "input" (input . .Form.FieldNames.DonorLastName "donorLastName" .Form.DonorLastName
+                    "classes" "govuk-input--width-20") }}
+
+                {{ template "input" (input . .Form.FieldNames.AccessCode "accessCode" .Form.AccessCodeRaw
+                    "classes" "govuk-input--width-10 govuk-!-margin-bottom-3 govuk-input--extra-letter-spacing"
+                    "hint" "accessCodeHint") }}
+
+                {{ template "button" (button .App "saveAndContinue") }}
+                {{ template "csrf-field" . }}
+            </form>
+        </div>
     </div>
-  </div>
 {{ end }}

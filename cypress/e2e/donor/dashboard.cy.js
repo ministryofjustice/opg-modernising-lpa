@@ -1,4 +1,4 @@
-import {randomShareCode} from "../../support/e2e.js";
+import { randomShareCode } from "../../support/e2e.js";
 
 describe('Dashboard', () => {
     context('with incomplete LPA', () => {

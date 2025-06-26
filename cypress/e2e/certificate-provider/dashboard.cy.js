@@ -1,4 +1,4 @@
-import {randomShareCode, TestEmail} from "../../support/e2e.js";
+import { randomShareCode, TestEmail } from "../../support/e2e.js";
 
 describe('Dashboard', () => {
     context('confirmed identity', () => {
@@ -66,8 +66,9 @@ describe('Dashboard', () => {
             cy.checkA11yApp();
             cy.contains('button', 'Continue').click();
 
-            cy.url().should('contain', '/certificate-provider-enter-reference-number');
-            cy.get('#f-reference-number').invoke('val', randomCode);
+            cy.url().should('contain', '/certificate-provider-enter-access-code');
+            cy.get('#f-donor-last-name').type('Smith');
+            cy.get('#f-access-code').invoke('val', randomCode);
             cy.checkA11yApp();
 
             cy.contains('button', 'Save and continue').click();
