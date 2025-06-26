@@ -75,7 +75,7 @@
         "time": 2876,
         "weight": 8
     },
-    "cypress/e2e/certificate-provider/enter-reference-number.cy.js": {
+    "cypress/e2e/certificate-provider/enter-access-code.cy.js": {
         "time": 3900,
         "weight": 11
     },
@@ -435,7 +435,7 @@
         "time": 2875,
         "weight": 8
     },
-    "cypress/e2e/voucher/enter-reference-number.cy.js": {
+    "cypress/e2e/voucher/enter-access-code.cy.js": {
         "time": 2924,
         "weight": 8
     },
