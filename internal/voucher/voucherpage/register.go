@@ -126,7 +126,8 @@ func Register(
 	handleRoot(page.PathVoucherLoginCallback, None,
 		page.LoginCallback(logger, oneLoginClient, sessionStore, page.PathVoucherEnterReferenceNumber, dashboardStore, actor.TypeVoucher))
 	handleRoot(page.PathVoucherEnterReferenceNumber, RequireSession,
-		EnterReferenceNumber(tmpls.Get("enter_reference_number.gohtml"), shareCodeStore, sessionStore, voucherStore))
+		page.EnterAccessCode(tmpls.Get("enter_reference_number.gohtml"), shareCodeStore, sessionStore, lpaStoreResolvingService, actor.TypeVoucher,
+			EnterAccessCode(voucherStore)))
 	handleRoot(page.PathVoucherUnableToConfirmIdentity, None,
 		page.Guidance(tmpls.Get("unable_to_confirm_identity.gohtml")))
 	handleRoot(page.PathVoucherDonorDetailsDoNotMatch, None,
