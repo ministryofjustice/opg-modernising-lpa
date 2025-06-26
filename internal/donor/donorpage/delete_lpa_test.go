@@ -7,6 +7,7 @@ import (
 	"testing"
 
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor/donordata"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/event"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/lpastore/lpadata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/notify"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
@@ -26,7 +27,7 @@ func TestGetDeleteLpa(t *testing.T) {
 		}).
 		Return(nil)
 
-	err := DeleteLpa(template.Execute, nil, nil, "")(testAppData, w, r, &donordata.Provided{})
+	err := DeleteLpa(nil, template.Execute, nil, nil, "", nil)(testAppData, w, r, &donordata.Provided{})
 	resp := w.Result()
 
 	assert.Nil(t, err)
@@ -42,7 +43,7 @@ func TestGetDeleteLpaWhenTemplateErrors(t *testing.T) {
 		Execute(w, mock.Anything).
 		Return(expectedError)
 
-	err := DeleteLpa(template.Execute, nil, nil, "")(testAppData, w, r, &donordata.Provided{})
+	err := DeleteLpa(nil, template.Execute, nil, nil, "", nil)(testAppData, w, r, &donordata.Provided{})
 	resp := w.Result()
 
 	assert.Equal(t, expectedError, err)
@@ -59,7 +60,12 @@ func TestPostDeleteLpa(t *testing.T) {
 		Delete(r.Context()).
 		Return(nil)
 
-	err := DeleteLpa(nil, donorStore, nil, "app://")(testAppData, w, r, &donordata.Provided{
+	eventClient := newMockEventClient(t)
+	eventClient.EXPECT().
+		SendMetric(r.Context(), event.CategoryDraftLPADeleted, event.MeasureOnlineDonor).
+		Return(nil)
+
+	err := DeleteLpa(nil, nil, donorStore, nil, "app://", eventClient)(testAppData, w, r, &donordata.Provided{
 		LpaUID: "lpa-uid",
 		Donor:  donordata.Donor{FirstNames: "a", LastName: "b"},
 		Type:   lpadata.LpaTypePersonalWelfare,
@@ -121,7 +127,12 @@ func TestPostDeleteLpaWhenCertificateProviderInvited(t *testing.T) {
 		SendActorEmail(r.Context(), notify.ToCertificateProvider(donor.CertificateProvider), "lpa-uid", email).
 		Return(nil)
 
-	err := DeleteLpa(nil, donorStore, notifyClient, "http://example.com/certificate-provider")(testAppData, w, r, &donordata.Provided{
+	eventClient := newMockEventClient(t)
+	eventClient.EXPECT().
+		SendMetric(r.Context(), event.CategoryDraftLPADeleted, event.MeasureOnlineDonor).
+		Return(nil)
+
+	err := DeleteLpa(nil, nil, donorStore, notifyClient, "http://example.com/certificate-provider", eventClient)(testAppData, w, r, &donordata.Provided{
 		LpaUID:                       "lpa-uid",
 		Donor:                        donordata.Donor{FirstNames: "a", LastName: "b"},
 		Type:                         lpadata.LpaTypePersonalWelfare,
@@ -174,7 +185,12 @@ func TestPostDeleteLpaWhenVoucherInvited(t *testing.T) {
 	appData := testAppData
 	appData.Localizer = localizer
 
-	err := DeleteLpa(nil, donorStore, notifyClient, "")(appData, w, r, provided)
+	eventClient := newMockEventClient(t)
+	eventClient.EXPECT().
+		SendMetric(r.Context(), event.CategoryDraftLPADeleted, event.MeasureOnlineDonor).
+		Return(nil)
+
+	err := DeleteLpa(nil, nil, donorStore, notifyClient, "", eventClient)(appData, w, r, provided)
 	resp := w.Result()
 
 	assert.Nil(t, err)
@@ -207,7 +223,7 @@ func TestPostDeleteLpaWhenNotifyErrors(t *testing.T) {
 			appData := testAppData
 			appData.Localizer = localizer
 
-			err := DeleteLpa(nil, nil, notifyClient, "")(appData, w, r, donorProvided)
+			err := DeleteLpa(nil, nil, nil, notifyClient, "", nil)(appData, w, r, donorProvided)
 			assert.ErrorIs(t, err, expectedError)
 		})
 	}
@@ -223,7 +239,41 @@ func TestPostDeleteLpaWhenStoreErrors(t *testing.T) {
 		Delete(r.Context()).
 		Return(expectedError)
 
-	err := DeleteLpa(nil, donorStore, nil, "")(testAppData, w, r, &donordata.Provided{})
+	err := DeleteLpa(nil, nil, donorStore, nil, "", nil)(testAppData, w, r, &donordata.Provided{})
 
 	assert.ErrorContains(t, err, "error deleting lpa: err")
+}
+
+func TestPostDeleteLpaWhenEventClientError(t *testing.T) {
+	w := httptest.NewRecorder()
+	r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(""))
+	r.Header.Add("Content-Type", page.FormUrlEncoded)
+
+	donorStore := newMockDonorStore(t)
+	donorStore.EXPECT().
+		Delete(mock.Anything).
+		Return(nil)
+
+	eventClient := newMockEventClient(t)
+	eventClient.EXPECT().
+		SendMetric(mock.Anything, mock.Anything, mock.Anything).
+		Return(expectedError)
+
+	logger := newMockLogger(t)
+	logger.EXPECT().
+		ErrorContext(r.Context(), mock.Anything, mock.Anything)
+
+	err := DeleteLpa(logger, nil, donorStore, nil, "app://", eventClient)(testAppData, w, r, &donordata.Provided{
+		LpaUID: "lpa-uid",
+		Donor:  donordata.Donor{FirstNames: "a", LastName: "b"},
+		Type:   lpadata.LpaTypePersonalWelfare,
+		CertificateProvider: donordata.CertificateProvider{
+			FirstNames: "c", LastName: "d", Email: "a@b.com",
+		},
+	})
+	resp := w.Result()
+
+	assert.Nil(t, err)
+	assert.Equal(t, http.StatusFound, resp.StatusCode)
+	assert.Equal(t, page.PathLpaDeleted.Format()+"?uid=lpa-uid", resp.Header.Get("Location"))
 }

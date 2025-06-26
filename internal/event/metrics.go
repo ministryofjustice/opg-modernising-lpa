@@ -4,6 +4,7 @@ type Category string
 
 const (
 	CategoryFunnelStartRate = Category("FunnelStartRate")
+	CategoryDraftLPADeleted = Category("DraftLPADeleted")
 )
 
 type Measure string
