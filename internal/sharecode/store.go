@@ -41,11 +41,11 @@ func (s *Store) Get(ctx context.Context, actorType actor.Type, shareCode shareco
 		return sharecodedata.Link{}, err
 	}
 
-	if !data.LpaLinkedAt.IsZero() {
+	if data.HasExpired(s.now()) || !data.LpaLinkedAt.IsZero() {
 		return sharecodedata.Link{}, dynamo.NotFoundError{}
 	}
 
-	return data, err
+	return data, nil
 }
 
 func (s *Store) Put(ctx context.Context, actorType actor.Type, shareCode sharecodedata.Hashed, data sharecodedata.Link) error {
@@ -60,6 +60,7 @@ func (s *Store) Put(ctx context.Context, actorType actor.Type, shareCode shareco
 	} else {
 		data.SK = dynamo.ShareSortKey(dynamo.MetadataKey(shareCode.String()))
 	}
+	data.UpdatedAt = s.now()
 
 	return s.dynamoClient.CreateOnly(ctx, data)
 }
@@ -87,8 +88,15 @@ func (s *Store) GetDonor(ctx context.Context) (sharecodedata.Link, error) {
 
 	sk := dynamo.DonorInviteKey(dynamo.OrganisationKey(sessionData.OrganisationID), dynamo.LpaKey(sessionData.LpaID))
 
-	err = s.dynamoClient.OneBySK(ctx, sk, &data)
-	return data, err
+	if err := s.dynamoClient.OneBySK(ctx, sk, &data); err != nil {
+		return sharecodedata.Link{}, err
+	}
+
+	if data.HasExpired(s.now()) {
+		return sharecodedata.Link{}, dynamo.NotFoundError{}
+	}
+
+	return data, nil
 }
 
 func (s *Store) Delete(ctx context.Context, shareCode sharecodedata.Link) error {

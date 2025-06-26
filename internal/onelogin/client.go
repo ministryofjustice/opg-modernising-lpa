@@ -56,7 +56,7 @@ func New(ctx context.Context, logger Logger, httpClient *http.Client, secretsCli
 		logger:              logger,
 		httpClient:          httpClient,
 		secretsClient:       secretsClient,
-		randomString:        random.String,
+		randomString:        random.AlphaNumeric,
 		now:                 time.Now,
 		clientID:            clientID,
 		redirectURL:         redirectURL,

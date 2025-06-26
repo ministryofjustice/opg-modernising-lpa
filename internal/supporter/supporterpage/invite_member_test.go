@@ -77,7 +77,7 @@ func TestPostInviteMember(t *testing.T) {
 		SendEmail(r.Context(), notify.ToCustomEmail(localize.En, "email@example.com"), notify.OrganisationMemberInviteEmail{
 			OrganisationName:      "My organisation",
 			InviterEmail:          "supporter@example.com",
-			InviteCode:            testStringCode,
+			InviteCode:            testPlainCode.Plain(),
 			JoinAnOrganisationURL: "http://base" + page.PathSupporterStart.Format(),
 		}).
 		Return(nil)
