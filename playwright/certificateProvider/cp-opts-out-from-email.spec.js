@@ -7,10 +7,11 @@ test('certificate provider opts out of being a certificate provider (from email 
 
     await page.goto(`/fixtures/certificate-provider?redirect=&lpa-type=property-and-affairs&lpa-language=en&progress=paid&withShareCode=${shareCode}&email=${TestEmail}`);
 
-    await page.goto('/certificate-provider-enter-reference-number-opt-out');
+    await page.goto('/certificate-provider-enter-access-code-opt-out');
 
     await expect(page.locator('h1')).toContainText('Add an LPA');
-    await page.getByRole('textbox', {name: 'Enter your access code'}).fill(shareCode);
+    await page.getByRole('textbox', {name: 'Donor’s last name'}).fill('Smith');
+    await page.getByRole('textbox', {name: 'Access code'}).fill(shareCode);
     await screenshot(page)
     await extractTextFromMainAndSave(page)
     await page.getByRole('textbox', {name: 'Enter your access code'});

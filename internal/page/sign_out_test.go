@@ -31,7 +31,7 @@ func TestSignOut(t *testing.T) {
 	logger.EXPECT().
 		InfoContext(r.Context(), "logout")
 
-	err := SignOut(logger, sessionStore, oneLoginClient, "http://public")(TestAppData, w, r)
+	err := SignOut(logger, sessionStore, oneLoginClient, "http://public")(testAppData, w, r)
 	resp := w.Result()
 
 	assert.Nil(t, err)
@@ -62,7 +62,7 @@ func TestSignOutWhenEndSessionURLFails(t *testing.T) {
 		EndSessionURL("id-token", "http://public").
 		Return("", expectedError)
 
-	err := SignOut(logger, sessionStore, oneLoginClient, "http://public")(TestAppData, w, r)
+	err := SignOut(logger, sessionStore, oneLoginClient, "http://public")(testAppData, w, r)
 	resp := w.Result()
 
 	assert.Nil(t, err)
@@ -93,7 +93,7 @@ func TestSignOutWhenClearSessionFails(t *testing.T) {
 		EndSessionURL("id-token", "http://public").
 		Return("http://end-session", nil)
 
-	err := SignOut(logger, sessionStore, oneLoginClient, "http://public")(TestAppData, w, r)
+	err := SignOut(logger, sessionStore, oneLoginClient, "http://public")(testAppData, w, r)
 	resp := w.Result()
 
 	assert.Nil(t, err)

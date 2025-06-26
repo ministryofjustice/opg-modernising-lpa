@@ -12,13 +12,14 @@ describe('Enter access code', () => {
             cy.origin('http://localhost:7012', () => {
                 cy.contains('button', 'Continue').click();
             });
-            cy.url().should('contain', '/certificate-provider-enter-reference-number')
+            cy.url().should('contain', '/certificate-provider-enter-access-code')
         });
 
         it('can enter a valid access code', { pageLoadTimeout: 6000 }, () => {
             cy.checkA11yApp();
 
-            cy.get('#f-reference-number').invoke('val', shareCode);
+            cy.get('#f-donor-last-name').type('Smith');
+            cy.get('#f-access-code').invoke('val', shareCode);
             cy.contains('Save and continue').click();
 
             cy.url().should('contain', '/certificate-provider-who-is-eligible')
@@ -33,11 +34,12 @@ describe('Enter access code', () => {
                 cy.contains('Enter your access code');
             });
 
-            cy.contains('[for=f-reference-number] ~ .govuk-error-message', 'Enter your access code');
+            cy.contains('[for=f-access-code] ~ .govuk-error-message', 'Enter your access code');
         });
 
         it('errors when incorrect code', () => {
-            cy.get('#f-reference-number').invoke('val', 'wrongish');
+            cy.get('#f-donor-last-name').type('Smith');
+            cy.get('#f-access-code').invoke('val', 'wrongish');
             cy.contains('Save and continue').click();
 
             cy.checkA11yApp();
@@ -46,11 +48,12 @@ describe('Enter access code', () => {
                 cy.contains('The access code you entered is incorrect, please check it and try again');
             });
 
-            cy.contains('[for=f-reference-number] ~ .govuk-error-message', 'The access code you entered is incorrect, please check it and try again');
+            cy.contains('[for=f-access-code] ~ .govuk-error-message', 'The access code you entered is incorrect, please check it and try again');
         });
 
         it('errors when incorrect code length', () => {
-            cy.get('#f-reference-number').invoke('val', 'short');
+            cy.get('#f-donor-last-name').type('Smith');
+            cy.get('#f-access-code').invoke('val', 'short');
             cy.contains('Save and continue').click();
 
             cy.checkA11yApp();
@@ -59,7 +62,7 @@ describe('Enter access code', () => {
                 cy.contains('The access code you enter must be 8 characters');
             });
 
-            cy.contains('[for=f-reference-number] ~ .govuk-error-message', 'The access code you enter must be 8 characters');
+            cy.contains('[for=f-access-code] ~ .govuk-error-message', 'The access code you enter must be 8 characters');
         });
     })
 
@@ -74,11 +77,12 @@ describe('Enter access code', () => {
                 cy.contains('label', 'Random').click();
                 cy.contains('button', 'Continue').click();
             });
-            cy.url().should('contain', '/certificate-provider-enter-reference-number')
+            cy.url().should('contain', '/certificate-provider-enter-access-code')
 
             cy.checkA11yApp();
 
-            cy.get('#f-reference-number').invoke('val', sc);
+            cy.get('#f-donor-last-name').type('Bundlaaaa');
+            cy.get('#f-access-code').invoke('val', sc);
             cy.contains('Save and continue').click();
 
             cy.url().should('contain', '/you-have-already-provided-a-certificate')
