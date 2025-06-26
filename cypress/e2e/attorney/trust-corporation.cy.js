@@ -12,7 +12,8 @@ describe('As a trust corporation', () => {
         });
 
         // enter reference number
-        cy.get('#f-reference-number').invoke('val', shareCode);
+        cy.get('#f-donor-last-name').type('Smith');
+        cy.get('#f-access-code').invoke('val', shareCode);
         cy.contains('button', 'Save and continue').click();
 
         // acting as an attorney
