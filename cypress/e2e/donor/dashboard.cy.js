@@ -1,4 +1,4 @@
-import {randomShareCode} from "../../support/e2e.js";
+import { randomShareCode } from "../../support/e2e.js";
 
 describe('Dashboard', () => {
     context('with incomplete LPA', () => {
@@ -201,7 +201,8 @@ describe('Dashboard', () => {
             cy.contains('button', 'Continue').click();
 
             cy.url().should('contain', '/enter-access-code');
-            cy.get('#f-reference-number').invoke('val', randomCode);
+            cy.get('#f-donor-last-name').type('Smith');
+            cy.get('#f-access-code').invoke('val', randomCode);
             cy.checkA11yApp();
 
             cy.contains('button', 'Continue').click();

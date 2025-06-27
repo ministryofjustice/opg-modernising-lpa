@@ -15,14 +15,14 @@ import (
 
 func TestError(t *testing.T) {
 	testcases := map[bool]*errorData{
-		true:  {App: TestAppData, Err: expectedError},
-		false: {App: TestAppData},
+		true:  {App: testAppData, Err: expectedError},
+		false: {App: testAppData},
 	}
 
 	for showErrors, data := range testcases {
 		t.Run(fmt.Sprint(showErrors), func(t *testing.T) {
 			w := httptest.NewRecorder()
-			r, _ := http.NewRequestWithContext(appcontext.ContextWithData(context.Background(), TestAppData), http.MethodGet, "/", nil)
+			r, _ := http.NewRequestWithContext(appcontext.ContextWithData(context.Background(), testAppData), http.MethodGet, "/", nil)
 
 			logger := newMockLogger(t)
 			logger.EXPECT().
@@ -43,7 +43,7 @@ func TestError(t *testing.T) {
 
 func TestErrorWithErrCsrfInvalid(t *testing.T) {
 	w := httptest.NewRecorder()
-	r, _ := http.NewRequestWithContext(appcontext.ContextWithData(context.Background(), TestAppData), http.MethodGet, "/", nil)
+	r, _ := http.NewRequestWithContext(appcontext.ContextWithData(context.Background(), testAppData), http.MethodGet, "/", nil)
 
 	logger := newMockLogger(t)
 	logger.EXPECT().
@@ -51,7 +51,7 @@ func TestErrorWithErrCsrfInvalid(t *testing.T) {
 
 	template := newMockTemplate(t)
 	template.EXPECT().
-		Execute(w, &errorData{App: TestAppData}).
+		Execute(w, &errorData{App: testAppData}).
 		Return(nil)
 
 	Error(template.Execute, logger, false)(w, r, ErrCsrfInvalid)
@@ -62,7 +62,7 @@ func TestErrorWithErrCsrfInvalid(t *testing.T) {
 
 func TestErrorWhenTemplateErrors(t *testing.T) {
 	w := httptest.NewRecorder()
-	r, _ := http.NewRequestWithContext(appcontext.ContextWithData(context.Background(), TestAppData), http.MethodGet, "/", nil)
+	r, _ := http.NewRequestWithContext(appcontext.ContextWithData(context.Background(), testAppData), http.MethodGet, "/", nil)
 
 	templateError := errors.New("template error")
 
@@ -74,7 +74,7 @@ func TestErrorWhenTemplateErrors(t *testing.T) {
 
 	template := newMockTemplate(t)
 	template.EXPECT().
-		Execute(w, &errorData{App: TestAppData}).
+		Execute(w, &errorData{App: testAppData}).
 		Return(templateError)
 
 	Error(template.Execute, logger, false)(w, r, expectedError)

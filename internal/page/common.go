@@ -6,12 +6,15 @@ import (
 	"net/http"
 	"strings"
 
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/appcontext"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor/donordata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/event"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/localize"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/lpastore/lpadata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/onelogin"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/sesh"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/sharecode/sharecodedata"
 )
 
 const FormUrlEncoded = "application/x-www-form-urlencoded"
@@ -67,6 +70,19 @@ type SessionStore interface {
 	ClearLogin(r *http.Request, w http.ResponseWriter) error
 	OneLogin(r *http.Request) (*sesh.OneLoginSession, error)
 	SetOneLogin(r *http.Request, w http.ResponseWriter, session *sesh.OneLoginSession) error
+}
+
+type ShareCodeStore interface {
+	Get(ctx context.Context, actorType actor.Type, shareCode sharecodedata.Hashed) (sharecodedata.Link, error)
+}
+
+type LpaStoreResolvingService interface {
+	Get(ctx context.Context) (*lpadata.Lpa, error)
+}
+
+type UpdateLoginSessionStore interface {
+	Login(r *http.Request) (*sesh.LoginSession, error)
+	SetLogin(r *http.Request, w http.ResponseWriter, session *sesh.LoginSession) error
 }
 
 type Notification struct {

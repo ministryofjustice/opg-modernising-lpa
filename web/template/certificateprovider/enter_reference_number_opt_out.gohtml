@@ -8,10 +8,14 @@
             <h1 class="govuk-heading-xl">{{ tr .App "enterYourCertificateProviderReferenceNumber" }}</h1>
 
             <form novalidate method="post">
-                {{ template "input" (input . "reference-number" "enterYourAccessCode" .Form.ReferenceNumberRaw "classes" "govuk-input--width-20 govuk-!-margin-bottom-3 govuk-input--extra-letter-spacing" "hint" "enterYourAccessCodeHint" "labelClasses" "govuk-!-font-weight-bold")}}
+                {{ template "input" (input . .Form.FieldNames.DonorLastName "donorLastName" .Form.DonorLastName
+                    "classes" "govuk-input--width-20") }}
 
-                <button type="submit" class="govuk-button" data-module="govuk-button">{{ tr .App "continue" }}</button>
+                {{ template "input" (input . .Form.FieldNames.AccessCode "accessCode" .Form.AccessCodeRaw
+                    "classes" "govuk-input--width-10 govuk-!-margin-bottom-3 govuk-input--extra-letter-spacing"
+                    "hint" "accessCodeHint") }}
 
+                {{ template "button" (button .App "continue") }}
                 {{ template "csrf-field" . }}
             </form>
         </div>

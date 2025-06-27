@@ -11,7 +11,7 @@ const testRandomString = "123"
 
 var (
 	expectedError = errors.New("err")
-	TestAppData   = appcontext.Data{
+	testAppData   = appcontext.Data{
 		SessionID: "session-id",
 		LpaID:     "lpa-id",
 		Lang:      localize.En,

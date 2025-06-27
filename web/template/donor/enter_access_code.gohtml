@@ -10,7 +10,13 @@
       <p class="govuk-body">{{ tr .App "youCanFindThisInTheEmail" }}</p>
 
       <form novalidate method="post">
-        {{ template "input" (input . "reference-number" "accessCode" .Form.AccessCodeRaw "classes" "govuk-input--width-20 govuk-!-margin-bottom-3 govuk-input--extra-letter-spacing" "hint" "accessCodeHint")}}
+          {{ template "input" (input . .Form.FieldNames.DonorLastName "yourLastName" .Form.DonorLastName
+              "classes" "govuk-input--width-20") }}
+
+          {{ template "input" (input . .Form.FieldNames.AccessCode "accessCode" .Form.AccessCodeRaw
+            "classes" "govuk-input--width-10 govuk-!-margin-bottom-3 govuk-input--extra-letter-spacing"
+            "hint" "accessCodeHint") }}
+
         {{ template "continue-button" . }}
         {{ template "csrf-field" . }}
       </form>
