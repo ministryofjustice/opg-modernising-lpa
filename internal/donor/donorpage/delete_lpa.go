@@ -2,12 +2,14 @@ package donorpage
 
 import (
 	"fmt"
+	"log/slog"
 	"net/http"
 	"net/url"
 
 	"github.com/ministryofjustice/opg-go-common/template"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/appcontext"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor/donordata"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/event"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/localize"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/notify"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
@@ -20,7 +22,7 @@ type deleteLpaData struct {
 	Donor  *donordata.Provided
 }
 
-func DeleteLpa(tmpl template.Template, donorStore DonorStore, notifyClient NotifyClient, certificateProviderStartURL string) Handler {
+func DeleteLpa(logger Logger, tmpl template.Template, donorStore DonorStore, notifyClient NotifyClient, certificateProviderStartURL string, eventClient EventClient) Handler {
 	return func(appData appcontext.Data, w http.ResponseWriter, r *http.Request, provided *donordata.Provided) error {
 		if r.Method == http.MethodPost {
 			if !provided.CertificateProviderInvitedAt.IsZero() {
@@ -52,6 +54,10 @@ func DeleteLpa(tmpl template.Template, donorStore DonorStore, notifyClient Notif
 
 			if err := donorStore.Delete(r.Context()); err != nil {
 				return fmt.Errorf("error deleting lpa: %w", err)
+			}
+
+			if err := eventClient.SendMetric(r.Context(), event.CategoryDraftLPADeleted, event.MeasureOnlineDonor); err != nil {
+				logger.ErrorContext(r.Context(), "error sending metric", slog.Any("err", err))
 			}
 
 			return page.PathLpaDeleted.RedirectQuery(w, r, appData, url.Values{"uid": {provided.LpaUID}})

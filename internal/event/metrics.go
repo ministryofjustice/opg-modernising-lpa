@@ -3,6 +3,7 @@ package event
 type Category string
 
 const (
+	CategoryDraftLPADeleted = Category("DraftLPADeleted")
 	CategoryFunnelStartRate = Category("FunnelStartRate")
 )
 
