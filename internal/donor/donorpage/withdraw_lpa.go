@@ -2,6 +2,7 @@ package donorpage
 
 import (
 	"fmt"
+	"log/slog"
 	"net/http"
 	"net/url"
 	"time"
@@ -9,6 +10,7 @@ import (
 	"github.com/ministryofjustice/opg-go-common/template"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/appcontext"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor/donordata"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/event"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/localize"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/notify"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
@@ -21,7 +23,7 @@ type withdrawLpaData struct {
 	Donor  *donordata.Provided
 }
 
-func WithdrawLpa(tmpl template.Template, donorStore DonorStore, now func() time.Time, lpaStoreClient LpaStoreClient, notifyClient NotifyClient, lpaStoreResolvingService LpaStoreResolvingService, certificateProviderStore CertificateProviderStore, certificateProviderStartURL, attorneyStartURL string) Handler {
+func WithdrawLpa(logger Logger, tmpl template.Template, donorStore DonorStore, now func() time.Time, lpaStoreClient LpaStoreClient, notifyClient NotifyClient, lpaStoreResolvingService LpaStoreResolvingService, certificateProviderStore CertificateProviderStore, certificateProviderStartURL, attorneyStartURL string, eventClient EventClient) Handler {
 	return func(appData appcontext.Data, w http.ResponseWriter, r *http.Request, provided *donordata.Provided) error {
 		if r.Method == http.MethodPost {
 			if !provided.CertificateProviderInvitedAt.IsZero() {
@@ -104,6 +106,10 @@ func WithdrawLpa(tmpl template.Template, donorStore DonorStore, now func() time.
 
 			if err := lpaStoreClient.SendDonorWithdrawLPA(r.Context(), provided.LpaUID); err != nil {
 				return err
+			}
+
+			if err := eventClient.SendMetric(r.Context(), event.CategoryLPARevoked, event.MeasureOnlineDonor); err != nil {
+				logger.ErrorContext(r.Context(), "error sending metric", slog.Any("err", err))
 			}
 
 			return page.PathLpaWithdrawn.RedirectQuery(w, r, appData, url.Values{"uid": {provided.LpaUID}})

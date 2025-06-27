@@ -3,8 +3,9 @@ package event
 type Category string
 
 const (
-	CategoryFunnelStartRate = Category("FunnelStartRate")
 	CategoryDraftLPADeleted = Category("DraftLPADeleted")
+	CategoryFunnelStartRate = Category("FunnelStartRate")
+	CategoryLPARevoked      = Category("LpaRevoked")
 )
 
 type Measure string
