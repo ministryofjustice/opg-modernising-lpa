@@ -31,6 +31,7 @@ services:
       - SCHEDULED_RUNNER_PERIOD=1m
       - LPA_STORE_SECRET_ARN=lpa-store-jwt-secret-key
       - USE_TEST_WITNESS_CODE=1
+      - ENVIRONMENT=local
 
   event-logger:
     build:

@@ -214,8 +214,8 @@ format-event: ##@events prints an event in the correct format for testing lambda
 	$(eval BODY := $(shell echo '{"version":"0","id":"63eb7e5f-1f10-4744-bba9-e16d327c3b98","detail-type":"$(detailType)","source":"opg.poas.sirius","account":"653761790766","time":"2023-08-30T13:40:30Z","region":"eu-west-1","resources":[],"detail":$(detail)}' | sed 's/"/\\"/g'))
 	@echo '{"Records": [{"messageId": "19dd0b57-b21e-4ac1-bd88-01bbb068cb78", "body": "$(BODY)"}]}'
 
-tail-logs: ##@app tails logs for app mock-notify, mock-onelogin, mock-lpa-store, mock-uid and mock-pay
-	docker compose --ansi=always -f docker/docker-compose.yml -f docker/docker-compose.dev.yml logs app mock-notify mock-onelogin mock-lpa-store mock-uid mock-pay -f
+tail-logs: ##@app tails logs for app mock-notify, mock-onelogin, mock-lpa-store, mock-uid, mock-pay and localstack
+	docker compose --ansi=always -f docker/docker-compose.yml -f docker/docker-compose.dev.yml logs app mock-notify mock-onelogin mock-lpa-store mock-uid mock-pay localstack -f | grep -v -E "(sqs.ReceiveMessage|Backing off)"
 
 terraform-update-docs: ##@terraform updates all terraform-docs managed documentation
 	terraform-docs --config terraform/environment/.terraform-docs.yml ./terraform/environment
