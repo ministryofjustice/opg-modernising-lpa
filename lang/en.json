@@ -553,7 +553,7 @@
     "personsWorkAddress": "{{possessive .FullName}} work address",
     "personToNotify": "Person to notify",
     "thisIsAnImportantDecision": "Think carefully about this important decision",
-    "lifeSustainingTreatmentContent": "<p class=\"govuk-body\">You must choose whether your attorneys can give or refuse consent to life-sustaining treatment on your behalf.</p><p class=\"govuk-body\">Life-sustaining treatment means care, surgery, medicine or other help from doctors that’s needed to keep you alive.</p>",
+    "lifeSustainingTreatmentContent": "<p class=\"govuk-body\">You must choose whether your attorneys can give or refuse consent to life-sustaining treatment on your behalf if you are unable to.</p><p class=\"govuk-body\">Life-sustaining treatment means care, surgery, medicine or other help from medical professionals that’s needed to keep you alive.<p class=\"govuk-body\">Decisions about life-sustaining treatment can sometimes be needed in unexpected circumstances, such as a routine operation that did not go as planned.</p>",
     "ifYouDoGiveAttorneysAuthority": "If you give your attorneys the authority to give or refuse consent to life-sustaining treatment, you can add restrictions and conditions to guide their decision-making.",
     "optionAHint": "Your attorneys will be able to speak to doctors as if they were you",
     "optionBHint": "Your attorneys will not be able to speak to doctors as if they were you",
