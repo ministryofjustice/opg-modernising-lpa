@@ -695,9 +695,9 @@ func updateLPAProgress(
 			DonorFirstNames:              donorDetails.Donor.FirstNames,
 			DonorFirstNamesPossessive:    donorDetails.Donor.FirstNames + "’s",
 			WhatLpaCovers:                "money, finances and any property they might own",
-			CertificateProviderStartURL:  appPublicURL + page.PathCertificateProviderEnterReferenceNumber.Format(),
+			CertificateProviderStartURL:  appPublicURL + page.PathCertificateProviderEnterAccessCode.Format(),
 			ShareCode:                    plainCode.Plain(),
-			CertificateProviderOptOutURL: appPublicURL + page.PathCertificateProviderEnterReferenceNumberOptOut.Format(),
+			CertificateProviderOptOutURL: appPublicURL + page.PathCertificateProviderEnterAccessCodeOptOut.Format(),
 		}); err != nil {
 			return nil, nil, err
 		}
