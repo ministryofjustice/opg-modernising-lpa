@@ -40,7 +40,7 @@ func (f *AccessCodeForm) Validate() validation.List {
 	errors.String("access-code", "yourAccessCode", f.AccessCode,
 		validation.Empty())
 
-	errors.String("access-code", "theReferenceNumberYouEnter", f.AccessCode,
+	errors.String("access-code", "theAccessCodeYouEnter", f.AccessCode,
 		validation.StringLength(8))
 
 	return errors

@@ -136,9 +136,9 @@ func NewRunner(
 		metricsClient:                metricsClient,
 		metricsEnabled:               metricsEnabled,
 		certificateProviderStartURL:  certificateProviderStartURL,
-		certificateProviderOptOutURL: appPublicURL + page.PathCertificateProviderEnterReferenceNumberOptOut.Format(),
+		certificateProviderOptOutURL: appPublicURL + page.PathCertificateProviderEnterAccessCodeOptOut.Format(),
 		attorneyStartURL:             attorneyStartURL,
-		attorneyOptOutURL:            appPublicURL + page.PathAttorneyEnterReferenceNumberOptOut.Format(),
+		attorneyOptOutURL:            appPublicURL + page.PathAttorneyEnterAccessCodeOptOut.Format(),
 	}
 
 	r.actions = map[Action]ActionFunc{

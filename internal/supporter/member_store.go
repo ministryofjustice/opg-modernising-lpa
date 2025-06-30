@@ -40,7 +40,7 @@ func NewMemberStore(dynamoClient DynamoClient) *MemberStore {
 	}
 }
 
-func (s *MemberStore) CreateMemberInvite(ctx context.Context, organisation *supporterdata.Organisation, firstNames, lastname, email string, referenceNumber sharecodedata.Hashed, permission supporterdata.Permission) error {
+func (s *MemberStore) CreateMemberInvite(ctx context.Context, organisation *supporterdata.Organisation, firstNames, lastname, email string, accessCode sharecodedata.Hashed, permission supporterdata.Permission) error {
 	data, err := appcontext.SessionFromContext(ctx)
 	if err != nil {
 		return err
@@ -60,7 +60,7 @@ func (s *MemberStore) CreateMemberInvite(ctx context.Context, organisation *supp
 		FirstNames:       firstNames,
 		LastName:         lastname,
 		Permission:       permission,
-		ReferenceNumber:  referenceNumber,
+		AccessCode:       accessCode,
 	}
 
 	if err := s.dynamoClient.Create(ctx, invite); err != nil {

@@ -34,7 +34,7 @@ func TestLoginCallback(t *testing.T) {
 		},
 		"has invite": {
 			invites:  []*supporterdata.MemberInvite{{}},
-			redirect: page.PathSupporterEnterReferenceNumber,
+			redirect: page.PathSupporterEnterAccessCode,
 		},
 	}
 

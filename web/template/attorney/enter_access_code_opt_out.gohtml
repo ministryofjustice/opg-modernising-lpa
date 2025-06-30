@@ -1,11 +1,13 @@
 {{ template "page" . }}
 
-{{ define "pageTitle" }}{{ tr .App "enterYourCertificateProviderReferenceNumber" }}{{ end }}
+{{ define "pageTitle" }}{{ tr .App "enterYourAttorneyAccessCode" }}{{ end }}
 
 {{ define "main" }}
     <div class="govuk-grid-row">
         <div class="govuk-grid-column-two-thirds">
-            <h1 class="govuk-heading-xl">{{ tr .App "enterYourCertificateProviderReferenceNumber" }}</h1>
+            <h1 class="govuk-heading-xl">{{ tr .App "enterYourAttorneyAccessCode" }}</h1>
+
+            {{ trHtml .App "attorneyAccessCodeContent" }}
 
             <form novalidate method="post">
                 {{ template "input" (input . .Form.FieldNames.DonorLastName "donorLastName" .Form.DonorLastName
