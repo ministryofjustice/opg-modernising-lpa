@@ -56,6 +56,7 @@
     "errorPostcode": "{{.Label}} must be a UK postcode",
     "errorReferenceNumber": "{{.Label}} must begin with the number 7 or the letter M",
     "errorNoLinks": "Links to websites cannot be included in {{lowerFirst .Label}} as they will make your LPA invalid",
+    "errorIncorrect": "The {{lowerFirst .Label}} you entered is incorrect, please check it and try again",
     "bySavingThisSectionDifferentPeople": "By saving this section, you are confirming that these are two different people with the same name.",
     "theDonor": "the donor",
     "anAttorney": "an attorney",
@@ -1037,7 +1038,7 @@
     "youSentAnInviteTo": "You sent an invite to <span class=\"govuk-!-font-weight-bold\">{{.Email}}</span> to access their LPA online.",
     "addYourLpa": "Add your LPA",
     "youCanFindThisInTheEmail": "To add your LPA, enter your donor access code. You’ll find your code in the email the Office of the Public Guardian sent you about getting help making your LPA.",
-    "accessCode": "Enter code",
+    "accessCode": "Access code",
     "accessCodeHint": "Your access code will be 8 characters long and a mixture of upper case letters and numbers.",
     "incorrectAccessCode": "The access code you entered is incorrect, please check it and try again",
     "linked": "Linked",
@@ -1878,5 +1879,7 @@
     "iHaveACodeInvitingMeToBeACertificateProvider": "I have a code inviting me to be a certificate provider",
     "iHaveACodeInvitingMeToBeAnAttorney": "I have a code inviting me to be an attorney",
     "iHaveACodeInvitingMeToBeAReplacementAttorney": "I have a code inviting me to be a replacement attorney",
-    "iHaveACodeInvitingMeToVerifySomeonesIdentity": "I have a code inviting me to verify someone’s identity"
+    "iHaveACodeInvitingMeToVerifySomeonesIdentity": "I have a code inviting me to verify someone’s identity",
+    "donorLastName": "Donor’s last name",
+    "yourLastName": "Your last name"
 }
