@@ -255,7 +255,7 @@ func Supporter(
 						FirstNames:       member.Firstnames,
 						LastName:         member.Lastname,
 						Permission:       supporterdata.PermissionAdmin,
-						ReferenceNumber:  hashedCode,
+						AccessCode:       hashedCode,
 					}
 
 					if err := dynamoClient.Create(appcontext.ContextWithSession(r.Context(), &appcontext.Session{OrganisationID: org.ID}), invite); err != nil {
@@ -290,16 +290,16 @@ func Supporter(
 					if err = memberStore.CreateFromInvite(
 						memberCtx,
 						&supporterdata.MemberInvite{
-							PK:              dynamo.OrganisationKey(random.AlphaNumeric(12)),
-							SK:              dynamo.MemberInviteKey(random.AlphaNumeric(12)),
-							CreatedAt:       time.Now(),
-							UpdatedAt:       time.Now(),
-							OrganisationID:  org.ID,
-							Email:           email,
-							FirstNames:      member.Firstnames,
-							LastName:        member.Lastname,
-							Permission:      permission,
-							ReferenceNumber: hashedCode,
+							PK:             dynamo.OrganisationKey(random.AlphaNumeric(12)),
+							SK:             dynamo.MemberInviteKey(random.AlphaNumeric(12)),
+							CreatedAt:      time.Now(),
+							UpdatedAt:      time.Now(),
+							OrganisationID: org.ID,
+							Email:          email,
+							FirstNames:     member.Firstnames,
+							LastName:       member.Lastname,
+							Permission:     permission,
+							AccessCode:     hashedCode,
 						},
 					); err != nil {
 						return err

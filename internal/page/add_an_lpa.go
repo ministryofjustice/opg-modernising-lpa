@@ -25,11 +25,11 @@ func AddAnLPA(tmpl template.Template) Handler {
 				case actor.TypeDonor:
 					http.Redirect(w, r, PathEnterAccessCode.Format(), http.StatusFound)
 				case actor.TypeCertificateProvider:
-					http.Redirect(w, r, PathCertificateProviderEnterReferenceNumber.Format(), http.StatusFound)
+					http.Redirect(w, r, PathCertificateProviderEnterAccessCode.Format(), http.StatusFound)
 				case actor.TypeAttorney, actor.TypeReplacementAttorney, actor.TypeTrustCorporation, actor.TypeReplacementTrustCorporation:
-					http.Redirect(w, r, PathAttorneyEnterReferenceNumber.Format(), http.StatusFound)
+					http.Redirect(w, r, PathAttorneyEnterAccessCode.Format(), http.StatusFound)
 				case actor.TypeVoucher:
-					http.Redirect(w, r, PathVoucherEnterReferenceNumber.Format(), http.StatusFound)
+					http.Redirect(w, r, PathVoucherEnterAccessCode.Format(), http.StatusFound)
 				default:
 					http.Redirect(w, r, PathDashboard.Format(), http.StatusFound)
 				}

@@ -27,14 +27,14 @@ func TestLoginCallback(t *testing.T) {
 	}{
 		"Has LPAs": {
 			dashboardResults: dashboarddata.Results{Attorney: []dashboarddata.Actor{{}}},
-			redirect:         PathAttorneyEnterReferenceNumber,
+			redirect:         PathAttorneyEnterAccessCode,
 			expectedRedirect: PathDashboard,
 			hasLPAs:          true,
 			actorType:        actor.TypeAttorney,
 		},
 		"No LPAs": {
-			redirect:         PathAttorneyEnterReferenceNumber,
-			expectedRedirect: PathAttorneyEnterReferenceNumber,
+			redirect:         PathAttorneyEnterAccessCode,
+			expectedRedirect: PathAttorneyEnterAccessCode,
 			actorType:        actor.TypeAttorney,
 		},
 	}
@@ -103,7 +103,7 @@ func TestLoginCallbackWhenErrorReturned(t *testing.T) {
 	logger.EXPECT().
 		InfoContext(r.Context(), "login error", slog.String("error", "hey"), slog.String("error_description", "this is why"))
 
-	err := LoginCallback(logger, nil, nil, PathAttorneyEnterReferenceNumber, nil, actor.TypeAttorney)(appcontext.Data{}, w, r)
+	err := LoginCallback(logger, nil, nil, PathAttorneyEnterAccessCode, nil, actor.TypeAttorney)(appcontext.Data{}, w, r)
 	assert.Equal(t, errors.New("access denied"), err)
 }
 

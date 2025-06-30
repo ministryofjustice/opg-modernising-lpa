@@ -27,7 +27,7 @@ func TestMemberStoreCreateMemberInvite(t *testing.T) {
 			FirstNames:       "a",
 			LastName:         "b",
 			Permission:       supporterdata.PermissionNone,
-			ReferenceNumber:  sharecodedata.HashedFromString("abcde"),
+			AccessCode:       sharecodedata.HashedFromString("abcde"),
 		}).
 		Return(nil)
 

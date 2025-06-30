@@ -101,7 +101,7 @@ func (s *Sender) SendCertificateProviderInvite(ctx context.Context, appData appc
 		DonorFirstNamesPossessive:    appData.Localizer.Possessive(provided.Donor.FirstNames),
 		WhatLpaCovers:                appData.Localizer.T(whatLpaCovers),
 		ShareCode:                    shareCode.Plain(),
-		CertificateProviderOptOutURL: fmt.Sprintf("%s%s", s.appPublicURL, page.PathCertificateProviderEnterReferenceNumberOptOut),
+		CertificateProviderOptOutURL: fmt.Sprintf("%s%s", s.appPublicURL, page.PathCertificateProviderEnterAccessCodeOptOut),
 	})
 }
 
@@ -279,7 +279,7 @@ func (s *Sender) sendOriginalAttorney(ctx context.Context, appData appcontext.Da
 			LpaType:                   localize.LowerFirst(appData.Localizer.T(lpa.Type.String())),
 			AttorneyStartPageURL:      s.attorneyStartURL,
 			ShareCode:                 shareCode.Plain(),
-			AttorneyOptOutURL:         s.appPublicURL + page.PathAttorneyEnterReferenceNumberOptOut.Format(),
+			AttorneyOptOutURL:         s.appPublicURL + page.PathAttorneyEnterAccessCodeOptOut.Format(),
 		})
 }
 
@@ -306,7 +306,7 @@ func (s *Sender) sendReplacementAttorney(ctx context.Context, appData appcontext
 			LpaType:                   localize.LowerFirst(appData.Localizer.T(lpa.Type.String())),
 			AttorneyStartPageURL:      s.attorneyStartURL,
 			ShareCode:                 shareCode.Plain(),
-			AttorneyOptOutURL:         s.appPublicURL + page.PathAttorneyEnterReferenceNumberOptOut.Format(),
+			AttorneyOptOutURL:         s.appPublicURL + page.PathAttorneyEnterAccessCodeOptOut.Format(),
 		})
 }
 
@@ -337,7 +337,7 @@ func (s *Sender) sendTrustCorporation(ctx context.Context, appData appcontext.Da
 			LpaType:                   localize.LowerFirst(appData.Localizer.T(lpa.Type.String())),
 			AttorneyStartPageURL:      s.attorneyStartURL,
 			ShareCode:                 shareCode.Plain(),
-			AttorneyOptOutURL:         s.appPublicURL + page.PathAttorneyEnterReferenceNumberOptOut.Format(),
+			AttorneyOptOutURL:         s.appPublicURL + page.PathAttorneyEnterAccessCodeOptOut.Format(),
 		})
 }
 
@@ -368,7 +368,7 @@ func (s *Sender) sendReplacementTrustCorporation(ctx context.Context, appData ap
 			LpaType:                   localize.LowerFirst(appData.Localizer.T(lpa.Type.String())),
 			AttorneyStartPageURL:      s.attorneyStartURL,
 			ShareCode:                 shareCode.Plain(),
-			AttorneyOptOutURL:         s.appPublicURL + page.PathAttorneyEnterReferenceNumberOptOut.Format(),
+			AttorneyOptOutURL:         s.appPublicURL + page.PathAttorneyEnterAccessCodeOptOut.Format(),
 		})
 }
 

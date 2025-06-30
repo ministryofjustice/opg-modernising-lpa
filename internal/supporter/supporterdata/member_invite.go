@@ -28,8 +28,8 @@ type MemberInvite struct {
 	LastName   string
 	// Permission is the type of permissions assigned to the member to set available actions in an Organisation
 	Permission Permission
-	// ReferenceNumber is a unique code used to invite a Member to and Organisation
-	ReferenceNumber sharecodedata.Hashed
+	// AccessCode is a unique code used to invite a Member to and Organisation
+	AccessCode sharecodedata.Hashed
 }
 
 func (i MemberInvite) HasExpired() bool {

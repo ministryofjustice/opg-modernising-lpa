@@ -1,13 +1,13 @@
 {{ template "page" . }}
 
-{{ define "pageTitle" }}{{ tr .App "enterYourReferenceNumber" }}{{ end }}
+{{ define "pageTitle" }}{{ tr .App "vouchForSomeone" }}{{ end }}
 
 {{ define "main" }}
     <div class="govuk-grid-row">
         <div class="govuk-grid-column-two-thirds">
-            <h1 class="govuk-heading-xl">{{ tr .App "enterYourReferenceNumber" }}</h1>
+            <h1 class="govuk-heading-xl">{{ tr .App "vouchForSomeone" }}</h1>
 
-            {{ trHtml .App "attorneyReferenceNumberContent" }}
+            <p class="govuk-body">{{ tr .App "vouchingAccessCodeContent" }}</p>
 
             <form novalidate method="post">
                 {{ template "input" (input . .Form.FieldNames.DonorLastName "donorLastName" .Form.DonorLastName

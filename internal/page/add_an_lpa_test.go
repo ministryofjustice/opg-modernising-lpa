@@ -48,12 +48,12 @@ func TestGetAddAnLPAWhenTemplateError(t *testing.T) {
 func TestPostAddAnLPA(t *testing.T) {
 	testcases := map[actor.Type]Path{
 		actor.TypeDonor:                       PathEnterAccessCode,
-		actor.TypeCertificateProvider:         PathCertificateProviderEnterReferenceNumber,
-		actor.TypeAttorney:                    PathAttorneyEnterReferenceNumber,
-		actor.TypeReplacementAttorney:         PathAttorneyEnterReferenceNumber,
-		actor.TypeTrustCorporation:            PathAttorneyEnterReferenceNumber,
-		actor.TypeReplacementTrustCorporation: PathAttorneyEnterReferenceNumber,
-		actor.TypeVoucher:                     PathVoucherEnterReferenceNumber,
+		actor.TypeCertificateProvider:         PathCertificateProviderEnterAccessCode,
+		actor.TypeAttorney:                    PathAttorneyEnterAccessCode,
+		actor.TypeReplacementAttorney:         PathAttorneyEnterAccessCode,
+		actor.TypeTrustCorporation:            PathAttorneyEnterAccessCode,
+		actor.TypeReplacementTrustCorporation: PathAttorneyEnterAccessCode,
+		actor.TypeVoucher:                     PathVoucherEnterAccessCode,
 		actor.TypePersonToNotify:              PathDashboard,
 	}
 
