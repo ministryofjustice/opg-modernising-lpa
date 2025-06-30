@@ -11,8 +11,6 @@ import (
 
 type attorneyPaths struct {
 	ConfirmDontWantToBeAttorneyLoggedOut page.Path
-	EnterReferenceNumber                 page.Path
-	EnterReferenceNumberOptOut           page.Path
 	Login                                page.Path
 	LoginCallback                        page.Path
 	Start                                page.Path
@@ -36,8 +34,6 @@ type attorneyPaths struct {
 type certificateProviderPaths struct {
 	Login                                           page.Path
 	LoginCallback                                   page.Path
-	EnterReferenceNumber                            page.Path
-	EnterReferenceNumberOptOut                      page.Path
 	ConfirmDontWantToBeCertificateProviderLoggedOut page.Path
 	YouHaveAlreadyProvidedACertificate              page.Path
 	YouHaveAlreadyProvidedACertificateLoggedIn      page.Path
@@ -69,7 +65,6 @@ type healthCheckPaths struct {
 
 type supporterPaths struct {
 	EnterOrganisationName page.Path
-	EnterReferenceNumber  page.Path
 	EnterYourName         page.Path
 	InviteExpired         page.Path
 	Login                 page.Path
@@ -95,9 +90,8 @@ type supporterPaths struct {
 }
 
 type voucherPaths struct {
-	EnterReferenceNumber page.Path
-	Login                page.Path
-	Start                page.Path
+	Login page.Path
+	Start page.Path
 
 	TaskList             voucher.Path
 	YourName             voucher.Path
@@ -275,13 +269,11 @@ type appPaths struct {
 var paths = appPaths{
 	CertificateProvider: certificateProviderPaths{
 		ConfirmDontWantToBeCertificateProviderLoggedOut: page.PathCertificateProviderConfirmDontWantToBeCertificateProviderLoggedOut,
-		EnterReferenceNumber:                            page.PathCertificateProviderEnterReferenceNumber,
-		EnterReferenceNumberOptOut:                      page.PathCertificateProviderEnterReferenceNumberOptOut,
-		Login:                                           page.PathCertificateProviderLogin,
-		LoginCallback:                                   page.PathCertificateProviderLoginCallback,
-		YouHaveAlreadyProvidedACertificate:              page.PathCertificateProviderYouHaveAlreadyProvidedACertificate,
-		YouHaveAlreadyProvidedACertificateLoggedIn:      page.PathCertificateProviderYouHaveAlreadyProvidedACertificateLoggedIn,
-		YouHaveDecidedNotToBeCertificateProvider:        page.PathCertificateProviderYouHaveDecidedNotToBeCertificateProvider,
+		Login:                              page.PathCertificateProviderLogin,
+		LoginCallback:                      page.PathCertificateProviderLoginCallback,
+		YouHaveAlreadyProvidedACertificate: page.PathCertificateProviderYouHaveAlreadyProvidedACertificate,
+		YouHaveAlreadyProvidedACertificateLoggedIn: page.PathCertificateProviderYouHaveAlreadyProvidedACertificateLoggedIn,
+		YouHaveDecidedNotToBeCertificateProvider:   page.PathCertificateProviderYouHaveDecidedNotToBeCertificateProvider,
 
 		CertificateProvided:                    certificateprovider.PathCertificateProvided,
 		ConfirmDontWantToBeCertificateProvider: certificateprovider.PathConfirmDontWantToBeCertificateProvider,
@@ -304,8 +296,6 @@ var paths = appPaths{
 
 	Attorney: attorneyPaths{
 		ConfirmDontWantToBeAttorneyLoggedOut: page.PathAttorneyConfirmDontWantToBeAttorneyLoggedOut,
-		EnterReferenceNumber:                 page.PathAttorneyEnterReferenceNumber,
-		EnterReferenceNumberOptOut:           page.PathAttorneyEnterReferenceNumberOptOut,
 		Login:                                page.PathAttorneyLogin,
 		LoginCallback:                        page.PathAttorneyLoginCallback,
 		Start:                                page.PathAttorneyStart,
@@ -328,7 +318,6 @@ var paths = appPaths{
 
 	Supporter: supporterPaths{
 		EnterOrganisationName: page.PathSupporterEnterOrganisationName,
-		EnterReferenceNumber:  page.PathSupporterEnterReferenceNumber,
 		EnterYourName:         page.PathSupporterEnterYourName,
 		Login:                 page.PathSupporterLogin,
 		LoginCallback:         page.PathSupporterLoginCallback,
@@ -353,9 +342,8 @@ var paths = appPaths{
 	},
 
 	Voucher: voucherPaths{
-		EnterReferenceNumber: page.PathVoucherEnterReferenceNumber,
-		Login:                page.PathVoucherLogin,
-		Start:                page.PathVoucherStart,
+		Login: page.PathVoucherLogin,
+		Start: page.PathVoucherStart,
 
 		TaskList:             voucher.PathTaskList,
 		YourName:             voucher.PathYourName,

@@ -10,20 +10,20 @@
       {{ $notificationContent := "" }}
       {{ if .App.IsReplacementAttorney }}
         {{ if .App.IsTrustCorporation }}
-          {{ $notificationContent = "weHaveIdentifiedTheTrustCorporationsReplacementAttorneyReferenceNumber" }}
+          {{ $notificationContent = "weHaveIdentifiedTheTrustCorporationsReplacementAttorneyAccessCode" }}
         {{ else }}
-          {{ $notificationContent = "weHaveIdentifiedYourReplacementAttorneyReferenceNumber" }}
+          {{ $notificationContent = "weHaveIdentifiedYourReplacementAttorneyAccessCode" }}
         {{ end }}
       {{ else }}
         {{ if .App.IsTrustCorporation }}
-          {{ $notificationContent = "weHaveIdentifiedTheTrustCorporationsAttorneyReferenceNumber" }}
+          {{ $notificationContent = "weHaveIdentifiedTheTrustCorporationsAttorneyAccessCode" }}
         {{ else }}
-          {{ $notificationContent = "weHaveIdentifiedYourAttorneyReferenceNumber" }}
+          {{ $notificationContent = "weHaveIdentifiedYourAttorneyAccessCode" }}
         {{ end }}
       {{ end }}
 
       {{ template "notification-banner" (notificationBanner .App "success" (trHtml .App $notificationContent) "success" "heading") }}
-     
+
       <h1 class="govuk-heading-xl">{{ tr .App "actingAsAttorney" }}</h1>
 
       {{ $content := "" }}

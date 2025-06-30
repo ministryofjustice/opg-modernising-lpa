@@ -67,7 +67,7 @@ func LoginCallback(logger Logger, oneLoginClient LoginCallbackOneLoginClient, se
 			}
 
 			if len(invites) > 0 {
-				return page.PathSupporterEnterReferenceNumber.Redirect(w, r, appData)
+				return page.PathSupporterEnterAccessCode.Redirect(w, r, appData)
 			}
 
 			return page.PathSupporterEnterYourName.Redirect(w, r, appData)
