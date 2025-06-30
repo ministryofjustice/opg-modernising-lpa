@@ -3,8 +3,7 @@
 
     {{ $donorFullName := .Donor.Donor.FullName }}
     {{ $isPropertyAndAffairs := .Donor.Type.IsPropertyAndAffairs }}
-    {{ $isDonor := $.App.IsDonor }}
-    {{ $canChange := and $isDonor .Donor.CanChange }}
+    {{ $canChange := .Donor.CanChange }}
     {{ $canChangePersonalDetails := and .Donor.CanChangePersonalDetails $canChange }}
 
     <h2 class="govuk-heading-l">{{ trFormat $.App "donorsTypeLpa" "DonorFullName" .Donor.Donor.FullName "LpaType" (tr $.App .Donor.Type.String) }}</h2>
@@ -21,22 +20,22 @@
                     {{ template "summary-row" (summaryRow $.App "name"
                         .FullName
                         (fromLink $.App global.Paths.YourName "#f-first-names")
-                        .FullName $canChangePersonalDetails $isDonor) }}
+                        .FullName $canChangePersonalDetails true) }}
 
                     {{ template "optional-summary-row" (summaryRow $.App "otherNamesYouAreKnownBy"
                         .OtherNames
                         (fromLink $.App global.Paths.YourName "#f-other-names")
-                        .FullName $canChangePersonalDetails $isDonor) }}
+                        .FullName $canChangePersonalDetails true) }}
 
                     {{ template "summary-row" (summaryRow $.App "dateOfBirth"
                         (formatDate $.App .DateOfBirth)
                         (fromLink $.App global.Paths.YourDateOfBirth "#f-date-of-birth")
-                        .FullName $canChangePersonalDetails $isDonor) }}
+                        .FullName $canChangePersonalDetails true) }}
 
                     {{ template "summary-row" (summaryRow $.App "email"
                         .Email
                         ""
-                        .FullName false $isDonor) }}
+                        .FullName false true) }}
 
                     {{ $addressChangeLink := fromLink $.App global.Paths.YourAddress "#f-address-line-1" }}
                     {{ if ne .Address.Country "GB" }}
@@ -46,14 +45,12 @@
                     {{ template "address-summary-row" (summaryRow $.App "address"
                         .Address
                         $addressChangeLink
-                        .FullName $canChange $isDonor) }}
+                        .FullName $canChange true) }}
 
-                    {{ if $isDonor }}
-                        {{ template "summary-row" (summaryRow $.App "preferredContactLanguage"
-                            (tr $.App .ContactLanguagePreference.String)
-                            (fromLink $.App global.Paths.YourPreferredLanguage "")
-                            .FullName $canChange $isDonor) }}
-                    {{ end }}
+                    {{ template "summary-row" (summaryRow $.App "preferredContactLanguage"
+                        (tr $.App .ContactLanguagePreference.String)
+                        (fromLink $.App global.Paths.YourPreferredLanguage "")
+                        .FullName $canChange true) }}
                 </dl>
             </div>
         </div>
@@ -297,10 +294,7 @@
             </div>
         {{ end }}
     {{ else }}
-        {{ $label := "theDonorHasChosenNotToFormallyNotifyAnyone" }}
-        {{ if $isDonor }}
-            {{ $label = "youHaveChosenNotToFormallyNotifyAnyone" }}
-        {{ end }}
+        {{ $label = "youHaveChosenNotToFormallyNotifyAnyone" }}
 
         <div class="govuk-summary-card">
             <div class="govuk-summary-card__title-wrapper">
@@ -364,18 +358,13 @@
 
     <dl class="govuk-summary-list app-stacked-summary-list">
         {{ with .Donor.WhenCanTheLpaBeUsed }}
-            {{ $label := "whenAttorneysCanUseTheLpa" }}
-            {{ $value := printf "%s:3rd" .String }}
-
-            {{ if $isDonor }}
-                {{ $label = "whenYourAttorneysCanUseYourLpa" }}
-                {{ $value = .String }}
-            {{ end }}
+            {{ $label := "whenYourAttorneysCanUseYourLpa" }}
+            {{ $value := .String }}
 
             {{ template "summary-row" (summaryRow $.App $label
                 (tr $.App $value)
                 (fromLink $.App global.Paths.WhenCanTheLpaBeUsed "")
-                $donorFullName (and $canChange $isPropertyAndAffairs) $isDonor) }}
+                $donorFullName (and $canChange $isPropertyAndAffairs) true) }}
         {{ end }}
 
         {{ if .Donor.Type.IsPersonalWelfare }}
@@ -387,67 +376,49 @@
             {{ template "summary-row" (summaryRow $.App "lifeSustainingTreatment"
                 (trHtml $.App $value)
                 (fromLink $.App global.Paths.LifeSustainingTreatment "")
-                $donorFullName $canChange $isDonor) }}
+                $donorFullName $canChange true) }}
         {{ end }}
 
         {{ if .Donor.AttorneyDecisions.How }}
             {{ with .Donor.AttorneyDecisions.How }}
-                {{ $label := "howAttorneysMustMakeDecisions" }}
-                {{ $value := .String }}
-
-                {{ if $isDonor }}
-                    {{ $label = "howYourAttorneysMustMakeDecisions" }}
-                    {{ $value = printf "your-%s" .String }}
-                {{ end }}
+                {{ $label := "howYourAttorneysMustMakeDecisions" }}
+                {{ $value := printf "your-%s" .String }}
 
                 {{ template "summary-row" (summaryRow $.App $label
                     (tr $.App $value)
                     (fromLink $.App global.Paths.HowShouldAttorneysMakeDecisions "")
-                    $donorFullName $canChange $isDonor) }}
+                    $donorFullName $canChange true) }}
             {{ end }}
         {{ end }}
 
         {{ if .Donor.AttorneyDecisions.How.IsJointlyForSomeSeverallyForOthers }}
-            {{ $label := "decisionsAttorneysMustMakeJointly" }}
-
-            {{ if $isDonor }}
-                {{ $label = "decisionsYourAttorneysMustMakeJointly" }}
-            {{ end }}
+            {{ $label := "decisionsYourAttorneysMustMakeJointly" }}
 
             {{ template "text-summary-row" (summaryRow $.App $label
                 (trHtml $.App .Donor.AttorneyDecisions.Details)
                 (fromLink $.App global.Paths.HowShouldAttorneysMakeDecisions "#f-mixed-details")
-                $donorFullName $canChange $isDonor) }}
+                $donorFullName $canChange true) }}
         {{ end }}
 
         {{ if .Donor.ReplacementAttorneyDecisions.How }}
             {{ with .Donor.ReplacementAttorneyDecisions.How }}
-                {{ $label := "howReplacementAttorneysMustMakeDecisions" }}
-                {{ $value := .String }}
-
-                {{ if $isDonor }}
-                    {{ $label = "howYourReplacementAttorneysMustMakeDecisions" }}
-                    {{ $value = printf "your-%s" .String }}
-                {{ end }}
+                {{ $label := "howYourReplacementAttorneysMustMakeDecisions" }}
+                {{ $value := printf "your-%s" .String }}
 
                 {{ template "summary-row" (summaryRow $.App $label
                     (tr $.App $value)
                     (fromLink $.App global.Paths.HowShouldReplacementAttorneysMakeDecisions "")
-                    $donorFullName $canChange $isDonor) }}
+                    $donorFullName $canChange true) }}
             {{ end }}
         {{ end }}
 
         {{ if .Donor.ReplacementAttorneyDecisions.How.IsJointlyForSomeSeverallyForOthers }}
-            {{ $label := "decisionsReplacementAttorneysMustMakeJointly" }}
-
-            {{ if $isDonor }}
-                {{ $label = "decisionsYourReplacementAttorneysMustMakeJointly" }}
-            {{ end }}
+            {{ $label := "decisionsYourReplacementAttorneysMustMakeJointly" }}
 
             {{ template "text-summary-row" (summaryRow $.App $label
                 (trHtml $.App .Donor.ReplacementAttorneyDecisions.Details)
                 (fromLink $.App global.Paths.HowShouldReplacementAttorneysMakeDecisions "#f-mixed-details")
-                $donorFullName $canChange $isDonor) }}
+                $donorFullName $canChange true) }}
         {{ end }}
     </dl>
 
@@ -459,14 +430,11 @@
         {{ template "summary-row" (summaryRow $.App "restrictTheDecisionsAttorneysCanMake"
             .Donor.Restrictions
             (fromLink $.App global.Paths.Restrictions "#f-restrictions")
-            $donorFullName $canChange $isDonor) }}
+            $donorFullName $canChange true) }}
 
         {{ if .Donor.HowShouldReplacementAttorneysStepIn }}
             {{ with .Donor.HowShouldReplacementAttorneysStepIn }}
-                {{ $label := "howReplacementAttorneysShouldStepIn" }}
-                {{ if $isDonor }}
-                    {{ $label = "howYourReplacementAttorneysShouldStepIn" }}
-                {{ end }}
+                {{ $label := "howYourReplacementAttorneysShouldStepIn" }}
 
                 {{ $value := "otherWay" }}
                 {{ if .IsWhenOneCanNoLongerAct }}
@@ -479,13 +447,13 @@
                     {{ template "summary-row" (summaryRow $.App $label
                         (trFormatHtml $.App "inParticularWay" "Text" $.Donor.HowShouldReplacementAttorneysStepInDetails)
                         (fromLink $.App global.Paths.HowShouldReplacementAttorneysStepIn "#f-other-details")
-                        $donorFullName $canChange $isDonor) }}
+                        $donorFullName $canChange true) }}
 
                 {{ else }}
                     {{ template "summary-row" (summaryRow $.App $label
                         (trHtml $.App $value)
                         (fromLink $.App global.Paths.HowShouldReplacementAttorneysStepIn "")
-                        $donorFullName $canChange $isDonor) }}
+                        $donorFullName $canChange true) }}
                 {{ end }}
             {{ end }}
         {{ end }}
