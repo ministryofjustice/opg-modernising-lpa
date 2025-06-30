@@ -16,7 +16,7 @@ describe('View LPA', () => {
         });
 
         it('shows the decisions', () => {
-            cy.contains('Whether or not the donor has mental capacity to make a particular decision');
+            cy.contains('As soon as the LPA registration process is complete (including when the donor still has mental capacity to make a particular decision)');
             cy.contains('Jointly and severally - attorneys can make decisions both on their own or together');
             cy.contains('All together, as soon as one of your original attorneys can no longer act');
             cy.contains('My attorneys must not sell my home unless, in my doctor’s opinion, I can no longer live independently');
