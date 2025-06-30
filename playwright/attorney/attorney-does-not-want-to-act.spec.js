@@ -7,10 +7,11 @@ test('attorney opts out of being an attorney', async ({page}) => {
 
     await page.goto(`/fixtures/attorney?redirect=&lpa-type=property-and-affairs&lpa-language=en&progress=signedByCertificateProvider&withShareCode=${shareCode}&email=${TestEmail}`);
 
-    await page.goto('/attorney-enter-reference-number-opt-out');
+    await page.goto('/attorney-enter-access-code-opt-out');
 
     await expect(page.locator('h1')).toContainText('Enter your attorney access code');
-    await page.getByRole('textbox', {name: 'Enter code'}).fill(shareCode);
+    await page.getByRole('textbox', {name: 'Donor’s last name'}).fill('Smith');
+    await page.getByRole('textbox', {name: 'Access code'}).fill(shareCode);
     await screenshot(page)
     await extractTextFromMainAndSave(page)
     await page.getByRole('button', {name: 'Continue'}).click();
