@@ -145,8 +145,8 @@ func Register(
 		EnterYourName(tmpls.Get("enter_your_name.gohtml"), memberStore))
 	handleRoot(page.PathSupporterEnterOrganisationName, RequireSession,
 		EnterOrganisationName(logger, tmpls.Get("enter_organisation_name.gohtml"), organisationStore, memberStore, sessionStore))
-	handleRoot(page.PathSupporterEnterReferenceNumber, RequireSession,
-		EnterReferenceNumber(logger, tmpls.Get("enter_reference_number.gohtml"), memberStore, sessionStore))
+	handleRoot(page.PathSupporterEnterAccessCode, RequireSession,
+		EnterAccessCode(logger, tmpls.Get("enter_reference_number.gohtml"), memberStore, sessionStore))
 	handleRoot(page.PathSupporterInviteExpired, RequireSession,
 		page.Guidance(tmpls.Get("invite_expired.gohtml")))
 	handleRoot(page.PathSupporterOrganisationDeleted, None,

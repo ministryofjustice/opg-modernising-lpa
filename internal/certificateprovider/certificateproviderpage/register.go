@@ -151,12 +151,12 @@ func Register(
 	handleRoot(page.PathCertificateProviderLogin, page.None,
 		page.Login(oneLoginClient, sessionStore, random.AlphaNumeric, page.PathCertificateProviderLoginCallback))
 	handleRoot(page.PathCertificateProviderLoginCallback, page.None,
-		page.LoginCallback(logger, oneLoginClient, sessionStore, page.PathCertificateProviderEnterReferenceNumber, dashboardStore, actor.TypeCertificateProvider))
-	handleRoot(page.PathCertificateProviderEnterReferenceNumber, page.RequireSession,
-		page.EnterAccessCode(tmpls.Get("enter_reference_number.gohtml"), shareCodeStore, sessionStore, lpaStoreResolvingService, actor.TypeCertificateProvider,
+		page.LoginCallback(logger, oneLoginClient, sessionStore, page.PathCertificateProviderEnterAccessCode, dashboardStore, actor.TypeCertificateProvider))
+	handleRoot(page.PathCertificateProviderEnterAccessCode, page.RequireSession,
+		page.EnterAccessCode(tmpls.Get("enter_access_code.gohtml"), shareCodeStore, sessionStore, lpaStoreResolvingService, actor.TypeCertificateProvider,
 			EnterAccessCode(sessionStore, certificateProviderStore, lpaStoreClient, dashboardStore, eventClient)))
-	handleRoot(page.PathCertificateProviderEnterReferenceNumberOptOut, page.None,
-		page.EnterAccessCodeOptOut(tmpls.Get("enter_reference_number_opt_out.gohtml"), shareCodeStore, sessionStore, lpaStoreResolvingService, actor.TypeCertificateProvider,
+	handleRoot(page.PathCertificateProviderEnterAccessCodeOptOut, page.None,
+		page.EnterAccessCodeOptOut(tmpls.Get("enter_access_code_opt_out.gohtml"), shareCodeStore, sessionStore, lpaStoreResolvingService, actor.TypeCertificateProvider,
 			page.PathCertificateProviderConfirmDontWantToBeCertificateProviderLoggedOut))
 	handleRoot(page.PathCertificateProviderConfirmDontWantToBeCertificateProviderLoggedOut, page.None,
 		ConfirmDontWantToBeCertificateProviderLoggedOut(tmpls.Get("confirm_dont_want_to_be_certificate_provider.gohtml"), shareCodeStore, lpaStoreResolvingService, lpaStoreClient, donorStore, sessionStore, notifyClient, donorStartURL))

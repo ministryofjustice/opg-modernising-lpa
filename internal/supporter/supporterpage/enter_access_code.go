@@ -1,44 +1,46 @@
 package supporterpage
 
 import (
+	"fmt"
 	"log/slog"
 	"net/http"
 
 	"github.com/ministryofjustice/opg-go-common/template"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/appcontext"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/form"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/sharecode/sharecodedata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/supporter"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/validation"
 )
 
-type enterReferenceNumber struct {
+type enterAccessCode struct {
 	App    appcontext.Data
 	Errors validation.List
-	Form   *referenceNumberForm
+	Form   *enterAccessCodeForm
 }
 
-func EnterReferenceNumber(logger Logger, tmpl template.Template, memberStore MemberStore, sessionStore SessionStore) page.Handler {
+func EnterAccessCode(logger Logger, tmpl template.Template, memberStore MemberStore, sessionStore SessionStore) page.Handler {
 	return func(appData appcontext.Data, w http.ResponseWriter, r *http.Request) error {
-		data := &enterReferenceNumber{
+		data := &enterAccessCode{
 			App: appData,
-			Form: &referenceNumberForm{
-				Label: "referenceNumber",
+			Form: &enterAccessCodeForm{
+				FieldName: form.FieldNames.AccessCode,
 			},
 		}
 
 		if r.Method == http.MethodPost {
-			data.Form = readReferenceNumberForm(r, "referenceNumber")
+			data.Form = readEnterAccessCodeForm(r)
 			data.Errors = data.Form.Validate()
 
 			if data.Errors.None() {
 				invite, err := memberStore.InvitedMember(r.Context())
 				if err != nil {
-					return err
+					return fmt.Errorf("get invited member: %w", err)
 				}
 
-				if invite.ReferenceNumber != sharecodedata.HashedFromString(data.Form.ReferenceNumber) {
-					data.Errors.Add("reference-number", validation.CustomError{Label: "incorrectReferenceNumber"})
+				if invite.AccessCode != sharecodedata.HashedFromString(data.Form.AccessCode) {
+					data.Errors.Add(form.FieldNames.AccessCode, validation.IncorrectError{Label: "accessCode"})
 					return tmpl(w, data)
 				}
 
@@ -47,7 +49,7 @@ func EnterReferenceNumber(logger Logger, tmpl template.Template, memberStore Mem
 				}
 
 				if err := memberStore.CreateFromInvite(r.Context(), invite); err != nil {
-					return err
+					return fmt.Errorf("create member from invite: %w", err)
 				}
 
 				loginSession, err := sessionStore.Login(r)
@@ -61,7 +63,7 @@ func EnterReferenceNumber(logger Logger, tmpl template.Template, memberStore Mem
 				logger.InfoContext(r.Context(), "member invite redeemed", slog.String("organisation_id", loginSession.OrganisationID))
 
 				if err := sessionStore.SetLogin(r, w, loginSession); err != nil {
-					return err
+					return fmt.Errorf("set login on session: %w", err)
 				}
 
 				return supporter.PathDashboard.Redirect(w, r, appData)
@@ -72,27 +74,27 @@ func EnterReferenceNumber(logger Logger, tmpl template.Template, memberStore Mem
 	}
 }
 
-type referenceNumberForm struct {
-	ReferenceNumber    string
-	ReferenceNumberRaw string
-	Label              string
+type enterAccessCodeForm struct {
+	AccessCode    string
+	AccessCodeRaw string
+	FieldName     string
 }
 
-func readReferenceNumberForm(r *http.Request, label string) *referenceNumberForm {
-	return &referenceNumberForm{
-		ReferenceNumber:    page.PostFormReferenceNumber(r, "reference-number"),
-		ReferenceNumberRaw: page.PostFormString(r, "reference-number"),
-		Label:              label,
+func readEnterAccessCodeForm(r *http.Request) *enterAccessCodeForm {
+	return &enterAccessCodeForm{
+		AccessCode:    page.PostFormReferenceNumber(r, form.FieldNames.AccessCode),
+		AccessCodeRaw: page.PostFormString(r, form.FieldNames.AccessCode),
+		FieldName:     form.FieldNames.AccessCode,
 	}
 }
 
-func (f *referenceNumberForm) Validate() validation.List {
+func (f *enterAccessCodeForm) Validate() validation.List {
 	var errors validation.List
 
-	errors.String("reference-number", "yourAccessCode", f.ReferenceNumber,
+	errors.String(form.FieldNames.AccessCode, "yourAccessCode", f.AccessCode,
 		validation.Empty())
 
-	errors.String("reference-number", "theReferenceNumberYouEnter", f.ReferenceNumber,
+	errors.String(form.FieldNames.AccessCode, "theAccessCodeYouEnter", f.AccessCode,
 		validation.StringLength(8))
 
 	return errors

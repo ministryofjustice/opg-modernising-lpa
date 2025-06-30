@@ -56,7 +56,7 @@ func TestAccessCodeFormValidate(t *testing.T) {
 				AccessCode:    "1234",
 			},
 			errors: validation.With(FieldNames.DonorLastName, validation.StringTooLongError{Label: "donorLastName", Length: 61}).
-				With(FieldNames.AccessCode, validation.StringLengthError{Label: "theReferenceNumberYouEnter", Length: 8}),
+				With(FieldNames.AccessCode, validation.StringLengthError{Label: "theAccessCodeYouEnter", Length: 8}),
 		},
 	}
 

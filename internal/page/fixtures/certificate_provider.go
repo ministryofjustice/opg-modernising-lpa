@@ -374,8 +374,8 @@ func CertificateProvider(
 				redirect = page.PathDashboard.Format()
 			case page.PathCertificateProviderStart.Format():
 				redirect = page.PathCertificateProviderStart.Format()
-			case page.PathCertificateProviderEnterReferenceNumberOptOut.Format():
-				redirect = page.PathCertificateProviderEnterReferenceNumberOptOut.Format()
+			case page.PathCertificateProviderEnterAccessCodeOptOut.Format():
+				redirect = page.PathCertificateProviderEnterAccessCodeOptOut.Format()
 			default:
 				redirect = "/certificate-provider/" + donorDetails.LpaID + redirect
 			}
@@ -448,8 +448,8 @@ func CertificateProvider(
 			redirect = page.PathDashboard.Format()
 		case page.PathCertificateProviderStart.Format():
 			redirect = page.PathCertificateProviderStart.Format()
-		case page.PathCertificateProviderEnterReferenceNumberOptOut.Format():
-			redirect = page.PathCertificateProviderEnterReferenceNumberOptOut.Format()
+		case page.PathCertificateProviderEnterAccessCodeOptOut.Format():
+			redirect = page.PathCertificateProviderEnterAccessCodeOptOut.Format()
 		default:
 			redirect = "/certificate-provider/" + donorDetails.LpaID + redirect
 		}

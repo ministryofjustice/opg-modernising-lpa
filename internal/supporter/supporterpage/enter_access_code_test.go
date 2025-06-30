@@ -9,6 +9,7 @@ import (
 	"testing"
 	"time"
 
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/form"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/sesh"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/sharecode/sharecodedata"
@@ -19,57 +20,57 @@ import (
 	"github.com/stretchr/testify/mock"
 )
 
-func TestGetEnterReferenceNumber(t *testing.T) {
+func TestGetEnterAccessCode(t *testing.T) {
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest(http.MethodGet, "/", nil)
 
 	template := newMockTemplate(t)
 	template.EXPECT().
-		Execute(w, &enterReferenceNumber{
+		Execute(w, &enterAccessCode{
 			App: testAppData,
-			Form: &referenceNumberForm{
-				Label: "referenceNumber",
+			Form: &enterAccessCodeForm{
+				FieldName: form.FieldNames.AccessCode,
 			},
 		}).
 		Return(nil)
 
-	err := EnterReferenceNumber(nil, template.Execute, nil, nil)(testAppData, w, r)
+	err := EnterAccessCode(nil, template.Execute, nil, nil)(testAppData, w, r)
 	resp := w.Result()
 
 	assert.Nil(t, err)
 	assert.Equal(t, http.StatusOK, resp.StatusCode)
 }
 
-func TestGetEnterReferenceNumberWhenTemplateError(t *testing.T) {
+func TestGetEnterAccessCodeWhenTemplateError(t *testing.T) {
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest(http.MethodGet, "/", nil)
 
 	template := newMockTemplate(t)
 	template.EXPECT().
-		Execute(w, &enterReferenceNumber{
+		Execute(w, &enterAccessCode{
 			App: testAppData,
-			Form: &referenceNumberForm{
-				Label: "referenceNumber",
+			Form: &enterAccessCodeForm{
+				FieldName: form.FieldNames.AccessCode,
 			},
 		}).
 		Return(expectedError)
 
-	err := EnterReferenceNumber(nil, template.Execute, nil, nil)(testAppData, w, r)
+	err := EnterAccessCode(nil, template.Execute, nil, nil)(testAppData, w, r)
 	resp := w.Result()
 
 	assert.Equal(t, expectedError, err)
 	assert.Equal(t, http.StatusOK, resp.StatusCode)
 }
 
-func TestPostEnterReferenceNumber(t *testing.T) {
-	form := url.Values{"reference-number": {"abcd1234"}}
+func TestPostEnterAccessCode(t *testing.T) {
+	form := url.Values{form.FieldNames.AccessCode: {"abcd1234"}}
 
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(form.Encode()))
 	r.Header.Add("Content-Type", page.FormUrlEncoded)
 
 	invite := &supporterdata.MemberInvite{
-		ReferenceNumber:  sharecodedata.HashedFromString("abcd1234"),
+		AccessCode:       sharecodedata.HashedFromString("abcd1234"),
 		OrganisationID:   "org-id",
 		OrganisationName: "org name",
 		CreatedAt:        time.Now().Add(-47 * time.Hour),
@@ -97,7 +98,7 @@ func TestPostEnterReferenceNumber(t *testing.T) {
 	logger.EXPECT().
 		InfoContext(r.Context(), "member invite redeemed", slog.String("organisation_id", "org-id"))
 
-	err := EnterReferenceNumber(logger, nil, memberStore, sessionStore)(testAppData, w, r)
+	err := EnterAccessCode(logger, nil, memberStore, sessionStore)(testAppData, w, r)
 	resp := w.Result()
 
 	assert.Nil(t, err)
@@ -105,40 +106,40 @@ func TestPostEnterReferenceNumber(t *testing.T) {
 	assert.Equal(t, supporter.PathDashboard.Format(), resp.Header.Get("Location"))
 }
 
-func TestPostEnterReferenceNumberWhenIncorrectReferenceNumber(t *testing.T) {
-	form := url.Values{"reference-number": {"not-match"}}
+func TestPostEnterAccessCodeWhenIncorrectAccessCode(t *testing.T) {
+	f := url.Values{form.FieldNames.AccessCode: {"not-match"}}
 
 	w := httptest.NewRecorder()
-	r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(form.Encode()))
+	r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(f.Encode()))
 	r.Header.Add("Content-Type", page.FormUrlEncoded)
 
 	memberStore := newMockMemberStore(t)
 	memberStore.EXPECT().
 		InvitedMember(r.Context()).
-		Return(&supporterdata.MemberInvite{ReferenceNumber: sharecodedata.HashedFromString("notmatch123"), OrganisationID: "org-id"}, nil)
+		Return(&supporterdata.MemberInvite{AccessCode: sharecodedata.HashedFromString("notmatch123"), OrganisationID: "org-id"}, nil)
 
 	template := newMockTemplate(t)
 	template.EXPECT().
-		Execute(w, &enterReferenceNumber{
+		Execute(w, &enterAccessCode{
 			App: testAppData,
-			Form: &referenceNumberForm{
-				Label:              "referenceNumber",
-				ReferenceNumber:    "notmatch",
-				ReferenceNumberRaw: "not-match",
+			Form: &enterAccessCodeForm{
+				FieldName:     form.FieldNames.AccessCode,
+				AccessCode:    "notmatch",
+				AccessCodeRaw: "not-match",
 			},
-			Errors: validation.With("reference-number", validation.CustomError{Label: "incorrectReferenceNumber"}),
+			Errors: validation.With(form.FieldNames.AccessCode, validation.IncorrectError{Label: "accessCode"}),
 		}).
 		Return(nil)
 
-	err := EnterReferenceNumber(nil, template.Execute, memberStore, nil)(testAppData, w, r)
+	err := EnterAccessCode(nil, template.Execute, memberStore, nil)(testAppData, w, r)
 	resp := w.Result()
 
 	assert.Nil(t, err)
 	assert.Equal(t, http.StatusOK, resp.StatusCode)
 }
 
-func TestPostEnterReferenceNumberWhenInviteExpired(t *testing.T) {
-	form := url.Values{"reference-number": {"match-123"}}
+func TestPostEnterAccessCodeWhenInviteExpired(t *testing.T) {
+	form := url.Values{form.FieldNames.AccessCode: {"match-123"}}
 
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(form.Encode()))
@@ -148,12 +149,12 @@ func TestPostEnterReferenceNumberWhenInviteExpired(t *testing.T) {
 	memberStore.EXPECT().
 		InvitedMember(r.Context()).
 		Return(&supporterdata.MemberInvite{
-			ReferenceNumber: sharecodedata.HashedFromString("match123"),
-			OrganisationID:  "org-id",
-			CreatedAt:       time.Now().Add(-49 * time.Hour),
+			AccessCode:     sharecodedata.HashedFromString("match123"),
+			OrganisationID: "org-id",
+			CreatedAt:      time.Now().Add(-49 * time.Hour),
 		}, nil)
 
-	err := EnterReferenceNumber(nil, nil, memberStore, nil)(testAppData, w, r)
+	err := EnterAccessCode(nil, nil, memberStore, nil)(testAppData, w, r)
 	resp := w.Result()
 
 	assert.Nil(t, err)
@@ -161,8 +162,8 @@ func TestPostEnterReferenceNumberWhenInviteExpired(t *testing.T) {
 	assert.Equal(t, page.PathSupporterInviteExpired.Format(), resp.Header.Get("Location"))
 }
 
-func TestPostEnterReferenceNumberWhenMemberStoreInvitedMemberError(t *testing.T) {
-	form := url.Values{"reference-number": {"abcd1234"}}
+func TestPostEnterAccessCodeWhenMemberStoreInvitedMemberError(t *testing.T) {
+	form := url.Values{form.FieldNames.AccessCode: {"abcd1234"}}
 
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(form.Encode()))
@@ -173,15 +174,15 @@ func TestPostEnterReferenceNumberWhenMemberStoreInvitedMemberError(t *testing.T)
 		InvitedMember(mock.Anything).
 		Return(&supporterdata.MemberInvite{}, expectedError)
 
-	err := EnterReferenceNumber(nil, nil, memberStore, nil)(testAppData, w, r)
+	err := EnterAccessCode(nil, nil, memberStore, nil)(testAppData, w, r)
 	resp := w.Result()
 
-	assert.Equal(t, expectedError, err)
+	assert.ErrorIs(t, err, expectedError)
 	assert.Equal(t, http.StatusOK, resp.StatusCode)
 }
 
-func TestPostEnterReferenceNumberWhenMemberStoreCreateError(t *testing.T) {
-	form := url.Values{"reference-number": {"abcd1234"}}
+func TestPostEnterAccessCodeWhenMemberStoreCreateError(t *testing.T) {
+	form := url.Values{form.FieldNames.AccessCode: {"abcd1234"}}
 
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(form.Encode()))
@@ -191,24 +192,24 @@ func TestPostEnterReferenceNumberWhenMemberStoreCreateError(t *testing.T) {
 	memberStore.EXPECT().
 		InvitedMember(mock.Anything).
 		Return(&supporterdata.MemberInvite{
-			ReferenceNumber: sharecodedata.HashedFromString("abcd1234"),
-			OrganisationID:  "org-id",
-			CreatedAt:       time.Now(),
+			AccessCode:     sharecodedata.HashedFromString("abcd1234"),
+			OrganisationID: "org-id",
+			CreatedAt:      time.Now(),
 		}, nil)
 
 	memberStore.EXPECT().
 		CreateFromInvite(mock.Anything, mock.Anything).
 		Return(expectedError)
 
-	err := EnterReferenceNumber(nil, nil, memberStore, nil)(testAppData, w, r)
+	err := EnterAccessCode(nil, nil, memberStore, nil)(testAppData, w, r)
 	resp := w.Result()
 
-	assert.Equal(t, expectedError, err)
+	assert.ErrorIs(t, err, expectedError)
 	assert.Equal(t, http.StatusOK, resp.StatusCode)
 }
 
-func TestPostEnterReferenceNumberWhenSessionGetError(t *testing.T) {
-	form := url.Values{"reference-number": {"abcd1234"}}
+func TestPostEnterAccessCodeWhenSessionGetError(t *testing.T) {
+	form := url.Values{form.FieldNames.AccessCode: {"abcd1234"}}
 
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(form.Encode()))
@@ -218,9 +219,9 @@ func TestPostEnterReferenceNumberWhenSessionGetError(t *testing.T) {
 	memberStore.EXPECT().
 		InvitedMember(mock.Anything).
 		Return(&supporterdata.MemberInvite{
-			ReferenceNumber: sharecodedata.HashedFromString("abcd1234"),
-			OrganisationID:  "org-id",
-			CreatedAt:       time.Now(),
+			AccessCode:     sharecodedata.HashedFromString("abcd1234"),
+			OrganisationID: "org-id",
+			CreatedAt:      time.Now(),
 		}, nil)
 
 	memberStore.EXPECT().
@@ -232,7 +233,7 @@ func TestPostEnterReferenceNumberWhenSessionGetError(t *testing.T) {
 		Login(r).
 		Return(nil, expectedError)
 
-	err := EnterReferenceNumber(nil, nil, memberStore, sessionStore)(testAppData, w, r)
+	err := EnterAccessCode(nil, nil, memberStore, sessionStore)(testAppData, w, r)
 	resp := w.Result()
 
 	assert.Nil(t, err)
@@ -240,8 +241,8 @@ func TestPostEnterReferenceNumberWhenSessionGetError(t *testing.T) {
 	assert.Equal(t, page.PathSupporterStart.Format(), resp.Header.Get("Location"))
 }
 
-func TestPostEnterReferenceNumberWhenSessionSaveError(t *testing.T) {
-	form := url.Values{"reference-number": {"abcd1234"}}
+func TestPostEnterAccessCodeWhenSessionSaveError(t *testing.T) {
+	form := url.Values{form.FieldNames.AccessCode: {"abcd1234"}}
 
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(form.Encode()))
@@ -251,9 +252,9 @@ func TestPostEnterReferenceNumberWhenSessionSaveError(t *testing.T) {
 	memberStore.EXPECT().
 		InvitedMember(mock.Anything).
 		Return(&supporterdata.MemberInvite{
-			ReferenceNumber: sharecodedata.HashedFromString("abcd1234"),
-			OrganisationID:  "org-id",
-			CreatedAt:       time.Now(),
+			AccessCode:     sharecodedata.HashedFromString("abcd1234"),
+			OrganisationID: "org-id",
+			CreatedAt:      time.Now(),
 		}, nil)
 
 	memberStore.EXPECT().
@@ -272,64 +273,64 @@ func TestPostEnterReferenceNumberWhenSessionSaveError(t *testing.T) {
 	logger.EXPECT().
 		InfoContext(mock.Anything, mock.Anything, mock.Anything)
 
-	err := EnterReferenceNumber(logger, nil, memberStore, sessionStore)(testAppData, w, r)
+	err := EnterAccessCode(logger, nil, memberStore, sessionStore)(testAppData, w, r)
 	resp := w.Result()
 
-	assert.Equal(t, expectedError, err)
+	assert.ErrorIs(t, err, expectedError)
 	assert.Equal(t, http.StatusOK, resp.StatusCode)
 }
 
-func TestPostEnterReferenceNumberWhenValidationError(t *testing.T) {
-	form := url.Values{"reference-number": {""}}
+func TestPostEnterAccessCodeWhenValidationError(t *testing.T) {
+	f := url.Values{form.FieldNames.AccessCode: {""}}
 
 	w := httptest.NewRecorder()
-	r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(form.Encode()))
+	r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(f.Encode()))
 	r.Header.Add("Content-Type", page.FormUrlEncoded)
 
 	template := newMockTemplate(t)
 	template.EXPECT().
-		Execute(w, &enterReferenceNumber{
+		Execute(w, &enterAccessCode{
 			App: testAppData,
-			Form: &referenceNumberForm{
-				Label: "referenceNumber",
+			Form: &enterAccessCodeForm{
+				FieldName: form.FieldNames.AccessCode,
 			},
-			Errors: validation.With("reference-number", validation.EnterError{Label: "yourAccessCode"}),
+			Errors: validation.With(form.FieldNames.AccessCode, validation.EnterError{Label: "yourAccessCode"}),
 		}).
 		Return(nil)
 
-	err := EnterReferenceNumber(nil, template.Execute, nil, nil)(testAppData, w, r)
+	err := EnterAccessCode(nil, template.Execute, nil, nil)(testAppData, w, r)
 	resp := w.Result()
 
 	assert.Nil(t, err)
 	assert.Equal(t, http.StatusOK, resp.StatusCode)
 }
 
-func TestReferenceNumberFormValidate(t *testing.T) {
+func TestAccessCodeFormValidate(t *testing.T) {
 	testCases := map[string]struct {
-		form   *referenceNumberForm
+		form   *enterAccessCodeForm
 		errors validation.List
 	}{
 		"valid": {
-			form:   &referenceNumberForm{ReferenceNumber: "abcd1234"},
+			form:   &enterAccessCodeForm{AccessCode: "abcd1234"},
 			errors: nil,
 		},
 		"too short": {
-			form: &referenceNumberForm{ReferenceNumber: "abcd123"},
-			errors: validation.With("reference-number", validation.StringLengthError{
-				Label:  "theReferenceNumberYouEnter",
+			form: &enterAccessCodeForm{AccessCode: "abcd123"},
+			errors: validation.With(form.FieldNames.AccessCode, validation.StringLengthError{
+				Label:  "theAccessCodeYouEnter",
 				Length: 8,
 			}),
 		},
 		"too long": {
-			form: &referenceNumberForm{ReferenceNumber: "abcd12345"},
-			errors: validation.With("reference-number", validation.StringLengthError{
-				Label:  "theReferenceNumberYouEnter",
+			form: &enterAccessCodeForm{AccessCode: "abcd12345"},
+			errors: validation.With(form.FieldNames.AccessCode, validation.StringLengthError{
+				Label:  "theAccessCodeYouEnter",
 				Length: 8,
 			}),
 		},
 		"empty": {
-			form: &referenceNumberForm{},
-			errors: validation.With("reference-number", validation.EnterError{
+			form: &enterAccessCodeForm{},
+			errors: validation.With(form.FieldNames.AccessCode, validation.EnterError{
 				Label: "yourAccessCode",
 			}),
 		},
