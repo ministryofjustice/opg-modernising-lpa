@@ -375,8 +375,8 @@
     "peopleToNotifyAboutYourLpa": "People to notify about your LPA",
     "wantPeopleToNotify": "Do you want to notify anyone about your LPA?",
     "yesToNotifySomeoneAboutYourLpa": "yes to notify someone about your LPA",
-    "wantPeopleToNotifyContent": "<p class=\"govuk-body\">You can let up to 5 people know that you have made an LPA and that it is ready for registration. These people can raise any concerns about your LPA before it is registered.</p><p class=\"govuk-body\">Most people choose family members or close friends. We call these ‘people to notify’. Having people to notify is optional but can provide extra protection for you.</p><p class=\"govuk-body\">If you choose to notify a person about your LPA, we’ll send them information once everyone has signed and we’ve checked your LPA.</p>",
-    "weWillOnlyTellThem": "We’ll only tell them:",
+    "wantPeopleToNotifyContent": "<p class=\"govuk-body\">You can choose up to 5 people to notify that you have made an LPA and that it is ready for registration. If you choose to notify a person about your LPA, the Office of the Public Guardian (OPG) will send them information once everyone has signed and we’ve checked your LPA.</p><p class=\"govuk-body\">Most people choose family members or close friends. Having people to notify is optional but can provide extra protection for you, because these people can raise any concerns about your LPA before it is registered.</p>",
+    "weWillOnlyTellThem": "If you choose people to notify, we’ll only tell them:",
     "thatYouHaveMadeALpaType": "that you’ve made a {{lowerFirst .LpaType}} LPA",
     "thatYourAttorneysAre": {
         "one": "that your attorney is {{.AllAttorneysFirstNames }}",
