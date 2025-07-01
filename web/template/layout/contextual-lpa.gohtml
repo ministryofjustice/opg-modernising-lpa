@@ -287,7 +287,8 @@
 
     <h3 class="govuk-heading-m">{{ tr .App "legalRightsAndResponsibilities" }}</h3>
 
-    {{ trHtml .App (printf "yourLegalRightsAndResponsibilitiesContent:%s:h4" .Lpa.Type.String) }}
+      {{ trFormatHtml .App "yourLegalRightsAndResponsibilitiesContent:h4"
+          "CanBeUsedWhenBullet" (tr .App (printf "canBeUsedWhenBullet:%s" .Lpa.WhenCanTheLpaBeUsed.String))  }}
 
     {{ if not .Lpa.SignedAt.IsZero }}
         {{ template "contextual-lpa-warning" .App }}

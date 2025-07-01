@@ -8,8 +8,9 @@
       <h1 class="govuk-heading-xl">{{ tr .App "yourLegalRightsAndResponsibilities" }}</h1>
 
       <p class="govuk-body-l">{{ tr .App "beforeSigningYouMustReadAgain" }}</p>
-      
-      {{ trHtml .App (printf "yourLegalRightsAndResponsibilitiesContent:%s" .Donor.Type.String) }}
+
+      {{ trFormatHtml .App "yourLegalRightsAndResponsibilitiesContent"
+          "CanBeUsedWhenBullet" (tr .App (printf "canBeUsedWhenBullet:%s" .Donor.WhenCanTheLpaBeUsed.String))  }}
 
       <div class="govuk-button-group govuk-!-margin-top-8">
         <a href="{{ if .Donor.Donor.CanSign.IsYes }}{{ link .App (global.Paths.SignYourLpa.Format .App.LpaID) }}{{ else }}{{ link .App (global.Paths.SignTheLpaOnBehalf.Format .App.LpaID) }}{{ end }}" role="button" draggable="false" class="govuk-button" data-module="govuk-button">
