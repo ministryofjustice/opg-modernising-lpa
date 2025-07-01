@@ -299,6 +299,8 @@ data "aws_iam_policy_document" "task_role_access_policy" {
     resources = [
       var.lpas_table.arn,
       "${var.lpas_table.arn}/index/*",
+      var.sessions_table.arn,
+      "${var.sessions_table.arn}/index/*",
     ]
   }
 
@@ -426,6 +428,10 @@ locals {
         {
           name  = "DYNAMODB_TABLE_LPAS",
           value = var.lpas_table.name
+        },
+        {
+          name  = "DYNAMODB_TABLE_SESSIONS",
+          value = var.sessions_table.name
         },
         {
           name  = "UPLOADS_S3_BUCKET_NAME",

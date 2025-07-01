@@ -333,7 +333,7 @@ func ScheduledKey(at time.Time, rnd string) ScheduledKeyType {
 }
 
 func PartialScheduledKey() ScheduledKeyType {
-	return ScheduledKeyType(scheduledPrefix + "#")
+	return scheduledPrefix + "#"
 }
 
 type ReservedKeyType string

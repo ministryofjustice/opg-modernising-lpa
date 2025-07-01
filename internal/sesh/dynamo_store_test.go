@@ -12,11 +12,16 @@ import (
 	"github.com/gorilla/sessions"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/dynamo"
 	"github.com/stretchr/testify/assert"
-	mock "github.com/stretchr/testify/mock"
+	"github.com/stretchr/testify/mock"
 )
 
-func (c *mockDynamoClient_One_Call) SetData(data any) {
-	c.Run(func(ctx context.Context, pk dynamo.PK, sk dynamo.SK, v interface{}) {
+var (
+	testNow   = time.Now()
+	testNowFn = func() time.Time { return testNow }
+)
+
+func (c *mockDynamoClient_OneActive_Call) SetData(data any) {
+	c.Run(func(ctx context.Context, pk dynamo.PK, sk dynamo.SK, now time.Time, v interface{}) {
 		b, _ := attributevalue.Marshal(data)
 		attributevalue.Unmarshal(b, v)
 	})
@@ -24,16 +29,22 @@ func (c *mockDynamoClient_One_Call) SetData(data any) {
 
 func TestNewDynamoStore(t *testing.T) {
 	client := newMockDynamoClient(t)
-	store := NewDynamoStore(client)
+	store := NewDynamoStore(client, testNowFn)
 
-	assert.Equal(t, &DynamoStore{
+	expectedStore := &DynamoStore{
 		Codecs: securecookie.CodecsFromPairs(),
 		Options: &sessions.Options{
 			Path:   "/",
 			MaxAge: 86400 * 30,
 		},
+		now:          testNowFn,
 		dynamoClient: client,
-	}, store)
+	}
+
+	assert.Equal(t, expectedStore.now(), store.now())
+	assert.Equal(t, expectedStore.Options, store.Options)
+	assert.Equal(t, expectedStore.dynamoClient, store.dynamoClient)
+	assert.Equal(t, expectedStore.Codecs, store.Codecs)
 }
 
 func TestDynamoStoreGet(t *testing.T) {
@@ -89,7 +100,7 @@ func TestDynamoStoreNewWhenExisting(t *testing.T) {
 
 	dynamoClient := newMockDynamoClient(t)
 	dynamoClient.EXPECT().
-		One(r.Context(), dynamo.SessionKey(sessionID), dynamo.MetadataKey(sessionID), mock.Anything).
+		OneActive(r.Context(), dynamo.SessionKey(sessionID), dynamo.MetadataKey(sessionID), testNow, mock.Anything).
 		Return(nil).
 		SetData(sessionData{Encoded: encodedData})
 
@@ -97,6 +108,7 @@ func TestDynamoStoreNewWhenExisting(t *testing.T) {
 		dynamoClient: dynamoClient,
 		Codecs:       codecs,
 		Options:      sessionOptions,
+		now:          testNowFn,
 	}
 
 	session, err := store.New(r, sessionName)
@@ -125,13 +137,14 @@ func TestDynamoStoreNewWhenDynamoErrors(t *testing.T) {
 
 	dynamoClient := newMockDynamoClient(t)
 	dynamoClient.EXPECT().
-		One(mock.Anything, mock.Anything, mock.Anything, mock.Anything).
+		OneActive(mock.Anything, mock.Anything, mock.Anything, mock.Anything, mock.Anything).
 		Return(expectedError)
 
 	store := &DynamoStore{
 		dynamoClient: dynamoClient,
 		Codecs:       codecs,
 		Options:      sessionOptions,
+		now:          testNowFn,
 	}
 
 	session, err := store.New(r, sessionName)
@@ -155,12 +168,14 @@ func TestDynamoStoreSave(t *testing.T) {
 	encodedCookie, _ := codecs[0].Encode(sessionName, sessionID)
 	encodedData, _ := codecs[0].Encode(sessionName, data)
 
+	expiresAt := testNow.UTC().Add(time.Duration(30) * time.Second)
 	dynamoClient := newMockDynamoClient(t)
 	dynamoClient.EXPECT().
 		Create(r.Context(), sessionData{
-			PK:      dynamo.SessionKey(sessionID),
-			SK:      dynamo.MetadataKey(sessionID),
-			Encoded: encodedData,
+			PK:        dynamo.SessionKey(sessionID),
+			SK:        dynamo.MetadataKey(sessionID),
+			Encoded:   encodedData,
+			ExpiresAt: expiresAt.Unix(),
 		}).
 		Return(nil)
 
@@ -168,6 +183,7 @@ func TestDynamoStoreSave(t *testing.T) {
 		dynamoClient: dynamoClient,
 		Options:      sessionOptions,
 		Codecs:       codecs,
+		now:          testNowFn,
 	}
 
 	session := sessions.NewSession(store, sessionName)
@@ -203,6 +219,7 @@ func TestDynamoStoreSaveWhenDynamoErrors(t *testing.T) {
 		dynamoClient: dynamoClient,
 		Options:      sessionOptions,
 		Codecs:       codecs,
+		now:          testNowFn,
 	}
 
 	session := sessions.NewSession(store, sessionName)
