@@ -160,7 +160,6 @@ func TestPostDonorAccess(t *testing.T) {
 			DonorName:          "Barry Boy",
 			URL:                "http://whatever/start",
 			AccessCode:         testPlainCode.Plain(),
-			ShareCode:          testPlainCode.Plain(),
 		}).
 		Return(nil)
 

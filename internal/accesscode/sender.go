@@ -101,7 +101,6 @@ func (s *Sender) SendCertificateProviderInvite(ctx context.Context, appData appc
 		DonorFirstNamesPossessive:    appData.Localizer.Possessive(provided.Donor.FirstNames),
 		WhatLpaCovers:                appData.Localizer.T(whatLpaCovers),
 		AccessCode:                   accessCode.Plain(),
-		ShareCode:                    accessCode.Plain(),
 		CertificateProviderOptOutURL: fmt.Sprintf("%s%s", s.appPublicURL, page.PathCertificateProviderEnterAccessCodeOptOut),
 	})
 }
@@ -127,7 +126,6 @@ func (s *Sender) SendCertificateProviderPrompt(ctx context.Context, appData appc
 		LpaType:                     localize.LowerFirst(appData.Localizer.T(donor.Type.String())),
 		CertificateProviderStartURL: s.certificateProviderStartURL,
 		AccessCode:                  accessCode.Plain(),
-		ShareCode:                   accessCode.Plain(),
 	})
 }
 
@@ -150,7 +148,6 @@ func (s *Sender) SendLpaCertificateProviderPrompt(ctx context.Context, appData a
 		LpaType:                     localize.LowerFirst(appData.Localizer.T(lpa.Type.String())),
 		CertificateProviderStartURL: s.certificateProviderStartURL,
 		AccessCode:                  accessCode.Plain(),
-		ShareCode:                   accessCode.Plain(),
 	})
 }
 
@@ -233,7 +230,6 @@ func (s *Sender) SendVoucherAccessCode(ctx context.Context, provided *donordata.
 
 		if err := s.sendSMS(ctx, notify.ToDonorOnly(provided), provided.LpaUID, notify.VouchingAccessCodeSMS{
 			AccessCode:                accessCode.Plain(),
-			ShareCode:                 accessCode.Plain(),
 			DonorFullNamePossessive:   appData.Localizer.Possessive(provided.Donor.FullName()),
 			LpaType:                   appData.Localizer.T(provided.Type.String()),
 			LpaReferenceNumber:        provided.LpaUID,
@@ -248,7 +244,6 @@ func (s *Sender) SendVoucherAccessCode(ctx context.Context, provided *donordata.
 
 		if err := s.sendEmail(ctx, notify.ToDonorOnly(provided), provided.LpaUID, notify.VouchingAccessCodeEmail{
 			AccessCode:         accessCode.Plain(),
-			ShareCode:          accessCode.Plain(),
 			VoucherFullName:    provided.Voucher.FullName(),
 			DonorFullName:      provided.Donor.FullName(),
 			LpaType:            appData.Localizer.T(provided.Type.String()),
@@ -284,7 +279,6 @@ func (s *Sender) sendOriginalAttorney(ctx context.Context, appData appcontext.Da
 			LpaType:                   localize.LowerFirst(appData.Localizer.T(lpa.Type.String())),
 			AttorneyStartPageURL:      s.attorneyStartURL,
 			AccessCode:                accessCode.Plain(),
-			ShareCode:                 accessCode.Plain(),
 			AttorneyOptOutURL:         s.appPublicURL + page.PathAttorneyEnterAccessCodeOptOut.Format(),
 		})
 }
@@ -312,7 +306,6 @@ func (s *Sender) sendReplacementAttorney(ctx context.Context, appData appcontext
 			LpaType:                   localize.LowerFirst(appData.Localizer.T(lpa.Type.String())),
 			AttorneyStartPageURL:      s.attorneyStartURL,
 			AccessCode:                accessCode.Plain(),
-			ShareCode:                 accessCode.Plain(),
 			AttorneyOptOutURL:         s.appPublicURL + page.PathAttorneyEnterAccessCodeOptOut.Format(),
 		})
 }
@@ -344,7 +337,6 @@ func (s *Sender) sendTrustCorporation(ctx context.Context, appData appcontext.Da
 			LpaType:                   localize.LowerFirst(appData.Localizer.T(lpa.Type.String())),
 			AttorneyStartPageURL:      s.attorneyStartURL,
 			AccessCode:                accessCode.Plain(),
-			ShareCode:                 accessCode.Plain(),
 			AttorneyOptOutURL:         s.appPublicURL + page.PathAttorneyEnterAccessCodeOptOut.Format(),
 		})
 }
@@ -376,7 +368,6 @@ func (s *Sender) sendReplacementTrustCorporation(ctx context.Context, appData ap
 			LpaType:                   localize.LowerFirst(appData.Localizer.T(lpa.Type.String())),
 			AttorneyStartPageURL:      s.attorneyStartURL,
 			AccessCode:                accessCode.Plain(),
-			ShareCode:                 accessCode.Plain(),
 			AttorneyOptOutURL:         s.appPublicURL + page.PathAttorneyEnterAccessCodeOptOut.Format(),
 		})
 }
