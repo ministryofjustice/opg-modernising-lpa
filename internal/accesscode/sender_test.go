@@ -82,7 +82,6 @@ func TestAccessCodeSenderSendCertificateProviderInvite(t *testing.T) {
 	notifyClient.EXPECT().
 		SendActorEmail(ctx, to, "lpa-uid", notify.CertificateProviderInviteEmail{
 			AccessCode:                   testPlainCode.Plain(),
-			ShareCode:                    testPlainCode.Plain(),
 			CertificateProviderFullName:  "Joanna Jones",
 			DonorFirstNames:              "Jan",
 			DonorFullName:                "Jan Smith",
@@ -181,7 +180,6 @@ func TestAccessCodeSenderSendCertificateProviderInviteWithTestCode(t *testing.T)
 					LpaType:                      "personal welfare",
 					CertificateProviderStartURL:  "http://example.com/certificate-provider",
 					AccessCode:                   tc.expectedTestCode,
-					ShareCode:                    tc.expectedTestCode,
 					DonorFirstNamesPossessive:    "Jan’s",
 					WhatLpaCovers:                "health and stuff",
 					CertificateProviderOptOutURL: fmt.Sprintf("http://app%s", page.PathCertificateProviderEnterAccessCodeOptOut),
@@ -196,7 +194,6 @@ func TestAccessCodeSenderSendCertificateProviderInviteWithTestCode(t *testing.T)
 					LpaType:                      "personal welfare",
 					CertificateProviderStartURL:  "http://example.com/certificate-provider",
 					AccessCode:                   testPlainCode.Plain(),
-					ShareCode:                    testPlainCode.Plain(),
 					DonorFirstNamesPossessive:    "Jan’s",
 					WhatLpaCovers:                "health and stuff",
 					CertificateProviderOptOutURL: fmt.Sprintf("http://app%s", page.PathCertificateProviderEnterAccessCodeOptOut),
@@ -312,7 +309,6 @@ func TestAccessCodeSenderSendCertificateProviderPromptOnline(t *testing.T) {
 	notifyClient.EXPECT().
 		SendActorEmail(ctx, notify.ToCertificateProvider(donor.CertificateProvider), "lpa-uid", notify.CertificateProviderProvideCertificatePromptEmail{
 			AccessCode:                  testPlainCode.Plain(),
-			ShareCode:                   testPlainCode.Plain(),
 			CertificateProviderFullName: "Joanna Jones",
 			DonorFullName:               "Jan Smith",
 			LpaType:                     "property and affairs",
@@ -380,7 +376,6 @@ func TestAccessCodeSenderSendCertificateProviderPromptOnlineWhenStarted(t *testi
 	notifyClient.EXPECT().
 		SendActorEmail(ctx, notify.ToProvidedCertificateProvider(certificateProvider, donor.CertificateProvider), "lpa-uid", notify.CertificateProviderProvideCertificatePromptEmail{
 			AccessCode:                  testPlainCode.Plain(),
-			ShareCode:                   testPlainCode.Plain(),
 			CertificateProviderFullName: "Joanna Jones",
 			DonorFullName:               "Jan Smith",
 			LpaType:                     "property and affairs",
@@ -532,7 +527,6 @@ func TestAccessCodeSenderSendCertificateProviderPromptWithTestCode(t *testing.T)
 					LpaType:                     "property and affairs",
 					CertificateProviderStartURL: "http://example.com/certificate-provider",
 					AccessCode:                  tc.expectedTestCode,
-					ShareCode:                   tc.expectedTestCode,
 				}).
 				Once().
 				Return(nil)
@@ -543,7 +537,6 @@ func TestAccessCodeSenderSendCertificateProviderPromptWithTestCode(t *testing.T)
 					LpaType:                     "property and affairs",
 					CertificateProviderStartURL: "http://example.com/certificate-provider",
 					AccessCode:                  testPlainCode.Plain(),
-					ShareCode:                   testPlainCode.Plain(),
 				}).
 				Once().
 				Return(nil)
@@ -714,7 +707,6 @@ func TestAccessCodeSenderSendLpaCertificateProviderPromptOnline(t *testing.T) {
 	notifyClient.EXPECT().
 		SendActorEmail(ctx, notify.ToLpaCertificateProvider(&certificateproviderdata.Provided{ContactLanguagePreference: localize.En}, lpa), "lpa-uid", notify.CertificateProviderProvideCertificatePromptEmail{
 			AccessCode:                  testPlainCode.Plain(),
-			ShareCode:                   testPlainCode.Plain(),
 			CertificateProviderFullName: "Joanna Jones",
 			DonorFullName:               "Jan Smith",
 			LpaType:                     "property and affairs",
@@ -958,7 +950,6 @@ func TestAccessCodeSenderSendAttorneys(t *testing.T) {
 	notifyClient.EXPECT().
 		SendActorEmail(ctx, notify.ToLpaTrustCorporation(lpa.Attorneys.TrustCorporation), "lpa-uid", notify.InitialOriginalAttorneyEmail{
 			AccessCode:                testPlainCode.Plain(),
-			ShareCode:                 testPlainCode.Plain(),
 			AttorneyFullName:          "Trusty",
 			DonorFirstNames:           "Jan",
 			DonorFullName:             "Jan Smith",
@@ -971,7 +962,6 @@ func TestAccessCodeSenderSendAttorneys(t *testing.T) {
 	notifyClient.EXPECT().
 		SendActorEmail(ctx, notify.ToLpaTrustCorporation(lpa.ReplacementAttorneys.TrustCorporation), "lpa-uid", notify.InitialReplacementAttorneyEmail{
 			AccessCode:                testPlainCode.Plain(),
-			ShareCode:                 testPlainCode.Plain(),
 			AttorneyFullName:          "Untrusty",
 			DonorFirstNames:           "Jan",
 			DonorFullName:             "Jan Smith",
@@ -984,7 +974,6 @@ func TestAccessCodeSenderSendAttorneys(t *testing.T) {
 	notifyClient.EXPECT().
 		SendActorEmail(ctx, notify.ToLpaAttorney(lpa.Attorneys.Attorneys[0]), "lpa-uid", notify.InitialOriginalAttorneyEmail{
 			AccessCode:                testPlainCode.Plain(),
-			ShareCode:                 testPlainCode.Plain(),
 			AttorneyFullName:          "Joanna Jones",
 			DonorFirstNames:           "Jan",
 			DonorFullName:             "Jan Smith",
@@ -997,7 +986,6 @@ func TestAccessCodeSenderSendAttorneys(t *testing.T) {
 	notifyClient.EXPECT().
 		SendActorEmail(ctx, notify.ToLpaAttorney(lpa.Attorneys.Attorneys[1]), "lpa-uid", notify.InitialOriginalAttorneyEmail{
 			AccessCode:                testPlainCode.Plain(),
-			ShareCode:                 testPlainCode.Plain(),
 			AttorneyFullName:          "John Jones",
 			DonorFirstNames:           "Jan",
 			DonorFullName:             "Jan Smith",
@@ -1010,7 +998,6 @@ func TestAccessCodeSenderSendAttorneys(t *testing.T) {
 	notifyClient.EXPECT().
 		SendActorEmail(ctx, notify.ToLpaAttorney(lpa.ReplacementAttorneys.Attorneys[0]), "lpa-uid", notify.InitialReplacementAttorneyEmail{
 			AccessCode:                testPlainCode.Plain(),
-			ShareCode:                 testPlainCode.Plain(),
 			AttorneyFullName:          "Dave Davis",
 			DonorFirstNames:           "Jan",
 			DonorFullName:             "Jan Smith",
@@ -1265,7 +1252,6 @@ func TestAccessCodeSenderSendAttorneysWithTestCode(t *testing.T) {
 			notifyClient.EXPECT().
 				SendActorEmail(ctx, notify.ToLpaAttorney(lpa.Attorneys.Attorneys[0]), "lpa-uid", notify.InitialOriginalAttorneyEmail{
 					AccessCode:                tc.expectedTestCode,
-					ShareCode:                 tc.expectedTestCode,
 					AttorneyFullName:          "Joanna Jones",
 					DonorFirstNames:           "Jan",
 					DonorFullName:             "Jan Smith",
@@ -1278,7 +1264,6 @@ func TestAccessCodeSenderSendAttorneysWithTestCode(t *testing.T) {
 			notifyClient.EXPECT().
 				SendActorEmail(ctx, notify.ToLpaAttorney(lpa.Attorneys.Attorneys[0]), "lpa-uid", notify.InitialOriginalAttorneyEmail{
 					AccessCode:                testPlainCode.Plain(),
-					ShareCode:                 testPlainCode.Plain(),
 					AttorneyFullName:          "Joanna Jones",
 					DonorFirstNames:           "Jan",
 					DonorFullName:             "Jan Smith",
@@ -1506,7 +1491,6 @@ func TestSendVoucherInvite(t *testing.T) {
 				nc.EXPECT().
 					SendActorSMS(ctx, notify.ToDonorOnly(provided), "lpa-uid", notify.VouchingAccessCodeSMS{
 						AccessCode:                testPlainCode.Plain(),
-						ShareCode:                 testPlainCode.Plain(),
 						DonorFullNamePossessive:   "Possessive full name",
 						LpaType:                   "translated type",
 						LpaReferenceNumber:        "lpa-uid",
@@ -1554,7 +1538,6 @@ func TestSendVoucherInvite(t *testing.T) {
 					SendActorEmail(ctx, notify.ToDonorOnly(provided), "lpa-uid",
 						notify.VouchingAccessCodeEmail{
 							AccessCode:         testPlainCode.Plain(),
-							ShareCode:          testPlainCode.Plain(),
 							VoucherFullName:    "c d",
 							DonorFullName:      "a b",
 							LpaType:            "translated type",
@@ -1598,7 +1581,6 @@ func TestSendVoucherInvite(t *testing.T) {
 					SendActorEmail(ctx, notify.ToDonorOnly(provided), "lpa-uid",
 						notify.VouchingAccessCodeEmail{
 							AccessCode:         testPlainCode.Plain(),
-							ShareCode:          testPlainCode.Plain(),
 							VoucherFullName:    "c d",
 							DonorFullName:      "a b",
 							LpaType:            "translated type",
