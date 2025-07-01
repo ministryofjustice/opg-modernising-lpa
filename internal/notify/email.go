@@ -12,7 +12,7 @@ type InitialOriginalAttorneyEmail struct {
 	AttorneyFullName          string
 	DonorFirstNames           string
 	AttorneyStartPageURL      string
-	AccessCode, ShareCode     string
+	AccessCode                string
 	DonorFirstNamesPossessive string
 	AttorneyOptOutURL         string
 }
@@ -27,7 +27,7 @@ type InitialReplacementAttorneyEmail struct {
 	AttorneyFullName          string
 	DonorFirstNames           string
 	AttorneyStartPageURL      string
-	AccessCode, ShareCode     string
+	AccessCode                string
 	DonorFirstNamesPossessive string
 	AttorneyOptOutURL         string
 }
@@ -60,7 +60,7 @@ type CertificateProviderInviteEmail struct {
 	DonorFirstNamesPossessive    string
 	WhatLpaCovers                string
 	CertificateProviderStartURL  string
-	AccessCode, ShareCode        string
+	AccessCode                   string
 	CertificateProviderOptOutURL string
 }
 
@@ -74,7 +74,7 @@ type CertificateProviderProvideCertificatePromptEmail struct {
 	LpaType                     string
 	CertificateProviderFullName string
 	CertificateProviderStartURL string
-	AccessCode, ShareCode       string
+	AccessCode                  string
 }
 
 func (e CertificateProviderProvideCertificatePromptEmail) emailID(lang localize.Lang) string {
@@ -98,13 +98,13 @@ func (e OrganisationMemberInviteEmail) emailID(_ localize.Lang) string {
 }
 
 type DonorAccessEmail struct {
-	SupporterFullName     string
-	OrganisationName      string
-	LpaType               string
-	LpaReferenceNumber    string
-	DonorName             string
-	URL                   string
-	AccessCode, ShareCode string
+	SupporterFullName  string
+	OrganisationName   string
+	LpaType            string
+	LpaReferenceNumber string
+	DonorName          string
+	URL                string
+	AccessCode         string
 }
 
 func (e DonorAccessEmail) emailID(lang localize.Lang) string {
@@ -202,11 +202,11 @@ func (e DonorIdentityCheckExpiredEmail) emailID(_ localize.Lang) string {
 }
 
 type VouchingAccessCodeEmail struct {
-	AccessCode, ShareCode string
-	VoucherFullName       string
-	DonorFullName         string
-	LpaType               string
-	LpaReferenceNumber    string
+	AccessCode         string
+	VoucherFullName    string
+	DonorFullName      string
+	LpaType            string
+	LpaReferenceNumber string
 }
 
 func (s VouchingAccessCodeEmail) emailID(lang localize.Lang) string {
@@ -404,7 +404,7 @@ type AdviseAttorneyToSignOrOptOutEmail struct {
 	DeadlineDate            string
 	AttorneyStartPageURL    string
 	AttorneyOptOutURL       string
-	AccessCode, ShareCode   string
+	AccessCode              string
 }
 
 func (e AdviseAttorneyToSignOrOptOutEmail) emailID(lang localize.Lang) string {
