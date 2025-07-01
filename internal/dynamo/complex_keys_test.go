@@ -177,9 +177,9 @@ func TestLpaOwnerKey(t *testing.T) {
 
 func TestShareKey(t *testing.T) {
 	for str, key := range map[string]ShareKeyType{
-		"DONORSHARE#123":               ShareKey(DonorShareKey("123")),
-		"CERTIFICATEPROVIDERSHARE#123": ShareKey(CertificateProviderShareKey("123")),
-		"ATTORNEYSHARE#123":            ShareKey(AttorneyShareKey("123")),
+		"DONORSHARE#123":               AccessKey(DonorAccessKey("123")),
+		"CERTIFICATEPROVIDERSHARE#123": AccessKey(CertificateProviderAccessKey("123")),
+		"ATTORNEYSHARE#123":            AccessKey(AttorneyAccessKey("123")),
 	} {
 		t.Run(str+"/PK", func(t *testing.T) {
 			assert.Equal(t, str, key.PK())

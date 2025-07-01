@@ -1,4 +1,4 @@
-package sharecodedata
+package accesscodedata
 
 import (
 	"crypto/sha256"
@@ -18,15 +18,15 @@ func Generate() (PlainText, Hashed) {
 type PlainText string
 
 func (PlainText) String() string {
-	return "<sharecode>"
+	return "<accesscode>"
 }
 
 func (PlainText) GoString() string {
-	return "<sharecode>"
+	return "<accesscode>"
 }
 
 func (PlainText) LogValue() slog.Value {
-	return slog.StringValue("<sharecode>")
+	return slog.StringValue("<accesscode>")
 }
 
 func (p PlainText) Plain() string {

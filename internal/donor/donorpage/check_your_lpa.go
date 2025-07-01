@@ -32,7 +32,7 @@ type checkYourLpaData struct {
 
 type checkYourLpaNotifier struct {
 	notifyClient                NotifyClient
-	shareCodeSender             ShareCodeSender
+	accessCodeSender            AccessCodeSender
 	certificateProviderStore    CertificateProviderStore
 	scheduledStore              ScheduledStore
 	appPublicURL                string
@@ -82,7 +82,7 @@ func (n *checkYourLpaNotifier) sendOnlineNotification(ctx context.Context, appDa
 			return fmt.Errorf("could not schedule certificate provider prompt: %w", err)
 		}
 
-		return n.shareCodeSender.SendCertificateProviderInvite(ctx, appData, donor)
+		return n.accessCodeSender.SendCertificateProviderInvite(ctx, appData, donor)
 	}
 
 	certificateProvider, err := n.certificateProviderStore.GetAny(ctx)
@@ -109,10 +109,10 @@ func (n *checkYourLpaNotifier) sendOnlineNotification(ctx context.Context, appDa
 	return n.notifyClient.SendActorSMS(ctx, notify.ToProvidedCertificateProvider(certificateProvider, donor.CertificateProvider), donor.LpaUID, sms)
 }
 
-func CheckYourLpa(tmpl template.Template, donorStore DonorStore, shareCodeSender ShareCodeSender, notifyClient NotifyClient, certificateProviderStore CertificateProviderStore, scheduledStore ScheduledStore, now func() time.Time, certificateProviderStartURL string) Handler {
+func CheckYourLpa(tmpl template.Template, donorStore DonorStore, accessCodeSender AccessCodeSender, notifyClient NotifyClient, certificateProviderStore CertificateProviderStore, scheduledStore ScheduledStore, now func() time.Time, certificateProviderStartURL string) Handler {
 	notifier := &checkYourLpaNotifier{
 		notifyClient:                notifyClient,
-		shareCodeSender:             shareCodeSender,
+		accessCodeSender:            accessCodeSender,
 		certificateProviderStore:    certificateProviderStore,
 		certificateProviderStartURL: certificateProviderStartURL,
 		now:                         now,

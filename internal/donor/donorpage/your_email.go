@@ -19,7 +19,7 @@ type yourEmailData struct {
 	CanTaskList bool
 }
 
-func YourEmail(tmpl template.Template, donorStore DonorStore, shareCodeSender ShareCodeSender) Handler {
+func YourEmail(tmpl template.Template, donorStore DonorStore, accessCodeSender AccessCodeSender) Handler {
 	return func(appData appcontext.Data, w http.ResponseWriter, r *http.Request, provided *donordata.Provided) error {
 		data := &yourEmailData{
 			App: appData,
@@ -41,10 +41,10 @@ func YourEmail(tmpl template.Template, donorStore DonorStore, shareCodeSender Sh
 
 				provided.Donor.Email = data.Form.Email
 
-				if shareCodeSender != nil {
+				if accessCodeSender != nil {
 					redirect = donor.PathWeHaveContactedVoucher
 
-					if err := shareCodeSender.SendVoucherAccessCode(r.Context(), provided, appData); err != nil {
+					if err := accessCodeSender.SendVoucherAccessCode(r.Context(), provided, appData); err != nil {
 						return fmt.Errorf("error sending voucher access code: %w", err)
 					}
 				}

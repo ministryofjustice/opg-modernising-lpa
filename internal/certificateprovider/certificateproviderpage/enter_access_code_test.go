@@ -5,6 +5,7 @@ import (
 	"net/http/httptest"
 	"testing"
 
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/accesscode/accesscodedata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor/actoruid"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/certificateprovider"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/certificateprovider/certificateproviderdata"
@@ -14,14 +15,13 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/lpastore/lpadata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/sesh"
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/sharecode/sharecodedata"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
 )
 
 func TestEnterAccessCode(t *testing.T) {
 	uid := actoruid.New()
-	shareCode := sharecodedata.Link{LpaKey: dynamo.LpaKey("lpa-id"), LpaOwnerKey: dynamo.LpaOwnerKey(dynamo.DonorKey("session-id")), ActorUID: uid, LpaUID: "lpa-uid"}
+	accessCode := accesscodedata.Link{LpaKey: dynamo.LpaKey("lpa-id"), LpaOwnerKey: dynamo.LpaOwnerKey(dynamo.DonorKey("session-id")), ActorUID: uid, LpaUID: "lpa-uid"}
 	session := &sesh.LoginSession{Sub: "hey", Email: "a@example.com"}
 
 	w := httptest.NewRecorder()
@@ -30,7 +30,7 @@ func TestEnterAccessCode(t *testing.T) {
 
 	certificateProviderStore := newMockCertificateProviderStore(t)
 	certificateProviderStore.EXPECT().
-		Create(r.Context(), shareCode, "a@example.com").
+		Create(r.Context(), accessCode, "a@example.com").
 		Return(&certificateproviderdata.Provided{}, nil)
 
 	eventClient := newMockEventClient(t)
@@ -38,7 +38,7 @@ func TestEnterAccessCode(t *testing.T) {
 		SendMetric(r.Context(), event.CategoryFunnelStartRate, event.MeasureOnlineCertificateProvider).
 		Return(nil)
 
-	err := EnterAccessCode(nil, certificateProviderStore, nil, nil, eventClient)(testAppData, w, r, session, &lpadata.Lpa{}, shareCode)
+	err := EnterAccessCode(nil, certificateProviderStore, nil, nil, eventClient)(testAppData, w, r, session, &lpadata.Lpa{}, accessCode)
 
 	resp := w.Result()
 
@@ -64,7 +64,7 @@ func TestEnterAccessCodeWhenPaperCertificateExists(t *testing.T) {
 	for name, tc := range testcases {
 		t.Run(name, func(t *testing.T) {
 			uid := actoruid.New()
-			shareCode := sharecodedata.Link{LpaKey: dynamo.LpaKey("lpa-id"), LpaOwnerKey: dynamo.LpaOwnerKey(dynamo.DonorKey("session-id")), ActorUID: uid, LpaUID: "lpa-uid"}
+			accessCode := accesscodedata.Link{LpaKey: dynamo.LpaKey("lpa-id"), LpaOwnerKey: dynamo.LpaOwnerKey(dynamo.DonorKey("session-id")), ActorUID: uid, LpaUID: "lpa-uid"}
 			session := &sesh.LoginSession{Email: "a@example.com"}
 
 			lpa := &lpadata.Lpa{
@@ -93,7 +93,7 @@ func TestEnterAccessCodeWhenPaperCertificateExists(t *testing.T) {
 					Return(nil)
 			}
 
-			err := EnterAccessCode(sessionStore, nil, lpaStoreClient, dashboardStore, nil)(testAppData, w, r, session, lpa, shareCode)
+			err := EnterAccessCode(sessionStore, nil, lpaStoreClient, dashboardStore, nil)(testAppData, w, r, session, lpa, accessCode)
 			resp := w.Result()
 
 			assert.Nil(t, err)
@@ -105,7 +105,7 @@ func TestEnterAccessCodeWhenPaperCertificateExists(t *testing.T) {
 
 func TestEnterAccessCodeWhenSendPaperCertificateProviderAccessOnlineError(t *testing.T) {
 	uid := actoruid.New()
-	shareCode := sharecodedata.Link{LpaKey: dynamo.LpaKey("lpa-id"), LpaOwnerKey: dynamo.LpaOwnerKey(dynamo.DonorKey("session-id")), ActorUID: uid, LpaUID: "lpa-uid"}
+	accessCode := accesscodedata.Link{LpaKey: dynamo.LpaKey("lpa-id"), LpaOwnerKey: dynamo.LpaOwnerKey(dynamo.DonorKey("session-id")), ActorUID: uid, LpaUID: "lpa-uid"}
 	lpa := &lpadata.Lpa{
 		Donor:               lpadata.Donor{FirstNames: "a", LastName: "b"},
 		CertificateProvider: lpadata.CertificateProvider{Channel: lpadata.ChannelPaper, SignedAt: &testNow},
@@ -122,7 +122,7 @@ func TestEnterAccessCodeWhenSendPaperCertificateProviderAccessOnlineError(t *tes
 		SendPaperCertificateProviderAccessOnline(mock.Anything, mock.Anything, mock.Anything).
 		Return(expectedError)
 
-	err := EnterAccessCode(nil, nil, lpaStoreClient, nil, nil)(testAppData, w, r, session, lpa, shareCode)
+	err := EnterAccessCode(nil, nil, lpaStoreClient, nil, nil)(testAppData, w, r, session, lpa, accessCode)
 	resp := w.Result()
 
 	assert.ErrorIs(t, err, expectedError)
@@ -131,7 +131,7 @@ func TestEnterAccessCodeWhenSendPaperCertificateProviderAccessOnlineError(t *tes
 
 func TestEnterAccessCodeWhenDashboardStoreError(t *testing.T) {
 	uid := actoruid.New()
-	shareCode := sharecodedata.Link{LpaKey: dynamo.LpaKey("lpa-id"), LpaOwnerKey: dynamo.LpaOwnerKey(dynamo.DonorKey("session-id")), ActorUID: uid, LpaUID: "lpa-uid"}
+	accessCode := accesscodedata.Link{LpaKey: dynamo.LpaKey("lpa-id"), LpaOwnerKey: dynamo.LpaOwnerKey(dynamo.DonorKey("session-id")), ActorUID: uid, LpaUID: "lpa-uid"}
 	lpa := &lpadata.Lpa{
 		Donor:               lpadata.Donor{FirstNames: "a", LastName: "b"},
 		CertificateProvider: lpadata.CertificateProvider{Channel: lpadata.ChannelPaper, SignedAt: &testNow},
@@ -152,7 +152,7 @@ func TestEnterAccessCodeWhenDashboardStoreError(t *testing.T) {
 		SendPaperCertificateProviderAccessOnline(mock.Anything, mock.Anything, mock.Anything).
 		Return(nil)
 
-	err := EnterAccessCode(nil, nil, lpaStoreClient, dashboardStore, nil)(testAppData, w, r, session, lpa, shareCode)
+	err := EnterAccessCode(nil, nil, lpaStoreClient, dashboardStore, nil)(testAppData, w, r, session, lpa, accessCode)
 	resp := w.Result()
 
 	assert.ErrorIs(t, err, expectedError)
@@ -161,7 +161,7 @@ func TestEnterAccessCodeWhenDashboardStoreError(t *testing.T) {
 
 func TestEnterAccessCodeWhenClearLoginError(t *testing.T) {
 	uid := actoruid.New()
-	shareCode := sharecodedata.Link{LpaKey: dynamo.LpaKey("lpa-id"), LpaOwnerKey: dynamo.LpaOwnerKey(dynamo.DonorKey("session-id")), ActorUID: uid, LpaUID: "lpa-uid"}
+	accessCode := accesscodedata.Link{LpaKey: dynamo.LpaKey("lpa-id"), LpaOwnerKey: dynamo.LpaOwnerKey(dynamo.DonorKey("session-id")), ActorUID: uid, LpaUID: "lpa-uid"}
 	lpa := &lpadata.Lpa{
 		Donor:               lpadata.Donor{FirstNames: "a", LastName: "b"},
 		CertificateProvider: lpadata.CertificateProvider{Channel: lpadata.ChannelPaper, SignedAt: &testNow},
@@ -187,7 +187,7 @@ func TestEnterAccessCodeWhenClearLoginError(t *testing.T) {
 		ClearLogin(mock.Anything, mock.Anything).
 		Return(expectedError)
 
-	err := EnterAccessCode(sessionStore, nil, lpaStoreClient, dashboardStore, nil)(testAppData, w, r, session, lpa, shareCode)
+	err := EnterAccessCode(sessionStore, nil, lpaStoreClient, dashboardStore, nil)(testAppData, w, r, session, lpa, accessCode)
 	resp := w.Result()
 
 	assert.ErrorIs(t, err, expectedError)
@@ -204,7 +204,7 @@ func TestPostEnterAccessCodeWhenCreateError(t *testing.T) {
 		Create(mock.Anything, mock.Anything, mock.Anything).
 		Return(nil, expectedError)
 
-	err := EnterAccessCode(nil, certificateProviderStore, nil, nil, nil)(testAppData, w, r, &sesh.LoginSession{}, &lpadata.Lpa{}, sharecodedata.Link{})
+	err := EnterAccessCode(nil, certificateProviderStore, nil, nil, nil)(testAppData, w, r, &sesh.LoginSession{}, &lpadata.Lpa{}, accesscodedata.Link{})
 	assert.ErrorIs(t, err, expectedError)
 }
 
@@ -222,6 +222,6 @@ func TestPostEnterAccessCodeWhenEventClientError(t *testing.T) {
 		SendMetric(mock.Anything, mock.Anything, mock.Anything).
 		Return(expectedError)
 
-	err := EnterAccessCode(nil, certificateProviderStore, nil, nil, eventClient)(testAppData, w, r, &sesh.LoginSession{}, &lpadata.Lpa{}, sharecodedata.Link{})
+	err := EnterAccessCode(nil, certificateProviderStore, nil, nil, eventClient)(testAppData, w, r, &sesh.LoginSession{}, &lpadata.Lpa{}, accesscodedata.Link{})
 	assert.ErrorIs(t, err, expectedError)
 }

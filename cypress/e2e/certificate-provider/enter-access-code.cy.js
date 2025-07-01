@@ -1,12 +1,12 @@
-const { TestEmail, randomShareCode } = require("../../support/e2e");
+const { TestEmail, randomAccessCode } = require("../../support/e2e");
 
 describe('Enter access code', () => {
     context('online certificate provider', () => {
-        let shareCode = ''
+        let accessCode = ''
         beforeEach(() => {
-            shareCode = randomShareCode()
+            accessCode = randomAccessCode()
 
-            cy.visit(`/fixtures/certificate-provider?redirect=/certificate-provider-start&withShareCode=${shareCode}&email=${TestEmail}`);
+            cy.visit(`/fixtures/certificate-provider?redirect=/certificate-provider-start&withAccessCode=${accessCode}&email=${TestEmail}`);
 
             cy.contains('a', 'Start').click()
             cy.origin('http://localhost:7012', () => {
@@ -19,7 +19,7 @@ describe('Enter access code', () => {
             cy.checkA11yApp();
 
             cy.get('#f-donor-last-name').type('Smith');
-            cy.get('#f-access-code').invoke('val', shareCode);
+            cy.get('#f-access-code').invoke('val', accessCode);
             cy.contains('Save and continue').click();
 
             cy.url().should('contain', '/certificate-provider-who-is-eligible')
@@ -68,9 +68,9 @@ describe('Enter access code', () => {
 
     context('paper certificate provider', () => {
         it('cannot add LPA when already submitted', () => {
-            const sc = randomShareCode()
+            const accessCode = randomAccessCode()
 
-            cy.visit(`/fixtures/certificate-provider?options=is-paper-donor&redirect=/certificate-provider-start&certificateProviderChannel=paper&withShareCode=${sc}&email=${TestEmail}`);
+            cy.visit(`/fixtures/certificate-provider?options=is-paper-donor&redirect=/certificate-provider-start&certificateProviderChannel=paper&withAccessCode=${accessCode}&email=${TestEmail}`);
 
             cy.contains('a', 'Start').click()
             cy.origin('http://localhost:7012', () => {
@@ -82,7 +82,7 @@ describe('Enter access code', () => {
             cy.checkA11yApp();
 
             cy.get('#f-donor-last-name').type('Bundlaaaa');
-            cy.get('#f-access-code').invoke('val', sc);
+            cy.get('#f-access-code').invoke('val', accessCode);
             cy.contains('Save and continue').click();
 
             cy.url().should('contain', '/you-have-already-provided-a-certificate')

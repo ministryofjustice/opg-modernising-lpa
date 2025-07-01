@@ -24,7 +24,7 @@ export const
     CorrespondentName = { FirstNames: "John", LastName: "Smith" }
 
 
-export function randomShareCode() {
+export function randomAccessCode() {
     const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ123456789'
     let result = [];
 

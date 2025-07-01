@@ -1,10 +1,11 @@
-package sharecode
+package accesscode
 
 import (
 	"context"
 	"fmt"
 	"time"
 
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/accesscode/accesscodedata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor/actoruid"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/appcontext"
@@ -17,16 +18,15 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/notify"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/scheduled"
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/sharecode/sharecodedata"
 )
 
 type Localizer interface {
 	localize.Localizer
 }
 
-type ShareCodeStore interface {
-	Get(ctx context.Context, actorType actor.Type, shareCode sharecodedata.Hashed) (sharecodedata.Link, error)
-	Put(ctx context.Context, actorType actor.Type, shareCode sharecodedata.Hashed, data sharecodedata.Link) error
+type AccessCodeStore interface {
+	Get(ctx context.Context, actorType actor.Type, code accesscodedata.Hashed) (accesscodedata.Link, error)
+	Put(ctx context.Context, actorType actor.Type, code accesscodedata.Hashed, link accesscodedata.Link) error
 }
 
 type NotifyClient interface {
@@ -50,7 +50,7 @@ type ScheduledStore interface {
 
 type Sender struct {
 	testCode                    string
-	shareCodeStore              ShareCodeStore
+	accessCodeStore             AccessCodeStore
 	certificateProviderStore    CertificateProviderStore
 	scheduledStore              ScheduledStore
 	notifyClient                NotifyClient
@@ -58,13 +58,13 @@ type Sender struct {
 	certificateProviderStartURL string
 	attorneyStartURL            string
 	eventClient                 EventClient
-	generate                    func() (sharecodedata.PlainText, sharecodedata.Hashed)
+	generate                    func() (accesscodedata.PlainText, accesscodedata.Hashed)
 	now                         func() time.Time
 }
 
-func NewSender(shareCodeStore ShareCodeStore, notifyClient NotifyClient, appPublicURL, certificateProviderStartURL, attorneyStartURL string, eventClient EventClient, certificateProviderStore CertificateProviderStore, scheduledStore ScheduledStore) *Sender {
+func NewSender(accessCodeStore AccessCodeStore, notifyClient NotifyClient, appPublicURL, certificateProviderStartURL, attorneyStartURL string, eventClient EventClient, certificateProviderStore CertificateProviderStore, scheduledStore ScheduledStore) *Sender {
 	return &Sender{
-		shareCodeStore:              shareCodeStore,
+		accessCodeStore:             accessCodeStore,
 		notifyClient:                notifyClient,
 		appPublicURL:                appPublicURL,
 		certificateProviderStartURL: certificateProviderStartURL,
@@ -72,17 +72,17 @@ func NewSender(shareCodeStore ShareCodeStore, notifyClient NotifyClient, appPubl
 		eventClient:                 eventClient,
 		certificateProviderStore:    certificateProviderStore,
 		scheduledStore:              scheduledStore,
-		generate:                    sharecodedata.Generate,
+		generate:                    accesscodedata.Generate,
 		now:                         time.Now,
 	}
 }
 
-func (s *Sender) UseTestCode(shareCode string) {
-	s.testCode = shareCode
+func (s *Sender) UseTestCode(accessCode string) {
+	s.testCode = accessCode
 }
 
 func (s *Sender) SendCertificateProviderInvite(ctx context.Context, appData appcontext.Data, provided *donordata.Provided) error {
-	shareCode, err := s.createShareCode(ctx, provided.PK, provided.SK, provided.LpaUID, provided.CertificateProvider.UID, actor.TypeCertificateProvider)
+	accessCode, err := s.createAccessCode(ctx, provided.PK, provided.SK, provided.LpaUID, provided.CertificateProvider.UID, actor.TypeCertificateProvider)
 	if err != nil {
 		return err
 	}
@@ -100,19 +100,19 @@ func (s *Sender) SendCertificateProviderInvite(ctx context.Context, appData appc
 		DonorFirstNames:              provided.Donor.FirstNames,
 		DonorFirstNamesPossessive:    appData.Localizer.Possessive(provided.Donor.FirstNames),
 		WhatLpaCovers:                appData.Localizer.T(whatLpaCovers),
-		ShareCode:                    shareCode.Plain(),
+		ShareCode:                    accessCode.Plain(),
 		CertificateProviderOptOutURL: fmt.Sprintf("%s%s", s.appPublicURL, page.PathCertificateProviderEnterAccessCodeOptOut),
 	})
 }
 
 func (s *Sender) SendCertificateProviderPrompt(ctx context.Context, appData appcontext.Data, donor *donordata.Provided) error {
-	shareCode, err := s.createShareCode(ctx, donor.PK, donor.SK, donor.LpaUID, donor.CertificateProvider.UID, actor.TypeCertificateProvider)
+	accessCode, err := s.createAccessCode(ctx, donor.PK, donor.SK, donor.LpaUID, donor.CertificateProvider.UID, actor.TypeCertificateProvider)
 	if err != nil {
 		return err
 	}
 
 	if donor.CertificateProvider.CarryOutBy.IsPaper() {
-		return s.sendPaperForm(ctx, donor.LpaUID, actor.TypeCertificateProvider, donor.CertificateProvider.UID, shareCode)
+		return s.sendPaperForm(ctx, donor.LpaUID, actor.TypeCertificateProvider, donor.CertificateProvider.UID, accessCode)
 	}
 
 	to := notify.ToCertificateProvider(donor.CertificateProvider)
@@ -125,18 +125,18 @@ func (s *Sender) SendCertificateProviderPrompt(ctx context.Context, appData appc
 		DonorFullName:               donor.Donor.FullName(),
 		LpaType:                     localize.LowerFirst(appData.Localizer.T(donor.Type.String())),
 		CertificateProviderStartURL: s.certificateProviderStartURL,
-		ShareCode:                   shareCode.Plain(),
+		ShareCode:                   accessCode.Plain(),
 	})
 }
 
 func (s *Sender) SendLpaCertificateProviderPrompt(ctx context.Context, appData appcontext.Data, lpaKey dynamo.LpaKeyType, lpaOwnerKey dynamo.LpaOwnerKeyType, lpa *lpadata.Lpa) error {
-	shareCode, err := s.createShareCode(ctx, lpaKey, lpaOwnerKey, lpa.LpaUID, lpa.CertificateProvider.UID, actor.TypeCertificateProvider)
+	accessCode, err := s.createAccessCode(ctx, lpaKey, lpaOwnerKey, lpa.LpaUID, lpa.CertificateProvider.UID, actor.TypeCertificateProvider)
 	if err != nil {
 		return err
 	}
 
 	if lpa.CertificateProvider.Channel.IsPaper() {
-		return s.sendPaperForm(ctx, lpa.LpaUID, actor.TypeCertificateProvider, lpa.CertificateProvider.UID, shareCode)
+		return s.sendPaperForm(ctx, lpa.LpaUID, actor.TypeCertificateProvider, lpa.CertificateProvider.UID, accessCode)
 	}
 
 	// There is no certificate provider record yet, so assume English
@@ -147,7 +147,7 @@ func (s *Sender) SendLpaCertificateProviderPrompt(ctx context.Context, appData a
 		DonorFullName:               lpa.Donor.FullName(),
 		LpaType:                     localize.LowerFirst(appData.Localizer.T(lpa.Type.String())),
 		CertificateProviderStartURL: s.certificateProviderStartURL,
-		ShareCode:                   shareCode.Plain(),
+		ShareCode:                   accessCode.Plain(),
 	})
 }
 
@@ -217,7 +217,7 @@ func (s *Sender) SendVoucherInvite(ctx context.Context, provided *donordata.Prov
 }
 
 func (s *Sender) SendVoucherAccessCode(ctx context.Context, provided *donordata.Provided, appData appcontext.Data) error {
-	shareCode, err := s.createShareCode(ctx, provided.PK, provided.SK, provided.LpaUID, provided.Voucher.UID, actor.TypeVoucher)
+	accessCode, err := s.createAccessCode(ctx, provided.PK, provided.SK, provided.LpaUID, provided.Voucher.UID, actor.TypeVoucher)
 	if err != nil {
 		return err
 	}
@@ -228,8 +228,8 @@ func (s *Sender) SendVoucherAccessCode(ctx context.Context, provided *donordata.
 		provided.VoucherCodeSentBySMS = true
 		provided.VoucherCodeSentTo = provided.Donor.Mobile
 
-		if err := s.sendSMS(ctx, notify.ToDonorOnly(provided), provided.LpaUID, notify.VouchingShareCodeSMS{
-			ShareCode:                 shareCode.Plain(),
+		if err := s.sendSMS(ctx, notify.ToDonorOnly(provided), provided.LpaUID, notify.VouchingAccessCodeSMS{
+			ShareCode:                 accessCode.Plain(),
 			DonorFullNamePossessive:   appData.Localizer.Possessive(provided.Donor.FullName()),
 			LpaType:                   appData.Localizer.T(provided.Type.String()),
 			LpaReferenceNumber:        provided.LpaUID,
@@ -242,8 +242,8 @@ func (s *Sender) SendVoucherAccessCode(ctx context.Context, provided *donordata.
 		provided.VoucherCodeSentBySMS = false
 		provided.VoucherCodeSentTo = provided.Donor.Email
 
-		if err := s.sendEmail(ctx, notify.ToDonorOnly(provided), provided.LpaUID, notify.VouchingShareCodeEmail{
-			ShareCode:          shareCode.Plain(),
+		if err := s.sendEmail(ctx, notify.ToDonorOnly(provided), provided.LpaUID, notify.VouchingAccessCodeEmail{
+			ShareCode:          accessCode.Plain(),
 			VoucherFullName:    provided.Voucher.FullName(),
 			DonorFullName:      provided.Donor.FullName(),
 			LpaType:            appData.Localizer.T(provided.Type.String()),
@@ -257,7 +257,7 @@ func (s *Sender) SendVoucherAccessCode(ctx context.Context, provided *donordata.
 }
 
 func (s *Sender) sendOriginalAttorney(ctx context.Context, appData appcontext.Data, lpa *lpadata.Lpa, attorney lpadata.Attorney) error {
-	shareCode, err := s.createShareCode(ctx, lpa.LpaKey, lpa.LpaOwnerKey, lpa.LpaUID, attorney.UID, actor.TypeAttorney)
+	accessCode, err := s.createAccessCode(ctx, lpa.LpaKey, lpa.LpaOwnerKey, lpa.LpaUID, attorney.UID, actor.TypeAttorney)
 	if err != nil {
 		return err
 	}
@@ -267,7 +267,7 @@ func (s *Sender) sendOriginalAttorney(ctx context.Context, appData appcontext.Da
 	}
 
 	if attorney.Email == "" {
-		return s.sendPaperForm(ctx, lpa.LpaUID, actor.TypeAttorney, attorney.UID, shareCode)
+		return s.sendPaperForm(ctx, lpa.LpaUID, actor.TypeAttorney, attorney.UID, accessCode)
 	}
 
 	return s.sendEmail(ctx, notify.ToLpaAttorney(attorney), lpa.LpaUID,
@@ -278,13 +278,13 @@ func (s *Sender) sendOriginalAttorney(ctx context.Context, appData appcontext.Da
 			DonorFullName:             lpa.Donor.FullName(),
 			LpaType:                   localize.LowerFirst(appData.Localizer.T(lpa.Type.String())),
 			AttorneyStartPageURL:      s.attorneyStartURL,
-			ShareCode:                 shareCode.Plain(),
+			ShareCode:                 accessCode.Plain(),
 			AttorneyOptOutURL:         s.appPublicURL + page.PathAttorneyEnterAccessCodeOptOut.Format(),
 		})
 }
 
 func (s *Sender) sendReplacementAttorney(ctx context.Context, appData appcontext.Data, lpa *lpadata.Lpa, attorney lpadata.Attorney) error {
-	shareCode, err := s.createShareCode(ctx, lpa.LpaKey, lpa.LpaOwnerKey, lpa.LpaUID, attorney.UID, actor.TypeReplacementAttorney)
+	accessCode, err := s.createAccessCode(ctx, lpa.LpaKey, lpa.LpaOwnerKey, lpa.LpaUID, attorney.UID, actor.TypeReplacementAttorney)
 	if err != nil {
 		return err
 	}
@@ -294,7 +294,7 @@ func (s *Sender) sendReplacementAttorney(ctx context.Context, appData appcontext
 	}
 
 	if attorney.Email == "" {
-		return s.sendPaperForm(ctx, lpa.LpaUID, actor.TypeReplacementAttorney, attorney.UID, shareCode)
+		return s.sendPaperForm(ctx, lpa.LpaUID, actor.TypeReplacementAttorney, attorney.UID, accessCode)
 	}
 
 	return s.sendEmail(ctx, notify.ToLpaAttorney(attorney), lpa.LpaUID,
@@ -305,7 +305,7 @@ func (s *Sender) sendReplacementAttorney(ctx context.Context, appData appcontext
 			DonorFullName:             lpa.Donor.FullName(),
 			LpaType:                   localize.LowerFirst(appData.Localizer.T(lpa.Type.String())),
 			AttorneyStartPageURL:      s.attorneyStartURL,
-			ShareCode:                 shareCode.Plain(),
+			ShareCode:                 accessCode.Plain(),
 			AttorneyOptOutURL:         s.appPublicURL + page.PathAttorneyEnterAccessCodeOptOut.Format(),
 		})
 }
@@ -315,7 +315,7 @@ func (s *Sender) sendTrustCorporation(ctx context.Context, appData appcontext.Da
 		return nil
 	}
 
-	shareCode, err := s.createShareCode(ctx, lpa.LpaKey, lpa.LpaOwnerKey, lpa.LpaUID, trustCorporation.UID, actor.TypeTrustCorporation)
+	accessCode, err := s.createAccessCode(ctx, lpa.LpaKey, lpa.LpaOwnerKey, lpa.LpaUID, trustCorporation.UID, actor.TypeTrustCorporation)
 	if err != nil {
 		return err
 	}
@@ -325,7 +325,7 @@ func (s *Sender) sendTrustCorporation(ctx context.Context, appData appcontext.Da
 	}
 
 	if trustCorporation.Email == "" {
-		return s.sendPaperForm(ctx, lpa.LpaUID, actor.TypeTrustCorporation, trustCorporation.UID, shareCode)
+		return s.sendPaperForm(ctx, lpa.LpaUID, actor.TypeTrustCorporation, trustCorporation.UID, accessCode)
 	}
 
 	return s.sendEmail(ctx, notify.ToLpaTrustCorporation(trustCorporation), lpa.LpaUID,
@@ -336,7 +336,7 @@ func (s *Sender) sendTrustCorporation(ctx context.Context, appData appcontext.Da
 			DonorFullName:             lpa.Donor.FullName(),
 			LpaType:                   localize.LowerFirst(appData.Localizer.T(lpa.Type.String())),
 			AttorneyStartPageURL:      s.attorneyStartURL,
-			ShareCode:                 shareCode.Plain(),
+			ShareCode:                 accessCode.Plain(),
 			AttorneyOptOutURL:         s.appPublicURL + page.PathAttorneyEnterAccessCodeOptOut.Format(),
 		})
 }
@@ -346,7 +346,7 @@ func (s *Sender) sendReplacementTrustCorporation(ctx context.Context, appData ap
 		return nil
 	}
 
-	shareCode, err := s.createShareCode(ctx, lpa.LpaKey, lpa.LpaOwnerKey, lpa.LpaUID, trustCorporation.UID, actor.TypeReplacementTrustCorporation)
+	accessCode, err := s.createAccessCode(ctx, lpa.LpaKey, lpa.LpaOwnerKey, lpa.LpaUID, trustCorporation.UID, actor.TypeReplacementTrustCorporation)
 	if err != nil {
 		return err
 	}
@@ -356,7 +356,7 @@ func (s *Sender) sendReplacementTrustCorporation(ctx context.Context, appData ap
 	}
 
 	if trustCorporation.Email == "" {
-		return s.sendPaperForm(ctx, lpa.LpaUID, actor.TypeReplacementTrustCorporation, trustCorporation.UID, shareCode)
+		return s.sendPaperForm(ctx, lpa.LpaUID, actor.TypeReplacementTrustCorporation, trustCorporation.UID, accessCode)
 	}
 
 	return s.sendEmail(ctx, notify.ToLpaTrustCorporation(trustCorporation), lpa.LpaUID,
@@ -367,21 +367,21 @@ func (s *Sender) sendReplacementTrustCorporation(ctx context.Context, appData ap
 			DonorFullName:             lpa.Donor.FullName(),
 			LpaType:                   localize.LowerFirst(appData.Localizer.T(lpa.Type.String())),
 			AttorneyStartPageURL:      s.attorneyStartURL,
-			ShareCode:                 shareCode.Plain(),
+			ShareCode:                 accessCode.Plain(),
 			AttorneyOptOutURL:         s.appPublicURL + page.PathAttorneyEnterAccessCodeOptOut.Format(),
 		})
 }
 
-func (s *Sender) createShareCode(ctx context.Context, lpaKey dynamo.LpaKeyType, lpaOwnerKey dynamo.LpaOwnerKeyType, lpaUID string, actorUID actoruid.UID, actorType actor.Type) (sharecodedata.PlainText, error) {
+func (s *Sender) createAccessCode(ctx context.Context, lpaKey dynamo.LpaKeyType, lpaOwnerKey dynamo.LpaOwnerKeyType, lpaUID string, actorUID actoruid.UID, actorType actor.Type) (accesscodedata.PlainText, error) {
 	plainCode, hashedCode := s.generate()
 
 	if s.testCode != "" {
-		plainCode = sharecodedata.PlainText(s.testCode)
-		hashedCode = sharecodedata.HashedFromString(s.testCode)
+		plainCode = accesscodedata.PlainText(s.testCode)
+		hashedCode = accesscodedata.HashedFromString(s.testCode)
 		s.testCode = ""
 	}
 
-	shareCodeData := sharecodedata.Link{
+	accessCodeData := accesscodedata.Link{
 		LpaKey:                lpaKey,
 		LpaOwnerKey:           lpaOwnerKey,
 		LpaUID:                lpaUID,
@@ -390,8 +390,8 @@ func (s *Sender) createShareCode(ctx context.Context, lpaKey dynamo.LpaKeyType, 
 		IsTrustCorporation:    actorType == actor.TypeTrustCorporation || actorType == actor.TypeReplacementTrustCorporation,
 	}
 
-	if err := s.shareCodeStore.Put(ctx, actorType, hashedCode, shareCodeData); err != nil {
-		return "", fmt.Errorf("creating share failed: %w", err)
+	if err := s.accessCodeStore.Put(ctx, actorType, hashedCode, accessCodeData); err != nil {
+		return "", fmt.Errorf("put access code: %w", err)
 	}
 
 	return plainCode, nil
@@ -413,12 +413,12 @@ func (s *Sender) sendSMS(ctx context.Context, to notify.ToMobile, lpaUID string,
 	return nil
 }
 
-func (s *Sender) sendPaperForm(ctx context.Context, lpaUID string, actorType actor.Type, actorUID actoruid.UID, shareCode sharecodedata.PlainText) error {
+func (s *Sender) sendPaperForm(ctx context.Context, lpaUID string, actorType actor.Type, actorUID actoruid.UID, accessCode accesscodedata.PlainText) error {
 	return s.eventClient.SendPaperFormRequested(ctx, event.PaperFormRequested{
 		UID:        lpaUID,
 		ActorType:  actorType.String(),
 		ActorUID:   actorUID,
-		AccessCode: shareCode.Plain(),
+		AccessCode: accessCode.Plain(),
 	})
 }
 

@@ -5,17 +5,17 @@ import (
 	"net/http"
 	"net/url"
 
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/accesscode/accesscodedata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/appcontext"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/certificateprovider"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/event"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/lpastore/lpadata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/sesh"
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/sharecode/sharecodedata"
 )
 
 func EnterAccessCode(sessionStore SessionStore, certificateProviderStore CertificateProviderStore, lpaStoreClient LpaStoreClient, dashboardStore DashboardStore, eventClient EventClient) page.EnterAccessCodeHandler {
-	return func(appData appcontext.Data, w http.ResponseWriter, r *http.Request, session *sesh.LoginSession, lpa *lpadata.Lpa, shareCode sharecodedata.Link) error {
+	return func(appData appcontext.Data, w http.ResponseWriter, r *http.Request, session *sesh.LoginSession, lpa *lpadata.Lpa, link accesscodedata.Link) error {
 		if lpa.CertificateProvider.Channel.IsPaper() && !lpa.CertificateProvider.SignedAt.IsZero() {
 			if err := lpaStoreClient.SendPaperCertificateProviderAccessOnline(r.Context(), lpa, session.Email); err != nil {
 				return fmt.Errorf("sending certificate provider email to LPA store: %w", err)
@@ -42,7 +42,7 @@ func EnterAccessCode(sessionStore SessionStore, certificateProviderStore Certifi
 			})
 		}
 
-		if _, err := certificateProviderStore.Create(r.Context(), shareCode, session.Email); err != nil {
+		if _, err := certificateProviderStore.Create(r.Context(), link, session.Email); err != nil {
 			return fmt.Errorf("creating certificate provider: %w", err)
 		}
 

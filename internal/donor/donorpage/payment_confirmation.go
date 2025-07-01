@@ -16,7 +16,7 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/task"
 )
 
-func PaymentConfirmation(logger Logger, payClient PayClient, donorStore DonorStore, sessionStore SessionStore, shareCodeSender ShareCodeSender, eventClient EventClient, notifyClient NotifyClient) Handler {
+func PaymentConfirmation(logger Logger, payClient PayClient, donorStore DonorStore, sessionStore SessionStore, accessCodeSender AccessCodeSender, eventClient EventClient, notifyClient NotifyClient) Handler {
 	return func(appData appcontext.Data, w http.ResponseWriter, r *http.Request, provided *donordata.Provided) error {
 		paymentSession, err := sessionStore.Payment(r)
 		if err != nil {
@@ -84,7 +84,7 @@ func PaymentConfirmation(logger Logger, payClient PayClient, donorStore DonorSto
 				nextPage = donor.PathTaskList
 
 				if provided.Voucher.Allowed && provided.VoucherInvitedAt.IsZero() {
-					if err := shareCodeSender.SendVoucherInvite(r.Context(), provided, appData); err != nil {
+					if err := accessCodeSender.SendVoucherInvite(r.Context(), provided, appData); err != nil {
 						return err
 					}
 
@@ -92,7 +92,7 @@ func PaymentConfirmation(logger Logger, payClient PayClient, donorStore DonorSto
 				}
 
 				if provided.Tasks.SignTheLpa.IsCompleted() {
-					if err := shareCodeSender.SendCertificateProviderPrompt(r.Context(), appData, provided); err != nil {
+					if err := accessCodeSender.SendCertificateProviderPrompt(r.Context(), appData, provided); err != nil {
 						return fmt.Errorf("failed to send share code to certificate provider: %w", err)
 					}
 

@@ -9,6 +9,8 @@ import (
 	"strings"
 	"time"
 
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/accesscode"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/accesscode/accesscodedata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor/actoruid"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/appcontext"
@@ -22,8 +24,6 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/lpastore/lpadata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/place"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/random"
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/sharecode"
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/sharecode/sharecodedata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/validation"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/voucher"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/voucher/voucherdata"
@@ -231,10 +231,10 @@ func acceptCookiesConsent(w http.ResponseWriter) {
 	})
 }
 
-func createAttorney(ctx context.Context, shareCodeStore *sharecode.Store, attorneyStore AttorneyStore, actorUID actoruid.UID, isReplacement, isTrustCorporation bool, lpaOwnerKey dynamo.LpaOwnerKeyType, email string) (*attorneydata.Provided, error) {
-	_, hashedCode := sharecodedata.Generate()
-	shareCodeData := sharecodedata.Link{
-		PK:                    dynamo.ShareKey(dynamo.AttorneyShareKey(hashedCode.String())),
+func createAttorney(ctx context.Context, accessCodeStore *accesscode.Store, attorneyStore AttorneyStore, actorUID actoruid.UID, isReplacement, isTrustCorporation bool, lpaOwnerKey dynamo.LpaOwnerKeyType, email string) (*attorneydata.Provided, error) {
+	_, hashedCode := accesscodedata.Generate()
+	accessCodeData := accesscodedata.Link{
+		PK:                    dynamo.AccessKey(dynamo.AttorneyAccessKey(hashedCode.String())),
 		SK:                    dynamo.ShareSortKey(dynamo.MetadataKey(hashedCode.String())),
 		ActorUID:              actorUID,
 		IsReplacementAttorney: isReplacement,
@@ -247,18 +247,18 @@ func createAttorney(ctx context.Context, shareCodeStore *sharecode.Store, attorn
 		attorneyType = actor.TypeReplacementAttorney
 	}
 
-	err := shareCodeStore.Put(ctx, attorneyType, hashedCode, shareCodeData)
+	err := accessCodeStore.Put(ctx, attorneyType, hashedCode, accessCodeData)
 	if err != nil {
 		return nil, err
 	}
 
-	return attorneyStore.Create(ctx, shareCodeData, email)
+	return attorneyStore.Create(ctx, accessCodeData, email)
 }
 
-func createCertificateProvider(ctx context.Context, shareCodeStore *sharecode.Store, certificateProviderStore CertificateProviderStore, donor *donordata.Provided) (*certificateproviderdata.Provided, error) {
-	_, hashedCode := sharecodedata.Generate()
-	shareCodeData := sharecodedata.Link{
-		PK:          dynamo.ShareKey(dynamo.CertificateProviderShareKey(hashedCode.String())),
+func createCertificateProvider(ctx context.Context, accessCodeStore *accesscode.Store, certificateProviderStore CertificateProviderStore, donor *donordata.Provided) (*certificateproviderdata.Provided, error) {
+	_, hashedCode := accesscodedata.Generate()
+	accessCodeData := accesscodedata.Link{
+		PK:          dynamo.AccessKey(dynamo.CertificateProviderAccessKey(hashedCode.String())),
 		SK:          dynamo.ShareSortKey(dynamo.MetadataKey(hashedCode.String())),
 		ActorUID:    donor.CertificateProvider.UID,
 		LpaOwnerKey: donor.SK,
@@ -266,18 +266,18 @@ func createCertificateProvider(ctx context.Context, shareCodeStore *sharecode.St
 		LpaKey:      donor.PK,
 	}
 
-	err := shareCodeStore.Put(ctx, actor.TypeCertificateProvider, hashedCode, shareCodeData)
+	err := accessCodeStore.Put(ctx, actor.TypeCertificateProvider, hashedCode, accessCodeData)
 	if err != nil {
 		return nil, err
 	}
 
-	return certificateProviderStore.Create(ctx, shareCodeData, donor.CertificateProvider.Email)
+	return certificateProviderStore.Create(ctx, accessCodeData, donor.CertificateProvider.Email)
 }
 
-func createVoucher(ctx context.Context, shareCodeStore *sharecode.Store, voucherStore *voucher.Store, donor *donordata.Provided) (*voucherdata.Provided, error) {
-	_, hashedCode := sharecodedata.Generate()
-	shareCodeData := sharecodedata.Link{
-		PK:          dynamo.ShareKey(dynamo.VoucherShareKey(hashedCode.String())),
+func createVoucher(ctx context.Context, accessCodeStore *accesscode.Store, voucherStore *voucher.Store, donor *donordata.Provided) (*voucherdata.Provided, error) {
+	_, hashedCode := accesscodedata.Generate()
+	accessCodeData := accesscodedata.Link{
+		PK:          dynamo.AccessKey(dynamo.VoucherAccessKey(hashedCode.String())),
 		SK:          dynamo.ShareSortKey(dynamo.MetadataKey(hashedCode.String())),
 		LpaUID:      donor.LpaUID,
 		ActorUID:    donor.Voucher.UID,
@@ -285,12 +285,12 @@ func createVoucher(ctx context.Context, shareCodeStore *sharecode.Store, voucher
 		LpaKey:      donor.PK,
 	}
 
-	err := shareCodeStore.Put(ctx, actor.TypeVoucher, hashedCode, shareCodeData)
+	err := accessCodeStore.Put(ctx, actor.TypeVoucher, hashedCode, accessCodeData)
 	if err != nil {
 		return nil, err
 	}
 
-	return voucherStore.Create(ctx, shareCodeData, donor.Voucher.Email)
+	return voucherStore.Create(ctx, accessCodeData, donor.Voucher.Email)
 }
 
 // transforms the sub to base64(sha256(sub)) for compatability with mock GOL

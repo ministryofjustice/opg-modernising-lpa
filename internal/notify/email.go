@@ -201,7 +201,7 @@ func (e DonorIdentityCheckExpiredEmail) emailID(_ localize.Lang) string {
 	return "c3c4a115-4d07-4e25-926d-a656dc33485a"
 }
 
-type VouchingShareCodeEmail struct {
+type VouchingAccessCodeEmail struct {
 	ShareCode          string
 	VoucherFullName    string
 	DonorFullName      string
@@ -209,7 +209,7 @@ type VouchingShareCodeEmail struct {
 	LpaReferenceNumber string
 }
 
-func (s VouchingShareCodeEmail) emailID(lang localize.Lang) string {
+func (s VouchingAccessCodeEmail) emailID(lang localize.Lang) string {
 	if lang.IsCy() {
 		return "93ee9148-b962-4398-ab94-d2625e39fbb1"
 	}
