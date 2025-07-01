@@ -74,7 +74,7 @@ services:
       - AWS_REGION=eu-west-1
       - AWS_SECRET_ACCESS_KEY=fakeAccessKey
       - OPENSEARCH_CUSTOM_BACKEND=http://opensearch:9200
-      - LPAS_TABLE=lpas
+      - LPAS_TABLE=Lpas
       - TAG=0.0.0
       - GOVUK_NOTIFY_BASE_URL=http://mock-notify:8080
       - SEARCH_ENDPOINT=http://my-domain.eu-west-1.opensearch.localhost.localstack.cloud:4566
