@@ -78,7 +78,7 @@ type factory interface {
 	NotifyClient(ctx context.Context) (NotifyClient, error)
 	Now() func() time.Time
 	ScheduledStore() ScheduledStore
-	ShareCodeSender(ctx context.Context) (ShareCodeSender, error)
+	AccessCodeSender(ctx context.Context) (AccessCodeSender, error)
 	UidClient() UidClient
 	UidStore() (UidStore, error)
 	UuidString() func() string

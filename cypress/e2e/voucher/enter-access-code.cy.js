@@ -1,11 +1,11 @@
-const { randomShareCode } = require("../../support/e2e");
+const { randomAccessCode } = require("../../support/e2e");
 
 describe('Enter access code', () => {
-    let shareCode = ''
+    let accessCode = ''
     beforeEach(() => {
-        shareCode = randomShareCode()
+        accessCode = randomAccessCode()
 
-        cy.visit(`/fixtures/voucher?redirect=&withShareCode=${shareCode}`);
+        cy.visit(`/fixtures/voucher?redirect=&withAccessCode=${accessCode}`);
 
         cy.contains('a', 'Start').click()
         cy.origin('http://localhost:7012', () => {
@@ -18,7 +18,7 @@ describe('Enter access code', () => {
         cy.checkA11yApp();
 
         cy.get('#f-donor-last-name').type('Smith');
-        cy.get('#f-access-code').invoke('val', shareCode);
+        cy.get('#f-access-code').invoke('val', accessCode);
         cy.contains('Save and continue').click();
 
         cy.url().should('contain', '/task-list')

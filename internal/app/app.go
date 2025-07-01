@@ -9,6 +9,7 @@ import (
 
 	dynamodbtypes "github.com/aws/aws-sdk-go-v2/service/dynamodb/types"
 	"github.com/ministryofjustice/opg-go-common/template"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/accesscode"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/appcontext"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/attorney"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/attorney/attorneypage"
@@ -33,7 +34,6 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/scheduled"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/search"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/sesh"
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/sharecode"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/supporter"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/supporter/supporterpage"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/task"
@@ -117,7 +117,7 @@ func App(
 	donorStore := donor.NewStore(lpaDynamoClient, eventClient, logger, searchClient)
 	certificateProviderStore := certificateprovider.NewStore(lpaDynamoClient)
 	attorneyStore := attorney.NewStore(lpaDynamoClient)
-	shareCodeStore := sharecode.NewStore(lpaDynamoClient)
+	accessCodeStore := accesscode.NewStore(lpaDynamoClient)
 	dashboardStore := dashboard.NewStore(lpaDynamoClient, lpastore.NewResolvingService(donorStore, lpaStoreClient))
 	evidenceReceivedStore := &evidenceReceivedStore{dynamoClient: lpaDynamoClient}
 	organisationStore := supporter.NewOrganisationStore(lpaDynamoClient)
@@ -127,7 +127,7 @@ func App(
 	reuseStore := reuse.NewStore(lpaDynamoClient)
 	progressTracker := task.ProgressTracker{Localizer: localizer}
 
-	shareCodeSender := sharecode.NewSender(shareCodeStore, notifyClient, appPublicURL, certificateProviderStartURL, attorneyStartURL, eventClient, certificateProviderStore, scheduledStore)
+	accessCodeSender := accesscode.NewSender(accessCodeStore, notifyClient, appPublicURL, certificateProviderStartURL, attorneyStartURL, eventClient, certificateProviderStore, scheduledStore)
 	witnessCodeSender := donor.NewWitnessCodeSender(donorStore, certificateProviderStore, notifyClient, localizer, useTestWitnessCode)
 
 	lpaStoreResolvingService := lpastore.NewResolvingService(donorStore, lpaStoreClient)
@@ -140,17 +140,17 @@ func App(
 
 	if devMode {
 		handleRoot(page.PathFixtures, None,
-			fixtures.Donor(tmpls.Get("fixtures.gohtml"), sessionStore, donorStore, certificateProviderStore, attorneyStore, documentStore, eventClient, lpaStoreClient, shareCodeStore, voucherStore, reuseStore, notifyClient, appPublicURL))
+			fixtures.Donor(tmpls.Get("fixtures.gohtml"), sessionStore, donorStore, certificateProviderStore, attorneyStore, documentStore, eventClient, lpaStoreClient, accessCodeStore, voucherStore, reuseStore, notifyClient, appPublicURL))
 		handleRoot(page.PathCertificateProviderFixtures, None,
-			fixtures.CertificateProvider(tmpls.Get("certificate_provider_fixtures.gohtml"), sessionStore, shareCodeSender, donorStore, certificateProviderStore, eventClient, lpaStoreClient, lpaDynamoClient, organisationStore, memberStore, shareCodeStore))
+			fixtures.CertificateProvider(tmpls.Get("certificate_provider_fixtures.gohtml"), sessionStore, accessCodeSender, donorStore, certificateProviderStore, eventClient, lpaStoreClient, lpaDynamoClient, organisationStore, memberStore, accessCodeStore))
 		handleRoot(page.PathAttorneyFixtures, None,
-			fixtures.Attorney(tmpls.Get("attorney_fixtures.gohtml"), sessionStore, shareCodeSender, donorStore, certificateProviderStore, attorneyStore, eventClient, lpaStoreClient, organisationStore, memberStore, shareCodeStore, lpaDynamoClient))
+			fixtures.Attorney(tmpls.Get("attorney_fixtures.gohtml"), sessionStore, accessCodeSender, donorStore, certificateProviderStore, attorneyStore, eventClient, lpaStoreClient, organisationStore, memberStore, accessCodeStore, lpaDynamoClient))
 		handleRoot(page.PathSupporterFixtures, None,
-			fixtures.Supporter(tmpls.Get("supporter_fixtures.gohtml"), sessionStore, organisationStore, donorStore, memberStore, lpaDynamoClient, searchClient, shareCodeStore, certificateProviderStore, attorneyStore, documentStore, eventClient, lpaStoreClient, voucherStore, reuseStore, notifyClient, appPublicURL))
+			fixtures.Supporter(tmpls.Get("supporter_fixtures.gohtml"), sessionStore, organisationStore, donorStore, memberStore, lpaDynamoClient, searchClient, accessCodeStore, certificateProviderStore, attorneyStore, documentStore, eventClient, lpaStoreClient, voucherStore, reuseStore, notifyClient, appPublicURL))
 		handleRoot(page.PathVoucherFixtures, None,
-			fixtures.Voucher(tmpls.Get("voucher_fixtures.gohtml"), sessionStore, shareCodeStore, shareCodeSender, donorStore, voucherStore, lpaStoreClient))
+			fixtures.Voucher(tmpls.Get("voucher_fixtures.gohtml"), sessionStore, accessCodeStore, accessCodeSender, donorStore, voucherStore, lpaStoreClient))
 		handleRoot(page.PathDashboardFixtures, None,
-			fixtures.Dashboard(tmpls.Get("dashboard_fixtures.gohtml"), sessionStore, donorStore, certificateProviderStore, attorneyStore, shareCodeStore))
+			fixtures.Dashboard(tmpls.Get("dashboard_fixtures.gohtml"), sessionStore, donorStore, certificateProviderStore, attorneyStore, accessCodeStore))
 	}
 
 	handleRoot(page.PathRoot, None,
@@ -206,7 +206,7 @@ func App(
 		sessionStore,
 		voucherStore,
 		oneLoginClient,
-		shareCodeStore,
+		accessCodeStore,
 		dashboardStore,
 		errorHandler,
 		lpaStoreResolvingService,
@@ -231,7 +231,7 @@ func App(
 		memberStore,
 		searchClient,
 		donorStore,
-		shareCodeStore,
+		accessCodeStore,
 		progressTracker,
 		lpaStoreResolvingService,
 		donorStartURL,
@@ -244,12 +244,12 @@ func App(
 		certificateProviderTmpls,
 		sessionStore,
 		oneLoginClient,
-		shareCodeStore,
+		accessCodeStore,
 		errorHandler,
 		certificateProviderStore,
 		addressClient,
 		notifyClient,
-		shareCodeSender,
+		accessCodeSender,
 		dashboardStore,
 		lpaStoreClient,
 		lpaStoreResolvingService,
@@ -269,7 +269,7 @@ func App(
 		sessionStore,
 		attorneyStore,
 		oneLoginClient,
-		shareCodeStore,
+		accessCodeStore,
 		errorHandler,
 		dashboardStore,
 		lpaStoreClient,
@@ -290,7 +290,7 @@ func App(
 		addressClient,
 		appPublicURL,
 		payClient,
-		shareCodeSender,
+		accessCodeSender,
 		witnessCodeSender,
 		errorHandler,
 		certificateProviderStore,
@@ -300,7 +300,7 @@ func App(
 		eventClient,
 		dashboardStore,
 		lpaStoreClient,
-		shareCodeStore,
+		accessCodeStore,
 		progressTracker,
 		lpaStoreResolvingService,
 		scheduledStore,

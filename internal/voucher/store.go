@@ -5,11 +5,11 @@ import (
 	"errors"
 	"time"
 
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/accesscode/accesscodedata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/appcontext"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/dashboard/dashboarddata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/dynamo"
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/sharecode/sharecodedata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/voucher/voucherdata"
 )
 
@@ -29,7 +29,7 @@ func NewStore(dynamoClient DynamoClient) *Store {
 	return &Store{dynamoClient: dynamoClient, now: time.Now}
 }
 
-func (s *Store) Create(ctx context.Context, shareCode sharecodedata.Link, email string) (*voucherdata.Provided, error) {
+func (s *Store) Create(ctx context.Context, link accesscodedata.Link, email string) (*voucherdata.Provided, error) {
 	data, err := appcontext.SessionFromContext(ctx)
 	if err != nil {
 		return nil, err
@@ -53,12 +53,12 @@ func (s *Store) Create(ctx context.Context, shareCode sharecodedata.Link, email 
 		Create(dashboarddata.LpaLink{
 			PK:        provided.PK,
 			SK:        dynamo.SubKey(data.SessionID),
-			LpaUID:    shareCode.LpaUID,
-			DonorKey:  shareCode.LpaOwnerKey,
+			LpaUID:    link.LpaUID,
+			DonorKey:  link.LpaOwnerKey,
 			ActorType: actor.TypeVoucher,
 			UpdatedAt: s.now(),
 		}).
-		Delete(dynamo.Keys{PK: shareCode.PK, SK: shareCode.SK})
+		Delete(dynamo.Keys{PK: link.PK, SK: link.SK})
 
 	if err := s.dynamoClient.WriteTransaction(ctx, transaction); err != nil {
 		return nil, err

@@ -111,8 +111,8 @@ func TestPostWitnessingAsCertificateProvider(t *testing.T) {
 		Put(r.Context(), provided).
 		Return(nil)
 
-	shareCodeSender := newMockShareCodeSender(t)
-	shareCodeSender.EXPECT().
+	accessCodeSender := newMockAccessCodeSender(t)
+	accessCodeSender.EXPECT().
 		SendCertificateProviderPrompt(r.Context(), testAppData, provided).
 		Return(nil)
 
@@ -128,7 +128,7 @@ func TestPostWitnessingAsCertificateProvider(t *testing.T) {
 		SendLpa(r.Context(), provided.LpaUID, lpastore.CreateLpaFromDonorProvided(provided)).
 		Return(nil)
 
-	err := WitnessingAsCertificateProvider(nil, donorStore, shareCodeSender, lpaStoreClient, eventClient, testNowFn)(testAppData, w, r, &donordata.Provided{
+	err := WitnessingAsCertificateProvider(nil, donorStore, accessCodeSender, lpaStoreClient, eventClient, testNowFn)(testAppData, w, r, &donordata.Provided{
 		LpaID:                    "lpa-id",
 		LpaUID:                   "lpa-uid",
 		IdentityUserData:         identity.UserData{Status: identity.StatusConfirmed},
@@ -158,8 +158,8 @@ func TestPostWitnessingAsCertificateProviderWhenSendLpaErrors(t *testing.T) {
 		Put(r.Context(), mock.Anything).
 		Return(nil)
 
-	shareCodeSender := newMockShareCodeSender(t)
-	shareCodeSender.EXPECT().
+	accessCodeSender := newMockAccessCodeSender(t)
+	accessCodeSender.EXPECT().
 		SendCertificateProviderPrompt(r.Context(), mock.Anything, mock.Anything).
 		Return(nil)
 
@@ -173,7 +173,7 @@ func TestPostWitnessingAsCertificateProviderWhenSendLpaErrors(t *testing.T) {
 		SendLpa(r.Context(), mock.Anything, mock.Anything).
 		Return(expectedError)
 
-	err := WitnessingAsCertificateProvider(nil, donorStore, shareCodeSender, lpaStoreClient, eventClient, testNowFn)(testAppData, w, r, &donordata.Provided{
+	err := WitnessingAsCertificateProvider(nil, donorStore, accessCodeSender, lpaStoreClient, eventClient, testNowFn)(testAppData, w, r, &donordata.Provided{
 		LpaID:                    "lpa-id",
 		IdentityUserData:         identity.UserData{Status: identity.StatusConfirmed},
 		CertificateProviderCodes: donordata.WitnessCodes{{Code: "1234", Created: testNow}},
@@ -198,8 +198,8 @@ func TestPostWitnessingAsCertificateProviderWhenEventClientErrors(t *testing.T) 
 		Put(r.Context(), mock.Anything).
 		Return(nil)
 
-	shareCodeSender := newMockShareCodeSender(t)
-	shareCodeSender.EXPECT().
+	accessCodeSender := newMockAccessCodeSender(t)
+	accessCodeSender.EXPECT().
 		SendCertificateProviderPrompt(r.Context(), mock.Anything, mock.Anything).
 		Return(nil)
 
@@ -208,7 +208,7 @@ func TestPostWitnessingAsCertificateProviderWhenEventClientErrors(t *testing.T) 
 		SendCertificateProviderStarted(r.Context(), mock.Anything).
 		Return(expectedError)
 
-	err := WitnessingAsCertificateProvider(nil, donorStore, shareCodeSender, nil, eventClient, testNowFn)(testAppData, w, r, &donordata.Provided{
+	err := WitnessingAsCertificateProvider(nil, donorStore, accessCodeSender, nil, eventClient, testNowFn)(testAppData, w, r, &donordata.Provided{
 		LpaID:                    "lpa-id",
 		IdentityUserData:         identity.UserData{Status: identity.StatusConfirmed},
 		CertificateProviderCodes: donordata.WitnessCodes{{Code: "1234", Created: testNow}},
@@ -219,7 +219,7 @@ func TestPostWitnessingAsCertificateProviderWhenEventClientErrors(t *testing.T) 
 	assert.Equal(t, expectedError, err)
 }
 
-func TestPostWitnessingAsCertificateProviderWhenShareCodeSendToCertificateProviderErrors(t *testing.T) {
+func TestPostWitnessingAsCertificateProviderWhenAccessCodeSendToCertificateProviderErrors(t *testing.T) {
 	form := url.Values{
 		"witness-code": {"1234"},
 	}
@@ -233,12 +233,12 @@ func TestPostWitnessingAsCertificateProviderWhenShareCodeSendToCertificateProvid
 		Put(r.Context(), mock.Anything).
 		Return(nil)
 
-	shareCodeSender := newMockShareCodeSender(t)
-	shareCodeSender.EXPECT().
+	accessCodeSender := newMockAccessCodeSender(t)
+	accessCodeSender.EXPECT().
 		SendCertificateProviderPrompt(r.Context(), testAppData, mock.Anything).
 		Return(expectedError)
 
-	err := WitnessingAsCertificateProvider(nil, donorStore, shareCodeSender, nil, nil, testNowFn)(testAppData, w, r, &donordata.Provided{
+	err := WitnessingAsCertificateProvider(nil, donorStore, accessCodeSender, nil, nil, testNowFn)(testAppData, w, r, &donordata.Provided{
 		CertificateProvider:      donordata.CertificateProvider{Email: "name@example.com"},
 		CertificateProviderCodes: donordata.WitnessCodes{{Code: "1234", Created: testNow}},
 		Tasks:                    donordata.Tasks{PayForLpa: task.PaymentStateCompleted},

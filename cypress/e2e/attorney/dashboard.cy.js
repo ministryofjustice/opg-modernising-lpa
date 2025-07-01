@@ -1,4 +1,4 @@
-import {randomShareCode, TestEmail} from "../../support/e2e.js";
+import { randomAccessCode, TestEmail } from "../../support/e2e.js";
 
 describe('Attorney dashboard', () => {
     context('original attorney', () => {
@@ -71,8 +71,8 @@ describe('Attorney dashboard', () => {
 
     context('with existing LPAs and an attorney share code', () => {
         it('can add access to act as an attorney on an LPA', () => {
-            const randomCode = randomShareCode();
-            cy.visit(`/fixtures/attorney?redirect=&withShareCode=${randomCode}&progress=signedByCertificateProvider&email=${TestEmail}`);
+            const randomCode = randomAccessCode();
+            cy.visit(`/fixtures/attorney?redirect=&withAccessCode=${randomCode}&progress=signedByCertificateProvider&email=${TestEmail}`);
             cy.visit(`/fixtures?redirect=/task-list&progress=provideYourDetails`);
 
             cy.contains('a', 'Make or add an LPA').click();

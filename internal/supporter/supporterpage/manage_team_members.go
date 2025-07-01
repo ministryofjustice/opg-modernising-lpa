@@ -6,11 +6,11 @@ import (
 	"net/url"
 
 	"github.com/ministryofjustice/opg-go-common/template"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/accesscode/accesscodedata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/appcontext"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/localize"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/notify"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/sharecode/sharecodedata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/supporter"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/supporter/supporterdata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/validation"
@@ -25,7 +25,7 @@ type manageTeamMembersData struct {
 	Form           *inviteMemberForm
 }
 
-func ManageTeamMembers(tmpl template.Template, memberStore MemberStore, generate func() (sharecodedata.PlainText, sharecodedata.Hashed), notifyClient NotifyClient, appPublicURL string) Handler {
+func ManageTeamMembers(tmpl template.Template, memberStore MemberStore, generate func() (accesscodedata.PlainText, accesscodedata.Hashed), notifyClient NotifyClient, appPublicURL string) Handler {
 	return func(appData appcontext.Data, w http.ResponseWriter, r *http.Request, organisation *supporterdata.Organisation, _ *supporterdata.Member) error {
 		data := &manageTeamMembersData{
 			App:          appData,

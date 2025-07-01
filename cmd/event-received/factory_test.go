@@ -81,7 +81,7 @@ func TestFactorySecretsClientWhenSet(t *testing.T) {
 	assert.Equal(t, expected, client)
 }
 
-func TestFactoryShareCodeSender(t *testing.T) {
+func TestFactoryAccessCodeSender(t *testing.T) {
 	ctx := context.Background()
 
 	secretsClient := newMockSecretsClient(t)
@@ -91,33 +91,33 @@ func TestFactoryShareCodeSender(t *testing.T) {
 
 	factory := &Factory{secretsClient: secretsClient, bundle: &localize.Bundle{}}
 
-	sender, err := factory.ShareCodeSender(ctx)
+	sender, err := factory.AccessCodeSender(ctx)
 	assert.Nil(t, err)
 	assert.NotNil(t, sender)
 }
 
-func TestFactoryShareCodeSenderWhenSet(t *testing.T) {
+func TestFactoryAccessCodeSenderWhenSet(t *testing.T) {
 	ctx := context.Background()
 
-	expected := newMockShareCodeSender(t)
+	expected := newMockAccessCodeSender(t)
 
-	factory := &Factory{shareCodeSender: expected}
+	factory := &Factory{accessCodeSender: expected}
 
-	sender, err := factory.ShareCodeSender(ctx)
+	sender, err := factory.AccessCodeSender(ctx)
 	assert.Nil(t, err)
 	assert.Equal(t, expected, sender)
 }
 
-func TestFactoryShareCodeSenderWhenBundleError(t *testing.T) {
+func TestFactoryAccessCodeSenderWhenBundleError(t *testing.T) {
 	ctx := context.Background()
 
 	factory := &Factory{}
 
-	_, err := factory.ShareCodeSender(ctx)
+	_, err := factory.AccessCodeSender(ctx)
 	assert.ErrorIs(t, err, os.ErrNotExist)
 }
 
-func TestFactoryShareCodeSenderWhenSecretsClientError(t *testing.T) {
+func TestFactoryAccessCodeSenderWhenSecretsClientError(t *testing.T) {
 	ctx := context.Background()
 
 	secretsClient := newMockSecretsClient(t)
@@ -127,11 +127,11 @@ func TestFactoryShareCodeSenderWhenSecretsClientError(t *testing.T) {
 
 	factory := &Factory{secretsClient: secretsClient, bundle: &localize.Bundle{}}
 
-	_, err := factory.ShareCodeSender(ctx)
+	_, err := factory.AccessCodeSender(ctx)
 	assert.ErrorIs(t, err, expectedError)
 }
 
-func TestFactoryShareCodeSenderWhenNotifyClientError(t *testing.T) {
+func TestFactoryAccessCodeSenderWhenNotifyClientError(t *testing.T) {
 	ctx := context.Background()
 
 	secretsClient := newMockSecretsClient(t)
@@ -141,7 +141,7 @@ func TestFactoryShareCodeSenderWhenNotifyClientError(t *testing.T) {
 
 	factory := &Factory{secretsClient: secretsClient, bundle: &localize.Bundle{}}
 
-	_, err := factory.ShareCodeSender(ctx)
+	_, err := factory.AccessCodeSender(ctx)
 	assert.NotNil(t, err)
 }
 

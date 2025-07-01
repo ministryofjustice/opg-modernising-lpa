@@ -6,6 +6,7 @@ import (
 	"testing"
 	"time"
 
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/accesscode/accesscodedata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor/actoruid"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/appcontext"
@@ -15,7 +16,6 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/notify"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/sesh"
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/sharecode/sharecodedata"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
 )
@@ -180,18 +180,18 @@ func TestPostConfirmDontWantToBeAttorneyLoggedOut(t *testing.T) {
 				LpaData(r).
 				Return(&sesh.LpaDataSession{LpaID: "lpa-id"}, nil)
 
-			shareCodeData := sharecodedata.Link{
+			accessCodeData := accesscodedata.Link{
 				LpaKey:      dynamo.LpaKey("lpa-id"),
 				LpaOwnerKey: dynamo.LpaOwnerKey(dynamo.DonorKey("donor")),
 				ActorUID:    tc.uid,
 			}
 
-			shareCodeStore := newMockShareCodeStore(t)
-			shareCodeStore.EXPECT().
-				Get(r.Context(), actor.TypeAttorney, sharecodedata.HashedFromString("abcdef123456")).
-				Return(shareCodeData, nil)
-			shareCodeStore.EXPECT().
-				Delete(r.Context(), shareCodeData).
+			accessCodeStore := newMockAccessCodeStore(t)
+			accessCodeStore.EXPECT().
+				Get(r.Context(), actor.TypeAttorney, accesscodedata.HashedFromString("abcdef123456")).
+				Return(accessCodeData, nil)
+			accessCodeStore.EXPECT().
+				Delete(r.Context(), accessCodeData).
 				Return(nil)
 
 			lpaStoreResolvingService := newMockLpaStoreResolvingService(t)
@@ -224,7 +224,7 @@ func TestPostConfirmDontWantToBeAttorneyLoggedOut(t *testing.T) {
 				SendAttorneyOptOut(r.Context(), "lpa-uid", tc.uid, tc.actorType).
 				Return(nil)
 
-			err := ConfirmDontWantToBeAttorneyLoggedOut(nil, shareCodeStore, lpaStoreResolvingService, sessionStore, notifyClient, lpaStoreClient)(testAppData, w, r)
+			err := ConfirmDontWantToBeAttorneyLoggedOut(nil, accessCodeStore, lpaStoreResolvingService, sessionStore, notifyClient, lpaStoreClient)(testAppData, w, r)
 
 			resp := w.Result()
 
@@ -245,16 +245,16 @@ func TestPostConfirmDontWantToBeAttorneyLoggedOutWhenAttorneyNotFound(t *testing
 		LpaData(r).
 		Return(&sesh.LpaDataSession{LpaID: "lpa-id"}, nil)
 
-	shareCodeData := sharecodedata.Link{
+	accessCodeData := accesscodedata.Link{
 		LpaKey:      dynamo.LpaKey("lpa-id"),
 		LpaOwnerKey: dynamo.LpaOwnerKey(dynamo.DonorKey("donor")),
 		ActorUID:    actoruid.New(),
 	}
 
-	shareCodeStore := newMockShareCodeStore(t)
-	shareCodeStore.EXPECT().
-		Get(r.Context(), actor.TypeAttorney, sharecodedata.HashedFromString("abcdef123456")).
-		Return(shareCodeData, nil)
+	accessCodeStore := newMockAccessCodeStore(t)
+	accessCodeStore.EXPECT().
+		Get(r.Context(), actor.TypeAttorney, accesscodedata.HashedFromString("abcdef123456")).
+		Return(accessCodeData, nil)
 
 	lpaStoreResolvingService := newMockLpaStoreResolvingService(t)
 	lpaStoreResolvingService.EXPECT().
@@ -268,7 +268,7 @@ func TestPostConfirmDontWantToBeAttorneyLoggedOutWhenAttorneyNotFound(t *testing
 			Type: lpadata.LpaTypePersonalWelfare,
 		}, nil)
 
-	err := ConfirmDontWantToBeAttorneyLoggedOut(nil, shareCodeStore, lpaStoreResolvingService, sessionStore, nil, nil)(testAppData, w, r)
+	err := ConfirmDontWantToBeAttorneyLoggedOut(nil, accessCodeStore, lpaStoreResolvingService, sessionStore, nil, nil)(testAppData, w, r)
 	assert.EqualError(t, err, "attorney not found")
 }
 
@@ -276,7 +276,7 @@ func TestPostConfirmDontWantToBeAttorneyLoggedOutErrors(t *testing.T) {
 	r, _ := http.NewRequest(http.MethodPost, "/?referenceNumber=123", nil)
 	ctx := appcontext.ContextWithSession(r.Context(), &appcontext.Session{LpaID: "lpa-id"})
 
-	shareCodeData := sharecodedata.Link{
+	accessCodeData := accesscodedata.Link{
 		LpaKey: dynamo.LpaKey("lpa-id"),
 	}
 
@@ -295,11 +295,11 @@ func TestPostConfirmDontWantToBeAttorneyLoggedOutErrors(t *testing.T) {
 		sessionStore             func(*testing.T) *mockSessionStore
 		lpaStoreResolvingService func(*testing.T) *mockLpaStoreResolvingService
 		localizer                func(*testing.T) *mockLocalizer
-		shareCodeStore           func(*testing.T) *mockShareCodeStore
+		accessCodeStore          func(*testing.T) *mockAccessCodeStore
 		notifyClient             func(*testing.T) *mockNotifyClient
 		lpaStoreClient           func(*testing.T) *mockLpaStoreClient
 	}{
-		"when shareCodeStore.Get() error": {
+		"when accessCodeStore.Get() error": {
 			sessionStore: func(t *testing.T) *mockSessionStore {
 				sessionStore := newMockSessionStore(t)
 				sessionStore.EXPECT().
@@ -316,13 +316,13 @@ func TestPostConfirmDontWantToBeAttorneyLoggedOutErrors(t *testing.T) {
 
 				return lpaStoreResolvingService
 			},
-			shareCodeStore: func(t *testing.T) *mockShareCodeStore {
-				shareCodeStore := newMockShareCodeStore(t)
-				shareCodeStore.EXPECT().
+			accessCodeStore: func(t *testing.T) *mockAccessCodeStore {
+				accessCodeStore := newMockAccessCodeStore(t)
+				accessCodeStore.EXPECT().
 					Get(mock.Anything, mock.Anything, mock.Anything).
-					Return(shareCodeData, expectedError)
+					Return(accessCodeData, expectedError)
 
-				return shareCodeStore
+				return accessCodeStore
 			},
 		},
 		"when notifyClient.SendActorEmail() error": {
@@ -343,13 +343,13 @@ func TestPostConfirmDontWantToBeAttorneyLoggedOutErrors(t *testing.T) {
 				return lpaStoreResolvingService
 			},
 			localizer: localizer,
-			shareCodeStore: func(t *testing.T) *mockShareCodeStore {
-				shareCodeStore := newMockShareCodeStore(t)
-				shareCodeStore.EXPECT().
+			accessCodeStore: func(t *testing.T) *mockAccessCodeStore {
+				accessCodeStore := newMockAccessCodeStore(t)
+				accessCodeStore.EXPECT().
 					Get(mock.Anything, mock.Anything, mock.Anything).
-					Return(shareCodeData, nil)
+					Return(accessCodeData, nil)
 
-				return shareCodeStore
+				return accessCodeStore
 			},
 			notifyClient: func(t *testing.T) *mockNotifyClient {
 				client := newMockNotifyClient(t)
@@ -381,13 +381,13 @@ func TestPostConfirmDontWantToBeAttorneyLoggedOutErrors(t *testing.T) {
 				return lpaStoreResolvingService
 			},
 			localizer: localizer,
-			shareCodeStore: func(t *testing.T) *mockShareCodeStore {
-				shareCodeStore := newMockShareCodeStore(t)
-				shareCodeStore.EXPECT().
+			accessCodeStore: func(t *testing.T) *mockAccessCodeStore {
+				accessCodeStore := newMockAccessCodeStore(t)
+				accessCodeStore.EXPECT().
 					Get(mock.Anything, mock.Anything, mock.Anything).
-					Return(shareCodeData, nil)
+					Return(accessCodeData, nil)
 
-				return shareCodeStore
+				return accessCodeStore
 			},
 			notifyClient: func(t *testing.T) *mockNotifyClient {
 				client := newMockNotifyClient(t)
@@ -408,7 +408,7 @@ func TestPostConfirmDontWantToBeAttorneyLoggedOutErrors(t *testing.T) {
 				return client
 			},
 		},
-		"when shareCodeStore.Delete() error": {
+		"when accessCodeStore.Delete() error": {
 			sessionStore: func(t *testing.T) *mockSessionStore {
 				sessionStore := newMockSessionStore(t)
 				sessionStore.EXPECT().
@@ -426,16 +426,16 @@ func TestPostConfirmDontWantToBeAttorneyLoggedOutErrors(t *testing.T) {
 				return lpaStoreResolvingService
 			},
 			localizer: localizer,
-			shareCodeStore: func(t *testing.T) *mockShareCodeStore {
-				shareCodeStore := newMockShareCodeStore(t)
-				shareCodeStore.EXPECT().
+			accessCodeStore: func(t *testing.T) *mockAccessCodeStore {
+				accessCodeStore := newMockAccessCodeStore(t)
+				accessCodeStore.EXPECT().
 					Get(mock.Anything, mock.Anything, mock.Anything).
-					Return(shareCodeData, nil)
-				shareCodeStore.EXPECT().
+					Return(accessCodeData, nil)
+				accessCodeStore.EXPECT().
 					Delete(mock.Anything, mock.Anything).
 					Return(expectedError)
 
-				return shareCodeStore
+				return accessCodeStore
 			},
 			notifyClient: func(t *testing.T) *mockNotifyClient {
 				client := newMockNotifyClient(t)
@@ -464,7 +464,7 @@ func TestPostConfirmDontWantToBeAttorneyLoggedOutErrors(t *testing.T) {
 
 			testAppData.Localizer = evalT(tc.localizer, t)
 
-			err := ConfirmDontWantToBeAttorneyLoggedOut(nil, evalT(tc.shareCodeStore, t), evalT(tc.lpaStoreResolvingService, t), evalT(tc.sessionStore, t), evalT(tc.notifyClient, t), evalT(tc.lpaStoreClient, t))(testAppData, w, r)
+			err := ConfirmDontWantToBeAttorneyLoggedOut(nil, evalT(tc.accessCodeStore, t), evalT(tc.lpaStoreResolvingService, t), evalT(tc.sessionStore, t), evalT(tc.notifyClient, t), evalT(tc.lpaStoreClient, t))(testAppData, w, r)
 
 			resp := w.Result()
 

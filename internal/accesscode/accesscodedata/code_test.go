@@ -1,4 +1,4 @@
-package sharecodedata
+package accesscodedata
 
 import (
 	"bytes"
@@ -19,14 +19,14 @@ func TestGenerate(t *testing.T) {
 func TestPlainText(t *testing.T) {
 	plain := PlainText("abcdefgh")
 
-	assert.Equal(t, "<sharecode>", plain.String())
-	assert.Equal(t, "<sharecode>", plain.GoString())
+	assert.Equal(t, "<accesscode>", plain.String())
+	assert.Equal(t, "<accesscode>", plain.GoString())
 
 	var buf bytes.Buffer
 	logger := slog.New(slog.NewTextHandler(&buf, nil))
 	logger.Info("hey", slog.Any("code", plain))
 	assert.NotContains(t, buf.String(), "abc")
-	assert.Contains(t, buf.String(), "code=<sharecode>")
+	assert.Contains(t, buf.String(), "code=<accesscode>")
 
 	assert.Equal(t, "abcd-efgh", plain.Plain())
 }

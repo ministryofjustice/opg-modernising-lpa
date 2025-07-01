@@ -8,6 +8,7 @@ import (
 	"time"
 
 	"github.com/ministryofjustice/opg-go-common/template"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/accesscode"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor/actoruid"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/appcontext"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor"
@@ -18,7 +19,6 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/random"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/sesh"
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/sharecode"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/task"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/voucher"
 )
@@ -26,8 +26,8 @@ import (
 func Voucher(
 	tmpl template.Template,
 	sessionStore *sesh.Store,
-	shareCodeStore *sharecode.Store,
-	shareCodeSender *sharecode.Sender,
+	accessCodeStore *accesscode.Store,
+	accessCodeSender *accesscode.Sender,
 	donorStore *donor.Store,
 	voucherStore *voucher.Store,
 	lpaStoreClient *lpastore.Client,
@@ -44,7 +44,7 @@ func Voucher(
 
 		var (
 			voucherSub   = cmp.Or(r.FormValue("voucherSub"), random.AlphaNumeric(16))
-			shareCode    = r.FormValue("withShareCode")
+			accessCode   = r.FormValue("withAccessCode")
 			voucherEmail = r.FormValue("voucherEmail")
 			donorEmail   = r.FormValue("donorEmail")
 			donorMobile  = r.FormValue("donorMobile")
@@ -112,11 +112,11 @@ func Voucher(
 		}
 
 		if progress == slices.Index(progressValues, "") {
-			if shareCode != "" {
-				shareCodeSender.UseTestCode(shareCode)
+			if accessCode != "" {
+				accessCodeSender.UseTestCode(accessCode)
 			}
 
-			shareCodeSender.SendVoucherInvite(donorCtx, donorDetails, appcontext.Data{
+			accessCodeSender.SendVoucherInvite(donorCtx, donorDetails, appcontext.Data{
 				SessionID: donorSessionID,
 				LpaID:     donorDetails.LpaID,
 				Localizer: appData.Localizer,
@@ -132,7 +132,7 @@ func Voucher(
 			return nil
 		}
 
-		voucherDetails, err := createVoucher(voucherCtx, shareCodeStore, voucherStore, donorDetails)
+		voucherDetails, err := createVoucher(voucherCtx, accessCodeStore, voucherStore, donorDetails)
 		if err != nil {
 			return err
 		}

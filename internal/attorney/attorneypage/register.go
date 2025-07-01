@@ -9,6 +9,7 @@ import (
 	"time"
 
 	"github.com/ministryofjustice/opg-go-common/template"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/accesscode/accesscodedata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor/actoruid"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/appcontext"
@@ -24,7 +25,6 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/place"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/random"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/sesh"
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/sharecode/sharecodedata"
 )
 
 type Localizer interface {
@@ -60,14 +60,14 @@ type OneLoginClient interface {
 	UserInfo(ctx context.Context, accessToken string) (onelogin.UserInfo, error)
 }
 
-type ShareCodeStore interface {
-	Get(ctx context.Context, actorType actor.Type, shareCode sharecodedata.Hashed) (sharecodedata.Link, error)
-	Put(ctx context.Context, actorType actor.Type, shareCode sharecodedata.Hashed, data sharecodedata.Link) error
-	Delete(ctx context.Context, shareCode sharecodedata.Link) error
+type AccessCodeStore interface {
+	Get(ctx context.Context, actorType actor.Type, code accesscodedata.Hashed) (accesscodedata.Link, error)
+	Put(ctx context.Context, actorType actor.Type, code accesscodedata.Hashed, link accesscodedata.Link) error
+	Delete(ctx context.Context, link accesscodedata.Link) error
 }
 
 type AttorneyStore interface {
-	Create(ctx context.Context, shareCode sharecodedata.Link, email string) (*attorneydata.Provided, error)
+	Create(ctx context.Context, link accesscodedata.Link, email string) (*attorneydata.Provided, error)
 	Get(ctx context.Context) (*attorneydata.Provided, error)
 	Put(ctx context.Context, attorney *attorneydata.Provided) error
 	Delete(ctx context.Context) error
@@ -111,7 +111,7 @@ func Register(
 	sessionStore SessionStore,
 	attorneyStore AttorneyStore,
 	oneLoginClient OneLoginClient,
-	shareCodeStore ShareCodeStore,
+	accessCodeStore AccessCodeStore,
 	errorHandler page.ErrorHandler,
 	dashboardStore DashboardStore,
 	lpaStoreClient LpaStoreClient,
@@ -128,13 +128,13 @@ func Register(
 	handleRoot(page.PathAttorneyLoginCallback, None,
 		page.LoginCallback(logger, oneLoginClient, sessionStore, page.PathAttorneyEnterAccessCode, dashboardStore, actor.TypeAttorney))
 	handleRoot(page.PathAttorneyEnterAccessCode, RequireSession,
-		page.EnterAccessCode(tmpls.Get("enter_access_code.gohtml"), shareCodeStore, sessionStore, lpaStoreResolvingService, actor.TypeAttorney,
+		page.EnterAccessCode(tmpls.Get("enter_access_code.gohtml"), accessCodeStore, sessionStore, lpaStoreResolvingService, actor.TypeAttorney,
 			EnterAccessCode(attorneyStore, lpaStoreClient, eventClient)))
 	handleRoot(page.PathAttorneyEnterAccessCodeOptOut, None,
-		page.EnterAccessCodeOptOut(tmpls.Get("enter_access_code_opt_out.gohtml"), shareCodeStore, sessionStore, lpaStoreResolvingService, actor.TypeAttorney,
+		page.EnterAccessCodeOptOut(tmpls.Get("enter_access_code_opt_out.gohtml"), accessCodeStore, sessionStore, lpaStoreResolvingService, actor.TypeAttorney,
 			page.PathAttorneyConfirmDontWantToBeAttorneyLoggedOut))
 	handleRoot(page.PathAttorneyConfirmDontWantToBeAttorneyLoggedOut, None,
-		ConfirmDontWantToBeAttorneyLoggedOut(tmpls.Get("confirm_dont_want_to_be_attorney.gohtml"), shareCodeStore, lpaStoreResolvingService, sessionStore, notifyClient, lpaStoreClient))
+		ConfirmDontWantToBeAttorneyLoggedOut(tmpls.Get("confirm_dont_want_to_be_attorney.gohtml"), accessCodeStore, lpaStoreResolvingService, sessionStore, notifyClient, lpaStoreClient))
 	handleRoot(page.PathAttorneyYouHaveDecidedNotToBeAttorney, None,
 		page.Guidance(tmpls.Get("you_have_decided_not_to_be_attorney.gohtml")))
 

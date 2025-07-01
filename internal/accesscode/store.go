@@ -1,4 +1,4 @@
-package sharecode
+package accesscode
 
 import (
 	"context"
@@ -6,10 +6,10 @@ import (
 	"fmt"
 	"time"
 
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/accesscode/accesscodedata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/appcontext"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/dynamo"
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/sharecode/sharecodedata"
 )
 
 type DynamoClient interface {
@@ -29,27 +29,27 @@ func NewStore(dynamoClient DynamoClient) *Store {
 	return &Store{dynamoClient: dynamoClient, now: time.Now}
 }
 
-func (s *Store) Get(ctx context.Context, actorType actor.Type, shareCode sharecodedata.Hashed) (sharecodedata.Link, error) {
-	var data sharecodedata.Link
+func (s *Store) Get(ctx context.Context, actorType actor.Type, accessCode accesscodedata.Hashed) (accesscodedata.Link, error) {
+	var data accesscodedata.Link
 
-	pk, err := shareCodeKey(actorType, shareCode)
+	pk, err := accessCodeKey(actorType, accessCode)
 	if err != nil {
 		return data, err
 	}
 
 	if err := s.dynamoClient.OneByPK(ctx, pk, &data); err != nil {
-		return sharecodedata.Link{}, err
+		return accesscodedata.Link{}, err
 	}
 
 	if data.HasExpired(s.now()) || !data.LpaLinkedAt.IsZero() {
-		return sharecodedata.Link{}, dynamo.NotFoundError{}
+		return accesscodedata.Link{}, dynamo.NotFoundError{}
 	}
 
 	return data, nil
 }
 
-func (s *Store) Put(ctx context.Context, actorType actor.Type, shareCode sharecodedata.Hashed, data sharecodedata.Link) error {
-	pk, err := shareCodeKey(actorType, shareCode)
+func (s *Store) Put(ctx context.Context, actorType actor.Type, accessCode accesscodedata.Hashed, data accesscodedata.Link) error {
+	pk, err := accessCodeKey(actorType, accessCode)
 	if err != nil {
 		return err
 	}
@@ -58,28 +58,28 @@ func (s *Store) Put(ctx context.Context, actorType actor.Type, shareCode shareco
 	if actorType.IsVoucher() {
 		data.SK = dynamo.ShareSortKey(dynamo.VoucherShareSortKey(data.LpaKey))
 	} else {
-		data.SK = dynamo.ShareSortKey(dynamo.MetadataKey(shareCode.String()))
+		data.SK = dynamo.ShareSortKey(dynamo.MetadataKey(accessCode.String()))
 	}
 	data.UpdatedAt = s.now()
 
 	return s.dynamoClient.CreateOnly(ctx, data)
 }
 
-func (s *Store) PutDonor(ctx context.Context, shareCode sharecodedata.Hashed, data sharecodedata.Link) error {
+func (s *Store) PutDonor(ctx context.Context, accessCode accesscodedata.Hashed, data accesscodedata.Link) error {
 	organisationKey, ok := data.LpaOwnerKey.Organisation()
 	if !ok {
-		return errors.New("shareCodeStore.PutDonor can only be used by organisations")
+		return errors.New("accessCodeStore.PutDonor can only be used by organisations")
 	}
 
-	data.PK = dynamo.ShareKey(dynamo.DonorShareKey(shareCode.String()))
+	data.PK = dynamo.AccessKey(dynamo.DonorAccessKey(accessCode.String()))
 	data.SK = dynamo.ShareSortKey(dynamo.DonorInviteKey(organisationKey, data.LpaKey))
 	data.UpdatedAt = s.now()
 
 	return s.dynamoClient.CreateOnly(ctx, data)
 }
 
-func (s *Store) GetDonor(ctx context.Context) (sharecodedata.Link, error) {
-	var data sharecodedata.Link
+func (s *Store) GetDonor(ctx context.Context) (accesscodedata.Link, error) {
+	var data accesscodedata.Link
 
 	sessionData, err := appcontext.SessionFromContext(ctx)
 	if err != nil {
@@ -89,33 +89,33 @@ func (s *Store) GetDonor(ctx context.Context) (sharecodedata.Link, error) {
 	sk := dynamo.DonorInviteKey(dynamo.OrganisationKey(sessionData.OrganisationID), dynamo.LpaKey(sessionData.LpaID))
 
 	if err := s.dynamoClient.OneBySK(ctx, sk, &data); err != nil {
-		return sharecodedata.Link{}, err
+		return accesscodedata.Link{}, err
 	}
 
 	if data.HasExpired(s.now()) {
-		return sharecodedata.Link{}, dynamo.NotFoundError{}
+		return accesscodedata.Link{}, dynamo.NotFoundError{}
 	}
 
 	return data, nil
 }
 
-func (s *Store) Delete(ctx context.Context, shareCode sharecodedata.Link) error {
-	return s.dynamoClient.DeleteOne(ctx, shareCode.PK, shareCode.SK)
+func (s *Store) Delete(ctx context.Context, link accesscodedata.Link) error {
+	return s.dynamoClient.DeleteOne(ctx, link.PK, link.SK)
 }
 
-func shareCodeKey(actorType actor.Type, shareCode sharecodedata.Hashed) (pk dynamo.ShareKeyType, err error) {
+func accessCodeKey(actorType actor.Type, accessCode accesscodedata.Hashed) (pk dynamo.ShareKeyType, err error) {
 	switch actorType {
 	case actor.TypeDonor:
-		return dynamo.ShareKey(dynamo.DonorShareKey(shareCode.String())), nil
-	// As attorneys and replacement attorneys share the same landing page we can't
+		return dynamo.AccessKey(dynamo.DonorAccessKey(accessCode.String())), nil
+	// As attorneys and replacement attorneys access the same landing page we can't
 	// differentiate between them
 	case actor.TypeAttorney, actor.TypeReplacementAttorney, actor.TypeTrustCorporation, actor.TypeReplacementTrustCorporation:
-		return dynamo.ShareKey(dynamo.AttorneyShareKey(shareCode.String())), nil
+		return dynamo.AccessKey(dynamo.AttorneyAccessKey(accessCode.String())), nil
 	case actor.TypeCertificateProvider:
-		return dynamo.ShareKey(dynamo.CertificateProviderShareKey(shareCode.String())), nil
+		return dynamo.AccessKey(dynamo.CertificateProviderAccessKey(accessCode.String())), nil
 	case actor.TypeVoucher:
-		return dynamo.ShareKey(dynamo.VoucherShareKey(shareCode.String())), nil
+		return dynamo.AccessKey(dynamo.VoucherAccessKey(accessCode.String())), nil
 	default:
-		return dynamo.ShareKey(nil), fmt.Errorf("cannot have share code for actorType=%v", actorType)
+		return dynamo.AccessKey(nil), fmt.Errorf("cannot have access code for actorType=%v", actorType)
 	}
 }

@@ -25,7 +25,7 @@ func TestGetResendVoucherAccessCode(t *testing.T) {
 		}).
 		Return(nil)
 
-	err := ResendVoucherAccessCode(template.Execute, &mockShareCodeSender{})(testAppData, w, r, &donordata.Provided{})
+	err := ResendVoucherAccessCode(template.Execute, &mockAccessCodeSender{})(testAppData, w, r, &donordata.Provided{})
 	resp := w.Result()
 
 	assert.Nil(t, err)
@@ -41,7 +41,7 @@ func TestGetResendVoucherAccessCodeWhenTemplateErrors(t *testing.T) {
 		Execute(w, mock.Anything).
 		Return(expectedError)
 
-	err := ResendVoucherAccessCode(template.Execute, &mockShareCodeSender{})(testAppData, w, r, &donordata.Provided{})
+	err := ResendVoucherAccessCode(template.Execute, &mockAccessCodeSender{})(testAppData, w, r, &donordata.Provided{})
 	resp := w.Result()
 
 	assert.Equal(t, expectedError, err)
@@ -58,12 +58,12 @@ func TestPostResendVoucherAccessCode(t *testing.T) {
 		IdentityUserData: identity.UserData{Status: identity.StatusConfirmed},
 	}
 
-	shareCodeSender := newMockShareCodeSender(t)
-	shareCodeSender.EXPECT().
+	accessCodeSender := newMockAccessCodeSender(t)
+	accessCodeSender.EXPECT().
 		SendVoucherAccessCode(r.Context(), provided, testAppData).
 		Return(nil)
 
-	err := ResendVoucherAccessCode(nil, shareCodeSender)(testAppData, w, r, provided)
+	err := ResendVoucherAccessCode(nil, accessCodeSender)(testAppData, w, r, provided)
 	resp := w.Result()
 
 	assert.Nil(t, err)
@@ -78,12 +78,12 @@ func TestPostResendVoucherAccessCodeWhenSendErrors(t *testing.T) {
 
 	donor := &donordata.Provided{Donor: donordata.Donor{FirstNames: "john"}}
 
-	shareCodeSender := newMockShareCodeSender(t)
-	shareCodeSender.EXPECT().
+	accessCodeSender := newMockAccessCodeSender(t)
+	accessCodeSender.EXPECT().
 		SendVoucherAccessCode(r.Context(), donor, testAppData).
 		Return(expectedError)
 
-	err := ResendVoucherAccessCode(nil, shareCodeSender)(testAppData, w, r, donor)
+	err := ResendVoucherAccessCode(nil, accessCodeSender)(testAppData, w, r, donor)
 
 	assert.Equal(t, expectedError, err)
 }

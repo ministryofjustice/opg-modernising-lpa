@@ -25,7 +25,7 @@ type witnessingAsCertificateProviderData struct {
 func WitnessingAsCertificateProvider(
 	tmpl template.Template,
 	donorStore DonorStore,
-	shareCodeSender ShareCodeSender,
+	accessCodeSender AccessCodeSender,
 	lpaStoreClient LpaStoreClient,
 	eventClient EventClient,
 	now func() time.Time,
@@ -71,7 +71,7 @@ func WitnessingAsCertificateProvider(
 
 			if data.Errors.None() {
 				if provided.Tasks.PayForLpa.IsCompleted() {
-					if err := shareCodeSender.SendCertificateProviderPrompt(r.Context(), appData, provided); err != nil {
+					if err := accessCodeSender.SendCertificateProviderPrompt(r.Context(), appData, provided); err != nil {
 						return err
 					}
 

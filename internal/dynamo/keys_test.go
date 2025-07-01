@@ -32,10 +32,10 @@ func TestPK(t *testing.T) {
 	}{
 		"LpaKey":                      {LpaKey("S"), "LPA#S"},
 		"OrganisationKey":             {OrganisationKey("S"), "ORGANISATION#S"},
-		"DonorShareKey":               {DonorShareKey("S"), "DONORSHARE#S"},
-		"CertificateProviderShareKey": {CertificateProviderShareKey("S"), "CERTIFICATEPROVIDERSHARE#S"},
-		"AttorneyShareKey":            {AttorneyShareKey("S"), "ATTORNEYSHARE#S"},
-		"VoucherShareKey":             {VoucherShareKey("S"), "VOUCHERSHARE#S"},
+		"DonorShareKey":               {DonorAccessKey("S"), "DONORSHARE#S"},
+		"CertificateProviderShareKey": {CertificateProviderAccessKey("S"), "CERTIFICATEPROVIDERSHARE#S"},
+		"AttorneyShareKey":            {AttorneyAccessKey("S"), "ATTORNEYSHARE#S"},
+		"VoucherShareKey":             {VoucherAccessKey("S"), "VOUCHERSHARE#S"},
 		"ScheduledDayKey":             {ScheduledDayKey(time.Date(2024, time.January, 2, 12, 13, 14, 15, time.UTC)), "SCHEDULEDDAY#2024-01-02"},
 		"UIDKey":                      {UIDKey("S"), "UID#S"},
 		"SessionKey":                  {SessionKey("S"), "SESSION#S"},
@@ -124,9 +124,9 @@ func TestLpaOwnerKeyTypes(t *testing.T) {
 
 func TestShareKeyTypes(t *testing.T) {
 	for _, key := range []interface{ share() }{
-		DonorShareKey("hey"),
-		CertificateProviderShareKey("what"),
-		AttorneyShareKey("hello"),
+		DonorAccessKey("hey"),
+		CertificateProviderAccessKey("what"),
+		AttorneyAccessKey("hello"),
 	} {
 		key.share()
 	}

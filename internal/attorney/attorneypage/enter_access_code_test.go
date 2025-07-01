@@ -5,6 +5,7 @@ import (
 	"net/http/httptest"
 	"testing"
 
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/accesscode/accesscodedata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/attorney"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/attorney/attorneydata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/dynamo"
@@ -12,34 +13,33 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/lpastore/lpadata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/sesh"
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/sharecode/sharecodedata"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
 )
 
 func TestEnterAccessCode(t *testing.T) {
 	testcases := map[string]struct {
-		shareCode          sharecodedata.Link
+		accessCode         accesscodedata.Link
 		session            *sesh.LoginSession
 		isReplacement      bool
 		isTrustCorporation bool
 	}{
 		"attorney": {
-			shareCode: sharecodedata.Link{LpaKey: dynamo.LpaKey("lpa-id"), LpaOwnerKey: dynamo.LpaOwnerKey(dynamo.DonorKey("")), ActorUID: testUID, LpaUID: "lpa-uid"},
-			session:   &sesh.LoginSession{Sub: "hey", Email: "a@example.com"},
+			accessCode: accesscodedata.Link{LpaKey: dynamo.LpaKey("lpa-id"), LpaOwnerKey: dynamo.LpaOwnerKey(dynamo.DonorKey("")), ActorUID: testUID, LpaUID: "lpa-uid"},
+			session:    &sesh.LoginSession{Sub: "hey", Email: "a@example.com"},
 		},
 		"replacement": {
-			shareCode:     sharecodedata.Link{LpaKey: dynamo.LpaKey("lpa-id"), LpaOwnerKey: dynamo.LpaOwnerKey(dynamo.DonorKey("")), ActorUID: testUID, IsReplacementAttorney: true, LpaUID: "lpa-uid"},
+			accessCode:    accesscodedata.Link{LpaKey: dynamo.LpaKey("lpa-id"), LpaOwnerKey: dynamo.LpaOwnerKey(dynamo.DonorKey("")), ActorUID: testUID, IsReplacementAttorney: true, LpaUID: "lpa-uid"},
 			session:       &sesh.LoginSession{Sub: "hey", Email: "a@example.com"},
 			isReplacement: true,
 		},
 		"trust corporation": {
-			shareCode:          sharecodedata.Link{LpaKey: dynamo.LpaKey("lpa-id"), LpaOwnerKey: dynamo.LpaOwnerKey(dynamo.DonorKey("")), ActorUID: testUID, IsTrustCorporation: true, LpaUID: "lpa-uid"},
+			accessCode:         accesscodedata.Link{LpaKey: dynamo.LpaKey("lpa-id"), LpaOwnerKey: dynamo.LpaOwnerKey(dynamo.DonorKey("")), ActorUID: testUID, IsTrustCorporation: true, LpaUID: "lpa-uid"},
 			session:            &sesh.LoginSession{Sub: "hey", Email: "a@example.com"},
 			isTrustCorporation: true,
 		},
 		"replacement trust corporation": {
-			shareCode:          sharecodedata.Link{LpaKey: dynamo.LpaKey("lpa-id"), LpaOwnerKey: dynamo.LpaOwnerKey(dynamo.DonorKey("")), ActorUID: testUID, IsReplacementAttorney: true, IsTrustCorporation: true, LpaUID: "lpa-uid"},
+			accessCode:         accesscodedata.Link{LpaKey: dynamo.LpaKey("lpa-id"), LpaOwnerKey: dynamo.LpaOwnerKey(dynamo.DonorKey("")), ActorUID: testUID, IsReplacementAttorney: true, IsTrustCorporation: true, LpaUID: "lpa-uid"},
 			session:            &sesh.LoginSession{Sub: "hey", Email: "a@example.com"},
 			isReplacement:      true,
 			isTrustCorporation: true,
@@ -55,7 +55,7 @@ func TestEnterAccessCode(t *testing.T) {
 
 			attorneyStore := newMockAttorneyStore(t)
 			attorneyStore.EXPECT().
-				Create(r.Context(), tc.shareCode, "a@example.com").
+				Create(r.Context(), tc.accessCode, "a@example.com").
 				Return(&attorneydata.Provided{}, nil)
 
 			eventClient := newMockEventClient(t)
@@ -63,7 +63,7 @@ func TestEnterAccessCode(t *testing.T) {
 				SendMetric(r.Context(), event.CategoryFunnelStartRate, event.MeasureOnlineAttorney).
 				Return(nil)
 
-			err := EnterAccessCode(attorneyStore, nil, eventClient)(testAppData, w, r, session, &lpadata.Lpa{}, tc.shareCode)
+			err := EnterAccessCode(attorneyStore, nil, eventClient)(testAppData, w, r, session, &lpadata.Lpa{}, tc.accessCode)
 			resp := w.Result()
 
 			assert.Nil(t, err)
@@ -75,27 +75,27 @@ func TestEnterAccessCode(t *testing.T) {
 
 func TestEnterAccessCodeWhenAttorneyAlreadySubmittedOnPaper(t *testing.T) {
 	testcases := map[string]struct {
-		shareCode          sharecodedata.Link
+		accessCode         accesscodedata.Link
 		session            *sesh.LoginSession
 		isReplacement      bool
 		isTrustCorporation bool
 	}{
 		"attorney": {
-			shareCode: sharecodedata.Link{LpaKey: dynamo.LpaKey("lpa-id"), LpaOwnerKey: dynamo.LpaOwnerKey(dynamo.DonorKey("")), ActorUID: testUID, LpaUID: "lpa-uid"},
-			session:   &sesh.LoginSession{Sub: "hey", Email: "a@example.com"},
+			accessCode: accesscodedata.Link{LpaKey: dynamo.LpaKey("lpa-id"), LpaOwnerKey: dynamo.LpaOwnerKey(dynamo.DonorKey("")), ActorUID: testUID, LpaUID: "lpa-uid"},
+			session:    &sesh.LoginSession{Sub: "hey", Email: "a@example.com"},
 		},
 		"replacement": {
-			shareCode:     sharecodedata.Link{LpaKey: dynamo.LpaKey("lpa-id"), LpaOwnerKey: dynamo.LpaOwnerKey(dynamo.DonorKey("")), ActorUID: testUID, IsReplacementAttorney: true, LpaUID: "lpa-uid"},
+			accessCode:    accesscodedata.Link{LpaKey: dynamo.LpaKey("lpa-id"), LpaOwnerKey: dynamo.LpaOwnerKey(dynamo.DonorKey("")), ActorUID: testUID, IsReplacementAttorney: true, LpaUID: "lpa-uid"},
 			session:       &sesh.LoginSession{Sub: "hey", Email: "a@example.com"},
 			isReplacement: true,
 		},
 		"trust corporation": {
-			shareCode:          sharecodedata.Link{LpaKey: dynamo.LpaKey("lpa-id"), LpaOwnerKey: dynamo.LpaOwnerKey(dynamo.DonorKey("")), ActorUID: testUID, IsTrustCorporation: true, LpaUID: "lpa-uid"},
+			accessCode:         accesscodedata.Link{LpaKey: dynamo.LpaKey("lpa-id"), LpaOwnerKey: dynamo.LpaOwnerKey(dynamo.DonorKey("")), ActorUID: testUID, IsTrustCorporation: true, LpaUID: "lpa-uid"},
 			session:            &sesh.LoginSession{Sub: "hey", Email: "a@example.com"},
 			isTrustCorporation: true,
 		},
 		"replacement trust corporation": {
-			shareCode:          sharecodedata.Link{LpaKey: dynamo.LpaKey("lpa-id"), LpaOwnerKey: dynamo.LpaOwnerKey(dynamo.DonorKey("")), ActorUID: testUID, IsReplacementAttorney: true, IsTrustCorporation: true, LpaUID: "lpa-uid"},
+			accessCode:         accesscodedata.Link{LpaKey: dynamo.LpaKey("lpa-id"), LpaOwnerKey: dynamo.LpaOwnerKey(dynamo.DonorKey("")), ActorUID: testUID, IsReplacementAttorney: true, IsTrustCorporation: true, LpaUID: "lpa-uid"},
 			session:            &sesh.LoginSession{Sub: "hey", Email: "a@example.com"},
 			isReplacement:      true,
 			isTrustCorporation: true,
@@ -116,7 +116,7 @@ func TestEnterAccessCodeWhenAttorneyAlreadySubmittedOnPaper(t *testing.T) {
 				SendPaperAttorneyAccessOnline(r.Context(), "lpa-uid", "a@example.com", testUID).
 				Return(nil)
 
-			err := EnterAccessCode(nil, lpaStoreClient, nil)(testAppData, w, r, tc.session, lpa, tc.shareCode)
+			err := EnterAccessCode(nil, lpaStoreClient, nil)(testAppData, w, r, tc.session, lpa, tc.accessCode)
 
 			resp := w.Result()
 
@@ -128,7 +128,7 @@ func TestEnterAccessCodeWhenAttorneyAlreadySubmittedOnPaper(t *testing.T) {
 }
 
 func TestEnterAccessCodeOnLpaStoreSendPaperAttorneyAccessOnlineError(t *testing.T) {
-	shareCode := sharecodedata.Link{ActorUID: testUID}
+	accessCode := accesscodedata.Link{ActorUID: testUID}
 	lpa := &lpadata.Lpa{Attorneys: lpadata.Attorneys{
 		Attorneys: []lpadata.Attorney{{UID: testUID, Channel: lpadata.ChannelPaper, SignedAt: &testNow}}},
 	}
@@ -141,7 +141,7 @@ func TestEnterAccessCodeOnLpaStoreSendPaperAttorneyAccessOnlineError(t *testing.
 		SendPaperAttorneyAccessOnline(mock.Anything, mock.Anything, mock.Anything, mock.Anything).
 		Return(expectedError)
 
-	err := EnterAccessCode(nil, lpaStoreClient, nil)(testAppData, w, r, &sesh.LoginSession{}, lpa, shareCode)
+	err := EnterAccessCode(nil, lpaStoreClient, nil)(testAppData, w, r, &sesh.LoginSession{}, lpa, accessCode)
 	resp := w.Result()
 
 	assert.ErrorIs(t, err, expectedError)
@@ -149,7 +149,7 @@ func TestEnterAccessCodeOnLpaStoreSendPaperAttorneyAccessOnlineError(t *testing.
 }
 
 func TestEnterAccessCodeOnAttorneyStoreError(t *testing.T) {
-	shareCode := sharecodedata.Link{LpaKey: dynamo.LpaKey("lpa-id"), LpaOwnerKey: dynamo.LpaOwnerKey(dynamo.DonorKey("")), LpaUID: "lpa-uid"}
+	accessCode := accesscodedata.Link{LpaKey: dynamo.LpaKey("lpa-id"), LpaOwnerKey: dynamo.LpaOwnerKey(dynamo.DonorKey("")), LpaUID: "lpa-uid"}
 
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest(http.MethodPost, "/", nil)
@@ -159,12 +159,12 @@ func TestEnterAccessCodeOnAttorneyStoreError(t *testing.T) {
 		Create(mock.Anything, mock.Anything, mock.Anything).
 		Return(&attorneydata.Provided{}, expectedError)
 
-	err := EnterAccessCode(attorneyStore, nil, nil)(testAppData, w, r, &sesh.LoginSession{}, &lpadata.Lpa{}, shareCode)
+	err := EnterAccessCode(attorneyStore, nil, nil)(testAppData, w, r, &sesh.LoginSession{}, &lpadata.Lpa{}, accessCode)
 	assert.Equal(t, expectedError, err)
 }
 
 func TestEnterAccessCodeOnEventClientError(t *testing.T) {
-	shareCode := sharecodedata.Link{LpaKey: dynamo.LpaKey("lpa-id"), LpaOwnerKey: dynamo.LpaOwnerKey(dynamo.DonorKey("")), LpaUID: "lpa-uid"}
+	accessCode := accesscodedata.Link{LpaKey: dynamo.LpaKey("lpa-id"), LpaOwnerKey: dynamo.LpaOwnerKey(dynamo.DonorKey("")), LpaUID: "lpa-uid"}
 
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest(http.MethodPost, "/", nil)
@@ -179,6 +179,6 @@ func TestEnterAccessCodeOnEventClientError(t *testing.T) {
 		SendMetric(mock.Anything, mock.Anything, mock.Anything).
 		Return(expectedError)
 
-	err := EnterAccessCode(attorneyStore, nil, eventClient)(testAppData, w, r, &sesh.LoginSession{}, &lpadata.Lpa{}, shareCode)
+	err := EnterAccessCode(attorneyStore, nil, eventClient)(testAppData, w, r, &sesh.LoginSession{}, &lpadata.Lpa{}, accessCode)
 	assert.ErrorIs(t, err, expectedError)
 }

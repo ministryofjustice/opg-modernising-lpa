@@ -9,6 +9,7 @@ import (
 
 	"github.com/aws/aws-sdk-go-v2/aws"
 	v4 "github.com/aws/aws-sdk-go-v2/aws/signer/v4"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/accesscode"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/app"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/appcontext"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/certificateprovider"
@@ -24,9 +25,12 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/scheduled"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/search"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/secrets"
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/sharecode"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/uid"
 )
+
+type Localizer interface {
+	localize.Localizer
+}
 
 type LambdaClient interface {
 	Do(*http.Request) (*http.Response, error)
@@ -44,7 +48,7 @@ type SecretsClient interface {
 	Secret(ctx context.Context, name string) (string, error)
 }
 
-type ShareCodeSender interface {
+type AccessCodeSender interface {
 	SendAttorneys(ctx context.Context, appData appcontext.Data, lpa *lpadata.Lpa) error
 	SendCertificateProviderPrompt(ctx context.Context, appData appcontext.Data, provided *donordata.Provided) error
 	SendLpaCertificateProviderPrompt(ctx context.Context, appData appcontext.Data, lpaKey dynamo.LpaKeyType, lpaOwnerKey dynamo.LpaOwnerKeyType, lpa *lpadata.Lpa) error
@@ -96,7 +100,7 @@ type Factory struct {
 	lpaStoreClient           LpaStoreClient
 	notifyClient             NotifyClient
 	secretsClient            SecretsClient
-	shareCodeSender          ShareCodeSender
+	accessCodeSender         AccessCodeSender
 	scheduledStore           ScheduledStore
 	uidStore                 UidStore
 	uidClient                UidClient
@@ -162,15 +166,15 @@ func (f *Factory) SecretsClient() (SecretsClient, error) {
 	return f.secretsClient, nil
 }
 
-func (f *Factory) ShareCodeSender(ctx context.Context) (ShareCodeSender, error) {
-	if f.shareCodeSender == nil {
+func (f *Factory) AccessCodeSender(ctx context.Context) (AccessCodeSender, error) {
+	if f.accessCodeSender == nil {
 		notifyClient, err := f.NotifyClient(ctx)
 		if err != nil {
 			return nil, err
 		}
 
-		f.shareCodeSender = sharecode.NewSender(
-			sharecode.NewStore(f.dynamoClient),
+		f.accessCodeSender = accesscode.NewSender(
+			accesscode.NewStore(f.dynamoClient),
 			notifyClient,
 			f.appPublicURL,
 			f.certificateProviderStartURL,
@@ -181,7 +185,7 @@ func (f *Factory) ShareCodeSender(ctx context.Context) (ShareCodeSender, error) 
 		)
 	}
 
-	return f.shareCodeSender, nil
+	return f.accessCodeSender, nil
 }
 
 func (f *Factory) LpaStoreClient() (LpaStoreClient, error) {
