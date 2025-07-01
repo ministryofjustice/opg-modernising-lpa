@@ -103,7 +103,7 @@ func TestPostYourEmail(t *testing.T) {
 	}
 }
 
-func TestPostYourEmailWhenShareCodeSender(t *testing.T) {
+func TestPostYourEmailWhenAccessCodeSender(t *testing.T) {
 	testcases := map[string]appcontext.Data{
 		"donor":     testAppData,
 		"supporter": testSupporterAppData,
@@ -128,8 +128,8 @@ func TestPostYourEmailWhenShareCodeSender(t *testing.T) {
 				},
 			}
 
-			shareCodeSender := newMockShareCodeSender(t)
-			shareCodeSender.EXPECT().
+			accessCodeSender := newMockAccessCodeSender(t)
+			accessCodeSender.EXPECT().
 				SendVoucherAccessCode(r.Context(), provided, appData).
 				Return(nil)
 
@@ -138,7 +138,7 @@ func TestPostYourEmailWhenShareCodeSender(t *testing.T) {
 				Put(r.Context(), provided).
 				Return(nil)
 
-			err := YourEmail(nil, donorStore, shareCodeSender)(appData, w, r, &donordata.Provided{
+			err := YourEmail(nil, donorStore, accessCodeSender)(appData, w, r, &donordata.Provided{
 				LpaID: "lpa-id",
 				Donor: donordata.Donor{
 					FirstNames: "John",
@@ -153,7 +153,7 @@ func TestPostYourEmailWhenShareCodeSender(t *testing.T) {
 	}
 }
 
-func TestPostYourEmailWhenShareCodeSenderErrors(t *testing.T) {
+func TestPostYourEmailWhenAccessCodeSenderErrors(t *testing.T) {
 	form := url.Values{
 		"email": {"john@example.com"},
 	}
@@ -163,12 +163,12 @@ func TestPostYourEmailWhenShareCodeSenderErrors(t *testing.T) {
 	r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(form.Encode()))
 	r.Header.Add("Content-Type", page.FormUrlEncoded)
 
-	shareCodeSender := newMockShareCodeSender(t)
-	shareCodeSender.EXPECT().
+	accessCodeSender := newMockAccessCodeSender(t)
+	accessCodeSender.EXPECT().
 		SendVoucherAccessCode(mock.Anything, mock.Anything, mock.Anything).
 		Return(expectedError)
 
-	err := YourEmail(nil, nil, shareCodeSender)(testAppData, w, r, &donordata.Provided{
+	err := YourEmail(nil, nil, accessCodeSender)(testAppData, w, r, &donordata.Provided{
 		LpaID: "lpa-id",
 		Donor: donordata.Donor{
 			FirstNames: "John",

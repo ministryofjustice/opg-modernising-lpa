@@ -7,10 +7,10 @@ import (
 	"strings"
 	"testing"
 
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/accesscode/accesscodedata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/localize"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/notify"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/sharecode/sharecodedata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/supporter"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/supporter/supporterdata"
 	"github.com/stretchr/testify/assert"
@@ -18,8 +18,8 @@ import (
 )
 
 var (
-	testPlainCode, testHashedCode = sharecodedata.Generate()
-	testGenerateFn                = func() (sharecodedata.PlainText, sharecodedata.Hashed) {
+	testPlainCode, testHashedCode = accesscodedata.Generate()
+	testGenerateFn                = func() (accesscodedata.PlainText, accesscodedata.Hashed) {
 		return testPlainCode, testHashedCode
 	}
 )

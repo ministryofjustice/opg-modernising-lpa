@@ -1,8 +1,8 @@
-import { randomShareCode } from "../../support/e2e";
+import { randomAccessCode } from "../../support/e2e";
 
 describe('Reuse person to notify', () => {
     beforeEach(() => {
-        const sub = randomShareCode();
+        const sub = randomAccessCode();
 
         cy.visit(`/fixtures?donorSub=${sub}&progress=peopleToNotifyAboutYourLpa&redirect=/task-list`);
         cy.visit(`/fixtures?donorSub=${sub}&progress=chooseYourCertificateProvider&redirect=/choose-people-to-notify`);

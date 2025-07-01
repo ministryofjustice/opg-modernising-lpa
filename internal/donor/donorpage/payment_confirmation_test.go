@@ -407,8 +407,8 @@ func TestGetPaymentConfirmationApprovedOrDeniedWhenSigned(t *testing.T) {
 				Put(r.Context(), updatedDonor).
 				Return(nil)
 
-			shareCodeSender := newMockShareCodeSender(t)
-			shareCodeSender.EXPECT().
+			accessCodeSender := newMockAccessCodeSender(t)
+			accessCodeSender.EXPECT().
 				SendCertificateProviderPrompt(r.Context(), testAppData, updatedDonor).
 				Return(nil)
 
@@ -429,7 +429,7 @@ func TestGetPaymentConfirmationApprovedOrDeniedWhenSigned(t *testing.T) {
 			notifyClient := newMockNotifyClient(t).
 				withEmailPersonalizations(r.Context(), "£82")
 
-			err := PaymentConfirmation(newMockLogger(t), payClient, donorStore, sessionStore, shareCodeSender, eventClient, notifyClient)(testAppData, w, r, &donordata.Provided{
+			err := PaymentConfirmation(newMockLogger(t), payClient, donorStore, sessionStore, accessCodeSender, eventClient, notifyClient)(testAppData, w, r, &donordata.Provided{
 				Type:    lpadata.LpaTypePersonalWelfare,
 				Donor:   donordata.Donor{FirstNames: "a", LastName: "b"},
 				LpaID:   "lpa-id",
@@ -501,12 +501,12 @@ func TestGetPaymentConfirmationApprovedOrDeniedWhenVoucherAllowed(t *testing.T) 
 				},
 			}
 
-			shareCodeSender := newMockShareCodeSender(t)
-			shareCodeSender.EXPECT().
+			accessCodeSender := newMockAccessCodeSender(t)
+			accessCodeSender.EXPECT().
 				SendVoucherInvite(r.Context(), provided, testAppData).
 				Return(nil)
 
-			err := PaymentConfirmation(newMockLogger(t), payClient, donorStore, sessionStore, shareCodeSender, eventClient, notifyClient)(testAppData, w, r, provided)
+			err := PaymentConfirmation(newMockLogger(t), payClient, donorStore, sessionStore, accessCodeSender, eventClient, notifyClient)(testAppData, w, r, provided)
 			resp := w.Result()
 
 			assert.Nil(t, err)
@@ -519,7 +519,7 @@ func TestGetPaymentConfirmationApprovedOrDeniedWhenVoucherAllowed(t *testing.T) 
 	}
 }
 
-func TestGetPaymentConfirmationWhenVoucherAllowedShareCodeError(t *testing.T) {
+func TestGetPaymentConfirmationWhenVoucherAllowedAccessCodeError(t *testing.T) {
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest(http.MethodGet, "/payment-confirmation", nil)
 
@@ -542,12 +542,12 @@ func TestGetPaymentConfirmationWhenVoucherAllowedShareCodeError(t *testing.T) {
 	notifyClient := newMockNotifyClient(t).
 		withEmailPersonalizations(r.Context(), "£82")
 
-	shareCodeSender := newMockShareCodeSender(t)
-	shareCodeSender.EXPECT().
+	accessCodeSender := newMockAccessCodeSender(t)
+	accessCodeSender.EXPECT().
 		SendVoucherInvite(mock.Anything, mock.Anything, mock.Anything).
 		Return(expectedError)
 
-	err := PaymentConfirmation(newMockLogger(t), payClient, nil, sessionStore, shareCodeSender, eventClient, notifyClient)(testAppData, w, r, &donordata.Provided{
+	err := PaymentConfirmation(newMockLogger(t), payClient, nil, sessionStore, accessCodeSender, eventClient, notifyClient)(testAppData, w, r, &donordata.Provided{
 		Type:    lpadata.LpaTypePersonalWelfare,
 		Donor:   donordata.Donor{FirstNames: "a", LastName: "b"},
 		LpaUID:  "lpa-uid",
@@ -804,8 +804,8 @@ func TestGetPaymentConfirmationWhenEventClientErrors(t *testing.T) {
 	sessionStore := newMockSessionStore(t).
 		withPaySession(r)
 
-	shareCodeSender := newMockShareCodeSender(t)
-	shareCodeSender.EXPECT().
+	accessCodeSender := newMockAccessCodeSender(t)
+	accessCodeSender.EXPECT().
 		SendCertificateProviderPrompt(mock.Anything, mock.Anything, mock.Anything).
 		Return(nil)
 
@@ -825,7 +825,7 @@ func TestGetPaymentConfirmationWhenEventClientErrors(t *testing.T) {
 	notifyClient := newMockNotifyClient(t).
 		withEmailPersonalizations(r.Context(), "£82")
 
-	err := PaymentConfirmation(newMockLogger(t), payClient, nil, sessionStore, shareCodeSender, eventClient, notifyClient)(testAppData, w, r, &donordata.Provided{
+	err := PaymentConfirmation(newMockLogger(t), payClient, nil, sessionStore, accessCodeSender, eventClient, notifyClient)(testAppData, w, r, &donordata.Provided{
 		LpaUID:  "lpa-uid",
 		Type:    lpadata.LpaTypePersonalWelfare,
 		Donor:   donordata.Donor{FirstNames: "a", LastName: "b"},
@@ -842,7 +842,7 @@ func TestGetPaymentConfirmationWhenEventClientErrors(t *testing.T) {
 	assert.ErrorIs(t, err, expectedError)
 }
 
-func TestGetPaymentConfirmationWhenShareCodeSenderErrors(t *testing.T) {
+func TestGetPaymentConfirmationWhenAccessCodeSenderErrors(t *testing.T) {
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest(http.MethodGet, "/payment-confirmation", nil)
 
@@ -852,8 +852,8 @@ func TestGetPaymentConfirmationWhenShareCodeSenderErrors(t *testing.T) {
 	sessionStore := newMockSessionStore(t).
 		withPaySession(r)
 
-	shareCodeSender := newMockShareCodeSender(t)
-	shareCodeSender.EXPECT().
+	accessCodeSender := newMockAccessCodeSender(t)
+	accessCodeSender.EXPECT().
 		SendCertificateProviderPrompt(mock.Anything, mock.Anything, mock.Anything).
 		Return(expectedError)
 
@@ -870,7 +870,7 @@ func TestGetPaymentConfirmationWhenShareCodeSenderErrors(t *testing.T) {
 	notifyClient := newMockNotifyClient(t).
 		withEmailPersonalizations(r.Context(), "£82")
 
-	err := PaymentConfirmation(newMockLogger(t), payClient, nil, sessionStore, shareCodeSender, eventClient, notifyClient)(testAppData, w, r, &donordata.Provided{
+	err := PaymentConfirmation(newMockLogger(t), payClient, nil, sessionStore, accessCodeSender, eventClient, notifyClient)(testAppData, w, r, &donordata.Provided{
 		LpaUID:  "lpa-uid",
 		Type:    lpadata.LpaTypePersonalWelfare,
 		Donor:   donordata.Donor{FirstNames: "a", LastName: "b"},

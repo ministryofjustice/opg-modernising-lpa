@@ -1,8 +1,8 @@
-import { randomShareCode } from "../../support/e2e";
+import { randomAccessCode } from "../../support/e2e";
 
 describe('Reuse correspondent', () => {
     before(() => {
-        const sub = randomShareCode();
+        const sub = randomAccessCode();
 
         cy.visit(`/fixtures?donorSub=${sub}&progress=provideYourDetails&redirect=/task-list`);
 

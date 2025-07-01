@@ -65,8 +65,8 @@ func (s WitnessCodeSMS) smsID(lang localize.Lang) string {
 	return "e39849c0-ecab-4e16-87ec-6b22afb9d535"
 }
 
-type VouchingShareCodeSMS struct {
-	ShareCode                 string
+type VouchingAccessCodeSMS struct {
+	AccessCode, ShareCode     string
 	DonorFullNamePossessive   string
 	LpaType                   string
 	LpaReferenceNumber        string
@@ -74,7 +74,7 @@ type VouchingShareCodeSMS struct {
 	DonorFirstNamesPossessive string
 }
 
-func (s VouchingShareCodeSMS) smsID(lang localize.Lang) string {
+func (s VouchingAccessCodeSMS) smsID(lang localize.Lang) string {
 	if lang.IsCy() {
 		return "ab573f2e-de40-42ad-a4cf-25ba3be1fe0c"
 	}

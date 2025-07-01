@@ -7,12 +7,12 @@ import (
 	"time"
 
 	dynamodbtypes "github.com/aws/aws-sdk-go-v2/service/dynamodb/types"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/accesscode/accesscodedata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/appcontext"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/certificateprovider/certificateproviderdata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/dashboard/dashboarddata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/dynamo"
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/sharecode/sharecodedata"
 )
 
 type DynamoClient interface {
@@ -43,7 +43,7 @@ type Store struct {
 	now          func() time.Time
 }
 
-func (s *Store) Create(ctx context.Context, shareCode sharecodedata.Link, email string) (*certificateproviderdata.Provided, error) {
+func (s *Store) Create(ctx context.Context, link accesscodedata.Link, email string) (*certificateproviderdata.Provided, error) {
 	data, err := appcontext.SessionFromContext(ctx)
 	if err != nil {
 		return nil, err
@@ -56,7 +56,7 @@ func (s *Store) Create(ctx context.Context, shareCode sharecodedata.Link, email 
 	certificateProvider := &certificateproviderdata.Provided{
 		PK:        dynamo.LpaKey(data.LpaID),
 		SK:        dynamo.CertificateProviderKey(data.SessionID),
-		UID:       shareCode.ActorUID,
+		UID:       link.ActorUID,
 		LpaID:     data.LpaID,
 		UpdatedAt: s.now(),
 		Email:     email,
@@ -68,13 +68,13 @@ func (s *Store) Create(ctx context.Context, shareCode sharecodedata.Link, email 
 		Create(dashboarddata.LpaLink{
 			PK:        dynamo.LpaKey(data.LpaID),
 			SK:        dynamo.SubKey(data.SessionID),
-			LpaUID:    shareCode.LpaUID,
-			DonorKey:  shareCode.LpaOwnerKey,
-			UID:       shareCode.ActorUID,
+			LpaUID:    link.LpaUID,
+			DonorKey:  link.LpaOwnerKey,
+			UID:       link.ActorUID,
 			ActorType: actor.TypeCertificateProvider,
 			UpdatedAt: s.now(),
 		}).
-		Delete(dynamo.Keys{PK: shareCode.PK, SK: shareCode.SK})
+		Delete(dynamo.Keys{PK: link.PK, SK: link.SK})
 
 	if err := s.dynamoClient.WriteTransaction(ctx, transaction); err != nil {
 		return nil, err

@@ -9,6 +9,7 @@ filename: "mock_{{.InterfaceName}}_test.go"
 all: true
 packages:
   github.com/ministryofjustice/opg-modernising-lpa/cmd/event-received:
+  github.com/ministryofjustice/opg-modernising-lpa/internal/accesscode:
   github.com/ministryofjustice/opg-modernising-lpa/internal/app:
   github.com/ministryofjustice/opg-modernising-lpa/internal/attorney/attorneydata:
   github.com/ministryofjustice/opg-modernising-lpa/internal/attorney/attorneypage:
@@ -36,7 +37,6 @@ packages:
   github.com/ministryofjustice/opg-modernising-lpa/internal/search:
   github.com/ministryofjustice/opg-modernising-lpa/internal/secrets:
   github.com/ministryofjustice/opg-modernising-lpa/internal/sesh:
-  github.com/ministryofjustice/opg-modernising-lpa/internal/sharecode:
   github.com/ministryofjustice/opg-modernising-lpa/internal/supporter/supporterdata:
   github.com/ministryofjustice/opg-modernising-lpa/internal/supporter/supporterpage:
   github.com/ministryofjustice/opg-modernising-lpa/internal/supporter:

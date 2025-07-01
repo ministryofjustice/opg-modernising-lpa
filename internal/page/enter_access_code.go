@@ -6,17 +6,17 @@ import (
 	"net/http"
 
 	"github.com/ministryofjustice/opg-go-common/template"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/accesscode/accesscodedata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/appcontext"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/dynamo"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/form"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/lpastore/lpadata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/sesh"
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/sharecode/sharecodedata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/validation"
 )
 
-type EnterAccessCodeHandler func(appData appcontext.Data, w http.ResponseWriter, r *http.Request, session *sesh.LoginSession, lpa *lpadata.Lpa, shareCode sharecodedata.Link) error
+type EnterAccessCodeHandler func(appData appcontext.Data, w http.ResponseWriter, r *http.Request, session *sesh.LoginSession, lpa *lpadata.Lpa, link accesscodedata.Link) error
 
 type enterAccessCodeData struct {
 	App    appcontext.Data
@@ -24,7 +24,7 @@ type enterAccessCodeData struct {
 	Form   *form.AccessCodeForm
 }
 
-func EnterAccessCode(tmpl template.Template, shareCodeStore ShareCodeStore, sessionStore UpdateLoginSessionStore, lpaStoreResolvingService LpaStoreResolvingService, actorType actor.Type, next EnterAccessCodeHandler) Handler {
+func EnterAccessCode(tmpl template.Template, accessCodeStore AccessCodeStore, sessionStore UpdateLoginSessionStore, lpaStoreResolvingService LpaStoreResolvingService, actorType actor.Type, next EnterAccessCodeHandler) Handler {
 	return func(appData appcontext.Data, w http.ResponseWriter, r *http.Request) error {
 		data := enterAccessCodeData{
 			App:  appData,
@@ -36,9 +36,9 @@ func EnterAccessCode(tmpl template.Template, shareCodeStore ShareCodeStore, sess
 			data.Errors = data.Form.Validate()
 
 			if len(data.Errors) == 0 {
-				referenceNumber := sharecodedata.HashedFromString(data.Form.AccessCode)
+				referenceNumber := accesscodedata.HashedFromString(data.Form.AccessCode)
 
-				shareCode, err := shareCodeStore.Get(r.Context(), actorType, referenceNumber)
+				accessCode, err := accessCodeStore.Get(r.Context(), actorType, referenceNumber)
 				if err != nil {
 					if errors.Is(err, dynamo.NotFoundError{}) {
 						data.Errors.Add(form.FieldNames.AccessCode, validation.IncorrectError{Label: "accessCode"})
@@ -57,14 +57,14 @@ func EnterAccessCode(tmpl template.Template, shareCodeStore ShareCodeStore, sess
 
 				appSession := &appcontext.Session{
 					SessionID: session.SessionID(),
-					LpaID:     shareCode.LpaKey.ID(),
+					LpaID:     accessCode.LpaKey.ID(),
 				}
-				if org, ok := shareCode.LpaOwnerKey.Organisation(); ok {
+				if org, ok := accessCode.LpaOwnerKey.Organisation(); ok {
 					appSession.OrganisationID = org.ID()
 				}
 
 				ctx := appcontext.ContextWithSession(r.Context(), appSession)
-				appData.LpaID = shareCode.LpaKey.ID()
+				appData.LpaID = accessCode.LpaKey.ID()
 
 				lpa, err := lpaStoreResolvingService.Get(ctx)
 				if err != nil {
@@ -80,7 +80,7 @@ func EnterAccessCode(tmpl template.Template, shareCodeStore ShareCodeStore, sess
 					return fmt.Errorf("saving login session: %w", err)
 				}
 
-				return next(appData, w, r.WithContext(ctx), session, lpa, shareCode)
+				return next(appData, w, r.WithContext(ctx), session, lpa, accessCode)
 			}
 		}
 

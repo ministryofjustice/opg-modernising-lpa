@@ -1,12 +1,12 @@
-import {expect} from '@playwright/test';
-import AxeBuilder from '@axe-core/playwright'
+import AxeBuilder from '@axe-core/playwright';
+import { expect } from '@playwright/test';
 
 export const
     TestEmail = 'simulate-delivered@notifications.service.gov.uk',
     TestEmail2 = 'simulate-delivered-2@notifications.service.gov.uk',
     TestMobile = '07700900000'
 
-export function randomShareCode() {
+export function randomAccessCode() {
     const characters = 'abcdefghijklmnpqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ123456789'
     let result = [];
 

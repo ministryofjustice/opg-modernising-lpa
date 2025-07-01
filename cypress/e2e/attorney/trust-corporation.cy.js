@@ -1,9 +1,9 @@
-const { TestMobile, TestEmail, randomShareCode } = require("../../support/e2e");
+const { TestMobile, TestEmail, randomAccessCode } = require("../../support/e2e");
 
 describe('As a trust corporation', () => {
     beforeEach(() => {
-        const shareCode = randomShareCode()
-        cy.visit(`/fixtures/attorney?redirect=/attorney-start&options=is-trust-corporation&progress=readTheLPA&withShareCode=${shareCode}&email=${TestEmail}`);
+        const accessCode = randomAccessCode()
+        cy.visit(`/fixtures/attorney?redirect=/attorney-start&options=is-trust-corporation&progress=readTheLPA&withAccessCode=${accessCode}&email=${TestEmail}`);
 
         // start
         cy.contains('a', 'Start').click();
@@ -13,7 +13,7 @@ describe('As a trust corporation', () => {
 
         // enter reference number
         cy.get('#f-donor-last-name').type('Smith');
-        cy.get('#f-access-code').invoke('val', shareCode);
+        cy.get('#f-access-code').invoke('val', accessCode);
         cy.contains('button', 'Save and continue').click();
 
         // acting as an attorney
