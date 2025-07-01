@@ -89,6 +89,7 @@ func TestSK(t *testing.T) {
 		"ScheduledKey":           {ScheduledKey(time.Date(2024, time.January, 2, 12, 13, 14, 15, time.UTC), "some-string"), "SCHEDULED#2024-01-02T12:13:14Z#some-string"},
 		"ReservedKey":            {ReservedKey(VoucherKey), "RESERVED#VOUCHER#"},
 		"PartialScheduledKey":    {PartialScheduledKey(), "SCHEDULED#"},
+		"ExpiresAtKey":           {ExpiresAtKey(time.Date(2024, time.January, 2, 12, 13, 14, 15, time.UTC)), "EXPIRESAT#2024-01-02T12:13:14Z"},
 	}
 
 	for name, tc := range testcases {

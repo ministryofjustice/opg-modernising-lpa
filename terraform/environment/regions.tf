@@ -55,7 +55,10 @@ module "eu_west_1" {
     arn  = aws_dynamodb_table.lpas_table.arn,
     name = aws_dynamodb_table.lpas_table.name
   }
-
+  sessions_table = {
+    arn  = aws_dynamodb_table.sessions_table.arn,
+    name = aws_dynamodb_table.sessions_table.name
+  }
   reduced_fees = {
     s3_object_replication_enabled             = local.environment.reduced_fees.s3_object_replication_enabled
     target_environment                        = local.environment.reduced_fees.target_environment
@@ -129,7 +132,10 @@ module "eu_west_2" {
     arn  = local.environment.dynamodb.region_replica_enabled ? aws_dynamodb_table_replica.lpas_table[0].arn : aws_dynamodb_table.lpas_table.arn,
     name = aws_dynamodb_table.lpas_table.name
   }
-
+  sessions_table = {
+    arn  = local.environment.dynamodb.region_replica_enabled ? aws_dynamodb_table_replica.sessions_table[0].arn : aws_dynamodb_table.sessions_table.arn,
+    name = aws_dynamodb_table.sessions_table.name
+  }
   reduced_fees = {
     s3_object_replication_enabled             = local.environment.reduced_fees.s3_object_replication_enabled
     target_environment                        = local.environment.reduced_fees.target_environment
