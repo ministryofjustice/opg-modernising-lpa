@@ -331,7 +331,6 @@
         "other": "rydw i wedi dewis hysbysu {{ .PluralCount }} person am fy LPA"
     },
     "iHaveNotChosenToNotifyAnyone": "rwyf wedi dewis peidio â hysbysu unrhyw un am fy LPA",
-    "infoIProvidedCanBeUsedByOpg": "gall y wybodaeth a ddarparwyd gennyf gael ei defnyddio gan Swyddfa’r Gwarcheidwad Cyhoeddus wrth gyflawni ei dyletswyddau",
     "whenYouTickAndClick": "Pan fyddwch yn ticio’r blychau hyn ac yn dewis ‘Cyflwyno fy llofnod’, rydych yn llofnodi eich LPA yn gyfreithiol ac yn ei chyflwyno fel gweithred.",
     "iNameConfirmThat": "Rwyf i, {{ .DonorFullName }}, yn cadarnhau:",
     "wantToApply": "Fy mod eisiau gwneud cais i gofrestru’r LPA hon",

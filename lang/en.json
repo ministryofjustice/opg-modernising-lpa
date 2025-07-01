@@ -271,7 +271,6 @@
         "other": "I have chosen to notify {{ .PluralCount }} people about my LPA"
     },
     "iHaveNotChosenToNotifyAnyone": "I have chosen not to notify anyone about my LPA",
-    "infoIProvidedCanBeUsedByOpg": "the information I’ve provided can be used by the Office of the Public Guardian when carrying out its duties",
     "whenYouTickAndClick": "When you tick these boxes and select ‘Submit my signature’ you are legally signing your LPA and delivering it as a deed.",
     "iNameConfirmThat": "I, {{ .DonorFullName }}, confirm that:",
     "wantToApply": "I want to apply to register this LPA",
