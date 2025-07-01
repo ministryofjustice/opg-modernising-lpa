@@ -8,6 +8,7 @@ import (
 	"time"
 
 	"github.com/ministryofjustice/opg-go-common/template"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/accesscode/accesscodedata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/appcontext"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/certificateprovider/certificateproviderdata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor/donordata"
@@ -20,7 +21,6 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/random"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/search"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/sesh"
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/sharecode/sharecodedata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/supporter"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/supporter/supporterdata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/task"
@@ -50,7 +50,7 @@ type MemberStore interface {
 		ctx context.Context,
 		organisation *supporterdata.Organisation,
 		firstNames, lastname, email string,
-		code sharecodedata.Hashed,
+		code accesscodedata.Hashed,
 		permission supporterdata.Permission,
 	) error
 	DeleteMemberInvite(ctx context.Context, organisationID, email string) error
@@ -65,7 +65,7 @@ type MemberStore interface {
 }
 
 type DonorStore interface {
-	DeleteDonorAccess(ctx context.Context, shareCodeData sharecodedata.Link) error
+	DeleteDonorAccess(ctx context.Context, link accesscodedata.Link) error
 	Get(ctx context.Context) (*donordata.Provided, error)
 	GetByKeys(ctx context.Context, keys []dynamo.Keys) ([]donordata.Provided, error)
 	Put(ctx context.Context, donor *donordata.Provided) error
@@ -97,10 +97,10 @@ type NotifyClient interface {
 	SendEmail(ctx context.Context, to notify.ToEmail, email notify.Email) error
 }
 
-type ShareCodeStore interface {
-	PutDonor(ctx context.Context, shareCode sharecodedata.Hashed, data sharecodedata.Link) error
-	GetDonor(ctx context.Context) (sharecodedata.Link, error)
-	Delete(ctx context.Context, data sharecodedata.Link) error
+type AccessCodeStore interface {
+	PutDonor(ctx context.Context, code accesscodedata.Hashed, link accesscodedata.Link) error
+	GetDonor(ctx context.Context) (accesscodedata.Link, error)
+	Delete(ctx context.Context, link accesscodedata.Link) error
 }
 
 type Template func(w io.Writer, data interface{}) error
@@ -126,7 +126,7 @@ func Register(
 	memberStore MemberStore,
 	searchClient *search.Client,
 	donorStore DonorStore,
-	shareCodeStore ShareCodeStore,
+	accessCodeStore AccessCodeStore,
 	progressTracker ProgressTracker,
 	lpaStoreResolvingService LpaStoreResolvingService,
 	donorStartURL string,
@@ -170,16 +170,16 @@ func Register(
 	handleWithSupporter(supporter.PathEditOrganisationName, RequireAdmin,
 		EditOrganisationName(tmpls.Get("edit_organisation_name.gohtml"), organisationStore))
 	handleWithSupporter(supporter.PathManageTeamMembers, RequireAdmin,
-		ManageTeamMembers(tmpls.Get("manage_team_members.gohtml"), memberStore, sharecodedata.Generate, notifyClient, appPublicURL))
+		ManageTeamMembers(tmpls.Get("manage_team_members.gohtml"), memberStore, accesscodedata.Generate, notifyClient, appPublicURL))
 	handleWithSupporter(supporter.PathInviteMember, CanGoBack|RequireAdmin,
-		InviteMember(tmpls.Get("invite_member.gohtml"), memberStore, notifyClient, sharecodedata.Generate, appPublicURL))
+		InviteMember(tmpls.Get("invite_member.gohtml"), memberStore, notifyClient, accesscodedata.Generate, appPublicURL))
 	handleWithSupporter(supporter.PathDeleteOrganisation, CanGoBack,
 		DeleteOrganisation(logger, tmpls.Get("delete_organisation.gohtml"), organisationStore, sessionStore, searchClient))
 	handleWithSupporter(supporter.PathEditMember, CanGoBack,
 		EditMember(logger, tmpls.Get("edit_member.gohtml"), memberStore))
 
 	handleWithSupporter(supporter.PathDonorAccess, CanGoBack,
-		DonorAccess(logger, tmpls.Get("donor_access.gohtml"), donorStore, shareCodeStore, notifyClient, donorStartURL, sharecodedata.Generate))
+		DonorAccess(logger, tmpls.Get("donor_access.gohtml"), donorStore, accessCodeStore, notifyClient, donorStartURL, accesscodedata.Generate))
 }
 
 type HandleOpt byte

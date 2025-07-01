@@ -9,6 +9,7 @@ import (
 	"time"
 
 	"github.com/ministryofjustice/opg-go-common/template"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/accesscode/accesscodedata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor/actoruid"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/appcontext"
@@ -27,7 +28,6 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/random"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/scheduled"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/sesh"
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/sharecode/sharecodedata"
 )
 
 type Handler func(data appcontext.Data, w http.ResponseWriter, r *http.Request, details *certificateproviderdata.Provided, lpa *lpadata.Lpa) error
@@ -48,7 +48,7 @@ type Logger interface {
 }
 
 type CertificateProviderStore interface {
-	Create(ctx context.Context, shareCode sharecodedata.Link, email string) (*certificateproviderdata.Provided, error)
+	Create(ctx context.Context, link accesscodedata.Link, email string) (*certificateproviderdata.Provided, error)
 	Delete(ctx context.Context) error
 	Get(ctx context.Context) (*certificateproviderdata.Provided, error)
 	Put(ctx context.Context, certificateProvider *certificateproviderdata.Provided) error
@@ -61,10 +61,10 @@ type OneLoginClient interface {
 	ParseIdentityClaim(userInfo onelogin.UserInfo) (identity.UserData, error)
 }
 
-type ShareCodeStore interface {
-	Get(ctx context.Context, actorType actor.Type, shareCode sharecodedata.Hashed) (sharecodedata.Link, error)
-	Put(ctx context.Context, actorType actor.Type, shareCode sharecodedata.Hashed, shareCodeData sharecodedata.Link) error
-	Delete(ctx context.Context, shareCode sharecodedata.Link) error
+type AccessCodeStore interface {
+	Get(ctx context.Context, actorType actor.Type, code accesscodedata.Hashed) (accesscodedata.Link, error)
+	Put(ctx context.Context, actorType actor.Type, code accesscodedata.Hashed, link accesscodedata.Link) error
+	Delete(ctx context.Context, link accesscodedata.Link) error
 }
 
 type Template func(io.Writer, interface{}) error
@@ -84,7 +84,7 @@ type NotifyClient interface {
 	SendActorEmail(ctx context.Context, to notify.ToEmail, lpaUID string, email notify.Email) error
 }
 
-type ShareCodeSender interface {
+type AccessCodeSender interface {
 	SendAttorneys(context.Context, appcontext.Data, *lpadata.Lpa) error
 }
 
@@ -130,12 +130,12 @@ func Register(
 	commonTmpls, tmpls template.Templates,
 	sessionStore SessionStore,
 	oneLoginClient OneLoginClient,
-	shareCodeStore ShareCodeStore,
+	accessCodeStore AccessCodeStore,
 	errorHandler page.ErrorHandler,
 	certificateProviderStore CertificateProviderStore,
 	addressClient AddressClient,
 	notifyClient NotifyClient,
-	shareCodeSender ShareCodeSender,
+	accessCodeSender AccessCodeSender,
 	dashboardStore DashboardStore,
 	lpaStoreClient LpaStoreClient,
 	lpaStoreResolvingService LpaStoreResolvingService,
@@ -153,13 +153,13 @@ func Register(
 	handleRoot(page.PathCertificateProviderLoginCallback, page.None,
 		page.LoginCallback(logger, oneLoginClient, sessionStore, page.PathCertificateProviderEnterAccessCode, dashboardStore, actor.TypeCertificateProvider))
 	handleRoot(page.PathCertificateProviderEnterAccessCode, page.RequireSession,
-		page.EnterAccessCode(tmpls.Get("enter_access_code.gohtml"), shareCodeStore, sessionStore, lpaStoreResolvingService, actor.TypeCertificateProvider,
+		page.EnterAccessCode(tmpls.Get("enter_access_code.gohtml"), accessCodeStore, sessionStore, lpaStoreResolvingService, actor.TypeCertificateProvider,
 			EnterAccessCode(sessionStore, certificateProviderStore, lpaStoreClient, dashboardStore, eventClient)))
 	handleRoot(page.PathCertificateProviderEnterAccessCodeOptOut, page.None,
-		page.EnterAccessCodeOptOut(tmpls.Get("enter_access_code_opt_out.gohtml"), shareCodeStore, sessionStore, lpaStoreResolvingService, actor.TypeCertificateProvider,
+		page.EnterAccessCodeOptOut(tmpls.Get("enter_access_code_opt_out.gohtml"), accessCodeStore, sessionStore, lpaStoreResolvingService, actor.TypeCertificateProvider,
 			page.PathCertificateProviderConfirmDontWantToBeCertificateProviderLoggedOut))
 	handleRoot(page.PathCertificateProviderConfirmDontWantToBeCertificateProviderLoggedOut, page.None,
-		ConfirmDontWantToBeCertificateProviderLoggedOut(tmpls.Get("confirm_dont_want_to_be_certificate_provider.gohtml"), shareCodeStore, lpaStoreResolvingService, lpaStoreClient, donorStore, sessionStore, notifyClient, donorStartURL))
+		ConfirmDontWantToBeCertificateProviderLoggedOut(tmpls.Get("confirm_dont_want_to_be_certificate_provider.gohtml"), accessCodeStore, lpaStoreResolvingService, lpaStoreClient, donorStore, sessionStore, notifyClient, donorStartURL))
 	handleRoot(page.PathCertificateProviderYouHaveDecidedNotToBeCertificateProvider, page.None,
 		page.Guidance(tmpls.Get("you_have_decided_not_to_be_a_certificate_provider.gohtml")))
 	handleRoot(page.PathCertificateProviderYouHaveAlreadyProvidedACertificate, page.None,
@@ -204,7 +204,7 @@ func Register(
 	handleCertificateProvider(certificateprovider.PathWhatHappensNext, page.CanGoBack,
 		Guidance(tmpls.Get("what_happens_next.gohtml")))
 	handleCertificateProvider(certificateprovider.PathProvideCertificate, page.CanGoBack,
-		ProvideCertificate(tmpls.Get("provide_certificate.gohtml"), certificateProviderStore, notifyClient, shareCodeSender, lpaStoreClient, scheduledStore, donorStore, time.Now, donorStartURL))
+		ProvideCertificate(tmpls.Get("provide_certificate.gohtml"), certificateProviderStore, notifyClient, accessCodeSender, lpaStoreClient, scheduledStore, donorStore, time.Now, donorStartURL))
 	handleCertificateProvider(certificateprovider.PathCertificateProvided, page.None,
 		Guidance(tmpls.Get("certificate_provided.gohtml")))
 	handleCertificateProvider(certificateprovider.PathConfirmDontWantToBeCertificateProvider, page.CanGoBack,

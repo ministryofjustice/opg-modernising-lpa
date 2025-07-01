@@ -1,7 +1,7 @@
-import { randomShareCode } from '../../support/e2e';
+import { randomAccessCode } from '../../support/e2e';
 
 describe('Enter access code', () => {
-    let accessCode = randomShareCode();
+    let accessCode = randomAccessCode();
 
     beforeEach(() => {
         cy.visit(`/fixtures/supporter?redirect=/enter-access-code&organisation=1&accessCode=${accessCode}`);

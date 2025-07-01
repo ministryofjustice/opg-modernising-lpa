@@ -23,23 +23,23 @@
 
       {{ trHtml .App "giveTheDonorAccessToTheirLpaContent" }}
 
-      {{ if .ShareCode }}
+      {{ if .AccessCode }}
         <h2 class="govuk-heading-m">{{ tr .App "donorAccess" }}</h2>
 
         <dl class="govuk-summary-list">
           <div class="govuk-summary-list__row">
             <dt class="govuk-summary-list__key">{{ tr .App "inviteSent" }}</dt>
-            <dd class="govuk-summary-list__value">{{ formatDate .App .ShareCode.UpdatedAt }}</dd>
+            <dd class="govuk-summary-list__value">{{ formatDate .App .AccessCode.UpdatedAt }}</dd>
           </div>
           <div class="govuk-summary-list__row">
             <dt class="govuk-summary-list__key">{{ tr .App "inviteSentTo" }}</dt>
-            <dd class="govuk-summary-list__value">{{ .ShareCode.InviteSentTo }}</dd>
+            <dd class="govuk-summary-list__value">{{ .AccessCode.InviteSentTo }}</dd>
           </div>
           <div class="govuk-summary-list__row">
             <dt class="govuk-summary-list__key">{{ tr .App "lpaLinkedTo" }}</dt>
             <dd class="govuk-summary-list__value">
-              {{ if .ShareCode.LpaLinkedTo }}
-                {{ .ShareCode.LpaLinkedTo }}
+              {{ if .AccessCode.LpaLinkedTo }}
+                {{ .AccessCode.LpaLinkedTo }}
               {{ else }}
                 &mdash;
               {{ end }}
@@ -48,17 +48,17 @@
           <div class="govuk-summary-list__row">
             <dt class="govuk-summary-list__key">{{ tr .App "dateLinked" }}</dt>
             <dd class="govuk-summary-list__value">
-              {{ if .ShareCode.LpaLinkedAt.IsZero }}
+              {{ if .AccessCode.LpaLinkedAt.IsZero }}
                 &mdash;
               {{ else }}
-                {{ formatDate .App .ShareCode.LpaLinkedAt }}
+                {{ formatDate .App .AccessCode.LpaLinkedAt }}
               {{ end }}
             </dd>
           </div>
           <div class="govuk-summary-list__row">
             <dt class="govuk-summary-list__key">{{ tr .App "status" }}</dt>
             <dd class="govuk-summary-list__value">
-              {{ if .ShareCode.LpaLinkedAt.IsZero }}
+              {{ if .AccessCode.LpaLinkedAt.IsZero }}
                 <strong class="govuk-tag govuk-tag--yellow">{{ tr .App "pending" }}</strong>
               {{ else }}
                 <strong class="govuk-tag govuk-tag--green">{{ tr .App "linked" }}</strong>
@@ -68,7 +68,7 @@
         </dl>
 
         <form novalidate method="post">
-          {{ if .ShareCode.LpaLinkedAt.IsZero }}
+          {{ if .AccessCode.LpaLinkedAt.IsZero }}
             <div class="govuk-button-group">
               <button class="govuk-button govuk-button--secondary" name="action" value="resend">{{ tr .App "resendInvite" }}</button>
               <button class="govuk-button govuk-button--warning" name="action" value="recall">{{ tr .App "recallInvite" }}</button>
@@ -76,12 +76,12 @@
           {{ else }}
             <button class="govuk-button govuk-button--warning" name="action" value="remove">{{ tr .App "removeAccess" }}</button>
           {{ end }}
-          
+
           {{ template "csrf-field" . }}
         </form>
       {{ else }}
         {{ trHtml .App "donorsEmailAddressContent" }}
-        
+
         <form novalidate method="post">
           {{ template "input" (input . "email" "email" .Form.Email "classes" "govuk-input--width-20" "type" "email" "spellcheck" "false" "autocomplete" "email") }}
 

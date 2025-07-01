@@ -9,31 +9,31 @@ import (
 )
 
 const (
-	lpaPrefix                      = "LPA"
-	donorPrefix                    = "DONOR"
-	subPrefix                      = "SUB"
-	attorneyPrefix                 = "ATTORNEY"
-	certificateProviderPrefix      = "CERTIFICATE_PROVIDER"
-	documentPrefix                 = "DOCUMENT"
-	evidenceReceivedPrefix         = "EVIDENCE_RECEIVED"
-	organisationPrefix             = "ORGANISATION"
-	memberPrefix                   = "MEMBER"
-	memberInvitePrefix             = "MEMBERINVITE"
-	memberIDPrefix                 = "MEMBERID"
-	voucherPrefix                  = "VOUCHER"
-	metadataPrefix                 = "METADATA"
-	voucherShareSortPrefix         = "VOUCHERSHARESORT"
-	donorSharePrefix               = "DONORSHARE"
-	donorInvitePrefix              = "DONORINVITE"
-	certificateProviderSharePrefix = "CERTIFICATEPROVIDERSHARE"
-	attorneySharePrefix            = "ATTORNEYSHARE"
-	voucherSharePrefix             = "VOUCHERSHARE"
-	scheduledDayPrefix             = "SCHEDULEDDAY"
-	scheduledPrefix                = "SCHEDULED"
-	reservedPrefix                 = "RESERVED"
-	uidPrefix                      = "UID"
-	sessionPrefix                  = "SESSION"
-	reusePrefix                    = "REUSE"
+	lpaPrefix                       = "LPA"
+	donorPrefix                     = "DONOR"
+	subPrefix                       = "SUB"
+	attorneyPrefix                  = "ATTORNEY"
+	certificateProviderPrefix       = "CERTIFICATE_PROVIDER"
+	documentPrefix                  = "DOCUMENT"
+	evidenceReceivedPrefix          = "EVIDENCE_RECEIVED"
+	organisationPrefix              = "ORGANISATION"
+	memberPrefix                    = "MEMBER"
+	memberInvitePrefix              = "MEMBERINVITE"
+	memberIDPrefix                  = "MEMBERID"
+	voucherPrefix                   = "VOUCHER"
+	metadataPrefix                  = "METADATA"
+	voucherAccessSortPrefix         = "VOUCHERSHARESORT"
+	donorAccessPrefix               = "DONORSHARE"
+	donorInvitePrefix               = "DONORINVITE"
+	certificateProviderAccessPrefix = "CERTIFICATEPROVIDERSHARE"
+	attorneyAccessPrefix            = "ATTORNEYSHARE"
+	voucherAccessPrefix             = "VOUCHERSHARE"
+	scheduledDayPrefix              = "SCHEDULEDDAY"
+	scheduledPrefix                 = "SCHEDULED"
+	reservedPrefix                  = "RESERVED"
+	uidPrefix                       = "UID"
+	sessionPrefix                   = "SESSION"
+	reusePrefix                     = "REUSE"
 )
 
 func readKey(s string) (any, error) {
@@ -45,13 +45,13 @@ func readKey(s string) (any, error) {
 	switch prefix {
 	case lpaPrefix:
 		return LpaKeyType(s), nil
-	case donorSharePrefix:
+	case donorAccessPrefix:
 		return DonorShareKeyType(s), nil
-	case certificateProviderSharePrefix:
+	case certificateProviderAccessPrefix:
 		return CertificateProviderShareKeyType(s), nil
-	case attorneySharePrefix:
+	case attorneyAccessPrefix:
 		return AttorneyShareKeyType(s), nil
-	case voucherSharePrefix:
+	case voucherAccessPrefix:
 		return VoucherShareKeyType(s), nil
 	case donorPrefix:
 		return DonorKeyType(s), nil
@@ -75,7 +75,7 @@ func readKey(s string) (any, error) {
 		return MemberIDKeyType(s), nil
 	case metadataPrefix:
 		return MetadataKeyType(s), nil
-	case voucherShareSortPrefix:
+	case voucherAccessSortPrefix:
 		return VoucherShareSortKeyType(s), nil
 	case donorInvitePrefix:
 		return DonorInviteKeyType(s), nil
@@ -256,7 +256,7 @@ func (t VoucherShareSortKeyType) shareSort() {} // mark as usable with ShareSort
 // VoucherShareSortKey is used as the SK (with ShareKey as PK) for sharing an Lpa
 // with an actor.
 func VoucherShareSortKey(lpa LpaKeyType) VoucherShareSortKeyType {
-	return VoucherShareSortKeyType(voucherShareSortPrefix + "#" + lpa.ID())
+	return VoucherShareSortKeyType(voucherAccessSortPrefix + "#" + lpa.ID())
 }
 
 type DonorShareKeyType string
@@ -264,9 +264,9 @@ type DonorShareKeyType string
 func (t DonorShareKeyType) PK() string { return string(t) }
 func (t DonorShareKeyType) share()     {} // mark as usable with ShareKey
 
-// DonorShareKey is used as the PK for sharing an Lpa with a donor.
-func DonorShareKey(code string) DonorShareKeyType {
-	return DonorShareKeyType(donorSharePrefix + "#" + code)
+// DonorAccessKey is used as the PK for sharing an Lpa with a donor.
+func DonorAccessKey(code string) DonorShareKeyType {
+	return DonorShareKeyType(donorAccessPrefix + "#" + code)
 }
 
 type DonorInviteKeyType string
@@ -285,9 +285,9 @@ type CertificateProviderShareKeyType string
 func (t CertificateProviderShareKeyType) PK() string { return string(t) }
 func (t CertificateProviderShareKeyType) share()     {} // mark as usable with ShareKey
 
-// CertificateProviderShareKey is used as the PK for sharing an Lpa with a certificate provider.
-func CertificateProviderShareKey(code string) CertificateProviderShareKeyType {
-	return CertificateProviderShareKeyType(certificateProviderSharePrefix + "#" + code)
+// CertificateProviderAccessKey is used as the PK for sharing an Lpa with a certificate provider.
+func CertificateProviderAccessKey(code string) CertificateProviderShareKeyType {
+	return CertificateProviderShareKeyType(certificateProviderAccessPrefix + "#" + code)
 }
 
 type AttorneyShareKeyType string
@@ -295,9 +295,9 @@ type AttorneyShareKeyType string
 func (t AttorneyShareKeyType) PK() string { return string(t) }
 func (t AttorneyShareKeyType) share()     {} // mark as usable with ShareKey
 
-// AttorneyShareKey is used as the PK for sharing an Lpa with an attorney.
-func AttorneyShareKey(code string) AttorneyShareKeyType {
-	return AttorneyShareKeyType(attorneySharePrefix + "#" + code)
+// AttorneyAccessKey is used as the PK for sharing an Lpa with an attorney.
+func AttorneyAccessKey(code string) AttorneyShareKeyType {
+	return AttorneyShareKeyType(attorneyAccessPrefix + "#" + code)
 }
 
 type VoucherShareKeyType string
@@ -305,9 +305,9 @@ type VoucherShareKeyType string
 func (t VoucherShareKeyType) PK() string { return string(t) }
 func (t VoucherShareKeyType) share()     {} // mark as usable with ShareKey
 
-// VoucherShareKey is used as the PK for sharing an Lpa with a voucher.
-func VoucherShareKey(code string) VoucherShareKeyType {
-	return VoucherShareKeyType(voucherSharePrefix + "#" + code)
+// VoucherAccessKey is used as the PK for sharing an Lpa with a voucher.
+func VoucherAccessKey(code string) VoucherShareKeyType {
+	return VoucherShareKeyType(voucherAccessPrefix + "#" + code)
 }
 
 type ScheduledDayKeyType string

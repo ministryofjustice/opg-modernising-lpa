@@ -140,9 +140,9 @@ func (k LpaOwnerKeyType) Organisation() (OrganisationKeyType, bool) {
 
 type ShareKeyType struct{ pk PK }
 
-// ShareKey is used as the PK (with ShareSortKey as SK) for sharing an LPA with
+// AccessKey is used as the PK (with ShareSortKey as SK) for sharing an LPA with
 // another actor.
-func ShareKey(pk interface {
+func AccessKey(pk interface {
 	PK
 	share()
 }) ShareKeyType {

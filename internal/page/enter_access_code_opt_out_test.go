@@ -7,13 +7,13 @@ import (
 	"strings"
 	"testing"
 
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/accesscode/accesscodedata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor/actoruid"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/dynamo"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/form"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/lpastore/lpadata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/sesh"
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/sharecode/sharecodedata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/validation"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
@@ -33,7 +33,7 @@ func TestGetEnterAccessCodeOptOut(t *testing.T) {
 		Execute(w, data).
 		Return(nil)
 
-	err := EnterAccessCodeOptOut(template.Execute, newMockShareCodeStore(t), nil, nil, actor.TypeAttorney, PathDashboard)(testAppData, w, r)
+	err := EnterAccessCodeOptOut(template.Execute, newMockAccessCodeStore(t), nil, nil, actor.TypeAttorney, PathDashboard)(testAppData, w, r)
 
 	resp := w.Result()
 
@@ -50,7 +50,7 @@ func TestGetEnterAccessCodeOptOutOnTemplateError(t *testing.T) {
 		Execute(mock.Anything, mock.Anything).
 		Return(expectedError)
 
-	err := EnterAccessCodeOptOut(template.Execute, newMockShareCodeStore(t), nil, nil, actor.TypeAttorney, PathDashboard)(testAppData, w, r)
+	err := EnterAccessCodeOptOut(template.Execute, newMockAccessCodeStore(t), nil, nil, actor.TypeAttorney, PathDashboard)(testAppData, w, r)
 
 	resp := w.Result()
 
@@ -69,10 +69,10 @@ func TestPostEnterAccessCodeOptOut(t *testing.T) {
 	r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(form.Encode()))
 	r.Header.Add("Content-Type", FormUrlEncoded)
 
-	shareCodeStore := newMockShareCodeStore(t)
-	shareCodeStore.EXPECT().
-		Get(r.Context(), actor.TypeAttorney, sharecodedata.HashedFromString("abcd1234")).
-		Return(sharecodedata.Link{
+	accessCodeStore := newMockAccessCodeStore(t)
+	accessCodeStore.EXPECT().
+		Get(r.Context(), actor.TypeAttorney, accesscodedata.HashedFromString("abcd1234")).
+		Return(accesscodedata.Link{
 			LpaKey:      dynamo.LpaKey("lpa-id"),
 			LpaOwnerKey: dynamo.LpaOwnerKey(dynamo.DonorKey("session-id")),
 			ActorUID:    uid,
@@ -92,7 +92,7 @@ func TestPostEnterAccessCodeOptOut(t *testing.T) {
 			},
 		}, nil)
 
-	err := EnterAccessCodeOptOut(nil, shareCodeStore, sessionStore, lpaStoreResolvingService, actor.TypeAttorney, PathDashboard)(testAppData, w, r)
+	err := EnterAccessCodeOptOut(nil, accessCodeStore, sessionStore, lpaStoreResolvingService, actor.TypeAttorney, PathDashboard)(testAppData, w, r)
 
 	resp := w.Result()
 
@@ -112,10 +112,10 @@ func TestPostEnterAccessCodeOptOutWhenDonorLastNameIncorrect(t *testing.T) {
 	r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(f.Encode()))
 	r.Header.Add("Content-Type", FormUrlEncoded)
 
-	shareCodeStore := newMockShareCodeStore(t)
-	shareCodeStore.EXPECT().
-		Get(r.Context(), actor.TypeAttorney, sharecodedata.HashedFromString("abcd1234")).
-		Return(sharecodedata.Link{
+	accessCodeStore := newMockAccessCodeStore(t)
+	accessCodeStore.EXPECT().
+		Get(r.Context(), actor.TypeAttorney, accesscodedata.HashedFromString("abcd1234")).
+		Return(accesscodedata.Link{
 			LpaKey:      dynamo.LpaKey("lpa-id"),
 			LpaOwnerKey: dynamo.LpaOwnerKey(dynamo.DonorKey("session-id")),
 			ActorUID:    uid,
@@ -137,7 +137,7 @@ func TestPostEnterAccessCodeOptOutWhenDonorLastNameIncorrect(t *testing.T) {
 		})).
 		Return(nil)
 
-	err := EnterAccessCodeOptOut(template.Execute, shareCodeStore, nil, lpaStoreResolvingService, actor.TypeAttorney, PathDashboard)(testAppData, w, r)
+	err := EnterAccessCodeOptOut(template.Execute, accessCodeStore, nil, lpaStoreResolvingService, actor.TypeAttorney, PathDashboard)(testAppData, w, r)
 	resp := w.Result()
 
 	assert.Nil(t, err)
@@ -154,30 +154,30 @@ func TestPostEnterAccessCodeOptOutErrors(t *testing.T) {
 	r.Header.Add("Content-Type", FormUrlEncoded)
 
 	testcases := map[string]struct {
-		shareCodeStore           func() *mockShareCodeStore
+		accessCodeStore          func() *mockAccessCodeStore
 		lpaStoreResolvingService func() *mockLpaStoreResolvingService
 		sessionStore             func() *mockSetLpaDataSessionStore
 	}{
-		"when shareCodeStore error": {
-			shareCodeStore: func() *mockShareCodeStore {
-				shareCodeStore := newMockShareCodeStore(t)
-				shareCodeStore.EXPECT().
+		"when accessCodeStore error": {
+			accessCodeStore: func() *mockAccessCodeStore {
+				accessCodeStore := newMockAccessCodeStore(t)
+				accessCodeStore.EXPECT().
 					Get(mock.Anything, mock.Anything, mock.Anything).
-					Return(sharecodedata.Link{}, expectedError)
+					Return(accesscodedata.Link{}, expectedError)
 
-				return shareCodeStore
+				return accessCodeStore
 			},
 			lpaStoreResolvingService: func() *mockLpaStoreResolvingService { return nil },
 			sessionStore:             func() *mockSetLpaDataSessionStore { return nil },
 		},
 		"when lpaStoreResolvingService error": {
-			shareCodeStore: func() *mockShareCodeStore {
-				shareCodeStore := newMockShareCodeStore(t)
-				shareCodeStore.EXPECT().
+			accessCodeStore: func() *mockAccessCodeStore {
+				accessCodeStore := newMockAccessCodeStore(t)
+				accessCodeStore.EXPECT().
 					Get(mock.Anything, mock.Anything, mock.Anything).
-					Return(sharecodedata.Link{LpaKey: dynamo.LpaKey("lpa-id")}, nil)
+					Return(accesscodedata.Link{LpaKey: dynamo.LpaKey("lpa-id")}, nil)
 
-				return shareCodeStore
+				return accessCodeStore
 			},
 			lpaStoreResolvingService: func() *mockLpaStoreResolvingService {
 				lpaStoreResolvingService := newMockLpaStoreResolvingService(t)
@@ -190,13 +190,13 @@ func TestPostEnterAccessCodeOptOutErrors(t *testing.T) {
 			sessionStore: func() *mockSetLpaDataSessionStore { return nil },
 		},
 		"when sessionStore error": {
-			shareCodeStore: func() *mockShareCodeStore {
-				shareCodeStore := newMockShareCodeStore(t)
-				shareCodeStore.EXPECT().
+			accessCodeStore: func() *mockAccessCodeStore {
+				accessCodeStore := newMockAccessCodeStore(t)
+				accessCodeStore.EXPECT().
 					Get(mock.Anything, mock.Anything, mock.Anything).
-					Return(sharecodedata.Link{LpaKey: dynamo.LpaKey("lpa-id")}, nil)
+					Return(accesscodedata.Link{LpaKey: dynamo.LpaKey("lpa-id")}, nil)
 
-				return shareCodeStore
+				return accessCodeStore
 			},
 			lpaStoreResolvingService: func() *mockLpaStoreResolvingService {
 				lpaStoreResolvingService := newMockLpaStoreResolvingService(t)
@@ -223,13 +223,13 @@ func TestPostEnterAccessCodeOptOutErrors(t *testing.T) {
 
 	for name, tc := range testcases {
 		t.Run(name, func(t *testing.T) {
-			err := EnterAccessCodeOptOut(nil, tc.shareCodeStore(), tc.sessionStore(), tc.lpaStoreResolvingService(), actor.TypeAttorney, PathDashboard)(testAppData, w, r)
+			err := EnterAccessCodeOptOut(nil, tc.accessCodeStore(), tc.sessionStore(), tc.lpaStoreResolvingService(), actor.TypeAttorney, PathDashboard)(testAppData, w, r)
 			assert.ErrorIs(t, err, expectedError)
 		})
 	}
 }
 
-func TestPostEnterAccessCodeOptOutOnShareCodeStoreNotFoundError(t *testing.T) {
+func TestPostEnterAccessCodeOptOutOnAccessCodeStoreNotFoundError(t *testing.T) {
 	f := url.Values{
 		form.FieldNames.AccessCode:    {"abcd 1234"},
 		form.FieldNames.DonorLastName: {"Smith"},
@@ -239,10 +239,10 @@ func TestPostEnterAccessCodeOptOutOnShareCodeStoreNotFoundError(t *testing.T) {
 	r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(f.Encode()))
 	r.Header.Add("Content-Type", FormUrlEncoded)
 
-	shareCodeStore := newMockShareCodeStore(t)
-	shareCodeStore.EXPECT().
-		Get(r.Context(), actor.TypeAttorney, sharecodedata.HashedFromString("abcd1234")).
-		Return(sharecodedata.Link{LpaKey: dynamo.LpaKey("lpa-id"), LpaOwnerKey: dynamo.LpaOwnerKey(dynamo.DonorKey("session-id"))}, dynamo.NotFoundError{})
+	accessCodeStore := newMockAccessCodeStore(t)
+	accessCodeStore.EXPECT().
+		Get(r.Context(), actor.TypeAttorney, accesscodedata.HashedFromString("abcd1234")).
+		Return(accesscodedata.Link{LpaKey: dynamo.LpaKey("lpa-id"), LpaOwnerKey: dynamo.LpaOwnerKey(dynamo.DonorKey("session-id"))}, dynamo.NotFoundError{})
 
 	template := newMockTemplate(t)
 	template.EXPECT().
@@ -251,7 +251,7 @@ func TestPostEnterAccessCodeOptOutOnShareCodeStoreNotFoundError(t *testing.T) {
 		})).
 		Return(nil)
 
-	err := EnterAccessCodeOptOut(template.Execute, shareCodeStore, nil, nil, actor.TypeAttorney, PathDashboard)(testAppData, w, r)
+	err := EnterAccessCodeOptOut(template.Execute, accessCodeStore, nil, nil, actor.TypeAttorney, PathDashboard)(testAppData, w, r)
 	resp := w.Result()
 
 	assert.Nil(t, err)

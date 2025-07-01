@@ -1,10 +1,10 @@
-const { randomShareCode } = require("../../support/e2e");
+const { randomAccessCode } = require("../../support/e2e");
 
 describe('Hybrid certificate provider', () => {
     context('starts online, submits on paper, tries to access online again', () => {
         let sub = ''
         beforeEach(() => {
-            sub = randomShareCode()
+            sub = randomAccessCode()
             cy.visit(`/fixtures?redirect=&progress=certificateProviderAccessCodeUsed&certificateProviderChannel=paper&certificateProviderSub=${sub}`);
 
             cy.visit('/certificate-provider-start')

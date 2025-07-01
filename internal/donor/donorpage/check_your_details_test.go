@@ -55,8 +55,8 @@ func TestPostCheckYourDetails(t *testing.T) {
 		},
 	}
 
-	shareCodeSender := newMockShareCodeSender(t)
-	shareCodeSender.EXPECT().
+	accessCodeSender := newMockAccessCodeSender(t)
+	accessCodeSender.EXPECT().
 		SendVoucherInvite(r.Context(), provided, testAppData).
 		Return(nil)
 
@@ -70,7 +70,7 @@ func TestPostCheckYourDetails(t *testing.T) {
 		}).
 		Return(nil)
 
-	err := CheckYourDetails(nil, shareCodeSender, donorStore)(testAppData, w, r, provided)
+	err := CheckYourDetails(nil, accessCodeSender, donorStore)(testAppData, w, r, provided)
 	resp := w.Result()
 
 	assert.Nil(t, err)
@@ -90,7 +90,7 @@ func TestPostCheckYourDetailsWhenUnpaid(t *testing.T) {
 	assert.Equal(t, donor.PathWeHaveContactedVoucher.Format("lpa-id"), resp.Header.Get("Location"))
 }
 
-func TestPostCheckYourDetailsWhenShareCodeStoreError(t *testing.T) {
+func TestPostCheckYourDetailsWhenAccessCodeStoreError(t *testing.T) {
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest(http.MethodPost, "/", nil)
 
@@ -101,12 +101,12 @@ func TestPostCheckYourDetailsWhenShareCodeStoreError(t *testing.T) {
 		},
 	}
 
-	shareCodeSender := newMockShareCodeSender(t)
-	shareCodeSender.EXPECT().
+	accessCodeSender := newMockAccessCodeSender(t)
+	accessCodeSender.EXPECT().
 		SendVoucherInvite(r.Context(), provided, testAppData).
 		Return(expectedError)
 
-	err := CheckYourDetails(nil, shareCodeSender, nil)(testAppData, w, r, provided)
+	err := CheckYourDetails(nil, accessCodeSender, nil)(testAppData, w, r, provided)
 	resp := w.Result()
 
 	assert.Error(t, err)
@@ -124,8 +124,8 @@ func TestPostCheckYourDetailsWhenDonorStoreError(t *testing.T) {
 		},
 	}
 
-	shareCodeSender := newMockShareCodeSender(t)
-	shareCodeSender.EXPECT().
+	accessCodeSender := newMockAccessCodeSender(t)
+	accessCodeSender.EXPECT().
 		SendVoucherInvite(mock.Anything, mock.Anything, mock.Anything).
 		Return(nil)
 
@@ -134,7 +134,7 @@ func TestPostCheckYourDetailsWhenDonorStoreError(t *testing.T) {
 		Put(mock.Anything, mock.Anything).
 		Return(expectedError)
 
-	err := CheckYourDetails(nil, shareCodeSender, donorStore)(testAppData, w, r, provided)
+	err := CheckYourDetails(nil, accessCodeSender, donorStore)(testAppData, w, r, provided)
 	resp := w.Result()
 
 	assert.Error(t, err)

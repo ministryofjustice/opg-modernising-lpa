@@ -30,7 +30,7 @@ func ProvideCertificate(
 	tmpl template.Template,
 	certificateProviderStore CertificateProviderStore,
 	notifyClient NotifyClient,
-	shareCodeSender ShareCodeSender,
+	accessCodeSender AccessCodeSender,
 	lpaStoreClient LpaStoreClient,
 	scheduledStore ScheduledStore,
 	donorStore DonorStore,
@@ -93,8 +93,8 @@ func ProvideCertificate(
 					}
 				}
 
-				if err := shareCodeSender.SendAttorneys(r.Context(), appData, lpa); err != nil {
-					return fmt.Errorf("error sending sharecode to attorneys: %w", err)
+				if err := accessCodeSender.SendAttorneys(r.Context(), appData, lpa); err != nil {
+					return fmt.Errorf("error sending accesscode to attorneys: %w", err)
 				}
 
 				donor, err := donorStore.GetAny(r.Context())

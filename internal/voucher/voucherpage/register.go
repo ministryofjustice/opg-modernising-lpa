@@ -8,6 +8,7 @@ import (
 	"time"
 
 	"github.com/ministryofjustice/opg-go-common/template"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/accesscode/accesscodedata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/appcontext"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/dashboard/dashboarddata"
@@ -21,7 +22,6 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/random"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/scheduled"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/sesh"
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/sharecode/sharecodedata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/voucher"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/voucher/voucherdata"
 )
@@ -78,14 +78,14 @@ type OneLoginClient interface {
 	ParseIdentityClaim(userInfo onelogin.UserInfo) (identity.UserData, error)
 }
 
-type ShareCodeStore interface {
-	Get(ctx context.Context, actorType actor.Type, shareCode sharecodedata.Hashed) (sharecodedata.Link, error)
-	Put(ctx context.Context, actorType actor.Type, shareCode sharecodedata.Hashed, data sharecodedata.Link) error
-	Delete(ctx context.Context, shareCode sharecodedata.Link) error
+type AccessCodeStore interface {
+	Get(ctx context.Context, actorType actor.Type, code accesscodedata.Hashed) (accesscodedata.Link, error)
+	Put(ctx context.Context, actorType actor.Type, code accesscodedata.Hashed, link accesscodedata.Link) error
+	Delete(ctx context.Context, link accesscodedata.Link) error
 }
 
 type VoucherStore interface {
-	Create(ctx context.Context, shareCode sharecodedata.Link, email string) (*voucherdata.Provided, error)
+	Create(ctx context.Context, link accesscodedata.Link, email string) (*voucherdata.Provided, error)
 	Get(ctx context.Context) (*voucherdata.Provided, error)
 	Put(ctx context.Context, provided *voucherdata.Provided) error
 }
@@ -106,7 +106,7 @@ func Register(
 	sessionStore SessionStore,
 	voucherStore VoucherStore,
 	oneLoginClient OneLoginClient,
-	shareCodeStore ShareCodeStore,
+	accessCodeStore AccessCodeStore,
 	dashboardStore DashboardStore,
 	errorHandler page.ErrorHandler,
 	lpaStoreResolvingService LpaStoreResolvingService,
@@ -126,7 +126,7 @@ func Register(
 	handleRoot(page.PathVoucherLoginCallback, None,
 		page.LoginCallback(logger, oneLoginClient, sessionStore, page.PathVoucherEnterAccessCode, dashboardStore, actor.TypeVoucher))
 	handleRoot(page.PathVoucherEnterAccessCode, RequireSession,
-		page.EnterAccessCode(tmpls.Get("enter_access_code.gohtml"), shareCodeStore, sessionStore, lpaStoreResolvingService, actor.TypeVoucher,
+		page.EnterAccessCode(tmpls.Get("enter_access_code.gohtml"), accessCodeStore, sessionStore, lpaStoreResolvingService, actor.TypeVoucher,
 			EnterAccessCode(voucherStore)))
 	handleRoot(page.PathVoucherUnableToConfirmIdentity, None,
 		page.Guidance(tmpls.Get("unable_to_confirm_identity.gohtml")))

@@ -34,12 +34,12 @@ func (h *siriusEventHandler) Handle(ctx context.Context, factory factory, cloudW
 			return err
 		}
 
-		shareCodeSender, err := factory.ShareCodeSender(ctx)
+		accessCodeSender, err := factory.AccessCodeSender(ctx)
 		if err != nil {
 			return err
 		}
 
-		return handleFeeApproved(ctx, factory.DynamoClient(), cloudWatchEvent, shareCodeSender, factory.EventClient(), appData, factory.Now())
+		return handleFeeApproved(ctx, factory.DynamoClient(), cloudWatchEvent, accessCodeSender, factory.EventClient(), appData, factory.Now())
 
 	case "reduced-fee-declined":
 		return handleFeeDenied(ctx, factory.DynamoClient(), cloudWatchEvent, factory.Now())
@@ -53,7 +53,7 @@ func (h *siriusEventHandler) Handle(ctx context.Context, factory factory, cloudW
 			return err
 		}
 
-		shareCodeSender, err := factory.ShareCodeSender(ctx)
+		accessCodeSender, err := factory.AccessCodeSender(ctx)
 		if err != nil {
 			return err
 		}
@@ -63,7 +63,7 @@ func (h *siriusEventHandler) Handle(ctx context.Context, factory factory, cloudW
 			return err
 		}
 
-		return handleDonorSubmissionCompleted(ctx, factory.DynamoClient(), cloudWatchEvent, shareCodeSender, appData, lpaStoreClient, factory.UuidString(), factory.Now())
+		return handleDonorSubmissionCompleted(ctx, factory.DynamoClient(), cloudWatchEvent, accessCodeSender, appData, lpaStoreClient, factory.UuidString(), factory.Now())
 
 	case "certificate-provider-submission-completed":
 		return handleCertificateProviderSubmissionCompleted(ctx, cloudWatchEvent, factory)
@@ -135,7 +135,7 @@ func handleFeeApproved(
 	ctx context.Context,
 	client dynamodbClient,
 	e *events.CloudWatchEvent,
-	shareCodeSender ShareCodeSender,
+	accessCodeSender AccessCodeSender,
 	eventClient EventClient,
 	appData appcontext.Data,
 	now func() time.Time,
@@ -166,13 +166,13 @@ func handleFeeApproved(
 				return fmt.Errorf("failed to send certificate-provider-started event: %w", err)
 			}
 
-			if err := shareCodeSender.SendCertificateProviderPrompt(ctx, appData, donor); err != nil {
+			if err := accessCodeSender.SendCertificateProviderPrompt(ctx, appData, donor); err != nil {
 				return fmt.Errorf("failed to send share code to certificate provider: %w", err)
 			}
 		}
 
 		if donor.Voucher.Allowed && donor.VoucherInvitedAt.IsZero() {
-			if err := shareCodeSender.SendVoucherInvite(ctx, donor, appData); err != nil {
+			if err := accessCodeSender.SendVoucherInvite(ctx, donor, appData); err != nil {
 				return err
 			}
 
@@ -242,7 +242,7 @@ func handleFeeDenied(ctx context.Context, client dynamodbClient, event *events.C
 	return nil
 }
 
-func handleDonorSubmissionCompleted(ctx context.Context, client dynamodbClient, event *events.CloudWatchEvent, shareCodeSender ShareCodeSender, appData appcontext.Data, lpaStoreClient LpaStoreClient, uuidString func() string, now func() time.Time) error {
+func handleDonorSubmissionCompleted(ctx context.Context, client dynamodbClient, event *events.CloudWatchEvent, accessCodeSender AccessCodeSender, appData appcontext.Data, lpaStoreClient LpaStoreClient, uuidString func() string, now func() time.Time) error {
 	var v uidEvent
 	if err := json.Unmarshal(event.Detail, &v); err != nil {
 		return fmt.Errorf("failed to unmarshal detail: %w", err)
@@ -269,7 +269,7 @@ func handleDonorSubmissionCompleted(ctx context.Context, client dynamodbClient, 
 		CertificateProviderInvitedAt: now(),
 	}
 
-	if err := shareCodeSender.SendLpaCertificateProviderPrompt(ctx, appData, donor.PK, donor.SK, lpa); err != nil {
+	if err := accessCodeSender.SendLpaCertificateProviderPrompt(ctx, appData, donor.PK, donor.SK, lpa); err != nil {
 		return fmt.Errorf("failed to send share code to certificate provider: %w", err)
 	}
 
@@ -312,7 +312,7 @@ func handleCertificateProviderSubmissionCompleted(ctx context.Context, event *ev
 	}
 
 	if lpa.CertificateProvider.Channel.IsPaper() {
-		shareCodeSender, err := factory.ShareCodeSender(ctx)
+		accessCodeSender, err := factory.AccessCodeSender(ctx)
 		if err != nil {
 			return err
 		}
@@ -361,7 +361,7 @@ func handleCertificateProviderSubmissionCompleted(ctx context.Context, event *ev
 			return fmt.Errorf("failed to delete scheduled events: %w", err)
 		}
 
-		if err := shareCodeSender.SendAttorneys(ctx, appData, lpa); err != nil {
+		if err := accessCodeSender.SendAttorneys(ctx, appData, lpa); err != nil {
 			return fmt.Errorf("failed to send share codes to attorneys: %w", err)
 		}
 

@@ -16,11 +16,11 @@ type checkYourDetailsData struct {
 	Donor  *donordata.Provided
 }
 
-func CheckYourDetails(tmpl template.Template, shareCodeSender ShareCodeSender, donorStore DonorStore) Handler {
+func CheckYourDetails(tmpl template.Template, accessCodeSender AccessCodeSender, donorStore DonorStore) Handler {
 	return func(appData appcontext.Data, w http.ResponseWriter, r *http.Request, provided *donordata.Provided) error {
 		if r.Method == http.MethodPost {
 			if provided.Tasks.PayForLpa.IsCompleted() {
-				if err := shareCodeSender.SendVoucherInvite(r.Context(), provided, appData); err != nil {
+				if err := accessCodeSender.SendVoucherInvite(r.Context(), provided, appData); err != nil {
 					return err
 				}
 

@@ -84,7 +84,7 @@ func TestPostYourMobile(t *testing.T) {
 	assert.Equal(t, donor.PathReceivingUpdatesAboutYourLpa.Format("lpa-id"), resp.Header.Get("Location"))
 }
 
-func TestPostYourMobileWhenShareCodeSender(t *testing.T) {
+func TestPostYourMobileWhenAccessCodeSender(t *testing.T) {
 	form := url.Values{
 		"mobile": {"07000000000"},
 	}
@@ -102,8 +102,8 @@ func TestPostYourMobileWhenShareCodeSender(t *testing.T) {
 		},
 	}
 
-	shareCodeSender := newMockShareCodeSender(t)
-	shareCodeSender.EXPECT().
+	accessCodeSender := newMockAccessCodeSender(t)
+	accessCodeSender.EXPECT().
 		SendVoucherAccessCode(r.Context(), provided, testAppData).
 		Return(nil)
 
@@ -112,7 +112,7 @@ func TestPostYourMobileWhenShareCodeSender(t *testing.T) {
 		Put(r.Context(), provided).
 		Return(nil)
 
-	err := YourMobile(nil, donorStore, shareCodeSender)(testAppData, w, r, &donordata.Provided{
+	err := YourMobile(nil, donorStore, accessCodeSender)(testAppData, w, r, &donordata.Provided{
 		LpaID: "lpa-id",
 		Donor: donordata.Donor{
 			FirstNames: "John",
@@ -125,7 +125,7 @@ func TestPostYourMobileWhenShareCodeSender(t *testing.T) {
 	assert.Equal(t, donor.PathWeHaveContactedVoucher.Format("lpa-id"), resp.Header.Get("Location"))
 }
 
-func TestPostYourMobileWhenShareCodeSenderErrors(t *testing.T) {
+func TestPostYourMobileWhenAccessCodeSenderErrors(t *testing.T) {
 	form := url.Values{
 		"mobile": {"07000000000"},
 	}
@@ -135,12 +135,12 @@ func TestPostYourMobileWhenShareCodeSenderErrors(t *testing.T) {
 	r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(form.Encode()))
 	r.Header.Add("Content-Type", page.FormUrlEncoded)
 
-	shareCodeSender := newMockShareCodeSender(t)
-	shareCodeSender.EXPECT().
+	accessCodeSender := newMockAccessCodeSender(t)
+	accessCodeSender.EXPECT().
 		SendVoucherAccessCode(mock.Anything, mock.Anything, mock.Anything).
 		Return(expectedError)
 
-	err := YourMobile(nil, nil, shareCodeSender)(testAppData, w, r, &donordata.Provided{
+	err := YourMobile(nil, nil, accessCodeSender)(testAppData, w, r, &donordata.Provided{
 		LpaID: "lpa-id",
 		Donor: donordata.Donor{
 			FirstNames: "John",

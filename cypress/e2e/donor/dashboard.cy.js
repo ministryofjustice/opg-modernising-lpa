@@ -1,4 +1,4 @@
-import { randomShareCode } from "../../support/e2e.js";
+import { randomAccessCode } from "../../support/e2e.js";
 
 describe('Dashboard', () => {
     context('with incomplete LPA', () => {
@@ -183,7 +183,7 @@ describe('Dashboard', () => {
 
     context('with a donor access code', () => {
         it('can add a donor LPA', () => {
-            const randomCode = randomShareCode();
+            const randomCode = randomAccessCode();
             cy.visit(`/fixtures/supporter?redirect=/dashboard&organisation=1&accessCode=${randomCode}`);
 
             cy.visit('/start')

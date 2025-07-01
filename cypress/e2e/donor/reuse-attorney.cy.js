@@ -1,8 +1,8 @@
-import { randomShareCode } from "../../support/e2e";
+import { randomAccessCode } from "../../support/e2e";
 
 describe('Reuse attorney', () => {
     beforeEach(() => {
-        const sub = randomShareCode();
+        const sub = randomAccessCode();
 
         cy.visit(`/fixtures?donorSub=${sub}&progress=chooseYourAttorneys&redirect=/task-list`);
         cy.visit(`/fixtures?donorSub=${sub}&progress=chooseYourAttorneys&attorneys=trust-corporation&redirect=/task-list`);

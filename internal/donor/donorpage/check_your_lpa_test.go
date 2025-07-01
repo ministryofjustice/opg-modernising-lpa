@@ -231,8 +231,8 @@ func TestPostCheckYourLpaDigitalCertificateProviderOnFirstCheck(t *testing.T) {
 			}
 			updatedDonor.UpdateCheckedHash()
 
-			shareCodeSender := newMockShareCodeSender(t)
-			shareCodeSender.EXPECT().
+			accessCodeSender := newMockAccessCodeSender(t)
+			accessCodeSender.EXPECT().
 				SendCertificateProviderInvite(r.Context(), testAppData, provided).
 				Return(nil)
 
@@ -252,7 +252,7 @@ func TestPostCheckYourLpaDigitalCertificateProviderOnFirstCheck(t *testing.T) {
 				Put(r.Context(), updatedDonor).
 				Return(nil)
 
-			err := CheckYourLpa(nil, donorStore, shareCodeSender, nil, nil, scheduledStore, testNowFn, "http://example.org")(testAppData, w, r, provided)
+			err := CheckYourLpa(nil, donorStore, accessCodeSender, nil, nil, scheduledStore, testNowFn, "http://example.org")(testAppData, w, r, provided)
 			resp := w.Result()
 
 			assert.Nil(t, err)
@@ -581,7 +581,7 @@ func TestPostCheckYourLpaWhenScheduledStoreErrors(t *testing.T) {
 	assert.ErrorIs(t, err, expectedError)
 }
 
-func TestPostCheckYourLpaWhenShareCodeSenderErrors(t *testing.T) {
+func TestPostCheckYourLpaWhenAccessCodeSenderErrors(t *testing.T) {
 	form := url.Values{
 		"checked-and-happy": {"1"},
 	}
@@ -602,12 +602,12 @@ func TestPostCheckYourLpaWhenShareCodeSenderErrors(t *testing.T) {
 		Create(mock.Anything, mock.Anything).
 		Return(nil)
 
-	shareCodeSender := newMockShareCodeSender(t)
-	shareCodeSender.EXPECT().
+	accessCodeSender := newMockAccessCodeSender(t)
+	accessCodeSender.EXPECT().
 		SendCertificateProviderInvite(r.Context(), testAppData, mock.Anything).
 		Return(expectedError)
 
-	err := CheckYourLpa(nil, nil, shareCodeSender, nil, nil, scheduledStore, testNowFn, "http://example.org")(testAppData, w, r, donor)
+	err := CheckYourLpa(nil, nil, accessCodeSender, nil, nil, scheduledStore, testNowFn, "http://example.org")(testAppData, w, r, donor)
 	resp := w.Result()
 
 	assert.Equal(t, expectedError, err)

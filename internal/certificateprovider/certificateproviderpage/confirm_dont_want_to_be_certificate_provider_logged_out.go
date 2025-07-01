@@ -5,6 +5,7 @@ import (
 	"net/url"
 
 	"github.com/ministryofjustice/opg-go-common/template"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/accesscode/accesscodedata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor/actoruid"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/appcontext"
@@ -12,7 +13,6 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/lpastore/lpadata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/notify"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/sharecode/sharecodedata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/task"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/validation"
 )
@@ -23,7 +23,7 @@ type confirmDontWantToBeCertificateProviderDataLoggedOut struct {
 	Lpa    *lpadata.Lpa
 }
 
-func ConfirmDontWantToBeCertificateProviderLoggedOut(tmpl template.Template, shareCodeStore ShareCodeStore, lpaStoreResolvingService LpaStoreResolvingService, lpaStoreClient LpaStoreClient, donorStore DonorStore, sessionStore SessionStore, notifyClient NotifyClient, donorStartURL string) page.Handler {
+func ConfirmDontWantToBeCertificateProviderLoggedOut(tmpl template.Template, accessCodeStore AccessCodeStore, lpaStoreResolvingService LpaStoreResolvingService, lpaStoreClient LpaStoreClient, donorStore DonorStore, sessionStore SessionStore, notifyClient NotifyClient, donorStartURL string) page.Handler {
 	return func(appData appcontext.Data, w http.ResponseWriter, r *http.Request) error {
 		session, err := sessionStore.LpaData(r)
 		if err != nil {
@@ -43,9 +43,9 @@ func ConfirmDontWantToBeCertificateProviderLoggedOut(tmpl template.Template, sha
 		}
 
 		if r.Method == http.MethodPost {
-			code := sharecodedata.HashedFromQuery(r.URL.Query())
+			code := accesscodedata.HashedFromQuery(r.URL.Query())
 
-			shareCode, err := shareCodeStore.Get(r.Context(), actor.TypeCertificateProvider, code)
+			accessCode, err := accessCodeStore.Get(r.Context(), actor.TypeCertificateProvider, code)
 			if err != nil {
 				return err
 			}
@@ -96,7 +96,7 @@ func ConfirmDontWantToBeCertificateProviderLoggedOut(tmpl template.Template, sha
 				return err
 			}
 
-			if err := shareCodeStore.Delete(r.Context(), shareCode); err != nil {
+			if err := accessCodeStore.Delete(r.Context(), accessCode); err != nil {
 				return err
 			}
 

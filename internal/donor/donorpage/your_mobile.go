@@ -19,7 +19,7 @@ type yourMobileData struct {
 	CanTaskList bool
 }
 
-func YourMobile(tmpl template.Template, donorStore DonorStore, shareCodeSender ShareCodeSender) Handler {
+func YourMobile(tmpl template.Template, donorStore DonorStore, accessCodeSender AccessCodeSender) Handler {
 	return func(appData appcontext.Data, w http.ResponseWriter, r *http.Request, provided *donordata.Provided) error {
 		data := &yourMobileData{
 			App: appData,
@@ -37,10 +37,10 @@ func YourMobile(tmpl template.Template, donorStore DonorStore, shareCodeSender S
 				redirect := donor.PathReceivingUpdatesAboutYourLpa
 				provided.Donor.Mobile = data.Form.Mobile
 
-				if shareCodeSender != nil {
+				if accessCodeSender != nil {
 					redirect = donor.PathWeHaveContactedVoucher
 
-					if err := shareCodeSender.SendVoucherAccessCode(r.Context(), provided, appData); err != nil {
+					if err := accessCodeSender.SendVoucherAccessCode(r.Context(), provided, appData); err != nil {
 						return fmt.Errorf("error sending voucher access code: %w", err)
 					}
 				}

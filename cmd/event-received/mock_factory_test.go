@@ -25,6 +25,64 @@ func (_m *mockFactory) EXPECT() *mockFactory_Expecter {
 	return &mockFactory_Expecter{mock: &_m.Mock}
 }
 
+// AccessCodeSender provides a mock function with given fields: ctx
+func (_m *mockFactory) AccessCodeSender(ctx context.Context) (AccessCodeSender, error) {
+	ret := _m.Called(ctx)
+
+	if len(ret) == 0 {
+		panic("no return value specified for AccessCodeSender")
+	}
+
+	var r0 AccessCodeSender
+	var r1 error
+	if rf, ok := ret.Get(0).(func(context.Context) (AccessCodeSender, error)); ok {
+		return rf(ctx)
+	}
+	if rf, ok := ret.Get(0).(func(context.Context) AccessCodeSender); ok {
+		r0 = rf(ctx)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).(AccessCodeSender)
+		}
+	}
+
+	if rf, ok := ret.Get(1).(func(context.Context) error); ok {
+		r1 = rf(ctx)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
+}
+
+// mockFactory_AccessCodeSender_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'AccessCodeSender'
+type mockFactory_AccessCodeSender_Call struct {
+	*mock.Call
+}
+
+// AccessCodeSender is a helper method to define mock.On call
+//   - ctx context.Context
+func (_e *mockFactory_Expecter) AccessCodeSender(ctx interface{}) *mockFactory_AccessCodeSender_Call {
+	return &mockFactory_AccessCodeSender_Call{Call: _e.mock.On("AccessCodeSender", ctx)}
+}
+
+func (_c *mockFactory_AccessCodeSender_Call) Run(run func(ctx context.Context)) *mockFactory_AccessCodeSender_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		run(args[0].(context.Context))
+	})
+	return _c
+}
+
+func (_c *mockFactory_AccessCodeSender_Call) Return(_a0 AccessCodeSender, _a1 error) *mockFactory_AccessCodeSender_Call {
+	_c.Call.Return(_a0, _a1)
+	return _c
+}
+
+func (_c *mockFactory_AccessCodeSender_Call) RunAndReturn(run func(context.Context) (AccessCodeSender, error)) *mockFactory_AccessCodeSender_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
 // AppData provides a mock function with no fields
 func (_m *mockFactory) AppData() (appcontext.Data, error) {
 	ret := _m.Called()
@@ -573,64 +631,6 @@ func (_c *mockFactory_ScheduledStore_Call) Return(_a0 ScheduledStore) *mockFacto
 }
 
 func (_c *mockFactory_ScheduledStore_Call) RunAndReturn(run func() ScheduledStore) *mockFactory_ScheduledStore_Call {
-	_c.Call.Return(run)
-	return _c
-}
-
-// ShareCodeSender provides a mock function with given fields: ctx
-func (_m *mockFactory) ShareCodeSender(ctx context.Context) (ShareCodeSender, error) {
-	ret := _m.Called(ctx)
-
-	if len(ret) == 0 {
-		panic("no return value specified for ShareCodeSender")
-	}
-
-	var r0 ShareCodeSender
-	var r1 error
-	if rf, ok := ret.Get(0).(func(context.Context) (ShareCodeSender, error)); ok {
-		return rf(ctx)
-	}
-	if rf, ok := ret.Get(0).(func(context.Context) ShareCodeSender); ok {
-		r0 = rf(ctx)
-	} else {
-		if ret.Get(0) != nil {
-			r0 = ret.Get(0).(ShareCodeSender)
-		}
-	}
-
-	if rf, ok := ret.Get(1).(func(context.Context) error); ok {
-		r1 = rf(ctx)
-	} else {
-		r1 = ret.Error(1)
-	}
-
-	return r0, r1
-}
-
-// mockFactory_ShareCodeSender_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'ShareCodeSender'
-type mockFactory_ShareCodeSender_Call struct {
-	*mock.Call
-}
-
-// ShareCodeSender is a helper method to define mock.On call
-//   - ctx context.Context
-func (_e *mockFactory_Expecter) ShareCodeSender(ctx interface{}) *mockFactory_ShareCodeSender_Call {
-	return &mockFactory_ShareCodeSender_Call{Call: _e.mock.On("ShareCodeSender", ctx)}
-}
-
-func (_c *mockFactory_ShareCodeSender_Call) Run(run func(ctx context.Context)) *mockFactory_ShareCodeSender_Call {
-	_c.Call.Run(func(args mock.Arguments) {
-		run(args[0].(context.Context))
-	})
-	return _c
-}
-
-func (_c *mockFactory_ShareCodeSender_Call) Return(_a0 ShareCodeSender, _a1 error) *mockFactory_ShareCodeSender_Call {
-	_c.Call.Return(_a0, _a1)
-	return _c
-}
-
-func (_c *mockFactory_ShareCodeSender_Call) RunAndReturn(run func(context.Context) (ShareCodeSender, error)) *mockFactory_ShareCodeSender_Call {
 	_c.Call.Return(run)
 	return _c
 }

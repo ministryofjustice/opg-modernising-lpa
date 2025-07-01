@@ -8,12 +8,12 @@ import (
 	"time"
 
 	"github.com/aws/aws-sdk-go-v2/feature/dynamodb/attributevalue"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/accesscode/accesscodedata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor/actoruid"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/appcontext"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/dashboard/dashboarddata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/dynamo"
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/sharecode/sharecodedata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/voucher/voucherdata"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
@@ -61,8 +61,8 @@ func TestVoucherStoreCreate(t *testing.T) {
 		Email:     "a@example.com",
 	}
 
-	shareCode := sharecodedata.Link{
-		PK:          dynamo.ShareKey(dynamo.VoucherShareKey("123")),
+	accessCode := accesscodedata.Link{
+		PK:          dynamo.AccessKey(dynamo.VoucherAccessKey("123")),
 		SK:          dynamo.ShareSortKey(dynamo.MetadataKey("123")),
 		ActorUID:    uid,
 		UpdatedAt:   now,
@@ -83,7 +83,7 @@ func TestVoucherStoreCreate(t *testing.T) {
 		},
 		Deletes: []dynamo.Keys{
 			{
-				PK: dynamo.ShareKey(dynamo.VoucherShareKey("123")),
+				PK: dynamo.AccessKey(dynamo.VoucherAccessKey("123")),
 				SK: dynamo.ShareSortKey(dynamo.MetadataKey("123")),
 			},
 		},
@@ -96,7 +96,7 @@ func TestVoucherStoreCreate(t *testing.T) {
 
 	store := Store{dynamoClient: dynamoClient, now: func() time.Time { return now }}
 
-	provided, err := store.Create(ctx, shareCode, "a@example.com")
+	provided, err := store.Create(ctx, accessCode, "a@example.com")
 	assert.Nil(t, err)
 	assert.Equal(t, details, provided)
 }
@@ -106,7 +106,7 @@ func TestVoucherStoreCreateWhenSessionMissing(t *testing.T) {
 
 	store := &Store{dynamoClient: nil, now: nil}
 
-	_, err := store.Create(ctx, sharecodedata.Link{}, "")
+	_, err := store.Create(ctx, accesscodedata.Link{}, "")
 	assert.Equal(t, appcontext.SessionMissingError{}, err)
 }
 
@@ -122,7 +122,7 @@ func TestVoucherStoreCreateWhenSessionMissingRequiredData(t *testing.T) {
 
 			store := &Store{}
 
-			_, err := store.Create(ctx, sharecodedata.Link{}, "")
+			_, err := store.Create(ctx, accesscodedata.Link{}, "")
 			assert.NotNil(t, err)
 		})
 	}
@@ -139,8 +139,8 @@ func TestVoucherStoreCreateWhenWriteTransactionError(t *testing.T) {
 
 	store := &Store{dynamoClient: dynamoClient, now: func() time.Time { return now }}
 
-	_, err := store.Create(ctx, sharecodedata.Link{
-		PK: dynamo.ShareKey(dynamo.VoucherShareKey("123")),
+	_, err := store.Create(ctx, accesscodedata.Link{
+		PK: dynamo.AccessKey(dynamo.VoucherAccessKey("123")),
 		SK: dynamo.ShareSortKey(dynamo.MetadataKey("123")),
 	}, "")
 	assert.Equal(t, expectedError, err)

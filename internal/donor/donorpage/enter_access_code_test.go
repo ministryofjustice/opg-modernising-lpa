@@ -6,12 +6,12 @@ import (
 	"net/http/httptest"
 	"testing"
 
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/accesscode/accesscodedata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/dynamo"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/event"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/lpastore/lpadata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/sesh"
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/sharecode/sharecodedata"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
 )
@@ -20,7 +20,7 @@ func TestEnterAccessCode(t *testing.T) {
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest(http.MethodPost, "/", nil)
 
-	shareCode := sharecodedata.Link{LpaKey: dynamo.LpaKey("lpa-id"), LpaOwnerKey: dynamo.LpaOwnerKey(dynamo.DonorKey("")), ActorUID: testUID}
+	accessCode := accesscodedata.Link{LpaKey: dynamo.LpaKey("lpa-id"), LpaOwnerKey: dynamo.LpaOwnerKey(dynamo.DonorKey("")), ActorUID: testUID}
 	session := &sesh.LoginSession{
 		Sub:     "random",
 		Email:   "logged-in@example.com",
@@ -29,7 +29,7 @@ func TestEnterAccessCode(t *testing.T) {
 
 	donorStore := newMockDonorStore(t)
 	donorStore.EXPECT().
-		Link(r.Context(), shareCode, "logged-in@example.com").
+		Link(r.Context(), accessCode, "logged-in@example.com").
 		Return(nil)
 
 	logger := newMockLogger(t)
@@ -41,7 +41,7 @@ func TestEnterAccessCode(t *testing.T) {
 		SendMetric(r.Context(), event.CategoryFunnelStartRate, event.MeasureOnlineDonor).
 		Return(nil)
 
-	err := EnterAccessCode(logger, donorStore, eventClient)(testAppData, w, r, session, &lpadata.Lpa{}, shareCode)
+	err := EnterAccessCode(logger, donorStore, eventClient)(testAppData, w, r, session, &lpadata.Lpa{}, accessCode)
 	resp := w.Result()
 
 	assert.Nil(t, err)
@@ -50,7 +50,7 @@ func TestEnterAccessCode(t *testing.T) {
 }
 
 func TestEnterAccessCodeOnDonorStoreError(t *testing.T) {
-	shareCode := sharecodedata.Link{LpaKey: "lpa-id", LpaOwnerKey: dynamo.LpaOwnerKey(dynamo.DonorKey(""))}
+	accessCode := accesscodedata.Link{LpaKey: "lpa-id", LpaOwnerKey: dynamo.LpaOwnerKey(dynamo.DonorKey(""))}
 
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest(http.MethodPost, "/", nil)
@@ -60,7 +60,7 @@ func TestEnterAccessCodeOnDonorStoreError(t *testing.T) {
 		Link(mock.Anything, mock.Anything, mock.Anything).
 		Return(expectedError)
 
-	err := EnterAccessCode(nil, donorStore, nil)(testAppData, w, r, &sesh.LoginSession{}, &lpadata.Lpa{}, shareCode)
+	err := EnterAccessCode(nil, donorStore, nil)(testAppData, w, r, &sesh.LoginSession{}, &lpadata.Lpa{}, accessCode)
 	resp := w.Result()
 
 	assert.Equal(t, expectedError, err)
@@ -68,7 +68,7 @@ func TestEnterAccessCodeOnDonorStoreError(t *testing.T) {
 }
 
 func TestPostEnterAccessCodeOnEventClientError(t *testing.T) {
-	shareCode := sharecodedata.Link{LpaKey: "lpa-id", LpaOwnerKey: dynamo.LpaOwnerKey(dynamo.DonorKey(""))}
+	accessCode := accesscodedata.Link{LpaKey: "lpa-id", LpaOwnerKey: dynamo.LpaOwnerKey(dynamo.DonorKey(""))}
 
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest(http.MethodPost, "/", nil)
@@ -87,7 +87,7 @@ func TestPostEnterAccessCodeOnEventClientError(t *testing.T) {
 		SendMetric(mock.Anything, mock.Anything, mock.Anything).
 		Return(expectedError)
 
-	err := EnterAccessCode(logger, donorStore, eventClient)(testAppData, w, r, &sesh.LoginSession{}, &lpadata.Lpa{}, shareCode)
+	err := EnterAccessCode(logger, donorStore, eventClient)(testAppData, w, r, &sesh.LoginSession{}, &lpadata.Lpa{}, accessCode)
 	resp := w.Result()
 
 	assert.ErrorIs(t, err, expectedError)
