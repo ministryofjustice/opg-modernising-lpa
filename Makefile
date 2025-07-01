@@ -90,40 +90,50 @@ run-structurizr-export:
 	docker run --rm -v $(PWD)/docs/architecture/dsl/local:/usr/local/structurizr structurizr/cli \
 	export -workspace /usr/local/structurizr/workspace.dsl -format mermaid
 
-scan-dynamo: ##@dynamodb dumps all entries in the supplied dynamodb table (defaults to lpas) e.g. scan-dynamo table=lpas-test
+scan-dynamo: ##@dynamodb dumps all entries in the supplied dynamodb table (defaults to Lpas) e.g. scan-dynamo table=lpas-test
 ifdef table
 	docker compose -f docker/docker-compose.yml exec localstack awslocal dynamodb --region eu-west-1 scan --table-name $(table)
 else
-	docker compose -f docker/docker-compose.yml exec localstack awslocal dynamodb --region eu-west-1 scan --table-name lpas
+	docker compose -f docker/docker-compose.yml exec localstack awslocal dynamodb --region eu-west-1 scan --table-name Lpas
 endif
 
-get-lpa: ##@dynamodb dumps all entries in the lpas dynamodb table that are related to the LPA id supplied e.g. get-lpa id=abc-123
+get-lpa: ##@dynamodb dumps all entries in the Lpas dynamodb table that are related to the LPA id supplied e.g. get-lpa id=abc-123
 	docker compose -f docker/docker-compose.yml exec localstack awslocal dynamodb --region eu-west-1 \
-		query --table-name lpas --key-condition-expression 'PK = :pk' --expression-attribute-values '{":pk": {"S": "LPA#$(id)"}}'
+		query --table-name Lpas --key-condition-expression 'PK = :pk' --expression-attribute-values '{":pk": {"S": "LPA#$(id)"}}'
 
 get-donor-session-id: ##@dynamodb get donor session id by the LPA id supplied e.g. get-donor-session-id lpaId=abc-123
 	docker compose -f docker/docker-compose.yml exec localstack awslocal dynamodb --region eu-west-1 \
-		query --table-name lpas --key-condition-expression 'PK = :pk and begins_with(SK, :sk)' --expression-attribute-values '{":pk": {"S": "LPA#$(lpaId)"}, ":sk": {"S": "DONOR#"}}' | jq -r .Items[0].SK.S | sed 's/DONOR#//g'
+		query --table-name Lpas --key-condition-expression 'PK = :pk and begins_with(SK, :sk)' --expression-attribute-values '{":pk": {"S": "LPA#$(lpaId)"}, ":sk": {"S": "DONOR#"}}' | jq -r .Items[0].SK.S | sed 's/DONOR#//g'
 
 get-documents:  ##@dynamodb dumps all documents in the lpas dynamodb table that are related to the LPA id supplied e.g. get-documents lpaId=abc-123
 	docker compose -f docker/docker-compose.yml exec localstack awslocal dynamodb --region eu-west-1 \
-		query --table-name lpas --key-condition-expression 'PK = :pk and begins_with(SK, :sk)' --expression-attribute-values '{":pk": {"S": "LPA#$(lpaId)"}, ":sk": {"S": "DOCUMENT#"}}'
+		query --table-name Lpas --key-condition-expression 'PK = :pk and begins_with(SK, :sk)' --expression-attribute-values '{":pk": {"S": "LPA#$(lpaId)"}, ":sk": {"S": "DOCUMENT#"}}'
 
 get-org-members:  ##@dynamodb dumps all members of an org by orgId supplied e.g. get-org-members orgId=abc-123
 	docker compose -f docker/docker-compose.yml exec localstack awslocal dynamodb --region eu-west-1 \
-		query --table-name lpas --key-condition-expression 'PK = :pk and begins_with(SK, :sk)' --expression-attribute-values '{":pk": {"S": "ORGANISATION#$(orgId)"}, ":sk": {"S": "MEMBER#"}}'
+		query --table-name Lpas --key-condition-expression 'PK = :pk and begins_with(SK, :sk)' --expression-attribute-values '{":pk": {"S": "ORGANISATION#$(orgId)"}, ":sk": {"S": "MEMBER#"}}'
 
-delete-all-items: ##@dynamodb deletes and recreates lpas dynamodb table
+delete-all-items: ##@dynamodb deletes and recreates Lpas and Sessions dynamodb table
 	docker compose -f docker/docker-compose.yml exec localstack awslocal dynamodb --region eu-west-1 \
-		delete-table --table-name lpas || true
+		delete-table --table-name Lpas || true
 
 	docker compose -f docker/docker-compose.yml exec localstack awslocal dynamodb create-table \
 						 --region eu-west-1 \
-						 --table-name lpas \
+						 --table-name Lpas \
 						 --attribute-definitions AttributeName=PK,AttributeType=S AttributeName=SK,AttributeType=S AttributeName=LpaUID,AttributeType=S AttributeName=UpdatedAt,AttributeType=S \
 						 --key-schema AttributeName=PK,KeyType=HASH AttributeName=SK,KeyType=RANGE \
 						 --provisioned-throughput ReadCapacityUnits=1000,WriteCapacityUnits=1000 \
 						 --global-secondary-indexes file:///usr/dynamodb-lpa-gsi-schema.json
+
+	docker compose -f docker/docker-compose.yml exec localstack awslocal dynamodb --region eu-west-1 \
+		delete-table --table-name Sessions || true
+
+	docker compose -f docker/docker-compose.yml exec localstack awslocal dynamodb create-table \
+						  --region eu-west-1 \
+						  --table-name Sessions \
+						  --attribute-definitions AttributeName=PK,AttributeType=S AttributeName=SK,AttributeType=S \
+						  --key-schema AttributeName=PK,KeyType=HASH AttributeName=SK,KeyType=RANGE \
+						  --provisioned-throughput ReadCapacityUnits=1000,WriteCapacityUnits=1000
 
 emit-evidence-received: ##@events emits an evidence-received event with the given LpaUID e.g. emit-evidence-received uid=abc-123
 	curl -X POST "localhost:9001/emit/opg.poas.sirius/evidence-received" \
@@ -201,12 +211,12 @@ emit-object-tags-added-without-virus: ##@events emits a ObjectTagging:Put event 
 		--payload '{"Records":[{"eventSource":"aws:s3","eventTime":"2023-10-23T15:58:33.081Z","eventName":"ObjectTagging:Put","s3":{"bucket":{"name":"uploads-opg-modernising-lpa-eu-west-1"},"object":{"key":"$(key)"}}}]}'
 
 set-uploads-clean: ##@events calls emit-object-tags-added-without-virus for all documents on a given lpa e.g. set-uploads-clean lpaId=abc
-	for k in $$(docker compose -f docker/docker-compose.yml exec localstack awslocal dynamodb --region eu-west-1 query --table-name lpas --key-condition-expression 'PK = :pk and begins_with(SK, :sk)' --expression-attribute-values '{":pk": {"S": "LPA#$(lpaId)"}, ":sk": {"S": "DOCUMENT#"}}' | jq -c -r '.Items[] | .Key[]'); do \
+	for k in $$(docker compose -f docker/docker-compose.yml exec localstack awslocal dynamodb --region eu-west-1 query --table-name Lpas --key-condition-expression 'PK = :pk and begins_with(SK, :sk)' --expression-attribute-values '{":pk": {"S": "LPA#$(lpaId)"}, ":sk": {"S": "DOCUMENT#"}}' | jq -c -r '.Items[] | .Key[]'); do \
 		key=$$k $(MAKE) emit-object-tags-added-without-virus ; \
 		done
 
 set-uploads-infected: ##@events calls emit-object-tags-added-with-virus for all documents on a given lpa e.g. set-uploads-clean lpaId=abc
-	for k in $$(docker compose -f docker/docker-compose.yml exec localstack awslocal dynamodb --region eu-west-1 query --table-name lpas --key-condition-expression 'PK = :pk and begins_with(SK, :sk)' --expression-attribute-values '{":pk": {"S": "LPA#$(lpaId)"}, ":sk": {"S": "DOCUMENT#"}}' | jq -c -r '.Items[] | .Key[]'); do \
+	for k in $$(docker compose -f docker/docker-compose.yml exec localstack awslocal dynamodb --region eu-west-1 query --table-name Lpas --key-condition-expression 'PK = :pk and begins_with(SK, :sk)' --expression-attribute-values '{":pk": {"S": "LPA#$(lpaId)"}, ":sk": {"S": "DOCUMENT#"}}' | jq -c -r '.Items[] | .Key[]'); do \
 		key=$$k $(MAKE) emit-object-tags-added-with-virus ; \
 		done
 

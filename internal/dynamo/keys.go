@@ -34,6 +34,7 @@ const (
 	uidPrefix                       = "UID"
 	sessionPrefix                   = "SESSION"
 	reusePrefix                     = "REUSE"
+	expiresAtPrefix                 = "EXPIRESAT"
 )
 
 func readKey(s string) (any, error) {
@@ -333,7 +334,7 @@ func ScheduledKey(at time.Time, rnd string) ScheduledKeyType {
 }
 
 func PartialScheduledKey() ScheduledKeyType {
-	return ScheduledKeyType(scheduledPrefix + "#")
+	return scheduledPrefix + "#"
 }
 
 type ReservedKeyType string
@@ -361,7 +362,7 @@ type SessionKeyType string
 
 func (t SessionKeyType) PK() string { return string(t) }
 
-// SessionKey is used as the PK (with MetadataKey as SK) to store a session.
+// SessionKey is used as the PK (with ExpiresAtKey as SK) to store a session.
 func SessionKey(uid string) SessionKeyType {
 	return SessionKeyType(sessionPrefix + "#" + uid)
 }
@@ -374,4 +375,16 @@ func (t ReuseKeyType) PK() string { return string(t) }
 // for a type of actor.
 func ReuseKey(sessionID string, actorType string) ReuseKeyType {
 	return ReuseKeyType(reusePrefix + "#" + sessionID + "#" + actorType)
+}
+
+type ExpiresAtKeyType string
+
+func (t ExpiresAtKeyType) SK() string { return string(t) }
+
+func (t ExpiresAtKeyType) Partial() string { return expiresAtPrefix + "#" }
+
+// ExpiresAtKey is used as SK to store session data to allow for querying TTL.
+// Dynamo requires a separate TTL value in unix seconds format to auto-expire items.
+func ExpiresAtKey(expiresAt time.Time) ExpiresAtKeyType {
+	return ExpiresAtKeyType(expiresAtPrefix + "#" + expiresAt.UTC().Format(time.RFC3339))
 }

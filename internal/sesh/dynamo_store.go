@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/base64"
 	"net/http"
+	"time"
 
 	"github.com/gorilla/securecookie"
 	"github.com/gorilla/sessions"
@@ -12,11 +13,12 @@ import (
 
 type DynamoClient interface {
 	Create(ctx context.Context, v any) error
-	One(ctx context.Context, pk dynamo.PK, sk dynamo.SK, v any) error
 	DeleteOne(ctx context.Context, pk dynamo.PK, sk dynamo.SK) error
+	One(ctx context.Context, pk dynamo.PK, sk dynamo.SK, v any) error
+	OneActive(ctx context.Context, pk dynamo.PK, sk dynamo.ExpiresAtKeyType, now time.Time, v interface{}) error
 }
 
-func NewDynamoStore(dynamoClient DynamoClient, keyPairs ...[]byte) *DynamoStore {
+func NewDynamoStore(dynamoClient DynamoClient, now func() time.Time, keyPairs ...[]byte) *DynamoStore {
 	return &DynamoStore{
 		Codecs: securecookie.CodecsFromPairs(keyPairs...),
 		Options: &sessions.Options{
@@ -24,6 +26,7 @@ func NewDynamoStore(dynamoClient DynamoClient, keyPairs ...[]byte) *DynamoStore 
 			MaxAge: 86400 * 30,
 		},
 		dynamoClient: dynamoClient,
+		now:          now,
 	}
 }
 
@@ -32,6 +35,7 @@ type DynamoStore struct {
 	Codecs       []securecookie.Codec
 	Options      *sessions.Options
 	dynamoClient DynamoClient
+	now          func() time.Time
 }
 
 func (s *DynamoStore) Get(r *http.Request, name string) (*sessions.Session, error) {
@@ -83,9 +87,10 @@ func (s *DynamoStore) Save(r *http.Request, w http.ResponseWriter, session *sess
 }
 
 type sessionData struct {
-	PK      dynamo.SessionKeyType
-	SK      dynamo.MetadataKeyType
-	Encoded string
+	PK        dynamo.SessionKeyType
+	SK        dynamo.ExpiresAtKeyType
+	Encoded   string
+	ExpiresAt int64
 }
 
 func (s *DynamoStore) save(ctx context.Context, session *sessions.Session) error {
@@ -94,16 +99,19 @@ func (s *DynamoStore) save(ctx context.Context, session *sessions.Session) error
 		return err
 	}
 
+	expiresAt := s.now().UTC().Add(time.Duration(session.Options.MaxAge) * time.Second)
+
 	return s.dynamoClient.Create(ctx, sessionData{
-		PK:      dynamo.SessionKey(session.ID),
-		SK:      dynamo.MetadataKey(session.ID),
-		Encoded: encoded,
+		PK:        dynamo.SessionKey(session.ID),
+		SK:        dynamo.ExpiresAtKey(expiresAt),
+		Encoded:   encoded,
+		ExpiresAt: expiresAt.Unix(),
 	})
 }
 
 func (s *DynamoStore) load(ctx context.Context, session *sessions.Session) error {
 	var v sessionData
-	if err := s.dynamoClient.One(ctx, dynamo.SessionKey(session.ID), dynamo.MetadataKey(session.ID), &v); err != nil {
+	if err := s.dynamoClient.OneActive(ctx, dynamo.SessionKey(session.ID), dynamo.ExpiresAtKey(time.Time{}), s.now(), &v); err != nil {
 		return err
 	}
 
@@ -111,5 +119,8 @@ func (s *DynamoStore) load(ctx context.Context, session *sessions.Session) error
 }
 
 func (s *DynamoStore) erase(ctx context.Context, session *sessions.Session) error {
-	return s.dynamoClient.DeleteOne(ctx, dynamo.SessionKey(session.ID), dynamo.MetadataKey(session.ID))
+	return s.dynamoClient.DeleteOne(ctx,
+		dynamo.SessionKey(session.ID),
+		dynamo.MetadataKey(session.ID),
+	)
 }
