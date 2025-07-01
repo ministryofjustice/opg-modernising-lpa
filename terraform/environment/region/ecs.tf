@@ -36,6 +36,7 @@ module "app" {
   alb_deletion_protection_enabled = var.alb_deletion_protection_enabled
   waf_alb_association_enabled     = var.waf_alb_association_enabled
   lpas_table                      = var.lpas_table
+  sessions_table                  = var.sessions_table
   container_port                  = 8080
   public_access_enabled           = var.public_access_enabled
   network = {
