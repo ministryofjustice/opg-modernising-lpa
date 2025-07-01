@@ -6,13 +6,13 @@ import (
 	"fmt"
 	"testing"
 
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/accesscode/accesscodedata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor/actoruid"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/appcontext"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/certificateprovider/certificateproviderdata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/dashboard/dashboarddata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/dynamo"
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/sharecode/sharecodedata"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
 )
@@ -22,8 +22,8 @@ func TestStoreCreate(t *testing.T) {
 	uid := actoruid.New()
 	details := &certificateproviderdata.Provided{PK: dynamo.LpaKey("lpa-id"), SK: dynamo.CertificateProviderKey("session-id"), LpaID: "lpa-id", UpdatedAt: testNow, UID: uid, Email: "a@b.com"}
 
-	shareCode := sharecodedata.Link{
-		PK:          dynamo.ShareKey(dynamo.CertificateProviderShareKey("share-key")),
+	link := accesscodedata.Link{
+		PK:          dynamo.AccessKey(dynamo.CertificateProviderAccessKey("share-key")),
 		SK:          dynamo.ShareSortKey(dynamo.MetadataKey("share-key")),
 		ActorUID:    uid,
 		UpdatedAt:   testNow,
@@ -37,13 +37,13 @@ func TestStoreCreate(t *testing.T) {
 			dashboarddata.LpaLink{
 				PK:        dynamo.LpaKey("lpa-id"),
 				SK:        dynamo.SubKey("session-id"),
-				DonorKey:  shareCode.LpaOwnerKey,
+				DonorKey:  link.LpaOwnerKey,
 				UID:       uid,
 				ActorType: actor.TypeCertificateProvider,
 				UpdatedAt: testNow,
 			},
 		},
-		Deletes: []dynamo.Keys{{PK: shareCode.PK, SK: shareCode.SK}},
+		Deletes: []dynamo.Keys{{PK: link.PK, SK: link.SK}},
 	}
 
 	dynamoClient := newMockDynamoClient(t)
@@ -53,7 +53,7 @@ func TestStoreCreate(t *testing.T) {
 
 	certificateProviderStore := &Store{dynamoClient: dynamoClient, now: testNowFn}
 
-	certificateProvider, err := certificateProviderStore.Create(ctx, shareCode, "a@b.com")
+	certificateProvider, err := certificateProviderStore.Create(ctx, link, "a@b.com")
 	assert.Nil(t, err)
 	assert.Equal(t, details, certificateProvider)
 }
@@ -61,7 +61,7 @@ func TestStoreCreate(t *testing.T) {
 func TestStoreCreateWhenSessionMissing(t *testing.T) {
 	certificateProviderStore := &Store{dynamoClient: nil, now: nil}
 
-	_, err := certificateProviderStore.Create(ctx, sharecodedata.Link{}, "")
+	_, err := certificateProviderStore.Create(ctx, accesscodedata.Link{}, "")
 	assert.Equal(t, appcontext.SessionMissingError{}, err)
 }
 
@@ -77,7 +77,7 @@ func TestStoreCreateWhenSessionMissingRequiredData(t *testing.T) {
 
 			certificateProviderStore := &Store{}
 
-			_, err := certificateProviderStore.Create(ctx, sharecodedata.Link{}, "")
+			_, err := certificateProviderStore.Create(ctx, accesscodedata.Link{}, "")
 			assert.NotNil(t, err)
 		})
 	}
@@ -93,8 +93,8 @@ func TestStoreCreateWhenWriteTransactionError(t *testing.T) {
 
 	certificateProviderStore := &Store{dynamoClient: dynamoClient, now: testNowFn}
 
-	_, err := certificateProviderStore.Create(ctx, sharecodedata.Link{
-		PK: dynamo.ShareKey(dynamo.CertificateProviderShareKey("123")),
+	_, err := certificateProviderStore.Create(ctx, accesscodedata.Link{
+		PK: dynamo.AccessKey(dynamo.CertificateProviderAccessKey("123")),
 		SK: dynamo.ShareSortKey(dynamo.MetadataKey("123")),
 	}, "")
 	assert.Equal(t, expectedError, err)

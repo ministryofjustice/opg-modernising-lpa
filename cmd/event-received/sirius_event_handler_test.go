@@ -148,8 +148,8 @@ func TestHandleFeeApproved(t *testing.T) {
 		}).
 		Return(nil)
 
-	shareCodeSender := newMockShareCodeSender(t)
-	shareCodeSender.EXPECT().
+	accessCodeSender := newMockAccessCodeSender(t)
+	accessCodeSender.EXPECT().
 		SendCertificateProviderPrompt(ctx, appcontext.Data{}, &completedDonorProvided).
 		Return(nil)
 
@@ -182,8 +182,8 @@ func TestHandleFeeApproved(t *testing.T) {
 		AppData().
 		Return(appcontext.Data{}, nil)
 	factory.EXPECT().
-		ShareCodeSender(ctx).
-		Return(shareCodeSender, nil)
+		AccessCodeSender(ctx).
+		Return(accessCodeSender, nil)
 	factory.EXPECT().
 		DynamoClient().
 		Return(client)
@@ -245,7 +245,7 @@ func TestHandleFeeApprovedWhenNotPaid(t *testing.T) {
 		AppData().
 		Return(appcontext.Data{}, nil)
 	factory.EXPECT().
-		ShareCodeSender(ctx).
+		AccessCodeSender(ctx).
 		Return(nil, nil)
 	factory.EXPECT().
 		DynamoClient().
@@ -518,8 +518,8 @@ func TestHandleFeeApprovedWhenVoucherSelected(t *testing.T) {
 		Put(ctx, &updatedDonor).
 		Return(nil)
 
-	shareCodeSender := newMockShareCodeSender(t)
-	shareCodeSender.EXPECT().
+	accessCodeSender := newMockAccessCodeSender(t)
+	accessCodeSender.EXPECT().
 		SendVoucherInvite(ctx, &donordata.Provided{
 			PK:      dynamo.LpaKey("123"),
 			SK:      dynamo.LpaOwnerKey(dynamo.DonorKey("456")),
@@ -529,11 +529,11 @@ func TestHandleFeeApprovedWhenVoucherSelected(t *testing.T) {
 		}, appcontext.Data{}).
 		Return(nil)
 
-	err := handleFeeApproved(ctx, client, event, shareCodeSender, nil, appcontext.Data{}, testNowFn)
+	err := handleFeeApproved(ctx, client, event, accessCodeSender, nil, appcontext.Data{}, testNowFn)
 	assert.Nil(t, err)
 }
 
-func TestHandleFeeApprovedWhenVoucherSelectedAndShareCodeSenderError(t *testing.T) {
+func TestHandleFeeApprovedWhenVoucherSelectedAndAccessCodeSenderError(t *testing.T) {
 	event := &events.CloudWatchEvent{
 		DetailType: "reduced-fee-approved",
 		Detail:     json.RawMessage(`{"uid":"M-1111-2222-3333","approvedType":"NoFee"}`),
@@ -556,12 +556,12 @@ func TestHandleFeeApprovedWhenVoucherSelectedAndShareCodeSenderError(t *testing.
 		Return(nil).
 		SetData(donor)
 
-	shareCodeSender := newMockShareCodeSender(t)
-	shareCodeSender.EXPECT().
+	accessCodeSender := newMockAccessCodeSender(t)
+	accessCodeSender.EXPECT().
 		SendVoucherInvite(mock.Anything, mock.Anything, mock.Anything).
 		Return(expectedError)
 
-	err := handleFeeApproved(ctx, client, event, shareCodeSender, nil, appcontext.Data{}, testNowFn)
+	err := handleFeeApproved(ctx, client, event, accessCodeSender, nil, appcontext.Data{}, testNowFn)
 	assert.ErrorIs(t, err, expectedError)
 }
 
@@ -590,7 +590,7 @@ func TestHandleFeeApprovedWhenDynamoClientPutError(t *testing.T) {
 	assert.Equal(t, fmt.Errorf("failed to update donor provided details: %w", expectedError), err)
 }
 
-func TestHandleFeeApprovedWhenShareCodeSenderError(t *testing.T) {
+func TestHandleFeeApprovedWhenAccessCodeSenderError(t *testing.T) {
 	event := &events.CloudWatchEvent{
 		DetailType: "reduced-fee-approved",
 		Detail:     json.RawMessage(`{"uid":"M-1111-2222-3333","approvedType":"NoFee"}`),
@@ -618,12 +618,12 @@ func TestHandleFeeApprovedWhenShareCodeSenderError(t *testing.T) {
 		SendCertificateProviderStarted(mock.Anything, mock.Anything).
 		Return(nil)
 
-	shareCodeSender := newMockShareCodeSender(t)
-	shareCodeSender.EXPECT().
+	accessCodeSender := newMockAccessCodeSender(t)
+	accessCodeSender.EXPECT().
 		SendCertificateProviderPrompt(ctx, appcontext.Data{}, mock.Anything).
 		Return(expectedError)
 
-	err := handleFeeApproved(ctx, client, event, shareCodeSender, eventClient, appcontext.Data{}, testNowFn)
+	err := handleFeeApproved(ctx, client, event, accessCodeSender, eventClient, appcontext.Data{}, testNowFn)
 	assert.Equal(t, fmt.Errorf("failed to send share code to certificate provider: %w", expectedError), err)
 }
 
@@ -882,8 +882,8 @@ func TestHandleDonorSubmissionCompleted(t *testing.T) {
 		Lpa(ctx, "M-1111-2222-3333").
 		Return(lpa, nil)
 
-	shareCodeSender := newMockShareCodeSender(t)
-	shareCodeSender.EXPECT().
+	accessCodeSender := newMockAccessCodeSender(t)
+	accessCodeSender.EXPECT().
 		SendLpaCertificateProviderPrompt(ctx, appData, dynamo.LpaKey(testUuidString), dynamo.LpaOwnerKey(dynamo.DonorKey("PAPER")), lpa).
 		Return(nil)
 
@@ -921,8 +921,8 @@ func TestHandleDonorSubmissionCompleted(t *testing.T) {
 		AppData().
 		Return(appData, nil)
 	factory.EXPECT().
-		ShareCodeSender(ctx).
-		Return(shareCodeSender, nil)
+		AccessCodeSender(ctx).
+		Return(accessCodeSender, nil)
 	factory.EXPECT().
 		LpaStoreClient().
 		Return(lpaStoreClient, nil)
@@ -962,8 +962,8 @@ func TestHandleDonorSubmissionCompletedWhenWriteTransactionError(t *testing.T) {
 		Lpa(mock.Anything, mock.Anything).
 		Return(&lpadata.Lpa{}, nil)
 
-	shareCodeSender := newMockShareCodeSender(t)
-	shareCodeSender.EXPECT().
+	accessCodeSender := newMockAccessCodeSender(t)
+	accessCodeSender.EXPECT().
 		SendLpaCertificateProviderPrompt(ctx, mock.Anything, mock.Anything, mock.Anything, mock.Anything).
 		Return(nil)
 
@@ -972,7 +972,7 @@ func TestHandleDonorSubmissionCompletedWhenWriteTransactionError(t *testing.T) {
 		WriteTransaction(mock.Anything, mock.Anything).
 		Return(expectedError)
 
-	err := handleDonorSubmissionCompleted(ctx, client, donorSubmissionCompletedEvent, shareCodeSender, appData, lpaStoreClient, testUuidStringFn, testNowFn)
+	err := handleDonorSubmissionCompleted(ctx, client, donorSubmissionCompletedEvent, accessCodeSender, appData, lpaStoreClient, testUuidStringFn, testNowFn)
 	assert.Equal(t, expectedError, err)
 }
 
@@ -994,7 +994,7 @@ func TestHandleDonorSubmissionCompletedWhenLpaStoreError(t *testing.T) {
 	assert.Equal(t, expectedError, err)
 }
 
-func TestHandleDonorSubmissionCompletedWhenShareCodeSenderError(t *testing.T) {
+func TestHandleDonorSubmissionCompletedWhenAccessCodeSenderError(t *testing.T) {
 	appData := appcontext.Data{}
 
 	lpa := &lpadata.Lpa{
@@ -1008,12 +1008,12 @@ func TestHandleDonorSubmissionCompletedWhenShareCodeSenderError(t *testing.T) {
 		Lpa(ctx, "M-1111-2222-3333").
 		Return(lpa, nil)
 
-	shareCodeSender := newMockShareCodeSender(t)
-	shareCodeSender.EXPECT().
+	accessCodeSender := newMockAccessCodeSender(t)
+	accessCodeSender.EXPECT().
 		SendLpaCertificateProviderPrompt(ctx, mock.Anything, mock.Anything, mock.Anything, mock.Anything).
 		Return(expectedError)
 
-	err := handleDonorSubmissionCompleted(ctx, nil, donorSubmissionCompletedEvent, shareCodeSender, appData, lpaStoreClient, testUuidStringFn, testNowFn)
+	err := handleDonorSubmissionCompleted(ctx, nil, donorSubmissionCompletedEvent, accessCodeSender, appData, lpaStoreClient, testUuidStringFn, testNowFn)
 	assert.Equal(t, fmt.Errorf("failed to send share code to certificate provider: %w", expectedError), err)
 }
 
@@ -1058,8 +1058,8 @@ func TestHandleCertificateProviderSubmissionCompleted(t *testing.T) {
 		Put(ctx, updatedDonor).
 		Return(nil)
 
-	shareCodeSender := newMockShareCodeSender(t)
-	shareCodeSender.EXPECT().
+	accessCodeSender := newMockAccessCodeSender(t)
+	accessCodeSender.EXPECT().
 		SendAttorneys(ctx, appData, lpa).
 		Return(nil)
 
@@ -1091,8 +1091,8 @@ func TestHandleCertificateProviderSubmissionCompleted(t *testing.T) {
 		LpaStoreClient().
 		Return(lpaStoreClient, nil)
 	factory.EXPECT().
-		ShareCodeSender(ctx).
-		Return(shareCodeSender, nil)
+		AccessCodeSender(ctx).
+		Return(accessCodeSender, nil)
 	factory.EXPECT().
 		AppData().
 		Return(appData, nil)
@@ -1179,15 +1179,15 @@ func TestHandleCertificateProviderSubmissionCompletedWhenDonorGetErrors(t *testi
 		OneByUID(mock.Anything, mock.Anything).
 		Return(dynamo.Keys{}, expectedError)
 
-	shareCodeSender := newMockShareCodeSender(t)
+	accessCodeSender := newMockAccessCodeSender(t)
 
 	factory := newMockFactory(t)
 	factory.EXPECT().
 		LpaStoreClient().
 		Return(lpaStoreClient, nil)
 	factory.EXPECT().
-		ShareCodeSender(ctx).
-		Return(shareCodeSender, nil)
+		AccessCodeSender(ctx).
+		Return(accessCodeSender, nil)
 	factory.EXPECT().
 		AppData().
 		Return(appcontext.Data{}, nil)
@@ -1224,8 +1224,8 @@ func TestHandleCertificateProviderSubmissionCompletedWhenDonorPutErrors(t *testi
 		Put(mock.Anything, mock.Anything).
 		Return(expectedError)
 
-	shareCodeSender := newMockShareCodeSender(t)
-	shareCodeSender.EXPECT().
+	accessCodeSender := newMockAccessCodeSender(t)
+	accessCodeSender.EXPECT().
 		SendAttorneys(ctx, mock.Anything, mock.Anything).
 		Return(nil)
 
@@ -1251,8 +1251,8 @@ func TestHandleCertificateProviderSubmissionCompletedWhenDonorPutErrors(t *testi
 		LpaStoreClient().
 		Return(lpaStoreClient, nil)
 	factory.EXPECT().
-		ShareCodeSender(ctx).
-		Return(shareCodeSender, nil)
+		AccessCodeSender(ctx).
+		Return(accessCodeSender, nil)
 	factory.EXPECT().
 		AppData().
 		Return(appcontext.Data{}, nil)
@@ -1306,7 +1306,7 @@ func TestHandleCertificateProviderSubmissionCompletedWhenCertificateProviderStor
 		LpaStoreClient().
 		Return(lpaStoreClient, nil)
 	factory.EXPECT().
-		ShareCodeSender(ctx).
+		AccessCodeSender(ctx).
 		Return(nil, nil)
 	factory.EXPECT().
 		AppData().
@@ -1364,7 +1364,7 @@ func TestHandleCertificateProviderSubmissionCompletedWhenCertificateProviderStor
 		LpaStoreClient().
 		Return(lpaStoreClient, nil)
 	factory.EXPECT().
-		ShareCodeSender(ctx).
+		AccessCodeSender(ctx).
 		Return(nil, nil)
 	factory.EXPECT().
 		AppData().
@@ -1420,7 +1420,7 @@ func TestHandleCertificateProviderSubmissionCompletedWhenLpaStoreClientErrors(t 
 		LpaStoreClient().
 		Return(lpaStoreClient, nil)
 	factory.EXPECT().
-		ShareCodeSender(ctx).
+		AccessCodeSender(ctx).
 		Return(nil, nil)
 	factory.EXPECT().
 		AppData().
@@ -1440,7 +1440,7 @@ func TestHandleCertificateProviderSubmissionCompletedWhenLpaStoreClientErrors(t 
 	assert.ErrorIs(t, err, expectedError)
 }
 
-func TestHandleCertificateProviderSubmissionCompletedWhenShareCodeSenderErrors(t *testing.T) {
+func TestHandleCertificateProviderSubmissionCompletedWhenAccessCodeSenderErrors(t *testing.T) {
 	lpaStoreClient := newMockLpaStoreClient(t)
 	lpaStoreClient.EXPECT().
 		Lpa(mock.Anything, mock.Anything).
@@ -1462,8 +1462,8 @@ func TestHandleCertificateProviderSubmissionCompletedWhenShareCodeSenderErrors(t
 		Return(nil).
 		SetData(&donordata.Provided{PK: dynamo.LpaKey("an-lpa")})
 
-	shareCodeSender := newMockShareCodeSender(t)
-	shareCodeSender.EXPECT().
+	accessCodeSender := newMockAccessCodeSender(t)
+	accessCodeSender.EXPECT().
 		SendAttorneys(ctx, mock.Anything, mock.Anything).
 		Return(expectedError)
 
@@ -1489,8 +1489,8 @@ func TestHandleCertificateProviderSubmissionCompletedWhenShareCodeSenderErrors(t
 		LpaStoreClient().
 		Return(lpaStoreClient, nil)
 	factory.EXPECT().
-		ShareCodeSender(ctx).
-		Return(shareCodeSender, nil)
+		AccessCodeSender(ctx).
+		Return(accessCodeSender, nil)
 	factory.EXPECT().
 		AppData().
 		Return(appcontext.Data{}, nil)
@@ -1512,7 +1512,7 @@ func TestHandleCertificateProviderSubmissionCompletedWhenShareCodeSenderErrors(t
 	assert.Equal(t, fmt.Errorf("failed to send share codes to attorneys: %w", expectedError), err)
 }
 
-func TestHandleCertificateProviderSubmissionCompletedWhenShareCodeSenderFactoryErrors(t *testing.T) {
+func TestHandleCertificateProviderSubmissionCompletedWhenAccessCodeSenderFactoryErrors(t *testing.T) {
 	lpaStoreClient := newMockLpaStoreClient(t)
 	lpaStoreClient.EXPECT().
 		Lpa(ctx, "M-1111-2222-3333").
@@ -1527,7 +1527,7 @@ func TestHandleCertificateProviderSubmissionCompletedWhenShareCodeSenderFactoryE
 		LpaStoreClient().
 		Return(lpaStoreClient, nil)
 	factory.EXPECT().
-		ShareCodeSender(ctx).
+		AccessCodeSender(ctx).
 		Return(nil, expectedError)
 
 	handler := &siriusEventHandler{}
@@ -1550,7 +1550,7 @@ func TestHandleCertificateProviderSubmissionCompletedWhenAppDataFactoryErrors(t 
 		LpaStoreClient().
 		Return(lpaStoreClient, nil)
 	factory.EXPECT().
-		ShareCodeSender(ctx).
+		AccessCodeSender(ctx).
 		Return(nil, nil)
 	factory.EXPECT().
 		AppData().

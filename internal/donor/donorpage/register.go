@@ -8,6 +8,7 @@ import (
 	"time"
 
 	"github.com/ministryofjustice/opg-go-common/template"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/accesscode/accesscodedata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor/actoruid"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/appcontext"
@@ -30,7 +31,6 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/random"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/scheduled"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/sesh"
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/sharecode/sharecodedata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/task"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/uid"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/voucher/voucherdata"
@@ -55,7 +55,7 @@ type DonorStore interface {
 	Latest(ctx context.Context) (*donordata.Provided, error)
 	Put(ctx context.Context, donor *donordata.Provided) error
 	Delete(ctx context.Context) error
-	Link(ctx context.Context, data sharecodedata.Link, donorEmail string) error
+	Link(ctx context.Context, data accesscodedata.Link, donorEmail string) error
 	DeleteVoucher(ctx context.Context, provided *donordata.Provided) error
 }
 
@@ -106,7 +106,7 @@ type AddressClient interface {
 	LookupPostcode(ctx context.Context, postcode string) ([]place.Address, error)
 }
 
-type ShareCodeSender interface {
+type AccessCodeSender interface {
 	SendCertificateProviderInvite(ctx context.Context, appData appcontext.Data, provided *donordata.Provided) error
 	SendCertificateProviderPrompt(ctx context.Context, appData appcontext.Data, provided *donordata.Provided) error
 	SendVoucherAccessCode(ctx context.Context, donor *donordata.Provided, appData appcontext.Data) error
@@ -186,8 +186,8 @@ type LpaStoreClient interface {
 	SendDonorWithdrawLPA(ctx context.Context, lpaUID string) error
 }
 
-type ShareCodeStore interface {
-	Get(ctx context.Context, actorType actor.Type, code sharecodedata.Hashed) (sharecodedata.Link, error)
+type AccessCodeStore interface {
+	Get(ctx context.Context, actorType actor.Type, code accesscodedata.Hashed) (accesscodedata.Link, error)
 }
 
 type ScheduledStore interface {
@@ -252,7 +252,7 @@ func Register(
 	addressClient AddressClient,
 	appPublicURL string,
 	payClient PayClient,
-	shareCodeSender ShareCodeSender,
+	accessCodeSender AccessCodeSender,
 	witnessCodeSender WitnessCodeSender,
 	errorHandler page.ErrorHandler,
 	certificateProviderStore CertificateProviderStore,
@@ -262,7 +262,7 @@ func Register(
 	eventClient EventClient,
 	dashboardStore DashboardStore,
 	lpaStoreClient LpaStoreClient,
-	shareCodeStore ShareCodeStore,
+	accessCodeStore AccessCodeStore,
 	progressTracker ProgressTracker,
 	lpaStoreResolvingService LpaStoreResolvingService,
 	scheduledStore ScheduledStore,
@@ -282,7 +282,7 @@ func Register(
 	handleRoot(page.PathLoginCallback, page.None,
 		page.LoginCallback(logger, oneLoginClient, sessionStore, page.PathMakeOrAddAnLPA, dashboardStore, actor.TypeDonor))
 	handleRoot(page.PathEnterAccessCode, page.RequireSession,
-		page.EnterAccessCode(tmpls.Get("enter_access_code.gohtml"), shareCodeStore, sessionStore, lpaStoreResolvingService, actor.TypeDonor,
+		page.EnterAccessCode(tmpls.Get("enter_access_code.gohtml"), accessCodeStore, sessionStore, lpaStoreResolvingService, actor.TypeDonor,
 			EnterAccessCode(logger, donorStore, eventClient)))
 
 	handleWithDonor := makeLpaHandle(rootMux, sessionStore, errorHandler, donorStore, donorStartURL)
@@ -483,7 +483,7 @@ func Register(
 	handleWithDonor(donor.PathConfirmYourCertificateProviderIsNotRelated, page.CanGoBack,
 		ConfirmYourCertificateProviderIsNotRelated(tmpls.Get("confirm_your_certificate_provider_is_not_related.gohtml"), donorStore, time.Now))
 	handleWithDonor(donor.PathCheckYourLpa, page.CanGoBack,
-		CheckYourLpa(tmpls.Get("check_your_lpa.gohtml"), donorStore, shareCodeSender, notifyClient, certificateProviderStore, scheduledStore, time.Now, certificateProviderStartURL))
+		CheckYourLpa(tmpls.Get("check_your_lpa.gohtml"), donorStore, accessCodeSender, notifyClient, certificateProviderStore, scheduledStore, time.Now, certificateProviderStartURL))
 	handleWithDonor(donor.PathLpaDetailsSaved, page.CanGoBack,
 		LpaDetailsSaved(tmpls.Get("lpa_details_saved.gohtml")))
 
@@ -510,7 +510,7 @@ func Register(
 	handleWithDonor(donor.PathPayFee, page.None,
 		payer)
 	handleWithDonor(donor.PathPaymentConfirmation, page.None,
-		PaymentConfirmation(logger, payClient, donorStore, sessionStore, shareCodeSender, eventClient, notifyClient))
+		PaymentConfirmation(logger, payClient, donorStore, sessionStore, accessCodeSender, eventClient, notifyClient))
 	handleWithDonor(donor.PathPaymentSuccessful, page.None,
 		Guidance(tmpls.Get("payment_successful.gohtml")))
 	handleWithDonor(donor.PathEvidenceSuccessfullyUploaded, page.None,
@@ -546,7 +546,7 @@ func Register(
 	handleWithDonor(donor.PathConfirmPersonAllowedToVouch, page.CanGoBack,
 		ConfirmPersonAllowedToVouch(tmpls.Get("confirm_person_allowed_to_vouch.gohtml"), donorStore))
 	handleWithDonor(donor.PathCheckYourDetails, page.CanGoBack,
-		CheckYourDetails(tmpls.Get("check_your_details.gohtml"), shareCodeSender, donorStore))
+		CheckYourDetails(tmpls.Get("check_your_details.gohtml"), accessCodeSender, donorStore))
 	handleWithDonor(donor.PathWeHaveContactedVoucher, page.None,
 		Guidance(tmpls.Get("we_have_contacted_voucher.gohtml")))
 	handleWithDonor(donor.PathWhatYouCanDoNow, page.CanGoBack,
@@ -560,11 +560,11 @@ func Register(
 	handleWithDonor(donor.PathWeHaveInformedVoucherNoLongerNeeded, page.None,
 		Guidance(tmpls.Get("we_have_informed_voucher_no_longer_needed.gohtml")))
 	handleWithDonor(donor.PathResendVoucherAccessCode, page.CanGoBack,
-		ResendVoucherAccessCode(tmpls.Get("resend_witness_code.gohtml"), shareCodeSender))
+		ResendVoucherAccessCode(tmpls.Get("resend_witness_code.gohtml"), accessCodeSender))
 	handleWithDonor(donor.PathChangeDonorMobileNumber, page.CanGoBack,
-		YourMobile(tmpls.Get("your_mobile.gohtml"), donorStore, shareCodeSender))
+		YourMobile(tmpls.Get("your_mobile.gohtml"), donorStore, accessCodeSender))
 	handleWithDonor(donor.PathChangeDonorEmail, page.CanGoBack,
-		YourEmail(tmpls.Get("your_email.gohtml"), donorStore, shareCodeSender))
+		YourEmail(tmpls.Get("your_email.gohtml"), donorStore, accessCodeSender))
 
 	handleWithDonor(donor.PathHowToSignYourLpa, page.None,
 		Guidance(tmpls.Get("how_to_sign_your_lpa.gohtml")))
@@ -587,7 +587,7 @@ func Register(
 	handleWithDonor(donor.PathChangeIndependentWitnessMobileNumber, page.CanGoBack,
 		ChangeMobileNumber(tmpls.Get("change_mobile_number.gohtml"), witnessCodeSender, actor.TypeIndependentWitness))
 	handleWithDonor(donor.PathWitnessingAsCertificateProvider, page.None,
-		WitnessingAsCertificateProvider(tmpls.Get("witnessing_as_certificate_provider.gohtml"), donorStore, shareCodeSender, lpaStoreClient, eventClient, time.Now))
+		WitnessingAsCertificateProvider(tmpls.Get("witnessing_as_certificate_provider.gohtml"), donorStore, accessCodeSender, lpaStoreClient, eventClient, time.Now))
 	handleWithDonor(donor.PathResendCertificateProviderCode, page.CanGoBack,
 		ResendWitnessCode(tmpls.Get("resend_witness_code.gohtml"), witnessCodeSender, actor.TypeCertificateProvider))
 	handleWithDonor(donor.PathChangeCertificateProviderMobileNumber, page.CanGoBack,

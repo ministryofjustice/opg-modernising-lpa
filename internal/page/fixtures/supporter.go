@@ -11,6 +11,8 @@ import (
 	"time"
 
 	"github.com/ministryofjustice/opg-go-common/template"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/accesscode"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/accesscode/accesscodedata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/appcontext"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor/donordata"
@@ -24,8 +26,6 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/reuse"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/search"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/sesh"
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/sharecode"
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/sharecode/sharecodedata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/supporter"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/supporter/supporterdata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/task"
@@ -37,9 +37,9 @@ type OrganisationStore interface {
 	CreateLPA(context.Context) (*donordata.Provided, error)
 }
 
-type ShareCodeStore interface {
-	Put(ctx context.Context, actorType actor.Type, shareCode sharecodedata.Hashed, data sharecodedata.Link) error
-	PutDonor(ctx context.Context, code string, data sharecodedata.Link) error
+type AccessCodeStore interface {
+	Put(ctx context.Context, actorType actor.Type, code accesscodedata.Hashed, link accesscodedata.Link) error
+	PutDonor(ctx context.Context, code string, link accesscodedata.Link) error
 }
 
 func Supporter(
@@ -50,7 +50,7 @@ func Supporter(
 	memberStore *supporter.MemberStore,
 	dynamoClient DynamoClient,
 	searchClient *search.Client,
-	shareCodeStore *sharecode.Store,
+	accessCodeStore *accesscode.Store,
 	certificateProviderStore CertificateProviderStore,
 	attorneyStore AttorneyStore,
 	documentStore DocumentStore,
@@ -151,7 +151,7 @@ func Supporter(
 					return fmt.Errorf("error putting donor: %w", err)
 				}
 
-				shareCodeData := sharecodedata.Link{
+				accessCodeData := accesscodedata.Link{
 					LpaOwnerKey:  dynamo.LpaOwnerKey(org.PK),
 					LpaKey:       donor.PK,
 					LpaUID:       donor.LpaUID,
@@ -159,17 +159,17 @@ func Supporter(
 					InviteSentTo: "email@example.com",
 				}
 
-				hashedCode := sharecodedata.HashedFromString(accessCode)
-				if err := shareCodeStore.PutDonor(r.Context(), hashedCode, shareCodeData); err != nil {
-					return fmt.Errorf("error putting sharecode for donor: %w", err)
+				hashedCode := accesscodedata.HashedFromString(accessCode)
+				if err := accessCodeStore.PutDonor(r.Context(), hashedCode, accessCodeData); err != nil {
+					return fmt.Errorf("error putting accesscode for donor: %w", err)
 				}
 
 				if linkDonor {
-					shareCodeData.PK = dynamo.ShareKey(dynamo.DonorShareKey(hashedCode.String()))
-					shareCodeData.SK = dynamo.ShareSortKey(dynamo.DonorInviteKey(org.PK, shareCodeData.LpaKey))
-					shareCodeData.UpdatedAt = time.Now()
+					accessCodeData.PK = dynamo.AccessKey(dynamo.DonorAccessKey(hashedCode.String()))
+					accessCodeData.SK = dynamo.ShareSortKey(dynamo.DonorInviteKey(org.PK, accessCodeData.LpaKey))
+					accessCodeData.UpdatedAt = time.Now()
 
-					if err := donorStore.Link(donorCtx, shareCodeData, donor.Donor.Email); err != nil {
+					if err := donorStore.Link(donorCtx, accessCodeData, donor.Donor.Email); err != nil {
 						return fmt.Errorf("error linking: %w", err)
 					}
 
@@ -197,7 +197,7 @@ func Supporter(
 
 					var fns []func(context.Context, *lpastore.Client, *lpadata.Lpa) error
 					if setLPAProgress {
-						donor, fns, err = updateLPAProgress(donorCtx, donorFixtureData, donor, random.AlphaNumeric(16), r, certificateProviderStore, attorneyStore, documentStore, eventClient, shareCodeStore, voucherStore, reuseStore, notifyClient, appPublicURL)
+						donor, fns, err = updateLPAProgress(donorCtx, donorFixtureData, donor, random.AlphaNumeric(16), r, certificateProviderStore, attorneyStore, documentStore, eventClient, accessCodeStore, voucherStore, reuseStore, notifyClient, appPublicURL)
 						if err != nil {
 							return fmt.Errorf("error updating lpa progress: %w", err)
 						}
@@ -243,7 +243,7 @@ func Supporter(
 						now = now.Add(time.Hour * -time.Duration(48))
 					}
 
-					_, hashedCode := sharecodedata.Generate()
+					_, hashedCode := accesscodedata.Generate()
 
 					invite := &supporterdata.MemberInvite{
 						PK:               dynamo.OrganisationKey(org.ID),
@@ -285,7 +285,7 @@ func Supporter(
 					email := strings.ToLower(fmt.Sprintf("%s-%s@example.org", member.Firstnames, member.Lastname))
 					sub := []byte(random.AlphaNumeric(16))
 					memberCtx := appcontext.ContextWithSession(r.Context(), &appcontext.Session{SessionID: base64.StdEncoding.EncodeToString(sub), Email: email})
-					_, hashedCode := sharecodedata.Generate()
+					_, hashedCode := accesscodedata.Generate()
 
 					if err = memberStore.CreateFromInvite(
 						memberCtx,

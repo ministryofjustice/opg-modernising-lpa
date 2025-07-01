@@ -1,14 +1,14 @@
-const { TestEmail, randomShareCode } = require("../../support/e2e");
+const { TestEmail, randomAccessCode } = require("../../support/e2e");
 
 describe('Opting out', () => {
     it('stops me being attorney', () => {
-        const shareCode = randomShareCode();
-        cy.visit(`/fixtures/attorney?redirect=&withShareCode=${shareCode}&email=${TestEmail}`);
+        const accessCode = randomAccessCode();
+        cy.visit(`/fixtures/attorney?redirect=&withAccessCode=${accessCode}&email=${TestEmail}`);
 
         cy.visit('/attorney-enter-access-code-opt-out');
         cy.checkA11yApp();
         cy.get('#f-donor-last-name').type('Smith');
-        cy.get('#f-access-code').invoke('val', shareCode);
+        cy.get('#f-access-code').invoke('val', accessCode);
         cy.contains('button', 'Continue').click();
 
         cy.url().should('contain', '/confirm-you-do-not-want-to-be-an-attorney');

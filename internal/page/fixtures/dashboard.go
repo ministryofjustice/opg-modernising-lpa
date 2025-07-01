@@ -5,13 +5,13 @@ import (
 	"net/http"
 
 	"github.com/ministryofjustice/opg-go-common/template"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/accesscode"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/appcontext"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor/donordata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/lpastore/lpadata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/random"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/sesh"
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/sharecode"
 )
 
 func Dashboard(
@@ -20,7 +20,7 @@ func Dashboard(
 	donorStore page.DonorStore,
 	certificateProviderStore CertificateProviderStore,
 	attorneyStore AttorneyStore,
-	shareCodeStore *sharecode.Store,
+	accessCodeStore *accesscode.Store,
 ) page.Handler {
 	return func(appData appcontext.Data, w http.ResponseWriter, r *http.Request) error {
 		acceptCookiesConsent(w)
@@ -82,7 +82,7 @@ func Dashboard(
 			certificateProviderCtx := appcontext.ContextWithSession(r.Context(), &appcontext.Session{SessionID: meSessionID, LpaID: donor.LpaID})
 
 			donor.CertificateProvider.Email = testEmail
-			_, err = createCertificateProvider(certificateProviderCtx, shareCodeStore, certificateProviderStore, donor)
+			_, err = createCertificateProvider(certificateProviderCtx, accessCodeStore, certificateProviderStore, donor)
 			if err != nil {
 				return err
 			}
@@ -107,7 +107,7 @@ func Dashboard(
 
 			attorney, err := createAttorney(
 				attorneyCtx,
-				shareCodeStore,
+				accessCodeStore,
 				attorneyStore,
 				donor.Attorneys.Attorneys[0].UID,
 				false,

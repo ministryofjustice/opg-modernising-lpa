@@ -8,6 +8,7 @@ import (
 	"strings"
 	"testing"
 
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/accesscode/accesscodedata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor/actoruid"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/appcontext"
@@ -15,7 +16,6 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/form"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/lpastore/lpadata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/sesh"
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/sharecode/sharecodedata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/validation"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
@@ -100,7 +100,7 @@ func TestPostEnterAccessCode(t *testing.T) {
 				HasLPAs: true,
 			}
 
-			shareCode := sharecodedata.Link{
+			accessCode := accesscodedata.Link{
 				LpaKey:      dynamo.LpaKey("lpa-id"),
 				LpaOwnerKey: tc.lpaOwnerKey,
 				ActorUID:    testUID,
@@ -112,10 +112,10 @@ func TestPostEnterAccessCode(t *testing.T) {
 				Donor:  lpadata.Donor{LastName: "Smith"},
 			}
 
-			shareCodeStore := newMockShareCodeStore(t)
-			shareCodeStore.EXPECT().
-				Get(r.Context(), actor.TypeAttorney, sharecodedata.HashedFromString("abcd1234")).
-				Return(shareCode, nil)
+			accessCodeStore := newMockAccessCodeStore(t)
+			accessCodeStore.EXPECT().
+				Get(r.Context(), actor.TypeAttorney, accesscodedata.HashedFromString("abcd1234")).
+				Return(accessCode, nil)
 
 			sessionStore := newMockSessionStore(t)
 			sessionStore.EXPECT().
@@ -138,10 +138,10 @@ func TestPostEnterAccessCode(t *testing.T) {
 
 			next := newMockEnterAccessCodeHandler(t)
 			next.EXPECT().
-				Execute(testAppData, w, mock.Anything, session, lpa, shareCode).
+				Execute(testAppData, w, mock.Anything, session, lpa, accessCode).
 				Return(nil)
 
-			err := EnterAccessCode(nil, shareCodeStore, sessionStore, lpaStoreResolvingService, actor.TypeAttorney, next.Execute)(testAppData, w, r)
+			err := EnterAccessCode(nil, accessCodeStore, sessionStore, lpaStoreResolvingService, actor.TypeAttorney, next.Execute)(testAppData, w, r)
 			assert.Nil(t, err)
 		})
 	}
@@ -157,7 +157,7 @@ func TestPostEnterAccessCodeWhenDonorLastNameIncorrect(t *testing.T) {
 	r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(f.Encode()))
 	r.Header.Add("Content-Type", FormUrlEncoded)
 
-	shareCode := sharecodedata.Link{
+	accessCode := accesscodedata.Link{
 		LpaKey:      dynamo.LpaKey("lpa-id"),
 		LpaOwnerKey: dynamo.LpaOwnerKey(dynamo.DonorKey("")),
 		ActorUID:    testUID,
@@ -169,10 +169,10 @@ func TestPostEnterAccessCodeWhenDonorLastNameIncorrect(t *testing.T) {
 		Donor:  lpadata.Donor{LastName: "Smith"},
 	}
 
-	shareCodeStore := newMockShareCodeStore(t)
-	shareCodeStore.EXPECT().
+	accessCodeStore := newMockAccessCodeStore(t)
+	accessCodeStore.EXPECT().
 		Get(mock.Anything, mock.Anything, mock.Anything).
-		Return(shareCode, nil)
+		Return(accessCode, nil)
 
 	sessionStore := newMockSessionStore(t)
 	sessionStore.EXPECT().
@@ -191,14 +191,14 @@ func TestPostEnterAccessCodeWhenDonorLastNameIncorrect(t *testing.T) {
 		})).
 		Return(nil)
 
-	err := EnterAccessCode(template.Execute, shareCodeStore, sessionStore, lpaStoreResolvingService, actor.TypeAttorney, nil)(testAppData, w, r)
+	err := EnterAccessCode(template.Execute, accessCodeStore, sessionStore, lpaStoreResolvingService, actor.TypeAttorney, nil)(testAppData, w, r)
 	resp := w.Result()
 
 	assert.Nil(t, err)
 	assert.Equal(t, http.StatusOK, resp.StatusCode)
 }
 
-func TestPostEnterAccessCodeOnShareCodeStoreError(t *testing.T) {
+func TestPostEnterAccessCodeOnAccessCodeStoreError(t *testing.T) {
 	form := url.Values{
 		form.FieldNames.AccessCode:    {" abcd1234  "},
 		form.FieldNames.DonorLastName: {"Smith"},
@@ -208,12 +208,12 @@ func TestPostEnterAccessCodeOnShareCodeStoreError(t *testing.T) {
 	r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(form.Encode()))
 	r.Header.Add("Content-Type", FormUrlEncoded)
 
-	shareCodeStore := newMockShareCodeStore(t)
-	shareCodeStore.EXPECT().
-		Get(r.Context(), actor.TypeAttorney, sharecodedata.HashedFromString("abcd1234")).
-		Return(sharecodedata.Link{LpaKey: dynamo.LpaKey("lpa-id"), LpaOwnerKey: dynamo.LpaOwnerKey(dynamo.DonorKey(""))}, expectedError)
+	accessCodeStore := newMockAccessCodeStore(t)
+	accessCodeStore.EXPECT().
+		Get(r.Context(), actor.TypeAttorney, accesscodedata.HashedFromString("abcd1234")).
+		Return(accesscodedata.Link{LpaKey: dynamo.LpaKey("lpa-id"), LpaOwnerKey: dynamo.LpaOwnerKey(dynamo.DonorKey(""))}, expectedError)
 
-	err := EnterAccessCode(nil, shareCodeStore, nil, nil, actor.TypeAttorney, nil)(testAppData, w, r)
+	err := EnterAccessCode(nil, accessCodeStore, nil, nil, actor.TypeAttorney, nil)(testAppData, w, r)
 
 	resp := w.Result()
 
@@ -221,7 +221,7 @@ func TestPostEnterAccessCodeOnShareCodeStoreError(t *testing.T) {
 	assert.Equal(t, http.StatusOK, resp.StatusCode)
 }
 
-func TestPostEnterAccessCodeOnShareCodeStoreNotFoundError(t *testing.T) {
+func TestPostEnterAccessCodeOnAccessCodeStoreNotFoundError(t *testing.T) {
 	f := url.Values{
 		form.FieldNames.AccessCode:    {"abcd 1-234 "},
 		form.FieldNames.DonorLastName: {"Smith"},
@@ -238,12 +238,12 @@ func TestPostEnterAccessCodeOnShareCodeStoreNotFoundError(t *testing.T) {
 		})).
 		Return(nil)
 
-	shareCodeStore := newMockShareCodeStore(t)
-	shareCodeStore.EXPECT().
-		Get(r.Context(), actor.TypeAttorney, sharecodedata.HashedFromString("abcd1234")).
-		Return(sharecodedata.Link{LpaKey: dynamo.LpaKey("lpa-id"), LpaOwnerKey: dynamo.LpaOwnerKey(dynamo.DonorKey(""))}, dynamo.NotFoundError{})
+	accessCodeStore := newMockAccessCodeStore(t)
+	accessCodeStore.EXPECT().
+		Get(r.Context(), actor.TypeAttorney, accesscodedata.HashedFromString("abcd1234")).
+		Return(accesscodedata.Link{LpaKey: dynamo.LpaKey("lpa-id"), LpaOwnerKey: dynamo.LpaOwnerKey(dynamo.DonorKey(""))}, dynamo.NotFoundError{})
 
-	err := EnterAccessCode(template.Execute, shareCodeStore, nil, nil, actor.TypeAttorney, nil)(testAppData, w, r)
+	err := EnterAccessCode(template.Execute, accessCodeStore, nil, nil, actor.TypeAttorney, nil)(testAppData, w, r)
 
 	resp := w.Result()
 
@@ -261,10 +261,10 @@ func TestPostEnterAccessCodeOnLpaStoreResolvingServiceError(t *testing.T) {
 	r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(form.Encode()))
 	r.Header.Add("Content-Type", FormUrlEncoded)
 
-	shareCodeStore := newMockShareCodeStore(t)
-	shareCodeStore.EXPECT().
+	accessCodeStore := newMockAccessCodeStore(t)
+	accessCodeStore.EXPECT().
 		Get(mock.Anything, mock.Anything, mock.Anything).
-		Return(sharecodedata.Link{LpaKey: dynamo.LpaKey("lpa-id")}, nil)
+		Return(accesscodedata.Link{LpaKey: dynamo.LpaKey("lpa-id")}, nil)
 
 	sessionStore := newMockSessionStore(t)
 	sessionStore.EXPECT().
@@ -276,7 +276,7 @@ func TestPostEnterAccessCodeOnLpaStoreResolvingServiceError(t *testing.T) {
 		Get(mock.Anything).
 		Return(nil, expectedError)
 
-	err := EnterAccessCode(nil, shareCodeStore, sessionStore, lpaStoreResolvingService, actor.TypeAttorney, nil)(testAppData, w, r)
+	err := EnterAccessCode(nil, accessCodeStore, sessionStore, lpaStoreResolvingService, actor.TypeAttorney, nil)(testAppData, w, r)
 	assert.ErrorIs(t, err, expectedError)
 }
 
@@ -290,17 +290,17 @@ func TestPostEnterAccessCodeOnSessionGetError(t *testing.T) {
 	r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(form.Encode()))
 	r.Header.Add("Content-Type", FormUrlEncoded)
 
-	shareCodeStore := newMockShareCodeStore(t)
-	shareCodeStore.EXPECT().
-		Get(r.Context(), actor.TypeAttorney, sharecodedata.HashedFromString("abcd1234")).
-		Return(sharecodedata.Link{LpaKey: dynamo.LpaKey("lpa-id"), LpaOwnerKey: dynamo.LpaOwnerKey(dynamo.DonorKey("")), LpaUID: "lpa-uid"}, nil)
+	accessCodeStore := newMockAccessCodeStore(t)
+	accessCodeStore.EXPECT().
+		Get(r.Context(), actor.TypeAttorney, accesscodedata.HashedFromString("abcd1234")).
+		Return(accesscodedata.Link{LpaKey: dynamo.LpaKey("lpa-id"), LpaOwnerKey: dynamo.LpaOwnerKey(dynamo.DonorKey("")), LpaUID: "lpa-uid"}, nil)
 
 	sessionStore := newMockSessionStore(t)
 	sessionStore.EXPECT().
 		Login(r).
 		Return(&sesh.LoginSession{Sub: "hey"}, expectedError)
 
-	err := EnterAccessCode(nil, shareCodeStore, sessionStore, nil, actor.TypeAttorney, nil)(testAppData, w, r)
+	err := EnterAccessCode(nil, accessCodeStore, sessionStore, nil, actor.TypeAttorney, nil)(testAppData, w, r)
 
 	assert.ErrorIs(t, err, expectedError)
 }
@@ -315,10 +315,10 @@ func TestPostEnterAccessCodeOnSessionSetError(t *testing.T) {
 	r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(form.Encode()))
 	r.Header.Add("Content-Type", FormUrlEncoded)
 
-	shareCodeStore := newMockShareCodeStore(t)
-	shareCodeStore.EXPECT().
+	accessCodeStore := newMockAccessCodeStore(t)
+	accessCodeStore.EXPECT().
 		Get(mock.Anything, mock.Anything, mock.Anything).
-		Return(sharecodedata.Link{LpaKey: dynamo.LpaKey("lpa-id"), LpaOwnerKey: dynamo.LpaOwnerKey(dynamo.DonorKey("")), LpaUID: "lpa-uid"}, nil)
+		Return(accesscodedata.Link{LpaKey: dynamo.LpaKey("lpa-id"), LpaOwnerKey: dynamo.LpaOwnerKey(dynamo.DonorKey("")), LpaUID: "lpa-uid"}, nil)
 
 	sessionStore := newMockSessionStore(t)
 	sessionStore.EXPECT().
@@ -337,7 +337,7 @@ func TestPostEnterAccessCodeOnSessionSetError(t *testing.T) {
 			},
 		}, nil)
 
-	err := EnterAccessCode(nil, shareCodeStore, sessionStore, lpaStoreResolvingService, actor.TypeAttorney, nil)(testAppData, w, r)
+	err := EnterAccessCode(nil, accessCodeStore, sessionStore, lpaStoreResolvingService, actor.TypeAttorney, nil)(testAppData, w, r)
 
 	assert.ErrorIs(t, err, expectedError)
 }

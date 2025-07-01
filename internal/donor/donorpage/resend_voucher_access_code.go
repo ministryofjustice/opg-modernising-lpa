@@ -15,14 +15,14 @@ type resendVoucherAccessCodeData struct {
 	Errors validation.List
 }
 
-func ResendVoucherAccessCode(tmpl template.Template, shareCodeSender ShareCodeSender) Handler {
+func ResendVoucherAccessCode(tmpl template.Template, accessCodeSender AccessCodeSender) Handler {
 	return func(appData appcontext.Data, w http.ResponseWriter, r *http.Request, provided *donordata.Provided) error {
 		data := &resendVoucherAccessCodeData{
 			App: appData,
 		}
 
 		if r.Method == http.MethodPost {
-			if err := shareCodeSender.SendVoucherAccessCode(r.Context(), provided, appData); err != nil {
+			if err := accessCodeSender.SendVoucherAccessCode(r.Context(), provided, appData); err != nil {
 				return err
 			}
 

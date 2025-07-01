@@ -7,27 +7,27 @@ import (
 	"net/url"
 
 	"github.com/ministryofjustice/opg-go-common/template"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/accesscode/accesscodedata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/appcontext"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor/donordata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/dynamo"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/localize"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/notify"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/sharecode/sharecodedata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/supporter"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/supporter/supporterdata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/validation"
 )
 
 type donorAccessData struct {
-	App       appcontext.Data
-	Errors    validation.List
-	Form      *donorAccessForm
-	Donor     *donordata.Provided
-	ShareCode *sharecodedata.Link
+	App        appcontext.Data
+	Errors     validation.List
+	Form       *donorAccessForm
+	Donor      *donordata.Provided
+	AccessCode *accesscodedata.Link
 }
 
-func DonorAccess(logger Logger, tmpl template.Template, donorStore DonorStore, shareCodeStore ShareCodeStore, notifyClient NotifyClient, donorStartURL string, generate func() (sharecodedata.PlainText, sharecodedata.Hashed)) Handler {
+func DonorAccess(logger Logger, tmpl template.Template, donorStore DonorStore, accessCodeStore AccessCodeStore, notifyClient NotifyClient, donorStartURL string, generate func() (accesscodedata.PlainText, accesscodedata.Hashed)) Handler {
 	return func(appData appcontext.Data, w http.ResponseWriter, r *http.Request, organisation *supporterdata.Organisation, member *supporterdata.Member) error {
 		donor, err := donorStore.Get(r.Context())
 		if err != nil {
@@ -40,18 +40,18 @@ func DonorAccess(logger Logger, tmpl template.Template, donorStore DonorStore, s
 			Form:  &donorAccessForm{Email: donor.Donor.Email},
 		}
 
-		shareCodeData, err := shareCodeStore.GetDonor(r.Context())
+		accessCodeData, err := accessCodeStore.GetDonor(r.Context())
 		if err == nil {
-			data.ShareCode = &shareCodeData
+			data.AccessCode = &accessCodeData
 
 			switch page.PostFormString(r, "action") {
 			case "recall":
-				if err := shareCodeStore.Delete(r.Context(), shareCodeData); err != nil {
+				if err := accessCodeStore.Delete(r.Context(), accessCodeData); err != nil {
 					return err
 				}
 
 				return supporter.PathViewLPA.RedirectQuery(w, r, appData, appData.LpaID, url.Values{
-					"inviteRecalledFor": {shareCodeData.InviteSentTo},
+					"inviteRecalledFor": {accessCodeData.InviteSentTo},
 				})
 
 			case "remove":
@@ -59,13 +59,13 @@ func DonorAccess(logger Logger, tmpl template.Template, donorStore DonorStore, s
 					return errors.New("cannot remove LPA access when donor has paid")
 				}
 
-				if err := donorStore.DeleteDonorAccess(r.Context(), shareCodeData); err != nil {
+				if err := donorStore.DeleteDonorAccess(r.Context(), accessCodeData); err != nil {
 					return err
 				}
 				logger.InfoContext(r.Context(), "donor access removed", slog.String("lpa_id", appData.LpaID))
 
 				return supporter.PathViewLPA.RedirectQuery(w, r, appData, appData.LpaID, url.Values{
-					"accessRemovedFor": {shareCodeData.InviteSentTo},
+					"accessRemovedFor": {accessCodeData.InviteSentTo},
 				})
 
 			default:
@@ -91,7 +91,7 @@ func DonorAccess(logger Logger, tmpl template.Template, donorStore DonorStore, s
 				}
 
 				plainCode, hashedCode := generate()
-				shareCodeData := sharecodedata.Link{
+				accessCodeData := accesscodedata.Link{
 					LpaOwnerKey:  dynamo.LpaOwnerKey(organisation.PK),
 					LpaKey:       dynamo.LpaKey(appData.LpaID),
 					LpaUID:       donor.LpaUID,
@@ -99,7 +99,7 @@ func DonorAccess(logger Logger, tmpl template.Template, donorStore DonorStore, s
 					InviteSentTo: data.Form.Email,
 				}
 
-				if err := shareCodeStore.PutDonor(r.Context(), hashedCode, shareCodeData); err != nil {
+				if err := accessCodeStore.PutDonor(r.Context(), hashedCode, accessCodeData); err != nil {
 					return err
 				}
 

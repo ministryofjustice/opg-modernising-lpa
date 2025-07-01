@@ -7,31 +7,31 @@ import (
 	"time"
 
 	dynamodbtypes "github.com/aws/aws-sdk-go-v2/service/dynamodb/types"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/accesscode/accesscodedata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/appcontext"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/attorney/attorneydata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/dashboard/dashboarddata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/dynamo"
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/sharecode/sharecodedata"
 )
 
 type DynamoClient interface {
 	AllByKeys(ctx context.Context, keys []dynamo.Keys) ([]map[string]dynamodbtypes.AttributeValue, error)
 	AllByLpaUIDAndPartialSK(ctx context.Context, uid string, partialSK dynamo.SK) ([]dynamo.Keys, error)
-	AllByPartialSK(ctx context.Context, pk dynamo.PK, partialSK dynamo.SK, v interface{}) error
-	AllBySK(ctx context.Context, sk dynamo.SK, v interface{}) error
+	AllByPartialSK(ctx context.Context, pk dynamo.PK, partialSK dynamo.SK, v any) error
+	AllBySK(ctx context.Context, sk dynamo.SK, v any) error
 	AllKeysByPK(ctx context.Context, pk dynamo.PK) ([]dynamo.Keys, error)
-	BatchPut(ctx context.Context, items []interface{}) error
-	Create(ctx context.Context, v interface{}) error
+	BatchPut(ctx context.Context, items []any) error
+	Create(ctx context.Context, v any) error
 	DeleteKeys(ctx context.Context, keys []dynamo.Keys) error
 	DeleteOne(ctx context.Context, pk dynamo.PK, sk dynamo.SK) error
-	LatestForActor(ctx context.Context, sk dynamo.SK, v interface{}) error
-	One(ctx context.Context, pk dynamo.PK, sk dynamo.SK, v interface{}) error
-	OneByPK(ctx context.Context, pk dynamo.PK, v interface{}) error
-	OneByPartialSK(ctx context.Context, pk dynamo.PK, partialSK dynamo.SK, v interface{}) error
-	OneBySK(ctx context.Context, sk dynamo.SK, v interface{}) error
+	LatestForActor(ctx context.Context, sk dynamo.SK, v any) error
+	One(ctx context.Context, pk dynamo.PK, sk dynamo.SK, v any) error
+	OneByPK(ctx context.Context, pk dynamo.PK, v any) error
+	OneByPartialSK(ctx context.Context, pk dynamo.PK, partialSK dynamo.SK, v any) error
+	OneBySK(ctx context.Context, sk dynamo.SK, v any) error
 	OneByUID(ctx context.Context, uid string) (dynamo.Keys, error)
-	Put(ctx context.Context, v interface{}) error
+	Put(ctx context.Context, v any) error
 	WriteTransaction(ctx context.Context, transaction *dynamo.Transaction) error
 }
 
@@ -44,7 +44,7 @@ func NewStore(dynamoClient DynamoClient) *Store {
 	return &Store{dynamoClient: dynamoClient, now: time.Now}
 }
 
-func (s *Store) Create(ctx context.Context, shareCode sharecodedata.Link, email string) (*attorneydata.Provided, error) {
+func (s *Store) Create(ctx context.Context, link accesscodedata.Link, email string) (*attorneydata.Provided, error) {
 	data, err := appcontext.SessionFromContext(ctx)
 	if err != nil {
 		return nil, err
@@ -57,21 +57,21 @@ func (s *Store) Create(ctx context.Context, shareCode sharecodedata.Link, email 
 	attorney := &attorneydata.Provided{
 		PK:                 dynamo.LpaKey(data.LpaID),
 		SK:                 dynamo.AttorneyKey(data.SessionID),
-		UID:                shareCode.ActorUID,
+		UID:                link.ActorUID,
 		LpaID:              data.LpaID,
 		UpdatedAt:          s.now(),
-		IsReplacement:      shareCode.IsReplacementAttorney,
-		IsTrustCorporation: shareCode.IsTrustCorporation,
+		IsReplacement:      link.IsReplacementAttorney,
+		IsTrustCorporation: link.IsTrustCorporation,
 		Email:              email,
 	}
 
 	actorType := actor.TypeAttorney
 
-	if shareCode.IsTrustCorporation && shareCode.IsReplacementAttorney {
+	if link.IsTrustCorporation && link.IsReplacementAttorney {
 		actorType = actor.TypeReplacementTrustCorporation
-	} else if shareCode.IsTrustCorporation {
+	} else if link.IsTrustCorporation {
 		actorType = actor.TypeTrustCorporation
-	} else if shareCode.IsReplacementAttorney {
+	} else if link.IsReplacementAttorney {
 		actorType = actor.TypeReplacementAttorney
 	}
 
@@ -80,13 +80,13 @@ func (s *Store) Create(ctx context.Context, shareCode sharecodedata.Link, email 
 		Create(dashboarddata.LpaLink{
 			PK:        dynamo.LpaKey(data.LpaID),
 			SK:        dynamo.SubKey(data.SessionID),
-			LpaUID:    shareCode.LpaUID,
-			UID:       shareCode.ActorUID,
-			DonorKey:  shareCode.LpaOwnerKey,
+			LpaUID:    link.LpaUID,
+			UID:       link.ActorUID,
+			DonorKey:  link.LpaOwnerKey,
 			ActorType: actorType,
 			UpdatedAt: s.now(),
 		}).
-		Delete(dynamo.Keys{PK: shareCode.PK, SK: shareCode.SK})
+		Delete(dynamo.Keys{PK: link.PK, SK: link.SK})
 
 	if err := s.dynamoClient.WriteTransaction(ctx, transaction); err != nil {
 		return nil, err

@@ -1,8 +1,8 @@
-import { randomShareCode } from "../../support/e2e";
+import { randomAccessCode } from "../../support/e2e";
 
 describe('Reuse certificate provider', () => {
     before(() => {
-        const sub = randomShareCode();
+        const sub = randomAccessCode();
 
         cy.visit(`/fixtures?donorSub=${sub}&progress=chooseYourCertificateProvider&redirect=/task-list`);
         cy.visit(`/fixtures?donorSub=${sub}&progress=addRestrictionsToTheLpa&redirect=/task-list`);

@@ -9,6 +9,8 @@ import (
 	"time"
 
 	"github.com/ministryofjustice/opg-go-common/template"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/accesscode"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/accesscode/accesscodedata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor/actoruid"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/appcontext"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/attorney/attorneydata"
@@ -23,8 +25,6 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/random"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/sesh"
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/sharecode"
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/sharecode/sharecodedata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/supporter"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/task"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/uid"
@@ -33,24 +33,24 @@ import (
 
 type DonorStore interface {
 	Create(ctx context.Context) (*donordata.Provided, error)
-	Link(ctx context.Context, shareCode sharecodedata.Link, donorEmail string) error
+	Link(ctx context.Context, link accesscodedata.Link, donorEmail string) error
 	Put(ctx context.Context, donorProvidedDetails *donordata.Provided) error
 }
 
 type CertificateProviderStore interface {
-	Create(ctx context.Context, shareCode sharecodedata.Link, email string) (*certificateproviderdata.Provided, error)
+	Create(ctx context.Context, link accesscodedata.Link, email string) (*certificateproviderdata.Provided, error)
 	Put(ctx context.Context, certificateProvider *certificateproviderdata.Provided) error
 }
 
 type AttorneyStore interface {
-	Create(ctx context.Context, shareCode sharecodedata.Link, email string) (*attorneydata.Provided, error)
+	Create(ctx context.Context, link accesscodedata.Link, email string) (*attorneydata.Provided, error)
 	Put(ctx context.Context, attorney *attorneydata.Provided) error
 }
 
 func Attorney(
 	tmpl template.Template,
 	sessionStore *sesh.Store,
-	shareCodeSender *sharecode.Sender,
+	accessCodeSender *accesscode.Sender,
 	donorStore DonorStore,
 	certificateProviderStore CertificateProviderStore,
 	attorneyStore AttorneyStore,
@@ -58,7 +58,7 @@ func Attorney(
 	lpaStoreClient *lpastore.Client,
 	organisationStore OrganisationStore,
 	memberStore *supporter.MemberStore,
-	shareCodeStore *sharecode.Store,
+	accessCodeStore *accesscode.Store,
 	dynamoClient DynamoClient,
 ) page.Handler {
 	progressValues := []string{
@@ -80,7 +80,7 @@ func Attorney(
 			email       = r.FormValue("email")
 			redirect    = r.FormValue("redirect")
 			attorneySub = r.FormValue("attorneySub")
-			shareCode   = r.FormValue("withShareCode")
+			accessCode  = r.FormValue("withAccessCode")
 
 			progress = slices.Index(progressValues, r.FormValue("progress"))
 
@@ -168,7 +168,7 @@ func Attorney(
 			}
 
 			if isSupported {
-				if err := donorStore.Link(appcontext.ContextWithSession(r.Context(), createSession), sharecodedata.Link{
+				if err := donorStore.Link(appcontext.ContextWithSession(r.Context(), createSession), accesscodedata.Link{
 					LpaKey:      donorDetails.PK,
 					LpaOwnerKey: donorDetails.SK,
 					LpaUID:      donorDetails.LpaUID,
@@ -257,7 +257,7 @@ func Attorney(
 		donorDetails.HowShouldReplacementAttorneysStepIn = lpadata.ReplacementAttorneysStepInWhenAllCanNoLongerAct
 		donorDetails.Tasks.PayForLpa = task.PaymentStateCompleted
 
-		certificateProvider, err := createCertificateProvider(certificateProviderCtx, shareCodeStore, certificateProviderStore, donorDetails)
+		certificateProvider, err := createCertificateProvider(certificateProviderCtx, accessCodeStore, certificateProviderStore, donorDetails)
 		if err != nil {
 			return err
 		}
@@ -267,7 +267,7 @@ func Attorney(
 
 		attorney, err := createAttorney(
 			attorneyCtx,
-			shareCodeStore,
+			accessCodeStore,
 			attorneyStore,
 			attorneyUID,
 			isReplacement,
@@ -320,7 +320,7 @@ func Attorney(
 
 					attorney, err := createAttorney(
 						ctx,
-						shareCodeStore,
+						accessCodeStore,
 						attorneyStore,
 						a.UID,
 						isReplacement,
@@ -351,7 +351,7 @@ func Attorney(
 
 					attorney, err := createAttorney(
 						ctx,
-						shareCodeStore,
+						accessCodeStore,
 						attorneyStore,
 						list.TrustCorporation.UID,
 						isReplacement,
@@ -464,8 +464,8 @@ func Attorney(
 		}
 
 		// should only be used in tests as otherwise people can read their emails...
-		if shareCode != "" {
-			shareCodeSender.UseTestCode(shareCode)
+		if accessCode != "" {
+			accessCodeSender.UseTestCode(accessCode)
 		}
 
 		if email != "" {
@@ -499,7 +499,7 @@ func Attorney(
 				lpa.ReplacementAttorneys = lpadata.Attorneys{}
 			}
 
-			shareCodeSender.SendAttorneys(donorCtx, appcontext.Data{
+			accessCodeSender.SendAttorneys(donorCtx, appcontext.Data{
 				SessionID: donorSessionID,
 				LpaID:     donorDetails.LpaID,
 				Localizer: appData.Localizer,

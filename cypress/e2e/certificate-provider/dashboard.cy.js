@@ -1,4 +1,4 @@
-import { randomShareCode, TestEmail } from "../../support/e2e.js";
+import { randomAccessCode, TestEmail } from "../../support/e2e.js";
 
 describe('Dashboard', () => {
     context('confirmed identity', () => {
@@ -53,8 +53,8 @@ describe('Dashboard', () => {
 
     context('with existing LPAs and a certificate provider share code', () => {
         it('can add access to provide a certificate', () => {
-            const randomCode = randomShareCode();
-            cy.visit(`/fixtures/certificate-provider?redirect=&withShareCode=${randomCode}&progress=signedByDonor&email=${TestEmail}`);
+            const randomCode = randomAccessCode();
+            cy.visit(`/fixtures/certificate-provider?redirect=&withAccessCode=${randomCode}&progress=signedByDonor&email=${TestEmail}`);
             cy.visit(`/fixtures?redirect=/task-list&progress=provideYourDetails`);
 
             cy.contains('a', 'Make or add an LPA').click();

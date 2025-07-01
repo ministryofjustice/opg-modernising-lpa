@@ -13,6 +13,8 @@ import (
 	"time"
 
 	"github.com/ministryofjustice/opg-go-common/template"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/accesscode"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/accesscode/accesscodedata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor/actoruid"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/appcontext"
@@ -34,8 +36,6 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/random"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/reuse"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/sesh"
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/sharecode"
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/sharecode/sharecodedata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/task"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/uid"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/voucher"
@@ -113,7 +113,7 @@ func Donor(
 	documentStore DocumentStore,
 	eventClient *event.Client,
 	lpaStoreClient *lpastore.Client,
-	shareCodeStore *sharecode.Store,
+	accessCodeStore *accesscode.Store,
 	voucherStore *voucher.Store,
 	reuseStore *reuse.Store,
 	notifyClient *notify.Client,
@@ -181,7 +181,7 @@ func Donor(
 		donorCtx := appcontext.ContextWithSession(r.Context(), &appcontext.Session{SessionID: donorSessionID, LpaID: donorDetails.LpaID})
 
 		var fns []func(context.Context, *lpastore.Client, *lpadata.Lpa) error
-		donorDetails, fns, err = updateLPAProgress(donorCtx, data, donorDetails, donorSessionID, r, certificateProviderStore, attorneyStore, documentStore, eventClient, shareCodeStore, voucherStore, reuseStore, notifyClient, appPublicURL)
+		donorDetails, fns, err = updateLPAProgress(donorCtx, data, donorDetails, donorSessionID, r, certificateProviderStore, attorneyStore, documentStore, eventClient, accessCodeStore, voucherStore, reuseStore, notifyClient, appPublicURL)
 		if err != nil {
 			return err
 		}
@@ -234,7 +234,7 @@ func updateLPAProgress(
 	attorneyStore AttorneyStore,
 	documentStore DocumentStore,
 	eventClient *event.Client,
-	shareCodeStore *sharecode.Store,
+	accessCodeStore *accesscode.Store,
 	voucherStore *voucher.Store,
 	reuseStore *reuse.Store,
 	notifyClient *notify.Client,
@@ -561,7 +561,7 @@ func updateLPAProgress(
 
 			ctx := appcontext.ContextWithSession(r.Context(), &appcontext.Session{SessionID: random.AlphaNumeric(16), LpaID: donorDetails.LpaID})
 
-			voucherDetails, err := createVoucher(ctx, shareCodeStore, voucherStore, donorDetails)
+			voucherDetails, err := createVoucher(ctx, accessCodeStore, voucherStore, donorDetails)
 			if err != nil {
 				return nil, nil, fmt.Errorf("error creating voucher: %v", err)
 			}
@@ -673,9 +673,9 @@ func updateLPAProgress(
 	certificateProviderCtx := appcontext.ContextWithSession(r.Context(), &appcontext.Session{SessionID: certificateProviderSessionID, LpaID: donorDetails.LpaID})
 
 	if data.Progress >= slices.Index(progressValues, "certificateProviderInvited") {
-		plainCode, hashedCode := sharecodedata.Generate()
-		shareCodeData := sharecodedata.Link{
-			PK:          dynamo.ShareKey(dynamo.CertificateProviderShareKey(hashedCode.String())),
+		plainCode, hashedCode := accesscodedata.Generate()
+		accessCodeData := accesscodedata.Link{
+			PK:          dynamo.AccessKey(dynamo.CertificateProviderAccessKey(hashedCode.String())),
 			SK:          dynamo.ShareSortKey(dynamo.MetadataKey(hashedCode.String())),
 			ActorUID:    donorDetails.CertificateProvider.UID,
 			LpaOwnerKey: donorDetails.SK,
@@ -683,7 +683,7 @@ func updateLPAProgress(
 			LpaKey:      donorDetails.PK,
 		}
 
-		err := shareCodeStore.Put(certificateProviderCtx, actor.TypeCertificateProvider, hashedCode, shareCodeData)
+		err := accessCodeStore.Put(certificateProviderCtx, actor.TypeCertificateProvider, hashedCode, accessCodeData)
 		if err != nil {
 			return nil, nil, err
 		}
@@ -708,7 +708,7 @@ func updateLPAProgress(
 
 	if data.Progress >= slices.Index(progressValues, "certificateProviderAccessCodeUsed") {
 		var err error
-		certificateProvider, err = createCertificateProvider(certificateProviderCtx, shareCodeStore, certificateProviderStore, donorDetails)
+		certificateProvider, err = createCertificateProvider(certificateProviderCtx, accessCodeStore, certificateProviderStore, donorDetails)
 		if err != nil {
 			return nil, nil, err
 		}
@@ -750,7 +750,7 @@ func updateLPAProgress(
 
 				attorney, err := createAttorney(
 					ctx,
-					shareCodeStore,
+					accessCodeStore,
 					attorneyStore,
 					a.UID,
 					isReplacement,
@@ -783,7 +783,7 @@ func updateLPAProgress(
 
 				attorney, err := createAttorney(
 					ctx,
-					shareCodeStore,
+					accessCodeStore,
 					attorneyStore,
 					list.TrustCorporation.UID,
 					isReplacement,

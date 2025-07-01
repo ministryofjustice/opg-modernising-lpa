@@ -9,6 +9,8 @@ import (
 	"time"
 
 	"github.com/ministryofjustice/opg-go-common/template"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/accesscode"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/accesscode/accesscodedata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor/actoruid"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/appcontext"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/date"
@@ -23,8 +25,6 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/place"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/random"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/sesh"
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/sharecode"
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/sharecode/sharecodedata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/supporter"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/task"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/uid"
@@ -33,7 +33,7 @@ import (
 func CertificateProvider(
 	tmpl template.Template,
 	sessionStore *sesh.Store,
-	shareCodeSender *sharecode.Sender,
+	accessCodeSender *accesscode.Sender,
 	donorStore DonorStore,
 	certificateProviderStore CertificateProviderStore,
 	eventClient *event.Client,
@@ -41,7 +41,7 @@ func CertificateProvider(
 	dynamoClient DynamoClient,
 	organisationStore OrganisationStore,
 	memberStore *supporter.MemberStore,
-	shareCodeStore *sharecode.Store,
+	accessCodeStore *accesscode.Store,
 ) page.Handler {
 	progressValues := []string{
 		"paid",
@@ -72,7 +72,7 @@ func CertificateProvider(
 			progress = slices.Index(progressValues, r.FormValue("progress"))
 
 			redirect                   = r.FormValue("redirect")
-			shareCode                  = r.FormValue("withShareCode")
+			accessCode                 = r.FormValue("withAccessCode")
 			idStatus                   = r.FormValue("idStatus")
 			certificateProviderChannel = r.FormValue("certificateProviderChannel")
 		)
@@ -265,7 +265,7 @@ func CertificateProvider(
 				return err
 			}
 
-			if err := donorStore.Link(appcontext.ContextWithSession(r.Context(), orgSession), sharecodedata.Link{
+			if err := donorStore.Link(appcontext.ContextWithSession(r.Context(), orgSession), accesscodedata.Link{
 				LpaKey:      donorDetails.PK,
 				LpaOwnerKey: donorDetails.SK,
 				LpaUID:      donorDetails.LpaUID,
@@ -358,12 +358,12 @@ func CertificateProvider(
 		}
 
 		// should only be used in tests as otherwise people can read their emails...
-		if shareCode != "" {
-			shareCodeSender.UseTestCode(shareCode)
+		if accessCode != "" {
+			accessCodeSender.UseTestCode(accessCode)
 		}
 
 		if email != "" {
-			shareCodeSender.SendCertificateProviderInvite(donorCtx, appcontext.Data{
+			accessCodeSender.SendCertificateProviderInvite(donorCtx, appcontext.Data{
 				SessionID: donorSessionID,
 				LpaID:     donorDetails.LpaID,
 				Localizer: appData.Localizer,
@@ -384,7 +384,7 @@ func CertificateProvider(
 			return nil
 		}
 
-		certificateProvider, err := createCertificateProvider(certificateProviderCtx, shareCodeStore, certificateProviderStore, donorDetails)
+		certificateProvider, err := createCertificateProvider(certificateProviderCtx, accessCodeStore, certificateProviderStore, donorDetails)
 		if err != nil {
 			return err
 		}
