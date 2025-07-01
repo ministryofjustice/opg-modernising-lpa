@@ -75,7 +75,8 @@ variable "environments" {
         copy_action_enabled = bool
       })
       dynamodb = object({
-        table_name             = string
+        lpas_table_name        = string
+        sessions_table_name    = string
         region_replica_enabled = bool
         cloudtrail_enabled     = bool
       })
