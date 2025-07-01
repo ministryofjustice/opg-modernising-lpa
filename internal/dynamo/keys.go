@@ -333,7 +333,7 @@ func ScheduledKey(at time.Time, rnd string) ScheduledKeyType {
 }
 
 func PartialScheduledKey() ScheduledKeyType {
-	return ScheduledKeyType(scheduledPrefix + "#")
+	return scheduledPrefix + "#"
 }
 
 type ReservedKeyType string
@@ -361,7 +361,7 @@ type SessionKeyType string
 
 func (t SessionKeyType) PK() string { return string(t) }
 
-// SessionKey is used as the PK (with MetadataKey as SK) to store a session.
+// SessionKey is used as the PK (with MetaDataKey as SK) to store a session.
 func SessionKey(uid string) SessionKeyType {
 	return SessionKeyType(sessionPrefix + "#" + uid)
 }

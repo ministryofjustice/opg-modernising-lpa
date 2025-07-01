@@ -92,7 +92,8 @@ func run(ctx context.Context, logger *slog.Logger) error {
 		clientID                    = cmp.Or(os.Getenv("CLIENT_ID"), "client-id-value")
 		issuer                      = cmp.Or(os.Getenv("ISSUER"), "http://mock-onelogin:8080")
 		identityURL                 = cmp.Or(os.Getenv("IDENTITY_URL"), "http://mock-onelogin:8080")
-		dynamoTableLpas             = cmp.Or(os.Getenv("DYNAMODB_TABLE_LPAS"), "lpas")
+		dynamoTableLpas             = cmp.Or(os.Getenv("DYNAMODB_TABLE_LPAS"), "Lpas")
+		dynamoTableSessions         = cmp.Or(os.Getenv("DYNAMODB_TABLE_SESSIONS"), "Sessions")
 		notifyBaseURL               = cmp.Or(os.Getenv("GOVUK_NOTIFY_BASE_URL"), "http://mock-notify:8080")
 		ordnanceSurveyBaseURL       = cmp.Or(os.Getenv("ORDNANCE_SURVEY_BASE_URL"), "http://mock-os-api:8080")
 		payBaseURL                  = cmp.Or(os.Getenv("GOVUK_PAY_BASE_URL"), "http://mock-pay:8080")
@@ -220,6 +221,11 @@ func run(ctx context.Context, logger *slog.Logger) error {
 		return err
 	}
 
+	sessionsDynamoClient, err := dynamo.NewClient(cfg, dynamoTableSessions)
+	if err != nil {
+		return err
+	}
+
 	eventClient := event.NewClient(cfg, eventBusName, environment)
 
 	searchClient, err := search.NewClient(cfg, searchEndpoint, searchIndexName, searchIndexingEnabled)
@@ -241,7 +247,7 @@ func run(ctx context.Context, logger *slog.Logger) error {
 		return err
 	}
 
-	sessionStore := sesh.NewStore(lpasDynamoClient, sessionKeys)
+	sessionStore := sesh.NewStore(sessionsDynamoClient, sessionKeys)
 
 	redirectURL := authRedirectBaseURL + page.PathAuthRedirect.Format()
 

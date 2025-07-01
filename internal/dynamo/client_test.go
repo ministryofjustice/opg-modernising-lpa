@@ -5,6 +5,7 @@ import (
 	"errors"
 	"fmt"
 	"testing"
+	"time"
 
 	"github.com/aws/aws-sdk-go-v2/aws"
 	"github.com/aws/aws-sdk-go-v2/feature/dynamodb/attributevalue"
@@ -1024,4 +1025,62 @@ func TestAllByLpaUIDAndPartialSKWhenUnmarshalError(t *testing.T) {
 
 	_, err := c.AllByLpaUIDAndPartialSK(ctx, "lpa-uid", testSK("a-partial-sk"))
 	assert.Error(t, err)
+}
+
+func TestOneActive(t *testing.T) {
+	expected := map[string]string{"Col": "Val"}
+	data, _ := attributevalue.MarshalMap(expected)
+	now := time.Date(2000, time.January, 2, 12, 13, 14, 15, time.UTC)
+
+	dynamoDB := newMockDynamoDB(t)
+	dynamoDB.EXPECT().
+		Query(ctx, &dynamodb.QueryInput{
+			TableName:                aws.String("this"),
+			ExpressionAttributeNames: map[string]string{"#PK": "PK", "#SK": "SK", "#ExpiresAt": "ExpiresAt"},
+			ExpressionAttributeValues: map[string]types.AttributeValue{
+				":PK":  &types.AttributeValueMemberS{Value: "a-pk"},
+				":SK":  &types.AttributeValueMemberS{Value: "a-sk"},
+				":now": &types.AttributeValueMemberN{Value: "946815194"},
+			},
+			KeyConditionExpression: aws.String("#PK = :PK and #SK = :SK"),
+			Limit:                  aws.Int32(1),
+			FilterExpression:       aws.String("#ExpiresAt > :now"),
+		}).
+		Return(&dynamodb.QueryOutput{Items: []map[string]types.AttributeValue{data}}, nil)
+
+	c := &Client{table: "this", svc: dynamoDB}
+
+	var v map[string]string
+	err := c.OneActive(context.Background(), testPK("a-pk"), testSK("a-sk"), now, &v)
+
+	assert.Nil(t, err)
+	assert.Equal(t, expected, v)
+}
+
+func TestOneActiveWhenQueryError(t *testing.T) {
+	dynamoDB := newMockDynamoDB(t)
+	dynamoDB.EXPECT().
+		Query(mock.Anything, mock.Anything).
+		Return(&dynamodb.QueryOutput{}, expectedError)
+
+	c := &Client{table: "this", svc: dynamoDB}
+
+	var v map[string]string
+	err := c.OneActive(context.Background(), testPK("a-pk"), testSK("a-sk"), time.Time{}, &v)
+
+	assert.Equal(t, expectedError, err)
+}
+
+func TestOneActiveWhenNoResults(t *testing.T) {
+	dynamoDB := newMockDynamoDB(t)
+	dynamoDB.EXPECT().
+		Query(mock.Anything, mock.Anything).
+		Return(&dynamodb.QueryOutput{}, nil)
+
+	c := &Client{table: "this", svc: dynamoDB}
+
+	var v map[string]string
+	err := c.OneActive(context.Background(), testPK("a-pk"), testSK("a-sk"), time.Time{}, &v)
+
+	assert.ErrorIs(t, NotFoundError{}, err)
 }
