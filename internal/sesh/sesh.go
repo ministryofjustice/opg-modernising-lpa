@@ -79,7 +79,7 @@ type Store struct {
 func NewStore(dynamoClient DynamoClient, keyPairs [][]byte) *Store {
 	return &Store{
 		s: sessions.NewCookieStore(keyPairs...),
-		d: NewDynamoStore(dynamoClient, keyPairs...),
+		d: NewDynamoStore(dynamoClient, time.Now, keyPairs...),
 	}
 }
 
@@ -171,8 +171,8 @@ func (s *Store) Login(r *http.Request) (*LoginSession, error) {
 	return getSession[*LoginSession](s.d, cookieSession, "session", r)
 }
 
-func (s *Store) SetLogin(r *http.Request, w http.ResponseWriter, donorSession *LoginSession) error {
-	return setSession(s.d, cookieSession, "session", r, w, donorSession, sessionCookieOptions)
+func (s *Store) SetLogin(r *http.Request, w http.ResponseWriter, loginSession *LoginSession) error {
+	return setSession(s.d, cookieSession, "session", r, w, loginSession, sessionCookieOptions)
 }
 
 func (s *Store) ClearLogin(r *http.Request, w http.ResponseWriter) error {

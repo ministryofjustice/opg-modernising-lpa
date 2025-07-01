@@ -20,7 +20,7 @@ awslocal secretsmanager create-secret --region eu-west-1 --name "lpa-store-jwt-s
 echo 'creating tables'
 awslocal dynamodb create-table \
  --region eu-west-1 \
- --table-name lpas \
+ --table-name Lpas \
  --attribute-definitions AttributeName=PK,AttributeType=S AttributeName=SK,AttributeType=S AttributeName=LpaUID,AttributeType=S AttributeName=UpdatedAt,AttributeType=S \
  --key-schema AttributeName=PK,KeyType=HASH AttributeName=SK,KeyType=RANGE \
  --provisioned-throughput ReadCapacityUnits=1000,WriteCapacityUnits=1000 \
@@ -28,11 +28,14 @@ awslocal dynamodb create-table \
 
 awslocal dynamodb create-table \
  --region eu-west-1 \
- --table-name lpas-test \
- --attribute-definitions AttributeName=PK,AttributeType=S AttributeName=SK,AttributeType=S AttributeName=LpaUID,AttributeType=S AttributeName=UpdatedAt,AttributeType=S \
+ --table-name Sessions \
+ --attribute-definitions AttributeName=PK,AttributeType=S AttributeName=SK,AttributeType=S \
  --key-schema AttributeName=PK,KeyType=HASH AttributeName=SK,KeyType=RANGE \
- --provisioned-throughput ReadCapacityUnits=1000,WriteCapacityUnits=1000 \
- --global-secondary-indexes file:///usr/dynamodb-lpa-gsi-schema.json
+ --provisioned-throughput ReadCapacityUnits=1000,WriteCapacityUnits=1000
+
+echo 'adding ttl to sessions table'
+awslocal dynamodb wait table-exists --region eu-west-1 --table-name Sessions
+awslocal dynamodb update-time-to-live --region eu-west-1 --table-name Sessions --time-to-live-specification "Enabled=true, AttributeName=ExpiresAt"
 
 echo 'creating bucket'
 awslocal s3api create-bucket --bucket evidence --create-bucket-configuration LocationConstraint=eu-west-1
