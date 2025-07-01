@@ -262,7 +262,7 @@
     "signYourLpa": "Sign your LPA",
     "signingYourLpaIsAnImportant": "Signing your LPA is an important and powerful legal step.",
     "bySigningIConfirm": "By signing my {{lowerFirst .LpaType }} LPA, I confirm all of the following:",
-    "iHaveReadLpa": "I have read my LPA or have had it read to me. This includes my legal rights and responsibilities",
+    "iHaveReadLpa": "I have read my LPA or have had it read to me – this includes my legal rights and responsibilities",
     "iGiveAttorneysAuthority": "I give my attorneys authority to make decisions about my {{lowerFirst .LpaType}}, including when I cannot act for myself because I do not have mental capacity",
     "iGiveAttorneysAuthorityWhenRegistered": "I give my attorneys authority to make decisions about my property and affairs, once this LPA is registered and including when I no longer have capacity",
     "iGiveAttorneysAuthorityWhenLostMentalCapacity": "I give my attorneys authority to make decisions about my property and affairs when I cannot act for myself because I do not have mental capacity",
