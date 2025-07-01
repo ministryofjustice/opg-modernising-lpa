@@ -111,7 +111,6 @@ func DonorAccess(logger Logger, tmpl template.Template, donorStore DonorStore, a
 					DonorName:          donor.Donor.FullName(),
 					URL:                donorStartURL,
 					AccessCode:         plainCode.Plain(),
-					ShareCode:          plainCode.Plain(),
 				}); err != nil {
 					return err
 				}

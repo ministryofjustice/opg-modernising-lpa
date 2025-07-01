@@ -66,7 +66,7 @@ func (s WitnessCodeSMS) smsID(lang localize.Lang) string {
 }
 
 type VouchingAccessCodeSMS struct {
-	AccessCode, ShareCode     string
+	AccessCode                string
 	DonorFullNamePossessive   string
 	LpaType                   string
 	LpaReferenceNumber        string
