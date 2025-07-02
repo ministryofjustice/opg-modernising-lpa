@@ -126,6 +126,11 @@ jobs:
         if: inputs.skip != true
         run: yarn install --frozen-lockfile --ignore-optional
 
+      - name: Integration tests
+        if: inputs.skip != true
+        run:
+          make go-integration-test
+
       - name: Cypress run
         if: inputs.skip != true
         env:
