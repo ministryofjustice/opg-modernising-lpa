@@ -1874,5 +1874,6 @@
     "iHaveACodeInvitingMeToBeAReplacementAttorney": "I have a code inviting me to be a replacement attorney",
     "iHaveACodeInvitingMeToVerifySomeonesIdentity": "I have a code inviting me to verify someone’s identity",
     "donorLastName": "Donor’s last name",
-    "yourLastName": "Your last name"
+    "yourLastName": "Your last name",
+    "iUnderstandWhetherICanConstentToLst": "I understand whether I can consent or not consent to LST on behalf of the donor"
 }
