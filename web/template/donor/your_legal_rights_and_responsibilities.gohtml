@@ -10,6 +10,7 @@
       <p class="govuk-body-l">{{ tr .App "beforeSigningYouMustReadAgain" }}</p>
 
       {{ trFormatHtml .App "yourLegalRightsAndResponsibilitiesContent"
+          "LpaType" (tr .App .Donor.Type.String | lowerFirst)
           "CanBeUsedWhenBullet" (tr .App (printf "canBeUsedWhenBullet:%s" .Donor.WhenCanTheLpaBeUsed.String))  }}
 
       <div class="govuk-button-group govuk-!-margin-top-8">

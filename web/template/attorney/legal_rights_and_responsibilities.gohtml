@@ -14,9 +14,15 @@
       <h1 class="govuk-heading-xl">{{ template "pageTitle" . }}</h1>
 
       {{ if .App.IsTrustCorporation }}
-        {{ trFormatHtml .App "trustCorporationRightsAndResponsibilitiesContent" "DonorFullName" .Lpa.Donor.FullName }}
+        {{ trFormatHtml .App "trustCorporationRightsAndResponsibilitiesContent"
+            "DonorFullName" .Lpa.Donor.FullName
+            "LpaType" (tr .App .Lpa.Type.String | lowerFirst)
+            "CanBeUsedWhenBullet" (printf "attorneyCanBeUsedWhenBullet:%s" .Lpa.WhenCanTheLpaBeUsed.String | tr .App) }}
       {{ else }}
-        {{ trFormatHtml .App "attorneyRightsAndResponsibilitiesContent" "DonorFullName" .Lpa.Donor.FullName }}
+        {{ trFormatHtml .App "attorneyRightsAndResponsibilitiesContent"
+            "DonorFullName" .Lpa.Donor.FullName
+            "LpaType" (tr .App .Lpa.Type.String | lowerFirst)
+            "CanBeUsedWhenBullet" (printf "attorneyCanBeUsedWhenBullet:%s" .Lpa.WhenCanTheLpaBeUsed.String | tr .App) }}
       {{ end }}
 
       {{ template "buttons" (button .App "continue" "link" (global.Paths.Attorney.WhatHappensWhenYouSign.Format .App.LpaID)) }}
