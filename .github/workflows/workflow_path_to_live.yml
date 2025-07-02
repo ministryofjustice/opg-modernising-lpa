@@ -41,10 +41,15 @@ jobs:
       pact_broker_password: ${{ secrets.PACT_BROKER_PASSWORD }}
       codecov_token: ${{ secrets.CODECOV_TOKEN }}
 
+  go_integration_tests:
+    name: Run Go integration tests
+    uses: ./.github/workflows/go-integration-tests.yml
+    needs: [create_tags]
+
   docker_build_scan_push:
     name: Docker Build, Scan and Push
     uses: ./.github/workflows/docker_job.yml
-    needs: [go_unit_tests,create_tags]
+    needs: [go_unit_tests,go_integration_tests,create_tags]
     with:
       tag: ${{ needs.create_tags.outputs.version_tag }}
       branch_name: main
