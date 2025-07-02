@@ -26,7 +26,7 @@ help: ##@other Show this help.
 	@perl -e '$(HELP_FUN)' $(MAKEFILE_LIST)
 
 go-test: ##@testing Runs full go test suite
-	go test ./... -race -covermode=atomic -coverprofile=coverage.out
+	go test -short ./... -race -covermode=atomic -coverprofile=coverage.out
 
 go-generate: ##@testing Runs go generate for mocks and enums
 	git ls-files | grep '.*/enum_.*\.go' | xargs rm -f
@@ -45,7 +45,7 @@ else
 	$(eval t="/tmp/go-cover.tmp")
 	$(eval path="./internal/...")
 endif
-	go test -coverprofile=$(t) $(path) && go tool cover -html=$(t) && unlink $(t)
+	go test -short -coverprofile=$(t) $(path) && go tool cover -html=$(t) && unlink $(t)
 
 down: ##@build Takes all containers down
 	COMPOSE_DOCKER_CLI_BUILD=1 DOCKER_BUILDKIT=1 DOCKER_DEFAULT_PLATFORM=linux/$(shell go env GOARCH) docker compose -f docker/docker-compose.yml -f docker/docker-compose.dev.yml down
