@@ -60,14 +60,17 @@
                     {{ if .App.IsTrustCorporation }}
                         {{ trHtml .App "signAsTrustCorporationBullets" }}
                     {{ else }}
-                        {{ trHtml .App "signAsAttorneyBullets" }}
+                        {{ trFormatHtml .App "signAsAttorneyBullets" "DonorFullName" .Lpa.Donor.FullName }}
+                    {{ end }}
+                    {{ if .Lpa.Type.IsPersonalWelfare }}
+                        <li>{{ tr .App "iUnderstandWhetherICanConstentToLst" }}</li>
                     {{ end }}
                     <li>
                         {{ if .LpaCanBeUsedWhenHasCapacity }}
                             {{ if .App.IsTrustCorporation }}
                                 {{ tr .App "signAsTrustCorporationWhenRegisteredBullet" }}
                             {{ else }}
-                                {{ tr .App "signAsAttorneyWhenRegisteredBullet" }}
+                                {{ trFormat .App "signAsAttorneyWhenRegisteredBullet" "DonorFullName" .Lpa.Donor.FullName }}
                             {{ end }}
                         {{ else }}
                             {{ if .App.IsTrustCorporation }}

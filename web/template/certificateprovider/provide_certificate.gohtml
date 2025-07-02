@@ -17,7 +17,7 @@
 
             <h2 class="govuk-heading-m">{{ tr .App "yourStatementAsCertificateProvider" }}</h2>
 
-            {{ trHtml .App "provideTheCertificateForThisLpaContent" }}
+            {{ trFormatHtml .App "provideTheCertificateForThisLpaContent" "DonorFullName" .Lpa.Donor.FullName }}
 
             <form novalidate method="post">
                 <div class="govuk-summary-card">
