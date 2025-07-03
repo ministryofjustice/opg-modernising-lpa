@@ -31,12 +31,13 @@ For supporters there is data for the organisation, but also the LPA is stored ag
 
 For sharing an LPA with each actor we generate records like:
 
-	| PK                           | SK                       | Description                                                    | Type               |
-	| ---------------------------- | ------------------------ | -------------------------------------------------------------- | ------------------ |
+	| PK                           | SK                       | Description                                                    | Type                |
+	| ---------------------------- | ------------------------ | -------------------------------------------------------------- | ------------------- |
 	| VOUCHERSHAREKEY#...          | VOUCHERSHARESORT#...     | A share of the LPA to a voucher                                | accesscodedata.Link |
 	| DONORSHAREKEY#...            | DONORINVITE#...          | A share of an organisation created LPA to a donor              | accesscodedata.Link |
 	| CERTIFICATEPROVIDERSHARE#... | METADATA#...             | A share of the LPA to a certificate provider                   | accesscodedata.Link |
 	| ATTORNEYSHARE#...            | METADATA#...             | A share of the LPA to an attorney (or replacement/trust corp.) | accesscodedata.Link |
+	| ACTORACCESS#...              | METADATA#...             | Ensure an actor only has one access code                       |                     |
 
 The scheduler uses the following structure:
 

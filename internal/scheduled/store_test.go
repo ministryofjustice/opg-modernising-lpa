@@ -33,7 +33,7 @@ func TestStorePop(t *testing.T) {
 
 	dynamoClient := newMockDynamoClient(t)
 	dynamoClient.EXPECT().
-		AnyByPK(ctx, dynamo.ScheduledDayKey(testNow), mock.Anything).
+		OneByPK(ctx, dynamo.ScheduledDayKey(testNow), mock.Anything).
 		Return(nil).
 		SetData(row)
 	dynamoClient.EXPECT().
@@ -46,10 +46,10 @@ func TestStorePop(t *testing.T) {
 	assert.Equal(t, movedRow, result)
 }
 
-func TestStorePopWhenAnyByPKErrors(t *testing.T) {
+func TestStorePopWhenOneByPKErrors(t *testing.T) {
 	dynamoClient := newMockDynamoClient(t)
 	dynamoClient.EXPECT().
-		AnyByPK(mock.Anything, mock.Anything, mock.Anything).
+		OneByPK(mock.Anything, mock.Anything, mock.Anything).
 		Return(expectedError)
 
 	store := &Store{dynamoClient: dynamoClient}
@@ -60,7 +60,7 @@ func TestStorePopWhenAnyByPKErrors(t *testing.T) {
 func TestStorePopWhenDeleteOneErrors(t *testing.T) {
 	dynamoClient := newMockDynamoClient(t)
 	dynamoClient.EXPECT().
-		AnyByPK(mock.Anything, mock.Anything, mock.Anything).
+		OneByPK(mock.Anything, mock.Anything, mock.Anything).
 		Return(nil).
 		SetData(&Event{
 			Action:            99,
