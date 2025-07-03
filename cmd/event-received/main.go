@@ -103,10 +103,8 @@ type dynamodbClient interface {
 	AllByPartialSK(ctx context.Context, pk dynamo.PK, partialSK dynamo.SK, v any) error
 	AllBySK(ctx context.Context, sk dynamo.SK, v any) error
 	AllKeysByPK(ctx context.Context, pk dynamo.PK) ([]dynamo.Keys, error)
-	AnyByPK(ctx context.Context, pk dynamo.PK, v any) error
 	BatchPut(ctx context.Context, items []any) error
 	Create(ctx context.Context, v any) error
-	CreateOnly(ctx context.Context, v any) error
 	DeleteKeys(ctx context.Context, keys []dynamo.Keys) error
 	DeleteOne(ctx context.Context, pk dynamo.PK, sk dynamo.SK) error
 	LatestForActor(ctx context.Context, sk dynamo.SK, v any) error
