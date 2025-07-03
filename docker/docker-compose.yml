@@ -25,13 +25,15 @@ services:
       - AWS_BASE_URL=http://localstack:4566
       - AWS_REGION=eu-west-1
       - AWS_SECRET_ACCESS_KEY=fakeAccessKey
+      - DEV_MODE=1
+      - DYNAMODB_TABLE_LPAS=Lpas
+      - DYNAMODB_TABLE_SESSIONS=Sessions
+      - ENVIRONMENT=local
+      - LPA_STORE_SECRET_ARN=lpa-store-jwt-secret-key
+      - SCHEDULED_RUNNER_PERIOD=1m
       - SEARCH_ENDPOINT=http://my-domain.eu-west-1.opensearch.localhost.localstack.cloud:4566
       - SEARCH_INDEXING_DISABLED=0
-      - DEV_MODE=1
-      - SCHEDULED_RUNNER_PERIOD=1m
-      - LPA_STORE_SECRET_ARN=lpa-store-jwt-secret-key
       - USE_TEST_WITNESS_CODE=1
-      - ENVIRONMENT=local
 
   event-logger:
     build:
@@ -74,7 +76,7 @@ services:
       - AWS_REGION=eu-west-1
       - AWS_SECRET_ACCESS_KEY=fakeAccessKey
       - OPENSEARCH_CUSTOM_BACKEND=http://opensearch:9200
-      - LPAS_TABLE=lpas
+      - LPAS_TABLE=Lpas
       - TAG=0.0.0
       - GOVUK_NOTIFY_BASE_URL=http://mock-notify:8080
       - SEARCH_ENDPOINT=http://my-domain.eu-west-1.opensearch.localhost.localstack.cloud:4566

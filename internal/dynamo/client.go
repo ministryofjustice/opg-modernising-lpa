@@ -4,6 +4,8 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"strconv"
+	"time"
 
 	"github.com/aws/aws-sdk-go-v2/aws"
 	"github.com/aws/aws-sdk-go-v2/feature/dynamodb/attributevalue"
@@ -518,4 +520,31 @@ func (c *Client) AnyByPK(ctx context.Context, pk PK, v interface{}) error {
 	}
 
 	return attributevalue.UnmarshalMap(response.Items[0], v)
+}
+
+func (c *Client) OneActive(ctx context.Context, pk PK, sk SK, now time.Time, v interface{}) error {
+	nowEpochSeconds := strconv.FormatInt(now.UTC().Unix(), 10)
+
+	output, err := c.svc.Query(ctx, &dynamodb.QueryInput{
+		TableName:                aws.String(c.table),
+		ExpressionAttributeNames: map[string]string{"#PK": "PK", "#SK": "SK", "#ExpiresAt": "ExpiresAt"},
+		ExpressionAttributeValues: map[string]types.AttributeValue{
+			":PK":  &types.AttributeValueMemberS{Value: pk.PK()},
+			":SK":  &types.AttributeValueMemberS{Value: sk.SK()},
+			":now": &types.AttributeValueMemberN{Value: nowEpochSeconds},
+		},
+		KeyConditionExpression: aws.String("#PK = :PK and #SK = :SK"),
+		Limit:                  aws.Int32(1),
+		FilterExpression:       aws.String("#ExpiresAt > :now"),
+	})
+
+	if err != nil {
+		return err
+	}
+
+	if len(output.Items) == 0 {
+		return NotFoundError{}
+	}
+
+	return attributevalue.UnmarshalMap(output.Items[0], v)
 }
