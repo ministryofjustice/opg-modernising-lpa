@@ -106,7 +106,6 @@ type dynamodbClient interface {
 	AnyByPK(ctx context.Context, pk dynamo.PK, v any) error
 	BatchPut(ctx context.Context, items []any) error
 	Create(ctx context.Context, v any) error
-	CreateOnly(ctx context.Context, v any) error
 	DeleteKeys(ctx context.Context, keys []dynamo.Keys) error
 	DeleteOne(ctx context.Context, pk dynamo.PK, sk dynamo.SK) error
 	LatestForActor(ctx context.Context, sk dynamo.SK, v any) error

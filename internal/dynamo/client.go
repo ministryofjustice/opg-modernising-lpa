@@ -351,24 +351,9 @@ func (c *Client) Put(ctx context.Context, v interface{}) error {
 	return nil
 }
 
-// Create writes data ensuring that the (PK, SK) combination is unique.
+// Create writes data ensuring that another item with the same key is not
+// overwritten.
 func (c *Client) Create(ctx context.Context, v interface{}) error {
-	item, err := attributevalue.MarshalMap(v)
-	if err != nil {
-		return err
-	}
-
-	_, err = c.svc.PutItem(ctx, &dynamodb.PutItemInput{
-		TableName:           aws.String(c.table),
-		Item:                item,
-		ConditionExpression: aws.String("attribute_not_exists(PK) AND attribute_not_exists(SK)"),
-	})
-
-	return err
-}
-
-// CreateOnly writes data ensuring that the PK is unique.
-func (c *Client) CreateOnly(ctx context.Context, v interface{}) error {
 	item, err := attributevalue.MarshalMap(v)
 	if err != nil {
 		return err

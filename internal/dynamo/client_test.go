@@ -580,7 +580,7 @@ func TestCreate(t *testing.T) {
 		PutItem(ctx, &dynamodb.PutItemInput{
 			TableName:           aws.String("this"),
 			Item:                data,
-			ConditionExpression: aws.String("attribute_not_exists(PK) AND attribute_not_exists(SK)"),
+			ConditionExpression: aws.String("attribute_not_exists(PK)"),
 		}).
 		Return(&dynamodb.PutItemOutput{}, nil)
 
@@ -599,36 +599,6 @@ func TestCreateWhenError(t *testing.T) {
 	c := &Client{table: "this", svc: dynamoDB}
 
 	err := c.Create(ctx, map[string]string{"Col": "Val"})
-	assert.Equal(t, expectedError, err)
-}
-
-func TestCreateOnly(t *testing.T) {
-	data, _ := attributevalue.MarshalMap(map[string]string{"Col": "Val"})
-
-	dynamoDB := newMockDynamoDB(t)
-	dynamoDB.EXPECT().
-		PutItem(ctx, &dynamodb.PutItemInput{
-			TableName:           aws.String("this"),
-			Item:                data,
-			ConditionExpression: aws.String("attribute_not_exists(PK)"),
-		}).
-		Return(&dynamodb.PutItemOutput{}, nil)
-
-	c := &Client{table: "this", svc: dynamoDB}
-
-	err := c.CreateOnly(ctx, map[string]string{"Col": "Val"})
-	assert.Nil(t, err)
-}
-
-func TestCreateOnlyWhenError(t *testing.T) {
-	dynamoDB := newMockDynamoDB(t)
-	dynamoDB.EXPECT().
-		PutItem(ctx, mock.Anything).
-		Return(&dynamodb.PutItemOutput{}, expectedError)
-
-	c := &Client{table: "this", svc: dynamoDB}
-
-	err := c.CreateOnly(ctx, map[string]string{"Col": "Val"})
 	assert.Equal(t, expectedError, err)
 }
 
