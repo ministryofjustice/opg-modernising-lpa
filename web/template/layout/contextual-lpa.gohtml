@@ -301,7 +301,11 @@
                 <h3 class="govuk-summary-card__title">{{ tr $.App "donorSignature" }}</h3>
             </div>
             <div class="govuk-summary-card__content">
-                <p class="govuk-body govuk-!-font-weight-bold">{{ tr .App "iConfirmThat" }}</p>
+                {{ if .Lpa.AuthorisedSignatory.FirstNames }}
+                    <p class="govuk-body govuk-!-font-weight-bold">{{ trFormat .App "bySigningOnBehalfIConfirm" "DonorFullName" .Lpa.Donor.FullName }}</p>
+                {{ else }}
+                    <p class="govuk-body govuk-!-font-weight-bold">{{ tr .App "iConfirmThat" }}</p>
+                {{ end }}
 
                 <ul class="govuk-list govuk-list--bullet">
                     <li>{{ tr .App "iHaveReadLpa" }}</li>
@@ -326,6 +330,7 @@
                     {{ else }}
                         <li>{{ tr .App "iHaveNotChosenToNotifyAnyone" }}</li>
                     {{ end }}
+                    <li>{{ tr .App "iAmResidentOrHaveExplained" }}</li>
                 </ul>
 
                 <dl class="govuk-summary-list app-signing-list">
@@ -382,7 +387,7 @@
                 <h3 class="govuk-summary-card__title">{{ tr $.App "certificateProviderSignature" }}</h3>
             </div>
             <div class="govuk-summary-card__content">
-                {{ trHtml .App "provideTheCertificateForThisLpaContent" }}
+                {{ trFormatHtml .App "provideTheCertificateForThisLpaContent" "DonorFullName" .Lpa.Donor.FullName }}
 
                 <dl class="govuk-summary-list app-signing-list">
                     <div class="govuk-summary-list__row">
@@ -404,10 +409,13 @@
                     <p class="govuk-body govuk-!-font-weight-bold">{{ tr $.App "iUnderstandAndConfirmThat" }}</p>
 
                     <ul class="govuk-list govuk-list--bullet">
-                        {{ trHtml $.App "signAsAttorneyBullets" }}
+                        {{ trFormatHtml $.App "signAsAttorneyBullets" "DonorFullName" $.Lpa.Donor.FullName }}
+                        {{ if $.Lpa.Type.IsPersonalWelfare }}
+                            <li>{{ tr $.App "iUnderstandWhetherICanConstentToLst" }}</li>
+                        {{ end }}
                         <li>
                             {{ if $.Lpa.WhenCanTheLpaBeUsed.IsHasCapacity }}
-                                {{ tr $.App "signAsAttorneyWhenRegisteredBullet" }}
+                                {{ trFormat $.App "signAsAttorneyWhenRegisteredBullet" "DonorFullName" $.Lpa.Donor.FullName }}
                             {{ else }}
                                 {{ tr $.App "signAsAttorneyWhenCapacityLostBullet" }}
                             {{ end }}
@@ -435,6 +443,9 @@
 
                 <ul class="govuk-list govuk-list--bullet">
                     {{ trHtml $.App "signAsTrustCorporationBullets" }}
+                    {{ if .Lpa.Type.IsPersonalWelfare }}
+                        <li>{{ tr $.App "iUnderstandWhetherICanConstentToLst" }}</li>
+                    {{ end }}
                     <li>
                         {{ if $.Lpa.WhenCanTheLpaBeUsed.IsHasCapacity }}
                             {{ tr $.App "signAsTrustCorporationWhenRegisteredBullet" }}
@@ -445,7 +456,7 @@
                 </ul>
 
                 <dl class="govuk-summary-list app-signing-list">
-                    {{ range .Lpa.Attorneys.TrustCorporation.Signatories }}
+                    {{ range $.Lpa.Attorneys.TrustCorporation.Signatories }}
                         <div class="govuk-summary-list__row">
                             <dt class="govuk-summary-list__key">{{ trFormatHtml $.App "signedByOn" "FullName" .FullName }}</dt>
                             <dd class="govuk-summary-list__value">{{ formatDate $.App .SignedAt }}</dd>
@@ -466,10 +477,13 @@
                     <p class="govuk-body govuk-!-font-weight-bold">{{ tr $.App "iUnderstandAndConfirmThat" }}</p>
 
                     <ul class="govuk-list govuk-list--bullet">
-                        {{ trHtml $.App "signAsAttorneyBullets" }}
+                        {{ trFormatHtml $.App "signAsAttorneyBullets" "DonorFullName" $.Lpa.Donor.FullName }}
+                        {{ if $.Lpa.Type.IsPersonalWelfare }}
+                            <li>{{ tr $.App "iUnderstandWhetherICanConstentToLst" }}</li>
+                        {{ end }}
                         <li>
                             {{ if $.Lpa.WhenCanTheLpaBeUsed.IsHasCapacity }}
-                                {{ tr $.App "signAsAttorneyWhenRegisteredBullet" }}
+                                {{ trFormat $.App "signAsAttorneyWhenRegisteredBullet" "DonorFullName" $.Lpa.Donor.FullName }}
                             {{ else }}
                                 {{ tr $.App "signAsAttorneyWhenCapacityLostBullet" }}
                             {{ end }}
@@ -500,6 +514,9 @@
 
                     <ul class="govuk-list govuk-list--bullet">
                         {{ trHtml $.App "signAsTrustCorporationBullets" }}
+                        {{ if $.Lpa.Type.IsPersonalWelfare }}
+                            <li>{{ tr $.App "iUnderstandWhetherICanConstentToLst" }}</li>
+                        {{ end }}
                         <li>
                             {{ if $.Lpa.WhenCanTheLpaBeUsed.IsHasCapacity }}
                                 {{ tr $.App "signAsTrustCorporationWhenRegisteredBullet" }}
