@@ -1258,7 +1258,7 @@
     "certificateProviderSignature": "Certificate provider signature",
     "attorneySignature": "Attorney signature",
     "iUnderstandAndConfirmThat": "I understand and confirm that:",
-    "asReplacementTrustCorporationAlsoConfirmThat": "<p class=\"govuk-body govuk-!-font-weight-bold\">I also confirm that I understand:</p><p class=\"govuk-body\">{{.Name}} only has the authority to act under this LPA after an original attorney’s appointment is terminated. The company must notify the Public Guardian if this happens.</p>",
+    "asReplacementTrustCorporationAlsoConfirmThat": "<p class=\"govuk-body govuk-!-font-weight-bold\">I also confirm that I understand:</p><p class=\"govuk-body\">{{.Name}} only has the authority to act under this LPA after an original attorney’s appointment is terminated. The corporation must notify the Public Guardian if this happens.</p>",
     "replacementAttorneySignature": "Replacement attorney signature",
     "typeLpa": "{{.Type}} LPA",
     "signatures": "Signatures",
