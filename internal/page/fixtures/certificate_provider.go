@@ -297,22 +297,7 @@ func CertificateProvider(
 				donorDetails.WhenCanTheLpaBeUsed = lpadata.CanBeUsedWhenHasCapacity
 			}
 
-			if useRealUID {
-				if err := eventClient.SendUidRequested(r.Context(), event.UidRequested{
-					LpaID:          donorDetails.LpaID,
-					DonorSessionID: donorSessionID,
-					Type:           donorDetails.Type.String(),
-					Donor: uid.DonorDetails{
-						Name:     donorDetails.Donor.FullName(),
-						Dob:      donorDetails.Donor.DateOfBirth,
-						Postcode: donorDetails.Donor.Address.Postcode,
-					},
-				}); err != nil {
-					return err
-				}
-			} else {
-				donorDetails.LpaUID = makeUID()
-			}
+			donorDetails.Restrictions = makeRestriction(donorDetails)
 
 			donorDetails.Attorneys = donordata.Attorneys{
 				Attorneys: []donordata.Attorney{makeAttorney(attorneyNames[0]), makeAttorney(attorneyNames[1])},
@@ -350,7 +335,26 @@ func CertificateProvider(
 				return err
 			}
 
-			if !donorDetails.SignedAt.IsZero() && donorDetails.LpaUID != "" {
+			if useRealUID {
+				if err := eventClient.SendUidRequested(r.Context(), event.UidRequested{
+					LpaID:          donorDetails.LpaID,
+					DonorSessionID: donorSessionID,
+					Type:           donorDetails.Type.String(),
+					Donor: uid.DonorDetails{
+						Name:     donorDetails.Donor.FullName(),
+						Dob:      donorDetails.Donor.DateOfBirth,
+						Postcode: donorDetails.Donor.Address.Postcode,
+					},
+				}); err != nil {
+					return err
+				}
+
+				donorDetails.LpaUID = waitForRealUID(15, donorStore, donorCtx)
+			} else {
+				donorDetails.LpaUID = makeUID()
+			}
+
+			if !donorDetails.SignedAt.IsZero() {
 				if err := lpaStoreClient.SendLpa(donorCtx, donorDetails.LpaUID, lpastore.CreateLpaFromDonorProvided(donorDetails)); err != nil {
 					return err
 				}
