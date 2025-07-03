@@ -22,7 +22,7 @@ func marshalListOfMaps[T any](vs []T) (result []map[string]types.AttributeValue)
 	return result
 }
 
-func (c *mockDynamoClient_AnyByPK_Call) SetData(row *Event) {
+func (c *mockDynamoClient_OneByPK_Call) SetData(row *Event) {
 	c.Run(func(_ context.Context, _ dynamo.PK, v any) {
 		b, _ := attributevalue.Marshal(row)
 		attributevalue.Unmarshal(b, v)

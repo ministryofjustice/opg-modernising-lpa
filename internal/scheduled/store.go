@@ -14,10 +14,10 @@ import (
 
 type DynamoClient interface {
 	AllByLpaUIDAndPartialSK(ctx context.Context, uid string, partialSK dynamo.SK) ([]dynamo.Keys, error)
-	AnyByPK(ctx context.Context, pk dynamo.PK, v interface{}) error
 	AllByKeys(ctx context.Context, keys []dynamo.Keys) ([]map[string]types.AttributeValue, error)
-	Move(ctx context.Context, oldKeys dynamo.Keys, value any) error
 	DeleteKeys(ctx context.Context, keys []dynamo.Keys) error
+	Move(ctx context.Context, oldKeys dynamo.Keys, value any) error
+	OneByPK(ctx context.Context, pk dynamo.PK, v interface{}) error
 	WriteTransaction(ctx context.Context, transaction *dynamo.Transaction) error
 }
 
@@ -37,7 +37,7 @@ func NewStore(dynamoClient DynamoClient) *Store {
 
 func (s *Store) Pop(ctx context.Context, day time.Time) (*Event, error) {
 	var row Event
-	if err := s.dynamoClient.AnyByPK(ctx, dynamo.ScheduledDayKey(day), &row); err != nil {
+	if err := s.dynamoClient.OneByPK(ctx, dynamo.ScheduledDayKey(day), &row); err != nil {
 		return nil, err
 	}
 
