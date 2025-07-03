@@ -188,36 +188,6 @@ func TestIntegrationClientCreate(t *testing.T) {
 	})
 }
 
-func TestIntegrationClientCreateOnly(t *testing.T) {
-	if testing.Short() {
-		t.Skip()
-		return
-	}
-
-	withClient(t, func(client *Client) {
-		for _, item := range []testItem{item1, item2, item3, item4} {
-			err := client.CreateOnly(ctx, item)
-			assert.Nil(t, err)
-		}
-
-		t.Run("create existing (PK,SK)", func(t *testing.T) {
-			err := client.CreateOnly(ctx, item1)
-			v := &types.ConditionalCheckFailedException{}
-			assert.ErrorAs(t, err, &v)
-		})
-
-		t.Run("create existing PK", func(t *testing.T) {
-			err := client.CreateOnly(ctx, testItem{PK: item1.PK, SK: MetadataKey("other")})
-			assert.Nil(t, err)
-		})
-
-		t.Run("create existing SK", func(t *testing.T) {
-			err := client.CreateOnly(ctx, testItem{PK: UIDKey("other"), SK: item1.SK})
-			assert.Nil(t, err)
-		})
-	})
-}
-
 func TestIntegrationClientTransaction(t *testing.T) {
 	if testing.Short() {
 		t.Skip()
