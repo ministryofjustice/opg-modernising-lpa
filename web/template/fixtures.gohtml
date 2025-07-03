@@ -30,7 +30,7 @@
     <hr class="govuk-section-break govuk-section-break--m govuk-section-break--visible">
 
     <div class="govuk-form-group">
-        {{ template "checkboxes" (items . "options" nil
+        {{ template "checkboxes" (items . "options" "uid"
             (item "uid" "Real UID" "hint" "You may need to wait a bit and refresh the dashboard to see the LPA as this requires events to be sent and received")
             (item "paymentTaskInProgress" "Payment in progress")) }}
     </div>

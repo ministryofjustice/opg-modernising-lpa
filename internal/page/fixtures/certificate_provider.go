@@ -297,6 +297,8 @@ func CertificateProvider(
 				donorDetails.WhenCanTheLpaBeUsed = lpadata.CanBeUsedWhenHasCapacity
 			}
 
+			donorDetails.Restrictions = makeRestriction(donorDetails)
+
 			if useRealUID {
 				if err := eventClient.SendUidRequested(r.Context(), event.UidRequested{
 					LpaID:          donorDetails.LpaID,

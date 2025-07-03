@@ -370,7 +370,7 @@ func updateLPAProgress(
 	}
 
 	if data.Progress >= slices.Index(progressValues, "addRestrictionsToTheLpa") {
-		donorDetails.Restrictions = "My attorneys must not sell my home unless, in my doctor’s opinion, I can no longer live independently"
+		donorDetails.Restrictions = makeRestriction(donorDetails)
 		donorDetails.Tasks.Restrictions = task.StateCompleted
 	}
 

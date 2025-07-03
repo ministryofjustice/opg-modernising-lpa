@@ -299,3 +299,20 @@ func encodeSub(sub string) string {
 	h.Write([]byte(sub))
 	return base64.StdEncoding.EncodeToString(h.Sum(nil))
 }
+
+func makeRestriction(provided *donordata.Provided) string {
+	r := "My attorneys must not sell my home unless, in my doctor’s opinion, I can no longer live independently"
+
+	if provided.Type.IsPropertyAndAffairs() {
+		if provided.Donor.LpaLanguagePreference.IsCy() {
+			r = "Ni all fy atwrneiod werthu fy nghartref oni bai, ym marn fy meddyg, ni allaf fyw’n annibynnol mwyach."
+		}
+	} else {
+		r = "My attorneys can only make the decision to move me to a care home if an independent professional has determined that I can no longer live alone."
+		if provided.Donor.LpaLanguagePreference.IsCy() {
+			r = "Gall fy atwrneiod benderfynu fy symud i gartref gofal dim ond os bydd meddyg wedi penderfynu na allaf barhau i fyw ar fy mhen fy hun."
+		}
+	}
+
+	return r
+}
