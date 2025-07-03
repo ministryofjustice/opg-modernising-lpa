@@ -18,6 +18,7 @@ type DynamoClient interface {
 	OneBySK(ctx context.Context, sk dynamo.SK, v interface{}) error
 	CreateOnly(ctx context.Context, v interface{}) error
 	DeleteOne(ctx context.Context, pk dynamo.PK, sk dynamo.SK) error
+	WriteTransaction(ctx context.Context, transaction *dynamo.Transaction) error
 }
 
 type Store struct {
@@ -54,15 +55,43 @@ func (s *Store) Put(ctx context.Context, actorType actor.Type, accessCode access
 		return err
 	}
 
+	// first check if actor has code
+	hasActorAccess := true
+	var actorAccess accesscodedata.ActorAccess
+	if err := s.dynamoClient.OneByPK(ctx, dynamo.ActorAccessKey(data.ActorUID.String()), &actorAccess); err != nil {
+		if errors.Is(err, dynamo.NotFoundError{}) {
+			hasActorAccess = false
+		} else {
+			return err
+		}
+	}
+
+	data.UpdatedAt = s.now()
 	data.PK = pk
 	if actorType.IsVoucher() {
 		data.SK = dynamo.ShareSortKey(dynamo.VoucherShareSortKey(data.LpaKey))
 	} else {
 		data.SK = dynamo.ShareSortKey(dynamo.MetadataKey(accessCode.String()))
 	}
-	data.UpdatedAt = s.now()
 
-	return s.dynamoClient.CreateOnly(ctx, data)
+	newActorAccess := accesscodedata.ActorAccess{
+		PK:           dynamo.ActorAccessKey(data.ActorUID.String()),
+		SK:           dynamo.MetadataKey(data.ActorUID.String()),
+		ShareKey:     data.PK,
+		ShareSortKey: data.SK,
+	}
+
+	transaction := dynamo.NewTransaction().Create(data)
+
+	if hasActorAccess {
+		transaction.
+			Put(newActorAccess).
+			Delete(dynamo.Keys{PK: actorAccess.ShareKey, SK: actorAccess.ShareSortKey})
+	} else {
+		transaction.Create(newActorAccess)
+	}
+
+	return s.dynamoClient.WriteTransaction(ctx, transaction)
 }
 
 func (s *Store) PutDonor(ctx context.Context, accessCode accesscodedata.Hashed, data accesscodedata.Link) error {
