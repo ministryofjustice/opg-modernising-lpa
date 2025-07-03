@@ -1,0 +1,21 @@
+name: "[Job] Run Go integration tests"
+
+on:
+  workflow_call:
+
+jobs:
+  run:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+
+      - name: Setup Go
+        uses: actions/setup-go@d35c59abb061a4a6fb18e82ac0862c26744d6ab5 # v5.5.0
+        with:
+          go-version: '^1.20'
+          cache-dependency-path: '**/go.sum'
+
+      - name: Run integration tests
+        run: |
+          docker compose -f docker/docker-compose.yml up -d --wait localstack
+          make go-integration-test
