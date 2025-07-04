@@ -33,6 +33,7 @@ import (
 
 type DonorStore interface {
 	Create(ctx context.Context) (*donordata.Provided, error)
+	Get(ctx context.Context) (*donordata.Provided, error)
 	Link(ctx context.Context, link accesscodedata.Link, donorEmail string) error
 	Put(ctx context.Context, donorProvidedDetails *donordata.Provided) error
 }
@@ -201,6 +202,8 @@ func Attorney(
 			donorDetails.WhenCanTheLpaBeUsed = lpadata.CanBeUsedWhenHasCapacity
 		}
 
+		donorDetails.Restrictions = makeRestriction(donorDetails)
+
 		if useRealUID {
 			if err := eventClient.SendUidRequested(r.Context(), event.UidRequested{
 				LpaID:          donorDetails.LpaID,
@@ -214,6 +217,7 @@ func Attorney(
 			}); err != nil {
 				return err
 			}
+			donorDetails.LpaUID = waitForRealUID(15, donorStore, donorCtx)
 		} else if donorDetails.LpaUID == "" {
 			donorDetails.LpaUID = makeUID()
 		}

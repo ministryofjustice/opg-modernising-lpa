@@ -181,7 +181,7 @@ func Donor(
 		donorCtx := appcontext.ContextWithSession(r.Context(), &appcontext.Session{SessionID: donorSessionID, LpaID: donorDetails.LpaID})
 
 		var fns []func(context.Context, *lpastore.Client, *lpadata.Lpa) error
-		donorDetails, fns, err = updateLPAProgress(donorCtx, data, donorDetails, donorSessionID, r, certificateProviderStore, attorneyStore, documentStore, eventClient, accessCodeStore, voucherStore, reuseStore, notifyClient, appPublicURL)
+		donorDetails, fns, err = updateLPAProgress(donorCtx, data, donorDetails, donorSessionID, r, certificateProviderStore, attorneyStore, documentStore, eventClient, accessCodeStore, voucherStore, reuseStore, notifyClient, appPublicURL, donorStore)
 		if err != nil {
 			return err
 		}
@@ -239,6 +239,7 @@ func updateLPAProgress(
 	reuseStore *reuse.Store,
 	notifyClient *notify.Client,
 	appPublicURL string,
+	donorStore DonorStore,
 ) (*donordata.Provided, []func(context.Context, *lpastore.Client, *lpadata.Lpa) error, error) {
 	var fns []func(context.Context, *lpastore.Client, *lpadata.Lpa) error
 	if data.Progress >= slices.Index(progressValues, "provideYourDetails") {
@@ -273,6 +274,8 @@ func updateLPAProgress(
 			}); err != nil {
 				return nil, nil, err
 			}
+
+			donorDetails.LpaUID = waitForRealUID(15, donorStore, donorCtx)
 		} else {
 			donorDetails.LpaUID = makeUID()
 		}
@@ -370,7 +373,7 @@ func updateLPAProgress(
 	}
 
 	if data.Progress >= slices.Index(progressValues, "addRestrictionsToTheLpa") {
-		donorDetails.Restrictions = "My attorneys must not sell my home unless, in my doctor’s opinion, I can no longer live independently"
+		donorDetails.Restrictions = makeRestriction(donorDetails)
 		donorDetails.Tasks.Restrictions = task.StateCompleted
 	}
 

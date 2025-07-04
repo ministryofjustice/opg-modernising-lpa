@@ -5,6 +5,7 @@ import (
 	"crypto/sha256"
 	"encoding/base64"
 	"fmt"
+	"log"
 	"net/http"
 	"strings"
 	"time"
@@ -298,4 +299,41 @@ func encodeSub(sub string) string {
 	h := sha256.New()
 	h.Write([]byte(sub))
 	return base64.StdEncoding.EncodeToString(h.Sum(nil))
+}
+
+func makeRestriction(provided *donordata.Provided) string {
+	restrictions := map[lpadata.LpaType]map[localize.Lang]string{
+		lpadata.LpaTypePropertyAndAffairs: {
+			localize.En: "My attorneys must not sell my home unless, in my doctor’s opinion, I can no longer live independently",
+			localize.Cy: "Ni all fy atwrneiod werthu fy nghartref oni bai, ym marn fy meddyg, ni allaf fyw'n annibynnol mwyach.",
+		},
+		lpadata.LpaTypePersonalWelfare: {
+			localize.En: "My attorneys can only make the decision to move me to a care home if an independent professional has determined that I can no longer live alone.",
+			localize.Cy: "Gall fy atwrneiod benderfynu fy symud i gartref gofal dim ond os bydd meddyg wedi penderfynu na allaf barhau i fyw ar fy mhen fy hun.",
+		},
+	}
+
+	return restrictions[provided.Type][provided.Donor.LpaLanguagePreference]
+}
+
+func waitForRealUID(waitFor int, donorStore DonorStore, donorCtx context.Context) string {
+	for {
+		if waitFor <= 0 {
+			log.Println("out of time")
+			return ""
+		}
+
+		d, err := donorStore.Get(donorCtx)
+		if err != nil {
+			log.Println("error getting donor")
+			return ""
+		}
+
+		if d.LpaUID != "" {
+			return d.LpaUID
+		}
+
+		time.Sleep(1 * time.Second)
+		waitFor--
+	}
 }

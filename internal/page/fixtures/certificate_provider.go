@@ -297,6 +297,8 @@ func CertificateProvider(
 				donorDetails.WhenCanTheLpaBeUsed = lpadata.CanBeUsedWhenHasCapacity
 			}
 
+			donorDetails.Restrictions = makeRestriction(donorDetails)
+
 			if useRealUID {
 				if err := eventClient.SendUidRequested(r.Context(), event.UidRequested{
 					LpaID:          donorDetails.LpaID,
@@ -310,6 +312,8 @@ func CertificateProvider(
 				}); err != nil {
 					return err
 				}
+
+				donorDetails.LpaUID = waitForRealUID(15, donorStore, donorCtx)
 			} else {
 				donorDetails.LpaUID = makeUID()
 			}
@@ -350,7 +354,7 @@ func CertificateProvider(
 				return err
 			}
 
-			if !donorDetails.SignedAt.IsZero() && donorDetails.LpaUID != "" {
+			if !donorDetails.SignedAt.IsZero() {
 				if err := lpaStoreClient.SendLpa(donorCtx, donorDetails.LpaUID, lpastore.CreateLpaFromDonorProvided(donorDetails)); err != nil {
 					return err
 				}
