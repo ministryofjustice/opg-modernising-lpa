@@ -26,7 +26,7 @@ func (c *Client) WriteTransaction(ctx context.Context, transaction *Transaction)
 		items = append(items, types.TransactWriteItem{Put: &types.Put{
 			TableName:           aws.String(c.table),
 			Item:                values,
-			ConditionExpression: aws.String("attribute_not_exists(PK) AND attribute_not_exists(SK)"),
+			ConditionExpression: aws.String("attribute_not_exists(PK)"),
 		}})
 	}
 

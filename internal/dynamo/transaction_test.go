@@ -18,14 +18,14 @@ func TestTransactWriteItems(t *testing.T) {
 			Put: &types.Put{
 				Item:                map[string]types.AttributeValue{"1": &types.AttributeValueMemberS{Value: "1"}},
 				TableName:           aws.String("this"),
-				ConditionExpression: aws.String("attribute_not_exists(PK) AND attribute_not_exists(SK)"),
+				ConditionExpression: aws.String("attribute_not_exists(PK)"),
 			},
 		},
 		{
 			Put: &types.Put{
 				Item:                map[string]types.AttributeValue{"2": &types.AttributeValueMemberS{Value: "2"}},
 				TableName:           aws.String("this"),
-				ConditionExpression: aws.String("attribute_not_exists(PK) AND attribute_not_exists(SK)"),
+				ConditionExpression: aws.String("attribute_not_exists(PK)"),
 			},
 		},
 		{

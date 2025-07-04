@@ -351,24 +351,9 @@ func (c *Client) Put(ctx context.Context, v interface{}) error {
 	return nil
 }
 
-// Create writes data ensuring that the (PK, SK) combination is unique.
+// Create writes data ensuring that another item with the same key is not
+// overwritten.
 func (c *Client) Create(ctx context.Context, v interface{}) error {
-	item, err := attributevalue.MarshalMap(v)
-	if err != nil {
-		return err
-	}
-
-	_, err = c.svc.PutItem(ctx, &dynamodb.PutItemInput{
-		TableName:           aws.String(c.table),
-		Item:                item,
-		ConditionExpression: aws.String("attribute_not_exists(PK) AND attribute_not_exists(SK)"),
-	})
-
-	return err
-}
-
-// CreateOnly writes data ensuring that the PK is unique.
-func (c *Client) CreateOnly(ctx context.Context, v interface{}) error {
 	item, err := attributevalue.MarshalMap(v)
 	if err != nil {
 		return err
@@ -498,28 +483,6 @@ func (c *Client) Move(ctx context.Context, oldKeys Keys, value any) error {
 	}
 
 	return err
-}
-
-func (c *Client) AnyByPK(ctx context.Context, pk PK, v interface{}) error {
-	response, err := c.svc.Query(ctx, &dynamodb.QueryInput{
-		TableName:                aws.String(c.table),
-		ExpressionAttributeNames: map[string]string{"#PK": "PK"},
-		ExpressionAttributeValues: map[string]types.AttributeValue{
-			":PK": &types.AttributeValueMemberS{Value: pk.PK()},
-		},
-		KeyConditionExpression: aws.String("#PK = :PK"),
-		Limit:                  aws.Int32(1),
-	})
-
-	if err != nil {
-		return err
-	}
-
-	if len(response.Items) == 0 {
-		return NotFoundError{}
-	}
-
-	return attributevalue.UnmarshalMap(response.Items[0], v)
 }
 
 func (c *Client) OneActive(ctx context.Context, pk PK, sk SK, now time.Time, v interface{}) error {
