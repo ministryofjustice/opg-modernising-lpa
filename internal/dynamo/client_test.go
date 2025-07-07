@@ -580,7 +580,7 @@ func TestCreate(t *testing.T) {
 		PutItem(ctx, &dynamodb.PutItemInput{
 			TableName:           aws.String("this"),
 			Item:                data,
-			ConditionExpression: aws.String("attribute_not_exists(PK) AND attribute_not_exists(SK)"),
+			ConditionExpression: aws.String("attribute_not_exists(PK)"),
 		}).
 		Return(&dynamodb.PutItemOutput{}, nil)
 
@@ -599,36 +599,6 @@ func TestCreateWhenError(t *testing.T) {
 	c := &Client{table: "this", svc: dynamoDB}
 
 	err := c.Create(ctx, map[string]string{"Col": "Val"})
-	assert.Equal(t, expectedError, err)
-}
-
-func TestCreateOnly(t *testing.T) {
-	data, _ := attributevalue.MarshalMap(map[string]string{"Col": "Val"})
-
-	dynamoDB := newMockDynamoDB(t)
-	dynamoDB.EXPECT().
-		PutItem(ctx, &dynamodb.PutItemInput{
-			TableName:           aws.String("this"),
-			Item:                data,
-			ConditionExpression: aws.String("attribute_not_exists(PK)"),
-		}).
-		Return(&dynamodb.PutItemOutput{}, nil)
-
-	c := &Client{table: "this", svc: dynamoDB}
-
-	err := c.CreateOnly(ctx, map[string]string{"Col": "Val"})
-	assert.Nil(t, err)
-}
-
-func TestCreateOnlyWhenError(t *testing.T) {
-	dynamoDB := newMockDynamoDB(t)
-	dynamoDB.EXPECT().
-		PutItem(ctx, mock.Anything).
-		Return(&dynamodb.PutItemOutput{}, expectedError)
-
-	c := &Client{table: "this", svc: dynamoDB}
-
-	err := c.CreateOnly(ctx, map[string]string{"Col": "Val"})
 	assert.Equal(t, expectedError, err)
 }
 
@@ -906,56 +876,6 @@ func TestMoveWhenOtherCancellation(t *testing.T) {
 	c := &Client{table: "this", svc: dynamoDB}
 	err := c.Move(ctx, Keys{PK: testPK("a-pk"), SK: testSK("an-sk")}, map[string]string{"hey": "hi"})
 	assert.Equal(t, canceledException, err)
-}
-
-func TestAnyByPK(t *testing.T) {
-	expected := map[string]string{"Col": "Val"}
-	pkey, _ := attributevalue.Marshal("a-pk")
-	data, _ := attributevalue.MarshalMap(expected)
-
-	dynamoDB := newMockDynamoDB(t)
-	dynamoDB.EXPECT().
-		Query(ctx, &dynamodb.QueryInput{
-			TableName:                 aws.String("this"),
-			ExpressionAttributeNames:  map[string]string{"#PK": "PK"},
-			ExpressionAttributeValues: map[string]types.AttributeValue{":PK": pkey},
-			KeyConditionExpression:    aws.String("#PK = :PK"),
-			Limit:                     aws.Int32(1),
-		}).
-		Return(&dynamodb.QueryOutput{Items: []map[string]types.AttributeValue{data}}, nil)
-
-	c := &Client{table: "this", svc: dynamoDB}
-
-	var v map[string]string
-	err := c.AnyByPK(ctx, testPK("a-pk"), &v)
-	assert.Nil(t, err)
-	assert.Equal(t, expected, v)
-}
-
-func TestAnyByPKOnQueryError(t *testing.T) {
-	dynamoDB := newMockDynamoDB(t)
-	dynamoDB.EXPECT().
-		Query(ctx, mock.Anything).
-		Return(nil, expectedError)
-
-	c := &Client{table: "this", svc: dynamoDB}
-
-	var v map[string]string
-	err := c.AnyByPK(ctx, testPK("a-pk"), &v)
-	assert.Equal(t, expectedError, err)
-}
-
-func TestAnyByPKWhenNotFound(t *testing.T) {
-	dynamoDB := newMockDynamoDB(t)
-	dynamoDB.EXPECT().
-		Query(ctx, mock.Anything).
-		Return(&dynamodb.QueryOutput{Items: []map[string]types.AttributeValue{}}, nil)
-
-	c := &Client{table: "this", svc: dynamoDB}
-
-	var v map[string]string
-	err := c.AnyByPK(ctx, testPK("a-pk"), &v)
-	assert.Equal(t, NotFoundError{}, err)
 }
 
 func TestAllByLpaUIDAndPartialSK(t *testing.T) {

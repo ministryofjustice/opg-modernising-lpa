@@ -34,6 +34,7 @@ const (
 	uidPrefix                       = "UID"
 	sessionPrefix                   = "SESSION"
 	reusePrefix                     = "REUSE"
+	actorAccessPrefix               = "ACTORACCESS"
 )
 
 func readKey(s string) (any, error) {
@@ -93,6 +94,8 @@ func readKey(s string) (any, error) {
 		return SessionKeyType(s), nil
 	case reusePrefix:
 		return ReuseKeyType(s), nil
+	case actorAccessPrefix:
+		return ActorAccessKeyType(s), nil
 	default:
 		return nil, errors.New("unknown key prefix")
 	}
@@ -374,4 +377,14 @@ func (t ReuseKeyType) PK() string { return string(t) }
 // for a type of actor.
 func ReuseKey(sessionID string, actorType string) ReuseKeyType {
 	return ReuseKeyType(reusePrefix + "#" + sessionID + "#" + actorType)
+}
+
+type ActorAccessKeyType string
+
+func (t ActorAccessKeyType) PK() string { return string(t) }
+
+// ActorAccessKey is used as the PK (with MetadataKey as SK) to signal that an
+// access code has been created for the actor.
+func ActorAccessKey(actorUID string) ActorAccessKeyType {
+	return ActorAccessKeyType(actorAccessPrefix + "#" + actorUID)
 }

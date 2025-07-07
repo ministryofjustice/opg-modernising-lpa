@@ -40,6 +40,7 @@ func TestPK(t *testing.T) {
 		"UIDKey":                      {UIDKey("S"), "UID#S"},
 		"SessionKey":                  {SessionKey("S"), "SESSION#S"},
 		"ReuseKey":                    {ReuseKey("S", "T"), "REUSE#S#T"},
+		"ActorAccessKey":              {ActorAccessKey("S"), "ACTORACCESS#S"},
 	}
 
 	for name, tc := range testcases {
