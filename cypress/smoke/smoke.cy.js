@@ -38,8 +38,21 @@ describe('Smoke tests', () => {
 
                     cy.get('[name=code]').invoke('val', token);
                     cy.contains('button', 'Continue').click();
-                    cy.wait(10000);
                 });
+
+                cy.location('origin').then(currentOrigin => {
+                    if (currentOrigin === 'https://signin.integration.account.gov.uk') {
+                        cy.origin('https://signin.integration.account.gov.uk', () => {
+                            cy.get('body').then(($body) => {
+                                if ($body.text().includes('terms of use update')) {
+                                    cy.contains('button', 'Continue').click()
+                                }
+                            })
+                        });
+                    }
+
+                    cy.wait(10000);
+                })
 
                 cy.url().should('contain', '/make-or-add-an-lpa');
                 cy.contains('Make or add an LPA');
