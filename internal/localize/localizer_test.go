@@ -96,18 +96,18 @@ func TestFormatDateTime(t *testing.T) {
 
 	assert.Equal(t, "", en.FormatDateTime(time.Time{}))
 
-	assert.Equal(t, "7 March 2020 at 3:04am", en.FormatDateTime(time.Date(2020, time.March, 7, 3, 4, 5, 6, time.UTC)))
-	assert.Equal(t, "30 March 2020 at 4:04am", en.FormatDateTime(time.Date(2020, time.March, 30, 3, 4, 5, 6, time.UTC)))
+	assert.Equal(t, "3:04am on 7 March 2020", en.FormatDateTime(time.Date(2020, time.March, 7, 3, 4, 5, 6, time.UTC)))
+	assert.Equal(t, "4:04am on 30 March 2020", en.FormatDateTime(time.Date(2020, time.March, 30, 3, 4, 5, 6, time.UTC)))
 	assert.Equal(t, "7 Mawrth 2020 am 3:04yb", cy.FormatDateTime(time.Date(2020, time.March, 7, 3, 4, 5, 6, time.UTC)))
 	assert.Equal(t, "30 Mawrth 2020 am 4:04yb", cy.FormatDateTime(time.Date(2020, time.March, 30, 3, 4, 5, 6, time.UTC)))
-	assert.Equal(t, "7 March 2020 at 3:04pm", en.FormatDateTime(time.Date(2020, time.March, 7, 15, 4, 5, 6, time.UTC)))
+	assert.Equal(t, "3:04pm on 7 March 2020", en.FormatDateTime(time.Date(2020, time.March, 7, 15, 4, 5, 6, time.UTC)))
 	assert.Equal(t, "7 Mawrth 2020 am 3:04yp", cy.FormatDateTime(time.Date(2020, time.March, 7, 15, 4, 5, 6, time.UTC)))
 
-	assert.Equal(t, "7 March 2020 at 12:00am", en.FormatDateTime(time.Date(2020, time.March, 7, 0, 0, 0, 0, time.UTC)))
+	assert.Equal(t, "12:00am on 7 March 2020", en.FormatDateTime(time.Date(2020, time.March, 7, 0, 0, 0, 0, time.UTC)))
 	assert.Equal(t, "7 Mawrth 2020 am 12:00yb", cy.FormatDateTime(time.Date(2020, time.March, 7, 0, 0, 0, 0, time.UTC)))
-	assert.Equal(t, "7 March 2020 at 12:00pm", en.FormatDateTime(time.Date(2020, time.March, 7, 12, 0, 0, 0, time.UTC)))
+	assert.Equal(t, "12:00pm on 7 March 2020", en.FormatDateTime(time.Date(2020, time.March, 7, 12, 0, 0, 0, time.UTC)))
 	assert.Equal(t, "7 Mawrth 2020 am 12:00yp", cy.FormatDateTime(time.Date(2020, time.March, 7, 12, 0, 0, 0, time.UTC)))
-	assert.Equal(t, "8 March 2020 at 12:00am", en.FormatDateTime(time.Date(2020, time.March, 7, 24, 0, 0, 0, time.UTC)))
+	assert.Equal(t, "12:00am on 8 March 2020", en.FormatDateTime(time.Date(2020, time.March, 7, 24, 0, 0, 0, time.UTC)))
 	assert.Equal(t, "8 Mawrth 2020 am 12:00yb", cy.FormatDateTime(time.Date(2020, time.March, 7, 24, 0, 0, 0, time.UTC)))
 }
 
