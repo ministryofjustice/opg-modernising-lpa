@@ -318,7 +318,7 @@ func TestFormatDateTime(t *testing.T) {
 	appEn := appcontext.Data{Localizer: bundle.For(localize.En)}
 	appCy := appcontext.Data{Localizer: bundle.For(localize.Cy)}
 
-	assert.Equal(t, "7 March 2020 at 3:04am", formatDateTime(appEn, time.Date(2020, time.March, 7, 3, 4, 0, 0, time.UTC)))
+	assert.Equal(t, "3:04am on 7 March 2020", formatDateTime(appEn, time.Date(2020, time.March, 7, 3, 4, 0, 0, time.UTC)))
 
 	assert.Equal(t, "7 Mawrth 2020 am 3:04yb", formatDateTime(appCy, time.Date(2020, time.March, 7, 3, 4, 0, 0, time.UTC)))
 }

@@ -13,6 +13,8 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/date"
 )
 
+var london, _ = time.LoadLocation("Europe/London")
+
 type Localizer interface {
 	Concat(list []string, joiner string) string
 	Count(messageID string, count int) string
@@ -161,8 +163,7 @@ func (l *defaultLocalizer) FormatDateTime(t time.Time) string {
 		return ""
 	}
 
-	londonLoc, _ := time.LoadLocation("Europe/London")
-	lt := t.In(londonLoc)
+	lt := t.In(london)
 
 	if l.lang == Cy {
 		amPm := "yb"
@@ -173,7 +174,7 @@ func (l *defaultLocalizer) FormatDateTime(t time.Time) string {
 		return fmt.Sprintf("%d %s %d am %s%s", lt.Day(), monthsCy[lt.Month()], lt.Year(), lt.Format("3:04"), amPm)
 	}
 
-	return lt.Format("2 January 2006 at 3:04pm")
+	return lt.Format("3:04pm on 2 January 2006")
 }
 
 func (l *defaultLocalizer) Lang() Lang {
