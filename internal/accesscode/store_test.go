@@ -422,6 +422,42 @@ func TestAccessCodeStorePutDonorWhenDonor(t *testing.T) {
 
 func TestAccessCodeStoreDelete(t *testing.T) {
 	ctx := context.Background()
+	actorUID := actoruid.New()
+	pk := dynamo.AccessKey(dynamo.AttorneyAccessKey("a-pk"))
+	sk := dynamo.ShareSortKey(dynamo.MetadataKey("a-sk"))
+
+	dynamoClient := newMockDynamoClient(t)
+	dynamoClient.EXPECT().
+		WriteTransaction(ctx, &dynamo.Transaction{
+			Deletes: []dynamo.Keys{
+				{PK: pk, SK: sk},
+				{PK: dynamo.ActorAccessKey(actorUID.String()), SK: dynamo.MetadataKey(actorUID.String())},
+			},
+		}).
+		Return(nil)
+
+	accessCodeStore := &Store{dynamoClient: dynamoClient}
+
+	err := accessCodeStore.Delete(ctx, accesscodedata.Link{LpaKey: "123", PK: pk, SK: sk, ActorUID: actorUID})
+	assert.Nil(t, err)
+}
+
+func TestAccessCodeStoreDeleteWhenError(t *testing.T) {
+	ctx := context.Background()
+
+	dynamoClient := newMockDynamoClient(t)
+	dynamoClient.EXPECT().
+		WriteTransaction(ctx, mock.Anything).
+		Return(expectedError)
+
+	accessCodeStore := &Store{dynamoClient: dynamoClient}
+
+	err := accessCodeStore.Delete(ctx, accesscodedata.Link{})
+	assert.Equal(t, expectedError, err)
+}
+
+func TestAccessCodeStoreDeleteForOrganisation(t *testing.T) {
+	ctx := context.Background()
 	pk := dynamo.AccessKey(dynamo.AttorneyAccessKey("a-pk"))
 	sk := dynamo.ShareSortKey(dynamo.MetadataKey("a-sk"))
 
@@ -432,11 +468,11 @@ func TestAccessCodeStoreDelete(t *testing.T) {
 
 	accessCodeStore := &Store{dynamoClient: dynamoClient}
 
-	err := accessCodeStore.Delete(ctx, accesscodedata.Link{LpaKey: "123", PK: pk, SK: sk})
+	err := accessCodeStore.Delete(ctx, accesscodedata.Link{LpaKey: "123", PK: pk, SK: sk, LpaOwnerKey: dynamo.LpaOwnerKey(dynamo.OrganisationKey("org-id"))})
 	assert.Nil(t, err)
 }
 
-func TestAccessCodeStoreDeleteOnError(t *testing.T) {
+func TestAccessCodeStoreDeleteForOrganisationWhenError(t *testing.T) {
 	ctx := context.Background()
 
 	dynamoClient := newMockDynamoClient(t)
@@ -446,7 +482,7 @@ func TestAccessCodeStoreDeleteOnError(t *testing.T) {
 
 	accessCodeStore := &Store{dynamoClient: dynamoClient}
 
-	err := accessCodeStore.Delete(ctx, accesscodedata.Link{})
+	err := accessCodeStore.Delete(ctx, accesscodedata.Link{LpaOwnerKey: dynamo.LpaOwnerKey(dynamo.OrganisationKey("org-id"))})
 	assert.Equal(t, expectedError, err)
 }
 

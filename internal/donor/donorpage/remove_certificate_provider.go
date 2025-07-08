@@ -2,6 +2,7 @@ package donorpage
 
 import (
 	"net/http"
+	"net/url"
 
 	"github.com/ministryofjustice/opg-go-common/template"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/appcontext"
@@ -36,7 +37,7 @@ func RemoveCertificateProvider(tmpl template.Template, service CertificateProvid
 						return err
 					}
 
-					return donor.PathChooseCertificateProvider.Redirect(w, r, appData, provided)
+					return donor.PathChooseCertificateProvider.RedirectQuery(w, r, appData, provided, url.Values{"removed": {data.Name}})
 				}
 
 				return donor.PathCertificateProviderSummary.Redirect(w, r, appData, provided)

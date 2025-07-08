@@ -16,6 +16,7 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/notify"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/scheduled"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/scheduled/scheduleddata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/task"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/validation"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/voucher"
@@ -272,7 +273,7 @@ func TestPostYourDeclaration(t *testing.T) {
 			scheduledStore.EXPECT().
 				Create(r.Context(), scheduled.Event{
 					At:                testNow.AddDate(0, 6, 0),
-					Action:            scheduled.ActionExpireDonorIdentity,
+					Action:            scheduleddata.ActionExpireDonorIdentity,
 					TargetLpaKey:      pk,
 					TargetLpaOwnerKey: sk,
 					LpaUID:            "lpa-uid",
@@ -372,7 +373,7 @@ func TestPostYourDeclarationWhenSubmitted(t *testing.T) {
 	scheduledStore.EXPECT().
 		Create(r.Context(), scheduled.Event{
 			At:                testNow.AddDate(0, 6, 0),
-			Action:            scheduled.ActionExpireDonorIdentity,
+			Action:            scheduleddata.ActionExpireDonorIdentity,
 			TargetLpaKey:      pk,
 			TargetLpaOwnerKey: sk,
 			LpaUID:            "lpa-uid",
