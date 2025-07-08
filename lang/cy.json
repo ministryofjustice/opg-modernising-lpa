@@ -1548,7 +1548,7 @@
     "between:cy": "rhwng y Gymraeg",
     "and:en": "a Saesneg",
     "and:cy": "a’r Gymraeg",
-    "donorHasChosenToHaveTheirLpaRegisteredInContent": "\"<p class=\\\"govuk-notification-banner__heading\\\">Mae {{.DonorFullName}} wedi dewis cofrestru ei LPA {{.InSelected}}.</p><p class=\\\"govuk-body\\\">Dangosir yr LPA hwn {{.InSelected}} oherwydd mai hon yw’r iaith y mae {{possessive .DonorFullName}} wedi’i dewis.</p><p class=\\\"govuk-body\\\">Gallwch ddewis y ddolen iaith ‘{{.Unselected}}’ i ddarllen yr LPA {{.InUnselected}}.</p><p class=\\\"govuk-body\\\">Cofiwch na fydd testun y mae {{.Dono’FullName}} wedi’i roi yn yr LPA, gan gynnwys unrhyw gyfyngiadau ac amodau, yn cael ei gyfieithu.</p>\",",
+    "donorHasChosenToHaveTheirLpaRegisteredInContent": "\"<p class=\\\"govuk-notification-banner__heading\\\">Mae {{.DonorFullName}} wedi dewis cofrestru ei LPA {{.InSelected}}.</p><p class=\\\"govuk-body\\\">Dangosir yr LPA hwn {{.InSelected}} oherwydd mai hon yw’r iaith y mae {{possessive .DonorFullName}} wedi’i dewis.</p><p class=\\\"govuk-body\\\">Gallwch ddewis y ddolen iaith ‘{{.Unselected}}’ i ddarllen yr LPA {{.InUnselected}}.</p><p class=\\\"govuk-body\\\">Cofiwch na fydd testun y mae {{.DonorFullName}} wedi’i roi yn yr LPA, gan gynnwys unrhyw gyfyngiadau ac amodau, yn cael ei gyfieithu.</p>\",",
     "donorHasChosenToHaveTheirLpaRegisteredInThisIsTranslationContent": "<p class=\"govuk-notification-banner__heading\">Welsh {{.DonorFullName}} {{.InSelected}}</p><p class=\"govuk-body\">{{.DonorFullName}}<p>",
     "accessibilityStatement": "Datganiad hygyrchedd",
     "accessibilityStatementForMakeAndRegister": "Datganiad hygyrchedd ar gyfer Gwneud a chofrestru atwrneiaeth arhosol",
