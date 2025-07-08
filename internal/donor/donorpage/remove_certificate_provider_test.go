@@ -74,7 +74,9 @@ func TestPostRemoveCertificateProvider(t *testing.T) {
 
 	assert.Nil(t, err)
 	assert.Equal(t, http.StatusFound, resp.StatusCode)
-	assert.Equal(t, donor.PathChooseCertificateProvider.Format("lpa-id"), resp.Header.Get("Location"))
+	assert.Equal(t, donor.PathChooseCertificateProvider.FormatQuery("lpa-id", url.Values{
+		"removed": {"John Smith"},
+	}), resp.Header.Get("Location"))
 }
 
 func TestPostRemoveCertificateProviderWhenServiceErrors(t *testing.T) {

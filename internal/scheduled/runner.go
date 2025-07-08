@@ -18,6 +18,7 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/lpastore/lpadata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/notify"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/scheduled/scheduleddata"
 )
 
 // errStepIgnored is returned by steps when they don't require processing
@@ -89,7 +90,7 @@ type Runner struct {
 	notifyClient                 NotifyClient
 	eventClient                  EventClient
 	bundle                       Bundle
-	actions                      map[Action]ActionFunc
+	actions                      map[scheduleddata.Action]ActionFunc
 	waiter                       Waiter
 	metricsClient                MetricsClient
 	certificateProviderStartURL  string
@@ -141,11 +142,11 @@ func NewRunner(
 		attorneyOptOutURL:            appPublicURL + page.PathAttorneyEnterAccessCodeOptOut.Format(),
 	}
 
-	r.actions = map[Action]ActionFunc{
-		ActionExpireDonorIdentity:                        r.stepCancelDonorIdentity,
-		ActionRemindCertificateProviderToComplete:        r.stepRemindCertificateProviderToComplete,
-		ActionRemindCertificateProviderToConfirmIdentity: r.stepRemindCertificateProviderToConfirmIdentity,
-		ActionRemindAttorneyToComplete:                   r.stepRemindAttorneyToComplete,
+	r.actions = map[scheduleddata.Action]ActionFunc{
+		scheduleddata.ActionExpireDonorIdentity:                        r.stepCancelDonorIdentity,
+		scheduleddata.ActionRemindCertificateProviderToComplete:        r.stepRemindCertificateProviderToComplete,
+		scheduleddata.ActionRemindCertificateProviderToConfirmIdentity: r.stepRemindCertificateProviderToConfirmIdentity,
+		scheduleddata.ActionRemindAttorneyToComplete:                   r.stepRemindAttorneyToComplete,
 	}
 
 	return r

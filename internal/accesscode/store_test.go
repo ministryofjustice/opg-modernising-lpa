@@ -36,6 +36,13 @@ func (c *mockDynamoClient_OneBySK_Call) SetData(data any) {
 	})
 }
 
+func (c *mockDynamoClient_One_Call) SetData(data any) {
+	c.Run(func(_ context.Context, _ dynamo.PK, _ dynamo.SK, v any) {
+		b, _ := attributevalue.Marshal(data)
+		attributevalue.Unmarshal(b, v)
+	})
+}
+
 func TestAccessCodeStoreGet(t *testing.T) {
 	hashedCode := accesscodedata.HashedFromString("123")
 
@@ -421,7 +428,39 @@ func TestAccessCodeStorePutDonorWhenDonor(t *testing.T) {
 }
 
 func TestAccessCodeStoreDelete(t *testing.T) {
-	ctx := context.Background()
+	actorUID := actoruid.New()
+	pk := dynamo.AccessKey(dynamo.AttorneyAccessKey("a-pk"))
+	sk := dynamo.ShareSortKey(dynamo.MetadataKey("a-sk"))
+
+	dynamoClient := newMockDynamoClient(t)
+	dynamoClient.EXPECT().
+		WriteTransaction(ctx, &dynamo.Transaction{
+			Deletes: []dynamo.Keys{
+				{PK: pk, SK: sk},
+				{PK: dynamo.ActorAccessKey(actorUID.String()), SK: dynamo.MetadataKey(actorUID.String())},
+			},
+		}).
+		Return(nil)
+
+	accessCodeStore := &Store{dynamoClient: dynamoClient}
+
+	err := accessCodeStore.Delete(ctx, accesscodedata.Link{LpaKey: "123", PK: pk, SK: sk, ActorUID: actorUID})
+	assert.Nil(t, err)
+}
+
+func TestAccessCodeStoreDeleteWhenError(t *testing.T) {
+	dynamoClient := newMockDynamoClient(t)
+	dynamoClient.EXPECT().
+		WriteTransaction(ctx, mock.Anything).
+		Return(expectedError)
+
+	accessCodeStore := &Store{dynamoClient: dynamoClient}
+
+	err := accessCodeStore.Delete(ctx, accesscodedata.Link{})
+	assert.Equal(t, expectedError, err)
+}
+
+func TestAccessCodeStoreDeleteForOrganisation(t *testing.T) {
 	pk := dynamo.AccessKey(dynamo.AttorneyAccessKey("a-pk"))
 	sk := dynamo.ShareSortKey(dynamo.MetadataKey("a-sk"))
 
@@ -432,13 +471,11 @@ func TestAccessCodeStoreDelete(t *testing.T) {
 
 	accessCodeStore := &Store{dynamoClient: dynamoClient}
 
-	err := accessCodeStore.Delete(ctx, accesscodedata.Link{LpaKey: "123", PK: pk, SK: sk})
+	err := accessCodeStore.Delete(ctx, accesscodedata.Link{LpaKey: "123", PK: pk, SK: sk, LpaOwnerKey: dynamo.LpaOwnerKey(dynamo.OrganisationKey("org-id"))})
 	assert.Nil(t, err)
 }
 
-func TestAccessCodeStoreDeleteOnError(t *testing.T) {
-	ctx := context.Background()
-
+func TestAccessCodeStoreDeleteForOrganisationWhenError(t *testing.T) {
 	dynamoClient := newMockDynamoClient(t)
 	dynamoClient.EXPECT().
 		DeleteOne(ctx, mock.Anything, mock.Anything).
@@ -446,8 +483,65 @@ func TestAccessCodeStoreDeleteOnError(t *testing.T) {
 
 	accessCodeStore := &Store{dynamoClient: dynamoClient}
 
-	err := accessCodeStore.Delete(ctx, accesscodedata.Link{})
+	err := accessCodeStore.Delete(ctx, accesscodedata.Link{LpaOwnerKey: dynamo.LpaOwnerKey(dynamo.OrganisationKey("org-id"))})
 	assert.Equal(t, expectedError, err)
+}
+
+func TestAccessCodeStoreDeleteByActor(t *testing.T) {
+	actorUID := actoruid.New()
+	actorAccess := accesscodedata.ActorAccess{
+		PK:           dynamo.ActorAccessKey(actorUID.String()),
+		SK:           dynamo.MetadataKey(actorUID.String()),
+		ShareKey:     dynamo.AccessKey(dynamo.CertificateProviderAccessKey("blah")),
+		ShareSortKey: dynamo.ShareSortKey(dynamo.MetadataKey("blah")),
+	}
+
+	dynamoClient := newMockDynamoClient(t)
+	dynamoClient.EXPECT().
+		One(ctx, actorAccess.PK, actorAccess.SK, mock.Anything).
+		Return(nil).
+		SetData(actorAccess)
+	dynamoClient.EXPECT().
+		WriteTransaction(ctx, &dynamo.Transaction{
+			Deletes: []dynamo.Keys{
+				{PK: actorAccess.ShareKey, SK: actorAccess.ShareSortKey},
+				{PK: actorAccess.PK, SK: actorAccess.SK},
+			},
+		}).
+		Return(expectedError)
+
+	accessCodeStore := &Store{dynamoClient: dynamoClient}
+
+	err := accessCodeStore.DeleteByActor(ctx, actorUID)
+	assert.Equal(t, expectedError, err)
+}
+
+func TestAccessCodeStoreDeleteByActorWhenNotFound(t *testing.T) {
+	actorUID := actoruid.New()
+
+	dynamoClient := newMockDynamoClient(t)
+	dynamoClient.EXPECT().
+		One(mock.Anything, mock.Anything, mock.Anything, mock.Anything).
+		Return(dynamo.NotFoundError{})
+
+	accessCodeStore := &Store{dynamoClient: dynamoClient}
+
+	err := accessCodeStore.DeleteByActor(ctx, actorUID)
+	assert.Nil(t, err)
+}
+
+func TestAccessCodeStoreDeleteByActorWhenError(t *testing.T) {
+	actorUID := actoruid.New()
+
+	dynamoClient := newMockDynamoClient(t)
+	dynamoClient.EXPECT().
+		One(mock.Anything, mock.Anything, mock.Anything, mock.Anything).
+		Return(expectedError)
+
+	accessCodeStore := &Store{dynamoClient: dynamoClient}
+
+	err := accessCodeStore.DeleteByActor(ctx, actorUID)
+	assert.ErrorIs(t, err, expectedError)
 }
 
 func TestAccessKey(t *testing.T) {

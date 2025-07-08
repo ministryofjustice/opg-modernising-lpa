@@ -8,6 +8,7 @@ import (
 
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/accesscode/accesscodedata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor/actoruid"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/appcontext"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/dynamo"
 )
@@ -128,7 +129,35 @@ func (s *Store) GetDonor(ctx context.Context) (accesscodedata.Link, error) {
 }
 
 func (s *Store) Delete(ctx context.Context, link accesscodedata.Link) error {
-	return s.dynamoClient.DeleteOne(ctx, link.PK, link.SK)
+	if _, ok := link.LpaOwnerKey.Organisation(); ok {
+		return s.dynamoClient.DeleteOne(ctx, link.PK, link.SK)
+	}
+
+	transaction := dynamo.NewTransaction().
+		Delete(dynamo.Keys{PK: link.PK, SK: link.SK}).
+		Delete(dynamo.Keys{
+			PK: dynamo.ActorAccessKey(link.ActorUID.String()),
+			SK: dynamo.MetadataKey(link.ActorUID.String()),
+		})
+
+	return s.dynamoClient.WriteTransaction(ctx, transaction)
+}
+
+func (s *Store) DeleteByActor(ctx context.Context, actorUID actoruid.UID) error {
+	var actorAccess accesscodedata.ActorAccess
+	if err := s.dynamoClient.One(ctx, dynamo.ActorAccessKey(actorUID.String()), dynamo.MetadataKey(actorUID.String()), &actorAccess); err != nil {
+		if errors.Is(err, dynamo.NotFoundError{}) {
+			return nil
+		}
+
+		return fmt.Errorf("retrieve actor access: %w", err)
+	}
+
+	transaction := dynamo.NewTransaction().
+		Delete(dynamo.Keys{PK: actorAccess.ShareKey, SK: actorAccess.ShareSortKey}).
+		Delete(dynamo.Keys{PK: actorAccess.PK, SK: actorAccess.SK})
+
+	return s.dynamoClient.WriteTransaction(ctx, transaction)
 }
 
 func accessCodeKey(actorType actor.Type, accessCode accesscodedata.Hashed) (pk dynamo.ShareKeyType, err error) {

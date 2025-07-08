@@ -15,6 +15,7 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/identity"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/onelogin"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/scheduled"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/scheduled/scheduleddata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/sesh"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/task"
 	"github.com/stretchr/testify/assert"
@@ -62,7 +63,7 @@ func TestGetIdentityWithOneLoginCallback(t *testing.T) {
 	scheduledStore.EXPECT().
 		Create(r.Context(), scheduled.Event{
 			At:                now.AddDate(0, 6, 0),
-			Action:            scheduled.ActionExpireDonorIdentity,
+			Action:            scheduleddata.ActionExpireDonorIdentity,
 			TargetLpaKey:      dynamo.LpaKey("hey"),
 			TargetLpaOwnerKey: dynamo.LpaOwnerKey(dynamo.DonorKey("oh")),
 		}).
@@ -124,7 +125,7 @@ func TestGetIdentityWithOneLoginCallbackWhenIdentityMismatched(t *testing.T) {
 	scheduledStore.EXPECT().
 		Create(r.Context(), scheduled.Event{
 			At:                now.AddDate(0, 6, 0),
-			Action:            scheduled.ActionExpireDonorIdentity,
+			Action:            scheduleddata.ActionExpireDonorIdentity,
 			TargetLpaKey:      dynamo.LpaKey("hey"),
 			TargetLpaOwnerKey: dynamo.LpaOwnerKey(dynamo.DonorKey("oh")),
 			LpaUID:            "lpa-uid",

@@ -19,6 +19,7 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/notify"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/scheduled"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/scheduled/scheduleddata"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
 )
@@ -910,13 +911,13 @@ func TestAccessCodeSenderSendAttorneys(t *testing.T) {
 	scheduledStore.EXPECT().
 		Create(ctx, scheduled.Event{
 			At:                testNow.AddDate(0, 3, 1),
-			Action:            scheduled.ActionRemindAttorneyToComplete,
+			Action:            scheduleddata.ActionRemindAttorneyToComplete,
 			TargetLpaKey:      dynamo.LpaKey("lpa"),
 			TargetLpaOwnerKey: dynamo.LpaOwnerKey(dynamo.DonorKey("donor")),
 			LpaUID:            "lpa-uid",
 		}, scheduled.Event{
 			At:                lpa.ExpiresAt().AddDate(0, -3, 1),
-			Action:            scheduled.ActionRemindAttorneyToComplete,
+			Action:            scheduleddata.ActionRemindAttorneyToComplete,
 			TargetLpaKey:      dynamo.LpaKey("lpa"),
 			TargetLpaOwnerKey: dynamo.LpaOwnerKey(dynamo.DonorKey("donor")),
 			LpaUID:            "lpa-uid",

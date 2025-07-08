@@ -23,7 +23,9 @@ type DonorStore interface {
 }
 
 type CertificateProviderStore interface {
-	GetAny(context.Context) (*certificateproviderdata.Provided, error)
+	GetAny(ctx context.Context) (*certificateproviderdata.Provided, error)
+	OneByUID(ctx context.Context, uid string) (*certificateproviderdata.Provided, error)
+	Delete(ctx context.Context) error
 }
 
 type NotifyClient interface {
