@@ -1,4 +1,4 @@
-package scheduled
+package scheduleddata
 
 //go:generate go tool enumerator -type Action -trimprefix
 type Action uint8

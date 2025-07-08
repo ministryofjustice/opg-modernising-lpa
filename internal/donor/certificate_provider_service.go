@@ -4,24 +4,32 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"time"
 
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor/actoruid"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor/donordata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/dynamo"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/scheduled/scheduleddata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/task"
 )
 
-type CertificateProviderService struct {
-	donorStore PutStore
-	reuseStore ReuseStore
-	newUID     func() actoruid.UID
+type ScheduledStore interface {
+	DeleteAllActionByUID(ctx context.Context, actions []scheduleddata.Action, uid string) error
 }
 
-func NewCertificateProviderService(donorStore PutStore, reuseStore ReuseStore) *CertificateProviderService {
+type CertificateProviderService struct {
+	donorStore     PutStore
+	reuseStore     ReuseStore
+	scheduledStore ScheduledStore
+	newUID         func() actoruid.UID
+}
+
+func NewCertificateProviderService(donorStore PutStore, reuseStore ReuseStore, scheduledStore ScheduledStore) *CertificateProviderService {
 	return &CertificateProviderService{
-		donorStore: donorStore,
-		reuseStore: reuseStore,
-		newUID:     actoruid.New,
+		donorStore:     donorStore,
+		reuseStore:     reuseStore,
+		newUID:         actoruid.New,
+		scheduledStore: scheduledStore,
 	}
 }
 
@@ -68,7 +76,16 @@ func (s *CertificateProviderService) Delete(ctx context.Context, provided *donor
 	}
 
 	provided.CertificateProvider = donordata.CertificateProvider{}
+	provided.CertificateProviderNotRelatedConfirmedAt = time.Time{}
+	provided.CertificateProviderNotRelatedConfirmedHash = 0
+	provided.CertificateProviderNotRelatedConfirmedHashVersion = 0
+	provided.CertificateProviderInvitedAt = time.Time{}
+	provided.CheckedAt = time.Time{}
 	provided.Tasks.CertificateProvider = task.StateNotStarted
+
+	if err := s.scheduledStore.DeleteAllActionByUID(ctx, []scheduleddata.Action{scheduleddata.ActionRemindCertificateProviderToComplete}, provided.LpaUID); err != nil {
+		return fmt.Errorf("deleting scheduled actions: %w", err)
+	}
 
 	if err := s.donorStore.Put(ctx, provided); err != nil {
 		return fmt.Errorf("deleting certificate provider from lpa: %w", err)

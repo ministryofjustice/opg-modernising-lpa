@@ -30,6 +30,7 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/place"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/random"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/scheduled"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/scheduled/scheduleddata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/sesh"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/task"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/uid"
@@ -192,6 +193,7 @@ type AccessCodeStore interface {
 
 type ScheduledStore interface {
 	Create(ctx context.Context, rows ...scheduled.Event) error
+	DeleteAllActionByUID(ctx context.Context, actions []scheduleddata.Action, uid string) error
 }
 
 type ErrorHandler func(http.ResponseWriter, *http.Request, error)
@@ -405,7 +407,7 @@ func Register(
 		Restrictions(tmpls.Get("restrictions.gohtml"), donorStore))
 
 	{
-		service := donor.NewCertificateProviderService(donorStore, reuseStore)
+		service := donor.NewCertificateProviderService(donorStore, reuseStore, scheduledStore)
 
 		handleWithDonor(donor.PathWhatACertificateProviderDoes, page.None,
 			Guidance(tmpls.Get("what_a_certificate_provider_does.gohtml")))

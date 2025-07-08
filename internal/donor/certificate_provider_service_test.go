@@ -8,6 +8,7 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/dynamo"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/lpastore/lpadata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/place"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/scheduled/scheduleddata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/task"
 	"github.com/stretchr/testify/assert"
 	mock "github.com/stretchr/testify/mock"
@@ -158,7 +159,7 @@ func TestCertificateProviderServicePutWhenDonorStoreErrors(t *testing.T) {
 	assert.ErrorIs(t, err, expectedError)
 }
 
-func TestCertificateProviderStoreDelete(t *testing.T) {
+func TestCertificateProviderServiceDelete(t *testing.T) {
 	certificateProvider := donordata.CertificateProvider{UID: actoruid.New()}
 
 	reuseStore := newMockReuseStore(t)
@@ -166,14 +167,19 @@ func TestCertificateProviderStoreDelete(t *testing.T) {
 		DeleteCertificateProvider(ctx, certificateProvider).
 		Return(nil)
 
-	donorStore := newMockDonorStore(t)
-	donorStore.EXPECT().
-		Put(ctx, &donordata.Provided{LpaID: "lpa-id"}).
+	scheduledStore := newMockScheduledStore(t)
+	scheduledStore.EXPECT().
+		DeleteAllActionByUID(ctx, []scheduleddata.Action{scheduleddata.ActionRemindCertificateProviderToComplete}, "lpa-uid").
 		Return(nil)
 
-	service := &CertificateProviderService{reuseStore: reuseStore, donorStore: donorStore}
+	donorStore := newMockDonorStore(t)
+	donorStore.EXPECT().
+		Put(ctx, &donordata.Provided{LpaUID: "lpa-uid"}).
+		Return(nil)
+
+	service := &CertificateProviderService{reuseStore: reuseStore, donorStore: donorStore, scheduledStore: scheduledStore}
 	err := service.Delete(ctx, &donordata.Provided{
-		LpaID:               "lpa-id",
+		LpaUID:              "lpa-uid",
 		CertificateProvider: certificateProvider,
 		Tasks: donordata.Tasks{
 			CertificateProvider: task.StateCompleted,
@@ -183,7 +189,7 @@ func TestCertificateProviderStoreDelete(t *testing.T) {
 	assert.Nil(t, err)
 }
 
-func TestCertificateProviderStoreDeleteWhenReuseStoreErrors(t *testing.T) {
+func TestCertificateProviderServiceDeleteWhenReuseStoreErrors(t *testing.T) {
 	reuseStore := newMockReuseStore(t)
 	reuseStore.EXPECT().
 		DeleteCertificateProvider(mock.Anything, mock.Anything).
@@ -195,10 +201,32 @@ func TestCertificateProviderStoreDeleteWhenReuseStoreErrors(t *testing.T) {
 	assert.ErrorIs(t, err, expectedError)
 }
 
-func TestCertificateProviderStoreDeleteWhenDonorStoreErrors(t *testing.T) {
+func TestCertificateProviderServiceDeleteWhenScheduledStoreErrors(t *testing.T) {
 	reuseStore := newMockReuseStore(t)
 	reuseStore.EXPECT().
 		DeleteCertificateProvider(mock.Anything, mock.Anything).
+		Return(nil)
+
+	scheduledStore := newMockScheduledStore(t)
+	scheduledStore.EXPECT().
+		DeleteAllActionByUID(mock.Anything, mock.Anything, mock.Anything).
+		Return(expectedError)
+
+	service := &CertificateProviderService{reuseStore: reuseStore, scheduledStore: scheduledStore}
+	err := service.Delete(ctx, &donordata.Provided{})
+
+	assert.ErrorIs(t, err, expectedError)
+}
+
+func TestCertificateProviderServiceDeleteWhenDonorStoreErrors(t *testing.T) {
+	reuseStore := newMockReuseStore(t)
+	reuseStore.EXPECT().
+		DeleteCertificateProvider(mock.Anything, mock.Anything).
+		Return(nil)
+
+	scheduledStore := newMockScheduledStore(t)
+	scheduledStore.EXPECT().
+		DeleteAllActionByUID(mock.Anything, mock.Anything, mock.Anything).
 		Return(nil)
 
 	donorStore := newMockDonorStore(t)
@@ -206,7 +234,7 @@ func TestCertificateProviderStoreDeleteWhenDonorStoreErrors(t *testing.T) {
 		Put(mock.Anything, mock.Anything).
 		Return(expectedError)
 
-	service := &CertificateProviderService{reuseStore: reuseStore, donorStore: donorStore}
+	service := &CertificateProviderService{reuseStore: reuseStore, donorStore: donorStore, scheduledStore: scheduledStore}
 	err := service.Delete(ctx, &donordata.Provided{})
 
 	assert.ErrorIs(t, err, expectedError)
