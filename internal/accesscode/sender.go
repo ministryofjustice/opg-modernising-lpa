@@ -18,6 +18,7 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/notify"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/scheduled"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/scheduled/scheduleddata"
 )
 
 type Localizer interface {
@@ -154,13 +155,13 @@ func (s *Sender) SendLpaCertificateProviderPrompt(ctx context.Context, appData a
 func (s *Sender) SendAttorneys(ctx context.Context, appData appcontext.Data, lpa *lpadata.Lpa) error {
 	if err := s.scheduledStore.Create(ctx, scheduled.Event{
 		At:                s.now().AddDate(0, 3, 1),
-		Action:            scheduled.ActionRemindAttorneyToComplete,
+		Action:            scheduleddata.ActionRemindAttorneyToComplete,
 		TargetLpaKey:      lpa.LpaKey,
 		TargetLpaOwnerKey: lpa.LpaOwnerKey,
 		LpaUID:            lpa.LpaUID,
 	}, scheduled.Event{
 		At:                lpa.ExpiresAt().AddDate(0, -3, 1),
-		Action:            scheduled.ActionRemindAttorneyToComplete,
+		Action:            scheduleddata.ActionRemindAttorneyToComplete,
 		TargetLpaKey:      lpa.LpaKey,
 		TargetLpaOwnerKey: lpa.LpaOwnerKey,
 		LpaUID:            lpa.LpaUID,

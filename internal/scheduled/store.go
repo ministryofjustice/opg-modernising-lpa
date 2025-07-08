@@ -10,6 +10,7 @@ import (
 	"github.com/aws/aws-sdk-go-v2/service/dynamodb/types"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/dynamo"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/random"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/scheduled/scheduleddata"
 )
 
 type DynamoClient interface {
@@ -78,7 +79,7 @@ func (s *Store) DeleteAllByUID(ctx context.Context, uid string) error {
 	return s.dynamoClient.DeleteKeys(ctx, keys)
 }
 
-func (s *Store) DeleteAllActionByUID(ctx context.Context, actions []Action, uid string) error {
+func (s *Store) DeleteAllActionByUID(ctx context.Context, actions []scheduleddata.Action, uid string) error {
 	keys, err := s.dynamoClient.AllByLpaUIDAndPartialSK(ctx, uid, dynamo.PartialScheduledKey())
 	if err != nil {
 		return err

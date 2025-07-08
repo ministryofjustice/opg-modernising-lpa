@@ -22,6 +22,7 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/notify"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/pay"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/scheduled"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/scheduled/scheduleddata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/task"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
@@ -905,7 +906,7 @@ func TestHandleDonorSubmissionCompleted(t *testing.T) {
 					SK:                dynamo.ScheduledKey(testNow.AddDate(0, 3, 1), testUuidString),
 					CreatedAt:         testNow,
 					At:                testNow.AddDate(0, 3, 1),
-					Action:            scheduled.ActionRemindCertificateProviderToComplete,
+					Action:            scheduleddata.ActionRemindCertificateProviderToComplete,
 					TargetLpaKey:      dynamo.LpaKey(testUuidString),
 					TargetLpaOwnerKey: dynamo.LpaOwnerKey(dynamo.DonorKey("PAPER")),
 					LpaUID:            "M-1111-2222-3333",

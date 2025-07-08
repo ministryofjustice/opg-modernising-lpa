@@ -12,6 +12,7 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/localize"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/scheduled"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/scheduled/scheduleddata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/validation"
 )
 
@@ -57,13 +58,13 @@ func SignYourLpa(tmpl template.Template, donorStore DonorStore, scheduledStore S
 
 				if err := scheduledStore.Create(r.Context(), scheduled.Event{
 					At:                provided.SignedAt.AddDate(0, 3, 1),
-					Action:            scheduled.ActionRemindCertificateProviderToComplete,
+					Action:            scheduleddata.ActionRemindCertificateProviderToComplete,
 					TargetLpaKey:      provided.PK,
 					TargetLpaOwnerKey: provided.SK,
 					LpaUID:            provided.LpaUID,
 				}, scheduled.Event{
 					At:                provided.SignedAt.AddDate(0, 21, 1),
-					Action:            scheduled.ActionRemindCertificateProviderToComplete,
+					Action:            scheduleddata.ActionRemindCertificateProviderToComplete,
 					TargetLpaKey:      provided.PK,
 					TargetLpaOwnerKey: provided.SK,
 					LpaUID:            provided.LpaUID,

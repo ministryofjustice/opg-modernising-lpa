@@ -17,6 +17,7 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/notify"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/scheduled"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/scheduled/scheduleddata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/task"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/validation"
 )
@@ -74,7 +75,7 @@ func (n *checkYourLpaNotifier) sendOnlineNotification(ctx context.Context, appDa
 
 		if err := n.scheduledStore.Create(ctx, scheduled.Event{
 			At:                donor.CertificateProviderInvitedAt.AddDate(0, 3, 1),
-			Action:            scheduled.ActionRemindCertificateProviderToComplete,
+			Action:            scheduleddata.ActionRemindCertificateProviderToComplete,
 			TargetLpaKey:      donor.PK,
 			TargetLpaOwnerKey: donor.SK,
 			LpaUID:            donor.LpaUID,
