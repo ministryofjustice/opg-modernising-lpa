@@ -12,6 +12,7 @@ import (
 	"github.com/aws/aws-sdk-go-v2/service/cloudwatch/types"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/dynamo"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/scheduled/scheduleddata"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
 )
@@ -147,7 +148,7 @@ func TestRunnerRun(t *testing.T) {
 		logger: logger,
 		store:  store,
 		waiter: waiter,
-		actions: map[Action]ActionFunc{
+		actions: map[scheduleddata.Action]ActionFunc{
 			99: actionFunc.Execute,
 		},
 		metricsClient:  metricsClient,
@@ -226,7 +227,7 @@ func TestRunnerRunWhenActionIgnored(t *testing.T) {
 		logger: logger,
 		store:  store,
 		waiter: waiter,
-		actions: map[Action]ActionFunc{
+		actions: map[scheduleddata.Action]ActionFunc{
 			99: actionFunc.Execute,
 		},
 		metricsClient:  metricsClient,
@@ -277,7 +278,7 @@ func TestRunnerRunWhenActionErrors(t *testing.T) {
 		logger: logger,
 		store:  store,
 		waiter: waiter,
-		actions: map[Action]ActionFunc{
+		actions: map[scheduleddata.Action]ActionFunc{
 			99: actionFunc.Execute,
 		},
 		metricsClient:  metricsClient,
@@ -326,7 +327,7 @@ func TestRunnerRunWhenWaitingError(t *testing.T) {
 		logger: logger,
 		store:  store,
 		waiter: waiter,
-		actions: map[Action]ActionFunc{
+		actions: map[scheduleddata.Action]ActionFunc{
 			99: actionFunc.Execute,
 		},
 		metricsClient:  metricsClient,
@@ -371,7 +372,7 @@ func TestRunnerRunWhenMetricsDisabled(t *testing.T) {
 		logger: logger,
 		store:  store,
 		waiter: waiter,
-		actions: map[Action]ActionFunc{
+		actions: map[scheduleddata.Action]ActionFunc{
 			99: actionFunc.Execute,
 		},
 		metricsClient:  nil,
@@ -421,7 +422,7 @@ func TestRunnerRunWhenMetricsClientError(t *testing.T) {
 		logger: logger,
 		store:  store,
 		waiter: waiter,
-		actions: map[Action]ActionFunc{
+		actions: map[scheduleddata.Action]ActionFunc{
 			99: actionFunc.Execute,
 		},
 		metricsClient:  metricsClient,

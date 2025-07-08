@@ -20,6 +20,7 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/identity"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/random"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/scheduled"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/scheduled/scheduleddata"
 )
 
 const batchSize = 100
@@ -89,7 +90,7 @@ func handleAddScheduledTasks(ctx context.Context, taskCountEvent TaskCountEvent)
 		event := scheduled.Event{
 			CreatedAt:         now,
 			At:                now,
-			Action:            scheduled.ActionExpireDonorIdentity,
+			Action:            scheduleddata.ActionExpireDonorIdentity,
 			TargetLpaKey:      donor.PK,
 			TargetLpaOwnerKey: donor.SK,
 			LpaUID:            lpaUID,
