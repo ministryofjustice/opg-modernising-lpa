@@ -1,19 +1,21 @@
 {{ template "page" . }}
 
-{{ define "pageTitle" }}{{ tr .App "removeCertificateProvider" }}{{ end }}
+{{ define "pageTitle" }}{{ tr .App "changingYourCertificateProvider" }}{{ end }}
 
 {{ define "main" }}
     <div class="govuk-grid-row">
         <div class="govuk-grid-column-two-thirds">
+            <h1 class="govuk-heading-xl">{{ tr .App "changingYourCertificateProvider" }}</h1>
+
+            {{ trFormatHtml .App "changingYourCertificateProviderContent" "Name" .Name }}
+
             <form novalidate method="post">
                 {{ template "radios-fieldset" (fieldset . .Form.FieldName ""
-                    (legendHeading (trFormat .App "doYouWantToRemove" "Name" .Name) "Classes" "govuk-fieldset__legend--xl")
+                    (legend (trFormat .App "doYouWantToRemove" "Name" .Name) "classes" "govuk-fieldset__legend--s")
                     (item .Form.Options.Yes.String "yes")
-                    (item .Form.Options.No.String "no")
-                    ) }}
+                    (item .Form.Options.No.String "no")) }}
 
                 {{ template "button" (button .App "continue") }}
-
                 {{ template "csrf-field" . }}
             </form>
         </div>

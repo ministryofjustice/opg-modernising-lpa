@@ -3,37 +3,41 @@
 {{ define "pageTitle" }}{{ tr .App "certificateProviderDetails" }}{{ end }}
 
 {{ define "main" }}
-  <div class="govuk-grid-row">
-    <div class="govuk-grid-column-two-thirds">
-      <form novalidate method="post">
-        <h1 class="govuk-heading-xl">{{ tr .App "certificateProviderDetails" }}</h1>
+    <div class="govuk-grid-row">
+        <div class="govuk-grid-column-two-thirds">
+            <form novalidate method="post">
+                {{ if .App.Query.Has "removed" }}
+                    {{ template "notification-banner" (notificationBanner .App "important" (trFormatHtml .App "youHaveRemovedCertificateProvider" "CertificateProviderFullName" (.App.Query.Get "removed")) "contents") }}
+                {{ end }}
 
-        <p class="govuk-body">{{ tr .App "certificateProviderDetailsHint" }}</p>
+                <h1 class="govuk-heading-xl">{{ tr .App "certificateProviderDetails" }}</h1>
 
-        {{ template "input" (input . "first-names" "firstNames" .Form.FirstNames "classes" "govuk-input--width-20" "hint" "firstNamesHint") }}
-        {{ template "input" (input . "last-name" "lastName" .Form.LastName "classes" "govuk-input--width-20") }}
+                <p class="govuk-body">{{ tr .App "certificateProviderDetailsHint" }}</p>
 
-        {{ template "input" (input . "mobile" "ukMobileNumber" .Form.Mobile "context" "certificateProviderMobileContext" "hint" "enterYourUkMobileHint" "classes" "govuk-input--width-20 govuk-input--extra-letter-spacing" "type" "tel" "autocomplete" "tel") }}
+                {{ template "input" (input . "first-names" "firstNames" .Form.FirstNames "classes" "govuk-input--width-20" "hint" "firstNamesHint") }}
+                {{ template "input" (input . "last-name" "lastName" .Form.LastName "classes" "govuk-input--width-20") }}
 
-        <div class="govuk-form-group">
-          <div class="govuk-checkboxes" data-module="govuk-checkboxes">
-            <div class="govuk-checkboxes__item">
-              <input class="govuk-checkboxes__input" id="f-has-non-uk-mobile" name="has-non-uk-mobile" type="checkbox" value="1" data-aria-controls="conditional-has-non-uk-mobile" {{ if .Form.HasNonUKMobile }}checked{{ end }}>
-              <label class="govuk-label govuk-checkboxes__label" for="f-has-non-uk-mobile">
-                {{ tr .App "theyDoNotHaveAUkMobileNumber" }}
-              </label>
-            </div>
-            <div class="govuk-checkboxes__conditional govuk-checkboxes__conditional--hidden" id="conditional-has-non-uk-mobile">
-              {{ template "input" (input . "non-uk-mobile" "mobilePhoneNumber" .Form.NonUKMobile "hint" "nonUkMobileHint" "classes" "govuk-input--width-20 govuk-input--extra-letter-spacing" "type" "tel" "autocomplete" "tel") }}
-            </div>
-          </div>
+                {{ template "input" (input . "mobile" "ukMobileNumber" .Form.Mobile "context" "certificateProviderMobileContext" "hint" "enterYourUkMobileHint" "classes" "govuk-input--width-20 govuk-input--extra-letter-spacing" "type" "tel" "autocomplete" "tel") }}
+
+                <div class="govuk-form-group">
+                    <div class="govuk-checkboxes" data-module="govuk-checkboxes">
+                        <div class="govuk-checkboxes__item">
+                            <input class="govuk-checkboxes__input" id="f-has-non-uk-mobile" name="has-non-uk-mobile" type="checkbox" value="1" data-aria-controls="conditional-has-non-uk-mobile" {{ if .Form.HasNonUKMobile }}checked{{ end }}>
+                            <label class="govuk-label govuk-checkboxes__label" for="f-has-non-uk-mobile">
+                                {{ tr .App "theyDoNotHaveAUkMobileNumber" }}
+                            </label>
+                        </div>
+                        <div class="govuk-checkboxes__conditional govuk-checkboxes__conditional--hidden" id="conditional-has-non-uk-mobile">
+                            {{ template "input" (input . "non-uk-mobile" "mobilePhoneNumber" .Form.NonUKMobile "hint" "nonUkMobileHint" "classes" "govuk-input--width-20 govuk-input--extra-letter-spacing" "type" "tel" "autocomplete" "tel") }}
+                        </div>
+                    </div>
+                </div>
+
+                {{ template "warning" (content .App "youreResponsibleForMakingSureTheseDetailsAreCorrect") }}
+
+                {{ template "buttons" (button .App "saveAndContinue") }}
+                {{ template "csrf-field" . }}
+            </form>
         </div>
-
-        {{ template "warning" (content .App "youreResponsibleForMakingSureTheseDetailsAreCorrect") }}
-
-        {{ template "buttons" (button .App "saveAndContinue") }}
-        {{ template "csrf-field" . }}
-      </form>
     </div>
-  </div>
 {{ end }}

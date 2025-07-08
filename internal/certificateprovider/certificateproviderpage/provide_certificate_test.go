@@ -17,6 +17,7 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/notify"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/scheduled"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/scheduled/scheduleddata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/task"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/validation"
 	"github.com/stretchr/testify/assert"
@@ -157,12 +158,12 @@ func TestPostProvideCertificate(t *testing.T) {
 	scheduledStore.EXPECT().
 		Create(r.Context(), scheduled.Event{
 			At:           testNow.AddDate(0, 3, 1),
-			Action:       scheduled.ActionRemindCertificateProviderToConfirmIdentity,
+			Action:       scheduleddata.ActionRemindCertificateProviderToConfirmIdentity,
 			TargetLpaKey: certificateProvider.PK,
 			LpaUID:       lpa.LpaUID,
 		}, scheduled.Event{
 			At:           lpa.SignedAt.AddDate(0, 21, 1),
-			Action:       scheduled.ActionRemindCertificateProviderToConfirmIdentity,
+			Action:       scheduleddata.ActionRemindCertificateProviderToConfirmIdentity,
 			TargetLpaKey: certificateProvider.PK,
 			LpaUID:       lpa.LpaUID,
 		}).
@@ -494,12 +495,12 @@ func TestPostProvideCertificateWhenSignedInLpaStore(t *testing.T) {
 	scheduledStore.EXPECT().
 		Create(r.Context(), scheduled.Event{
 			At:           signedAt.AddDate(0, 3, 1),
-			Action:       scheduled.ActionRemindCertificateProviderToConfirmIdentity,
+			Action:       scheduleddata.ActionRemindCertificateProviderToConfirmIdentity,
 			TargetLpaKey: certificateProvider.PK,
 			LpaUID:       lpa.LpaUID,
 		}, scheduled.Event{
 			At:           lpa.SignedAt.AddDate(0, 21, 1),
-			Action:       scheduled.ActionRemindCertificateProviderToConfirmIdentity,
+			Action:       scheduleddata.ActionRemindCertificateProviderToConfirmIdentity,
 			TargetLpaKey: certificateProvider.PK,
 			LpaUID:       lpa.LpaUID,
 		}).

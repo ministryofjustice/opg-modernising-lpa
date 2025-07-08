@@ -10,6 +10,7 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/event"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/identity"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/scheduled"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/scheduled/scheduleddata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/task"
 )
 
@@ -82,7 +83,7 @@ func IdentityWithOneLoginCallback(oneLoginClient OneLoginClient, sessionStore Se
 		default:
 			if err := scheduledStore.Create(r.Context(), scheduled.Event{
 				At:                userData.CheckedAt.AddDate(0, 6, 0),
-				Action:            scheduled.ActionExpireDonorIdentity,
+				Action:            scheduleddata.ActionExpireDonorIdentity,
 				TargetLpaKey:      provided.PK,
 				TargetLpaOwnerKey: provided.SK,
 				LpaUID:            provided.LpaUID,

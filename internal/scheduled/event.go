@@ -4,6 +4,7 @@ import (
 	"time"
 
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/dynamo"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/scheduled/scheduleddata"
 )
 
 // A Event specifies an action to take in the future.
@@ -15,7 +16,7 @@ type Event struct {
 	// At is when the action should be done
 	At time.Time
 	// Action is what to do when run
-	Action Action
+	Action scheduleddata.Action
 	// TargetLpaKey is used to specify the target of the action
 	TargetLpaKey dynamo.LpaKeyType
 	// TargetLpaOwnerKey is used to specify the target of the action

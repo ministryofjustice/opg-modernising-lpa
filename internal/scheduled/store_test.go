@@ -5,6 +5,7 @@ import (
 	"time"
 
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/dynamo"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/scheduled/scheduleddata"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
 )
@@ -182,8 +183,8 @@ func TestDeleteAllActionByUID(t *testing.T) {
 	}
 
 	expected := []Event{
-		{LpaUID: "lpa-uid", Action: ActionRemindAttorneyToComplete, PK: dynamo.ScheduledDayKey(now), SK: dynamo.ScheduledKey(now, testUuidString)},
-		{LpaUID: "lpa-uid", Action: ActionExpireDonorIdentity, PK: dynamo.ScheduledDayKey(yesterday), SK: dynamo.ScheduledKey(yesterday, testUuidString)},
+		{LpaUID: "lpa-uid", Action: scheduleddata.ActionRemindAttorneyToComplete, PK: dynamo.ScheduledDayKey(now), SK: dynamo.ScheduledKey(now, testUuidString)},
+		{LpaUID: "lpa-uid", Action: scheduleddata.ActionExpireDonorIdentity, PK: dynamo.ScheduledDayKey(yesterday), SK: dynamo.ScheduledKey(yesterday, testUuidString)},
 	}
 
 	dynamoClient := newMockDynamoClient(t)
@@ -200,7 +201,7 @@ func TestDeleteAllActionByUID(t *testing.T) {
 		Return(nil)
 
 	store := &Store{dynamoClient: dynamoClient, now: testNowFn, uuidString: testUuidStringFn}
-	err := store.DeleteAllActionByUID(ctx, []Action{ActionExpireDonorIdentity}, "lpa-uid")
+	err := store.DeleteAllActionByUID(ctx, []scheduleddata.Action{scheduleddata.ActionExpireDonorIdentity}, "lpa-uid")
 
 	assert.Nil(t, err)
 }
@@ -212,7 +213,7 @@ func TestDeleteAllActionByUIDWhenAllByLpaUIDAndPartialSKErrors(t *testing.T) {
 		Return(nil, expectedError)
 
 	store := &Store{dynamoClient: dynamoClient, now: testNowFn}
-	err := store.DeleteAllActionByUID(ctx, []Action{}, "lpa-uid")
+	err := store.DeleteAllActionByUID(ctx, []scheduleddata.Action{}, "lpa-uid")
 
 	assert.Equal(t, expectedError, err)
 }
@@ -227,7 +228,7 @@ func TestDeleteAllActionByUIDWhenAllByKeysErrors(t *testing.T) {
 		Return(nil, expectedError)
 
 	store := &Store{dynamoClient: dynamoClient, now: testNowFn}
-	err := store.DeleteAllActionByUID(ctx, []Action{}, "lpa-uid")
+	err := store.DeleteAllActionByUID(ctx, []scheduleddata.Action{}, "lpa-uid")
 
 	assert.Equal(t, expectedError, err)
 }
@@ -245,7 +246,7 @@ func TestDeleteAllActionByUIDWhenDeleteKeysErrors(t *testing.T) {
 		Return(expectedError)
 
 	store := &Store{dynamoClient: dynamoClient, now: testNowFn}
-	err := store.DeleteAllActionByUID(ctx, []Action{}, "lpa-uid")
+	err := store.DeleteAllActionByUID(ctx, []scheduleddata.Action{}, "lpa-uid")
 
 	assert.Equal(t, expectedError, err)
 }
