@@ -18,6 +18,7 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/notify"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/pay"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/scheduled"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/scheduled/scheduleddata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/task"
 )
 
@@ -280,7 +281,7 @@ func handleDonorSubmissionCompleted(ctx context.Context, client dynamodbClient, 
 			SK:                dynamo.ScheduledKey(donor.CertificateProviderInvitedAt.AddDate(0, 3, 1), uuidString()),
 			CreatedAt:         now(),
 			At:                donor.CertificateProviderInvitedAt.AddDate(0, 3, 1),
-			Action:            scheduled.ActionRemindCertificateProviderToComplete,
+			Action:            scheduleddata.ActionRemindCertificateProviderToComplete,
 			TargetLpaKey:      donor.PK,
 			TargetLpaOwnerKey: donor.SK,
 			LpaUID:            donor.LpaUID,
@@ -354,9 +355,9 @@ func handleCertificateProviderSubmissionCompleted(ctx context.Context, event *ev
 			}
 		}
 
-		if err := factory.ScheduledStore().DeleteAllActionByUID(ctx, []scheduled.Action{
-			scheduled.ActionRemindCertificateProviderToComplete,
-			scheduled.ActionRemindCertificateProviderToConfirmIdentity,
+		if err := factory.ScheduledStore().DeleteAllActionByUID(ctx, []scheduleddata.Action{
+			scheduleddata.ActionRemindCertificateProviderToComplete,
+			scheduleddata.ActionRemindCertificateProviderToConfirmIdentity,
 		}, v.UID); err != nil && !errors.Is(err, dynamo.NotFoundError{}) {
 			return fmt.Errorf("failed to delete scheduled events: %w", err)
 		}

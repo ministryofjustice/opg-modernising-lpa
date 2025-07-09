@@ -27,7 +27,7 @@ func ChooseCertificateProvider(tmpl template.Template, service CertificateProvid
 			return err
 		}
 		if len(certificateProviders) == 0 {
-			return donor.PathCertificateProviderDetails.Redirect(w, r, appData, provided)
+			return donor.PathCertificateProviderDetails.RedirectQuery(w, r, appData, provided, r.URL.Query())
 		}
 
 		data := &chooseCertificateProviderData{

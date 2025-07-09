@@ -14,6 +14,7 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/localize"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/scheduled"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/scheduled/scheduleddata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/validation"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
@@ -111,10 +112,10 @@ func TestPostSignYourLpa(t *testing.T) {
 	scheduledStore.EXPECT().
 		Create(r.Context(), scheduled.Event{
 			At:     testNow.AddDate(0, 3, 1),
-			Action: scheduled.ActionRemindCertificateProviderToComplete,
+			Action: scheduleddata.ActionRemindCertificateProviderToComplete,
 		}, scheduled.Event{
 			At:     testNow.AddDate(0, 21, 1),
-			Action: scheduled.ActionRemindCertificateProviderToComplete,
+			Action: scheduleddata.ActionRemindCertificateProviderToComplete,
 		}).
 		Return(nil)
 
