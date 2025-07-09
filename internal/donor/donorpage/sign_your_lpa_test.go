@@ -201,7 +201,7 @@ func TestReadSignYourLpaForm(t *testing.T) {
 	r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(form.Encode()))
 	r.Header.Add("Content-Type", page.FormUrlEncoded)
 
-	result := readSignYourLpaForm(r, localize.Cy)
+	result := readSignYourLpaForm(r, localize.Cy, "")
 
 	assert.Equal(localize.Cy, result.lpaLanguage)
 	assert.Equal(true, result.WantToSign)
@@ -227,6 +227,16 @@ func TestSignYourLpaFormValidate(t *testing.T) {
 				lpaLanguage:   localize.Cy,
 			},
 			errors: validation.With("sign-lpa", youMustViewAndSignInLanguageError{LpaLanguage: localize.Cy}),
+		},
+		"valid on behalf but wrong language": {
+			form: &signYourLpaForm{
+				WantToApply:   true,
+				WantToSign:    true,
+				WrongLanguage: true,
+				lpaLanguage:   localize.Cy,
+				donorFullName: "Mike",
+			},
+			errors: validation.With("sign-lpa", youMustViewAndSignInLanguageError{LpaLanguage: localize.Cy, DonorFullName: "Mike"}),
 		},
 		"only want-to-sign selected": {
 			form: &signYourLpaForm{
