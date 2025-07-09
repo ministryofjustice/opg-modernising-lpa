@@ -294,14 +294,12 @@
             </div>
         {{ end }}
     {{ else }}
-        {{ $label = "youHaveChosenNotToFormallyNotifyAnyone" }}
-
         <div class="govuk-summary-card">
             <div class="govuk-summary-card__title-wrapper">
                 <h3 class="govuk-summary-card__title">{{ tr $.App "personToNotify" }}:</h3>
             </div>
             <div class="govuk-summary-card__content">
-                <p class="govuk-body">{{ tr $.App $label }}</p>
+                <p class="govuk-body">{{ tr $.App "youHaveChosenNotToFormallyNotifyAnyone" }}</p>
             </div>
         </div>
     {{ end }}
