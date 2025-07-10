@@ -184,7 +184,7 @@ resource "aws_security_group" "opensearch_ingestion" {
 resource "aws_cloudwatch_log_group" "opensearch_pipeline" {
   count             = local.enable_opensearch_ingestion_pipeline ? 1 : 0
   name              = "/aws/vendedlogs/OpenSearchIngestion/lpas-${local.default_tags.environment-name}/audit-logs"
-  kms_key_id        = data.aws_kms_alias.cloudwatch_encryption_key.target_key_id
+  kms_key_id        = data.aws_kms_alias.cloudwatch_encryption_key.target_key_arn
   retention_in_days = 1
   provider          = aws.eu_west_1
 }
