@@ -17,6 +17,11 @@ data "aws_kms_alias" "dynamodb_exports_s3_bucket_encryption_key" {
   provider = aws.eu_west_1
 }
 
+data "aws_kms_alias" "cloudwatch_encryption_key" {
+  name     = "alias/${local.default_tags.application}_cloudwatch_application_logs_encryption"
+  provider = aws.eu_west_1
+}
+
 data "aws_s3_bucket" "dynamodb_exports_bucket" {
   bucket   = "dynamodb-exports-${local.default_tags.application}-${local.default_tags.account-name}-eu-west-1"
   provider = aws.eu_west_1
@@ -179,6 +184,7 @@ resource "aws_security_group" "opensearch_ingestion" {
 resource "aws_cloudwatch_log_group" "opensearch_pipeline" {
   count             = local.enable_opensearch_ingestion_pipeline ? 1 : 0
   name              = "/aws/vendedlogs/OpenSearchIngestion/lpas-${local.default_tags.environment-name}/audit-logs"
+  kms_key_id        = data.aws_kms_alias.cloudwatch_encryption_key.target_key_arn
   retention_in_days = 1
   provider          = aws.eu_west_1
 }
