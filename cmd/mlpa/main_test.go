@@ -116,6 +116,41 @@ func TestApostrophesAreCurly(t *testing.T) {
 	}
 }
 
+func TestNoJSON(t *testing.T) {
+	for _, path := range []string{"lang/en.json", "lang/cy.json"} {
+		list := loadTranslations("../../" + path)
+
+		for k, v := range list.Flat() {
+			if strings.Contains(v, "\\\"") {
+				t.Fail()
+				t.Log(path, `contains \\\":`, k)
+			}
+
+			if strings.HasPrefix(v, "\"") {
+				t.Fail()
+				t.Log(path, `starts with \":`, k)
+			}
+
+			if strings.HasSuffix(v, "\",") {
+				t.Fail()
+				t.Log(path, `ends with \",:`, k)
+			}
+		}
+	}
+}
+
+func TestNoWelshPossessive(t *testing.T) {
+	cy := loadTranslations("../../lang/cy.json")
+	possessiveRe := regexp.MustCompile(`{{\s*possessive`)
+
+	for k, v := range cy.Flat() {
+		if possessiveRe.MatchString(v) {
+			t.Fail()
+			t.Log("lang/cy.json:", k)
+		}
+	}
+}
+
 func TestTranslationVariablesMustMatch(t *testing.T) {
 	en := loadTranslations("../../lang/en.json")
 	cy := maps.Collect(loadTranslations("../../lang/cy.json").Flat())
