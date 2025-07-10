@@ -1979,5 +1979,7 @@
     "changingYourCertificateProvider": "Welsh",
     "changingYourCertificateProviderContent": "<p class=\"govuk-body\">Welsh {{.Name}} {{.Name}}</p>",
     "areYouSureYouWantToRemoveAndChooseNewCertificateProvider": "Welsh {{.Name}}",
-    "youHaveRemovedCertificateProvider": "<p class=\"govuk-notification-banner__heading\">Welsh {{.CertificateProviderFullName}}</p><p class=\"govuk-body\">Welsh {{.CertificateProviderFullName}}.</p><p class=\"govuk-body\">Welsh</p>"
+    "youHaveRemovedCertificateProvider": "<p class=\"govuk-notification-banner__heading\">Welsh {{.CertificateProviderFullName}}</p><p class=\"govuk-body\">Welsh {{.CertificateProviderFullName}}.</p><p class=\"govuk-body\">Welsh</p>",
+    "youMustViewAndSignDonorsLpaInLanguage": "<p class=\"govuk-notification-banner__heading\">Welsh {{.DonorFullName}} {{.InSelected}} ‘{{.Unselected}}’ {{.InUnselected}} {{.DonorFullName}}</p>",
+    "errorYouMustViewAndSignDonorsLpaInLanguage": "Welsh {{.DonorFullName}} {{.InLang}}"
 }
