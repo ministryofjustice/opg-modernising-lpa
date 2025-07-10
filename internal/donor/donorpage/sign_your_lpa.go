@@ -48,7 +48,11 @@ func SignYourLpa(tmpl template.Template, donorStore DonorStore, scheduledStore S
 		}
 
 		if r.Method == http.MethodPost {
-			data.Form = readSignYourLpaForm(r, provided.Donor.LpaLanguagePreference)
+			if provided.Donor.CanSign.IsYes() {
+				data.Form = readSignYourLpaForm(r, provided.Donor.LpaLanguagePreference, "")
+			} else {
+				data.Form = readSignYourLpaForm(r, provided.Donor.LpaLanguagePreference, provided.Donor.FullName())
+			}
 			data.Errors = data.Form.Validate()
 
 			if data.Errors.None() {
@@ -88,15 +92,18 @@ type signYourLpaForm struct {
 	WantToApply   bool
 	WantToSign    bool
 	WrongLanguage bool
+
 	lpaLanguage   localize.Lang
+	donorFullName string
 }
 
-func readSignYourLpaForm(r *http.Request, lang localize.Lang) *signYourLpaForm {
+func readSignYourLpaForm(r *http.Request, lang localize.Lang, donorFullName string) *signYourLpaForm {
 	r.ParseForm()
 
 	form := &signYourLpaForm{
 		WrongLanguage: page.PostFormString(r, "wrong-language") == "1",
 		lpaLanguage:   lang,
+		donorFullName: donorFullName,
 	}
 
 	for _, checkBox := range r.PostForm["sign-lpa"] {
@@ -118,17 +125,25 @@ func (f *signYourLpaForm) Validate() validation.List {
 	if !f.WantToApply || !f.WantToSign {
 		errors.Add("sign-lpa", validation.SelectError{Label: "bothBoxesToSignAndApply"})
 	} else if f.WrongLanguage {
-		errors.Add("sign-lpa", youMustViewAndSignInLanguageError{LpaLanguage: f.lpaLanguage})
+		errors.Add("sign-lpa", youMustViewAndSignInLanguageError{LpaLanguage: f.lpaLanguage, DonorFullName: f.donorFullName})
 	}
 
 	return errors
 }
 
 type youMustViewAndSignInLanguageError struct {
-	LpaLanguage localize.Lang
+	LpaLanguage   localize.Lang
+	DonorFullName string
 }
 
 func (e youMustViewAndSignInLanguageError) Format(l validation.Localizer) string {
+	if e.DonorFullName != "" {
+		return l.Format("errorYouMustViewAndSignDonorsLpaInLanguage", map[string]any{
+			"InLang":        l.T("in:" + e.LpaLanguage.String()),
+			"DonorFullName": e.DonorFullName,
+		})
+	}
+
 	return l.Format("youMustViewAndSignInLanguage", map[string]any{
 		"InLang": l.T("in:" + e.LpaLanguage.String()),
 	})

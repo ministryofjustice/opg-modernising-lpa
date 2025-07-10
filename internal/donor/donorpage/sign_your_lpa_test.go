@@ -10,6 +10,7 @@ import (
 
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor/donordata"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/form"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/identity"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/localize"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
@@ -169,26 +170,42 @@ func TestPostSignYourLpaWhenDonorStoreErrors(t *testing.T) {
 }
 
 func TestPostSignYourLpaWhenValidationErrors(t *testing.T) {
-	form := url.Values{
-		"sign-lpa": {"unrecognised-signature", "another-unrecognised-signature"},
+	testcases := map[form.YesNo]string{
+		form.Yes: "",
+		form.No:  "John Smith",
 	}
 
-	w := httptest.NewRecorder()
-	r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(form.Encode()))
-	r.Header.Add("Content-Type", page.FormUrlEncoded)
+	for canSign, donorFullName := range testcases {
+		t.Run(canSign.String(), func(t *testing.T) {
+			form := url.Values{
+				"sign-lpa": {"unrecognised-signature", "another-unrecognised-signature"},
+			}
 
-	template := newMockTemplate(t)
-	template.EXPECT().
-		Execute(w, mock.MatchedBy(func(data *signYourLpaData) bool {
-			return assert.Equal(t, validation.With("sign-lpa", validation.SelectError{Label: "bothBoxesToSignAndApply"}), data.Errors)
-		})).
-		Return(nil)
+			w := httptest.NewRecorder()
+			r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(form.Encode()))
+			r.Header.Add("Content-Type", page.FormUrlEncoded)
 
-	err := SignYourLpa(template.Execute, nil, nil, testNowFn)(testAppData, w, r, &donordata.Provided{})
-	resp := w.Result()
+			template := newMockTemplate(t)
+			template.EXPECT().
+				Execute(w, mock.MatchedBy(func(data *signYourLpaData) bool {
+					return assert.Equal(t, donorFullName, data.Form.donorFullName) &&
+						assert.Equal(t, validation.With("sign-lpa", validation.SelectError{Label: "bothBoxesToSignAndApply"}), data.Errors)
+				})).
+				Return(nil)
 
-	assert.Nil(t, err)
-	assert.Equal(t, http.StatusOK, resp.StatusCode)
+			err := SignYourLpa(template.Execute, nil, nil, testNowFn)(testAppData, w, r, &donordata.Provided{
+				Donor: donordata.Donor{
+					FirstNames: "John",
+					LastName:   "Smith",
+					CanSign:    canSign,
+				},
+			})
+			resp := w.Result()
+
+			assert.Nil(t, err)
+			assert.Equal(t, http.StatusOK, resp.StatusCode)
+		})
+	}
 }
 
 func TestReadSignYourLpaForm(t *testing.T) {
@@ -201,7 +218,7 @@ func TestReadSignYourLpaForm(t *testing.T) {
 	r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(form.Encode()))
 	r.Header.Add("Content-Type", page.FormUrlEncoded)
 
-	result := readSignYourLpaForm(r, localize.Cy)
+	result := readSignYourLpaForm(r, localize.Cy, "")
 
 	assert.Equal(localize.Cy, result.lpaLanguage)
 	assert.Equal(true, result.WantToSign)
@@ -227,6 +244,16 @@ func TestSignYourLpaFormValidate(t *testing.T) {
 				lpaLanguage:   localize.Cy,
 			},
 			errors: validation.With("sign-lpa", youMustViewAndSignInLanguageError{LpaLanguage: localize.Cy}),
+		},
+		"valid on behalf but wrong language": {
+			form: &signYourLpaForm{
+				WantToApply:   true,
+				WantToSign:    true,
+				WrongLanguage: true,
+				lpaLanguage:   localize.Cy,
+				donorFullName: "Mike",
+			},
+			errors: validation.With("sign-lpa", youMustViewAndSignInLanguageError{LpaLanguage: localize.Cy, DonorFullName: "Mike"}),
 		},
 		"only want-to-sign selected": {
 			form: &signYourLpaForm{
@@ -266,4 +293,22 @@ func TestYouMustViewAndSignInLanguageError(t *testing.T) {
 		Return("some words")
 
 	assert.Equal(t, "some words", youMustViewAndSignInLanguageError{LpaLanguage: localize.Cy}.Format(localizer))
+}
+
+func TestYouMustViewAndSignInLanguageErrorWhenDonorFullName(t *testing.T) {
+	localizer := newMockLocalizer(t)
+	localizer.EXPECT().
+		T("in:cy").
+		Return("in Welsh")
+	localizer.EXPECT().
+		Format("errorYouMustViewAndSignDonorsLpaInLanguage", map[string]any{
+			"InLang":        "in Welsh",
+			"DonorFullName": "Mike",
+		}).
+		Return("some words")
+
+	assert.Equal(t, "some words", youMustViewAndSignInLanguageError{
+		LpaLanguage:   localize.Cy,
+		DonorFullName: "Mike",
+	}.Format(localizer))
 }
