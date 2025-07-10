@@ -11,6 +11,11 @@ data "aws_kms_alias" "cloudwatch_application_logs_encryption" {
   provider = aws.region
 }
 
+data "aws_kms_alias" "event_received_sqs" {
+  name     = "alias/${data.aws_default_tags.current.tags.application}_event_received_sqs_secret_encryption_key"
+  provider = aws.region
+}
+
 data "aws_secretsmanager_secret" "gov_uk_notify_api_key" {
   name     = "gov-uk-notify-api-key"
   provider = aws.region

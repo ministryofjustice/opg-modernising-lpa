@@ -37,12 +37,6 @@ module "event_received" {
   }
 }
 
-data "aws_kms_alias" "event_received_sqs" {
-  name     = "alias/${data.aws_default_tags.current.tags.application}_event_received_sqs_secret_encryption_key"
-  provider = aws.region
-}
-
-#tfsec:ignore:aws-sqs-enable-queue-encryption:exp:2024-11-24
 resource "aws_sqs_queue" "receive_events_queue" {
   name                              = "${data.aws_default_tags.current.tags.environment-name}-receive-events-queue"
   kms_master_key_id                 = data.aws_kms_alias.event_received_sqs.target_key_id
@@ -87,7 +81,6 @@ data "aws_iam_policy_document" "receive_events_queue_policy" {
   }
 }
 
-#tfsec:ignore:aws-sqs-enable-queue-encryption:exp:2024-11-24
 resource "aws_sqs_queue" "receive_events_deadletter" {
   name                              = "${data.aws_default_tags.current.tags.environment-name}-receive-events-deadletter"
   kms_master_key_id                 = data.aws_kms_alias.event_received_sqs.target_key_id
