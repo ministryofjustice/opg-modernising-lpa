@@ -51,11 +51,22 @@ func TestGetAreYouSureYouNoLongerNeedVoucherWhenTemplateErrors(t *testing.T) {
 }
 
 func TestPostAreYouSureYouNoLongerNeedVoucher(t *testing.T) {
-	testcases := map[donordata.NoVoucherDecision]struct {
+	testcases := map[string]struct {
+		decision donordata.NoVoucherDecision
+		donor    *donordata.Provided
 		redirect donor.Path
 		provided *donordata.Provided
 	}{
-		donordata.ProveOwnIdentity: {
+		"prove own identity": {
+			decision: donordata.ProveOwnIdentity,
+			donor: &donordata.Provided{
+				LpaID:            "lpa-id",
+				LpaUID:           "lpa-uid",
+				Donor:            donordata.Donor{FirstNames: "d", LastName: "e"},
+				WantVoucher:      form.Yes,
+				Voucher:          donordata.Voucher{FirstNames: "a", LastName: "b", Email: "voucher@example.com"},
+				IdentityUserData: identity.UserData{Status: identity.StatusConfirmed},
+			},
 			redirect: donor.PathConfirmYourIdentity,
 			provided: &donordata.Provided{
 				LpaID:            "lpa-id",
@@ -66,7 +77,16 @@ func TestPostAreYouSureYouNoLongerNeedVoucher(t *testing.T) {
 				IdentityUserData: identity.UserData{Status: identity.StatusConfirmed},
 			},
 		},
-		donordata.SelectNewVoucher: {
+		"select new voucher": {
+			decision: donordata.SelectNewVoucher,
+			donor: &donordata.Provided{
+				LpaID:            "lpa-id",
+				LpaUID:           "lpa-uid",
+				Donor:            donordata.Donor{FirstNames: "d", LastName: "e"},
+				WantVoucher:      form.Yes,
+				Voucher:          donordata.Voucher{FirstNames: "a", LastName: "b", Email: "voucher@example.com"},
+				IdentityUserData: identity.UserData{Status: identity.StatusConfirmed},
+			},
 			redirect: donor.PathEnterVoucher,
 			provided: &donordata.Provided{
 				LpaID:            "lpa-id",
@@ -77,8 +97,17 @@ func TestPostAreYouSureYouNoLongerNeedVoucher(t *testing.T) {
 				IdentityUserData: identity.UserData{Status: identity.StatusConfirmed},
 			},
 		},
-		donordata.WithdrawLPA: {
-			redirect: donor.PathWithdrawThisLpa,
+		"delete": {
+			decision: donordata.WithdrawLPA,
+			donor: &donordata.Provided{
+				LpaID:            "lpa-id",
+				LpaUID:           "lpa-uid",
+				Donor:            donordata.Donor{FirstNames: "d", LastName: "e"},
+				WantVoucher:      form.Yes,
+				Voucher:          donordata.Voucher{FirstNames: "a", LastName: "b", Email: "voucher@example.com"},
+				IdentityUserData: identity.UserData{Status: identity.StatusConfirmed},
+			},
+			redirect: donor.PathDeleteThisLpa,
 			provided: &donordata.Provided{
 				LpaID:            "lpa-id",
 				LpaUID:           "lpa-uid",
@@ -88,7 +117,38 @@ func TestPostAreYouSureYouNoLongerNeedVoucher(t *testing.T) {
 				WantVoucher:      form.No,
 			},
 		},
-		donordata.ApplyToCOP: {
+		"withdraw": {
+			decision: donordata.WithdrawLPA,
+			donor: &donordata.Provided{
+				LpaID:                            "lpa-id",
+				LpaUID:                           "lpa-uid",
+				Donor:                            donordata.Donor{FirstNames: "d", LastName: "e"},
+				WantVoucher:                      form.Yes,
+				Voucher:                          donordata.Voucher{FirstNames: "a", LastName: "b", Email: "voucher@example.com"},
+				IdentityUserData:                 identity.UserData{Status: identity.StatusConfirmed},
+				WitnessedByCertificateProviderAt: testNow,
+			},
+			redirect: donor.PathWithdrawThisLpa,
+			provided: &donordata.Provided{
+				LpaID:                            "lpa-id",
+				LpaUID:                           "lpa-uid",
+				Donor:                            donordata.Donor{FirstNames: "d", LastName: "e"},
+				Voucher:                          donordata.Voucher{FirstNames: "a", LastName: "b", Email: "voucher@example.com"},
+				IdentityUserData:                 identity.UserData{Status: identity.StatusConfirmed},
+				WantVoucher:                      form.No,
+				WitnessedByCertificateProviderAt: testNow,
+			},
+		},
+		"apply to court of protection": {
+			decision: donordata.ApplyToCOP,
+			donor: &donordata.Provided{
+				LpaID:            "lpa-id",
+				LpaUID:           "lpa-uid",
+				Donor:            donordata.Donor{FirstNames: "d", LastName: "e"},
+				WantVoucher:      form.Yes,
+				Voucher:          donordata.Voucher{FirstNames: "a", LastName: "b", Email: "voucher@example.com"},
+				IdentityUserData: identity.UserData{Status: identity.StatusConfirmed},
+			},
 			redirect: donor.PathWhatHappensNextRegisteringWithCourtOfProtection,
 			provided: &donordata.Provided{
 				LpaID:                            "lpa-id",
@@ -102,10 +162,10 @@ func TestPostAreYouSureYouNoLongerNeedVoucher(t *testing.T) {
 		},
 	}
 
-	for choice, tc := range testcases {
-		t.Run(choice.String(), func(t *testing.T) {
+	for name, tc := range testcases {
+		t.Run(name, func(t *testing.T) {
 			w := httptest.NewRecorder()
-			r, _ := http.NewRequest(http.MethodPost, "/?choice="+choice.String(), nil)
+			r, _ := http.NewRequest(http.MethodPost, "/?choice="+tc.decision.String(), nil)
 
 			donorStore := newMockDonorStore(t)
 			donorStore.EXPECT().
@@ -120,20 +180,13 @@ func TestPostAreYouSureYouNoLongerNeedVoucher(t *testing.T) {
 				}).
 				Return(nil)
 
-			err := AreYouSureYouNoLongerNeedVoucher(nil, donorStore, notifyClient)(testAppData, w, r, &donordata.Provided{
-				LpaID:            "lpa-id",
-				LpaUID:           "lpa-uid",
-				Donor:            donordata.Donor{FirstNames: "d", LastName: "e"},
-				WantVoucher:      form.Yes,
-				Voucher:          donordata.Voucher{FirstNames: "a", LastName: "b", Email: "voucher@example.com"},
-				IdentityUserData: identity.UserData{Status: identity.StatusConfirmed},
-			})
+			err := AreYouSureYouNoLongerNeedVoucher(nil, donorStore, notifyClient)(testAppData, w, r, tc.donor)
 			resp := w.Result()
 
 			assert.Nil(t, err)
 			assert.Equal(t, http.StatusFound, resp.StatusCode)
 			assert.Equal(t, donor.PathWeHaveInformedVoucherNoLongerNeeded.FormatQuery("lpa-id", url.Values{
-				"choice":          {choice.String()},
+				"choice":          {tc.decision.String()},
 				"voucherFullName": {"a b"},
 				"next":            {tc.redirect.Format("lpa-id")},
 			}), resp.Header.Get("Location"))

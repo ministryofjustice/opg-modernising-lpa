@@ -1981,5 +1981,21 @@
     "areYouSureYouWantToRemoveAndChooseNewCertificateProvider": "Welsh {{.Name}}",
     "youHaveRemovedCertificateProvider": "<p class=\"govuk-notification-banner__heading\">Welsh {{.CertificateProviderFullName}}</p><p class=\"govuk-body\">Welsh {{.CertificateProviderFullName}}.</p><p class=\"govuk-body\">Welsh</p>",
     "youMustViewAndSignDonorsLpaInLanguage": "<p class=\"govuk-notification-banner__heading\">Welsh {{.DonorFullName}} {{.InSelected}} ‘{{.Unselected}}’ {{.InUnselected}} {{.DonorFullName}}</p>",
-    "errorYouMustViewAndSignDonorsLpaInLanguage": "Welsh {{.DonorFullName}} {{.InLang}}"
+    "errorYouMustViewAndSignDonorsLpaInLanguage": "Welsh {{.DonorFullName}} {{.InLang}}",
+    "itCostsMoneyToRegisterThroughCourtOfProtection": "Welsh",
+    "tryConfirmingYourIdentityAgain": "Welsh",
+    "youCanAvoidCourtOfProtectionByConfirmIdentity": "Welsh",
+    "reviewTheOptionsForConfirmingIdentity": "Welsh",
+    "registerYourLpaThroughCourtOfProtection": "Welsh",
+    "youHaveChosenToHaveLpaReviewedByCourtOfProtectionNotification": "<p class=\"govuk-notification-banner__heading\">Welsh</p>",
+    "askSomeoneToVouchForMe": "Welsh",
+    "getNewIdentityDocuments": "Welsh",
+    "confirmYourIdentityByAskingForVouchContent": "<h2 class=\"govuk-heading-m\">Welsh</h2>",
+    "thisPageExplainsWhatToDoIfCannotConfirmIdentity": "<p class=\"govuk-body\">Welsh</p>",
+    "theOpgWillNotBeAbleToRegisterUntilConfirmedIdentity": "<p class=\"govuk-notification-banner__heading\">Welsh</p>",
+    "whatYouCanDoNowDeleteLpaContent": "<h2 class=\"govuk-heading-m\">Welsh</h2>",
+    "yourLpaMustBeReviewedByCOPExpired": "<p class=\"govuk-notification-banner__heading\">Welsh</p>",
+    "wouldYouLikeToRevokeThisLpa": "<h2 class=\"govuk-heading-m\">Welsh</h2><p class=\"govuk-body\"><a href=\"{{.Link}}\" class=\"govuk-link\">Welsh</a></p>",
+    "whatYouCanDoNowRevokeLpaContent": "<h2 class=\"govuk-heading-m\">Welsh</h2>",
+    "revokeThisLpa": "Welsh"
 }
