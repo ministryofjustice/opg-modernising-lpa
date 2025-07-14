@@ -164,7 +164,11 @@ func item(value, label string, attrs ...interface{}) map[string]interface{} {
 	}
 
 	for i := 0; i < len(attrs); i += 2 {
-		item[attrs[i].(string)] = attrs[i+1]
+		if attrs[i].(string) == "if" && !attrs[i+1].(bool) {
+			return nil
+		} else {
+			item[attrs[i].(string)] = attrs[i+1]
+		}
 	}
 
 	return item

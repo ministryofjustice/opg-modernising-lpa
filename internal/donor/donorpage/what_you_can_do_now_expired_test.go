@@ -104,49 +104,86 @@ func TestGetWhatYouCanDoNowExpiredWhenTemplateError(t *testing.T) {
 }
 
 func TestPostWhatYouCanDoNowExpired(t *testing.T) {
-	testcases := map[donordata.NoVoucherDecision]struct {
+	testcases := map[string]struct {
+		decision      donordata.NoVoucherDecision
+		donor         *donordata.Provided
 		expectedPath  string
 		expectedDonor *donordata.Provided
 	}{
-		donordata.ProveOwnIdentity: {
+		"prove own identity": {
+			decision: donordata.ProveOwnIdentity,
+			donor: &donordata.Provided{
+				LpaID:            "lpa-id",
+				IdentityUserData: identity.UserData{Status: identity.StatusInsufficientEvidence},
+			},
 			expectedPath: donor.PathConfirmYourIdentity.Format("lpa-id"),
 			expectedDonor: &donordata.Provided{
 				LpaID:            "lpa-id",
-				IdentityUserData: identity.UserData{Status: identity.StatusInsufficientEvidence},
 				WantVoucher:      form.No,
+				IdentityUserData: identity.UserData{Status: identity.StatusInsufficientEvidence},
 			},
 		},
-		donordata.SelectNewVoucher: {
+		"select new voucher": {
+			decision: donordata.SelectNewVoucher,
+			donor: &donordata.Provided{
+				LpaID:            "lpa-id",
+				IdentityUserData: identity.UserData{Status: identity.StatusInsufficientEvidence},
+			},
 			expectedPath: donor.PathEnterVoucher.Format("lpa-id"),
 			expectedDonor: &donordata.Provided{
 				LpaID:            "lpa-id",
-				IdentityUserData: identity.UserData{Status: identity.StatusInsufficientEvidence},
 				WantVoucher:      form.Yes,
+				IdentityUserData: identity.UserData{Status: identity.StatusInsufficientEvidence},
 			},
 		},
-		donordata.WithdrawLPA: {
-			expectedPath: donor.PathWithdrawThisLpa.Format("lpa-id"),
-			expectedDonor: &donordata.Provided{
+		"delete": {
+			decision: donordata.WithdrawLPA,
+			donor: &donordata.Provided{
 				LpaID:            "lpa-id",
 				IdentityUserData: identity.UserData{Status: identity.StatusInsufficientEvidence},
+			},
+			expectedPath: donor.PathDeleteThisLpa.Format("lpa-id"),
+			expectedDonor: &donordata.Provided{
+				LpaID:            "lpa-id",
 				WantVoucher:      form.No,
+				IdentityUserData: identity.UserData{Status: identity.StatusInsufficientEvidence},
 			},
 		},
-		donordata.ApplyToCOP: {
+		"withdraw": {
+			decision: donordata.WithdrawLPA,
+			donor: &donordata.Provided{
+				LpaID:                            "lpa-id",
+				IdentityUserData:                 identity.UserData{Status: identity.StatusInsufficientEvidence},
+				WitnessedByCertificateProviderAt: testNow,
+			},
+			expectedPath: donor.PathWithdrawThisLpa.Format("lpa-id"),
+			expectedDonor: &donordata.Provided{
+				LpaID:                            "lpa-id",
+				WantVoucher:                      form.No,
+				IdentityUserData:                 identity.UserData{Status: identity.StatusInsufficientEvidence},
+				WitnessedByCertificateProviderAt: testNow,
+			},
+		},
+		"apply to court of protection": {
+			decision: donordata.ApplyToCOP,
+			donor: &donordata.Provided{
+				LpaID:            "lpa-id",
+				IdentityUserData: identity.UserData{Status: identity.StatusInsufficientEvidence},
+			},
 			expectedPath: donor.PathWhatHappensNextRegisteringWithCourtOfProtection.Format("lpa-id"),
 			expectedDonor: &donordata.Provided{
 				LpaID:                            "lpa-id",
+				WantVoucher:                      form.No,
 				RegisteringWithCourtOfProtection: true,
 				IdentityUserData:                 identity.UserData{Status: identity.StatusInsufficientEvidence},
-				WantVoucher:                      form.No,
 			},
 		},
 	}
 
-	for noVoucherDecision, tc := range testcases {
-		t.Run(noVoucherDecision.String(), func(t *testing.T) {
+	for name, tc := range testcases {
+		t.Run(name, func(t *testing.T) {
 			f := url.Values{
-				"do-next": {noVoucherDecision.String()},
+				"do-next": {tc.decision.String()},
 			}
 
 			w := httptest.NewRecorder()
@@ -158,7 +195,7 @@ func TestPostWhatYouCanDoNowExpired(t *testing.T) {
 				Put(r.Context(), tc.expectedDonor).
 				Return(nil)
 
-			err := WhatYouCanDoNowExpired(nil, donorStore)(testAppData, w, r, &donordata.Provided{LpaID: "lpa-id", IdentityUserData: identity.UserData{Status: identity.StatusInsufficientEvidence}})
+			err := WhatYouCanDoNowExpired(nil, donorStore)(testAppData, w, r, tc.donor)
 			resp := w.Result()
 
 			assert.Nil(t, err)
