@@ -7,6 +7,7 @@ import (
 	"strconv"
 	"strings"
 	"testing"
+	"time"
 
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor/donordata"
@@ -72,6 +73,7 @@ func TestGetWhatYouCanDoNowVouchNotStarted(t *testing.T) {
 					Donor:                 donorProvided,
 					BannerContent:         tc.BannerContent,
 					NewVoucherLabel:       tc.NewVoucherLabel,
+					NoLongerWantLabel:     "iNoLongerWantToMakeThisLPA",
 					ProveOwnIdentityLabel: tc.ProveOwnIdentityLabel,
 					VouchStatusContent:    tc.VouchStatusContent,
 				}).
@@ -162,8 +164,70 @@ func TestGetWhatYouCanDoNowVouchStarted(t *testing.T) {
 					BannerContent:         tc.BannerContent,
 					VouchStatusContent:    tc.VouchStatusContent,
 					NewVoucherLabel:       "iHaveSomeoneElseWhoCanVouch",
+					NoLongerWantLabel:     "iNoLongerWantToMakeThisLPA",
 					ProveOwnIdentityLabel: tc.ProveOwnIdentityLabel,
 					Donor:                 donorProvided,
+				}).
+				Return(nil)
+
+			err := WhatYouCanDoNow(template.Execute, nil, voucherStore)(testAppData, w, r, donorProvided)
+
+			assert.Nil(t, err)
+		})
+	}
+}
+
+func TestGetWhatYouCanDoNowRegisteringWithCourtOfProtection(t *testing.T) {
+	testcases := map[string]struct {
+		BannerContent         string
+		NewVoucherLabel       string
+		ProveOwnIdentityLabel string
+		NoLongerWantLabel     string
+		CanHaveVoucher        bool
+		SignedAt              time.Time
+	}{
+		"not signed": {
+			BannerContent:         "theOpgWillNotBeAbleToRegisterUntilConfirmedIdentity",
+			NewVoucherLabel:       "askSomeoneToVouchForMe",
+			ProveOwnIdentityLabel: "getNewIdentityDocuments",
+			NoLongerWantLabel:     "deleteThisLpa",
+			CanHaveVoucher:        true,
+		},
+		"signed": {
+			BannerContent:         "theOpgWillNotBeAbleToRegisterUntilConfirmedIdentity",
+			NewVoucherLabel:       "askSomeoneToVouchForMe",
+			ProveOwnIdentityLabel: "getNewIdentityDocuments",
+			NoLongerWantLabel:     "revokeThisLpa",
+			CanHaveVoucher:        true,
+			SignedAt:              time.Now(),
+		},
+	}
+
+	for name, tc := range testcases {
+		t.Run(name, func(t *testing.T) {
+			w := httptest.NewRecorder()
+			r := httptest.NewRequest(http.MethodGet, "/", nil)
+
+			voucherStore := newMockVoucherStore(t)
+			voucherStore.EXPECT().
+				GetAny(r.Context()).
+				Return(nil, dynamo.NotFoundError{})
+
+			donorProvided := &donordata.Provided{RegisteringWithCourtOfProtection: true, WitnessedByCertificateProviderAt: tc.SignedAt}
+
+			template := newMockTemplate(t)
+			template.EXPECT().
+				Execute(w, &whatYouCanDoNowData{
+					App: testAppData,
+					Form: &whatYouCanDoNowForm{
+						Options:        donordata.NoVoucherDecisionValues,
+						CanHaveVoucher: tc.CanHaveVoucher,
+					},
+					Donor:                 donorProvided,
+					BannerContent:         tc.BannerContent,
+					NewVoucherLabel:       tc.NewVoucherLabel,
+					NoLongerWantLabel:     tc.NoLongerWantLabel,
+					ProveOwnIdentityLabel: tc.ProveOwnIdentityLabel,
 				}).
 				Return(nil)
 
@@ -208,11 +272,18 @@ func TestGetWhatYouCanDoNowWhenTemplateError(t *testing.T) {
 }
 
 func TestPostWhatYouCanDoNow(t *testing.T) {
-	testcases := map[donordata.NoVoucherDecision]struct {
+	testcases := map[string]struct {
+		decision      donordata.NoVoucherDecision
+		donor         *donordata.Provided
 		expectedPath  string
 		expectedDonor *donordata.Provided
 	}{
-		donordata.ProveOwnIdentity: {
+		"prove own identity": {
+			decision: donordata.ProveOwnIdentity,
+			donor: &donordata.Provided{
+				LpaID:            "lpa-id",
+				IdentityUserData: identity.UserData{Status: identity.StatusInsufficientEvidence},
+			},
 			expectedPath: donor.PathConfirmYourIdentity.Format("lpa-id"),
 			expectedDonor: &donordata.Provided{
 				LpaID:            "lpa-id",
@@ -220,7 +291,12 @@ func TestPostWhatYouCanDoNow(t *testing.T) {
 				IdentityUserData: identity.UserData{Status: identity.StatusInsufficientEvidence},
 			},
 		},
-		donordata.SelectNewVoucher: {
+		"select new voucher": {
+			decision: donordata.SelectNewVoucher,
+			donor: &donordata.Provided{
+				LpaID:            "lpa-id",
+				IdentityUserData: identity.UserData{Status: identity.StatusInsufficientEvidence},
+			},
 			expectedPath: donor.PathEnterVoucher.Format("lpa-id"),
 			expectedDonor: &donordata.Provided{
 				LpaID:            "lpa-id",
@@ -228,15 +304,40 @@ func TestPostWhatYouCanDoNow(t *testing.T) {
 				IdentityUserData: identity.UserData{Status: identity.StatusInsufficientEvidence},
 			},
 		},
-		donordata.WithdrawLPA: {
-			expectedPath: donor.PathWithdrawThisLpa.Format("lpa-id"),
+		"delete": {
+			decision: donordata.WithdrawLPA,
+			donor: &donordata.Provided{
+				LpaID:            "lpa-id",
+				IdentityUserData: identity.UserData{Status: identity.StatusInsufficientEvidence},
+			},
+			expectedPath: donor.PathDeleteThisLpa.Format("lpa-id"),
 			expectedDonor: &donordata.Provided{
 				LpaID:            "lpa-id",
 				WantVoucher:      form.No,
 				IdentityUserData: identity.UserData{Status: identity.StatusInsufficientEvidence},
 			},
 		},
-		donordata.ApplyToCOP: {
+		"withdraw": {
+			decision: donordata.WithdrawLPA,
+			donor: &donordata.Provided{
+				LpaID:                            "lpa-id",
+				IdentityUserData:                 identity.UserData{Status: identity.StatusInsufficientEvidence},
+				WitnessedByCertificateProviderAt: testNow,
+			},
+			expectedPath: donor.PathWithdrawThisLpa.Format("lpa-id"),
+			expectedDonor: &donordata.Provided{
+				LpaID:                            "lpa-id",
+				WantVoucher:                      form.No,
+				IdentityUserData:                 identity.UserData{Status: identity.StatusInsufficientEvidence},
+				WitnessedByCertificateProviderAt: testNow,
+			},
+		},
+		"apply to court of protection": {
+			decision: donordata.ApplyToCOP,
+			donor: &donordata.Provided{
+				LpaID:            "lpa-id",
+				IdentityUserData: identity.UserData{Status: identity.StatusInsufficientEvidence},
+			},
 			expectedPath: donor.PathWhatHappensNextRegisteringWithCourtOfProtection.Format("lpa-id"),
 			expectedDonor: &donordata.Provided{
 				LpaID:                            "lpa-id",
@@ -247,10 +348,10 @@ func TestPostWhatYouCanDoNow(t *testing.T) {
 		},
 	}
 
-	for noVoucherDecision, tc := range testcases {
-		t.Run(noVoucherDecision.String(), func(t *testing.T) {
+	for name, tc := range testcases {
+		t.Run(name, func(t *testing.T) {
 			f := url.Values{
-				"do-next": {noVoucherDecision.String()},
+				"do-next": {tc.decision.String()},
 			}
 
 			w := httptest.NewRecorder()
@@ -262,7 +363,7 @@ func TestPostWhatYouCanDoNow(t *testing.T) {
 				Put(r.Context(), tc.expectedDonor).
 				Return(nil)
 
-			err := WhatYouCanDoNow(nil, donorStore, nil)(testAppData, w, r, &donordata.Provided{LpaID: "lpa-id", IdentityUserData: identity.UserData{Status: identity.StatusInsufficientEvidence}})
+			err := WhatYouCanDoNow(nil, donorStore, nil)(testAppData, w, r, tc.donor)
 			resp := w.Result()
 
 			assert.Nil(t, err)

@@ -12,39 +12,53 @@
 
             <h1 class="govuk-heading-xl">{{ tr .App "whatYouCanDoNow" }}</h1>
 
-            {{ trHtml .App "whatYouCanDoNowContent" }}
-            {{ trHtml .App "replaceFindOrGetNewIDContent" }}
-            {{ if .VouchStatusContent }}
-                {{ trFormatHtml .App .VouchStatusContent "VoucherFullName" .Donor.Voucher.FullName "VoucherFirstNames" .Donor.Voucher.FirstNames }}
-            {{ end }}
-            {{ trHtml .App "registerYourLPAThroughTheCOPContent" }}
-
-            {{ template "warning" (content .App "onceYouSelectThisOptionYouCannotChangeYourMindWarning") }}
-
-            <form novalidate method="post">
-                {{ if .Form.CanHaveVoucher }}
-                    {{ template "radios-fieldset" (fieldset . "do-next" ""
-                        (legend "whatWouldYouLikeToDo" "govuk-fieldset__legend--m")
-                        (item .Form.Options.ProveOwnIdentity.String .ProveOwnIdentityLabel)
-                        (item .Form.Options.SelectNewVoucher.String .NewVoucherLabel)
-                        (item .Form.Options.WithdrawLPA.String "iNoLongerWantToMakeThisLPA" "hint" "iUnderstandIWillNotGetRefundHint" "orDivider" "1")
-                        (item .Form.Options.ApplyToCOP.String "iWillApplyToCOPToRegister" "hint" "iUnderstandICannotChangeMyMind")
-                        ) }}
-                {{ else }}
-                    {{ template "radios-fieldset" (fieldset . "do-next" ""
-                        (legend "whatWouldYouLikeToDo" "govuk-fieldset__legend--m")
-                        (item .Form.Options.ProveOwnIdentity.String .ProveOwnIdentityLabel)
-                        (item .Form.Options.WithdrawLPA.String "iNoLongerWantToMakeThisLPA" "hint" "iUnderstandIWillNotGetRefundHint" "orDivider" "1")
-                        (item .Form.Options.ApplyToCOP.String "iWillApplyToCOPToRegister" "hint" "iUnderstandICannotChangeMyMind")
-                        ) }}
+            {{ if .Donor.RegisteringWithCourtOfProtection }}
+                {{ trHtml .App "thisPageExplainsWhatToDoIfCannotConfirmIdentity" }}
+                {{ if not .Donor.IdentityUserData.Status.IsFailed }}
+                    {{ trHtml .App "replaceFindOrGetNewIDContent" }}
                 {{ end }}
-
+                {{ trHtml .App "confirmYourIdentityByAskingForVouchContent" }}
                 <div class="govuk-inset-text">
                     <p class="govuk-body">{{ tr .App "ifYouNeedHelpWithGOLContactTheirTeam" }}</p>
                     <a href="#" class="govuk-link">
                         {{ tr .App "contactGOL" }}
                     </a>
                 </div>
+                {{ if .Donor.WitnessedByCertificateProviderAt.IsZero }}
+                    {{ trHtml .App "whatYouCanDoNowDeleteLpaContent" }}
+                {{ else }}
+                    {{ trHtml .App "whatYouCanDoNowRevokeLpaContent" }}
+                {{ end }}
+
+            {{ else }}
+                {{ trHtml .App "whatYouCanDoNowContent" }}
+                {{ if not .Donor.IdentityUserData.Status.IsFailed }}
+                    {{ trHtml .App "replaceFindOrGetNewIDContent" }}
+                {{ end }}
+                {{ if .VouchStatusContent }}
+                    {{ trFormatHtml .App .VouchStatusContent "VoucherFullName" .Donor.Voucher.FullName "VoucherFirstNames" .Donor.Voucher.FirstNames }}
+                {{ end }}
+            {{ end }}
+
+            {{ trHtml .App "registerYourLPAThroughTheCOPContent" }}
+
+            <form novalidate method="post">
+                {{ template "radios-fieldset" (fieldset . "do-next" ""
+                    (legend "whatWouldYouLikeToDo" "govuk-fieldset__legend--m")
+                    (item .Form.Options.ProveOwnIdentity.String .ProveOwnIdentityLabel "if" (not .Donor.IdentityUserData.Status.IsFailed))
+                    (item .Form.Options.SelectNewVoucher.String .NewVoucherLabel "if" .Form.CanHaveVoucher)
+                    (item .Form.Options.WithdrawLPA.String .NoLongerWantLabel "hint" "iUnderstandIWillNotGetRefundHint" "orDivider" "1")
+                    (item .Form.Options.ApplyToCOP.String "iWillApplyToCOPToRegister" "hint" "iUnderstandICannotChangeMyMind")
+                    ) }}
+
+                {{ if not .Donor.RegisteringWithCourtOfProtection }}
+                    <div class="govuk-inset-text">
+                        <p class="govuk-body">{{ tr .App "ifYouNeedHelpWithGOLContactTheirTeam" }}</p>
+                        <a href="#" class="govuk-link">
+                            {{ tr .App "contactGOL" }}
+                        </a>
+                    </div>
+                {{ end }}
 
                 {{ template "buttons" (button .App "continue") }}
 
