@@ -120,6 +120,18 @@ func TestItemWithAttrs(t *testing.T) {
 	assert.Equal(t, hint, v["hint"])
 }
 
+func TestItemWithIf(t *testing.T) {
+	value := "value"
+	label := "label"
+
+	yes := item(value, label, "if", true)
+	assert.Equal(t, value, yes["value"])
+	assert.Equal(t, label, yes["label"])
+
+	no := item(value, label, "if", false)
+	assert.Nil(t, no)
+}
+
 func TestItemWithUnevenAttrs(t *testing.T) {
 	assert.Panics(t, func() { item("value", "label", "hint") })
 }
