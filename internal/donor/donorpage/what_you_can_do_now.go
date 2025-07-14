@@ -22,6 +22,7 @@ type whatYouCanDoNowData struct {
 	Form                  *whatYouCanDoNowForm
 	ProveOwnIdentityLabel string
 	NewVoucherLabel       string
+	NoLongerWantLabel     string
 	BannerContent         string
 	VouchStatusContent    string
 	Donor                 *donordata.Provided
@@ -67,8 +68,18 @@ func WhatYouCanDoNow(tmpl template.Template, donorStore DonorStore, voucherStore
 
 		data.NewVoucherLabel = "iHaveSomeoneElseWhoCanVouch"
 		data.ProveOwnIdentityLabel = "iWillGetOrFindID"
+		data.NoLongerWantLabel = "iNoLongerWantToMakeThisLPA"
 
-		if !provided.Voucher.Allowed && voucher == nil {
+		if provided.RegisteringWithCourtOfProtection {
+			data.BannerContent = "theOpgWillNotBeAbleToRegisterUntilConfirmedIdentity"
+			data.NewVoucherLabel = "askSomeoneToVouchForMe"
+			data.ProveOwnIdentityLabel = "getNewIdentityDocuments"
+			if provided.WitnessedByCertificateProviderAt.IsZero() {
+				data.NoLongerWantLabel = "deleteThisLpa"
+			} else {
+				data.NoLongerWantLabel = "revokeThisLpa"
+			}
+		} else if !provided.Voucher.Allowed && voucher == nil {
 			switch provided.VouchAttempts {
 			case 0:
 				data.BannerContent = "youHaveNotChosenAnyoneToVouchForYou"
@@ -114,7 +125,11 @@ func handleDoNext(doNext donordata.NoVoucherDecision, provided *donordata.Provid
 		return donor.PathEnterVoucher
 	case donordata.WithdrawLPA:
 		provided.WantVoucher = form.No
-		return donor.PathWithdrawThisLpa
+		if provided.WitnessedByCertificateProviderAt.IsZero() {
+			return donor.PathDeleteThisLpa
+		} else {
+			return donor.PathWithdrawThisLpa
+		}
 	case donordata.ApplyToCOP:
 		provided.WantVoucher = form.No
 		provided.RegisteringWithCourtOfProtection = true

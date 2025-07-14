@@ -25,15 +25,15 @@ describe('what you can do now', () => {
             cy.url().should('contain', '/enter-voucher')
         })
 
-        it('can choose to withdraw LPA', () => {
+        it('can choose to delete LPA', () => {
             cy.contains('label', 'I no longer want to make this LPA').click();
             cy.contains('button', 'Continue').click();
 
-            cy.url().should('contain', '/withdraw-this-lpa')
+            cy.url().should('contain', '/delete-this-lpa')
         })
 
         it('can choose to apply to court of protection', () => {
-            cy.contains('label', 'I will apply to the Court of Protection to register this LPA').click();
+            cy.contains('label', 'Apply to the Court of Protection to register this LPA').click();
             cy.contains('button', 'Continue').click();
 
             cy.url().should('contain', '/what-happens-next-registering-with-court-of-protection')
@@ -93,7 +93,7 @@ describe('what you can do now', () => {
             cy.get('label').should('not.contain', 'I have someone who can vouch for me')
             cy.get('label').should('not.contain', 'I have someone else who can vouch for me')
 
-            cy.contains('label', 'I will apply to the Court of Protection to register this LPA').click()
+            cy.contains('label', 'Apply to the Court of Protection to register this LPA').click()
             cy.contains('button', 'Continue').click()
 
             cy.url().should('contain', '/what-happens-next-registering-with-court-of-protection')
@@ -106,7 +106,7 @@ describe('what you can do now', () => {
             cy.url().should('contain', '/what-you-can-do-now-expired')
 
             cy.contains('Your confirmed identity has expired')
-            cy.contains('label', 'I will apply to the Court of Protection to register this LPA').click()
+            cy.contains('label', 'Apply to the Court of Protection to register this LPA').click()
             cy.contains('button', 'Continue').click()
 
             cy.url().should('contain', '/what-happens-next-registering-with-court-of-protection')
@@ -121,7 +121,7 @@ describe('what you can do now', () => {
             cy.contains('Your vouched-for identity has expired')
             cy.contains('h2', 'Try vouching again')
 
-            cy.contains('label', 'I will apply to the Court of Protection to register this LPA').click()
+            cy.contains('label', 'Apply to the Court of Protection to register this LPA').click()
             cy.contains('button', 'Continue').click()
 
             cy.url().should('contain', '/what-happens-next-registering-with-court-of-protection')
@@ -138,7 +138,7 @@ describe('what you can do now', () => {
             cy.get('label').should('not.contain', 'I have someone who can vouch for me')
             cy.get('label').should('not.contain', 'I have someone else who can vouch for me')
 
-            cy.contains('label', 'I will apply to the Court of Protection to register this LPA').click()
+            cy.contains('label', 'Apply to the Court of Protection to register this LPA').click()
             cy.contains('button', 'Continue').click()
 
             cy.url().should('contain', '/what-happens-next-registering-with-court-of-protection')
@@ -195,7 +195,7 @@ describe('what you can do now', () => {
             cy.url().should('contain', '/enter-voucher')
         })
 
-        it('can choose to withdraw LPA', () => {
+        it('can choose to delete LPA', () => {
             cy.contains('label', 'I no longer want to make this LPA').click();
             cy.contains('button', 'Continue').click();
 
@@ -207,11 +207,11 @@ describe('what you can do now', () => {
             cy.contains('You have told us you no longer want to make this LPA');
             cy.contains('a', 'Continue').click();
 
-            cy.url().should('contain', '/withdraw-this-lpa')
+            cy.url().should('contain', '/delete-this-lpa')
         })
 
         it('can choose to apply to court of protection', () => {
-            cy.contains('label', 'I will apply to the Court of Protection to register this LPA').click();
+            cy.contains('label', 'Apply to the Court of Protection to register this LPA').click();
             cy.contains('button', 'Continue').click();
 
             cy.url().should('contain', '/are-you-sure-you-no-longer-need-voucher');

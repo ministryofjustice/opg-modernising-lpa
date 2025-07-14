@@ -3,33 +3,49 @@
 {{ define "pageTitle" }}{{ tr .App "whatHappensNext" }}{{ end }}
 
 {{ define "main" }}
+    {{ $isIdentityExpired := .Donor.IdentityDeadline.Before now }}
+
     <div class="govuk-grid-row">
         <div class="govuk-grid-column-two-thirds">
-            {{ template "notification-banner" (notificationBanner .App "important" (trHtml .App "yourLpaMustBeReviewedByCOP") "contents") }}
+            {{ if $isIdentityExpired }}
+                {{ template "notification-banner" (notificationBanner .App "important" (trHtml .App "yourLpaMustBeReviewedByCOPExpired") "contents") }}
+            {{ else }}
+                {{ template "notification-banner" (notificationBanner .App "important" (trHtml .App "youHaveChosenToHaveLpaReviewedByCourtOfProtectionNotification") "contents") }}
+            {{ end }}
 
             <h1 class="govuk-heading-xl">{{ tr .App "whatHappensNext" }}</h1>
+
+            <p class="govuk-body">{{ tr .App "itCostsMoneyToRegisterThroughCourtOfProtection" }}</p>
+
+            {{ if $isIdentityExpired }}
+                {{ trFormatHtml .App "wouldYouLikeToRevokeThisLpa" "Link" (link .App (global.Paths.WithdrawThisLpa.Format .App.LpaID)) }}
+            {{ else }}
+                <h2 class="govuk-heading-m">{{ tr .App "tryConfirmingYourIdentityAgain" }}</h2>
+                <p class="govuk-body">
+                    {{ tr .App "youCanAvoidCourtOfProtectionByConfirmIdentity" }}
+                </p>
+                <p class="govuk-body">
+                    <a href="{{ link .App (global.Paths.WhatYouCanDoNow.Format .App.LpaID) }}" class="govuk-link">{{ tr .App "reviewTheOptionsForConfirmingIdentity" }}</a>
+                </p>
+            {{ end }}
+
+            <h2 class="govuk-heading-m">{{ tr .App "registerYourLpaThroughCourtOfProtection" }}</h2>
 
             <ol class="govuk-list govuk-list--number">
                 {{ if .Donor.WitnessedByCertificateProviderAt.IsZero }}
                     <li>{{ tr .App "signYourLpaSoCanSubmitToCOP" }}</li>
-                    <li>{{ trFormat .App "opgWillContactYourCertificateProvider" "FullName" .Donor.CertificateProvider.FullName }}</li>
-                    <li>{{ trFormatCount .App "opgWillContactAttorneys" .Donor.Attorneys.Len "FullNames" (concatAnd .App .Donor.Attorneys.FullNames) }}</li>
-                    <li>{{ tr .App "onceEveryoneHasSignedOpgWill" }}</li>
-                    <li>{{ tr .App "atTheEndOfTheWaitingPeriodOpgWill" }}</li>
-                {{ else }}
-                    <li>{{ tr .App "opgWillCompleteOurChecks" }}</li>
-                    <li>{{ tr .App "youCanTrackTheProgressAnyTime" }}</li>
-                    <li>{{ tr .App "onceEveryoneHasSigned" }}</li>
-                    <li>{{ tr .App "wellThenContactYouAboutGettingReviewed" }}</li>
                 {{ end }}
+                <li>{{ trFormat .App "opgWillContactYourCertificateProvider" "FullName" .Donor.CertificateProvider.FullName }}</li>
+                <li>{{ trFormatCount .App "opgWillContactAttorneys" .Donor.Attorneys.Len "FullNames" (concatAnd .App .Donor.Attorneys.FullNames) }}</li>
+                <li>{{ tr .App "onceEveryoneHasSignedOpgWill" }}</li>
+                <li>{{ tr .App "atTheEndOfTheWaitingPeriodOpgWill" }}</li>
                 <li>{{ tr .App "ifTheCOPFindsYourLpaIsValid" }}</li>
             </ol>
 
-            {{ if .Donor.WitnessedByCertificateProviderAt.IsZero }}
+            <div class="govuk-button-group">
                 {{ template "button" (button .App "returnToTaskList" "link" (global.Paths.TaskList.Format .App.LpaID)) }}
-            {{ else }}
-                {{ template "buttons" (button .App "trackLpaProgress" "link" (global.Paths.Progress.Format .App.LpaID)) }}
-            {{ end }}
+                <a href="{{ link .App (global.Paths.Progress.Format .App.LpaID) }}" class="govuk-button govuk-button--secondary">{{ tr .App "trackLpaProgress" }}</a>
+            </div>
         </div>
     </div>
 {{ end }}
