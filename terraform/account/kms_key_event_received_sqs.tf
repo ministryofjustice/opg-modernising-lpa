@@ -196,6 +196,26 @@ data "aws_iam_policy_document" "event_received_sqs_kms" {
       ]
     }
   }
+
+  statement {
+    sid    = "DataAccessDecrypt"
+    effect = "Allow"
+    resources = [
+      "arn:aws:kms:*:${data.aws_caller_identity.global.account_id}:key/*"
+    ]
+    actions = [
+      "kms:Decrypt",
+      "kms:GenerateDataKey*",
+      "kms:DescribeKey",
+    ]
+
+    principals {
+      type = "AWS"
+      identifiers = [
+        "arn:aws:iam::${data.aws_caller_identity.global.account_id}:role/data-access",
+      ]
+    }
+  }
 }
 
 data "aws_iam_policy_document" "event_received_sqs_kms_development_account_operator_admin" {
