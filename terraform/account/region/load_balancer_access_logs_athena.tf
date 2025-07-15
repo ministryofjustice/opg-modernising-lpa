@@ -1,4 +1,3 @@
-#tfsec:ignore:aws-s3-enable-versioning:exp:2025-02-28
 resource "aws_s3_bucket" "athena_results" {
   count         = var.athena_enabled ? 1 : 0
   bucket        = "${data.aws_default_tags.current.tags.application}-${data.aws_default_tags.current.tags.account-name}-lb-logs-athena-${data.aws_region.current.name}"
@@ -13,6 +12,14 @@ resource "aws_s3_bucket_ownership_controls" "athena_results" {
     object_ownership = "BucketOwnerEnforced"
   }
   provider = aws.region
+}
+
+resource "aws_s3_bucket_versioning" "versioning_example" {
+  count  = var.athena_enabled ? 1 : 0
+  bucket = aws_s3_bucket.athena_results[0].id
+  versioning_configuration {
+    status = "Enabled"
+  }
 }
 
 resource "aws_s3_bucket_lifecycle_configuration" "athena_results" {
@@ -34,14 +41,14 @@ resource "aws_s3_bucket_lifecycle_configuration" "athena_results" {
   provider = aws.region
 }
 
-#tfsec:ignore:aws-s3-encryption-customer-key:exp:2025-02-28
 resource "aws_s3_bucket_server_side_encryption_configuration" "athena_results" {
   count  = var.athena_enabled ? 1 : 0
   bucket = aws_s3_bucket.athena_results[0].id
 
   rule {
     apply_server_side_encryption_by_default {
-      sse_algorithm = "aws:kms"
+      sse_algorithm     = "aws:kms"
+      kms_master_key_id = var.athena_s3_target_key_id
     }
   }
   provider = aws.region
