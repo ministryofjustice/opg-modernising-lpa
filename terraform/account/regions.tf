@@ -8,6 +8,7 @@ module "eu_west_1" {
   reduced_fees_uploads_s3_encryption_kms_key_alias         = module.reduced_fees_uploads_s3_kms.kms_key_alias_name
   dynamodb_exports_s3_bucket_server_side_encryption_key_id = module.dynamodb_exports_s3_bucket_kms.eu_west_1_target_key_id
   opensearch_kms_target_key_arn                            = module.opensearch_kms.eu_west_1_target_key_arn
+  athena_s3_target_key_id                                  = module.athena_s3_bucket_kms.eu_west_1_target_key_id
   pagerduty_service_name                                   = local.account.pagerduty_service_name
   athena_enabled                                           = local.account.athena_enabled
   providers = {
@@ -28,6 +29,7 @@ module "eu_west_2" {
   reduced_fees_uploads_s3_encryption_kms_key_alias         = module.reduced_fees_uploads_s3_kms.kms_key_alias_name
   dynamodb_exports_s3_bucket_server_side_encryption_key_id = module.dynamodb_exports_s3_bucket_kms.eu_west_2_target_key_id
   opensearch_kms_target_key_arn                            = module.opensearch_kms.eu_west_2_target_key_arn
+  athena_s3_target_key_id                                  = module.athena_s3_bucket_kms.eu_west_2_target_key_id
   pagerduty_service_name                                   = local.account.pagerduty_service_name
   athena_enabled                                           = local.account.athena_enabled
   providers = {

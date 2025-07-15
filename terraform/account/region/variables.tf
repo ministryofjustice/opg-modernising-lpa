@@ -42,3 +42,8 @@ variable "athena_enabled" {
   type        = bool
   description = "Enable athena for this account"
 }
+
+variable "athena_s3_target_key_id" {
+  description = "The ID of the KMS key to use for server-side encryption of the bucket."
+  type        = string
+}
