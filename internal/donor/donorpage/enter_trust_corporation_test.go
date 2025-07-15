@@ -239,8 +239,10 @@ func TestReadEnterTrustCorporationForm(t *testing.T) {
 
 func TestEnterTrustCorporationFormValidate(t *testing.T) {
 	testCases := map[string]struct {
-		form   *enterTrustCorporationForm
-		errors validation.List
+		form                  *enterTrustCorporationForm
+		isReplacement         bool
+		otherTrustCorporation donordata.TrustCorporation
+		errors                validation.List
 	}{
 		"valid": {
 			form: &enterTrustCorporationForm{
@@ -263,11 +265,70 @@ func TestEnterTrustCorporationFormValidate(t *testing.T) {
 			},
 			errors: validation.With("email", validation.EmailError{Label: "companyEmailAddress"}),
 		},
+		"name matches original": {
+			form: &enterTrustCorporationForm{
+				Name:          "A",
+				CompanyNumber: "B",
+				Email:         "person@whatever.com",
+			},
+			isReplacement:         true,
+			otherTrustCorporation: donordata.TrustCorporation{Name: "A"},
+			errors:                validation.With("name", trustCorporationCannotAlsoBeError{Name: "A", Replacement: true}),
+		},
+		"name matches replacement": {
+			form: &enterTrustCorporationForm{
+				Name:          "A",
+				CompanyNumber: "B",
+				Email:         "person@whatever.com",
+			},
+			otherTrustCorporation: donordata.TrustCorporation{Name: "A"},
+			errors:                validation.With("name", trustCorporationCannotAlsoBeError{Name: "A"}),
+		},
 	}
 
 	for name, tc := range testCases {
 		t.Run(name, func(t *testing.T) {
-			assert.Equal(t, tc.errors, tc.form.Validate())
+			assert.Equal(t, tc.errors, tc.form.Validate(tc.isReplacement, tc.otherTrustCorporation))
 		})
 	}
+}
+
+func TestTrustCorporationCannotAlsoBeError(t *testing.T) {
+	localizer := newMockLocalizer(t)
+	localizer.EXPECT().
+		T("aReplacementAttorney").
+		Return("A")
+	localizer.EXPECT().
+		T("anOriginalAttorney").
+		Return("B")
+	localizer.EXPECT().
+		Format("errorTrustCorporationCannotAlsoBe", map[string]any{
+			"Name":        "X",
+			"IsAppointed": "A",
+			"CannotBe":    "B",
+		}).
+		Return("result")
+
+	error := trustCorporationCannotAlsoBeError{Name: "X"}
+	assert.Equal(t, "result", error.Format(localizer))
+}
+
+func TestTrustCorporationCannotAlsoBeErrorWhenReplacementService(t *testing.T) {
+	localizer := newMockLocalizer(t)
+	localizer.EXPECT().
+		T("aReplacementAttorney").
+		Return("A")
+	localizer.EXPECT().
+		T("anOriginalAttorney").
+		Return("B")
+	localizer.EXPECT().
+		Format("errorTrustCorporationCannotAlsoBe", map[string]any{
+			"Name":        "X",
+			"IsAppointed": "B",
+			"CannotBe":    "A",
+		}).
+		Return("result")
+
+	error := trustCorporationCannotAlsoBeError{Name: "X", Replacement: true}
+	assert.Equal(t, "result", error.Format(localizer))
 }

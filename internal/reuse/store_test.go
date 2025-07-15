@@ -353,15 +353,31 @@ func TestStoreAttorneysWhenMissingSessionID(t *testing.T) {
 func TestStoreTrustCorporations(t *testing.T) {
 	ctx := appcontext.ContextWithSession(context.Background(), &appcontext.Session{SessionID: "session-id"})
 
+	unexpected := []donordata.TrustCorporation{
+		{Name: "Nope"},
+		{Name: "No way"},
+	}
+
 	expected := []donordata.TrustCorporation{
 		{Name: "Corp"},
 		{Name: "Trust"},
 		{Name: "Untrustworthy"},
 	}
 
+	provided := &donordata.Provided{
+		Attorneys: donordata.Attorneys{
+			TrustCorporation: unexpected[0],
+		},
+		ReplacementAttorneys: donordata.Attorneys{
+			TrustCorporation: unexpected[1],
+		},
+	}
+
 	marshalled0, _ := attributevalue.Marshal(expected[0])
 	marshalled1, _ := attributevalue.Marshal(expected[1])
 	marshalled2, _ := attributevalue.Marshal(expected[2])
+	marshalled3, _ := attributevalue.Marshal(unexpected[0])
+	marshalled4, _ := attributevalue.Marshal(unexpected[1])
 
 	dynamoClient := newMockDynamoClient(t)
 	dynamoClient.EXPECT().
@@ -374,9 +390,11 @@ func TestStoreTrustCorporations(t *testing.T) {
 			"uid-b": marshalled0,
 			"uid-c": marshalled1,
 			"uid-d": marshalled0,
+			"uid-e": marshalled3,
+			"uid-f": marshalled4,
 		})
 
-	result, err := NewStore(dynamoClient).TrustCorporations(ctx)
+	result, err := NewStore(dynamoClient).TrustCorporations(ctx, provided)
 	assert.Nil(t, err)
 	assert.Equal(t, expected, result)
 }
@@ -389,21 +407,21 @@ func TestStoreTrustCorporationsWhenDynamoErrors(t *testing.T) {
 		One(mock.Anything, mock.Anything, mock.Anything, mock.Anything).
 		Return(expectedError)
 
-	_, err := NewStore(dynamoClient).TrustCorporations(ctx)
+	_, err := NewStore(dynamoClient).TrustCorporations(ctx, &donordata.Provided{})
 	assert.Equal(t, expectedError, err)
 }
 
 func TestStoreTrustCorporationsWhenMissingSession(t *testing.T) {
 	ctx := context.Background()
 
-	_, err := NewStore(nil).TrustCorporations(ctx)
+	_, err := NewStore(nil).TrustCorporations(ctx, &donordata.Provided{})
 	assert.Equal(t, appcontext.SessionMissingError{}, err)
 }
 
 func TestStoreTrustCorporationsWhenMissingSessionID(t *testing.T) {
 	ctx := appcontext.ContextWithSession(context.Background(), &appcontext.Session{})
 
-	_, err := NewStore(nil).TrustCorporations(ctx)
+	_, err := NewStore(nil).TrustCorporations(ctx, &donordata.Provided{})
 	assert.Error(t, err)
 }
 

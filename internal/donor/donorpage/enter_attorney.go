@@ -59,7 +59,7 @@ func EnterAttorney(tmpl template.Template, service AttorneyService) Handler {
 				Email:      attorney.Email,
 				Dob:        attorney.DateOfBirth,
 			},
-			ShowTrustCorporationLink: provided.CanAddTrustCorporation(),
+			ShowTrustCorporationLink: service.CanAddTrustCorporation(provided),
 		}
 
 		if r.Method == http.MethodPost {

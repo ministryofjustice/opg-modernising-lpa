@@ -157,7 +157,7 @@
         "many": "Mae cael atwrneiod wrth gefn yn ddewisol. Serch hynny, mae cael un neu fwy o atwrneiod wrth gefn yn helpu i sicrhau y bydd eich LPA yn parhau i weithio os na all {{.AttorneysFullNames}} (eich atwrneiod) weithredu mwyach.",
         "other": "Mae cael atwrneiod wrth gefn yn ddewisol. Serch hynny, mae cael un neu fwy o atwrneiod wrth gefn yn helpu i sicrhau y bydd eich LPA yn parhau i weithio os na all {{.AttorneysFullNames}} (eich atwrneiod) weithredu mwyach."
     },
-    "replacementAttorneyRequirements": "Rhaid i atwrnai wrth gefn fodloni’r un gofynion ag atwrnai. Mae hyn yn cynnwys bod yn 18 oed neu’n hŷn.",
+    "replacementAttorneyRequirements": "Welsh {{.SelectAttorneysHelpLink}}",
     "findOutMoreAboutReplacementAttorneysContent": "<p class=\"govuk-body\"><a href=\"{{ .ReplacementAttorneysHelpLink }}\" class=\"govuk-link\">Darllenwch fwy am atwrneiod wrth gefn.</a></p>",
     "yesReplacementAttorneys": "Ydw, rydw i eisiau atwrneiod wrth gefn",
     "noReplacementAttorneys": "Na, nid ydw i eisiau atwrneiod wrth gefn",
@@ -1997,5 +1997,7 @@
     "yourLpaMustBeReviewedByCOPExpired": "<p class=\"govuk-notification-banner__heading\">Welsh</p>",
     "wouldYouLikeToRevokeThisLpa": "<h2 class=\"govuk-heading-m\">Welsh</h2><p class=\"govuk-body\"><a href=\"{{.Link}}\" class=\"govuk-link\">Welsh</a></p>",
     "whatYouCanDoNowRevokeLpaContent": "<h2 class=\"govuk-heading-m\">Welsh</h2>",
-    "revokeThisLpa": "Welsh"
+    "revokeThisLpa": "Welsh",
+    "errorTrustCorporationCannotAlsoBe": "Welsh {{.Name}} {{.IsAppointed}} {{.CannotBe}}",
+    "anOriginalAttorney": "Welsh"
 }

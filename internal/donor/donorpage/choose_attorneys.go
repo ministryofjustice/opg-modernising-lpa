@@ -44,7 +44,7 @@ func ChooseAttorneys(tmpl template.Template, service AttorneyService, newUID fun
 			Form:                     &chooseAttorneysForm{},
 			Donor:                    provided,
 			Attorneys:                attorneys,
-			ShowTrustCorporationLink: provided.CanAddTrustCorporation(),
+			ShowTrustCorporationLink: service.CanAddTrustCorporation(provided),
 		}
 
 		if r.Method == http.MethodPost {

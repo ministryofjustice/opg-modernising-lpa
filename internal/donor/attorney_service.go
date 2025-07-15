@@ -44,8 +44,8 @@ func (s *AttorneyService) Reusable(ctx context.Context, provided *donordata.Prov
 	return attorneys, nil
 }
 
-func (s *AttorneyService) ReusableTrustCorporations(ctx context.Context) ([]donordata.TrustCorporation, error) {
-	trustCorporations, err := s.reuseStore.TrustCorporations(ctx)
+func (s *AttorneyService) ReusableTrustCorporations(ctx context.Context, provided *donordata.Provided) ([]donordata.TrustCorporation, error) {
+	trustCorporations, err := s.reuseStore.TrustCorporations(ctx, provided)
 	if err != nil && !errors.Is(err, dynamo.NotFoundError{}) {
 		return nil, fmt.Errorf("getting reusable trust corporations: %w", err)
 	}
@@ -189,4 +189,16 @@ func (s *AttorneyService) DeleteTrustCorporation(ctx context.Context, provided *
 
 func (s *AttorneyService) IsReplacement() bool {
 	return s.isReplacement
+}
+
+func (s *AttorneyService) CanAddTrustCorporation(provided *donordata.Provided) bool {
+	if !provided.Type.IsPropertyAndAffairs() {
+		return false
+	}
+
+	if s.isReplacement {
+		return provided.ReplacementAttorneys.TrustCorporation.UID.IsZero()
+	}
+
+	return provided.Attorneys.TrustCorporation.UID.IsZero()
 }

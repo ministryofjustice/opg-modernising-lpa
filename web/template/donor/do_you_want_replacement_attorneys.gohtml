@@ -17,7 +17,9 @@
 
                         <p class="govuk-body">{{ trFormatCount .App "replacementAttorneysStepInExplanation" .Donor.Attorneys.Len "AttorneysFullNames" (concatAnd .App .Donor.Attorneys.FullNames) }}</p>
 
-                        <p class="govuk-body">{{ tr .App "replacementAttorneyRequirements" }}</p>
+                        <div class="govuk-inset-text">
+                            <p class="govuk-body">{{ trFormatHtml .App "replacementAttorneyRequirements" "SelectAttorneysHelpLink" (link .App global.Paths.HowToSelectAttorneysForAnLPA.Format) }}</p>
+                        </div>
 
                         {{ trFormatHtml .App "findOutMoreAboutReplacementAttorneysContent" "ReplacementAttorneysHelpLink" (link .App global.Paths.ReplacementAttorneys.Format) }}
 

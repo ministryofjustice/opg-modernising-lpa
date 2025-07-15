@@ -8,6 +8,7 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor/donordata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/dynamo"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/form"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/lpastore/lpadata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/task"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
@@ -55,15 +56,16 @@ func TestAttorneyServiceReusableWhenError(t *testing.T) {
 }
 
 func TestAttorneyServiceReusableTrustCorporations(t *testing.T) {
+	provided := &donordata.Provided{LpaUID: "lpa-uid"}
 	trustCorporations := []donordata.TrustCorporation{{UID: actoruid.New()}}
 
 	reuseStore := newMockReuseStore(t)
 	reuseStore.EXPECT().
-		TrustCorporations(ctx).
+		TrustCorporations(ctx, provided).
 		Return(trustCorporations, nil)
 
 	service := &AttorneyService{reuseStore: reuseStore}
-	result, err := service.ReusableTrustCorporations(ctx)
+	result, err := service.ReusableTrustCorporations(ctx, provided)
 
 	assert.Nil(t, err)
 	assert.Equal(t, trustCorporations, result)
@@ -72,11 +74,11 @@ func TestAttorneyServiceReusableTrustCorporations(t *testing.T) {
 func TestAttorneyServiceReusableTrustCorporationsWhenNotFound(t *testing.T) {
 	reuseStore := newMockReuseStore(t)
 	reuseStore.EXPECT().
-		TrustCorporations(mock.Anything).
+		TrustCorporations(mock.Anything, mock.Anything).
 		Return(nil, dynamo.NotFoundError{})
 
 	service := &AttorneyService{reuseStore: reuseStore}
-	result, err := service.ReusableTrustCorporations(ctx)
+	result, err := service.ReusableTrustCorporations(ctx, &donordata.Provided{})
 
 	assert.Nil(t, err)
 	assert.Empty(t, result)
@@ -85,11 +87,11 @@ func TestAttorneyServiceReusableTrustCorporationsWhenNotFound(t *testing.T) {
 func TestAttorneyServiceReusableTrustCorporationsWhenError(t *testing.T) {
 	reuseStore := newMockReuseStore(t)
 	reuseStore.EXPECT().
-		TrustCorporations(mock.Anything).
+		TrustCorporations(mock.Anything, mock.Anything).
 		Return(nil, expectedError)
 
 	service := &AttorneyService{reuseStore: reuseStore}
-	_, err := service.ReusableTrustCorporations(ctx)
+	_, err := service.ReusableTrustCorporations(ctx, &donordata.Provided{})
 
 	assert.ErrorIs(t, err, expectedError)
 }
@@ -578,4 +580,45 @@ func TestAttorneyServiceIsReplacement(t *testing.T) {
 
 	replacementService := NewReplacementAttorneyService(nil, nil)
 	assert.True(t, replacementService.IsReplacement())
+}
+
+func TestAttorneyServiceCanAddTrustCorporation(t *testing.T) {
+	service := &AttorneyService{}
+	replacementService := &AttorneyService{isReplacement: true}
+
+	assert.False(t, service.CanAddTrustCorporation(&donordata.Provided{}))
+	assert.False(t, replacementService.CanAddTrustCorporation(&donordata.Provided{}))
+
+	assert.True(t, service.CanAddTrustCorporation(&donordata.Provided{
+		Type: lpadata.LpaTypePropertyAndAffairs,
+	}))
+	assert.True(t, replacementService.CanAddTrustCorporation(&donordata.Provided{
+		Type: lpadata.LpaTypePropertyAndAffairs,
+	}))
+
+	assert.False(t, service.CanAddTrustCorporation(&donordata.Provided{
+		Type: lpadata.LpaTypePropertyAndAffairs,
+		Attorneys: donordata.Attorneys{
+			TrustCorporation: donordata.TrustCorporation{UID: actoruid.New()},
+		},
+	}))
+	assert.False(t, replacementService.CanAddTrustCorporation(&donordata.Provided{
+		Type: lpadata.LpaTypePropertyAndAffairs,
+		ReplacementAttorneys: donordata.Attorneys{
+			TrustCorporation: donordata.TrustCorporation{UID: actoruid.New()},
+		},
+	}))
+
+	assert.True(t, service.CanAddTrustCorporation(&donordata.Provided{
+		Type: lpadata.LpaTypePropertyAndAffairs,
+		ReplacementAttorneys: donordata.Attorneys{
+			TrustCorporation: donordata.TrustCorporation{UID: actoruid.New()},
+		},
+	}))
+	assert.True(t, replacementService.CanAddTrustCorporation(&donordata.Provided{
+		Type: lpadata.LpaTypePropertyAndAffairs,
+		Attorneys: donordata.Attorneys{
+			TrustCorporation: donordata.TrustCorporation{UID: actoruid.New()},
+		},
+	}))
 }

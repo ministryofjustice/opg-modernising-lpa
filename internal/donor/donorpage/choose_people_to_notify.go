@@ -14,12 +14,11 @@ import (
 )
 
 type choosePeopleToNotifyData struct {
-	App                      appcontext.Data
-	Errors                   validation.List
-	Form                     *choosePeopleToNotifyForm
-	Donor                    *donordata.Provided
-	PeopleToNotify           []donordata.PersonToNotify
-	ShowTrustCorporationLink bool
+	App            appcontext.Data
+	Errors         validation.List
+	Form           *choosePeopleToNotifyForm
+	Donor          *donordata.Provided
+	PeopleToNotify []donordata.PersonToNotify
 }
 
 func ChoosePeopleToNotify(tmpl template.Template, service PeopleToNotifyService) Handler {
@@ -35,11 +34,10 @@ func ChoosePeopleToNotify(tmpl template.Template, service PeopleToNotifyService)
 		}
 
 		data := &choosePeopleToNotifyData{
-			App:                      appData,
-			Form:                     &choosePeopleToNotifyForm{},
-			Donor:                    provided,
-			PeopleToNotify:           peopleToNotify,
-			ShowTrustCorporationLink: provided.CanAddTrustCorporation(),
+			App:            appData,
+			Form:           &choosePeopleToNotifyForm{},
+			Donor:          provided,
+			PeopleToNotify: peopleToNotify,
 		}
 
 		if r.Method == http.MethodPost {
