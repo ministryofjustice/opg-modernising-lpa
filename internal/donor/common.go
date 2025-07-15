@@ -22,7 +22,7 @@ type ReuseStore interface {
 	PeopleToNotify(ctx context.Context, provided *donordata.Provided) ([]donordata.PersonToNotify, error)
 	DeletePersonToNotify(ctx context.Context, personToNotify donordata.PersonToNotify) error
 	PutTrustCorporation(ctx context.Context, trustCorporation donordata.TrustCorporation) error
-	TrustCorporations(ctx context.Context) ([]donordata.TrustCorporation, error)
+	TrustCorporations(ctx context.Context, provided *donordata.Provided) ([]donordata.TrustCorporation, error)
 	DeleteTrustCorporation(ctx context.Context, trustCorporation donordata.TrustCorporation) error
 }
 

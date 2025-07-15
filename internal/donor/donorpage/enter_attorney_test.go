@@ -51,7 +51,7 @@ func TestGetEnterAttorney(t *testing.T) {
 		"property and affairs with replacement trust corporation": {
 			lpaType:                   lpadata.LpaTypePropertyAndAffairs,
 			replacementAttorneys:      donordata.Attorneys{TrustCorporation: donordata.TrustCorporation{Name: "a"}},
-			expectedShowTrustCorpLink: false,
+			expectedShowTrustCorpLink: true,
 		},
 		"personal welfare with replacement trust corporation": {
 			lpaType:                   lpadata.LpaTypePersonalWelfare,

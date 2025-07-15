@@ -73,7 +73,7 @@ type ReuseStore interface {
 	Attorneys(ctx context.Context, provided *donordata.Provided) ([]donordata.Attorney, error)
 	DeleteAttorney(ctx context.Context, attorney donordata.Attorney) error
 	PutTrustCorporation(ctx context.Context, trustCorporation donordata.TrustCorporation) error
-	TrustCorporations(ctx context.Context) ([]donordata.TrustCorporation, error)
+	TrustCorporations(ctx context.Context, provided *donordata.Provided) ([]donordata.TrustCorporation, error)
 	DeleteTrustCorporation(ctx context.Context, trustCorporation donordata.TrustCorporation) error
 	PutCertificateProvider(ctx context.Context, certificateProvider donordata.CertificateProvider) error
 	CertificateProviders(ctx context.Context) ([]donordata.CertificateProvider, error)
@@ -237,7 +237,7 @@ type CorrespondentService interface {
 
 type AttorneyService interface {
 	Reusable(ctx context.Context, provided *donordata.Provided) ([]donordata.Attorney, error)
-	ReusableTrustCorporations(ctx context.Context) ([]donordata.TrustCorporation, error)
+	ReusableTrustCorporations(ctx context.Context, provided *donordata.Provided) ([]donordata.TrustCorporation, error)
 	PutMany(ctx context.Context, provided *donordata.Provided, attorneys []donordata.Attorney) error
 	Put(ctx context.Context, provided *donordata.Provided, attorney donordata.Attorney) error
 	PutTrustCorporation(ctx context.Context, provided *donordata.Provided, trustCorporation donordata.TrustCorporation) error
