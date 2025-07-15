@@ -21,10 +21,11 @@ func TestGetChooseTrustCorporation(t *testing.T) {
 	r, _ := http.NewRequest(http.MethodGet, "/", nil)
 
 	trustCorporations := []donordata.TrustCorporation{{Name: "Corp"}}
+	provided := &donordata.Provided{LpaID: "lpa-id"}
 
 	service := testAttorneyService(t)
 	service.EXPECT().
-		ReusableTrustCorporations(r.Context()).
+		ReusableTrustCorporations(r.Context(), provided).
 		Return(trustCorporations, nil)
 
 	template := newMockTemplate(t)
@@ -38,7 +39,7 @@ func TestGetChooseTrustCorporation(t *testing.T) {
 		}).
 		Return(nil)
 
-	err := ChooseTrustCorporation(template.Execute, service, testUIDFn)(testAppData, w, r, &donordata.Provided{LpaID: "lpa-id"})
+	err := ChooseTrustCorporation(template.Execute, service, testUIDFn)(testAppData, w, r, provided)
 	resp := w.Result()
 
 	assert.Nil(t, err)
@@ -51,7 +52,7 @@ func TestGetChooseTrustCorporationWhenNoReusableTrustCorporations(t *testing.T) 
 
 	service := testAttorneyService(t)
 	service.EXPECT().
-		ReusableTrustCorporations(r.Context()).
+		ReusableTrustCorporations(r.Context(), mock.Anything).
 		Return(nil, nil)
 
 	err := ChooseTrustCorporation(nil, service, nil)(testAppData, w, r, &donordata.Provided{LpaID: "lpa-id"})
@@ -68,7 +69,7 @@ func TestGetChooseTrustCorporationWhenError(t *testing.T) {
 
 	service := testAttorneyService(t)
 	service.EXPECT().
-		ReusableTrustCorporations(r.Context()).
+		ReusableTrustCorporations(r.Context(), mock.Anything).
 		Return(nil, expectedError)
 
 	err := ChooseTrustCorporation(nil, service, nil)(testAppData, w, r, &donordata.Provided{LpaID: "lpa-id"})
@@ -81,7 +82,7 @@ func TestGetChooseTrustCorporationWhenTemplateErrors(t *testing.T) {
 
 	service := testAttorneyService(t)
 	service.EXPECT().
-		ReusableTrustCorporations(r.Context()).
+		ReusableTrustCorporations(r.Context(), mock.Anything).
 		Return([]donordata.TrustCorporation{{Name: "Corp"}}, nil)
 
 	template := newMockTemplate(t)
@@ -109,7 +110,7 @@ func TestPostChooseTrustCorporation(t *testing.T) {
 
 	service := testAttorneyService(t)
 	service.EXPECT().
-		ReusableTrustCorporations(r.Context()).
+		ReusableTrustCorporations(r.Context(), mock.Anything).
 		Return(trustCorporations, nil)
 	service.EXPECT().
 		PutTrustCorporation(r.Context(), &donordata.Provided{LpaID: "lpa-id"}, donordata.TrustCorporation{
@@ -139,7 +140,7 @@ func TestPostChooseTrustCorporationWhenNew(t *testing.T) {
 
 	service := testAttorneyService(t)
 	service.EXPECT().
-		ReusableTrustCorporations(r.Context()).
+		ReusableTrustCorporations(r.Context(), mock.Anything).
 		Return(trustCorporations, nil)
 
 	err := ChooseTrustCorporation(nil, service, testUIDFn)(testAppData, w, r, &donordata.Provided{LpaID: "lpa-id"})
@@ -161,7 +162,7 @@ func TestPostChooseTrustCorporationWhenReuseStoreError(t *testing.T) {
 
 	service := testAttorneyService(t)
 	service.EXPECT().
-		ReusableTrustCorporations(r.Context()).
+		ReusableTrustCorporations(r.Context(), mock.Anything).
 		Return([]donordata.TrustCorporation{{}}, nil)
 	service.EXPECT().
 		PutTrustCorporation(mock.Anything, mock.Anything, mock.Anything).

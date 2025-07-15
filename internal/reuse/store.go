@@ -45,7 +45,7 @@ func (s *Store) DeleteCorrespondent(ctx context.Context, correspondent donordata
 }
 
 func (s *Store) Correspondents(ctx context.Context) ([]donordata.Correspondent, error) {
-	correspondents, err := reusables[donordata.Correspondent](ctx, s.dynamoClient, actor.TypeCorrespondent)
+	correspondents, err := reusables[donordata.Correspondent](ctx, s.dynamoClient, actor.TypeCorrespondent, nil)
 	if err != nil {
 		return nil, err
 	}
@@ -113,23 +113,6 @@ func (s *Store) DeleteAttorney(ctx context.Context, attorney donordata.Attorney)
 }
 
 func (s *Store) Attorneys(ctx context.Context, provided *donordata.Provided) ([]donordata.Attorney, error) {
-	data, err := appcontext.SessionFromContext(ctx)
-	if err != nil {
-		return nil, err
-	}
-
-	if data.SessionID == "" {
-		return nil, errors.New("reuseStore.Attorneys requires SessionID")
-	}
-
-	var v map[string]orString[donordata.Attorney]
-	if err := s.dynamoClient.One(ctx, dynamo.ReuseKey(data.SessionID, actor.TypeAttorney.String()), dynamo.MetadataKey(""), &v); err != nil {
-		return nil, err
-	}
-
-	delete(v, "PK")
-	delete(v, "SK")
-
 	seen := map[donordata.Attorney]struct{}{}
 	for _, attorney := range provided.Attorneys.Attorneys {
 		attorney.UID = actoruid.UID{}
@@ -140,12 +123,9 @@ func (s *Store) Attorneys(ctx context.Context, provided *donordata.Provided) ([]
 		seen[attorney] = struct{}{}
 	}
 
-	var attorneys []donordata.Attorney
-	for _, attorney := range v {
-		if _, ok := seen[attorney.v]; !ok {
-			attorneys = append(attorneys, attorney.v)
-			seen[attorney.v] = struct{}{}
-		}
+	attorneys, err := reusables[donordata.Attorney](ctx, s.dynamoClient, actor.TypeAttorney, seen)
+	if err != nil {
+		return nil, err
 	}
 
 	slices.SortFunc(attorneys, func(a, b donordata.Attorney) int {
@@ -170,8 +150,18 @@ func (s *Store) DeleteTrustCorporation(ctx context.Context, trustCorporation don
 	return deleteReusable(ctx, s.dynamoClient, actor.TypeTrustCorporation, trustCorporation.UID)
 }
 
-func (s *Store) TrustCorporations(ctx context.Context) ([]donordata.TrustCorporation, error) {
-	trustCorporations, err := reusables[donordata.TrustCorporation](ctx, s.dynamoClient, actor.TypeTrustCorporation)
+func (s *Store) TrustCorporations(ctx context.Context, provided *donordata.Provided) ([]donordata.TrustCorporation, error) {
+	seen := map[donordata.TrustCorporation]struct{}{}
+	if trustCorporation := provided.Attorneys.TrustCorporation; trustCorporation.Name != "" {
+		trustCorporation.UID = actoruid.UID{}
+		seen[trustCorporation] = struct{}{}
+	}
+	if trustCorporation := provided.ReplacementAttorneys.TrustCorporation; trustCorporation.Name != "" {
+		trustCorporation.UID = actoruid.UID{}
+		seen[trustCorporation] = struct{}{}
+	}
+
+	trustCorporations, err := reusables[donordata.TrustCorporation](ctx, s.dynamoClient, actor.TypeTrustCorporation, seen)
 	if err != nil {
 		return nil, err
 	}
@@ -199,7 +189,7 @@ func (s *Store) DeleteCertificateProvider(ctx context.Context, certificateProvid
 }
 
 func (s *Store) CertificateProviders(ctx context.Context) ([]donordata.CertificateProvider, error) {
-	certificateProviders, err := reusables[donordata.CertificateProvider](ctx, s.dynamoClient, actor.TypeCertificateProvider)
+	certificateProviders, err := reusables[donordata.CertificateProvider](ctx, s.dynamoClient, actor.TypeCertificateProvider, nil)
 	if err != nil {
 		return nil, err
 	}

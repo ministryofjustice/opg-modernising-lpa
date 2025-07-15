@@ -44,8 +44,8 @@ func (s *AttorneyService) Reusable(ctx context.Context, provided *donordata.Prov
 	return attorneys, nil
 }
 
-func (s *AttorneyService) ReusableTrustCorporations(ctx context.Context) ([]donordata.TrustCorporation, error) {
-	trustCorporations, err := s.reuseStore.TrustCorporations(ctx)
+func (s *AttorneyService) ReusableTrustCorporations(ctx context.Context, provided *donordata.Provided) ([]donordata.TrustCorporation, error) {
+	trustCorporations, err := s.reuseStore.TrustCorporations(ctx, provided)
 	if err != nil && !errors.Is(err, dynamo.NotFoundError{}) {
 		return nil, fmt.Errorf("getting reusable trust corporations: %w", err)
 	}

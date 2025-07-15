@@ -713,7 +713,5 @@ func (p *Provided) UpdateDecisions() {
 }
 
 func (p *Provided) CanAddTrustCorporation() bool {
-	return p.Type.IsPropertyAndAffairs() &&
-		p.Attorneys.TrustCorporation.Name == "" &&
-		p.ReplacementAttorneys.TrustCorporation.Name == ""
+	return p.Type.IsPropertyAndAffairs()
 }

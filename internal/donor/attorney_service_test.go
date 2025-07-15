@@ -55,15 +55,16 @@ func TestAttorneyServiceReusableWhenError(t *testing.T) {
 }
 
 func TestAttorneyServiceReusableTrustCorporations(t *testing.T) {
+	provided := &donordata.Provided{LpaUID: "lpa-uid"}
 	trustCorporations := []donordata.TrustCorporation{{UID: actoruid.New()}}
 
 	reuseStore := newMockReuseStore(t)
 	reuseStore.EXPECT().
-		TrustCorporations(ctx).
+		TrustCorporations(ctx, provided).
 		Return(trustCorporations, nil)
 
 	service := &AttorneyService{reuseStore: reuseStore}
-	result, err := service.ReusableTrustCorporations(ctx)
+	result, err := service.ReusableTrustCorporations(ctx, provided)
 
 	assert.Nil(t, err)
 	assert.Equal(t, trustCorporations, result)
@@ -72,11 +73,11 @@ func TestAttorneyServiceReusableTrustCorporations(t *testing.T) {
 func TestAttorneyServiceReusableTrustCorporationsWhenNotFound(t *testing.T) {
 	reuseStore := newMockReuseStore(t)
 	reuseStore.EXPECT().
-		TrustCorporations(mock.Anything).
+		TrustCorporations(mock.Anything, mock.Anything).
 		Return(nil, dynamo.NotFoundError{})
 
 	service := &AttorneyService{reuseStore: reuseStore}
-	result, err := service.ReusableTrustCorporations(ctx)
+	result, err := service.ReusableTrustCorporations(ctx, &donordata.Provided{})
 
 	assert.Nil(t, err)
 	assert.Empty(t, result)
@@ -85,11 +86,11 @@ func TestAttorneyServiceReusableTrustCorporationsWhenNotFound(t *testing.T) {
 func TestAttorneyServiceReusableTrustCorporationsWhenError(t *testing.T) {
 	reuseStore := newMockReuseStore(t)
 	reuseStore.EXPECT().
-		TrustCorporations(mock.Anything).
+		TrustCorporations(mock.Anything, mock.Anything).
 		Return(nil, expectedError)
 
 	service := &AttorneyService{reuseStore: reuseStore}
-	_, err := service.ReusableTrustCorporations(ctx)
+	_, err := service.ReusableTrustCorporations(ctx, &donordata.Provided{})
 
 	assert.ErrorIs(t, err, expectedError)
 }

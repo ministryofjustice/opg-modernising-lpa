@@ -36,7 +36,7 @@ func ChooseTrustCorporation(tmpl template.Template, service AttorneyService, new
 	}
 
 	return func(appData appcontext.Data, w http.ResponseWriter, r *http.Request, provided *donordata.Provided) error {
-		trustCorporations, err := service.ReusableTrustCorporations(r.Context())
+		trustCorporations, err := service.ReusableTrustCorporations(r.Context(), provided)
 		if err != nil && !errors.Is(err, dynamo.NotFoundError{}) {
 			return err
 		}
