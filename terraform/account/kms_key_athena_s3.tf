@@ -5,7 +5,7 @@ module "athena_s3_bucket_kms" {
   enable_key_rotation     = true
   enable_multi_region     = true
   deletion_window_in_days = 10
-  kms_key_policy          = local.account.account_name == "development" ? data.aws_iam_policy_document.athena_s3_bucket_kms_merged.json : data.aws_iam_policy_document.athena_s3_bucket_kms.json
+  kms_key_policy          = data.aws_iam_policy_document.athena_s3_bucket_kms.json
   providers = {
     aws.eu_west_1 = aws.eu_west_1
     aws.eu_west_2 = aws.eu_west_2
@@ -14,14 +14,6 @@ module "athena_s3_bucket_kms" {
 
 # See the following link for further information
 # https://docs.aws.amazon.com/kms/latest/developerguide/key-policies.html
-data "aws_iam_policy_document" "athena_s3_bucket_kms_merged" {
-  provider = aws.global
-  source_policy_documents = [
-    data.aws_iam_policy_document.athena_s3_bucket_kms.json,
-    data.aws_iam_policy_document.athena_s3_bucket_kms_development_account_operator_admin.json
-  ]
-}
-
 data "aws_iam_policy_document" "athena_s3_bucket_kms" {
   provider = aws.global
 
@@ -57,7 +49,7 @@ data "aws_iam_policy_document" "athena_s3_bucket_kms" {
     principals {
       type = "AWS"
       identifiers = [
-        local.account.account_name == "development" ? "arn:aws:iam::${data.aws_caller_identity.global.account_id}:root" : "arn:aws:iam::${data.aws_caller_identity.global.account_id}:role/opensearch-pipeline-role-${local.account.account_name}",
+        local.account.account_name == "development" ? "arn:aws:iam::${data.aws_caller_identity.global.account_id}:role/operator" : "arn:aws:iam::${data.aws_caller_identity.global.account_id}:role/breakglass",
       ]
     }
     condition {
@@ -138,40 +130,6 @@ data "aws_iam_policy_document" "athena_s3_bucket_kms" {
       type = "AWS"
       identifiers = [
         "arn:aws:iam::${data.aws_caller_identity.global.account_id}:role/breakglass",
-      ]
-    }
-  }
-}
-
-data "aws_iam_policy_document" "athena_s3_bucket_kms_development_account_operator_admin" {
-  provider = aws.global
-  statement {
-    sid    = "Dev Account Key Administrator"
-    effect = "Allow"
-    resources = [
-      "arn:aws:kms:*:${data.aws_caller_identity.global.account_id}:key/*"
-    ]
-    actions = [
-      "kms:Create*",
-      "kms:Describe*",
-      "kms:Enable*",
-      "kms:List*",
-      "kms:Put*",
-      "kms:Update*",
-      "kms:Revoke*",
-      "kms:Disable*",
-      "kms:Get*",
-      "kms:Delete*",
-      "kms:TagResource",
-      "kms:UntagResource",
-      "kms:ScheduleKeyDeletion",
-      "kms:CancelKeyDeletion",
-    ]
-
-    principals {
-      type = "AWS"
-      identifiers = [
-        "arn:aws:iam::${data.aws_caller_identity.global.account_id}:role/operator"
       ]
     }
   }
