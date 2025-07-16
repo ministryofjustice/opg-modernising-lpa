@@ -59,8 +59,8 @@ data "aws_iam_policy_document" "s3_create_batch_replication_jobs" {
   provider = aws.region
 }
 
-resource "aws_scheduler_schedule" "invoke_lambda_every_15_minutes" {
-  name = "invoke-lambda-every-2-minutes-${data.aws_default_tags.current.tags.environment-name}"
+resource "aws_scheduler_schedule" "invoke_lambda_every_x_minutes" {
+  name = "invoke-lambda-every-60-minutes-${data.aws_default_tags.current.tags.environment-name}"
 
   flexible_time_window {
     mode = "OFF"
