@@ -561,3 +561,16 @@ type CorrespondentInformedVouchingInProgress struct {
 func (e CorrespondentInformedVouchingInProgress) emailID(_ localize.Lang) string {
 	return "6ece1746-e263-4135-85d7-04c6a598ecf9"
 }
+
+type CertificateProviderRemoved struct {
+	DonorFullName                  string
+	CertificateProviderFullName    string
+	CertificateProviderInvitedDate string
+	LpaType                        string
+	LpaUID                         string
+	CertificateProviderStartURL    string
+}
+
+func (e CertificateProviderRemoved) emailID(_ localize.Lang) string {
+	return "1ecd2e11-bcb3-41ae-a14a-fafec8781b32"
+}
