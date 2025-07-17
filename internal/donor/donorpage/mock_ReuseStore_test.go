@@ -820,9 +820,9 @@ func (_c *mockReuseStore_PutTrustCorporation_Call) RunAndReturn(run func(context
 	return _c
 }
 
-// TrustCorporations provides a mock function with given fields: ctx
-func (_m *mockReuseStore) TrustCorporations(ctx context.Context) ([]donordata.TrustCorporation, error) {
-	ret := _m.Called(ctx)
+// TrustCorporations provides a mock function with given fields: ctx, provided
+func (_m *mockReuseStore) TrustCorporations(ctx context.Context, provided *donordata.Provided) ([]donordata.TrustCorporation, error) {
+	ret := _m.Called(ctx, provided)
 
 	if len(ret) == 0 {
 		panic("no return value specified for TrustCorporations")
@@ -830,19 +830,19 @@ func (_m *mockReuseStore) TrustCorporations(ctx context.Context) ([]donordata.Tr
 
 	var r0 []donordata.TrustCorporation
 	var r1 error
-	if rf, ok := ret.Get(0).(func(context.Context) ([]donordata.TrustCorporation, error)); ok {
-		return rf(ctx)
+	if rf, ok := ret.Get(0).(func(context.Context, *donordata.Provided) ([]donordata.TrustCorporation, error)); ok {
+		return rf(ctx, provided)
 	}
-	if rf, ok := ret.Get(0).(func(context.Context) []donordata.TrustCorporation); ok {
-		r0 = rf(ctx)
+	if rf, ok := ret.Get(0).(func(context.Context, *donordata.Provided) []donordata.TrustCorporation); ok {
+		r0 = rf(ctx, provided)
 	} else {
 		if ret.Get(0) != nil {
 			r0 = ret.Get(0).([]donordata.TrustCorporation)
 		}
 	}
 
-	if rf, ok := ret.Get(1).(func(context.Context) error); ok {
-		r1 = rf(ctx)
+	if rf, ok := ret.Get(1).(func(context.Context, *donordata.Provided) error); ok {
+		r1 = rf(ctx, provided)
 	} else {
 		r1 = ret.Error(1)
 	}
@@ -857,13 +857,14 @@ type mockReuseStore_TrustCorporations_Call struct {
 
 // TrustCorporations is a helper method to define mock.On call
 //   - ctx context.Context
-func (_e *mockReuseStore_Expecter) TrustCorporations(ctx interface{}) *mockReuseStore_TrustCorporations_Call {
-	return &mockReuseStore_TrustCorporations_Call{Call: _e.mock.On("TrustCorporations", ctx)}
+//   - provided *donordata.Provided
+func (_e *mockReuseStore_Expecter) TrustCorporations(ctx interface{}, provided interface{}) *mockReuseStore_TrustCorporations_Call {
+	return &mockReuseStore_TrustCorporations_Call{Call: _e.mock.On("TrustCorporations", ctx, provided)}
 }
 
-func (_c *mockReuseStore_TrustCorporations_Call) Run(run func(ctx context.Context)) *mockReuseStore_TrustCorporations_Call {
+func (_c *mockReuseStore_TrustCorporations_Call) Run(run func(ctx context.Context, provided *donordata.Provided)) *mockReuseStore_TrustCorporations_Call {
 	_c.Call.Run(func(args mock.Arguments) {
-		run(args[0].(context.Context))
+		run(args[0].(context.Context), args[1].(*donordata.Provided))
 	})
 	return _c
 }
@@ -873,7 +874,7 @@ func (_c *mockReuseStore_TrustCorporations_Call) Return(_a0 []donordata.TrustCor
 	return _c
 }
 
-func (_c *mockReuseStore_TrustCorporations_Call) RunAndReturn(run func(context.Context) ([]donordata.TrustCorporation, error)) *mockReuseStore_TrustCorporations_Call {
+func (_c *mockReuseStore_TrustCorporations_Call) RunAndReturn(run func(context.Context, *donordata.Provided) ([]donordata.TrustCorporation, error)) *mockReuseStore_TrustCorporations_Call {
 	_c.Call.Return(run)
 	return _c
 }

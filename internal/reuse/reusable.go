@@ -39,7 +39,7 @@ func putReusable(ctx context.Context, dynamoClient DynamoClient, actorType actor
 	)
 }
 
-func reusables[T comparable](ctx context.Context, dynamoClient DynamoClient, actorType actor.Type) ([]T, error) {
+func reusables[T comparable](ctx context.Context, dynamoClient DynamoClient, actorType actor.Type, seen map[T]struct{}) ([]T, error) {
 	data, err := appcontext.SessionFromContext(ctx)
 	if err != nil {
 		return nil, err
@@ -58,7 +58,10 @@ func reusables[T comparable](ctx context.Context, dynamoClient DynamoClient, act
 	delete(v, "SK")
 
 	var list []T
-	seen := map[T]struct{}{}
+
+	if seen == nil {
+		seen = map[T]struct{}{}
+	}
 
 	for _, item := range v {
 		if _, ok := seen[item.v]; !ok {

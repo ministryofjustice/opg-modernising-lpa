@@ -16,7 +16,6 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/date"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor/donordata"
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/lpastore/lpadata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/place"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/validation"
@@ -25,69 +24,36 @@ import (
 )
 
 func TestGetEnterAttorney(t *testing.T) {
-	testcases := map[string]struct {
-		lpaType                   lpadata.LpaType
-		replacementAttorneys      donordata.Attorneys
-		expectedShowTrustCorpLink bool
-	}{
-		"property and affairs": {
-			lpaType:                   lpadata.LpaTypePropertyAndAffairs,
-			expectedShowTrustCorpLink: true,
-		},
-		"personal welfare": {
-			lpaType:                   lpadata.LpaTypePersonalWelfare,
-			expectedShowTrustCorpLink: false,
-		},
-		"property and affairs with lay replacement attorney": {
-			lpaType:                   lpadata.LpaTypePropertyAndAffairs,
-			replacementAttorneys:      donordata.Attorneys{Attorneys: []donordata.Attorney{{}}},
-			expectedShowTrustCorpLink: true,
-		},
-		"personal welfare with lay replacement attorney": {
-			lpaType:                   lpadata.LpaTypePersonalWelfare,
-			replacementAttorneys:      donordata.Attorneys{Attorneys: []donordata.Attorney{{}}},
-			expectedShowTrustCorpLink: false,
-		},
-		"property and affairs with replacement trust corporation": {
-			lpaType:                   lpadata.LpaTypePropertyAndAffairs,
-			replacementAttorneys:      donordata.Attorneys{TrustCorporation: donordata.TrustCorporation{Name: "a"}},
-			expectedShowTrustCorpLink: false,
-		},
-		"personal welfare with replacement trust corporation": {
-			lpaType:                   lpadata.LpaTypePersonalWelfare,
-			replacementAttorneys:      donordata.Attorneys{TrustCorporation: donordata.TrustCorporation{Name: "a"}},
-			expectedShowTrustCorpLink: false,
-		},
+	w := httptest.NewRecorder()
+	r, _ := http.NewRequest(http.MethodGet, "/?id="+testUID.String(), nil)
+
+	provided := &donordata.Provided{
+		LpaID: "lpa-id",
 	}
 
-	for name, tc := range testcases {
-		t.Run(name, func(t *testing.T) {
-			w := httptest.NewRecorder()
-			r, _ := http.NewRequest(http.MethodGet, "/?id="+testUID.String(), nil)
+	template := newMockTemplate(t)
+	template.EXPECT().
+		Execute(w, &enterAttorneyData{
+			App:                      testAppData,
+			Donor:                    provided,
+			Form:                     &enterAttorneyForm{},
+			ShowTrustCorporationLink: true,
+		}).
+		Return(nil)
 
-			template := newMockTemplate(t)
-			template.EXPECT().
-				Execute(w, &enterAttorneyData{
-					App: testAppData,
-					Donor: &donordata.Provided{
-						Type:                 tc.lpaType,
-						ReplacementAttorneys: tc.replacementAttorneys,
-					},
-					Form:                     &enterAttorneyForm{},
-					ShowTrustCorporationLink: tc.expectedShowTrustCorpLink,
-				}).
-				Return(nil)
+	service := newMockAttorneyService(t)
+	service.EXPECT().
+		IsReplacement().
+		Return(false)
+	service.EXPECT().
+		CanAddTrustCorporation(provided).
+		Return(true)
 
-			err := EnterAttorney(template.Execute, testAttorneyService(t))(testAppData, w, r, &donordata.Provided{
-				Type:                 tc.lpaType,
-				ReplacementAttorneys: tc.replacementAttorneys,
-			})
-			resp := w.Result()
+	err := EnterAttorney(template.Execute, service)(testAppData, w, r, provided)
+	resp := w.Result()
 
-			assert.Nil(t, err)
-			assert.Equal(t, http.StatusOK, resp.StatusCode)
-		})
-	}
+	assert.Nil(t, err)
+	assert.Equal(t, http.StatusOK, resp.StatusCode)
 }
 
 func TestGetEnterAttorneyWhenNoID(t *testing.T) {
@@ -247,6 +213,9 @@ func TestPostEnterAttorneyWhenAttorneyExists(t *testing.T) {
 			service.EXPECT().
 				Put(r.Context(), tc.provided, attorney).
 				Return(nil)
+			service.EXPECT().
+				CanAddTrustCorporation(tc.provided).
+				Return(false)
 
 			err := EnterAttorney(nil, service)(testAppData, w, r, tc.provided)
 			resp := w.Result()

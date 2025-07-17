@@ -13,6 +13,7 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/localize"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/place"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/sesh"
+	"github.com/stretchr/testify/mock"
 )
 
 var (
@@ -50,6 +51,10 @@ func testAttorneyService(t *testing.T) *mockAttorneyService {
 	service := newMockAttorneyService(t)
 	service.EXPECT().
 		IsReplacement().
+		Return(false).
+		Maybe()
+	service.EXPECT().
+		CanAddTrustCorporation(mock.Anything).
 		Return(false).
 		Maybe()
 

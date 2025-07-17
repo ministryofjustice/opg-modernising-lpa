@@ -1183,24 +1183,6 @@ func TestProvidedUpdateDecisions(t *testing.T) {
 	})
 }
 
-func TestCanAddTrustCorporation(t *testing.T) {
-	assert.False(t, (&Provided{}).CanAddTrustCorporation())
-
-	assert.True(t, (&Provided{
-		Type: lpadata.LpaTypePropertyAndAffairs,
-	}).CanAddTrustCorporation())
-
-	assert.False(t, (&Provided{
-		Type:      lpadata.LpaTypePropertyAndAffairs,
-		Attorneys: Attorneys{TrustCorporation: TrustCorporation{Name: "A"}},
-	}).CanAddTrustCorporation())
-
-	assert.False(t, (&Provided{
-		Type:                 lpadata.LpaTypePropertyAndAffairs,
-		ReplacementAttorneys: Attorneys{TrustCorporation: TrustCorporation{Name: "A"}},
-	}).CanAddTrustCorporation())
-}
-
 func TestNamehasChanged(t *testing.T) {
 	testCases := map[string]*Donor{
 		"FirstNames": {FirstNames: "d", LastName: "b", OtherNames: "c"},

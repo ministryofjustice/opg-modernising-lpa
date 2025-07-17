@@ -30,9 +30,9 @@ func EnterTrustCorporation(tmpl template.Template, service AttorneyService, newU
 	}
 
 	return func(appData appcontext.Data, w http.ResponseWriter, r *http.Request, provided *donordata.Provided) error {
-		trustCorporation := provided.Attorneys.TrustCorporation
+		trustCorporation, otherTrustCorporation := provided.Attorneys.TrustCorporation, provided.ReplacementAttorneys.TrustCorporation
 		if service.IsReplacement() {
-			trustCorporation = provided.ReplacementAttorneys.TrustCorporation
+			trustCorporation, otherTrustCorporation = otherTrustCorporation, trustCorporation
 		}
 
 		data := &enterTrustCorporationData{
@@ -48,7 +48,7 @@ func EnterTrustCorporation(tmpl template.Template, service AttorneyService, newU
 
 		if r.Method == http.MethodPost {
 			data.Form = readEnterTrustCorporationForm(r)
-			data.Errors = data.Form.Validate()
+			data.Errors = data.Form.Validate(service.IsReplacement(), otherTrustCorporation)
 
 			if data.Errors.None() {
 				trustCorporation.Name = data.Form.Name
@@ -81,11 +81,16 @@ func readEnterTrustCorporationForm(r *http.Request) *enterTrustCorporationForm {
 	}
 }
 
-func (f *enterTrustCorporationForm) Validate() validation.List {
+func (f *enterTrustCorporationForm) Validate(isReplacement bool, otherTrustCorporation donordata.TrustCorporation) validation.List {
 	var errors validation.List
 
 	errors.String("name", "companyName", f.Name,
 		validation.Empty())
+
+	if f.Name == otherTrustCorporation.Name {
+		errors.Add("name", trustCorporationCannotAlsoBeError{Name: f.Name, Replacement: isReplacement})
+
+	}
 
 	errors.String("company-number", "companyNumber", f.CompanyNumber,
 		validation.Empty())
@@ -94,4 +99,22 @@ func (f *enterTrustCorporationForm) Validate() validation.List {
 		validation.Email())
 
 	return errors
+}
+
+type trustCorporationCannotAlsoBeError struct {
+	Name        string
+	Replacement bool
+}
+
+func (e trustCorporationCannotAlsoBeError) Format(l validation.Localizer) string {
+	isAppointed, cannotBe := "aReplacementAttorney", "anOriginalAttorney"
+	if e.Replacement {
+		isAppointed, cannotBe = cannotBe, isAppointed
+	}
+
+	return l.Format("errorTrustCorporationCannotAlsoBe", map[string]any{
+		"Name":        e.Name,
+		"IsAppointed": l.T(isAppointed),
+		"CannotBe":    l.T(cannotBe),
+	})
 }

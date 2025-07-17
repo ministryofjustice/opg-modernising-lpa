@@ -24,6 +24,52 @@ func (_m *mockAttorneyService) EXPECT() *mockAttorneyService_Expecter {
 	return &mockAttorneyService_Expecter{mock: &_m.Mock}
 }
 
+// CanAddTrustCorporation provides a mock function with given fields: provided
+func (_m *mockAttorneyService) CanAddTrustCorporation(provided *donordata.Provided) bool {
+	ret := _m.Called(provided)
+
+	if len(ret) == 0 {
+		panic("no return value specified for CanAddTrustCorporation")
+	}
+
+	var r0 bool
+	if rf, ok := ret.Get(0).(func(*donordata.Provided) bool); ok {
+		r0 = rf(provided)
+	} else {
+		r0 = ret.Get(0).(bool)
+	}
+
+	return r0
+}
+
+// mockAttorneyService_CanAddTrustCorporation_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'CanAddTrustCorporation'
+type mockAttorneyService_CanAddTrustCorporation_Call struct {
+	*mock.Call
+}
+
+// CanAddTrustCorporation is a helper method to define mock.On call
+//   - provided *donordata.Provided
+func (_e *mockAttorneyService_Expecter) CanAddTrustCorporation(provided interface{}) *mockAttorneyService_CanAddTrustCorporation_Call {
+	return &mockAttorneyService_CanAddTrustCorporation_Call{Call: _e.mock.On("CanAddTrustCorporation", provided)}
+}
+
+func (_c *mockAttorneyService_CanAddTrustCorporation_Call) Run(run func(provided *donordata.Provided)) *mockAttorneyService_CanAddTrustCorporation_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		run(args[0].(*donordata.Provided))
+	})
+	return _c
+}
+
+func (_c *mockAttorneyService_CanAddTrustCorporation_Call) Return(_a0 bool) *mockAttorneyService_CanAddTrustCorporation_Call {
+	_c.Call.Return(_a0)
+	return _c
+}
+
+func (_c *mockAttorneyService_CanAddTrustCorporation_Call) RunAndReturn(run func(*donordata.Provided) bool) *mockAttorneyService_CanAddTrustCorporation_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
 // Delete provides a mock function with given fields: ctx, provided, attorney
 func (_m *mockAttorneyService) Delete(ctx context.Context, provided *donordata.Provided, attorney donordata.Attorney) error {
 	ret := _m.Called(ctx, provided, attorney)
@@ -367,9 +413,9 @@ func (_c *mockAttorneyService_Reusable_Call) RunAndReturn(run func(context.Conte
 	return _c
 }
 
-// ReusableTrustCorporations provides a mock function with given fields: ctx
-func (_m *mockAttorneyService) ReusableTrustCorporations(ctx context.Context) ([]donordata.TrustCorporation, error) {
-	ret := _m.Called(ctx)
+// ReusableTrustCorporations provides a mock function with given fields: ctx, provided
+func (_m *mockAttorneyService) ReusableTrustCorporations(ctx context.Context, provided *donordata.Provided) ([]donordata.TrustCorporation, error) {
+	ret := _m.Called(ctx, provided)
 
 	if len(ret) == 0 {
 		panic("no return value specified for ReusableTrustCorporations")
@@ -377,19 +423,19 @@ func (_m *mockAttorneyService) ReusableTrustCorporations(ctx context.Context) ([
 
 	var r0 []donordata.TrustCorporation
 	var r1 error
-	if rf, ok := ret.Get(0).(func(context.Context) ([]donordata.TrustCorporation, error)); ok {
-		return rf(ctx)
+	if rf, ok := ret.Get(0).(func(context.Context, *donordata.Provided) ([]donordata.TrustCorporation, error)); ok {
+		return rf(ctx, provided)
 	}
-	if rf, ok := ret.Get(0).(func(context.Context) []donordata.TrustCorporation); ok {
-		r0 = rf(ctx)
+	if rf, ok := ret.Get(0).(func(context.Context, *donordata.Provided) []donordata.TrustCorporation); ok {
+		r0 = rf(ctx, provided)
 	} else {
 		if ret.Get(0) != nil {
 			r0 = ret.Get(0).([]donordata.TrustCorporation)
 		}
 	}
 
-	if rf, ok := ret.Get(1).(func(context.Context) error); ok {
-		r1 = rf(ctx)
+	if rf, ok := ret.Get(1).(func(context.Context, *donordata.Provided) error); ok {
+		r1 = rf(ctx, provided)
 	} else {
 		r1 = ret.Error(1)
 	}
@@ -404,13 +450,14 @@ type mockAttorneyService_ReusableTrustCorporations_Call struct {
 
 // ReusableTrustCorporations is a helper method to define mock.On call
 //   - ctx context.Context
-func (_e *mockAttorneyService_Expecter) ReusableTrustCorporations(ctx interface{}) *mockAttorneyService_ReusableTrustCorporations_Call {
-	return &mockAttorneyService_ReusableTrustCorporations_Call{Call: _e.mock.On("ReusableTrustCorporations", ctx)}
+//   - provided *donordata.Provided
+func (_e *mockAttorneyService_Expecter) ReusableTrustCorporations(ctx interface{}, provided interface{}) *mockAttorneyService_ReusableTrustCorporations_Call {
+	return &mockAttorneyService_ReusableTrustCorporations_Call{Call: _e.mock.On("ReusableTrustCorporations", ctx, provided)}
 }
 
-func (_c *mockAttorneyService_ReusableTrustCorporations_Call) Run(run func(ctx context.Context)) *mockAttorneyService_ReusableTrustCorporations_Call {
+func (_c *mockAttorneyService_ReusableTrustCorporations_Call) Run(run func(ctx context.Context, provided *donordata.Provided)) *mockAttorneyService_ReusableTrustCorporations_Call {
 	_c.Call.Run(func(args mock.Arguments) {
-		run(args[0].(context.Context))
+		run(args[0].(context.Context), args[1].(*donordata.Provided))
 	})
 	return _c
 }
@@ -420,7 +467,7 @@ func (_c *mockAttorneyService_ReusableTrustCorporations_Call) Return(_a0 []donor
 	return _c
 }
 
-func (_c *mockAttorneyService_ReusableTrustCorporations_Call) RunAndReturn(run func(context.Context) ([]donordata.TrustCorporation, error)) *mockAttorneyService_ReusableTrustCorporations_Call {
+func (_c *mockAttorneyService_ReusableTrustCorporations_Call) RunAndReturn(run func(context.Context, *donordata.Provided) ([]donordata.TrustCorporation, error)) *mockAttorneyService_ReusableTrustCorporations_Call {
 	_c.Call.Return(run)
 	return _c
 }
