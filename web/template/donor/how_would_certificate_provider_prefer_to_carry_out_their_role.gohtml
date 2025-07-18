@@ -37,6 +37,10 @@
           </fieldset>
         </div>
 
+        {{ if .CertificateProvider.Email }}
+            {{ template "details" (details . "doYouNeedToChangeThisEmailAddress" (trFormat .App "doYouNeedToChangeThisEmailAddressContent" "CertificateProviderFullName" .CertificateProvider.FullName) false) }}
+        {{ end }}
+
         {{ template "buttons" (button .App "saveAndContinue") }}
         {{ template "csrf-field" . }}
       </form>
