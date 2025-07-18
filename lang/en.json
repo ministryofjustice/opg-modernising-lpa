@@ -1899,5 +1899,9 @@
     "whatYouCanDoNowRevokeLpaContent": "<h2 class=\"govuk-heading-m\">Revoke this LPA</h2><p class=\"govuk-body\">If you revoke this LPA, you will not get a refund for the fee you have paid.</p><p class=\"govuk-body\">To make a new LPA, return to ‘Manage your LPAs’.</p>",
     "revokeThisLpa": "Revoke this LPA",
     "errorTrustCorporationCannotAlsoBe": "You have appointed {{.Name}} to be {{.IsAppointed}}. This trust corporation cannot also be {{.CannotBe}}.",
-    "anOriginalAttorney": "an original attorney"
+    "anOriginalAttorney": "an original attorney",
+    "doYouNeedToChangeThisEmailAddress": "Do you need to change this email address?",
+    "doYouNeedToChangeThisEmailAddressContent": "You can enter a different email address for {{.CertificateProviderFullName}}. Emails from the Office of the Public Guardian will be sent to the new address.",
+    "whyCantIUpdateThisEmailAddress": "Why can’t I update this email address?",
+    "whyCantIUpdateThisEmailAddressContent": "<p class=\"govuk-body\">{{.CertificateProviderFullName}} has already accessed your LPA using a code sent to this email address. For security reasons their email cannot now be changed.</p><p class=\"govuk-body\">If {{.CertificateProviderFirstNames}} has decided they would like to be contacted using paper forms, they must contact OPG to request this.</p>"
 }
