@@ -1,6 +1,7 @@
 package donorpage
 
 import (
+	"errors"
 	"fmt"
 	"net/http"
 
@@ -8,6 +9,7 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/appcontext"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor/donordata"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/dynamo"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/lpastore/lpadata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/validation"
@@ -21,8 +23,14 @@ type howWouldCertificateProviderPreferToCarryOutTheirRoleData struct {
 	Options             lpadata.ChannelOptions
 }
 
-func HowWouldCertificateProviderPreferToCarryOutTheirRole(tmpl template.Template, donorStore DonorStore, reuseStore ReuseStore) Handler {
+func HowWouldCertificateProviderPreferToCarryOutTheirRole(tmpl template.Template, donorStore DonorStore, certificateProviderStore CertificateProviderStore, reuseStore ReuseStore) Handler {
 	return func(appData appcontext.Data, w http.ResponseWriter, r *http.Request, provided *donordata.Provided) error {
+		if _, err := certificateProviderStore.OneByUID(r.Context(), provided.LpaUID); err == nil {
+			return donor.PathCertificateProviderSummary.Redirect(w, r, appData, provided)
+		} else if !errors.Is(err, dynamo.NotFoundError{}) {
+			return fmt.Errorf("get certificate provider: %w", err)
+		}
+
 		data := &howWouldCertificateProviderPreferToCarryOutTheirRoleData{
 			App:                 appData,
 			CertificateProvider: provided.CertificateProvider,

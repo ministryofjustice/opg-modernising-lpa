@@ -72,6 +72,7 @@ func (n *checkYourLpaNotifier) sendPaperNotification(ctx context.Context, appDat
 func (n *checkYourLpaNotifier) sendOnlineNotification(ctx context.Context, appData appcontext.Data, donor *donordata.Provided, wasCompleted bool) error {
 	if !wasCompleted {
 		donor.CertificateProviderInvitedAt = n.now()
+		donor.CertificateProviderInvitedEmail = donor.CertificateProvider.Email
 
 		if err := n.scheduledStore.Create(ctx, scheduled.Event{
 			At:                donor.CertificateProviderInvitedAt.AddDate(0, 3, 1),
@@ -139,7 +140,8 @@ func CheckYourLpa(tmpl template.Template, donorStore DonorStore, accessCodeSende
 			Form: &checkYourLpaForm{
 				CheckedAndHappy: !provided.CheckedAt.IsZero(),
 			},
-			CertificateProviderContacted: !provided.CheckedAt.IsZero(),
+			CertificateProviderContacted: !provided.CheckedAt.IsZero() &&
+				provided.CertificateProvider.Email == provided.CertificateProviderInvitedEmail,
 			// need to consider CheckYourLpa.IsInProgress for the scenario of changing
 			// something, then changing it back, otherwise you'd never be able to
 			// continue

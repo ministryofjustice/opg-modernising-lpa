@@ -1999,5 +1999,9 @@
     "whatYouCanDoNowRevokeLpaContent": "<h2 class=\"govuk-heading-m\">Welsh</h2>",
     "revokeThisLpa": "Welsh",
     "errorTrustCorporationCannotAlsoBe": "Welsh {{.Name}} {{.IsAppointed}} {{.CannotBe}}",
-    "anOriginalAttorney": "Welsh"
+    "anOriginalAttorney": "Welsh",
+    "doYouNeedToChangeThisEmailAddress": "Welsh",
+    "doYouNeedToChangeThisEmailAddressContent": "Welsh {{.CertificateProviderFullName}}",
+    "whyCantIUpdateThisEmailAddress": "Welsh",
+    "whyCantIUpdateThisEmailAddressContent": "<p class=\"govuk-body\">Welsh {{.CertificateProviderFullName}} {{.CertificateProviderFirstNames}}</p>"
 }

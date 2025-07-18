@@ -424,7 +424,7 @@ func Register(
 		handleWithDonor(donor.PathCertificateProviderDetails, page.CanGoBack,
 			CertificateProviderDetails(tmpls.Get("certificate_provider_details.gohtml"), service))
 		handleWithDonor(donor.PathHowWouldCertificateProviderPreferToCarryOutTheirRole, page.CanGoBack,
-			HowWouldCertificateProviderPreferToCarryOutTheirRole(tmpls.Get("how_would_certificate_provider_prefer_to_carry_out_their_role.gohtml"), donorStore, reuseStore))
+			HowWouldCertificateProviderPreferToCarryOutTheirRole(tmpls.Get("how_would_certificate_provider_prefer_to_carry_out_their_role.gohtml"), donorStore, certificateProviderStore, reuseStore))
 		handleWithDonor(donor.PathCertificateProviderAddress, page.CanGoBack,
 			CertificateProviderAddress(logger, tmpls.Get("choose_address.gohtml"), addressClient, donorStore, reuseStore))
 		handleWithDonor(donor.PathHowDoYouKnowYourCertificateProvider, page.CanGoBack,
@@ -434,7 +434,7 @@ func Register(
 		handleWithDonor(donor.PathRemoveCertificateProvider, page.None,
 			RemoveCertificateProvider(tmpls.Get("remove_certificate_provider.gohtml"), service, notifyClient, appPublicURL))
 		handleWithDonor(donor.PathCertificateProviderSummary, page.None,
-			Guidance(tmpls.Get("certificate_provider_summary.gohtml")))
+			CertificateProviderSummary(tmpls.Get("certificate_provider_summary.gohtml"), certificateProviderStore))
 	}
 
 	{

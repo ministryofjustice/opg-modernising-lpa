@@ -7,8 +7,10 @@ import (
 	"strings"
 	"testing"
 
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/certificateprovider/certificateproviderdata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor/donordata"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/dynamo"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/lpastore/lpadata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/validation"
@@ -20,6 +22,11 @@ func TestGetHowWouldCertificateProviderPreferToCarryOutTheirRole(t *testing.T) {
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest(http.MethodGet, "/", nil)
 
+	certificateProviderStore := newMockCertificateProviderStore(t)
+	certificateProviderStore.EXPECT().
+		OneByUID(r.Context(), "lpa-uid").
+		Return(nil, dynamo.NotFoundError{})
+
 	template := newMockTemplate(t)
 	template.EXPECT().
 		Execute(w, &howWouldCertificateProviderPreferToCarryOutTheirRoleData{
@@ -29,16 +36,56 @@ func TestGetHowWouldCertificateProviderPreferToCarryOutTheirRole(t *testing.T) {
 		}).
 		Return(nil)
 
-	err := HowWouldCertificateProviderPreferToCarryOutTheirRole(template.Execute, nil, nil)(testAppData, w, r, &donordata.Provided{})
+	err := HowWouldCertificateProviderPreferToCarryOutTheirRole(template.Execute, nil, certificateProviderStore, nil)(testAppData, w, r, &donordata.Provided{
+		LpaUID: "lpa-uid",
+	})
 	resp := w.Result()
 
 	assert.Nil(t, err)
 	assert.Equal(t, http.StatusOK, resp.StatusCode)
 }
 
+func TestGetHowWouldCertificateProviderPreferToCarryOutTheirRoleWhenCertificateProviderHasLinked(t *testing.T) {
+	w := httptest.NewRecorder()
+	r, _ := http.NewRequest(http.MethodGet, "/", nil)
+
+	certificateProviderStore := newMockCertificateProviderStore(t)
+	certificateProviderStore.EXPECT().
+		OneByUID(r.Context(), "lpa-uid").
+		Return(&certificateproviderdata.Provided{}, nil)
+
+	err := HowWouldCertificateProviderPreferToCarryOutTheirRole(nil, nil, certificateProviderStore, nil)(testAppData, w, r, &donordata.Provided{
+		LpaID:  "lpa-id",
+		LpaUID: "lpa-uid",
+	})
+	resp := w.Result()
+
+	assert.Nil(t, err)
+	assert.Equal(t, http.StatusFound, resp.StatusCode)
+	assert.Equal(t, donor.PathCertificateProviderSummary.Format("lpa-id"), resp.Header.Get("Location"))
+}
+
+func TestGetHowWouldCertificateProviderPreferToCarryOutTheirRoleWhenCertificateProviderStoreError(t *testing.T) {
+	w := httptest.NewRecorder()
+	r, _ := http.NewRequest(http.MethodGet, "/", nil)
+
+	certificateProviderStore := newMockCertificateProviderStore(t)
+	certificateProviderStore.EXPECT().
+		OneByUID(mock.Anything, mock.Anything).
+		Return(nil, expectedError)
+
+	err := HowWouldCertificateProviderPreferToCarryOutTheirRole(nil, nil, certificateProviderStore, nil)(testAppData, w, r, &donordata.Provided{})
+	assert.ErrorIs(t, err, expectedError)
+}
+
 func TestGetHowWouldCertificateProviderPreferToCarryOutTheirRoleFromStore(t *testing.T) {
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest(http.MethodGet, "/", nil)
+
+	certificateProviderStore := newMockCertificateProviderStore(t)
+	certificateProviderStore.EXPECT().
+		OneByUID(mock.Anything, mock.Anything).
+		Return(nil, dynamo.NotFoundError{})
 
 	template := newMockTemplate(t)
 	template.EXPECT().
@@ -50,7 +97,7 @@ func TestGetHowWouldCertificateProviderPreferToCarryOutTheirRoleFromStore(t *tes
 		}).
 		Return(nil)
 
-	err := HowWouldCertificateProviderPreferToCarryOutTheirRole(template.Execute, nil, nil)(testAppData, w, r, &donordata.Provided{
+	err := HowWouldCertificateProviderPreferToCarryOutTheirRole(template.Execute, nil, certificateProviderStore, nil)(testAppData, w, r, &donordata.Provided{
 		CertificateProvider: donordata.CertificateProvider{CarryOutBy: lpadata.ChannelPaper},
 	})
 	resp := w.Result()
@@ -63,6 +110,11 @@ func TestGetHowWouldCertificateProviderPreferToCarryOutTheirRoleWhenTemplateErro
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest(http.MethodGet, "/", nil)
 
+	certificateProviderStore := newMockCertificateProviderStore(t)
+	certificateProviderStore.EXPECT().
+		OneByUID(mock.Anything, mock.Anything).
+		Return(nil, dynamo.NotFoundError{})
+
 	template := newMockTemplate(t)
 	template.EXPECT().
 		Execute(w, &howWouldCertificateProviderPreferToCarryOutTheirRoleData{
@@ -72,7 +124,7 @@ func TestGetHowWouldCertificateProviderPreferToCarryOutTheirRoleWhenTemplateErro
 		}).
 		Return(expectedError)
 
-	err := HowWouldCertificateProviderPreferToCarryOutTheirRole(template.Execute, nil, nil)(testAppData, w, r, &donordata.Provided{})
+	err := HowWouldCertificateProviderPreferToCarryOutTheirRole(template.Execute, nil, certificateProviderStore, nil)(testAppData, w, r, &donordata.Provided{})
 	resp := w.Result()
 
 	assert.Equal(t, expectedError, err)
@@ -106,6 +158,11 @@ func TestPostHowWouldCertificateProviderPreferToCarryOutTheirRole(t *testing.T) 
 
 			certificateProvider := donordata.CertificateProvider{CarryOutBy: tc.carryOutBy, Email: tc.email}
 
+			certificateProviderStore := newMockCertificateProviderStore(t)
+			certificateProviderStore.EXPECT().
+				OneByUID(mock.Anything, mock.Anything).
+				Return(nil, dynamo.NotFoundError{})
+
 			reuseStore := newMockReuseStore(t)
 			reuseStore.EXPECT().
 				PutCertificateProvider(r.Context(), certificateProvider).
@@ -119,7 +176,7 @@ func TestPostHowWouldCertificateProviderPreferToCarryOutTheirRole(t *testing.T) 
 				}).
 				Return(nil)
 
-			err := HowWouldCertificateProviderPreferToCarryOutTheirRole(nil, donorStore, reuseStore)(testAppData, w, r, &donordata.Provided{LpaID: "lpa-id"})
+			err := HowWouldCertificateProviderPreferToCarryOutTheirRole(nil, donorStore, certificateProviderStore, reuseStore)(testAppData, w, r, &donordata.Provided{LpaID: "lpa-id"})
 			resp := w.Result()
 
 			assert.Nil(t, err)
@@ -141,6 +198,11 @@ func TestPostHowWouldCertificateProviderPreferToCarryOutTheirRoleChangingFromOnl
 
 	certificateProvider := donordata.CertificateProvider{CarryOutBy: lpadata.ChannelPaper}
 
+	certificateProviderStore := newMockCertificateProviderStore(t)
+	certificateProviderStore.EXPECT().
+		OneByUID(mock.Anything, mock.Anything).
+		Return(nil, dynamo.NotFoundError{})
+
 	reuseStore := newMockReuseStore(t)
 	reuseStore.EXPECT().
 		PutCertificateProvider(r.Context(), certificateProvider).
@@ -154,7 +216,7 @@ func TestPostHowWouldCertificateProviderPreferToCarryOutTheirRoleChangingFromOnl
 		}).
 		Return(nil)
 
-	err := HowWouldCertificateProviderPreferToCarryOutTheirRole(nil, donorStore, reuseStore)(testAppData, w, r, &donordata.Provided{
+	err := HowWouldCertificateProviderPreferToCarryOutTheirRole(nil, donorStore, certificateProviderStore, reuseStore)(testAppData, w, r, &donordata.Provided{
 		LpaID:               "lpa-id",
 		CertificateProvider: donordata.CertificateProvider{CarryOutBy: lpadata.ChannelOnline, Email: "a@b.com"},
 	})
@@ -174,12 +236,17 @@ func TestPostHowWouldCertificateProviderPreferToCarryOutTheirRoleWhenReuseStoreE
 	r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(form.Encode()))
 	r.Header.Add("Content-Type", page.FormUrlEncoded)
 
+	certificateProviderStore := newMockCertificateProviderStore(t)
+	certificateProviderStore.EXPECT().
+		OneByUID(mock.Anything, mock.Anything).
+		Return(nil, dynamo.NotFoundError{})
+
 	reuseStore := newMockReuseStore(t)
 	reuseStore.EXPECT().
 		PutCertificateProvider(mock.Anything, mock.Anything).
 		Return(expectedError)
 
-	err := HowWouldCertificateProviderPreferToCarryOutTheirRole(nil, nil, reuseStore)(testAppData, w, r, &donordata.Provided{})
+	err := HowWouldCertificateProviderPreferToCarryOutTheirRole(nil, nil, certificateProviderStore, reuseStore)(testAppData, w, r, &donordata.Provided{})
 
 	assert.ErrorIs(t, err, expectedError)
 }
@@ -193,6 +260,11 @@ func TestPostHowWouldCertificateProviderPreferToCarryOutTheirRoleWhenDonorStoreE
 	r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(form.Encode()))
 	r.Header.Add("Content-Type", page.FormUrlEncoded)
 
+	certificateProviderStore := newMockCertificateProviderStore(t)
+	certificateProviderStore.EXPECT().
+		OneByUID(mock.Anything, mock.Anything).
+		Return(nil, dynamo.NotFoundError{})
+
 	reuseStore := newMockReuseStore(t)
 	reuseStore.EXPECT().
 		PutCertificateProvider(mock.Anything, mock.Anything).
@@ -203,7 +275,7 @@ func TestPostHowWouldCertificateProviderPreferToCarryOutTheirRoleWhenDonorStoreE
 		Put(r.Context(), mock.Anything).
 		Return(expectedError)
 
-	err := HowWouldCertificateProviderPreferToCarryOutTheirRole(nil, donorStore, reuseStore)(testAppData, w, r, &donordata.Provided{})
+	err := HowWouldCertificateProviderPreferToCarryOutTheirRole(nil, donorStore, certificateProviderStore, reuseStore)(testAppData, w, r, &donordata.Provided{})
 
 	assert.Equal(t, expectedError, err)
 }
@@ -213,6 +285,11 @@ func TestPostHowWouldCertificateProviderPreferToCarryOutTheirRoleWhenValidationE
 	r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader("nope"))
 	r.Header.Add("Content-Type", page.FormUrlEncoded)
 
+	certificateProviderStore := newMockCertificateProviderStore(t)
+	certificateProviderStore.EXPECT().
+		OneByUID(mock.Anything, mock.Anything).
+		Return(nil, dynamo.NotFoundError{})
+
 	template := newMockTemplate(t)
 	template.EXPECT().
 		Execute(w, mock.MatchedBy(func(data *howWouldCertificateProviderPreferToCarryOutTheirRoleData) bool {
@@ -220,7 +297,7 @@ func TestPostHowWouldCertificateProviderPreferToCarryOutTheirRoleWhenValidationE
 		})).
 		Return(nil)
 
-	err := HowWouldCertificateProviderPreferToCarryOutTheirRole(template.Execute, nil, nil)(testAppData, w, r, &donordata.Provided{})
+	err := HowWouldCertificateProviderPreferToCarryOutTheirRole(template.Execute, nil, certificateProviderStore, nil)(testAppData, w, r, &donordata.Provided{})
 	resp := w.Result()
 
 	assert.Nil(t, err)

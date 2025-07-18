@@ -33,12 +33,12 @@
                         {{ end }}
                         {{ template "summary-row" (summaryRow .App "contactPreference" $contactValue
                             (fromLink .App global.Paths.HowWouldCertificateProviderPreferToCarryOutTheirRole "#f-carry-out-by")
-                            .Donor.CertificateProvider.FullName true false) }}
+                            .Donor.CertificateProvider.FullName .CanChangeEmail false) }}
 
                         {{ if .Donor.CertificateProvider.CarryOutBy.IsOnline }}
                             {{ template "summary-row" (summaryRow .App "email" .Donor.CertificateProvider.Email
                                 (fromLink .App global.Paths.HowWouldCertificateProviderPreferToCarryOutTheirRole "#f-email")
-                                .Donor.CertificateProvider.FullName true false) }}
+                                .Donor.CertificateProvider.FullName .CanChangeEmail false) }}
                         {{ end }}
 
                         {{ $addressLabel := "address" }}
@@ -51,6 +51,10 @@
                     </dl>
                 </div>
             </div>
+
+            {{ if not .CanChangeEmail }}
+                {{ template "details" (details . "whyCantIUpdateThisEmailAddress" (trFormat .App "whyCantIUpdateThisEmailAddressContent" "CertificateProviderFullName" .Donor.CertificateProvider.FullName "CertificateProviderFirstNames" .Donor.CertificateProvider.FirstNames) false) }}
+            {{ end }}
 
             {{ template "button" (button .App "returnToTaskList" "link" (global.Paths.TaskList.Format .App.LpaID)) }}
         </div>

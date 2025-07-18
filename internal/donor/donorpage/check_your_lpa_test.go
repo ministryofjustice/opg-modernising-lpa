@@ -228,7 +228,8 @@ func TestPostCheckYourLpaDigitalCertificateProviderOnFirstCheck(t *testing.T) {
 					Address:    place.Address{Line1: "A", Postcode: "X"},
 					CarryOutBy: lpadata.ChannelOnline,
 				},
-				CertificateProviderInvitedAt: testNow,
+				CertificateProviderInvitedAt:    testNow,
+				CertificateProviderInvitedEmail: "john@example.com",
 			}
 			updatedDonor.UpdateCheckedHash()
 

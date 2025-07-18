@@ -190,6 +190,10 @@ type Provided struct {
 	// certificate provider to act.
 	CertificateProviderInvitedAt time.Time `checkhash:"-"`
 
+	// CertificateProviderInvitedEmail records the email address used to send the
+	// invite. It will be empty if the certificate provider is using paper.
+	CertificateProviderInvitedEmail string `checkhash:"-"`
+
 	// AttorneysInvitedAt records when the invites are sent to the attorneys.
 	AttorneysInvitedAt time.Time `checkhash:"-"`
 
