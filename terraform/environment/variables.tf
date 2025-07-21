@@ -60,8 +60,11 @@ variable "environments" {
         fault_injection_experiments_enabled     = bool
         real_user_monitoring_cw_logs_enabled    = bool
       })
-      mock_onelogin_enabled = bool
-      mock_pay_enabled      = bool
+      mock_onelogin = object({
+        enabled      = bool
+        template_sub = optional(string)
+      })
+      mock_pay_enabled = bool
       uid_service = object({
         base_url = string
         api_arns = list(string)

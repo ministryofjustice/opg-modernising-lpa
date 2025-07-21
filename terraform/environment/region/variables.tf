@@ -134,8 +134,11 @@ variable "lpa_store_service" {
   })
 }
 
-variable "mock_onelogin_enabled" {
-  type = bool
+variable "mock_onelogin" {
+  type = object({
+    enabled      = bool
+    template_sub = optional(string)
+  })
 }
 
 variable "mock_pay_enabled" {

@@ -56,7 +56,7 @@ module "app" {
   rum_monitor_application_id_secretsmanager_secret_arn = aws_secretsmanager_secret.rum_monitor_application_id.id
   uid_base_url                                         = var.uid_service.base_url
   lpa_store_base_url                                   = var.lpa_store_service.base_url
-  mock_onelogin_enabled                                = data.aws_default_tags.current.tags.environment-name != "production" && var.mock_onelogin_enabled
+  mock_onelogin_enabled                                = data.aws_default_tags.current.tags.environment-name != "production" && var.mock_onelogin.enabled
   mock_pay_enabled                                     = data.aws_default_tags.current.tags.environment-name != "production" && var.mock_pay_enabled
   fault_injection_experiments_enabled                  = var.fault_injection_experiments_enabled
   search_endpoint                                      = var.search_endpoint
@@ -72,7 +72,7 @@ module "app" {
 }
 
 module "mock_onelogin" {
-  count                           = data.aws_default_tags.current.tags.environment-name != "production" && var.mock_onelogin_enabled ? 1 : 0
+  count                           = data.aws_default_tags.current.tags.environment-name != "production" && var.mock_onelogin.enabled ? 1 : 0
   source                          = "./modules/mock_onelogin"
   ecs_cluster                     = aws_ecs_cluster.main.id
   ecs_execution_role              = var.iam_roles.ecs_execution_role
@@ -88,6 +88,7 @@ module "mock_onelogin" {
   container_port                  = 8080
   public_access_enabled           = var.public_access_enabled
   redirect_base_url               = var.app_env_vars.auth_redirect_base_url
+  template_sub                    = var.mock_onelogin.template_sub
   network = {
     vpc_id              = data.aws_vpc.main.id
     application_subnets = data.aws_subnet.application[*].id
