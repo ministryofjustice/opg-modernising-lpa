@@ -98,3 +98,9 @@ variable "waf_alb_association_enabled" {
   description = "Enable WAF association with the ALB"
   default     = true
 }
+
+variable "template_sub" {
+  type        = string
+  description = "Value for TEMPLATE_SUB"
+  default     = "1"
+}

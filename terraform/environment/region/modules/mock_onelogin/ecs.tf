@@ -214,7 +214,7 @@ locals {
         },
         {
           name  = "TEMPLATE_SUB",
-          value = "1"
+          value = var.template_sub
         },
         {
           name  = "TEMPLATE_RETURN_CODES",
