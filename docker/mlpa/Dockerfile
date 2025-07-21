@@ -2,7 +2,7 @@ FROM golang:1.24.4-alpine@sha256:68932fa6d4d4059845c8f40ad7e654e626f3ebd3706eef7
 
 WORKDIR /app
 
-FROM node:22.17.0-alpine3.21@sha256:43b78e1d164bcc0377200a27aad15cc47a7efb0fab48a93ab6a5b6ac218d2c4f AS asset-env
+FROM node:22.17.0-alpine3.21@sha256:0d722d537f07d5e962b82733cd641cfa1fb868eab8c597ebfc87b8fa0436daa9 AS asset-env
 
 WORKDIR /app
 
