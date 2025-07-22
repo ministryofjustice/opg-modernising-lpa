@@ -102,5 +102,4 @@ variable "waf_alb_association_enabled" {
 variable "template_sub" {
   type        = string
   description = "Value for TEMPLATE_SUB"
-  default     = "1"
 }
