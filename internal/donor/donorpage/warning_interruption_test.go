@@ -13,6 +13,7 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor/donordata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/place"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
 )
@@ -97,7 +98,7 @@ func TestGetWarningInterruptionDonor(t *testing.T) {
 
 func TestGetWarningInterruptionAttorney(t *testing.T) {
 	query := url.Values{
-		"warningFrom": {donor.PathEnterAttorney.Format("lpa-id")},
+		"warningFrom": {donor.PathChooseAttorneysAddress.Format("lpa-id")},
 		"id":          {testUID.String()},
 		"next":        {"/next-page"},
 		"actor":       {actor.TypeAttorney.String()},
@@ -178,7 +179,7 @@ func TestGetWarningInterruptionAttorney(t *testing.T) {
 
 func TestGetWarningInterruptionReplacementAttorney(t *testing.T) {
 	query := url.Values{
-		"warningFrom": {donor.PathChooseReplacementAttorneys.Format("lpa-id")},
+		"warningFrom": {donor.PathChooseReplacementAttorneysAddress.Format("lpa-id")},
 		"id":          {testUID.String()},
 		"next":        {"/next-page"},
 		"actor":       {actor.TypeReplacementAttorney.String()},
@@ -245,7 +246,7 @@ func TestGetWarningInterruptionReplacementAttorney(t *testing.T) {
 				{Heading: "pleaseReviewTheInformationYouHaveEntered", BodyHTML: "translatedWarning"},
 			},
 			PageTitle: "checkYourReplacementAttorneysDetails",
-			From:      donor.PathChooseReplacementAttorneys.Format("lpa-id"),
+			From:      donor.PathEnterReplacementAttorney.Format("lpa-id"),
 			Next:      "/next-page",
 		}).
 		Return(nil)
@@ -258,23 +259,62 @@ func TestGetWarningInterruptionReplacementAttorney(t *testing.T) {
 }
 
 func TestGetWarningInterruptionCertificateProvider(t *testing.T) {
-	testcases := map[string]*donordata.Provided{
-		"name matches": {
-			LpaID:               "lpa-id",
-			Donor:               donordata.Donor{FirstNames: "Jane", LastName: "Doe"},
-			CertificateProvider: donordata.CertificateProvider{FirstNames: "Jane", LastName: "Doe"},
+	testcases := map[string]struct {
+		donorProvided         *donordata.Provided
+		match                 string
+		matchArticleAndType   string
+		warningTranslationKey string
+	}{
+		"donor": {
+			donorProvided: &donordata.Provided{
+				LpaID:               "lpa-id",
+				Donor:               donordata.Donor{FirstNames: "John", LastName: "Doe", Address: testAddress},
+				CertificateProvider: donordata.CertificateProvider{FirstNames: "Jane", LastName: "Doe", Address: testAddress},
+			},
+			match:                 "donor",
+			matchArticleAndType:   "theDonor",
+			warningTranslationKey: "actorMatchesDonorNameOrAddressWarning",
 		},
-		"address matches": {
-			LpaID:               "lpa-id",
-			Donor:               donordata.Donor{FirstNames: "John", LastName: "Doe", Address: testAddress},
-			CertificateProvider: donordata.CertificateProvider{FirstNames: "Jane", LastName: "Doe", Address: testAddress},
+		"attorney": {
+			donorProvided: &donordata.Provided{
+				LpaID:               "lpa-id",
+				CertificateProvider: donordata.CertificateProvider{FirstNames: "Jane", LastName: "Doe", Address: testAddress},
+				Attorneys: donordata.Attorneys{Attorneys: []donordata.Attorney{
+					{FirstNames: "John", LastName: "Doe", Address: testAddress},
+				}},
+			},
+			match:                 "attorney",
+			matchArticleAndType:   "anAttorney",
+			warningTranslationKey: "actorMatchesDifferentActorNameOrAddressWarningConfirmLater",
+		},
+		"replacement attorney": {
+			donorProvided: &donordata.Provided{
+				LpaID:               "lpa-id",
+				CertificateProvider: donordata.CertificateProvider{FirstNames: "Jane", LastName: "Doe", Address: testAddress},
+				ReplacementAttorneys: donordata.Attorneys{Attorneys: []donordata.Attorney{
+					{FirstNames: "John", LastName: "Doe", Address: testAddress},
+				}},
+			},
+			match:                 "replacementAttorney",
+			matchArticleAndType:   "aReplacementAttorney",
+			warningTranslationKey: "actorMatchesDifferentActorNameOrAddressWarningConfirmLater",
+		},
+		"any other actor": {
+			donorProvided: &donordata.Provided{
+				LpaID:               "lpa-id",
+				CertificateProvider: donordata.CertificateProvider{FirstNames: "Jane", LastName: "Doe"},
+				IndependentWitness:  donordata.IndependentWitness{FirstNames: "Jane", LastName: "Doe"},
+			},
+			match:                 "independentWitness",
+			matchArticleAndType:   "theIndependentWitness",
+			warningTranslationKey: "actorMatchesDifferentActorNameOrAddressWarningConfirmLater",
 		},
 	}
 
-	for name, donorProvided := range testcases {
+	for name, tc := range testcases {
 		t.Run(name, func(t *testing.T) {
 			query := url.Values{
-				"warningFrom": {donor.PathCertificateProviderDetails.Format("lpa-id")},
+				"warningFrom": {donor.PathCertificateProviderAddress.Format("lpa-id")},
 				"next":        {"/next-page"},
 				"actor":       {actor.TypeCertificateProvider.String()},
 			}
@@ -284,7 +324,7 @@ func TestGetWarningInterruptionCertificateProvider(t *testing.T) {
 
 			localizer := newMockLocalizer(t)
 			localizer.EXPECT().
-				T("theDonor").
+				T(tc.matchArticleAndType).
 				Return("1").
 				Once()
 			localizer.EXPECT().
@@ -300,12 +340,12 @@ func TestGetWarningInterruptionCertificateProvider(t *testing.T) {
 				Return("4").
 				Once()
 			localizer.EXPECT().
-				T("donor").
+				T(tc.match).
 				Return("5").
 				Once()
 			localizer.EXPECT().
 				Format(
-					"actorMatchesDonorNameOrAddressWarning",
+					tc.warningTranslationKey,
 					map[string]any{"ArticleAndType": "4", "FullName": "Jane Doe", "MatchArticleAndType": "1", "Type": "2", "TypePlural": "3", "Match": "5"}).
 				Return("translatedWarning").
 				Once()
@@ -316,8 +356,8 @@ func TestGetWarningInterruptionCertificateProvider(t *testing.T) {
 			template.EXPECT().
 				Execute(w, WarningInterruptionData{
 					App:                 appData,
-					Provided:            donorProvided,
-					CertificateProvider: &donorProvided.CertificateProvider,
+					Provided:            tc.donorProvided,
+					CertificateProvider: &tc.donorProvided.CertificateProvider,
 					Notifications: []page.Notification{
 						{Heading: "pleaseReviewTheInformationYouHaveEntered", BodyHTML: "translatedWarning"},
 					},
@@ -327,7 +367,7 @@ func TestGetWarningInterruptionCertificateProvider(t *testing.T) {
 				}).
 				Return(nil)
 
-			err := WarningInterruption(template.Execute)(appData, w, r, donorProvided)
+			err := WarningInterruption(template.Execute)(appData, w, r, tc.donorProvided)
 			resp := w.Result()
 
 			assert.Nil(t, err)
@@ -837,34 +877,46 @@ func TestAttorneyMatchesEmptyNamesIgnored(t *testing.T) {
 }
 
 func TestCertificateProviderMatches(t *testing.T) {
+	address := place.Address{Line1: "a", Postcode: "b"}
+
 	donor := &donordata.Provided{
-		Donor: donordata.Donor{FirstNames: "a", LastName: "b"},
+		Donor: donordata.Donor{FirstNames: "a", LastName: "b", Address: address},
 		Attorneys: donordata.Attorneys{Attorneys: []donordata.Attorney{
-			{FirstNames: "c", LastName: "d"},
-			{FirstNames: "e", LastName: "f"},
+			{FirstNames: "c", LastName: "d", Address: address},
+			{FirstNames: "e", LastName: "f", Address: address},
+			{FirstNames: "g", LastName: "h"},
 		}},
 		ReplacementAttorneys: donordata.Attorneys{Attorneys: []donordata.Attorney{
-			{FirstNames: "g", LastName: "h"},
 			{FirstNames: "i", LastName: "j"},
+			{FirstNames: "k", LastName: "l", Address: address},
+			{FirstNames: "m", LastName: "n", Address: address},
 		}},
-		CertificateProvider: donordata.CertificateProvider{FirstNames: "k", LastName: "l"},
+		CertificateProvider: donordata.CertificateProvider{FirstNames: "o", LastName: "p", Address: address},
 		PeopleToNotify: donordata.PeopleToNotify{
-			{FirstNames: "m", LastName: "n"},
-			{FirstNames: "o", LastName: "p"},
+			{FirstNames: "q", LastName: "r"},
+			{FirstNames: "s", LastName: "t"},
 		},
 		AuthorisedSignatory: donordata.AuthorisedSignatory{FirstNames: "a", LastName: "s"},
 		IndependentWitness:  donordata.IndependentWitness{FirstNames: "i", LastName: "w"},
 	}
 
 	assert.Equal(t, actor.TypeNone, certificateProviderMatches(donor, "x", "y"))
+
 	assert.Equal(t, actor.TypeDonor, certificateProviderMatches(donor, "a", "b"))
-	assert.Equal(t, actor.TypeAttorney, certificateProviderMatches(donor, "c", "d"))
-	assert.Equal(t, actor.TypeAttorney, certificateProviderMatches(donor, "E", "F"))
-	assert.Equal(t, actor.TypeReplacementAttorney, certificateProviderMatches(donor, "g", "h"))
-	assert.Equal(t, actor.TypeReplacementAttorney, certificateProviderMatches(donor, "I", "J"))
-	assert.Equal(t, actor.TypeNone, certificateProviderMatches(donor, "k", "l"))
-	assert.Equal(t, actor.TypeNone, certificateProviderMatches(donor, "m", "n"))
+
+	assert.Equal(t, actor.TypeAttorney, certificateProviderMatches(donor, "", "d"))
+	assert.Equal(t, actor.TypeAttorney, certificateProviderMatches(donor, "", "F"))
+	assert.Equal(t, actor.TypeNone, certificateProviderMatches(donor, "", "h"))
+
+	assert.Equal(t, actor.TypeNone, certificateProviderMatches(donor, "", "J"))
+	assert.Equal(t, actor.TypeReplacementAttorney, certificateProviderMatches(donor, "", "l"))
+	assert.Equal(t, actor.TypeReplacementAttorney, certificateProviderMatches(donor, "", "n"))
+
 	assert.Equal(t, actor.TypeNone, certificateProviderMatches(donor, "o", "p"))
+
+	assert.Equal(t, actor.TypeNone, certificateProviderMatches(donor, "q", "r"))
+	assert.Equal(t, actor.TypeNone, certificateProviderMatches(donor, "s", "t"))
+
 	assert.Equal(t, actor.TypeAuthorisedSignatory, certificateProviderMatches(donor, "a", "s"))
 	assert.Equal(t, actor.TypeIndependentWitness, certificateProviderMatches(donor, "i", "w"))
 }

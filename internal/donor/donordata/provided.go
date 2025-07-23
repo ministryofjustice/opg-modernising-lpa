@@ -615,6 +615,7 @@ func (p *Provided) Actors() iter.Seq[actor.Actor] {
 			UID:        p.Donor.UID,
 			FirstNames: p.Donor.FirstNames,
 			LastName:   p.Donor.LastName,
+			Address:    p.Donor.Address,
 		}) {
 			return
 		}
@@ -624,6 +625,7 @@ func (p *Provided) Actors() iter.Seq[actor.Actor] {
 			UID:        p.CertificateProvider.UID,
 			FirstNames: p.CertificateProvider.FirstNames,
 			LastName:   p.CertificateProvider.LastName,
+			Address:    p.CertificateProvider.Address,
 		}) {
 			return
 		}
@@ -634,6 +636,7 @@ func (p *Provided) Actors() iter.Seq[actor.Actor] {
 				UID:        attorney.UID,
 				FirstNames: attorney.FirstNames,
 				LastName:   attorney.LastName,
+				Address:    attorney.Address,
 			}) {
 				return
 			}
@@ -645,6 +648,7 @@ func (p *Provided) Actors() iter.Seq[actor.Actor] {
 				UID:        attorney.UID,
 				FirstNames: attorney.FirstNames,
 				LastName:   attorney.LastName,
+				Address:    attorney.Address,
 			}) {
 				return
 			}
@@ -656,6 +660,7 @@ func (p *Provided) Actors() iter.Seq[actor.Actor] {
 				UID:        person.UID,
 				FirstNames: person.FirstNames,
 				LastName:   person.LastName,
+				Address:    person.Address,
 			}) {
 				return
 			}
@@ -676,6 +681,7 @@ func (p *Provided) Actors() iter.Seq[actor.Actor] {
 				Type:       actor.TypeIndependentWitness,
 				FirstNames: p.IndependentWitness.FirstNames,
 				LastName:   p.IndependentWitness.LastName,
+				Address:    p.IndependentWitness.Address,
 			}) {
 				return
 			}

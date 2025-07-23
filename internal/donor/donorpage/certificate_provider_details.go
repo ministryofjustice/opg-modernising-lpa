@@ -63,7 +63,9 @@ func CertificateProviderDetails(tmpl template.Template, service CertificateProvi
 					return err
 				}
 
-				if nameHasChanged && provided.CertificateProviderSharesLastName() {
+				actorType := certificateProviderMatches(provided, provided.CertificateProvider.FirstNames, provided.CertificateProvider.LastName)
+
+				if nameHasChanged && !actorType.IsNone() {
 					return donor.PathWarningInterruption.RedirectQuery(w, r, appData, provided, url.Values{
 						"warningFrom": {appData.Page},
 						"next":        {donor.PathHowDoYouKnowYourCertificateProvider.Format(provided.LpaID)},

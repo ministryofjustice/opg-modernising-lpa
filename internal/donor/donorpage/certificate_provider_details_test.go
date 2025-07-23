@@ -195,12 +195,14 @@ func TestPostCertificateProviderDetailsWhenSharesDetail(t *testing.T) {
 			Donor: donordata.Donor{
 				FirstNames: "Jane",
 				LastName:   "Doe",
+				Address:    testAddress,
 			},
 			CertificateProvider: donordata.CertificateProvider{
 				UID:        testUID,
 				FirstNames: "John",
 				LastName:   "Doe",
 				Mobile:     "07535111111",
+				Address:    testAddress,
 			},
 		}).
 		Return(nil)
@@ -211,11 +213,13 @@ func TestPostCertificateProviderDetailsWhenSharesDetail(t *testing.T) {
 		Donor: donordata.Donor{
 			FirstNames: "Jane",
 			LastName:   "Doe",
+			Address:    testAddress,
 		},
 		CertificateProvider: donordata.CertificateProvider{
 			UID:        testUID,
 			FirstNames: "Bob",
 			LastName:   "Doe",
+			Address:    testAddress,
 		},
 	})
 	resp := w.Result()

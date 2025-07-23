@@ -119,6 +119,14 @@ func WarningInterruption(tmpl template.Template) Handler {
 						Heading:  "pleaseReviewTheInformationYouHaveEntered",
 						BodyHTML: nameWarning.Format(appData.Localizer),
 					})
+
+					// Warning can be triggered from name or address but we only give an option to change name in template
+					from := donor.PathEnterAttorney.Format(provided.LpaID)
+					if actorType.IsReplacementAttorney() {
+						from = donor.PathEnterReplacementAttorney.Format(provided.LpaID)
+					}
+
+					data.From = from
 				}
 			}
 		case actor.TypeCertificateProvider:
@@ -126,10 +134,6 @@ func WarningInterruption(tmpl template.Template) Handler {
 			data.PageTitle = "checkYourCertificateProvidersDetails"
 
 			matches := certificateProviderMatches(provided, provided.CertificateProvider.FirstNames, provided.CertificateProvider.LastName)
-
-			if provided.CertificateProvider.Address.Line1 != "" && (provided.Donor.Address == provided.CertificateProvider.Address) {
-				matches = actor.TypeDonor
-			}
 
 			nameWarning := actor.NewSameNameWarning(
 				actor.TypeCertificateProvider,
@@ -142,6 +146,9 @@ func WarningInterruption(tmpl template.Template) Handler {
 					Heading:  "pleaseReviewTheInformationYouHaveEntered",
 					BodyHTML: nameWarning.Format(appData.Localizer),
 				})
+
+				// Warning can be triggered from name or address but we only give an option to change name in template
+				data.From = donor.PathCertificateProviderDetails.Format(provided.LpaID)
 			}
 		case actor.TypeCorrespondent:
 			data.Correspondent = &provided.Correspondent
@@ -290,10 +297,24 @@ func certificateProviderMatches(donor *donordata.Provided, firstNames, lastName 
 	}
 
 	for person := range donor.Actors() {
-		if !person.Type.IsCertificateProvider() &&
-			!person.Type.IsPersonToNotify() &&
-			strings.EqualFold(person.FirstNames, firstNames) &&
-			strings.EqualFold(person.LastName, lastName) {
+		if person.Type.IsCertificateProvider() || person.Type.IsPersonToNotify() {
+			continue
+		}
+
+		if !strings.EqualFold(person.LastName, lastName) {
+			continue
+		}
+
+		if person.Type.IsAttorney() || person.Type.IsReplacementAttorney() || person.Type.IsDonor() {
+			if (person.Address.Line1 != "" && person.Address.Line1 == donor.CertificateProvider.Address.Line1) &&
+				(person.Address.Postcode != "" && person.Address.Postcode == donor.CertificateProvider.Address.Postcode) {
+				return person.Type
+			}
+
+			continue
+		}
+
+		if strings.EqualFold(person.FirstNames, firstNames) {
 			return person.Type
 		}
 	}
