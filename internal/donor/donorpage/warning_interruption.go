@@ -127,10 +127,6 @@ func WarningInterruption(tmpl template.Template) Handler {
 
 			matches := certificateProviderMatches(provided, provided.CertificateProvider.FirstNames, provided.CertificateProvider.LastName)
 
-			if provided.CertificateProvider.Address.Line1 != "" && (provided.Donor.Address == provided.CertificateProvider.Address) {
-				matches = actor.TypeDonor
-			}
-
 			nameWarning := actor.NewSameNameWarning(
 				actor.TypeCertificateProvider,
 				matches,
@@ -290,10 +286,24 @@ func certificateProviderMatches(donor *donordata.Provided, firstNames, lastName 
 	}
 
 	for person := range donor.Actors() {
-		if !person.Type.IsCertificateProvider() &&
-			!person.Type.IsPersonToNotify() &&
-			strings.EqualFold(person.FirstNames, firstNames) &&
-			strings.EqualFold(person.LastName, lastName) {
+		if person.Type.IsCertificateProvider() || person.Type.IsPersonToNotify() {
+			continue
+		}
+
+		if !strings.EqualFold(person.LastName, lastName) {
+			continue
+		}
+
+		if person.Type.IsAttorney() || person.Type.IsReplacementAttorney() || person.Type.IsDonor() {
+			if (person.Address.Line1 != "" && person.Address.Line1 == donor.CertificateProvider.Address.Line1) &&
+				(person.Address.Postcode != "" && person.Address.Postcode == donor.CertificateProvider.Address.Postcode) {
+				return person.Type
+			}
+
+			continue
+		}
+
+		if strings.EqualFold(person.FirstNames, firstNames) {
 			return person.Type
 		}
 	}
