@@ -249,6 +249,28 @@ describe('Certificate provider task', () => {
         cy.get('#f-mobile').invoke('val', TestMobile);
         cy.contains('button', 'Save and continue').click();
 
+        cy.contains('label', 'Personally').click();
+        cy.contains('button', 'Save and continue').click();
+
+        cy.url().should('contain', '/how-long-have-you-known-certificate-provider');
+        cy.checkA11yApp({ rules: { 'aria-allowed-attr': { enabled: false } } });
+
+        cy.contains('label', '2 years or more').click();
+        cy.contains('button', 'Save and continue').click();
+
+        cy.url().should('contain', '/how-would-certificate-provider-prefer-to-carry-out-their-role');
+
+        cy.checkA11yApp({ rules: { 'aria-allowed-attr': { enabled: false } } });
+        cy.contains('label', 'Using paper forms').click();
+
+        cy.contains('button', 'Save and continue').click()
+
+        cy.url().should('contain', '/certificate-provider-address');
+        cy.contains('label', 'Use an address you’ve already entered ').click();
+        cy.contains('button', 'Continue').click();
+        cy.contains('label', '1 RICHMOND PLACE').click();
+        cy.contains('button', 'Save and continue').click()
+
         cy.url().should('contain', '/warning');
 
         cy.contains('You and your certificate provider have the same name or address. As the donor, you cannot act as the certificate provider for your LPA.');
@@ -257,7 +279,13 @@ describe('Certificate provider task', () => {
 
         cy.get('#f-first-names').invoke('val', 'Jessie');
         cy.get('#f-last-name').invoke('val', 'Jones');
-        cy.get('#f-mobile').invoke('val', TestMobile);
+        cy.contains('button', 'Save and continue').click();
+
+        cy.url().should('contain', '/certificate-provider-summary');
+
+        cy.contains('dt', 'Address').parent().contains('a', 'Change').click();
+
+        cy.get('#f-address-line-1').invoke('val', '2 RICHMOND PLACE');
         cy.contains('button', 'Save and continue').click();
 
         cy.url().should('contain', '/warning');
@@ -266,6 +294,6 @@ describe('Certificate provider task', () => {
 
         cy.contains('a', 'Continue').click();
 
-        cy.url().should('contain', '/how-do-you-know-your-certificate-provider');
+        cy.url().should('contain', '/certificate-provider-summary');
     });
 });
