@@ -137,7 +137,7 @@ variable "lpa_store_service" {
 variable "mock_onelogin" {
   type = object({
     enabled      = bool
-    template_sub = optional(string)
+    template_sub = string
   })
 }
 

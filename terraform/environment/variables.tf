@@ -62,7 +62,7 @@ variable "environments" {
       })
       mock_onelogin = object({
         enabled      = bool
-        template_sub = optional(string)
+        template_sub = string
       })
       mock_pay_enabled = bool
       uid_service = object({
