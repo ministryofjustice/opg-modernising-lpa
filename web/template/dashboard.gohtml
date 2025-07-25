@@ -102,11 +102,11 @@
             {{ $isPaperChannel := false }}
 
             {{ if .Item.LpaTrustCorporation }}
-                {{ $signed := or .Item.Attorney.Signed .Item.LpaTrustCorporation.Signed }}
-                {{ $isPaperChannel := .Item.LpaTrustCorporation.Channel.IsPaper }}
+                {{ $signed = or .Item.Attorney.Signed .Item.LpaTrustCorporation.Signed }}
+                {{ $isPaperChannel = .Item.LpaTrustCorporation.Channel.IsPaper }}
             {{ else }}
-                {{ $signed := or .Item.Attorney.Signed (and .Item.LpaAttorney.SignedAt .Item.LpaAttorney.SignedAt.IsZero) }}
-                {{ $isPaperChannel := .Item.LpaAttorney.Channel.IsPaper }}
+                {{ $signed = or .Item.Attorney.Signed (and .Item.LpaAttorney.SignedAt .Item.LpaAttorney.SignedAt.IsZero) }}
+                {{ $isPaperChannel = .Item.LpaAttorney.Channel.IsPaper }}
             {{ end }}
 
             {{ if .Item.Lpa.Status.IsRegistered }}<h4 class="govuk-heading-m">{{ else }}<h3 class="govuk-heading-m">{{ end }}
