@@ -6,3 +6,5 @@ updates:
       interval: "weekly"
     pull-request-branch-name:
       separator: "-"
+    # so we only get security PRs
+    open-pull-requests-limit: 0
