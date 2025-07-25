@@ -457,10 +457,13 @@ func Attorney(
 				}
 			}
 
-			if registered {
+			if progress >= slices.Index(progressValues, "signedByAllAttorneys") {
 				if err := lpaStoreClient.SendStatutoryWaitingPeriod(donorCtx, donorDetails.LpaUID); err != nil {
-					return fmt.Errorf("problem sending register: %w", err)
+					return fmt.Errorf("problem sending statutory waiting period: %w", err)
 				}
+			}
+
+			if registered {
 				if err := lpaStoreClient.SendRegister(donorCtx, donorDetails.LpaUID); err != nil {
 					return fmt.Errorf("problem sending register: %w", err)
 				}
