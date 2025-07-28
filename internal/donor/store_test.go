@@ -9,6 +9,7 @@ import (
 
 	"github.com/aws/aws-sdk-go-v2/feature/dynamodb/attributevalue"
 	"github.com/aws/aws-sdk-go-v2/service/dynamodb/types"
+	"github.com/gohugoio/hashstructure"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/accesscode/accesscodedata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor/actoruid"
@@ -24,7 +25,6 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/search"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/task"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/voucher/voucherdata"
-	"github.com/mitchellh/hashstructure/v2"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
 )
@@ -452,7 +452,7 @@ func TestDonorStorePutWhenNoChange(t *testing.T) {
 	donorStore := &Store{}
 
 	donor := &donordata.Provided{LpaID: "an-id"}
-	donor.Hash, _ = hashstructure.Hash(donor, hashstructure.FormatV2, nil)
+	donor.Hash, _ = hashstructure.Hash(donor, nil)
 
 	err := donorStore.Put(ctx, donor)
 	assert.Nil(t, err)
@@ -633,7 +633,7 @@ func TestDonorStoreCreateWhenError(t *testing.T) {
 func TestDonorStoreLink(t *testing.T) {
 	testcases := map[string][]dashboarddata.LpaLink{
 		"no link": {},
-		"not a donor link": []dashboarddata.LpaLink{{
+		"not a donor link": {{
 			PK:        dynamo.LpaKey(""),
 			SK:        dynamo.SubKey("a-sub"),
 			ActorType: actor.TypeCertificateProvider,
@@ -978,7 +978,7 @@ func TestDonorStoreDeleteDonorAccess(t *testing.T) {
 		AllByPartialSK(ctx, dynamo.LpaKey("lpa-id"), dynamo.SubKey(""), mock.Anything).
 		Return(nil).
 		SetData([]dashboarddata.LpaLink{
-			dashboarddata.LpaLink{PK: dynamo.LpaKey("no"), SK: dynamo.SubKey("no"), ActorType: actor.TypeCertificateProvider},
+			{PK: dynamo.LpaKey("no"), SK: dynamo.SubKey("no"), ActorType: actor.TypeCertificateProvider},
 			link,
 		})
 	dynamoClient.EXPECT().

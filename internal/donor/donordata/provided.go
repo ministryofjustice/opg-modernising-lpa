@@ -8,6 +8,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/gohugoio/hashstructure"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor/actoruid"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/date"
@@ -19,7 +20,6 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/pay"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/place"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/task"
-	"github.com/mitchellh/hashstructure/v2"
 )
 
 type Localizer interface {
@@ -311,7 +311,7 @@ func (p *Provided) UpdateHash() (err error) {
 }
 
 func (p *Provided) generateHash() (uint64, error) {
-	return hashstructure.Hash(p, hashstructure.FormatV2, nil)
+	return hashstructure.Hash(p, nil)
 }
 
 func (p *Provided) CheckedHashChanged() bool {
@@ -330,7 +330,7 @@ func (p *Provided) UpdateCheckedHash() (err error) {
 }
 
 func (p *Provided) generateCheckedHash() (uint64, error) {
-	return hashstructure.Hash(toCheck(*p), hashstructure.FormatV2, &hashstructure.HashOptions{TagName: "checkhash"})
+	return hashstructure.Hash(toCheck(*p), &hashstructure.HashOptions{TagName: "checkhash"})
 }
 
 func (p *Provided) CertificateProviderNotRelatedConfirmedHashChanged() bool {
@@ -350,7 +350,7 @@ func (p *Provided) UpdateCertificateProviderNotRelatedConfirmedHash() (err error
 }
 
 func (p *Provided) generateCertificateProviderNotRelatedConfirmedHash() (uint64, error) {
-	return hashstructure.Hash(toConfirmCertificateProviderNotRelated(*p), hashstructure.FormatV2, &hashstructure.HashOptions{TagName: "relatedhash"})
+	return hashstructure.Hash(toConfirmCertificateProviderNotRelated(*p), &hashstructure.HashOptions{TagName: "relatedhash"})
 }
 
 func (p *Provided) DonorIdentityConfirmed() bool {
