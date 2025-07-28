@@ -55,7 +55,7 @@ func CertificateProvider(
 		acceptCookiesConsent(w)
 
 		var (
-			email                  = r.FormValue("email")
+			email                  = cmp.Or(r.FormValue("email"), testEmail)
 			phone                  = r.FormValue("phone")
 			certificateProviderSub = cmp.Or(r.FormValue("certificateProviderSub"), random.AlphaNumeric(16))
 			donorEmail             = cmp.Or(r.FormValue("donorEmail"), testEmail)
@@ -91,6 +91,12 @@ func CertificateProvider(
 			phone = testMobile
 		}
 
+		if lpaType == "" {
+			lpaType = "property-and-affairs"
+		}
+
+		parsedLpaType, err := lpadata.ParseLpaType(lpaType)
+
 		if r.Method != http.MethodPost && !r.URL.Query().Has("redirect") {
 			return tmpl(w, &fixturesData{App: appData, Sub: certificateProviderSub, DonorEmail: donorEmail})
 		}
@@ -103,7 +109,7 @@ func CertificateProvider(
 			certificateProviderSessionID = base64.StdEncoding.EncodeToString([]byte(mockGOLSubPrefix + encodedSub))
 		)
 
-		err := sessionStore.SetLogin(r, w, &sesh.LoginSession{Sub: mockGOLSubPrefix + encodedSub, Email: testEmail, HasLPAs: true})
+		err = sessionStore.SetLogin(r, w, &sesh.LoginSession{Sub: mockGOLSubPrefix + encodedSub, Email: email, HasLPAs: true})
 		if err != nil {
 			return err
 		}
@@ -130,6 +136,8 @@ func CertificateProvider(
 				HasSentApplicationUpdatedEvent:   true,
 				SignedAt:                         time.Now(),
 				WitnessedByCertificateProviderAt: time.Now(),
+				Donor:                            makeDonor(donorEmail, "Sam", "Smith"),
+				Type:                             parsedLpaType,
 			}
 
 			transaction := dynamo.NewTransaction().
@@ -142,7 +150,7 @@ func CertificateProvider(
 			}
 
 			createLpa := lpastore.CreateLpa{
-				LpaType:  lpadata.LpaTypePropertyAndAffairs,
+				LpaType:  parsedLpaType,
 				Channel:  lpadata.ChannelPaper,
 				Language: lpaLanguage,
 				Donor: lpadata.Donor{
@@ -155,7 +163,7 @@ func CertificateProvider(
 						Country:    "GB",
 					},
 					DateOfBirth:               date.New("1970", "1", "24"),
-					Email:                     "nobody@not.a.real.domain",
+					Email:                     donorEmail,
 					ContactLanguagePreference: localize.En,
 				},
 				Attorneys: []lpadata.Attorney{
@@ -226,7 +234,7 @@ func CertificateProvider(
 						Country:    "GB",
 					},
 					Channel: channel,
-					Email:   "a@example.com",
+					Email:   email,
 					Phone:   phone,
 				},
 				SignedAt:                         time.Now(),
@@ -236,10 +244,6 @@ func CertificateProvider(
 			if channel.IsPaper() {
 				now := time.Now()
 				createLpa.CertificateProvider.SignedAt = &now
-			}
-
-			if lpaType == "personal-welfare" {
-				createLpa.LpaType = lpadata.LpaTypePersonalWelfare
 			}
 
 			if err := lpaStoreClient.SendLpa(r.Context(), donorDetails.LpaUID, createLpa); err != nil {
@@ -287,6 +291,7 @@ func CertificateProvider(
 		if !isPaperDonor {
 			donorDetails.Donor = makeDonor(donorEmail, "Sam", "Smith")
 			donorDetails.Donor.LpaLanguagePreference = lpaLanguage
+			donorDetails.Donor.Channel = lpadata.ChannelOnline
 
 			donorDetails.Type = lpadata.LpaTypePropertyAndAffairs
 			if lpaType == "personal-welfare" {
@@ -300,7 +305,13 @@ func CertificateProvider(
 			donorDetails.Restrictions = makeRestriction(donorDetails)
 
 			if useRealUID {
-				if err := eventClient.SendUidRequested(r.Context(), event.UidRequested{
+				donorDetails.LpaUID = ""
+
+				if err = donorStore.Put(donorCtx, donorDetails); err != nil {
+					return err
+				}
+
+				if err = eventClient.SendUidRequested(r.Context(), event.UidRequested{
 					LpaID:          donorDetails.LpaID,
 					DonorSessionID: donorSessionID,
 					Type:           donorDetails.Type.String(),
@@ -314,6 +325,11 @@ func CertificateProvider(
 				}
 
 				donorDetails.LpaUID = waitForRealUID(15, donorStore, donorCtx)
+
+				donorDetails, err = donorStore.Get(donorCtx)
+				if err != nil {
+					return err
+				}
 			} else {
 				donorDetails.LpaUID = makeUID()
 			}
@@ -325,11 +341,8 @@ func CertificateProvider(
 			donorDetails.AttorneyDecisions = donordata.AttorneyDecisions{How: lpadata.JointlyAndSeverally}
 
 			donorDetails.CertificateProvider = makeCertificateProvider()
-			if email != "" {
-				donorDetails.CertificateProvider.Email = email
-			}
-
 			donorDetails.CertificateProvider.Mobile = phone
+			donorDetails.CertificateProvider.Email = email
 
 			if asProfessionalCertificateProvider {
 				donorDetails.CertificateProvider.Relationship = lpadata.Professionally
@@ -350,7 +363,7 @@ func CertificateProvider(
 				donorDetails.WitnessedByCertificateProviderAt = testNow
 			}
 
-			if err := donorStore.Put(donorCtx, donorDetails); err != nil {
+			if err = donorStore.Put(donorCtx, donorDetails); err != nil {
 				return err
 			}
 
@@ -366,7 +379,7 @@ func CertificateProvider(
 			accessCodeSender.UseTestCode(accessCode)
 		}
 
-		if email != "" {
+		if email != testEmail {
 			accessCodeSender.SendCertificateProviderInvite(donorCtx, appcontext.Data{
 				SessionID: donorSessionID,
 				LpaID:     donorDetails.LpaID,

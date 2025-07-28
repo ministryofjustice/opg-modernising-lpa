@@ -205,6 +205,11 @@ func Attorney(
 		donorDetails.Restrictions = makeRestriction(donorDetails)
 
 		if useRealUID {
+			err := donorStore.Put(donorCtx, donorDetails)
+			if err != nil {
+				return err
+			}
+
 			if err := eventClient.SendUidRequested(r.Context(), event.UidRequested{
 				LpaID:          donorDetails.LpaID,
 				DonorSessionID: donorSessionID,
@@ -218,6 +223,11 @@ func Attorney(
 				return err
 			}
 			donorDetails.LpaUID = waitForRealUID(15, donorStore, donorCtx)
+
+			donorDetails, err = donorStore.Get(donorCtx)
+			if err != nil {
+				return err
+			}
 		} else if donorDetails.LpaUID == "" {
 			donorDetails.LpaUID = makeUID()
 		}

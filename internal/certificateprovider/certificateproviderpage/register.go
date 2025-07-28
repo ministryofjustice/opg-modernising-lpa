@@ -38,6 +38,7 @@ type LpaStoreResolvingService interface {
 
 type EventClient interface {
 	SendIdentityCheckMismatched(ctx context.Context, e event.IdentityCheckMismatched) error
+	SendLetterRequested(ctx context.Context, event event.LetterRequested) error
 	SendMetric(ctx context.Context, category event.Category, measure event.Measure) error
 }
 
@@ -204,7 +205,7 @@ func Register(
 	handleCertificateProvider(certificateprovider.PathWhatHappensNext, page.CanGoBack,
 		Guidance(tmpls.Get("what_happens_next.gohtml")))
 	handleCertificateProvider(certificateprovider.PathProvideCertificate, page.CanGoBack,
-		ProvideCertificate(tmpls.Get("provide_certificate.gohtml"), certificateProviderStore, notifyClient, accessCodeSender, lpaStoreClient, scheduledStore, donorStore, time.Now, donorStartURL))
+		ProvideCertificate(tmpls.Get("provide_certificate.gohtml"), certificateProviderStore, notifyClient, accessCodeSender, lpaStoreClient, scheduledStore, donorStore, time.Now, donorStartURL, eventClient))
 	handleCertificateProvider(certificateprovider.PathCertificateProvided, page.None,
 		Guidance(tmpls.Get("certificate_provided.gohtml")))
 	handleCertificateProvider(certificateprovider.PathConfirmDontWantToBeCertificateProvider, page.CanGoBack,
