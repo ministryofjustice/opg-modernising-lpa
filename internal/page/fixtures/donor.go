@@ -262,6 +262,11 @@ func updateLPAProgress(
 		}
 
 		if data.UseRealID {
+			err := donorStore.Put(donorCtx, donorDetails)
+			if err != nil {
+				return nil, nil, err
+			}
+
 			if err := eventClient.SendUidRequested(r.Context(), event.UidRequested{
 				LpaID:          donorDetails.LpaID,
 				DonorSessionID: donorSessionID,
@@ -276,6 +281,11 @@ func updateLPAProgress(
 			}
 
 			donorDetails.LpaUID = waitForRealUID(15, donorStore, donorCtx)
+
+			donorDetails, err = donorStore.Get(donorCtx)
+			if err != nil {
+				return nil, nil, err
+			}
 		} else {
 			donorDetails.LpaUID = makeUID()
 		}

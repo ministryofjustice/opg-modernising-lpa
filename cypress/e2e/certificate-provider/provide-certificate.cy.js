@@ -12,7 +12,30 @@ describe('Provide the certificate', () => {
         cy.url().should('contain', '/certificate-provided');
     });
 
+    it('requests a letter is sent when providing certificate for paper donor', () => {
+        cy.visit('/fixtures/certificate-provider?redirect=/provide-certificate&progress=confirmYourIdentity&options=is-paper-donor');
+
+        cy.get('#f-agree-to-statement').check({ force: true })
+
+        cy.contains('button', 'Submit signature').click();
+        cy.url().should('contain', '/certificate-provided');
+
+        cy.contains('.govuk-\\!-margin-top-1', 'LPA reference number:')
+            .invoke('text')
+            .then((text) => {
+                const uid = text.split(':')[1].trim();
+
+                cy.origin('http://localhost:9001', { args: { uid } }, ({ uid }) => {
+                    cy.visit(`/?detail-type=letter-requested&detail=${uid}`);
+                    cy.contains(`"uid":"${uid}"`)
+                    cy.contains(`"actorType":"donor"`)
+                    cy.contains(`"letterType":"ADVISE_DONOR_CERTIFICATE_HAS_BEEN_PROVIDED"`)
+                });
+            });
+    });
+
     it('can choose not to provide the certificate', () => {
+
         cy.checkA11yApp();
 
         cy.contains('I cannot provide the certificate').click();
