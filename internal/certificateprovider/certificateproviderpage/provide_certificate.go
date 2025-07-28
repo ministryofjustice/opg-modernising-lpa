@@ -6,9 +6,11 @@ import (
 	"time"
 
 	"github.com/ministryofjustice/opg-go-common/template"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/appcontext"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/certificateprovider"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/certificateprovider/certificateproviderdata"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/event"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/localize"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/lpastore/lpadata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/notify"
@@ -37,6 +39,7 @@ func ProvideCertificate(
 	donorStore DonorStore,
 	now func() time.Time,
 	donorStartURL string,
+	eventClient EventClient,
 ) Handler {
 	return func(appData appcontext.Data, w http.ResponseWriter, r *http.Request, certificateProvider *certificateproviderdata.Provided, lpa *lpadata.Lpa) error {
 		if !certificateProvider.SignedAt.IsZero() {
@@ -127,6 +130,17 @@ func ProvideCertificate(
 
 				if err := certificateProviderStore.Put(r.Context(), certificateProvider); err != nil {
 					return fmt.Errorf("error updating certificate provider: %w", err)
+				}
+
+				if lpa.Donor.Channel.IsPaper() {
+					if err := eventClient.SendLetterRequested(r.Context(), event.LetterRequested{
+						UID:        lpa.LpaUID,
+						LetterType: "ADVISE_DONOR_CERTIFICATE_HAS_BEEN_PROVIDED",
+						ActorType:  actor.TypeDonor,
+						ActorUID:   lpa.Donor.UID,
+					}); err != nil {
+						return fmt.Errorf("error sending letter requested event: %w", err)
+					}
 				}
 
 				return certificateprovider.PathCertificateProvided.Redirect(w, r, appData, certificateProvider.LpaID)
