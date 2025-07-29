@@ -594,10 +594,10 @@ at-least-node@^1.0.0:
   resolved "https://registry.yarnpkg.com/at-least-node/-/at-least-node-1.0.0.tgz#602cd4b46e844ad4effc92a8011a3c46e0238dc2"
   integrity sha512-+q/t7Ekv1EDY2l6Gda6LLiX14rU9TV20Wa3ofeQmwPFZbOMo9DXrLbOjFaaclkXKWidIaopwAObQDqwWtGUjqg==
 
-aws-rum-web@^1.11.0:
-  version "1.24.0"
-  resolved "https://registry.yarnpkg.com/aws-rum-web/-/aws-rum-web-1.24.0.tgz#71133188e12ea1989a20ae4af3c14c507daff2fd"
-  integrity sha512-IwSVSHND+KFRtOj7y8hWkB3F0tBKHZxAFS4K3jgJPJtzA2SiTEzSJgmzkow/swF2xOBiR8iiAgion3PGLpvMZQ==
+aws-rum-web@^1.25.0:
+  version "1.25.0"
+  resolved "https://registry.yarnpkg.com/aws-rum-web/-/aws-rum-web-1.25.0.tgz#30a162e422e2a8139c30b9cae56d4431675ace2a"
+  integrity sha512-nN1ctKSXcvDFganJaQfA3pjkagHRSDXG72ILL2BFItcDYMkLO6FiEVWo59nLmzynSXlBMwcqV44BTf0XG6FCjA==
   dependencies:
     "@aws-crypto/sha256-js" "^3.0.0"
     "@aws-sdk/querystring-builder" "^3.36.0"
