@@ -69,6 +69,53 @@ func (_c *mockEventClient_SendIdentityCheckMismatched_Call) RunAndReturn(run fun
 	return _c
 }
 
+// SendLetterRequested provides a mock function with given fields: ctx, _a1
+func (_m *mockEventClient) SendLetterRequested(ctx context.Context, _a1 event.LetterRequested) error {
+	ret := _m.Called(ctx, _a1)
+
+	if len(ret) == 0 {
+		panic("no return value specified for SendLetterRequested")
+	}
+
+	var r0 error
+	if rf, ok := ret.Get(0).(func(context.Context, event.LetterRequested) error); ok {
+		r0 = rf(ctx, _a1)
+	} else {
+		r0 = ret.Error(0)
+	}
+
+	return r0
+}
+
+// mockEventClient_SendLetterRequested_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'SendLetterRequested'
+type mockEventClient_SendLetterRequested_Call struct {
+	*mock.Call
+}
+
+// SendLetterRequested is a helper method to define mock.On call
+//   - ctx context.Context
+//   - _a1 event.LetterRequested
+func (_e *mockEventClient_Expecter) SendLetterRequested(ctx interface{}, _a1 interface{}) *mockEventClient_SendLetterRequested_Call {
+	return &mockEventClient_SendLetterRequested_Call{Call: _e.mock.On("SendLetterRequested", ctx, _a1)}
+}
+
+func (_c *mockEventClient_SendLetterRequested_Call) Run(run func(ctx context.Context, _a1 event.LetterRequested)) *mockEventClient_SendLetterRequested_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		run(args[0].(context.Context), args[1].(event.LetterRequested))
+	})
+	return _c
+}
+
+func (_c *mockEventClient_SendLetterRequested_Call) Return(_a0 error) *mockEventClient_SendLetterRequested_Call {
+	_c.Call.Return(_a0)
+	return _c
+}
+
+func (_c *mockEventClient_SendLetterRequested_Call) RunAndReturn(run func(context.Context, event.LetterRequested) error) *mockEventClient_SendLetterRequested_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
 // SendMetric provides a mock function with given fields: ctx, category, measure
 func (_m *mockEventClient) SendMetric(ctx context.Context, category event.Category, measure event.Measure) error {
 	ret := _m.Called(ctx, category, measure)
