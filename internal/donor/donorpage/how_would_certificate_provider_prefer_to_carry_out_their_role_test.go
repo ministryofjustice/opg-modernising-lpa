@@ -36,7 +36,7 @@ func TestGetHowWouldCertificateProviderPreferToCarryOutTheirRole(t *testing.T) {
 		}).
 		Return(nil)
 
-	err := HowWouldCertificateProviderPreferToCarryOutTheirRole(template.Execute, nil, certificateProviderStore, nil)(testAppData, w, r, &donordata.Provided{
+	err := HowWouldCertificateProviderPreferToCarryOutTheirRole(template.Execute, nil, certificateProviderStore, nil, nil, nil, nil)(testAppData, w, r, &donordata.Provided{
 		LpaUID: "lpa-uid",
 	})
 	resp := w.Result()
@@ -54,7 +54,7 @@ func TestGetHowWouldCertificateProviderPreferToCarryOutTheirRoleWhenCertificateP
 		OneByUID(r.Context(), "lpa-uid").
 		Return(&certificateproviderdata.Provided{}, nil)
 
-	err := HowWouldCertificateProviderPreferToCarryOutTheirRole(nil, nil, certificateProviderStore, nil)(testAppData, w, r, &donordata.Provided{
+	err := HowWouldCertificateProviderPreferToCarryOutTheirRole(nil, nil, certificateProviderStore, nil, nil, nil, nil)(testAppData, w, r, &donordata.Provided{
 		LpaID:  "lpa-id",
 		LpaUID: "lpa-uid",
 	})
@@ -74,7 +74,7 @@ func TestGetHowWouldCertificateProviderPreferToCarryOutTheirRoleWhenCertificateP
 		OneByUID(mock.Anything, mock.Anything).
 		Return(nil, expectedError)
 
-	err := HowWouldCertificateProviderPreferToCarryOutTheirRole(nil, nil, certificateProviderStore, nil)(testAppData, w, r, &donordata.Provided{})
+	err := HowWouldCertificateProviderPreferToCarryOutTheirRole(nil, nil, certificateProviderStore, nil, nil, nil, nil)(testAppData, w, r, &donordata.Provided{})
 	assert.ErrorIs(t, err, expectedError)
 }
 
@@ -97,7 +97,7 @@ func TestGetHowWouldCertificateProviderPreferToCarryOutTheirRoleFromStore(t *tes
 		}).
 		Return(nil)
 
-	err := HowWouldCertificateProviderPreferToCarryOutTheirRole(template.Execute, nil, certificateProviderStore, nil)(testAppData, w, r, &donordata.Provided{
+	err := HowWouldCertificateProviderPreferToCarryOutTheirRole(template.Execute, nil, certificateProviderStore, nil, nil, nil, nil)(testAppData, w, r, &donordata.Provided{
 		CertificateProvider: donordata.CertificateProvider{CarryOutBy: lpadata.ChannelPaper},
 	})
 	resp := w.Result()
@@ -124,7 +124,7 @@ func TestGetHowWouldCertificateProviderPreferToCarryOutTheirRoleWhenTemplateErro
 		}).
 		Return(expectedError)
 
-	err := HowWouldCertificateProviderPreferToCarryOutTheirRole(template.Execute, nil, certificateProviderStore, nil)(testAppData, w, r, &donordata.Provided{})
+	err := HowWouldCertificateProviderPreferToCarryOutTheirRole(template.Execute, nil, certificateProviderStore, nil, nil, nil, nil)(testAppData, w, r, &donordata.Provided{})
 	resp := w.Result()
 
 	assert.Equal(t, expectedError, err)
@@ -176,7 +176,7 @@ func TestPostHowWouldCertificateProviderPreferToCarryOutTheirRole(t *testing.T) 
 				}).
 				Return(nil)
 
-			err := HowWouldCertificateProviderPreferToCarryOutTheirRole(nil, donorStore, certificateProviderStore, reuseStore)(testAppData, w, r, &donordata.Provided{LpaID: "lpa-id"})
+			err := HowWouldCertificateProviderPreferToCarryOutTheirRole(nil, donorStore, certificateProviderStore, reuseStore, nil, nil, nil)(testAppData, w, r, &donordata.Provided{LpaID: "lpa-id"})
 			resp := w.Result()
 
 			assert.Nil(t, err)
@@ -216,7 +216,7 @@ func TestPostHowWouldCertificateProviderPreferToCarryOutTheirRoleChangingFromOnl
 		}).
 		Return(nil)
 
-	err := HowWouldCertificateProviderPreferToCarryOutTheirRole(nil, donorStore, certificateProviderStore, reuseStore)(testAppData, w, r, &donordata.Provided{
+	err := HowWouldCertificateProviderPreferToCarryOutTheirRole(nil, donorStore, certificateProviderStore, reuseStore, nil, nil, nil)(testAppData, w, r, &donordata.Provided{
 		LpaID:               "lpa-id",
 		CertificateProvider: donordata.CertificateProvider{CarryOutBy: lpadata.ChannelOnline, Email: "a@b.com"},
 	})
@@ -246,7 +246,7 @@ func TestPostHowWouldCertificateProviderPreferToCarryOutTheirRoleWhenReuseStoreE
 		PutCertificateProvider(mock.Anything, mock.Anything).
 		Return(expectedError)
 
-	err := HowWouldCertificateProviderPreferToCarryOutTheirRole(nil, nil, certificateProviderStore, reuseStore)(testAppData, w, r, &donordata.Provided{})
+	err := HowWouldCertificateProviderPreferToCarryOutTheirRole(nil, nil, certificateProviderStore, reuseStore, nil, nil, nil)(testAppData, w, r, &donordata.Provided{})
 
 	assert.ErrorIs(t, err, expectedError)
 }
@@ -275,7 +275,7 @@ func TestPostHowWouldCertificateProviderPreferToCarryOutTheirRoleWhenDonorStoreE
 		Put(r.Context(), mock.Anything).
 		Return(expectedError)
 
-	err := HowWouldCertificateProviderPreferToCarryOutTheirRole(nil, donorStore, certificateProviderStore, reuseStore)(testAppData, w, r, &donordata.Provided{})
+	err := HowWouldCertificateProviderPreferToCarryOutTheirRole(nil, donorStore, certificateProviderStore, reuseStore, nil, nil, nil)(testAppData, w, r, &donordata.Provided{})
 
 	assert.Equal(t, expectedError, err)
 }
@@ -297,7 +297,7 @@ func TestPostHowWouldCertificateProviderPreferToCarryOutTheirRoleWhenValidationE
 		})).
 		Return(nil)
 
-	err := HowWouldCertificateProviderPreferToCarryOutTheirRole(template.Execute, nil, certificateProviderStore, nil)(testAppData, w, r, &donordata.Provided{})
+	err := HowWouldCertificateProviderPreferToCarryOutTheirRole(template.Execute, nil, certificateProviderStore, nil, nil, nil, nil)(testAppData, w, r, &donordata.Provided{})
 	resp := w.Result()
 
 	assert.Nil(t, err)
