@@ -9,6 +9,7 @@ import (
 	"github.com/aws/aws-sdk-go-v2/feature/dynamodb/attributevalue"
 	"github.com/aws/aws-sdk-go-v2/service/dynamodb/types"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor/actoruid"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/appcontext"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/dynamo"
 	"github.com/stretchr/testify/mock"
 )
@@ -16,6 +17,7 @@ import (
 var (
 	ctx           = context.Background()
 	expectedError = errors.New("err")
+	testAppData   = appcontext.Data{}
 	testNow       = time.Date(2023, time.April, 2, 3, 4, 5, 6, time.UTC)
 	testNowFn     = func() time.Time { return testNow }
 	testUID       = actoruid.New()

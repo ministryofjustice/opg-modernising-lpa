@@ -6,7 +6,9 @@ import (
 	"net/url"
 	"strings"
 	"testing"
+	"time"
 
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor/actoruid"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/certificateprovider/certificateproviderdata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor/donordata"
@@ -36,7 +38,7 @@ func TestGetHowWouldCertificateProviderPreferToCarryOutTheirRole(t *testing.T) {
 		}).
 		Return(nil)
 
-	err := HowWouldCertificateProviderPreferToCarryOutTheirRole(template.Execute, nil, certificateProviderStore, nil)(testAppData, w, r, &donordata.Provided{
+	err := HowWouldCertificateProviderPreferToCarryOutTheirRole(template.Execute, nil, certificateProviderStore, nil, nil, nil, nil)(testAppData, w, r, &donordata.Provided{
 		LpaUID: "lpa-uid",
 	})
 	resp := w.Result()
@@ -54,7 +56,7 @@ func TestGetHowWouldCertificateProviderPreferToCarryOutTheirRoleWhenCertificateP
 		OneByUID(r.Context(), "lpa-uid").
 		Return(&certificateproviderdata.Provided{}, nil)
 
-	err := HowWouldCertificateProviderPreferToCarryOutTheirRole(nil, nil, certificateProviderStore, nil)(testAppData, w, r, &donordata.Provided{
+	err := HowWouldCertificateProviderPreferToCarryOutTheirRole(nil, nil, certificateProviderStore, nil, nil, nil, nil)(testAppData, w, r, &donordata.Provided{
 		LpaID:  "lpa-id",
 		LpaUID: "lpa-uid",
 	})
@@ -74,7 +76,7 @@ func TestGetHowWouldCertificateProviderPreferToCarryOutTheirRoleWhenCertificateP
 		OneByUID(mock.Anything, mock.Anything).
 		Return(nil, expectedError)
 
-	err := HowWouldCertificateProviderPreferToCarryOutTheirRole(nil, nil, certificateProviderStore, nil)(testAppData, w, r, &donordata.Provided{})
+	err := HowWouldCertificateProviderPreferToCarryOutTheirRole(nil, nil, certificateProviderStore, nil, nil, nil, nil)(testAppData, w, r, &donordata.Provided{})
 	assert.ErrorIs(t, err, expectedError)
 }
 
@@ -97,7 +99,7 @@ func TestGetHowWouldCertificateProviderPreferToCarryOutTheirRoleFromStore(t *tes
 		}).
 		Return(nil)
 
-	err := HowWouldCertificateProviderPreferToCarryOutTheirRole(template.Execute, nil, certificateProviderStore, nil)(testAppData, w, r, &donordata.Provided{
+	err := HowWouldCertificateProviderPreferToCarryOutTheirRole(template.Execute, nil, certificateProviderStore, nil, nil, nil, nil)(testAppData, w, r, &donordata.Provided{
 		CertificateProvider: donordata.CertificateProvider{CarryOutBy: lpadata.ChannelPaper},
 	})
 	resp := w.Result()
@@ -124,7 +126,7 @@ func TestGetHowWouldCertificateProviderPreferToCarryOutTheirRoleWhenTemplateErro
 		}).
 		Return(expectedError)
 
-	err := HowWouldCertificateProviderPreferToCarryOutTheirRole(template.Execute, nil, certificateProviderStore, nil)(testAppData, w, r, &donordata.Provided{})
+	err := HowWouldCertificateProviderPreferToCarryOutTheirRole(template.Execute, nil, certificateProviderStore, nil, nil, nil, nil)(testAppData, w, r, &donordata.Provided{})
 	resp := w.Result()
 
 	assert.Equal(t, expectedError, err)
@@ -176,7 +178,7 @@ func TestPostHowWouldCertificateProviderPreferToCarryOutTheirRole(t *testing.T) 
 				}).
 				Return(nil)
 
-			err := HowWouldCertificateProviderPreferToCarryOutTheirRole(nil, donorStore, certificateProviderStore, reuseStore)(testAppData, w, r, &donordata.Provided{LpaID: "lpa-id"})
+			err := HowWouldCertificateProviderPreferToCarryOutTheirRole(nil, donorStore, certificateProviderStore, reuseStore, nil, nil, nil)(testAppData, w, r, &donordata.Provided{LpaID: "lpa-id"})
 			resp := w.Result()
 
 			assert.Nil(t, err)
@@ -216,7 +218,7 @@ func TestPostHowWouldCertificateProviderPreferToCarryOutTheirRoleChangingFromOnl
 		}).
 		Return(nil)
 
-	err := HowWouldCertificateProviderPreferToCarryOutTheirRole(nil, donorStore, certificateProviderStore, reuseStore)(testAppData, w, r, &donordata.Provided{
+	err := HowWouldCertificateProviderPreferToCarryOutTheirRole(nil, donorStore, certificateProviderStore, reuseStore, nil, nil, nil)(testAppData, w, r, &donordata.Provided{
 		LpaID:               "lpa-id",
 		CertificateProvider: donordata.CertificateProvider{CarryOutBy: lpadata.ChannelOnline, Email: "a@b.com"},
 	})
@@ -225,6 +227,150 @@ func TestPostHowWouldCertificateProviderPreferToCarryOutTheirRoleChangingFromOnl
 	assert.Nil(t, err)
 	assert.Equal(t, http.StatusFound, resp.StatusCode)
 	assert.Equal(t, donor.PathCertificateProviderAddress.Format("lpa-id"), resp.Header.Get("Location"))
+}
+
+func TestPostHowWouldCertificateProviderPreferToCarryOutTheirRoleWhenEmailChanged(t *testing.T) {
+	form := url.Values{
+		"carry-out-by": {lpadata.ChannelOnline.String()},
+		"email":        {"b@example.com"},
+	}
+
+	w := httptest.NewRecorder()
+	r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(form.Encode()))
+	r.Header.Add("Content-Type", page.FormUrlEncoded)
+
+	invitedAt := time.Now()
+	uid := actoruid.New()
+	updatedCertificateProvider := donordata.CertificateProvider{
+		UID: uid, CarryOutBy: lpadata.ChannelOnline, Email: "b@example.com",
+	}
+
+	certificateProviderStore := newMockCertificateProviderStore(t)
+	certificateProviderStore.EXPECT().
+		OneByUID(mock.Anything, mock.Anything).
+		Return(nil, dynamo.NotFoundError{})
+
+	reuseStore := newMockReuseStore(t)
+	reuseStore.EXPECT().
+		PutCertificateProvider(r.Context(), updatedCertificateProvider).
+		Return(nil)
+
+	donorStore := newMockDonorStore(t)
+	donorStore.EXPECT().
+		Put(r.Context(), &donordata.Provided{
+			LpaID: "lpa-id",
+			CertificateProvider: donordata.CertificateProvider{
+				UID: uid, CarryOutBy: lpadata.ChannelOnline, Email: "b@example.com",
+			},
+			CertificateProviderInvitedAt: testNow,
+		}).
+		Return(nil)
+
+	accessCodeStore := newMockAccessCodeStore(t)
+	accessCodeStore.EXPECT().
+		DeleteByActor(r.Context(), uid).
+		Return(nil)
+
+	accessCodeSender := newMockAccessCodeSender(t)
+	accessCodeSender.EXPECT().
+		SendCertificateProviderInvite(r.Context(), testAppData, &donordata.Provided{
+			LpaID: "lpa-id",
+			CertificateProvider: donordata.CertificateProvider{
+				UID: uid, CarryOutBy: lpadata.ChannelOnline, Email: "b@example.com",
+			},
+			CertificateProviderInvitedAt: invitedAt,
+		}).
+		Return(nil)
+
+	err := HowWouldCertificateProviderPreferToCarryOutTheirRole(nil, donorStore, certificateProviderStore, reuseStore, accessCodeStore, accessCodeSender, testNowFn)(testAppData, w, r, &donordata.Provided{
+		LpaID: "lpa-id",
+		CertificateProvider: donordata.CertificateProvider{
+			UID: uid, CarryOutBy: lpadata.ChannelOnline, Email: "a@example.com",
+		},
+		CertificateProviderInvitedAt: invitedAt,
+	})
+	resp := w.Result()
+
+	assert.Nil(t, err)
+	assert.Equal(t, http.StatusFound, resp.StatusCode)
+	assert.Equal(t, donor.PathCertificateProviderAddress.Format("lpa-id"), resp.Header.Get("Location"))
+}
+
+func TestPostHowWouldCertificateProviderPreferToCarryOutTheirRoleWhenEmailChangedWhenDeleteByActorError(t *testing.T) {
+	form := url.Values{
+		"carry-out-by": {lpadata.ChannelOnline.String()},
+		"email":        {"b@example.com"},
+	}
+
+	w := httptest.NewRecorder()
+	r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(form.Encode()))
+	r.Header.Add("Content-Type", page.FormUrlEncoded)
+
+	invitedAt := time.Now()
+	uid := actoruid.New()
+
+	certificateProviderStore := newMockCertificateProviderStore(t)
+	certificateProviderStore.EXPECT().
+		OneByUID(mock.Anything, mock.Anything).
+		Return(nil, dynamo.NotFoundError{})
+
+	accessCodeStore := newMockAccessCodeStore(t)
+	accessCodeStore.EXPECT().
+		DeleteByActor(mock.Anything, mock.Anything).
+		Return(expectedError)
+
+	err := HowWouldCertificateProviderPreferToCarryOutTheirRole(nil, nil, certificateProviderStore, nil, accessCodeStore, nil, testNowFn)(testAppData, w, r, &donordata.Provided{
+		LpaID: "lpa-id",
+		CertificateProvider: donordata.CertificateProvider{
+			UID: uid, CarryOutBy: lpadata.ChannelOnline, Email: "a@example.com",
+		},
+		CertificateProviderInvitedAt: invitedAt,
+	})
+	resp := w.Result()
+
+	assert.ErrorIs(t, err, expectedError)
+	assert.Equal(t, http.StatusOK, resp.StatusCode)
+}
+
+func TestPostHowWouldCertificateProviderPreferToCarryOutTheirRoleWhenEmailChangedWhenSendCertificateProviderInviteError(t *testing.T) {
+	form := url.Values{
+		"carry-out-by": {lpadata.ChannelOnline.String()},
+		"email":        {"b@example.com"},
+	}
+
+	w := httptest.NewRecorder()
+	r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(form.Encode()))
+	r.Header.Add("Content-Type", page.FormUrlEncoded)
+
+	invitedAt := time.Now()
+	uid := actoruid.New()
+
+	certificateProviderStore := newMockCertificateProviderStore(t)
+	certificateProviderStore.EXPECT().
+		OneByUID(mock.Anything, mock.Anything).
+		Return(nil, dynamo.NotFoundError{})
+
+	accessCodeStore := newMockAccessCodeStore(t)
+	accessCodeStore.EXPECT().
+		DeleteByActor(mock.Anything, mock.Anything).
+		Return(nil)
+
+	accessCodeSender := newMockAccessCodeSender(t)
+	accessCodeSender.EXPECT().
+		SendCertificateProviderInvite(mock.Anything, mock.Anything, mock.Anything).
+		Return(expectedError)
+
+	err := HowWouldCertificateProviderPreferToCarryOutTheirRole(nil, nil, certificateProviderStore, nil, accessCodeStore, accessCodeSender, testNowFn)(testAppData, w, r, &donordata.Provided{
+		LpaID: "lpa-id",
+		CertificateProvider: donordata.CertificateProvider{
+			UID: uid, CarryOutBy: lpadata.ChannelOnline, Email: "a@example.com",
+		},
+		CertificateProviderInvitedAt: invitedAt,
+	})
+	resp := w.Result()
+
+	assert.ErrorIs(t, err, expectedError)
+	assert.Equal(t, http.StatusOK, resp.StatusCode)
 }
 
 func TestPostHowWouldCertificateProviderPreferToCarryOutTheirRoleWhenReuseStoreErrors(t *testing.T) {
@@ -246,7 +392,7 @@ func TestPostHowWouldCertificateProviderPreferToCarryOutTheirRoleWhenReuseStoreE
 		PutCertificateProvider(mock.Anything, mock.Anything).
 		Return(expectedError)
 
-	err := HowWouldCertificateProviderPreferToCarryOutTheirRole(nil, nil, certificateProviderStore, reuseStore)(testAppData, w, r, &donordata.Provided{})
+	err := HowWouldCertificateProviderPreferToCarryOutTheirRole(nil, nil, certificateProviderStore, reuseStore, nil, nil, nil)(testAppData, w, r, &donordata.Provided{})
 
 	assert.ErrorIs(t, err, expectedError)
 }
@@ -275,7 +421,7 @@ func TestPostHowWouldCertificateProviderPreferToCarryOutTheirRoleWhenDonorStoreE
 		Put(r.Context(), mock.Anything).
 		Return(expectedError)
 
-	err := HowWouldCertificateProviderPreferToCarryOutTheirRole(nil, donorStore, certificateProviderStore, reuseStore)(testAppData, w, r, &donordata.Provided{})
+	err := HowWouldCertificateProviderPreferToCarryOutTheirRole(nil, donorStore, certificateProviderStore, reuseStore, nil, nil, nil)(testAppData, w, r, &donordata.Provided{})
 
 	assert.Equal(t, expectedError, err)
 }
@@ -297,7 +443,7 @@ func TestPostHowWouldCertificateProviderPreferToCarryOutTheirRoleWhenValidationE
 		})).
 		Return(nil)
 
-	err := HowWouldCertificateProviderPreferToCarryOutTheirRole(template.Execute, nil, certificateProviderStore, nil)(testAppData, w, r, &donordata.Provided{})
+	err := HowWouldCertificateProviderPreferToCarryOutTheirRole(template.Execute, nil, certificateProviderStore, nil, nil, nil, nil)(testAppData, w, r, &donordata.Provided{})
 	resp := w.Result()
 
 	assert.Nil(t, err)
