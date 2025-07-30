@@ -188,6 +188,8 @@ func TestPostCertificateProviderDetailsWhenSharesDetail(t *testing.T) {
 	r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(f.Encode()))
 	r.Header.Add("Content-Type", page.FormUrlEncoded)
 
+	appData := appcontext.Data{Page: "/abc"}
+
 	service := newMockCertificateProviderService(t)
 	service.EXPECT().
 		Put(r.Context(), &donordata.Provided{
@@ -207,7 +209,6 @@ func TestPostCertificateProviderDetailsWhenSharesDetail(t *testing.T) {
 		}).
 		Return(nil)
 
-	appData := appcontext.Data{Page: "/abc"}
 	err := CertificateProviderDetails(nil, service)(appData, w, r, &donordata.Provided{
 		LpaID: "lpa-id",
 		Donor: donordata.Donor{
