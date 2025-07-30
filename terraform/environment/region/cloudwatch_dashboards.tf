@@ -1,5 +1,27 @@
+locals {
+  security_template_vars = {
+    region                = data.aws_region.current.name
+    account_name          = data.aws_default_tags.current.tags.account-name
+    environment_name      = data.aws_default_tags.current.tags.environment-name
+    app_loadbalancer_name = module.app.load_balancer.arn_suffix
+    nat_gateway_a         = data.aws_nat_gateway.main[0].id
+    nat_gateway_b         = data.aws_nat_gateway.main[1].id
+    nat_gateway_c         = data.aws_nat_gateway.main[2].id
+  }
+}
+
+resource "aws_cloudwatch_dashboard" "security" {
+  provider       = aws.region
+  dashboard_name = "${data.aws_default_tags.current.tags.environment-name}-Security"
+  dashboard_body = templatefile(
+    "cloudwatch_dashboards/security.json.tftpl",
+    local.security_template_vars
+  )
+}
+
 resource "aws_cloudwatch_dashboard" "health_checks" {
-  provider = aws.region
+  dashboard_name = "${data.aws_default_tags.current.tags.environment-name}-Health"
+  provider       = aws.region
   dashboard_body = jsonencode({
     widgets = [
       {
@@ -44,5 +66,4 @@ resource "aws_cloudwatch_dashboard" "health_checks" {
       }
     ]
   })
-  dashboard_name = "health-checks-${data.aws_default_tags.current.tags.environment-name}-environment"
 }

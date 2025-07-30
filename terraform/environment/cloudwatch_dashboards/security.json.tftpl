@@ -1,0 +1,432 @@
+{
+    "widgets": [
+        {
+            "type": "log",
+            "x": 6,
+            "y": 1,
+            "width": 6,
+            "height": 5,
+            "properties": {
+                "query": "SOURCE 'modernising-lpa-${account_name}' | fields @timestamp, sourceIPAddress, eventName, responseElements.ConsoleLogin\n| filter userIdentity.arn like /(?i)(breakglass)/\n| filter eventType =\"AwsConsoleSignIn\"\n| sort @timestamp desc\n| stats count() as total by bin(5m)\n",
+                "region": "${region}",
+                "stacked": false,
+                "title": "breakglass use",
+                "view": "timeSeries"
+            }
+        },
+        {
+            "type": "log",
+            "x": 6,
+            "y": 6,
+            "width": 6,
+            "height": 5,
+            "properties": {
+                "query": "SOURCE 'modernising-lpa-${account_name}' | fields @timestamp, sourceIPAddress, eventName, responseElements.ConsoleLogin\n| filter userIdentity.arn like /(?i)(data-access)/\n| filter eventType =\"AwsConsoleSignIn\"\n| sort @timestamp desc\n| stats count() as total by bin(5m)\n",
+                "region": "${region}",
+                "stacked": false,
+                "title": "data-access use",
+                "view": "timeSeries"
+            }
+        },
+        {
+            "type": "log",
+            "x": 6,
+            "y": 11,
+            "width": 6,
+            "height": 5,
+            "properties": {
+                "query": "SOURCE 'modernising-lpa-${account_name}' | fields @timestamp, sourceIPAddress, eventName, responseElements.ConsoleLogin\n| filter userIdentity.arn like /(?i)(operator)/\n| filter eventType =\"AwsConsoleSignIn\"\n| sort @timestamp desc\n| stats count() as total by bin(5m)\n",
+                "region": "${region}",
+                "stacked": false,
+                "title": "operator use",
+                "view": "timeSeries"
+            }
+        },
+        {
+            "type": "text",
+            "x": 6,
+            "y": 0,
+            "width": 6,
+            "height": 1,
+            "properties": {
+                "markdown": "# High privilege role useage  \n",
+                "background": "transparent"
+            }
+        },
+        {
+            "type": "text",
+            "x": 0,
+            "y": 0,
+            "width": 6,
+            "height": 1,
+            "properties": {
+                "markdown": "# ALB Metrics\n",
+                "background": "transparent"
+            }
+        },
+        {
+            "type": "metric",
+            "x": 12,
+            "y": 1,
+            "width": 6,
+            "height": 6,
+            "properties": {
+                "metrics": [
+                    [ { "id": "blocked", "label": "Blocked", "expression": "SEARCH('{AWS/WAFV2,Rule,WebACL,Region} Region=\"${region}\" Rule=\"ALL\" WebACL=\"${account_name}-web-acl\" MetricName=\"BlockedRequests\" :aws.AccountId = \"LOCAL\"', 'Sum', 60)", "period": 60, "visible": true } ],
+                    [ { "id": "allowed", "label": "Allowed", "expression": "SEARCH('{AWS/WAFV2,Rule,WebACL,Region} Region=\"${region}\" Rule=\"ALL\" WebACL=\"${account_name}-web-acl\" MetricName=\"AllowedRequests\" :aws.AccountId = \"LOCAL\"', 'Sum', 60)", "period": 60, "visible": true } ],
+                    [ { "id": "captcha", "label": "Captcha", "expression": "SEARCH('{AWS/WAFV2,Rule,WebACL,Region} Region=\"${region}\" Rule=\"ALL\" WebACL=\"${account_name}-web-acl\" MetricName=\"CaptchaRequests\" :aws.AccountId = \"LOCAL\"', 'Sum', 60)", "period": 60, "visible": true } ],
+                    [ { "id": "challenge", "label": "Challenge", "expression": "SEARCH('{AWS/WAFV2,Rule,WebACL,Region} Region=\"${region}\" Rule=\"ALL\" WebACL=\"${account_name}-web-acl\" MetricName=\"ChallengeRequests\" :aws.AccountId = \"LOCAL\"', 'Sum', 60)", "period": 60, "visible": true } ]
+                ],
+                "view": "timeSeries",
+                "stacked": false,
+                "liveData": false,
+                "title": "AWS WAF Actions",
+                "setPeriodToTimeRange": true,
+                "region": "${region}"
+            }
+        },
+        {
+            "type": "text",
+            "x": 12,
+            "y": 0,
+            "width": 6,
+            "height": 1,
+            "properties": {
+                "markdown": "# WAF Metrics\n",
+                "background": "transparent"
+            }
+        },
+        {
+            "type": "metric",
+            "x": 0,
+            "y": 1,
+            "width": 6,
+            "height": 8,
+            "properties": {
+                "view": "timeSeries",
+                "stacked": false,
+                "metrics": [
+                    [ "AWS/ApplicationELB", "ActiveConnectionCount", "LoadBalancer", "${app_loadbalancer_name}" ],
+                    [ "AWS/ApplicationELB", "HTTPCode_Target_3XX_Count", "LoadBalancer", "${app_loadbalancer_name}" ],
+                    [ "AWS/ApplicationELB", "HTTPCode_Target_4XX_Count", "LoadBalancer", "${app_loadbalancer_name}" ],
+                    [ "AWS/ApplicationELB", "HTTPCode_Target_2XX_Count", "LoadBalancer", "${app_loadbalancer_name}" ],
+                    [ "AWS/ApplicationELB", "HTTPCode_Target_5XX_Count", "LoadBalancer", "${app_loadbalancer_name}" ]
+                ],
+                "region": "${region}",
+                "title": "Load Balancer"
+            }
+        },
+        {
+            "type": "metric",
+            "x": 18,
+            "y": 1,
+            "width": 6,
+            "height": 7,
+            "properties": {
+                "stat": "Sum",
+                "view": "timeSeries",
+                "stacked": false,
+                "metrics": [
+                    [ "AWS/NetworkFirewall", "ReceivedPackets", "FirewallName", "opg-modernising-lpa-${account_name}-${region}a", "AvailabilityZone", "${region}a", "Engine", "Stateless" ],
+                    [ ".", "DroppedPackets", ".", ".", ".", ".", ".", "." ],
+                    [ ".", "PassedPackets", ".", ".", ".", ".", ".", "." ],
+                    [ ".", "ReceivedPackets", ".", ".", ".", ".", ".", "Stateful" ],
+                    [ ".", "DroppedPackets", ".", ".", ".", ".", ".", "." ],
+                    [ ".", "PassedPackets", ".", ".", ".", ".", ".", "." ]
+                ],
+                "region": "${region}",
+                "title": "${region}a",
+                "yAxis": {
+                    "left": {
+                        "showUnits": false
+                    },
+                    "right": {
+                        "showUnits": false
+                    }
+                }
+            }
+        },
+        {
+            "type": "metric",
+            "x": 18,
+            "y": 8,
+            "width": 6,
+            "height": 7,
+            "properties": {
+                "stat": "Sum",
+                "view": "timeSeries",
+                "stacked": false,
+                "metrics": [
+                    [ "AWS/NetworkFirewall", "ReceivedPackets", "FirewallName", "opg-modernising-lpa-${account_name}-${region}b", "AvailabilityZone", "${region}b", "Engine", "Stateless" ],
+                    [ ".", "DroppedPackets", ".", ".", ".", ".", ".", "." ],
+                    [ ".", "PassedPackets", ".", ".", ".", ".", ".", "." ],
+                    [ ".", "ReceivedPackets", ".", ".", ".", ".", ".", "Stateful" ],
+                    [ ".", "DroppedPackets", ".", ".", ".", ".", ".", "." ],
+                    [ ".", "PassedPackets", ".", ".", ".", ".", ".", "." ]
+                ],
+                "region": "${region}",
+                "title": "${region}b",
+                "yAxis": {
+                    "left": {
+                        "showUnits": false
+                    },
+                    "right": {
+                        "showUnits": false
+                    }
+                }
+            }
+        },
+        {
+            "type": "metric",
+            "x": 18,
+            "y": 15,
+            "width": 6,
+            "height": 7,
+            "properties": {
+                "stat": "Sum",
+                "view": "timeSeries",
+                "stacked": false,
+                "metrics": [
+                    [ "AWS/NetworkFirewall", "ReceivedPackets", "FirewallName", "opg-modernising-lpa-${account_name}-${region}c", "AvailabilityZone", "${region}c", "Engine", "Stateless" ],
+                    [ ".", "DroppedPackets", ".", ".", ".", ".", ".", "." ],
+                    [ ".", "PassedPackets", ".", ".", ".", ".", ".", "." ],
+                    [ ".", "ReceivedPackets", ".", ".", ".", ".", ".", "Stateful" ],
+                    [ ".", "DroppedPackets", ".", ".", ".", ".", ".", "." ],
+                    [ ".", "PassedPackets", ".", ".", ".", ".", ".", "." ]
+                ],
+                "region": "${region}",
+                "title": "${region}c",
+                "yAxis": {
+                    "left": {
+                        "showUnits": false
+                    },
+                    "right": {
+                        "showUnits": false
+                    }
+                }
+            }
+        },
+        {
+            "type": "text",
+            "x": 18,
+            "y": 0,
+            "width": 6,
+            "height": 1,
+            "properties": {
+                "markdown": "# Network Firewall Metrics",
+                "background": "transparent"
+            }
+        },
+        {
+            "type": "log",
+            "x": 12,
+            "y": 8,
+            "width": 6,
+            "height": 7,
+            "properties": {
+                "query": "SOURCE 'modernising-lpa-${account_name}' | fields @timestamp, eventSource, eventName, errorCode, userIdentity.principalId, userIdentity.sessionContext.sessionIssuer.userName\n| filter errorCode like \"UnauthorizedOperation\" or  errorCode like \"AccessDenied\"\n| sort @timestamp desc\n| stats count() as unauthorised_api_calls by bin(30s)\n",
+                "region": "${region}",
+                "stacked": false,
+                "view": "timeSeries",
+                "title": "Unauthorised API calls (Cloudtrail)"
+            }
+        },
+        {
+            "type": "log",
+            "x": 12,
+            "y": 15,
+            "width": 6,
+            "height": 7,
+            "properties": {
+                "query": "SOURCE 'modernising-lpa-${account_name}' | fields @timestamp, @message, eventName, @logStream, @log\n| filter eventName= \"GetSecretValue\"\n| sort @timestamp desc\n| stats count() as total by bin(30s)",
+                "region": "${region}",
+                "stacked": false,
+                "title": "get secret value count",
+                "view": "timeSeries"
+            }
+        },
+        {
+            "type": "text",
+            "x": 12,
+            "y": 7,
+            "width": 6,
+            "height": 1,
+            "properties": {
+                "markdown": "# Trail Metrics\n",
+                "background": "transparent"
+            }
+        },
+        {
+            "type": "metric",
+            "x": 0,
+            "y": 9,
+            "width": 6,
+            "height": 6,
+            "properties": {
+                "period": 60,
+                "metrics": [
+                    [ "AWS/ApplicationELB", "ProcessedBytes", "LoadBalancer", "${app_loadbalancer_name}", { "label": "${environment_name}-app", "visible": true, "region": "${region}" } ]
+                ],
+                "region": "${region}",
+                "stat": "Sum",
+                "title": "Processed Bytes",
+                "yAxis": {
+                    "left": {
+                        "min": 0
+                    }
+                },
+                "view": "timeSeries",
+                "stacked": false
+            }
+        },
+        {
+            "type": "metric",
+            "x": 0,
+            "y": 20,
+            "width": 12,
+            "height": 3,
+            "properties": {
+                "view": "timeSeries",
+                "stat": "Sum",
+                "period": 300,
+                "stacked": false,
+                "yAxis": {
+                    "left": {
+                        "min": 0
+                    }
+                },
+                "title": "NAT Gateway 1b - Bytes out to source (Bytes)",
+                "metrics": [
+                    [ "AWS/NATGateway", "BytesOutToSource", "NatGatewayId", "${nat_gateway_b}", { "label": "${nat_gateway_b}", "region": "${region}" }]
+                ],
+                "region": "${region}"
+            }
+        },
+        {
+            "type": "metric",
+            "x": 0,
+            "y": 29,
+            "width": 12,
+            "height": 3,
+            "properties": {
+                "view": "timeSeries",
+                "stat": "Sum",
+                "period": 300,
+                "stacked": false,
+                "yAxis": {
+                    "left": {
+                        "min": 0
+                    }
+                },
+                "title": "NAT Gateway 1b - Bytes out to destination (Bytes)",
+                "metrics": [
+                    [ "AWS/NATGateway", "BytesOutToDestination", "NatGatewayId", "${nat_gateway_b}", { "label": "${nat_gateway_b}", "region": "${region}" }]
+                ],
+                "region": "${region}"
+            }
+        },
+        {
+            "type": "text",
+            "x": 0,
+            "y": 16,
+            "width": 12,
+            "height": 1,
+            "properties": {
+                "markdown": "# NAT Gateway\n",
+                "background": "transparent"
+            }
+        },
+        {
+            "type": "metric",
+            "x": 0,
+            "y": 32,
+            "width": 12,
+            "height": 3,
+            "properties": {
+                "view": "timeSeries",
+                "stat": "Sum",
+                "period": 300,
+                "stacked": false,
+                "yAxis": {
+                    "left": {
+                        "min": 0
+                    }
+                },
+                "title": "NAT Gateway 1c - Bytes out to destination (Bytes)",
+                "metrics": [
+                    [ "AWS/NATGateway", "BytesOutToDestination", "NatGatewayId", "${nat_gateway_c}", { "label": "${nat_gateway_c}", "region": "${region}" } ]
+                ],
+                "region": "${region}"
+            }
+        },
+        {
+            "type": "metric",
+            "x": 0,
+            "y": 23,
+            "width": 12,
+            "height": 3,
+            "properties": {
+                "view": "timeSeries",
+                "stat": "Sum",
+                "period": 300,
+                "stacked": false,
+                "yAxis": {
+                    "left": {
+                        "min": 0
+                    }
+                },
+                "title": "Nat Gateway 1c - Bytes out to source (Bytes)",
+                "metrics": [
+                    [ "AWS/NATGateway", "BytesOutToSource", "NatGatewayId", "${nat_gateway_c}", { "label": "${nat_gateway_c}", "region": "${region}" } ]
+                ],
+                "region": "${region}"
+            }
+        },
+        {
+            "type": "metric",
+            "x": 0,
+            "y": 26,
+            "width": 12,
+            "height": 3,
+            "properties": {
+                "view": "timeSeries",
+                "stat": "Sum",
+                "period": 300,
+                "stacked": false,
+                "yAxis": {
+                    "left": {
+                        "min": 0
+                    }
+                },
+                "title": "NAT Gateway 1a - Bytes out to destination (Bytes)",
+                "metrics": [
+                    [ "AWS/NATGateway", "BytesOutToDestination", "NatGatewayId", "${nat_gateway_a}", { "label": "${nat_gateway_a}", "region": "${region}" } ]
+                ],
+                "region": "${region}"
+            }
+        },
+        {
+            "type": "metric",
+            "x": 0,
+            "y": 17,
+            "width": 12,
+            "height": 3,
+            "properties": {
+                "view": "timeSeries",
+                "stat": "Sum",
+                "period": 300,
+                "stacked": false,
+                "yAxis": {
+                    "left": {
+                        "min": 0
+                    }
+                },
+                "title": "NAT Gateway 1a - Bytes out to source (Bytes)",
+                "metrics": [
+                    [ "AWS/NATGateway", "BytesOutToSource", "NatGatewayId", "${nat_gateway_a}", { "label": "${nat_gateway_a}", "region": "${region}" } ]
+                ],
+                "region": "${region}"
+            }
+        }
+    ]
+}

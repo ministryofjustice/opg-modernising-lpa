@@ -33,3 +33,19 @@ data "aws_subnet" "public" {
   }
   provider = aws.region
 }
+
+data "aws_nat_gateways" "main" {
+  vpc_id = data.aws_vpc.main.id
+
+  filter {
+    name   = "state"
+    values = ["available"]
+  }
+  provider = aws.region
+}
+
+data "aws_nat_gateway" "main" {
+  count    = length(data.aws_nat_gateways.main.ids)
+  id       = tolist(data.aws_nat_gateways.main.ids)[count.index]
+  provider = aws.region
+}
