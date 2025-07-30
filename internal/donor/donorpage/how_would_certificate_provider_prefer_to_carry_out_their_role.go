@@ -4,6 +4,7 @@ import (
 	"errors"
 	"fmt"
 	"net/http"
+	"time"
 
 	"github.com/ministryofjustice/opg-go-common/template"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/appcontext"
@@ -23,7 +24,7 @@ type howWouldCertificateProviderPreferToCarryOutTheirRoleData struct {
 	Options             lpadata.ChannelOptions
 }
 
-func HowWouldCertificateProviderPreferToCarryOutTheirRole(tmpl template.Template, donorStore DonorStore, certificateProviderStore CertificateProviderStore, reuseStore ReuseStore) Handler {
+func HowWouldCertificateProviderPreferToCarryOutTheirRole(tmpl template.Template, donorStore DonorStore, certificateProviderStore CertificateProviderStore, reuseStore ReuseStore, accessCodeStore AccessCodeStore, accessCodeSender AccessCodeSender, now func() time.Time) Handler {
 	return func(appData appcontext.Data, w http.ResponseWriter, r *http.Request, provided *donordata.Provided) error {
 		if _, err := certificateProviderStore.OneByUID(r.Context(), provided.LpaUID); err == nil {
 			return donor.PathCertificateProviderSummary.Redirect(w, r, appData, provided)
@@ -46,8 +47,22 @@ func HowWouldCertificateProviderPreferToCarryOutTheirRole(tmpl template.Template
 			data.Errors = data.Form.Validate()
 
 			if data.Errors.None() {
+				emailChanged := provided.CertificateProvider.Email != data.Form.Email
+
 				provided.CertificateProvider.CarryOutBy = data.Form.CarryOutBy
 				provided.CertificateProvider.Email = data.Form.Email
+
+				if emailChanged && !provided.CertificateProviderInvitedAt.IsZero() && !provided.Tasks.SignTheLpa.IsCompleted() {
+					if err := accessCodeStore.DeleteByActor(r.Context(), provided.CertificateProvider.UID); err != nil {
+						return fmt.Errorf("deleting certificate provider access code: %w", err)
+					}
+
+					if err := accessCodeSender.SendCertificateProviderInvite(r.Context(), appData, provided); err != nil {
+						return fmt.Errorf("sending certificate provider access code: %w", err)
+					}
+
+					provided.CertificateProviderInvitedAt = now()
+				}
 
 				if err := reuseStore.PutCertificateProvider(r.Context(), provided.CertificateProvider); err != nil {
 					return fmt.Errorf("put certificate provider reuse data: %w", err)
