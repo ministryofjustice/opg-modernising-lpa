@@ -20,7 +20,7 @@
 
                 {{ trFormatHtml .App "certificateProvidedConcerns" "DonorFirstNames" .Lpa.Donor.FirstNames }}
 
-                <a href="{{ link .App global.Paths.Dashboard.Format }}" class="govuk-button app-hide-print">{{ tr .App "goToYourDashboard" }}</a>
+                <a href="{{ link .App global.Paths.Dashboard.Format }}" class="govuk-button app-hide-print">{{ tr .App "returnToManageLPAs" }}</a>
             {{ else }}
                 {{ trFormatHtml .App "weHaveSentAnEmailYouProvidedCertificate" "CertificateProviderEmail" .Lpa.CertificateProvider.Email }}
 
@@ -28,7 +28,7 @@
 
                 {{ trFormatHtml .App "certificateProviderNowConfirmYourIdentityContent" "DonorFullName" .Lpa.Donor.FullName "Deadline" (formatDate .App .CertificateProvider.IdentityDeadline) "DonorFirstNames" .Lpa.Donor.FirstNames }}
 
-                {{ template "buttons" (button .App "goToYourDashboard" "link" global.Paths.Dashboard.Format) }}
+                {{ template "buttons" (button .App "returnToManageLPAs" "link" global.Paths.Dashboard.Format) }}
             {{ end }}
         </div>
     </div>

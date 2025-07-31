@@ -10,7 +10,7 @@ describe('Delete LPA', () => {
 
         cy.checkA11yApp();
         cy.contains('has been deleted');
-        cy.contains('a', 'Return to dashboard').click();
+        cy.contains('a', 'Return to ‘Manage LPAs’').click();
 
         cy.contains('Sam Smith').should('not.exist');
     });

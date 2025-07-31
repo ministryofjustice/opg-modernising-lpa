@@ -71,7 +71,7 @@ describe('As a trust corporation', () => {
 
         // what happens next
         cy.contains('First Choice Trust Corporation Ltd. has formally agreed to be an attorney');
-        cy.contains('a', 'Go to your dashboard');
+        cy.contains('a', 'Return to ‘Manage LPAs’');
     });
 
     it('allows a second signatory', () => {
@@ -101,7 +101,7 @@ describe('As a trust corporation', () => {
 
         // what happens next
         cy.contains('First Choice Trust Corporation Ltd. has formally agreed to be an attorney');
-        cy.contains('a', 'Go to your dashboard');
+        cy.contains('a', 'Return to ‘Manage LPAs’');
     });
 
     it('can remove second signatory', () => {
@@ -131,6 +131,6 @@ describe('As a trust corporation', () => {
 
         // what happens next
         cy.contains('First Choice Trust Corporation Ltd. has formally agreed to be an attorney');
-        cy.contains('a', 'Go to your dashboard');
+        cy.contains('a', 'Return to ‘Manage LPAs’');
     });
 });

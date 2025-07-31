@@ -119,7 +119,7 @@
               {{ if .App.SupporterData }}
                 {{ if .App.SupporterData.OrganisationName }}
                   <li class="service-header__nav-list-item {{ if eq .App.Page global.Paths.Supporter.Dashboard.Format }}service-header__nav-list-item--active{{ end }}">
-                    <a class="service-header__nav-list-item-link" aria-current="page" href="{{ link .App global.Paths.Supporter.Dashboard.Format }}">{{ tr .App "dashboard" }}</a>
+                    <a class="service-header__nav-list-item-link" aria-current="page" href="{{ link .App global.Paths.Supporter.Dashboard.Format }}">{{ tr .App "manageLPAs" }}</a>
                   </li>
                     {{ if .App.IsAdmin }}
                       <li class="service-header__nav-list-item {{ if .App.SupporterData.IsManageOrganisation }}service-header__nav-list-item--active{{ end }}">

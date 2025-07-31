@@ -251,7 +251,6 @@
     "lpaDetailsSavedContentOnFirstSubmissionCPCarryingOutRoleOnline": "<p class=\"govuk-notification-banner__heading\">Your LPA has been saved.</p><p class=\"govuk-body\">The Office of the Public Guardian (OPG) will email {{.CertificateProviderFullName}} with information about acting as a certificate provider for your LPA.</p><p class=\"govuk-body\">We’ll also give {{.CertificateProviderFirstNames}} an access code so they can read your LPA online and you can discuss it together.</p>",
     "lpaDetailsSavedContentOnSubsequentSubmissionCPCarryingOutRole": "<p class=\"govuk-notification-banner__heading\">The changes to your LPA have been saved.</p><p class=\"govuk-body\">We’ll text your certificate provider {{.CertificateProviderFullName}} to let them know the LPA has been amended. You should discuss your changes with {{.CertificateProviderFirstNames}}.</p>",
     "weveSentATextToCPContent": "<p class=\"govuk-body\">We’ve sent a text to {{ .CertificateProviderFirstName }} to tell them you’ve made an LPA. We’ve also given them a link to some online guidance about being a certificate provider.</p> <p class=\"govuk-body\">If {{ .CertificateProviderFirstName }} needs help viewing this online, you should show them the guidance for certificate providers on GOV.UK (opens in a new tab).</p>",
-    "returnToDashboard": "Return to ‘Manage LPAs’",
     "paymentReceivedHeader": "Payment received",
     "yourRefNumber": "Your reference number",
     "paymentConfirmationContent": "<p class=\"govuk-body\">Your {{ lowerFirst .LpaType }} LPA has been successfully paid for.</p><p class=\"govuk-body\">We’ve sent an email to the person who made the payment to confirm we’ve received it.</p><p class=\"govuk-body\">If the email does not arrive in a few minutes, check the spam folder.</p>",
@@ -478,7 +477,6 @@
     "certificateDetails": "<div class=\"govuk-inset-text\"> <p class=\"govuk-!-margin-bottom-1\"><span class=\"govuk-!-font-weight-bold\">Date and time certificate signed:</span> {{ .SignedAt }}</p> <p class=\"govuk-!-margin-bottom-1 govuk-!-margin-top-1\"><span class=\"govuk-!-font-weight-bold\">Donor name:</span> {{ .DonorFullName }}</p> <p class=\"govuk-!-margin-top-1\"><span class=\"govuk-!-font-weight-bold\">LPA reference number:</span> {{ .LpaUID }}</p></div>",
     "thisMeansYouveDoneEverythingContent": "<p class=\"govuk-body\">This means you’ve done everything you need to do as {{possessive .DonorFullName }} certificate provider.</p> <h2 class=\"govuk-heading-m\">What happens next</h2> <p class=\"govuk-body\">You will no longer be able to view or access this LPA from ‘Manage LPAs’.</p> <p class=\"govuk-body\">We have sent an email confirming that you provided your certificate for this LPA to <span class=\"govuk-!-font-weight-bold\">{{ .CertificateProviderEmail }}</span>.</p> <p class=\"govuk-body\">If you would like a paper record, you can also print a copy of this page.</p>",
     "certificateProvidedConcerns": "<p class=\"govuk-body\">The Office of the Public Guardian (OPG) may contact you if we have concerns about {{possessive .DonorFirstNames }} LPA.</p> <p class=\"govuk-body\">You can also <a href=\"https://www.gov.uk/report-concern-about-attorney-deputy-guardian\" class=\"govuk-link\" target=\"_blank\" rel=\"noreferrer noopener\">report a concern about an LPA (opens in a new tab)</a>.</p>",
-    "goToYourDashboard": "Return to ‘Manage LPAs’",
     "beAnAttorney": "Be an attorney on a lasting power of attorney (LPA)",
     "enterYourAttorneyAccessCode": "Enter your attorney access code",
     "attorneyAccessCodeContent": "To add an LPA, enter your attorney access code. You’ll find your code in the email or letter the Office of the Public Guardian sent inviting you to be an attorney or a replacement attorney.",
@@ -860,7 +858,6 @@
     "selectYourHomeAddress": "Select your home address",
     "yourHomeAddress": "Your home address",
     "homeAddress": "Home address",
-    "goToDashboard": "Return to ‘Manage LPAs’",
     "printThisPage": "Print this page",
     "printerIcon": "Icon of a printer",
     "yourDateOfBirthWillNotBeShown": "Your date of birth will not be shown to the donor or appear on the completed LPA.",
@@ -934,7 +931,6 @@
     "invitationSent": "Invitation sent",
     "weHaveSentInvite": "We have sent an email to <span class=\"govuk-!-font-weight-bold\">{{.Email}}</span> inviting them to join your organisation.",
     "inviteTeamMember": "Invite a team member",
-    "dashboard": "Manage LPAs",
     "manageOrganisation": "Manage organisation",
     "manageTeamMembers": "Manage team members",
     "organisationDetails": "Organisation details",
@@ -1903,5 +1899,7 @@
     "doYouNeedToChangeThisEmailAddress": "Do you need to change this email address?",
     "doYouNeedToChangeThisEmailAddressContent": "You can enter a different email address for {{.CertificateProviderFullName}}. Emails from the Office of the Public Guardian will be sent to the new address.",
     "whyCantIUpdateThisEmailAddress": "Why can’t I update this email address?",
-    "whyCantIUpdateThisEmailAddressContent": "<p class=\"govuk-body\">{{.CertificateProviderFullName}} has already accessed your LPA using a code sent to this email address. For security reasons their email cannot now be changed.</p><p class=\"govuk-body\">If {{.CertificateProviderFirstNames}} has decided they would like to be contacted using paper forms, they must contact OPG to request this.</p>"
+    "whyCantIUpdateThisEmailAddressContent": "<p class=\"govuk-body\">{{.CertificateProviderFullName}} has already accessed your LPA using a code sent to this email address. For security reasons their email cannot now be changed.</p><p class=\"govuk-body\">If {{.CertificateProviderFirstNames}} has decided they would like to be contacted using paper forms, they must contact OPG to request this.</p>",
+    "returnToManageLPAs": "Return to ‘Manage LPAs’",
+    "manageLPAs": "Manage LPAs"
 }
