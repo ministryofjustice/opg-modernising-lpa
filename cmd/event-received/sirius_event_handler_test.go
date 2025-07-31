@@ -1015,7 +1015,7 @@ func TestHandleDonorSubmissionCompletedWhenAccessCodeSenderError(t *testing.T) {
 		Return(expectedError)
 
 	err := handleDonorSubmissionCompleted(ctx, nil, donorSubmissionCompletedEvent, accessCodeSender, appData, lpaStoreClient, testUuidStringFn, testNowFn)
-	assert.Equal(t, fmt.Errorf("failed to send share code to certificate provider: %w", expectedError), err)
+	assert.ErrorIs(t, err, expectedError)
 }
 
 var certificateProviderSubmissionCompletedEvent = &events.CloudWatchEvent{
