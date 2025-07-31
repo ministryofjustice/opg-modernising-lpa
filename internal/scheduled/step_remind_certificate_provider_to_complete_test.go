@@ -133,7 +133,7 @@ func TestRunnerRemindCertificateProviderToComplete(t *testing.T) {
 					EmailGreeting(lpa).
 					Return("hey")
 				notifyClient.EXPECT().
-					SendActorEmail(ctx, notify.ToLpaCertificateProvider(nil, lpa), "lpa-uid", notify.AdviseCertificateProviderToSignOrOptOutEmail{
+					SendActorEmail(ctx, notify.ToLpaCertificateProvider(nil, lpa), "lpa-uid", notify.AdviseCertificateProviderToSignOrOptOutEmailAccessCodeUsed{
 						DonorFullName:                   "a b",
 						DonorFullNamePossessive:         "a b’s",
 						LpaType:                         "Personal welfare",

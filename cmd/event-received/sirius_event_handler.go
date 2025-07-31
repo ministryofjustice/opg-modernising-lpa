@@ -271,7 +271,7 @@ func handleDonorSubmissionCompleted(ctx context.Context, client dynamodbClient, 
 	}
 
 	if err := accessCodeSender.SendLpaCertificateProviderPrompt(ctx, appData, donor.PK, donor.SK, lpa); err != nil {
-		return fmt.Errorf("failed to send share code to certificate provider: %w", err)
+		return fmt.Errorf("failed to send access code to certificate provider: %w", err)
 	}
 
 	transaction := dynamo.NewTransaction().

@@ -58,16 +58,32 @@ func (r *Runner) stepRemindCertificateProviderToComplete(ctx context.Context, ro
 
 		toCertificateProviderEmail := notify.ToLpaCertificateProvider(certificateProvider, lpa)
 
-		if err := r.notifyClient.SendActorEmail(ctx, toCertificateProviderEmail, lpa.LpaUID, notify.AdviseCertificateProviderToSignOrOptOutEmail{
-			DonorFullName:                   lpa.Donor.FullName(),
-			DonorFullNamePossessive:         localizer.Possessive(lpa.Donor.FullName()),
-			LpaType:                         localizer.T(lpa.Type.String()),
-			CertificateProviderFullName:     lpa.CertificateProvider.FullName(),
-			InvitedDate:                     localizer.FormatDate(lpa.CertificateProviderInvitedAt),
-			DeadlineDate:                    localizer.FormatDate(lpa.ExpiresAt()),
-			CertificateProviderStartPageURL: r.certificateProviderStartURL,
-			CertificateProviderOptOutURL:    r.certificateProviderOptOutURL,
-		}); err != nil {
+		var email notify.Email
+		if certificateProvider != nil {
+			email = notify.AdviseCertificateProviderToSignOrOptOutEmailAccessCodeUsed{
+				DonorFullName:                   lpa.Donor.FullName(),
+				DonorFullNamePossessive:         localizer.Possessive(lpa.Donor.FullName()),
+				LpaType:                         localizer.T(lpa.Type.String()),
+				CertificateProviderFullName:     lpa.CertificateProvider.FullName(),
+				InvitedDate:                     localizer.FormatDate(lpa.CertificateProviderInvitedAt),
+				DeadlineDate:                    localizer.FormatDate(lpa.ExpiresAt()),
+				CertificateProviderStartPageURL: r.certificateProviderStartURL,
+				CertificateProviderOptOutURL:    r.certificateProviderOptOutURL,
+			}
+		} else {
+			email = notify.AdviseCertificateProviderToSignOrOptOutEmail{
+				DonorFullName:                   lpa.Donor.FullName(),
+				DonorFullNamePossessive:         localizer.Possessive(lpa.Donor.FullName()),
+				LpaType:                         localizer.T(lpa.Type.String()),
+				CertificateProviderFullName:     lpa.CertificateProvider.FullName(),
+				InvitedDate:                     localizer.FormatDate(lpa.CertificateProviderInvitedAt),
+				DeadlineDate:                    localizer.FormatDate(lpa.ExpiresAt()),
+				CertificateProviderStartPageURL: r.certificateProviderStartURL,
+				CertificateProviderOptOutURL:    r.certificateProviderOptOutURL,
+			}
+		}
+
+		if err := r.notifyClient.SendActorEmail(ctx, toCertificateProviderEmail, lpa.LpaUID, email); err != nil {
 			return fmt.Errorf("could not send certificate provider email: %w", err)
 		}
 	}

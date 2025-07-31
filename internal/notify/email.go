@@ -74,7 +74,7 @@ type CertificateProviderProvideCertificatePromptEmail struct {
 	LpaType                     string
 	CertificateProviderFullName string
 	CertificateProviderStartURL string
-	AccessCode                  string
+	InvitedDate                 string
 }
 
 func (e CertificateProviderProvideCertificatePromptEmail) emailID(lang localize.Lang) string {
@@ -82,6 +82,18 @@ func (e CertificateProviderProvideCertificatePromptEmail) emailID(lang localize.
 		return "73704800-f241-4b17-8e37-09ee2804a570"
 	}
 
+	return "eac04624-f058-411a-be48-854a77022ac8"
+}
+
+type CertificateProviderProvideCertificatePromptEmailAccessCodeUsed struct {
+	DonorFullName               string
+	DonorFullNamePossessive     string
+	LpaType                     string
+	CertificateProviderFullName string
+	CertificateProviderStartURL string
+}
+
+func (e CertificateProviderProvideCertificatePromptEmailAccessCodeUsed) emailID(_ localize.Lang) string {
 	return "eac04624-f058-411a-be48-854a77022ac8"
 }
 
@@ -308,6 +320,21 @@ func (e AdviseCertificateProviderToSignOrOptOutEmail) emailID(lang localize.Lang
 	}
 
 	return "fc01c541-28f3-4e04-921e-e8848f810278"
+}
+
+type AdviseCertificateProviderToSignOrOptOutEmailAccessCodeUsed struct {
+	DonorFullName                   string
+	DonorFullNamePossessive         string
+	LpaType                         string
+	CertificateProviderFullName     string
+	InvitedDate                     string
+	DeadlineDate                    string
+	CertificateProviderStartPageURL string
+	CertificateProviderOptOutURL    string
+}
+
+func (e AdviseCertificateProviderToSignOrOptOutEmailAccessCodeUsed) emailID(_ localize.Lang) string {
+	return "c9ace5c4-01fc-43f3-998d-4df93231d32b"
 }
 
 type InformDonorCertificateProviderHasNotActedEmail struct {
