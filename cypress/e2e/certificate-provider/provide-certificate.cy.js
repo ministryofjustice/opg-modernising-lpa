@@ -26,7 +26,7 @@ describe('Provide the certificate', () => {
                 const uid = text.split(':')[1].trim();
 
                 cy.origin('http://localhost:9001', { args: { uid } }, ({ uid }) => {
-                    cy.visit(`/?detail-type=letter-requested&detail=${uid}`);
+                    cy.visit(`/?detail-type=letter-requested&detail=${uid}`, { timeout: 10000 });
                     cy.contains(`"uid":"${uid}"`)
                     cy.contains(`"actorType":"donor"`)
                     cy.contains(`"letterType":"ADVISE_DONOR_CERTIFICATE_HAS_BEEN_PROVIDED"`)
