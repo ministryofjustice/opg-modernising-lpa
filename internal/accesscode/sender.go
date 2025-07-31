@@ -106,27 +106,33 @@ func (s *Sender) SendCertificateProviderInvite(ctx context.Context, appData appc
 	})
 }
 
-func (s *Sender) SendCertificateProviderPrompt(ctx context.Context, appData appcontext.Data, donor *donordata.Provided) error {
-	accessCode, err := s.createAccessCode(ctx, donor.PK, donor.SK, donor.LpaUID, donor.CertificateProvider.UID, actor.TypeCertificateProvider)
+func (s *Sender) SendCertificateProviderPrompt(ctx context.Context, appData appcontext.Data, provided *donordata.Provided) error {
+	accessCode, err := s.createAccessCode(ctx, provided.PK, provided.SK, provided.LpaUID, provided.CertificateProvider.UID, actor.TypeCertificateProvider)
 	if err != nil {
 		return err
 	}
 
-	if donor.CertificateProvider.CarryOutBy.IsPaper() {
-		return s.sendPaperForm(ctx, donor.LpaUID, actor.TypeCertificateProvider, donor.CertificateProvider.UID, accessCode)
+	if provided.CertificateProvider.CarryOutBy.IsPaper() {
+		return s.sendPaperForm(ctx, provided.LpaUID, actor.TypeCertificateProvider, provided.CertificateProvider.UID, accessCode)
 	}
 
-	to := notify.ToCertificateProvider(donor.CertificateProvider)
 	if certificateProvider, err := s.certificateProviderStore.GetAny(ctx); err == nil {
-		to = notify.ToProvidedCertificateProvider(certificateProvider, donor.CertificateProvider)
+		return s.sendEmail(ctx, notify.ToProvidedCertificateProvider(certificateProvider, provided.CertificateProvider), provided.LpaUID, notify.CertificateProviderProvideCertificatePromptEmailAccessCodeUsed{
+			DonorFullName:               provided.Donor.FullName(),
+			DonorFullNamePossessive:     appData.Localizer.Possessive(provided.Donor.FullName()),
+			LpaType:                     localize.LowerFirst(appData.Localizer.T(provided.Type.String())),
+			CertificateProviderFullName: provided.CertificateProvider.FullName(),
+			CertificateProviderStartURL: s.certificateProviderStartURL,
+		})
 	}
 
-	return s.sendEmail(ctx, to, donor.LpaUID, notify.CertificateProviderProvideCertificatePromptEmail{
-		CertificateProviderFullName: donor.CertificateProvider.FullName(),
-		DonorFullName:               donor.Donor.FullName(),
-		LpaType:                     localize.LowerFirst(appData.Localizer.T(donor.Type.String())),
+	return s.sendEmail(ctx, notify.ToCertificateProvider(provided.CertificateProvider), provided.LpaUID, notify.CertificateProviderProvideCertificatePromptEmail{
+		DonorFullName:               provided.Donor.FullName(),
+		DonorFullNamePossessive:     appData.Localizer.Possessive(provided.Donor.FullName()),
+		LpaType:                     localize.LowerFirst(appData.Localizer.T(provided.Type.String())),
+		CertificateProviderFullName: provided.CertificateProvider.FullName(),
 		CertificateProviderStartURL: s.certificateProviderStartURL,
-		AccessCode:                  accessCode.Plain(),
+		InvitedDate:                 appData.Localizer.FormatDate(provided.CertificateProviderInvitedAt),
 	})
 }
 
@@ -143,12 +149,14 @@ func (s *Sender) SendLpaCertificateProviderPrompt(ctx context.Context, appData a
 	// There is no certificate provider record yet, so assume English
 	to := notify.ToLpaCertificateProvider(&certificateproviderdata.Provided{ContactLanguagePreference: localize.En}, lpa)
 
+	// TODO replace with a new email once ready in MLPAB-3228
 	return s.sendEmail(ctx, to, lpa.LpaUID, notify.CertificateProviderProvideCertificatePromptEmail{
-		CertificateProviderFullName: lpa.CertificateProvider.FullName(),
 		DonorFullName:               lpa.Donor.FullName(),
+		DonorFullNamePossessive:     appData.Localizer.Possessive(lpa.Donor.FullName()),
 		LpaType:                     localize.LowerFirst(appData.Localizer.T(lpa.Type.String())),
+		CertificateProviderFullName: lpa.CertificateProvider.FullName(),
 		CertificateProviderStartURL: s.certificateProviderStartURL,
-		AccessCode:                  accessCode.Plain(),
+		InvitedDate:                 "1 July 2023",
 	})
 }
 
