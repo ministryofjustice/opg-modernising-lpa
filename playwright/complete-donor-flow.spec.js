@@ -1,6 +1,6 @@
-import { expect, test } from '@playwright/test';
-import { screenshot } from './e2e';
-import { extractTextFromMainAndSave } from "./textExtractor";
+import {expect, test} from '@playwright/test';
+import {screenshot} from './e2e';
+import {extractTextFromMainAndSave} from "./textExtractor";
 
 test('donor happy path', async ({ page }) => {
     await page.goto('http://localhost:5050/start');
@@ -471,7 +471,7 @@ test('donor happy path', async ({ page }) => {
     await expect(page).toHaveURL(/\/progress/);
     await screenshot(page)
     await extractTextFromMainAndSave(page)
-    await page.getByRole('link', { name: 'Return to dashboard' }).click();
+    await page.getByRole('link', { name: 'Return to ‘Manage LPAs’' }).click();
 
     await expect(page).toHaveURL(/\/dashboard/);
     await page.getByRole('button', { name: 'Actions' }).click();

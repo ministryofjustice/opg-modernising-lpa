@@ -1,6 +1,6 @@
-import { expect, test } from '@playwright/test';
-import { randomAccessCode, screenshot, TestEmail } from '../e2e.js';
-import { extractTextFromMainAndSave } from "../textExtractor.js";
+import {expect, test} from '@playwright/test';
+import {randomAccessCode, screenshot, TestEmail} from '../e2e.js';
+import {extractTextFromMainAndSave} from "../textExtractor.js";
 
 test('replacement attorney property and affairs', async ({ page }) => {
     const accessCode = randomAccessCode()
@@ -52,5 +52,5 @@ test('replacement attorney property and affairs', async ({ page }) => {
     await expect(page.locator('h1')).toContainText('You’ve formally agreed to be a replacement attorney');
     await screenshot(page)
     await extractTextFromMainAndSave(page)
-    await page.getByRole('link', { name: 'Go to your dashboard' }).click();
+    await page.getByRole('link', { name: 'Return to ‘Manage LPAs’' }).click();
 });

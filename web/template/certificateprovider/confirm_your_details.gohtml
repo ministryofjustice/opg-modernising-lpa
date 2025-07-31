@@ -45,7 +45,7 @@
         <div class="govuk-button-group">
           {{ template "csrf-field" . }}
           {{ template "continue-button" . }}
-          <a href="{{ link .App (global.Paths.Dashboard.Format) }}" class="govuk-button govuk-button--secondary">{{ tr .App "goToDashboard" }}</a>
+          <a href="{{ link .App (global.Paths.Dashboard.Format) }}" class="govuk-button govuk-button--secondary">{{ tr .App "returnToManageLPAs" }}</a>
         </div>
       </form>
     </div>

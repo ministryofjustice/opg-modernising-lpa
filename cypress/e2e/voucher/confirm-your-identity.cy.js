@@ -29,7 +29,7 @@ describe('Confirm your identity', () => {
         cy.contains('a', 'Confirm your name').click();
         cy.contains('a', 'Change').should('not.exist');
 
-        cy.contains('a', 'Manage your LPAs').click();
+        cy.contains('a', 'Manage LPAs').click();
         cy.contains('I’m vouching for someone');
     });
 

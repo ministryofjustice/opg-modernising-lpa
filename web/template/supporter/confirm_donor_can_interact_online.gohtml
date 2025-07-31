@@ -12,7 +12,7 @@
             {{ template "warning" (content .App "youCannotSwitchBetweenPaperAndOnlineWarning") }}
 
             {{ trHtml .App "checkTheDonorCanInteractOnlineContent" }}
-            
+
             <form novalidate method="post">
                 {{ template "radios-fieldset" (fieldset . .Form.FieldName .Form.YesNo.String
                     (legend "howWouldYouLikeToContinue" "govuk-fieldset__legend--m")
@@ -22,7 +22,7 @@
 
                 <div class="govuk-button-group">
                     {{ template "continue-button" . }}
-                    <a href="{{ link .App global.Paths.Supporter.Dashboard.Format }}" class="govuk-button govuk-button--secondary">{{ tr .App "returnToDashboard" }}</a>
+                    <a href="{{ link .App global.Paths.Supporter.Dashboard.Format }}" class="govuk-button govuk-button--secondary">{{ tr .App "returnToManageLPAs" }}</a>
                 </div>
                 {{ template "csrf-field" . }}
             </form>

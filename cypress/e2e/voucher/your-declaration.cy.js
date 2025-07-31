@@ -9,7 +9,7 @@ describe('Confirm your identity', () => {
         cy.contains('button', 'Submit my signature').click();
 
         cy.url().should('contain', '/thank-you');
-        cy.contains('a', 'Manage your LPAs').click();
+        cy.contains('a', 'Manage LPAs').click();
         cy.contains('I’m vouching for someone').should('not.exist');
     });
 });

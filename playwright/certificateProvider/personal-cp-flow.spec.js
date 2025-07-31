@@ -67,5 +67,5 @@ test('certificate provider provides certificate (personal)', async ({page}) => {
     await expect(page.locator('h1')).toContainText('You’ve provided the certificate for this LPA');
     await screenshot(page)
     await extractTextFromMainAndSave(page)
-    await page.getByRole('link', {name: 'Go to your dashboard'}).click();
+    await page.getByRole('link', {name: 'Return to ‘Manage LPAs’'}).click();
 });

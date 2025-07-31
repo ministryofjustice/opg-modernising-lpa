@@ -1,4 +1,4 @@
-import { randomAccessCode } from "../../support/e2e.js";
+import {randomAccessCode} from "../../support/e2e.js";
 
 describe('Dashboard', () => {
     context('with incomplete LPA', () => {
@@ -37,7 +37,7 @@ describe('Dashboard', () => {
             cy.get('input[name="yes-no"]').check('yes', { force: true });
             cy.contains('button', 'Save and continue').click()
 
-            cy.contains('a', 'Manage your LPAs').click()
+            cy.contains('a', 'Manage LPAs').click()
 
             cy.get('button').should('not.contain', 'Continue');
 
@@ -209,7 +209,7 @@ describe('Dashboard', () => {
 
             cy.url().should('contain', '/dashboard');
 
-            cy.contains('a', 'Manage your LPAs');
+            cy.contains('a', 'Manage LPAs');
         })
     })
 });

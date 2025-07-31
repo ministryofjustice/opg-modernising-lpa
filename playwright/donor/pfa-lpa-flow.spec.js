@@ -422,7 +422,7 @@ test('donor property and affairs full journey', async ({page}) => {
     await expect(page.locator('#main-content')).toContainText('Check the progress of your LPA');
     await screenshot(page)
     await extractTextFromMainAndSave(page)
-    await page.getByRole('link', {name: 'Return to dashboard'}).click();
+    await page.getByRole('link', {name: 'Return to ‘Manage LPAs’'}).click();
     await page.getByRole('link', {name: 'View LPA'}).click();
 
     await expect(page.locator('h1')).toContainText('View your LPA');

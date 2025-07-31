@@ -15,7 +15,7 @@ describe('Certificate provided', () => {
     it('has a button to the dashboard', () => {
         cy.visit('/fixtures/certificate-provider?redirect=/certificate-provided&progress=confirmYourIdentity')
 
-        cy.contains('a', 'Go to your dashboard').click();
+        cy.contains('a', 'Return to ‘Manage LPAs’').click();
         cy.url().should('contain', '/dashboard');
     });
 

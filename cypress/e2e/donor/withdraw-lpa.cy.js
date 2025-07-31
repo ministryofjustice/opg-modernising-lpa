@@ -10,7 +10,7 @@ describe('Withdraw LPA', () => {
 
         cy.checkA11yApp();
         cy.contains('You have revoked');
-        cy.contains('a', 'Return to dashboard').click();
+        cy.contains('a', 'Return to ‘Manage LPAs’').click();
 
         cy.contains('.app-dashboard-card', 'Sam Smith').contains('.app-tag', 'Revoked');
     });

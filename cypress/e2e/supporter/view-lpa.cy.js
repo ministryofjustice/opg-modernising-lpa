@@ -29,7 +29,7 @@ describe('View LPA', () => {
 
         cy.get('#f-first-names').invoke('val', '2');
         cy.contains('button', 'Save and continue').click();
-        cy.contains('a', 'Dashboard').click();
+        cy.contains('a', 'Manage LPAs').click();
         cy.contains('2 Smith');
     });
 
