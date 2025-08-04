@@ -97,7 +97,7 @@ jobs:
           severity: 'HIGH,CRITICAL'
           format: 'table'
           output: '${{ matrix.name }}-trivy-results.txt'
-          exit-code: 0
+          exit-code: 1
       - name: Unset AWS credentials
         if: always()
         run: |
