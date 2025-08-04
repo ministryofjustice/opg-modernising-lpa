@@ -1,6 +1,7 @@
 package voucherpage
 
 import (
+	"cmp"
 	"net/http"
 
 	"github.com/ministryofjustice/opg-go-common/template"
@@ -25,15 +26,8 @@ func YourName(tmpl template.Template, lpaStoreResolvingService LpaStoreResolving
 			return err
 		}
 
-		firstNames := provided.FirstNames
-		if firstNames == "" {
-			firstNames = lpa.Voucher.FirstNames
-		}
-
-		lastName := provided.LastName
-		if lastName == "" {
-			lastName = lpa.Voucher.LastName
-		}
+		firstNames := cmp.Or(provided.FirstNames, lpa.Voucher.FirstNames)
+		lastName := cmp.Or(provided.LastName, lpa.Voucher.LastName)
 
 		data := &yourNameData{
 			App: appData,
@@ -57,6 +51,15 @@ func YourName(tmpl template.Template, lpaStoreResolvingService LpaStoreResolving
 					if err := voucherStore.Put(r.Context(), provided); err != nil {
 						return err
 					}
+
+					http.SetCookie(w, &http.Cookie{
+						Name:     "banner",
+						Value:    "1",
+						MaxAge:   60,
+						SameSite: http.SameSiteStrictMode,
+						HttpOnly: true,
+						Secure:   true,
+					})
 				}
 
 				return voucher.PathConfirmYourName.Redirect(w, r, appData, appData.LpaID)

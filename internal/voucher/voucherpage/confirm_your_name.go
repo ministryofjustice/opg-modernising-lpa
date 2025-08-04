@@ -1,6 +1,7 @@
 package voucherpage
 
 import (
+	"cmp"
 	"net/http"
 
 	"github.com/ministryofjustice/opg-go-common/template"
@@ -19,6 +20,8 @@ type confirmYourNameData struct {
 	Tasks      voucherdata.Tasks
 	FirstNames string
 	LastName   string
+	Changed    bool
+	ShowBanner bool
 }
 
 func ConfirmYourName(tmpl template.Template, lpaStoreResolvingService LpaStoreResolvingService, voucherStore VoucherStore) Handler {
@@ -28,15 +31,8 @@ func ConfirmYourName(tmpl template.Template, lpaStoreResolvingService LpaStoreRe
 			return err
 		}
 
-		firstNames := provided.FirstNames
-		if firstNames == "" {
-			firstNames = lpa.Voucher.FirstNames
-		}
-
-		lastName := provided.LastName
-		if lastName == "" {
-			lastName = lpa.Voucher.LastName
-		}
+		firstNames := cmp.Or(provided.FirstNames, lpa.Voucher.FirstNames)
+		lastName := cmp.Or(provided.LastName, lpa.Voucher.LastName)
 
 		if r.Method == http.MethodPost {
 			redirect := voucher.PathTaskList
@@ -58,12 +54,21 @@ func ConfirmYourName(tmpl template.Template, lpaStoreResolvingService LpaStoreRe
 			return redirect.Redirect(w, r, appData, appData.LpaID)
 		}
 
+		cookie, _ := r.Cookie("banner")
+		if cookie != nil {
+			cookie.MaxAge = -1
+			http.SetCookie(w, cookie)
+		}
+
 		return tmpl(w, &confirmYourNameData{
 			App:        appData,
 			Lpa:        lpa,
 			Tasks:      provided.Tasks,
 			FirstNames: firstNames,
 			LastName:   lastName,
+			Changed: (provided.FirstNames != lpa.Voucher.FirstNames || provided.LastName != lpa.Voucher.LastName) &&
+				(provided.FirstNames != "" || provided.LastName != ""),
+			ShowBanner: cookie != nil && cookie.Value == "1",
 		})
 	}
 }
