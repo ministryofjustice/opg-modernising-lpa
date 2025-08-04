@@ -33,3 +33,13 @@ fields @timestamp, level, msg, err, concat(req.method, " ", req.uri) as request
 EOF
   provider     = aws.region
 }
+
+resource "aws_cloudwatch_log_anomaly_detector" "application_logs" {
+  detector_name           = "${data.aws_default_tags.current.tags.environment-name}_application_logs"
+  log_group_arn_list      = [aws_cloudwatch_log_group.application_logs.arn]
+  anomaly_visibility_time = 30
+  evaluation_frequency    = "TEN_MIN"
+  kms_key_id              = data.aws_kms_alias.cloudwatch_application_logs_encryption.target_key_arn
+  enabled                 = "true"
+  provider                = aws.region
+}

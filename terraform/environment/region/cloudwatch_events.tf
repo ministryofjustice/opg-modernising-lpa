@@ -89,3 +89,13 @@ resource "aws_cloudwatch_metric_alarm" "ecs_failed_deployment" {
   treat_missing_data        = "notBreaching"
   provider                  = aws.region
 }
+
+resource "aws_cloudwatch_log_anomaly_detector" "events" {
+  detector_name           = "${data.aws_default_tags.current.tags.environment-name}_events"
+  log_group_arn_list      = [aws_cloudwatch_log_group.events.arn]
+  anomaly_visibility_time = 30
+  evaluation_frequency    = "TEN_MIN"
+  kms_key_id              = data.aws_kms_alias.cloudwatch_application_logs_encryption.target_key_arn
+  enabled                 = "true"
+  provider                = aws.region
+}

@@ -221,3 +221,14 @@ fields @timestamp, @message, @logStream, @log
 EOF
   provider     = aws.region
 }
+
+resource "aws_cloudwatch_log_anomaly_detector" "events_emitted" {
+  count                   = var.log_emitted_events ? 1 : 0
+  detector_name           = "${data.aws_default_tags.current.tags.environment-name}_events_emitted"
+  log_group_arn_list      = [aws_cloudwatch_log_group.events_emitted[0].arn]
+  anomaly_visibility_time = 30
+  evaluation_frequency    = "TEN_MIN"
+  kms_key_id              = data.aws_kms_alias.cloudwatch_application_logs_encryption.target_key_arn
+  enabled                 = "true"
+  provider                = aws.region
+}

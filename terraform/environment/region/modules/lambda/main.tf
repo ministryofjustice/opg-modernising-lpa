@@ -61,3 +61,13 @@ fields @timestamp, type, record.status as status, @xrayTraceId, @message, record
 EOF
   provider     = aws.region
 }
+
+resource "aws_cloudwatch_log_anomaly_detector" "main" {
+  detector_name           = "${var.environment}_${var.lambda_name}"
+  log_group_arn_list      = [aws_cloudwatch_log_group.lambda.arn]
+  anomaly_visibility_time = 30
+  evaluation_frequency    = "TEN_MIN"
+  kms_key_id              = var.kms_key
+  enabled                 = "true"
+  provider                = aws.region
+}
