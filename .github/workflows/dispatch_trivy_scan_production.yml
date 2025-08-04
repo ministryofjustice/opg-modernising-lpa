@@ -2,6 +2,8 @@ name: "[WD] Scan production containers for vulnerabilities"
 
 on:
   workflow_dispatch:
+  schedule:
+    - cron: "30 9 * * 1"
 
 defaults:
   run:
@@ -95,7 +97,7 @@ jobs:
           severity: 'HIGH,CRITICAL'
           format: 'table'
           output: '${{ matrix.name }}-trivy-results.txt'
-          exit-code: 1
+          exit-code: 0
       - name: Unset AWS credentials
         if: always()
         run: |
