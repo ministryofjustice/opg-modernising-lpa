@@ -41,11 +41,13 @@ func TestGetConfirmYourName(t *testing.T) {
 
 	assert.Nil(t, err)
 	assert.Equal(t, http.StatusOK, resp.StatusCode)
+	assert.Empty(t, resp.Cookies())
 }
 
 func TestGetConfirmYourNameWhenChanged(t *testing.T) {
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest(http.MethodGet, "/", nil)
+	r.AddCookie(&http.Cookie{Name: "banner", Value: "1", MaxAge: 60})
 
 	lpaStoreResolvingService := newMockLpaStoreResolvingService(t)
 	lpaStoreResolvingService.EXPECT().
@@ -63,6 +65,8 @@ func TestGetConfirmYourNameWhenChanged(t *testing.T) {
 			},
 			FirstNames: "A",
 			LastName:   "B",
+			Changed:    true,
+			ShowBanner: true,
 		}).
 		Return(nil)
 
@@ -75,6 +79,13 @@ func TestGetConfirmYourNameWhenChanged(t *testing.T) {
 
 	assert.Nil(t, err)
 	assert.Equal(t, http.StatusOK, resp.StatusCode)
+	if assert.Len(t, resp.Cookies(), 1) {
+		cookie := resp.Cookies()[0]
+
+		assert.Equal(t, "banner", cookie.Name)
+		assert.Equal(t, "1", cookie.Value)
+		assert.Equal(t, -1, cookie.MaxAge)
+	}
 }
 
 func TestGetConfirmYourNameWhenLpaStoreResolvingServiceErrors(t *testing.T) {
