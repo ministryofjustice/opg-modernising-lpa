@@ -282,7 +282,7 @@ func TestAccessCodeSenderSendCertificateProviderInviteWhenAccessCodeStoreErrors(
 }
 
 func TestAccessCodeSenderSendCertificateProviderPromptOnline(t *testing.T) {
-	donor := &donordata.Provided{
+	provided := &donordata.Provided{
 		CertificateProvider: donordata.CertificateProvider{
 			FirstNames: "Joanna",
 			LastName:   "Jones",
@@ -293,36 +293,37 @@ func TestAccessCodeSenderSendCertificateProviderPromptOnline(t *testing.T) {
 			FirstNames: "Jan",
 			LastName:   "Smith",
 		},
-		Type:   lpadata.LpaTypePropertyAndAffairs,
-		LpaUID: "lpa-uid",
-		PK:     dynamo.LpaKey("lpa"),
-		SK:     dynamo.LpaOwnerKey(dynamo.DonorKey("donor")),
+		Type:                         lpadata.LpaTypePropertyAndAffairs,
+		LpaUID:                       "lpa-uid",
+		PK:                           dynamo.LpaKey("lpa"),
+		SK:                           dynamo.LpaOwnerKey(dynamo.DonorKey("donor")),
+		CertificateProviderInvitedAt: testNow,
 	}
 
 	localizer := newMockLocalizer(t)
 	localizer.EXPECT().
-		T(donor.Type.String()).
+		T(provided.Type.String()).
 		Return("Property and affairs").
+		Once()
+	localizer.EXPECT().
+		Possessive("Jan Smith").
+		Return("possessive name").
+		Once()
+	localizer.EXPECT().
+		FormatDate(testNow).
+		Return("formatted date").
 		Once()
 	testAppData.Localizer = localizer
 
 	notifyClient := newMockNotifyClient(t)
 	notifyClient.EXPECT().
-		SendActorEmail(ctx, notify.ToCertificateProvider(donor.CertificateProvider), "lpa-uid", notify.CertificateProviderProvideCertificatePromptEmail{
-			AccessCode:                  testPlainCode.Plain(),
+		SendActorEmail(ctx, notify.ToCertificateProvider(provided.CertificateProvider), "lpa-uid", notify.CertificateProviderProvideCertificatePromptEmail{
+			InvitedDate:                 "formatted date",
 			CertificateProviderFullName: "Joanna Jones",
 			DonorFullName:               "Jan Smith",
+			DonorFullNamePossessive:     "possessive name",
 			LpaType:                     "property and affairs",
 			CertificateProviderStartURL: "http://example.com/certificate-provider",
-		}).
-		Return(nil)
-
-	accessCodeStore := newMockAccessCodeStore(t)
-	accessCodeStore.EXPECT().
-		Put(ctx, actor.TypeCertificateProvider, testHashedCode, accesscodedata.Link{
-			LpaKey:      dynamo.LpaKey("lpa"),
-			LpaOwnerKey: dynamo.LpaOwnerKey(dynamo.DonorKey("donor")),
-			LpaUID:      "lpa-uid",
 		}).
 		Return(nil)
 
@@ -332,19 +333,19 @@ func TestAccessCodeSenderSendCertificateProviderPromptOnline(t *testing.T) {
 		Return(nil, expectedError)
 
 	sender := &Sender{
-		accessCodeStore:             accessCodeStore,
+		accessCodeStore:             nil,
 		notifyClient:                notifyClient,
 		certificateProviderStartURL: "http://example.com/certificate-provider",
 		generate:                    testGenerateFn,
 		certificateProviderStore:    certificateProviderStore,
 	}
-	err := sender.SendCertificateProviderPrompt(ctx, testAppData, donor)
+	err := sender.SendCertificateProviderPrompt(ctx, testAppData, provided)
 
 	assert.Nil(t, err)
 }
 
 func TestAccessCodeSenderSendCertificateProviderPromptOnlineWhenStarted(t *testing.T) {
-	donor := &donordata.Provided{
+	provided := &donordata.Provided{
 		CertificateProvider: donordata.CertificateProvider{
 			FirstNames: "Joanna",
 			LastName:   "Jones",
@@ -368,28 +369,23 @@ func TestAccessCodeSenderSendCertificateProviderPromptOnlineWhenStarted(t *testi
 
 	localizer := newMockLocalizer(t)
 	localizer.EXPECT().
-		T(donor.Type.String()).
+		T(provided.Type.String()).
 		Return("Property and affairs").
+		Once()
+	localizer.EXPECT().
+		Possessive("Jan Smith").
+		Return("possessive name").
 		Once()
 	testAppData.Localizer = localizer
 
 	notifyClient := newMockNotifyClient(t)
 	notifyClient.EXPECT().
-		SendActorEmail(ctx, notify.ToProvidedCertificateProvider(certificateProvider, donor.CertificateProvider), "lpa-uid", notify.CertificateProviderProvideCertificatePromptEmail{
-			AccessCode:                  testPlainCode.Plain(),
+		SendActorEmail(ctx, notify.ToProvidedCertificateProvider(certificateProvider, provided.CertificateProvider), "lpa-uid", notify.CertificateProviderProvideCertificatePromptEmailAccessCodeUsed{
 			CertificateProviderFullName: "Joanna Jones",
 			DonorFullName:               "Jan Smith",
+			DonorFullNamePossessive:     "possessive name",
 			LpaType:                     "property and affairs",
 			CertificateProviderStartURL: "http://example.com/certificate-provider",
-		}).
-		Return(nil)
-
-	accessCodeStore := newMockAccessCodeStore(t)
-	accessCodeStore.EXPECT().
-		Put(ctx, actor.TypeCertificateProvider, testHashedCode, accesscodedata.Link{
-			LpaKey:      dynamo.LpaKey("lpa"),
-			LpaOwnerKey: dynamo.LpaOwnerKey(dynamo.DonorKey("donor")),
-			LpaUID:      "lpa-uid",
 		}).
 		Return(nil)
 
@@ -399,13 +395,13 @@ func TestAccessCodeSenderSendCertificateProviderPromptOnlineWhenStarted(t *testi
 		Return(certificateProvider, nil)
 
 	sender := &Sender{
-		accessCodeStore:             accessCodeStore,
+		accessCodeStore:             nil,
 		notifyClient:                notifyClient,
 		certificateProviderStartURL: "http://example.com/certificate-provider",
 		generate:                    testGenerateFn,
 		certificateProviderStore:    certificateProviderStore,
 	}
-	err := sender.SendCertificateProviderPrompt(ctx, testAppData, donor)
+	err := sender.SendCertificateProviderPrompt(ctx, testAppData, provided)
 
 	assert.Nil(t, err)
 }
@@ -413,7 +409,7 @@ func TestAccessCodeSenderSendCertificateProviderPromptOnlineWhenStarted(t *testi
 func TestAccessCodeSenderSendCertificateProviderPromptPaper(t *testing.T) {
 	actorUID := actoruid.New()
 
-	donor := &donordata.Provided{
+	provided := &donordata.Provided{
 		CertificateProvider: donordata.CertificateProvider{
 			UID:        actorUID,
 			FirstNames: "Joanna",
@@ -456,7 +452,7 @@ func TestAccessCodeSenderSendCertificateProviderPromptPaper(t *testing.T) {
 		generate:        testGenerateFn,
 		eventClient:     eventClient,
 	}
-	err := sender.SendCertificateProviderPrompt(ctx, testAppData, donor)
+	err := sender.SendCertificateProviderPrompt(ctx, testAppData, provided)
 
 	assert.Nil(t, err)
 }
@@ -476,7 +472,7 @@ func TestAccessCodeSenderSendCertificateProviderPromptWithTestCode(t *testing.T)
 		},
 	}
 
-	donor := &donordata.Provided{
+	provided := &donordata.Provided{
 		CertificateProvider: donordata.CertificateProvider{
 			FirstNames: "Joanna",
 			LastName:   "Jones",
@@ -486,58 +482,69 @@ func TestAccessCodeSenderSendCertificateProviderPromptWithTestCode(t *testing.T)
 			FirstNames: "Jan",
 			LastName:   "Smith",
 		},
-		Type:   lpadata.LpaTypePropertyAndAffairs,
-		LpaUID: "lpa-uid",
-		PK:     dynamo.LpaKey("lpa"),
-		SK:     dynamo.LpaOwnerKey(dynamo.DonorKey("donor")),
+		Type:                         lpadata.LpaTypePropertyAndAffairs,
+		LpaUID:                       "lpa-uid",
+		PK:                           dynamo.LpaKey("lpa"),
+		SK:                           dynamo.LpaOwnerKey(dynamo.DonorKey("donor")),
+		CertificateProviderInvitedAt: testNow,
 	}
 
 	for name, tc := range testcases {
 		t.Run(name, func(t *testing.T) {
 			localizer := newMockLocalizer(t)
 			localizer.EXPECT().
-				T(donor.Type.String()).
+				T(provided.Type.String()).
 				Return("Property and affairs").
+				Twice()
+			localizer.EXPECT().
+				Possessive("Jan Smith").
+				Return("possessive name").
+				Twice()
+			localizer.EXPECT().
+				FormatDate(testNow).
+				Return("formatted date").
 				Twice()
 
 			testAppData.Localizer = localizer
 
-			accessCodeStore := newMockAccessCodeStore(t)
-			accessCodeStore.EXPECT().
-				Put(ctx, actor.TypeCertificateProvider, accesscodedata.HashedFromString(tc.expectedTestCode), accesscodedata.Link{
-					LpaKey:      dynamo.LpaKey("lpa"),
-					LpaOwnerKey: dynamo.LpaOwnerKey(dynamo.DonorKey("donor")),
-					LpaUID:      "lpa-uid",
-				}).
-				Once().
-				Return(nil)
-			accessCodeStore.EXPECT().
-				Put(ctx, actor.TypeCertificateProvider, testHashedCode, accesscodedata.Link{
-					LpaKey:      dynamo.LpaKey("lpa"),
-					LpaOwnerKey: dynamo.LpaOwnerKey(dynamo.DonorKey("donor")),
-					LpaUID:      "lpa-uid",
-				}).
-				Once().
-				Return(nil)
+			//accessCodeStore := newMockAccessCodeStore(t)
+			//accessCodeStore.EXPECT().
+			//	Put(ctx, actor.TypeCertificateProvider, accesscodedata.HashedFromString(tc.expectedTestCode), accesscodedata.Link{
+			//		LpaKey:      dynamo.LpaKey("lpa"),
+			//		LpaOwnerKey: dynamo.LpaOwnerKey(dynamo.DonorKey("donor")),
+			//		LpaUID:      "lpa-uid",
+			//	}).
+			//	Once().
+			//	Return(nil)
+			//accessCodeStore.EXPECT().
+			//	Put(ctx, actor.TypeCertificateProvider, testHashedCode, accesscodedata.Link{
+			//		LpaKey:      dynamo.LpaKey("lpa"),
+			//		LpaOwnerKey: dynamo.LpaOwnerKey(dynamo.DonorKey("donor")),
+			//		LpaUID:      "lpa-uid",
+			//	}).
+			//	Once().
+			//	Return(nil)
 
 			notifyClient := newMockNotifyClient(t)
 			notifyClient.EXPECT().
-				SendActorEmail(ctx, notify.ToCertificateProvider(donor.CertificateProvider), "lpa-uid", notify.CertificateProviderProvideCertificatePromptEmail{
+				SendActorEmail(ctx, notify.ToCertificateProvider(provided.CertificateProvider), "lpa-uid", notify.CertificateProviderProvideCertificatePromptEmail{
 					CertificateProviderFullName: "Joanna Jones",
 					DonorFullName:               "Jan Smith",
+					DonorFullNamePossessive:     "possessive name",
 					LpaType:                     "property and affairs",
 					CertificateProviderStartURL: "http://example.com/certificate-provider",
-					AccessCode:                  tc.expectedTestCode,
+					InvitedDate:                 "formatted date",
 				}).
 				Once().
 				Return(nil)
 			notifyClient.EXPECT().
-				SendActorEmail(ctx, notify.ToCertificateProvider(donor.CertificateProvider), "lpa-uid", notify.CertificateProviderProvideCertificatePromptEmail{
+				SendActorEmail(ctx, notify.ToCertificateProvider(provided.CertificateProvider), "lpa-uid", notify.CertificateProviderProvideCertificatePromptEmail{
 					CertificateProviderFullName: "Joanna Jones",
 					DonorFullName:               "Jan Smith",
+					DonorFullNamePossessive:     "possessive name",
 					LpaType:                     "property and affairs",
 					CertificateProviderStartURL: "http://example.com/certificate-provider",
-					AccessCode:                  testPlainCode.Plain(),
+					InvitedDate:                 "formatted date",
 				}).
 				Once().
 				Return(nil)
@@ -548,7 +555,7 @@ func TestAccessCodeSenderSendCertificateProviderPromptWithTestCode(t *testing.T)
 				Return(nil, expectedError)
 
 			sender := &Sender{
-				accessCodeStore:             accessCodeStore,
+				accessCodeStore:             nil,
 				notifyClient:                notifyClient,
 				certificateProviderStartURL: "http://example.com/certificate-provider",
 				generate:                    testGenerateFn,
@@ -559,10 +566,10 @@ func TestAccessCodeSenderSendCertificateProviderPromptWithTestCode(t *testing.T)
 				sender.UseTestCode("abcd1234")
 			}
 
-			err := sender.SendCertificateProviderPrompt(ctx, testAppData, donor)
+			err := sender.SendCertificateProviderPrompt(ctx, testAppData, provided)
 			assert.Nil(t, err)
 
-			err = sender.SendCertificateProviderPrompt(ctx, testAppData, donor)
+			err = sender.SendCertificateProviderPrompt(ctx, testAppData, provided)
 			assert.Nil(t, err)
 		})
 	}
@@ -634,13 +641,14 @@ func TestAccessCodeSenderSendCertificateProviderPromptWhenEmailErrors(t *testing
 	localizer.EXPECT().
 		T(mock.Anything).
 		Return("")
+	localizer.EXPECT().
+		Possessive(mock.Anything).
+		Return("")
+	localizer.EXPECT().
+		FormatDate(mock.Anything).
+		Return("")
 
 	testAppData.Localizer = localizer
-
-	accessCodeStore := newMockAccessCodeStore(t)
-	accessCodeStore.EXPECT().
-		Put(mock.Anything, mock.Anything, mock.Anything, mock.Anything).
-		Return(nil)
 
 	notifyClient := newMockNotifyClient(t)
 	notifyClient.EXPECT().
@@ -653,7 +661,7 @@ func TestAccessCodeSenderSendCertificateProviderPromptWhenEmailErrors(t *testing
 		Return(nil, expectedError)
 
 	sender := &Sender{
-		accessCodeStore:          accessCodeStore,
+		accessCodeStore:          nil,
 		notifyClient:             notifyClient,
 		generate:                 testGenerateFn,
 		certificateProviderStore: certificateProviderStore,
@@ -673,7 +681,7 @@ func TestAccessCodeSenderSendCertificateProviderPromptWhenAccessCodeStoreErrors(
 		accessCodeStore: accessCodeStore,
 		generate:        testGenerateFn,
 	}
-	err := sender.SendCertificateProviderPrompt(ctx, testAppData, &donordata.Provided{})
+	err := sender.SendCertificateProviderPrompt(ctx, testAppData, &donordata.Provided{CertificateProvider: donordata.CertificateProvider{CarryOutBy: lpadata.ChannelPaper}})
 
 	assert.Equal(t, expectedError, errors.Unwrap(err))
 }
@@ -702,30 +710,26 @@ func TestAccessCodeSenderSendLpaCertificateProviderPromptOnline(t *testing.T) {
 		T(lpa.Type.String()).
 		Return("Property and affairs").
 		Once()
+	localizer.EXPECT().
+		Possessive("Jan Smith").
+		Return("possessive name").
+		Once()
 	testAppData.Localizer = localizer
 
 	notifyClient := newMockNotifyClient(t)
 	notifyClient.EXPECT().
 		SendActorEmail(ctx, notify.ToLpaCertificateProvider(&certificateproviderdata.Provided{ContactLanguagePreference: localize.En}, lpa), "lpa-uid", notify.CertificateProviderProvideCertificatePromptEmail{
-			AccessCode:                  testPlainCode.Plain(),
+			InvitedDate:                 "1 July 2023",
 			CertificateProviderFullName: "Joanna Jones",
 			DonorFullName:               "Jan Smith",
+			DonorFullNamePossessive:     "possessive name",
 			LpaType:                     "property and affairs",
 			CertificateProviderStartURL: "http://example.com/certificate-provider",
 		}).
 		Return(nil)
 
-	accessCodeStore := newMockAccessCodeStore(t)
-	accessCodeStore.EXPECT().
-		Put(ctx, actor.TypeCertificateProvider, testHashedCode, accesscodedata.Link{
-			LpaKey:      dynamo.LpaKey("lpa"),
-			LpaOwnerKey: dynamo.LpaOwnerKey(dynamo.DonorKey("donor")),
-			LpaUID:      "lpa-uid",
-		}).
-		Return(nil)
-
 	sender := &Sender{
-		accessCodeStore:             accessCodeStore,
+		accessCodeStore:             nil,
 		notifyClient:                notifyClient,
 		certificateProviderStartURL: "http://example.com/certificate-provider",
 		generate:                    testGenerateFn,
@@ -797,7 +801,9 @@ func TestAccessCodeSenderSendLpaCertificateProviderPromptWhenAccessCodeErrors(t 
 		accessCodeStore: accessCodeStore,
 		generate:        testGenerateFn,
 	}
-	err := sender.SendLpaCertificateProviderPrompt(context.Background(), testAppData, dynamo.LpaKey(""), dynamo.LpaOwnerKey(dynamo.DonorKey("")), &lpadata.Lpa{})
+	err := sender.SendLpaCertificateProviderPrompt(context.Background(), testAppData, dynamo.LpaKey(""), dynamo.LpaOwnerKey(dynamo.DonorKey("")), &lpadata.Lpa{
+		CertificateProvider: lpadata.CertificateProvider{Channel: lpadata.ChannelPaper},
+	})
 
 	assert.ErrorIs(t, err, expectedError)
 }
@@ -808,6 +814,10 @@ func TestAccessCodeSenderSendLpaCertificateProviderPromptWhenEmailErrors(t *test
 		T(mock.Anything).
 		Return("Property and affairs").
 		Once()
+	localizer.EXPECT().
+		Possessive(mock.Anything).
+		Return("possessive name").
+		Once()
 	testAppData.Localizer = localizer
 
 	notifyClient := newMockNotifyClient(t)
@@ -815,13 +825,8 @@ func TestAccessCodeSenderSendLpaCertificateProviderPromptWhenEmailErrors(t *test
 		SendActorEmail(mock.Anything, mock.Anything, mock.Anything, mock.Anything).
 		Return(expectedError)
 
-	accessCodeStore := newMockAccessCodeStore(t)
-	accessCodeStore.EXPECT().
-		Put(mock.Anything, mock.Anything, mock.Anything, mock.Anything).
-		Return(nil)
-
 	sender := &Sender{
-		accessCodeStore:             accessCodeStore,
+		accessCodeStore:             nil,
 		notifyClient:                notifyClient,
 		certificateProviderStartURL: "http://example.com/certificate-provider",
 		generate:                    testGenerateFn,

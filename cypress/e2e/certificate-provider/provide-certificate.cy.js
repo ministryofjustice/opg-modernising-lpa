@@ -25,11 +25,13 @@ describe('Provide the certificate', () => {
             .then((text) => {
                 const uid = text.split(':')[1].trim();
 
-                cy.origin('http://localhost:9001', { args: { uid } }, ({ uid }) => {
-                    cy.visit(`/?detail-type=letter-requested&detail=${uid}`, { timeout: 10000 });
-                    cy.contains(`"uid":"${uid}"`)
-                    cy.contains(`"actorType":"donor"`)
-                    cy.contains(`"letterType":"ADVISE_DONOR_CERTIFICATE_HAS_BEEN_PROVIDED"`)
+                cy.request({
+                    url: `http://localhost:9001/?detail-type=letter-requested&detail=${uid}`,
+                    timeout: 10000
+                }).then((response) => {
+                    expect(response.body).to.include(`"uid":"${uid}"`);
+                    expect(response.body).to.include(`"actorType":"donor"`);
+                    expect(response.body).to.include(`"letterType":"ADVISE_DONOR_CERTIFICATE_HAS_BEEN_PROVIDED"`);
                 });
             });
     });
