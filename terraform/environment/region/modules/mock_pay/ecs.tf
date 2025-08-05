@@ -34,7 +34,7 @@ resource "aws_ecs_service" "mock_pay" {
 
   timeouts {
     create = "7m"
-    update = "4m"
+    update = "5m"
   }
   provider = aws.region
 }

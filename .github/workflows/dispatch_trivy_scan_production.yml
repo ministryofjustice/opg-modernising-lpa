@@ -2,6 +2,8 @@ name: "[WD] Scan production containers for vulnerabilities"
 
 on:
   workflow_dispatch:
+  schedule:
+    - cron: "30 9 * * 1"
 
 defaults:
   run:

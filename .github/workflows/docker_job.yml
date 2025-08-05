@@ -129,28 +129,47 @@ jobs:
           SOURCE_DATE_EPOCH: 0
           DOCKER_CONTENT_TRUST: 1
 
-      - name: Trivy Image Vulnerability Scanner for ${{ matrix.ecr_repository }}
+      - name: Trivy Image Vulnerability Scanner
         id: trivy_scan
-        uses: aquasecurity/trivy-action@dc5a429b52fcf669ce959baa2c2dd26090d2a6c4 # 0.32.0
-        env:
-          TRIVY_DB_REPOSITORY: ${{ steps.login_ecr.outputs.registry }}/trivy-db-public-ecr/aquasecurity/trivy-db:2
-          TRIVY_JAVA_DB_REPOSITORY: ${{ steps.login_ecr.outputs.registry }}/trivy-db-public-ecr/aquasecurity/trivy-java-db:1
-          TRIVY_IGNOREFILE: ${{ matrix.trivyignores }}
-        with:
-          scan-type: 'image'
-          scanners: 'vuln'
-          image-ref: ${{ matrix.ecr_repository }}:${{ inputs.tag }}
-          severity: 'HIGH,CRITICAL'
-          format: 'sarif'
-          output: 'trivy-results.sarif'
-          exit-code: 0
+        run: |
+          mkdir -p -m 0777 .trivy-cache ./test-results/
+          docker run \
+            --volume /var/run/docker.sock:/var/run/docker.sock \
+            --volume ./.trivy-cache:/root/.cache \
+            --volume ./test-results:/test-results \
+            --volume ./${{ matrix.trivyignores }}:/.trivyignore.yaml \
+            --env TRIVY_IGNOREFILE='.trivyignore.yaml' \
+            --env TRIVY_DB_REPOSITORY=${{ steps.login_ecr.outputs.registry }}/trivy-db-public-ecr/aquasecurity/trivy-db:2 \
+            --env TRIVY_JAVA_DB_REPOSITORY=${{ steps.login_ecr.outputs.registry }}/trivy-db-public-ecr/aquasecurity/trivy-java-db:1 \
+            --env TRIVY_USERNAME=${{ steps.login_ecr.outputs.docker_username_311462405659_dkr_ecr_eu_west_1_amazonaws_com }} \
+            --env TRIVY_PASSWORD=${{ steps.login_ecr.outputs.docker_password_311462405659_dkr_ecr_eu_west_1_amazonaws_com }} \
+            aquasec/trivy:0.65.0 image \
+            ${{ matrix.ecr_repository }}:${{ inputs.tag }} \
+            --format table \
+            --severity HIGH,CRITICAL
+
+          docker run \
+            --volume /var/run/docker.sock:/var/run/docker.sock \
+            --volume ./.trivy-cache:/root/.cache \
+            --volume ./test-results:/test-results \
+            --volume ./${{ matrix.trivyignores }}:/.trivyignore.yaml \
+            --env TRIVY_IGNOREFILE='.trivyignore.yaml' \
+            --env TRIVY_DB_REPOSITORY=${{ steps.login_ecr.outputs.registry }}/trivy-db-public-ecr/aquasecurity/trivy-db:2 \
+            --env TRIVY_JAVA_DB_REPOSITORY=${{ steps.login_ecr.outputs.registry }}/trivy-db-public-ecr/aquasecurity/trivy-java-db:1 \
+            --env TRIVY_USERNAME=${{ steps.login_ecr.outputs.docker_username_311462405659_dkr_ecr_eu_west_1_amazonaws_com }} \
+            --env TRIVY_PASSWORD=${{ steps.login_ecr.outputs.docker_password_311462405659_dkr_ecr_eu_west_1_amazonaws_com }} \
+            aquasec/trivy:0.65.0 image ${{ matrix.ecr_repository }}:${{ inputs.tag }} \
+            --severity HIGH,CRITICAL \
+            --exit-code 1 \
+            --format sarif --output ./test-results/trivy.sarif \
 
       - name: Upload Trivy scan results to GitHub Security tab for ${{ matrix.ecr_repository }}
         id: trivy_upload_sarif
         uses: github/codeql-action/upload-sarif@51f77329afa6477de8c49fc9c7046c15b9a4e79d # v3.29.5
         if: always()
         with:
-          sarif_file: 'trivy-results.sarif'
+          sarif_file: './test-results/trivy.sarif'
+
       - name: Trivy Image SBOM Generator for ${{ matrix.ecr_repository }} and submit results to Dependency Graph
         id: trivy_sbom
         uses: aquasecurity/trivy-action@dc5a429b52fcf669ce959baa2c2dd26090d2a6c4 # 0.32.0
@@ -164,6 +183,7 @@ jobs:
           format: 'github'
           output: '${{ matrix.name }}-${{ inputs.tag }}.sbom.json'
           github-pat: ${{ secrets.GITHUB_TOKEN }}
+
       - name: Upload trivy report as a Github artifact
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
         with:
