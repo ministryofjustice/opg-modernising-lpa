@@ -24,6 +24,8 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/lpastore/lpadata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/random"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/scheduled"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/scheduled/scheduleddata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/sesh"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/supporter"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/task"
@@ -48,6 +50,11 @@ type AttorneyStore interface {
 	Put(ctx context.Context, attorney *attorneydata.Provided) error
 }
 
+type ScheduledStore interface {
+	Create(ctx context.Context, rows ...scheduled.Event) error
+	DeleteAllByUID(ctx context.Context, uid string) error
+}
+
 func Attorney(
 	tmpl template.Template,
 	sessionStore *sesh.Store,
@@ -61,6 +68,7 @@ func Attorney(
 	memberStore *supporter.MemberStore,
 	accessCodeStore *accesscode.Store,
 	dynamoClient DynamoClient,
+	scheduledStore ScheduledStore,
 ) page.Handler {
 	progressValues := []string{
 		"signedByCertificateProvider",
@@ -93,6 +101,7 @@ func Attorney(
 			isPaperDonor       = slices.Contains(options, "is-paper-donor")
 			isPaperAttorney    = slices.Contains(options, "is-paper-attorney")
 			hasPhoneNumber     = slices.Contains(options, "has-phone-number")
+			withTestSchedule   = slices.Contains(options, "with-test-schedule")
 		)
 
 		if attorneySub == "" {
@@ -296,6 +305,22 @@ func Attorney(
 		if progress >= slices.Index(progressValues, "signedByCertificateProvider") {
 			donorDetails.SignedAt = time.Now()
 			certificateProvider.SignedAt = donorDetails.SignedAt.Add(time.Hour)
+
+			if withTestSchedule {
+				if err = scheduledStore.Create(attorneyCtx, scheduled.Event{
+					At:                time.Now(),
+					Action:            scheduleddata.ActionRemindAttorneyToComplete,
+					TargetLpaKey:      donorDetails.PK,
+					TargetLpaOwnerKey: donorDetails.SK,
+					LpaUID:            donorDetails.LpaUID,
+				}); err != nil {
+					return fmt.Errorf("error scheduling attorneys prompt: %w", err)
+				}
+
+				donorDetails.AttorneysInvitedAt = time.Now().AddDate(0, -4, 0)
+				donorDetails.IdentityUserData.CheckedAt = time.Now()
+				donorDetails.SignedAt = time.Now().AddDate(-1, -10, 0)
+			}
 		}
 
 		if !isPaperAttorney {
