@@ -184,7 +184,7 @@ jobs:
         uses: github/codeql-action/upload-sarif@181d5eefc20863364f96762470ba6f862bdef56b # v3.29.2
         if: always()
         with:
-          sarif_file: 'trivy-results.sarif'
+          sarif_file: './test-results/trivy.sarif'
 
       - name: Trivy Image SBOM Generator for ${{ matrix.ecr_repository }} and submit results to Dependency Graph
         id: trivy_sbom
