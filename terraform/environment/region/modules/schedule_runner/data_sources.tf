@@ -19,3 +19,13 @@ data "aws_secretsmanager_secret" "gov_uk_notify_api_key" {
   name     = "gov-uk-notify-api-key"
   provider = aws.region
 }
+
+data "aws_secretsmanager_secret" "lpa_store_jwt_secret_key" {
+  name     = "lpa-store-jwt-secret-key"
+  provider = aws.region
+}
+
+data "aws_secretsmanager_secret" "lpa_store_jwt_key" {
+  name     = "opg-data-lpa-store/${data.aws_default_tags.current.tags.account-name}/jwt-key"
+  provider = aws.management
+}
