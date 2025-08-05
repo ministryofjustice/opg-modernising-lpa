@@ -56,10 +56,6 @@ variable "lpa_store_base_url" {
   type = string
 }
 
-variable "lpa_store_secret_arn" {
-  type = string
-}
-
 variable "app_public_url" {
   type = string
 }

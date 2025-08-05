@@ -15,7 +15,6 @@ module "schedule_runner" {
   schedule_runner_scheduler      = var.iam_roles.schedule_runner_scheduler
   schedule_runner_lambda_role    = var.iam_roles.schedule_runner_lambda
   lpa_store_base_url             = var.lpa_store_service.base_url
-  lpa_store_secret_arn           = data.aws_secretsmanager_secret.lpa_store_jwt_key.arn
   app_public_url                 = aws_route53_record.app.fqdn
   vpc_config = {
     subnet_ids         = data.aws_subnet.application[*].id

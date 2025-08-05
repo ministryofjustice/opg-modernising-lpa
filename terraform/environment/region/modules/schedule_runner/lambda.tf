@@ -11,7 +11,7 @@ module "schedule_runner" {
     SEARCH_INDEXING_DISABLED       = 1
     XRAY_ENABLED                   = 1
     LPA_STORE_BASE_URL             = var.lpa_store_base_url
-    LPA_STORE_SECRET_ARN           = var.lpa_store_secret_arn
+    LPA_STORE_SECRET_ARN           = data.aws_secretsmanager_secret.lpa_store_jwt_key.arn
     APP_PUBLIC_URL                 = "https://${var.app_public_url}"
     CERTIFICATE_PROVIDER_START_URL = var.certificate_provider_start_url
     ATTORNEY_START_URL             = var.attorney_start_url
@@ -34,8 +34,9 @@ module "schedule_runner" {
 }
 
 resource "aws_scheduler_schedule" "schedule_runner_hourly" {
-  name                = "schedule-runner-hourly-${data.aws_default_tags.current.tags.environment-name}"
-  schedule_expression = "rate(1 hour)"
+  name = "schedule-runner-hourly-${data.aws_default_tags.current.tags.environment-name}"
+  // TODO Revert before merging
+  schedule_expression = "rate(1 minute)"
   description         = "Runs every hour"
 
   flexible_time_window {
@@ -47,108 +48,6 @@ resource "aws_scheduler_schedule" "schedule_runner_hourly" {
     role_arn = var.schedule_runner_scheduler.arn
   }
 
-  provider = aws.region
-}
-
-data "aws_iam_policy_document" "schedule_runner" {
-  statement {
-    sid    = "${local.policy_region_prefix}DynamoDBEncryptionAccess"
-    effect = "Allow"
-
-    actions = [
-      "kms:Encrypt",
-      "kms:Decrypt",
-      "kms:GenerateDataKey",
-      "kms:RetireGrant",
-    ]
-
-    resources = [
-      data.aws_kms_alias.dynamodb_encryption_key.target_key_arn,
-    ]
-  }
-
-  statement {
-    sid = "${local.policy_region_prefix}AllowDynamoDBAccess"
-
-    actions = [
-      "dynamodb:DeleteItem",
-      "dynamodb:PutItem",
-      "dynamodb:Query",
-      "dynamodb:GetItem",
-      "dynamodb:UpdateItem",
-    ]
-
-    resources = [
-      var.lpas_table.arn,
-      "${var.lpas_table.arn}/index/*",
-    ]
-  }
-
-  statement {
-    sid    = "${local.policy_region_prefix}AllowSecretAccess"
-    effect = "Allow"
-
-    actions = [
-      "secretsmanager:GetSecretValue",
-      "secretsmanager:DescribeSecret",
-    ]
-
-    resources = [
-      data.aws_secretsmanager_secret.gov_uk_notify_api_key.arn,
-    ]
-  }
-
-  statement {
-    effect = "Allow"
-
-    resources = [
-      data.aws_kms_alias.secrets_manager_secret_encryption_key.target_key_arn,
-      data.aws_kms_alias.aws_lambda.target_key_arn,
-    ]
-
-    actions = [
-      "kms:Decrypt",
-      "kms:GenerateDataKey",
-      "kms:GenerateDataKeyPair",
-      "kms:GenerateDataKeyPairWithoutPlaintext",
-      "kms:GenerateDataKeyWithoutPlaintext",
-      "kms:DescribeKey",
-    ]
-  }
-
-  statement {
-    sid    = "${local.policy_region_prefix}AllowEventBusAccess"
-    effect = "Allow"
-    actions = [
-      "events:PutEvents",
-    ]
-    resources = [
-      var.event_bus.arn
-    ]
-  }
-
-  statement {
-    sid    = "${local.policy_region_prefix}XrayAccess"
-    effect = "Allow"
-
-    actions = [
-      "xray:PutTraceSegments",
-      "xray:PutTelemetryRecords",
-      "xray:GetSamplingRules",
-      "xray:GetSamplingTargets",
-      "xray:GetSamplingStatisticSummaries",
-    ]
-
-    resources = ["*"]
-  }
-
-  provider = aws.region
-}
-
-resource "aws_iam_role_policy" "schedule_runner" {
-  name     = "schedule_runner-${data.aws_default_tags.current.tags.environment-name}"
-  role     = var.schedule_runner_lambda_role.id
-  policy   = data.aws_iam_policy_document.schedule_runner.json
   provider = aws.region
 }
 
