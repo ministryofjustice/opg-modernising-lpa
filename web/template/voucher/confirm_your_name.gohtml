@@ -7,9 +7,19 @@
 
     <div class="govuk-grid-row">
         <div class="govuk-grid-column-two-thirds">
+            {{ if .ShowBanner }}
+                {{ template "notification-banner" (notificationBanner .App "success" (trHtml .App "yourDetailsHaveBeenUpdated") "success" "heading") }}
+            {{ end }}
+
             <h1 class="govuk-heading-xl">{{ tr .App "confirmYourName" }}</h1>
 
-            <p class="govuk-body">{{ trFormat .App "thisIsTheNameDonorProvidedForYou" "DonorFullName" .Lpa.Donor.FullName }}</p>
+            <p class="govuk-body">
+                {{ if .Changed }}
+                    {{ tr .App "changeTheseDetailsIfIncorrectBeforeContinue" }}
+                {{ else }}
+                    {{ trFormat .App "thisIsTheNameDonorProvidedForYou" "DonorFullName" .Lpa.Donor.FullName }}
+                {{ end }}
+            </p>
 
             <dl class="govuk-summary-list">
                 {{ template "summary-row" (summaryRow .App "firstNames"
