@@ -1901,5 +1901,7 @@
     "whyCantIUpdateThisEmailAddress": "Why can’t I update this email address?",
     "whyCantIUpdateThisEmailAddressContent": "<p class=\"govuk-body\">{{.CertificateProviderFullName}} has already accessed your LPA using a code sent to this email address. For security reasons their email cannot now be changed.</p><p class=\"govuk-body\">If {{.CertificateProviderFirstNames}} has decided they would like to be contacted using paper forms, they must contact OPG to request this.</p>",
     "returnToManageLPAs": "Return to ‘Manage LPAs’",
-    "manageLPAs": "Manage LPAs"
+    "manageLPAs": "Manage LPAs",
+    "changeTheseDetailsIfIncorrectBeforeContinue": "Change these details if they are incorrect before you continue.",
+    "yourDetailsHaveBeenUpdated": "Your details have been updated"
 }

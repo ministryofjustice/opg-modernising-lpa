@@ -29,8 +29,8 @@ func TestGetYourName(t *testing.T) {
 		}, nil)
 
 	template := newMockTemplate(t)
-	template.
-		On("Execute", w, &yourNameData{
+	template.EXPECT().
+		Execute(w, &yourNameData{
 			App: testAppData,
 			Form: &yourNameForm{
 				FirstNames: "V",
@@ -58,8 +58,8 @@ func TestGetYourNameWhenChanged(t *testing.T) {
 		}, nil)
 
 	template := newMockTemplate(t)
-	template.
-		On("Execute", w, &yourNameData{
+	template.EXPECT().
+		Execute(w, &yourNameData{
 			App: testAppData,
 			Form: &yourNameForm{
 				FirstNames: "A",
@@ -147,6 +147,13 @@ func TestPostYourName(t *testing.T) {
 	assert.Nil(t, err)
 	assert.Equal(t, http.StatusFound, resp.StatusCode)
 	assert.Equal(t, voucher.PathConfirmYourName.Format("lpa-id"), resp.Header.Get("Location"))
+	if assert.Len(t, resp.Cookies(), 1) {
+		cookie := resp.Cookies()[0]
+
+		assert.Equal(t, "banner", cookie.Name)
+		assert.Equal(t, "1", cookie.Value)
+		assert.Equal(t, 60, cookie.MaxAge)
+	}
 }
 
 func TestPostYourNameWhenNotChanged(t *testing.T) {
@@ -196,8 +203,8 @@ func TestPostYourNameWhenInputRequired(t *testing.T) {
 		}, nil)
 
 	template := newMockTemplate(t)
-	template.
-		On("Execute", w, mock.MatchedBy(func(data *yourNameData) bool {
+	template.EXPECT().
+		Execute(w, mock.MatchedBy(func(data *yourNameData) bool {
 			return assert.Equal(t, validation.With("first-names", validation.EnterError{Label: "firstNames"}), data.Errors)
 		})).
 		Return(nil)
