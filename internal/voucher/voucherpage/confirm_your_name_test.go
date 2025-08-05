@@ -14,38 +14,73 @@ import (
 )
 
 func TestGetConfirmYourName(t *testing.T) {
-	w := httptest.NewRecorder()
-	r, _ := http.NewRequest(http.MethodGet, "/", nil)
+	testcases := map[string]struct {
+		providedFirstNames, providedLastName string
+		lpaFirstNames, lpaLastName           string
+		changed                              bool
+	}{
+		"initial": {
+			lpaFirstNames: "V",
+			lpaLastName:   "W",
+		},
+		"set to initial": {
+			providedFirstNames: "V",
+			providedLastName:   "W",
+			lpaFirstNames:      "V",
+			lpaLastName:        "W",
+		},
+		"set to different": {
+			providedFirstNames: "V",
+			providedLastName:   "W",
+			lpaFirstNames:      "A",
+			lpaLastName:        "B",
+			changed:            true,
+		},
+	}
 
-	lpaStoreResolvingService := newMockLpaStoreResolvingService(t)
-	lpaStoreResolvingService.EXPECT().
-		Get(r.Context()).
-		Return(&lpadata.Lpa{
-			Voucher: lpadata.Voucher{FirstNames: "V", LastName: "W"},
-		}, nil)
+	for name, tc := range testcases {
+		t.Run(name, func(t *testing.T) {
+			w := httptest.NewRecorder()
+			r, _ := http.NewRequest(http.MethodGet, "/", nil)
 
-	template := newMockTemplate(t)
-	template.EXPECT().
-		Execute(w, &confirmYourNameData{
-			App: testAppData,
-			Lpa: &lpadata.Lpa{
-				Voucher: lpadata.Voucher{FirstNames: "V", LastName: "W"},
-			},
-			FirstNames: "V",
-			LastName:   "W",
-		}).
-		Return(nil)
+			lpaStoreResolvingService := newMockLpaStoreResolvingService(t)
+			lpaStoreResolvingService.EXPECT().
+				Get(r.Context()).
+				Return(&lpadata.Lpa{
+					Voucher: lpadata.Voucher{FirstNames: tc.lpaFirstNames, LastName: tc.lpaLastName},
+				}, nil)
 
-	err := ConfirmYourName(template.Execute, lpaStoreResolvingService, nil)(testAppData, w, r, &voucherdata.Provided{LpaID: "lpa-id"})
-	resp := w.Result()
+			template := newMockTemplate(t)
+			template.EXPECT().
+				Execute(w, &confirmYourNameData{
+					App: testAppData,
+					Lpa: &lpadata.Lpa{
+						Voucher: lpadata.Voucher{FirstNames: tc.lpaFirstNames, LastName: tc.lpaLastName},
+					},
+					FirstNames: "V",
+					LastName:   "W",
+					Changed:    tc.changed,
+				}).
+				Return(nil)
 
-	assert.Nil(t, err)
-	assert.Equal(t, http.StatusOK, resp.StatusCode)
+			err := ConfirmYourName(template.Execute, lpaStoreResolvingService, nil)(testAppData, w, r, &voucherdata.Provided{
+				LpaID:      "lpa-id",
+				FirstNames: tc.providedFirstNames,
+				LastName:   tc.providedLastName,
+			})
+			resp := w.Result()
+
+			assert.Nil(t, err)
+			assert.Equal(t, http.StatusOK, resp.StatusCode)
+			assert.Empty(t, resp.Cookies())
+		})
+	}
 }
 
 func TestGetConfirmYourNameWhenChanged(t *testing.T) {
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest(http.MethodGet, "/", nil)
+	r.AddCookie(&http.Cookie{Name: "banner", Value: "1", MaxAge: 60})
 
 	lpaStoreResolvingService := newMockLpaStoreResolvingService(t)
 	lpaStoreResolvingService.EXPECT().
@@ -63,6 +98,8 @@ func TestGetConfirmYourNameWhenChanged(t *testing.T) {
 			},
 			FirstNames: "A",
 			LastName:   "B",
+			Changed:    true,
+			ShowBanner: true,
 		}).
 		Return(nil)
 
@@ -75,6 +112,13 @@ func TestGetConfirmYourNameWhenChanged(t *testing.T) {
 
 	assert.Nil(t, err)
 	assert.Equal(t, http.StatusOK, resp.StatusCode)
+	if assert.Len(t, resp.Cookies(), 1) {
+		cookie := resp.Cookies()[0]
+
+		assert.Equal(t, "banner", cookie.Name)
+		assert.Equal(t, "1", cookie.Value)
+		assert.Equal(t, -1, cookie.MaxAge)
+	}
 }
 
 func TestGetConfirmYourNameWhenLpaStoreResolvingServiceErrors(t *testing.T) {

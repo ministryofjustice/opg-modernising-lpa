@@ -2001,5 +2001,7 @@
     "whyCantIUpdateThisEmailAddress": "Welsh",
     "whyCantIUpdateThisEmailAddressContent": "<p class=\"govuk-body\">Welsh {{.CertificateProviderFullName}} {{.CertificateProviderFirstNames}}</p>",
     "returnToManageLPAs": "Welsh",
-    "manageLPAs": "Welsh"
+    "manageLPAs": "Welsh",
+    "changeTheseDetailsIfIncorrectBeforeContinue": "Welsh",
+    "yourDetailsHaveBeenUpdated": "Welsh"
 }
