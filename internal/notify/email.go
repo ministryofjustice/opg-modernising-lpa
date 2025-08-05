@@ -431,7 +431,6 @@ type AdviseAttorneyToSignOrOptOutEmail struct {
 	DeadlineDate            string
 	AttorneyStartPageURL    string
 	AttorneyOptOutURL       string
-	AccessCode              string
 }
 
 func (e AdviseAttorneyToSignOrOptOutEmail) emailID(lang localize.Lang) string {
@@ -440,6 +439,20 @@ func (e AdviseAttorneyToSignOrOptOutEmail) emailID(lang localize.Lang) string {
 	}
 
 	return "1cef45e2-991c-4998-89d4-1f324a45bb25"
+}
+
+type AdviseAttorneyToSignOrOptOutEmailAccessCodeUsed struct {
+	DonorFullName           string
+	DonorFullNamePossessive string
+	LpaType                 string
+	AttorneyFullName        string
+	DeadlineDate            string
+	AttorneyStartPageURL    string
+	AttorneyOptOutURL       string
+}
+
+func (e AdviseAttorneyToSignOrOptOutEmailAccessCodeUsed) emailID(_ localize.Lang) string {
+	return "f81d0d29-9461-405a-b8a0-2a8cdace7ffe"
 }
 
 type DigitalDonorLpaSubmittedEmail struct {
