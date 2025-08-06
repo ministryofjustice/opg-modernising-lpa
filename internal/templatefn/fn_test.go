@@ -684,3 +684,7 @@ func TestStackedNotifications(t *testing.T) {
 		Success:       true,
 	}, stackedNotifications(appData, notifications, "count", "success"))
 }
+
+func TestList(t *testing.T) {
+	assert.Equal(t, []string{"a", "b", "c"}, list("a", "b", "c"))
+}

@@ -24,7 +24,10 @@ describe('You must be over 18 to complete', () => {
         });
 
         cy.contains('label', 'Yes').click();
-        cy.contains('button', 'Continue').click();
+        cy.contains('button', 'Save and continue').click();
+
+        cy.contains('label', 'Update').click();
+        cy.contains('button', 'Save and continue').click();
         cy.contains('a', 'Continue').click();
 
         cy.url().should('contain', '/you-must-be-over-18-to-complete');
@@ -68,7 +71,11 @@ describe('You must be over 18 to complete', () => {
         });
 
         cy.contains('label', 'Yes').click();
-        cy.contains('button', 'Continue').click();
+        cy.contains('button', 'Save and continue').click();
+
+        cy.contains('label', 'Update').click();
+        cy.contains('button', 'Save and continue').click();
+
         cy.contains('a', 'Continue').click();
 
         cy.url().should('contain', '/you-must-be-over-18-to-complete');
