@@ -1,15 +1,3 @@
 misconfigurations:
 
 vulnerabilities:
-  - id: CVE-2024-41110
-    statement: Replacing with impostergo
-    expired_at: 2025-08-30
-  - id: CVE-2024-57699
-    statement: Replacing with impostergo
-    expired_at: 2025-08-30
-  - id: CVE-2025-47907
-    statement: Replacing with impostergo
-    expired_at: 2025-08-30
-  - id: CVE-2025-55163
-    statement: Replacing with impostergo
-    expired_at: 2025-08-30
