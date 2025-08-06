@@ -4,4 +4,4 @@ response:
   scriptFile: payments.js
 
 validation:
-  request: true
+  request: log
