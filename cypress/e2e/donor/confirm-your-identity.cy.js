@@ -153,15 +153,23 @@ describe('Confirm your identity', () => {
                 cy.contains('dd', '2 January 2000').parent().contains('span', 'Does not match');
 
                 cy.contains('label', 'Yes').click();
-                cy.contains('button', 'Continue').click();
+                cy.contains('button', 'Save and continue').click();
 
                 cy.url().should('contain', '/identity-details');
                 cy.checkA11yApp();
 
-                cy.contains('Your LPA details have been updated to match your confirmed identity')
+                cy.contains('The details in your LPA have been updated to match')
                 cy.get('main').should('not.contain', 'Sam');
                 cy.get('main').should('not.contain', 'Smith');
                 cy.get('main').should('not.contain', '2 January 2000');
+
+                cy.contains('There is a mismatch between your confirmed identity details and the address in your LPA')
+                cy.contains('label', 'Update the address').click();
+                cy.contains('button', 'Save and continue').click();
+
+                cy.url().should('contain', '/identity-details-updated');
+                cy.checkA11yApp();
+                cy.contains('The address in your LPA has been updated')
             })
 
             it('can be taken to the court of protection', () => {
@@ -188,7 +196,11 @@ describe('Confirm your identity', () => {
                 cy.contains('dd', '2 January 2000').parent().contains('span', 'Does not match');
 
                 cy.contains('label', 'No').click();
-                cy.contains('button', 'Continue').click();
+                cy.contains('button', 'Save and continue').click();
+
+                cy.contains('You chose not to correct the mismatch');
+                cy.contains('label', 'Keep the address').click();
+                cy.contains('button', 'Save and continue').click();
 
                 cy.url().should('contain', '/register-with-court-of-protection');
             })
@@ -212,7 +224,7 @@ describe('Confirm your identity', () => {
                 cy.url().should('contain', '/identity-details');
                 cy.checkA11yApp();
 
-                cy.contains('button', 'Continue').click();
+                cy.contains('button', 'Save and continue').click();
 
                 cy.get('.govuk-error-summary').within(() => {
                     cy.contains('Select yes if you would like to update your details');
@@ -248,14 +260,14 @@ describe('Confirm your identity', () => {
 
             it('can revoke the LPA', () => {
                 cy.contains('label', 'Revoke this LPA').click();
-                cy.contains('button', 'Continue').click();
+                cy.contains('button', 'Save and continue').click();
 
                 cy.url().should('contain', '/withdraw-this-lpa');
             });
 
             it('can be taken to the court of protection', () => {
                 cy.contains('label', 'Apply to the Court of Protection').click();
-                cy.contains('button', 'Continue').click();
+                cy.contains('button', 'Save and continue').click();
 
                 cy.url().should('contain', '/what-happens-next-registering-with-court-of-protection');
                 cy.contains('a', 'Return to task list').click()
