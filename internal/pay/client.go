@@ -51,6 +51,7 @@ func (c *Client) CreatePayment(ctx context.Context, lpaUID string, body CreatePa
 
 	req.Header.Add("Authorization", "Bearer "+c.apiKey)
 	req.Header.Add("Content-Type", "application/json")
+	req.Header.Add("Accept", "application/json")
 
 	resp, err := c.doer.Do(req)
 	if err != nil {
@@ -82,6 +83,7 @@ func (c *Client) GetPayment(ctx context.Context, paymentID string) (GetPaymentRe
 	}
 
 	req.Header.Add("Authorization", "Bearer "+c.apiKey)
+	req.Header.Add("Accept", "application/json")
 
 	resp, err := c.doer.Do(req)
 	if err != nil {

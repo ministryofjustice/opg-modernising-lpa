@@ -183,6 +183,11 @@ services:
       context: ..
       dockerfile: docker/mock-pay/Dockerfile
     container_name: mock-pay
+    environment:
+      - IMPOSTER_LOG_LEVEL=TRACE
+
+    ports:
+      - "10001:8080"
 
   mock-uid:
     image: outofcoffee/imposter:4.7.0@sha256:2a2f964e6ee7bea2f9a54eac6d976441351d0805833117fc2e45c541b8d58ae9
