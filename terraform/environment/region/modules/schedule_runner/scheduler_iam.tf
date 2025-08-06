@@ -137,6 +137,15 @@ data "aws_iam_policy_document" "schedule_runner" {
     resources = ["*"]
   }
 
+  statement {
+    sid       = "allowApiAccess"
+    effect    = "Allow"
+    resources = var.allowed_api_arns
+    actions = [
+      "execute-api:Invoke",
+    ]
+  }
+
   provider = aws.region
 }
 

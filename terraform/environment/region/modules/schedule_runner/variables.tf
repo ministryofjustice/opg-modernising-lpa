@@ -59,3 +59,7 @@ variable "lpa_store_base_url" {
 variable "app_public_url" {
   type = string
 }
+
+variable "allowed_api_arns" {
+  type = list(string)
+}
