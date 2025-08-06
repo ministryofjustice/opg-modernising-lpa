@@ -163,6 +163,20 @@ func TestGetTaskList(t *testing.T) {
 				return sections
 			},
 		},
+		"confirmed identity continue with mismatched details": {
+			appData: testAppData,
+			donor: &donordata.Provided{
+				LpaID:                         "lpa-id",
+				Donor:                         donordata.Donor{LastName: "b", Address: place.Address{Line1: "x"}},
+				IdentityUserData:              identity.UserData{Status: identity.StatusConfirmed, LastName: "a"},
+				ContinueWithMismatchedDetails: true,
+			},
+			expected: func(sections []taskListSection) []taskListSection {
+				sections[2].Items[0].Path = donor.PathRegisterWithCourtOfProtection
+
+				return sections
+			},
+		},
 		"confirmed identity does not match LPA going to court of protection": {
 			appData: testAppData,
 			donor: &donordata.Provided{

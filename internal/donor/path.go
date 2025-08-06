@@ -278,15 +278,21 @@ func (p Path) CanGoTo(donor *donordata.Provided) bool {
 	case PathConfirmYourIdentity,
 		PathHowWillYouConfirmYourIdentity,
 		PathIdentityWithOneLogin,
-		PathIdentityDetails,
 		PathLpaYourLegalRightsAndResponsibilities,
 		PathSignTheLpaOnBehalf:
 		return section1Completed && (donor.Tasks.PayForLpa.IsCompleted() || donor.Tasks.PayForLpa.IsPending())
+
+	case PathIdentityDetails:
+		return (section1Completed || donor.Tasks.CheckYourLpa.IsInProgress()) &&
+			(donor.Tasks.PayForLpa.IsCompleted() || donor.Tasks.PayForLpa.IsPending())
 
 	case PathYourName, PathYourDateOfBirth:
 		return donor.CanChangePersonalDetails()
 
 	case PathViewLPA:
+		return false
+
+	case "":
 		return false
 
 	default:
