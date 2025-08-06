@@ -3,6 +3,7 @@ package donorpage
 import (
 	"errors"
 	"net/http"
+	"net/url"
 
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/appcontext"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor"
@@ -91,7 +92,9 @@ func IdentityWithOneLoginCallback(oneLoginClient OneLoginClient, sessionStore Se
 				return err
 			}
 
-			return donor.PathIdentityDetails.Redirect(w, r, appData, provided)
+			return donor.PathIdentityDetails.RedirectQuery(w, r, appData, provided, url.Values{
+				"canUpdateAddress": {"1"},
+			})
 		}
 	}
 }

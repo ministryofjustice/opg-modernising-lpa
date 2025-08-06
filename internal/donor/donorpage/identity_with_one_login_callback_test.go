@@ -4,6 +4,7 @@ import (
 	"errors"
 	"net/http"
 	"net/http/httptest"
+	"net/url"
 	"testing"
 	"time"
 
@@ -79,7 +80,7 @@ func TestGetIdentityWithOneLoginCallback(t *testing.T) {
 
 	assert.Nil(t, err)
 	assert.Equal(t, http.StatusFound, resp.StatusCode)
-	assert.Equal(t, donor.PathIdentityDetails.Format("lpa-id"), resp.Header.Get("Location"))
+	assert.Equal(t, donor.PathIdentityDetails.FormatQuery("lpa-id", url.Values{"canUpdateAddress": {"1"}}), resp.Header.Get("Location"))
 }
 
 func TestGetIdentityWithOneLoginCallbackWhenIdentityMismatched(t *testing.T) {
@@ -160,7 +161,7 @@ func TestGetIdentityWithOneLoginCallbackWhenIdentityMismatched(t *testing.T) {
 
 	assert.Nil(t, err)
 	assert.Equal(t, http.StatusFound, resp.StatusCode)
-	assert.Equal(t, donor.PathIdentityDetails.Format("lpa-id"), resp.Header.Get("Location"))
+	assert.Equal(t, donor.PathIdentityDetails.FormatQuery("lpa-id", url.Values{"canUpdateAddress": {"1"}}), resp.Header.Get("Location"))
 }
 
 func TestGetIdentityWithOneLoginCallbackWhenIdentityMismatchedEventErrors(t *testing.T) {
