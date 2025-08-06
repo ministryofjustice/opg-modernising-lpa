@@ -13,3 +13,6 @@ vulnerabilities:
   - id: CVE-2025-55163
     statement: Replacing with impostergo
     expired_at: 2025-08-30
+  - id: AVD-DS-0002
+    statement: Trying to replace with impostergo
+    expired_at: 2025-08-30
