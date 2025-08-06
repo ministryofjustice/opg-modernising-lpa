@@ -2,6 +2,7 @@ package donorpage
 
 import (
 	"net/http"
+	"net/url"
 	"strings"
 
 	"github.com/ministryofjustice/opg-go-common/template"
@@ -18,6 +19,7 @@ type identityDetailsData struct {
 	App              appcontext.Data
 	Errors           validation.List
 	Provided         *donordata.Provided
+	CanUpdateAddress bool
 	FirstNamesMatch  bool
 	LastNameMatch    bool
 	DateOfBirthMatch bool
@@ -25,8 +27,18 @@ type identityDetailsData struct {
 	Form             *form.YesNoForm
 }
 
-func (d identityDetailsData) DetailsMatch() bool {
-	return d.FirstNamesMatch && d.LastNameMatch && d.DateOfBirthMatch && d.AddressMatch
+func (d identityDetailsData) State() string {
+	detailsMatched := d.FirstNamesMatch && d.LastNameMatch && d.DateOfBirthMatch
+
+	if !d.Provided.CanChange() && !detailsMatched {
+		return "cannotChange"
+	} else if !detailsMatched && !d.Provided.ContinueWithMismatchedDetails {
+		return "detailNotMatched"
+	} else if !d.AddressMatch && d.CanUpdateAddress {
+		return "addressNotMatched"
+	} else {
+		return "matched"
+	}
 }
 
 func IdentityDetails(tmpl template.Template, donorStore DonorStore, eventClient EventClient) Handler {
@@ -35,41 +47,32 @@ func IdentityDetails(tmpl template.Template, donorStore DonorStore, eventClient 
 			App:              appData,
 			Form:             form.NewYesNoForm(form.YesNoUnknown),
 			Provided:         provided,
+			CanUpdateAddress: r.FormValue("canUpdateAddress") == "1",
 			FirstNamesMatch:  strings.EqualFold(provided.Donor.FirstNames, provided.IdentityUserData.FirstNames),
 			LastNameMatch:    strings.EqualFold(provided.Donor.LastName, provided.IdentityUserData.LastName),
 			DateOfBirthMatch: provided.Donor.DateOfBirth == provided.IdentityUserData.DateOfBirth,
-			AddressMatch:     provided.Donor.Address.Postcode == provided.IdentityUserData.CurrentAddress.Postcode,
+			AddressMatch:     provided.Donor.Address == provided.IdentityUserData.CurrentAddress,
 		}
 
 		if r.Method == http.MethodPost {
 			errorLabel := "yesIfWouldLikeToUpdateDetails"
 			if !provided.CanChange() {
 				errorLabel = "yesToRevokeThisLpaAndMakeNew"
+			} else if !data.AddressMatch {
+				errorLabel = "anOptionForTheAddressInYourLpa"
 			}
 
 			f := form.ReadYesNoForm(r, errorLabel)
 			data.Errors = f.Validate()
 
 			if data.Errors.None() {
-				var redirect donor.Path
+				var (
+					redirect      donor.Path
+					redirectQuery url.Values
+				)
 
-				if provided.CanChange() {
-					if f.YesNo.IsYes() {
-						provided.Donor.FirstNames = provided.IdentityUserData.FirstNames
-						provided.Donor.LastName = provided.IdentityUserData.LastName
-						provided.Donor.DateOfBirth = provided.IdentityUserData.DateOfBirth
-						provided.Donor.Address = provided.IdentityUserData.CurrentAddress
-						provided.Tasks.CheckYourLpa = task.StateInProgress
-						provided.Tasks.ConfirmYourIdentity = task.IdentityStateCompleted
-						provided.IdentityDetailsCausedCheck = true
-
-						redirect = donor.PathIdentityDetailsUpdated
-					} else {
-						provided.Tasks.ConfirmYourIdentity = task.IdentityStatePending
-
-						redirect = donor.PathRegisterWithCourtOfProtection
-					}
-				} else {
+				switch data.State() {
+				case "cannotChange":
 					if f.YesNo.IsYes() {
 						return donor.PathWithdrawThisLpa.Redirect(w, r, appData, provided)
 					} else {
@@ -84,13 +87,61 @@ func IdentityDetails(tmpl template.Template, donorStore DonorStore, eventClient 
 							return err
 						}
 					}
+
+				case "addressNotMatched":
+					if f.YesNo.IsYes() {
+						provided.Donor.Address = provided.IdentityUserData.CurrentAddress
+						if !provided.ContinueWithMismatchedDetails {
+							provided.Tasks.ConfirmYourIdentity = task.IdentityStateCompleted
+						}
+						provided.IdentityDetailsCausedCheck = true
+
+						redirect = donor.PathIdentityDetailsUpdated
+						redirectQuery = url.Values{"address": {"1"}}
+					} else {
+						if provided.ContinueWithMismatchedDetails {
+							redirect = donor.PathRegisterWithCourtOfProtection
+						} else {
+							redirect = donor.PathTaskList
+						}
+					}
+
+				case "detailNotMatched":
+					if f.YesNo.IsYes() {
+						provided.Donor.FirstNames = provided.IdentityUserData.FirstNames
+						provided.Donor.LastName = provided.IdentityUserData.LastName
+						provided.Donor.DateOfBirth = provided.IdentityUserData.DateOfBirth
+						provided.Tasks.ConfirmYourIdentity = task.IdentityStateCompleted
+						provided.IdentityDetailsCausedCheck = true
+
+						if data.AddressMatch {
+							redirect = donor.PathIdentityDetailsUpdated
+						} else {
+							redirect = donor.PathIdentityDetails
+							redirectQuery = url.Values{"canUpdateAddress": {"1"}, "updated": {"1"}}
+						}
+					} else {
+						provided.ContinueWithMismatchedDetails = true
+						provided.Tasks.ConfirmYourIdentity = task.IdentityStatePending
+
+						if data.AddressMatch {
+							redirect = donor.PathRegisterWithCourtOfProtection
+						} else {
+							redirect = donor.PathIdentityDetails
+							redirectQuery = url.Values{"canUpdateAddress": {"1"}, "notUpdated": {"1"}}
+						}
+					}
 				}
 
 				if err := donorStore.Put(r.Context(), provided); err != nil {
 					return err
 				}
 
-				return redirect.Redirect(w, r, appData, provided)
+				if redirectQuery == nil {
+					return redirect.Redirect(w, r, appData, provided)
+				} else {
+					return redirect.RedirectQuery(w, r, appData, provided, redirectQuery)
+				}
 			}
 		}
 

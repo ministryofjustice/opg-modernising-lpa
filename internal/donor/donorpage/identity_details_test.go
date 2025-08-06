@@ -23,7 +23,7 @@ import (
 
 func TestIdentityDetailsDataDetailsMatch(t *testing.T) {
 	assert.True(t, identityDetailsData{
-		FirstNamesMatch:  true,
+		NameMatch:        true,
 		LastNameMatch:    true,
 		DateOfBirthMatch: true,
 		AddressMatch:     true,
@@ -74,7 +74,7 @@ func TestGetIdentityDetails(t *testing.T) {
 					App:              testAppData,
 					Form:             form.NewYesNoForm(form.YesNoUnknown),
 					Provided:         tc.donorProvided,
-					FirstNamesMatch:  tc.expectedFirstNamesMatch,
+					NameMatch:        tc.expectedFirstNamesMatch,
 					LastNameMatch:    tc.expectedLastNameMatch,
 					DateOfBirthMatch: tc.expectedDateOfBirthMatch,
 					AddressMatch:     tc.expectedAddressMatch,
