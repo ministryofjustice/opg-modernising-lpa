@@ -52,7 +52,6 @@ type AttorneyStore interface {
 
 type ScheduledStore interface {
 	Create(ctx context.Context, rows ...scheduled.Event) error
-	DeleteAllByUID(ctx context.Context, uid string) error
 }
 
 func Attorney(

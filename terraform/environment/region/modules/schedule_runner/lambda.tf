@@ -34,9 +34,8 @@ module "schedule_runner" {
 }
 
 resource "aws_scheduler_schedule" "schedule_runner_hourly" {
-  name = "schedule-runner-hourly-${data.aws_default_tags.current.tags.environment-name}"
-  // TODO Revert before merging
-  schedule_expression = "rate(1 minute)"
+  name                = "schedule-runner-hourly-${data.aws_default_tags.current.tags.environment-name}"
+  schedule_expression = "rate(1 hour)"
   description         = "Runs every hour"
 
   flexible_time_window {
