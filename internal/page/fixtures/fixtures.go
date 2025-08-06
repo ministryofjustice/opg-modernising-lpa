@@ -140,7 +140,6 @@ func makeDonor(email, firstNames, lastname string) donordata.Donor {
 		Address: place.Address{
 			Line1:      "1 RICHMOND PLACE",
 			Line2:      "KINGS HEATH",
-			Line3:      "WEST MIDLANDS",
 			TownOrCity: "BIRMINGHAM",
 			Postcode:   "B14 7ED",
 			Country:    "GB",

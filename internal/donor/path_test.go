@@ -116,6 +116,11 @@ func TestPathCanGoTo(t *testing.T) {
 			path:     "/whatever",
 			expected: true,
 		},
+		"empty path": {
+			donor:    &donordata.Provided{},
+			path:     "",
+			expected: false,
+		},
 		"check your lpa when unsure if can sign": {
 			donor: &donordata.Provided{
 				Type: lpadata.LpaTypePersonalWelfare,
@@ -200,6 +205,48 @@ func TestPathCanGoTo(t *testing.T) {
 				},
 			},
 			path:     PathIdentityWithOneLogin,
+			expected: true,
+		},
+		"identity details when checked": {
+			donor: &donordata.Provided{
+				Donor: donordata.Donor{
+					CanSign: form.Yes,
+				},
+				Type: lpadata.LpaTypePersonalWelfare,
+				Tasks: donordata.Tasks{
+					YourDetails:                task.StateCompleted,
+					ChooseAttorneys:            task.StateCompleted,
+					ChooseReplacementAttorneys: task.StateCompleted,
+					LifeSustainingTreatment:    task.StateCompleted,
+					Restrictions:               task.StateCompleted,
+					CertificateProvider:        task.StateCompleted,
+					PeopleToNotify:             task.StateCompleted,
+					CheckYourLpa:               task.StateCompleted,
+					PayForLpa:                  task.PaymentStateCompleted,
+				},
+			},
+			path:     PathIdentityDetails,
+			expected: true,
+		},
+		"identity details when needs checking": {
+			donor: &donordata.Provided{
+				Donor: donordata.Donor{
+					CanSign: form.Yes,
+				},
+				Type: lpadata.LpaTypePersonalWelfare,
+				Tasks: donordata.Tasks{
+					YourDetails:                task.StateCompleted,
+					ChooseAttorneys:            task.StateCompleted,
+					ChooseReplacementAttorneys: task.StateCompleted,
+					LifeSustainingTreatment:    task.StateCompleted,
+					Restrictions:               task.StateCompleted,
+					CertificateProvider:        task.StateCompleted,
+					PeopleToNotify:             task.StateCompleted,
+					CheckYourLpa:               task.StateInProgress,
+					PayForLpa:                  task.PaymentStateCompleted,
+				},
+			},
+			path:     PathIdentityDetails,
 			expected: true,
 		},
 		"read lpa without task": {
