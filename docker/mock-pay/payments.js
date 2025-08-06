@@ -2,8 +2,9 @@ console.log(`Request - ${context.request.method} ${context.request.path}`);
 
 const paymentsStore = stores.open('payments');
 
-if (context.request.method == 'GET') {
-    const getPaymentResponseBody = `{
+switch (context.request.method) {
+    case 'GET':
+        const getPaymentResponseBody = `{
     "amount": 8200,
     "description": "Property and Finance LPA",
     "reference": "Hxzqvk78fBdl",
@@ -64,28 +65,37 @@ if (context.request.method == 'GET') {
 }
 `
 
+        const payment = JSON.parse(paymentsStore.load('payment'))
+        let response = JSON.parse(getPaymentResponseBody)
+        let now = new Date()
 
-    const payment = JSON.parse(paymentsStore.load('payment'))
-    let response = JSON.parse(getPaymentResponseBody)
-    let now = new Date()
+        response.amount = payment.amount
+        response.email = payment.email
+        response.description = payment.description
+        response.reference = payment.reference
+        response.refund_summary.amount_available = payment.amount
+        response.settlement_summary.capture_submit_time = now.toISOString()
+        response.settlement_summary.captured_date = now.toISOString().split('T')[0]
 
-    response.amount = payment.amount
-    response.email = payment.email
-    response.description = payment.description
-    response.reference = payment.reference
-    response.refund_summary.amount_available = payment.amount
-    response.settlement_summary.capture_submit_time = now.toISOString()
-    response.settlement_summary.captured_date = now.toISOString().split('T')[0]
+        now.setMinutes(now.getMinutes() - 1)
+        response.created_date = now.toISOString()
 
-    now.setMinutes(now.getMinutes() - 1)
-    response.created_date = now.toISOString()
+        respond()
+            .withStatusCode(200)
+            .withContent(JSON.stringify(response))
+            .skipDefaultBehaviour()
+        break
 
-    respond().withContent(JSON.stringify(response))
-} else if (context.request.method == 'POST') {
-    const body = JSON.parse(context.request.body);
-    paymentsStore.save('payment', JSON.stringify(body));
+    case 'POST':
+        const body = JSON.parse(context.request.body);
+        paymentsStore.save('payment', JSON.stringify(body));
 
-    respond()
-} else {
-    respond()
+        respond()
+            .withStatusCode(201)
+            .skipDefaultBehaviour()
+        break
+
+    default:
+        respond()
+        break
 }
