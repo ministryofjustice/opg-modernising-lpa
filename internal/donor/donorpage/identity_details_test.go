@@ -21,15 +21,78 @@ import (
 	"github.com/stretchr/testify/mock"
 )
 
-func TestIdentityDetailsDataDetailsMatch(t *testing.T) {
-	assert.True(t, identityDetailsData{
-		FirstNamesMatch:  true,
-		LastNameMatch:    true,
-		DateOfBirthMatch: true,
-		AddressMatch:     true,
-	}.DetailsMatch())
-	assert.False(t, identityDetailsData{LastNameMatch: true, DateOfBirthMatch: true, AddressMatch: true}.DetailsMatch())
-	assert.False(t, identityDetailsData{}.DetailsMatch())
+func TestIdentityDetailsDataState(t *testing.T) {
+	testcases := map[string]struct {
+		data  *identityDetailsData
+		state string
+	}{
+		"matched": {
+			data: &identityDetailsData{
+				FirstNamesMatch:  true,
+				LastNameMatch:    true,
+				DateOfBirthMatch: true,
+				AddressMatch:     true,
+				Provided:         &donordata.Provided{},
+			},
+			state: "matched",
+		},
+		"mismatched address": {
+			data: &identityDetailsData{
+				FirstNamesMatch:  true,
+				LastNameMatch:    true,
+				DateOfBirthMatch: true,
+				CanUpdateAddress: true,
+				Provided:         &donordata.Provided{},
+			},
+			state: "addressNotMatched",
+		},
+		"mismatched address cannot update": {
+			data: &identityDetailsData{
+				FirstNamesMatch:  true,
+				LastNameMatch:    true,
+				DateOfBirthMatch: true,
+				Provided:         &donordata.Provided{},
+			},
+			state: "matched",
+		},
+		"mismatched name": {
+			data: &identityDetailsData{
+				DateOfBirthMatch: true,
+				AddressMatch:     true,
+				Provided:         &donordata.Provided{},
+			},
+			state: "detailNotMatched",
+		},
+		"mismatched date of birth": {
+			data: &identityDetailsData{
+				FirstNamesMatch: true,
+				LastNameMatch:   true,
+				AddressMatch:    true,
+				Provided:        &donordata.Provided{},
+			},
+			state: "detailNotMatched",
+		},
+		"continue with mismatched detail": {
+			data: &identityDetailsData{
+				AddressMatch: true,
+				Provided:     &donordata.Provided{ContinueWithMismatchedDetails: true},
+			},
+			state: "matched",
+		},
+		"cannot change": {
+			data: &identityDetailsData{
+				AddressMatch: true,
+				Provided:     &donordata.Provided{SignedAt: time.Now()},
+			},
+			state: "cannotChange",
+		},
+	}
+
+	for name, tc := range testcases {
+		t.Run(name, func(t *testing.T) {
+			assert.Equal(t, tc.state, tc.data.State())
+		})
+	}
 }
 
 func TestGetIdentityDetails(t *testing.T) {
@@ -37,29 +100,42 @@ func TestGetIdentityDetails(t *testing.T) {
 
 	testcases := map[string]struct {
 		donorProvided            *donordata.Provided
+		url                      string
 		expectedFirstNamesMatch  bool
 		expectedLastNameMatch    bool
 		expectedDateOfBirthMatch bool
 		expectedAddressMatch     bool
-		url                      string
+		expectedCanUpdateAddress bool
 	}{
-		"details match": {
+		"matched": {
 			donorProvided: &donordata.Provided{
 				Donor:            donordata.Donor{FirstNames: "A", LastName: "b", DateOfBirth: dob, Address: testAddress},
 				IdentityUserData: identity.UserData{FirstNames: "a", LastName: "B", DateOfBirth: dob, CurrentAddress: testAddress},
 			},
+			url:                      "/",
 			expectedFirstNamesMatch:  true,
 			expectedLastNameMatch:    true,
 			expectedDateOfBirthMatch: true,
 			expectedAddressMatch:     true,
-			url:                      "/",
 		},
-		"details do not match": {
+		"mismatched detail": {
 			donorProvided: &donordata.Provided{
 				Donor:            donordata.Donor{FirstNames: "a", LastName: "b", DateOfBirth: dob, Address: testAddress},
-				IdentityUserData: identity.UserData{FirstNames: "b"},
+				IdentityUserData: identity.UserData{FirstNames: "b", CurrentAddress: testAddress},
 			},
-			url: "/",
+			url:                  "/",
+			expectedAddressMatch: true,
+		},
+		"mismatched address": {
+			donorProvided: &donordata.Provided{
+				Donor:            donordata.Donor{FirstNames: "a", LastName: "b", DateOfBirth: dob, Address: testAddress},
+				IdentityUserData: identity.UserData{FirstNames: "a", LastName: "b", DateOfBirth: dob},
+			},
+			url:                      "/?canUpdateAddress=1",
+			expectedFirstNamesMatch:  true,
+			expectedLastNameMatch:    true,
+			expectedDateOfBirthMatch: true,
+			expectedCanUpdateAddress: true,
 		},
 	}
 
@@ -74,6 +150,7 @@ func TestGetIdentityDetails(t *testing.T) {
 					App:              testAppData,
 					Form:             form.NewYesNoForm(form.YesNoUnknown),
 					Provided:         tc.donorProvided,
+					CanUpdateAddress: tc.expectedCanUpdateAddress,
 					FirstNamesMatch:  tc.expectedFirstNamesMatch,
 					LastNameMatch:    tc.expectedLastNameMatch,
 					DateOfBirthMatch: tc.expectedDateOfBirthMatch,
@@ -94,6 +171,19 @@ func TestPostIdentityDetails(t *testing.T) {
 	existingDob := date.New("1", "2", "3")
 	identityDob := date.New("4", "5", "6")
 
+	identityAddress := place.Address{Line1: "different"}
+
+	// cannot change - yes
+	// cannot change - no
+	// address not matched - yes
+	// address not matched - yes, continue with mismatched
+	// address not matched - no
+	// address not matched - no, continue with mismatched
+	// detail not matched - yes
+	// detail not matched - yes, address not matched
+	// detail not matched - no
+	// detail not matched - no, address not matched
+
 	testcases := map[string]struct {
 		yesNo       form.YesNo
 		provided    *donordata.Provided
@@ -101,19 +191,18 @@ func TestPostIdentityDetails(t *testing.T) {
 		eventClient func(*testing.T) *mockEventClient
 		redirect    string
 	}{
-		"yes can change": {
+		"yes when detail not matched": {
 			yesNo: form.Yes,
 			provided: &donordata.Provided{
 				LpaID:            "lpa-id",
 				Donor:            donordata.Donor{FirstNames: "b", LastName: "b", DateOfBirth: existingDob, Address: testAddress},
-				IdentityUserData: identity.UserData{FirstNames: "B", LastName: "B", DateOfBirth: identityDob, CurrentAddress: place.Address{Line1: "a"}},
+				IdentityUserData: identity.UserData{FirstNames: "B", LastName: "B", DateOfBirth: identityDob, CurrentAddress: testAddress},
 			},
 			updated: &donordata.Provided{
 				LpaID:            "lpa-id",
-				Donor:            donordata.Donor{FirstNames: "B", LastName: "B", DateOfBirth: identityDob, Address: place.Address{Line1: "a"}},
-				IdentityUserData: identity.UserData{FirstNames: "B", LastName: "B", DateOfBirth: identityDob, CurrentAddress: place.Address{Line1: "a"}},
+				Donor:            donordata.Donor{FirstNames: "B", LastName: "B", DateOfBirth: identityDob, Address: testAddress},
+				IdentityUserData: identity.UserData{FirstNames: "B", LastName: "B", DateOfBirth: identityDob, CurrentAddress: testAddress},
 				Tasks: donordata.Tasks{
-					CheckYourLpa:        task.StateInProgress,
 					ConfirmYourIdentity: task.IdentityStateCompleted,
 				},
 				IdentityDetailsCausedCheck: true,
@@ -121,50 +210,139 @@ func TestPostIdentityDetails(t *testing.T) {
 			eventClient: func(*testing.T) *mockEventClient { return nil },
 			redirect:    donor.PathIdentityDetailsUpdated.Format("lpa-id"),
 		},
-		"no can change": {
-			yesNo: form.No,
-			provided: &donordata.Provided{
-				LpaID:            "lpa-id",
-				Donor:            donordata.Donor{FirstNames: "b", LastName: "b", DateOfBirth: existingDob, Address: testAddress},
-				IdentityUserData: identity.UserData{FirstNames: "B", LastName: "B", DateOfBirth: identityDob, CurrentAddress: place.Address{Line1: "a"}},
-			},
-			updated: &donordata.Provided{
-				LpaID:            "lpa-id",
-				Donor:            donordata.Donor{FirstNames: "b", LastName: "b", DateOfBirth: existingDob, Address: testAddress},
-				IdentityUserData: identity.UserData{FirstNames: "B", LastName: "B", DateOfBirth: identityDob, CurrentAddress: place.Address{Line1: "a"}},
-				Tasks:            donordata.Tasks{ConfirmYourIdentity: task.IdentityStatePending},
-			},
-			eventClient: func(*testing.T) *mockEventClient { return nil },
-			redirect:    donor.PathRegisterWithCourtOfProtection.Format("lpa-id"),
-		},
-		"yes cannot change": {
+		"yes when detail and address not matched": {
 			yesNo: form.Yes,
 			provided: &donordata.Provided{
 				LpaID:            "lpa-id",
 				Donor:            donordata.Donor{FirstNames: "b", LastName: "b", DateOfBirth: existingDob, Address: testAddress},
-				IdentityUserData: identity.UserData{FirstNames: "B", LastName: "B", DateOfBirth: identityDob, CurrentAddress: place.Address{Line1: "a"}},
+				IdentityUserData: identity.UserData{FirstNames: "B", LastName: "B", DateOfBirth: identityDob, CurrentAddress: identityAddress},
+			},
+			updated: &donordata.Provided{
+				LpaID:            "lpa-id",
+				Donor:            donordata.Donor{FirstNames: "B", LastName: "B", DateOfBirth: identityDob, Address: testAddress},
+				IdentityUserData: identity.UserData{FirstNames: "B", LastName: "B", DateOfBirth: identityDob, CurrentAddress: identityAddress},
+				Tasks: donordata.Tasks{
+					ConfirmYourIdentity: task.IdentityStateCompleted,
+				},
+				IdentityDetailsCausedCheck: true,
+			},
+			eventClient: func(*testing.T) *mockEventClient { return nil },
+			redirect:    donor.PathIdentityDetails.FormatQuery("lpa-id", url.Values{"canUpdateAddress": {"1"}, "updated": {"1"}}),
+		},
+		"no when detail not matched": {
+			yesNo: form.No,
+			provided: &donordata.Provided{
+				LpaID:            "lpa-id",
+				Donor:            donordata.Donor{FirstNames: "b", LastName: "b", DateOfBirth: existingDob, Address: testAddress},
+				IdentityUserData: identity.UserData{FirstNames: "B", LastName: "B", DateOfBirth: identityDob, CurrentAddress: testAddress},
+			},
+			updated: &donordata.Provided{
+				LpaID:                         "lpa-id",
+				Donor:                         donordata.Donor{FirstNames: "b", LastName: "b", DateOfBirth: existingDob, Address: testAddress},
+				IdentityUserData:              identity.UserData{FirstNames: "B", LastName: "B", DateOfBirth: identityDob, CurrentAddress: testAddress},
+				ContinueWithMismatchedDetails: true,
+				Tasks: donordata.Tasks{
+					ConfirmYourIdentity: task.IdentityStatePending,
+				},
+			},
+			eventClient: func(*testing.T) *mockEventClient { return nil },
+			redirect:    donor.PathRegisterWithCourtOfProtection.Format("lpa-id"),
+		},
+		"no when detail and address not matched": {
+			yesNo: form.No,
+			provided: &donordata.Provided{
+				LpaID:            "lpa-id",
+				Donor:            donordata.Donor{FirstNames: "b", LastName: "b", DateOfBirth: existingDob, Address: testAddress},
+				IdentityUserData: identity.UserData{FirstNames: "B", LastName: "B", DateOfBirth: identityDob, CurrentAddress: identityAddress},
+			},
+			updated: &donordata.Provided{
+				LpaID:                         "lpa-id",
+				Donor:                         donordata.Donor{FirstNames: "b", LastName: "b", DateOfBirth: existingDob, Address: testAddress},
+				IdentityUserData:              identity.UserData{FirstNames: "B", LastName: "B", DateOfBirth: identityDob, CurrentAddress: identityAddress},
+				ContinueWithMismatchedDetails: true,
+				Tasks: donordata.Tasks{
+					ConfirmYourIdentity: task.IdentityStatePending,
+				},
+			},
+			eventClient: func(*testing.T) *mockEventClient { return nil },
+			redirect:    donor.PathIdentityDetails.FormatQuery("lpa-id", url.Values{"canUpdateAddress": {"1"}, "notUpdated": {"1"}}),
+		},
+		"yes when address not matched": {
+			yesNo: form.Yes,
+			provided: &donordata.Provided{
+				LpaID:            "lpa-id",
+				Donor:            donordata.Donor{FirstNames: "b", LastName: "b", DateOfBirth: existingDob, Address: testAddress},
+				IdentityUserData: identity.UserData{FirstNames: "b", LastName: "b", DateOfBirth: existingDob, CurrentAddress: identityAddress},
+			},
+			updated: &donordata.Provided{
+				LpaID:                      "lpa-id",
+				Donor:                      donordata.Donor{FirstNames: "b", LastName: "b", DateOfBirth: existingDob, Address: identityAddress},
+				IdentityUserData:           identity.UserData{FirstNames: "b", LastName: "b", DateOfBirth: existingDob, CurrentAddress: identityAddress},
+				IdentityDetailsCausedCheck: true,
+			},
+			eventClient: func(*testing.T) *mockEventClient { return nil },
+			redirect:    donor.PathIdentityDetailsUpdated.FormatQuery("lpa-id", url.Values{"address": {"1"}}),
+		},
+		"no when address not matched": {
+			yesNo: form.No,
+			provided: &donordata.Provided{
+				LpaID:            "lpa-id",
+				Donor:            donordata.Donor{FirstNames: "b", LastName: "b", DateOfBirth: existingDob, Address: testAddress},
+				IdentityUserData: identity.UserData{FirstNames: "b", LastName: "b", DateOfBirth: existingDob, CurrentAddress: identityAddress},
+			},
+			updated: &donordata.Provided{
+				LpaID:            "lpa-id",
+				Donor:            donordata.Donor{FirstNames: "b", LastName: "b", DateOfBirth: existingDob, Address: testAddress},
+				IdentityUserData: identity.UserData{FirstNames: "b", LastName: "b", DateOfBirth: existingDob, CurrentAddress: identityAddress},
+			},
+			eventClient: func(*testing.T) *mockEventClient { return nil },
+			redirect:    donor.PathTaskList.Format("lpa-id"),
+		},
+		"no when address not matched and continue with mismatched details": {
+			yesNo: form.No,
+			provided: &donordata.Provided{
+				LpaID:                         "lpa-id",
+				Donor:                         donordata.Donor{FirstNames: "b", LastName: "b", DateOfBirth: existingDob, Address: testAddress},
+				IdentityUserData:              identity.UserData{FirstNames: "b", LastName: "b", DateOfBirth: existingDob, CurrentAddress: identityAddress},
+				ContinueWithMismatchedDetails: true,
+			},
+			updated: &donordata.Provided{
+				LpaID:                         "lpa-id",
+				Donor:                         donordata.Donor{FirstNames: "b", LastName: "b", DateOfBirth: existingDob, Address: testAddress},
+				IdentityUserData:              identity.UserData{FirstNames: "b", LastName: "b", DateOfBirth: existingDob, CurrentAddress: identityAddress},
+				ContinueWithMismatchedDetails: true,
+			},
+			eventClient: func(*testing.T) *mockEventClient { return nil },
+			redirect:    donor.PathRegisterWithCourtOfProtection.Format("lpa-id"),
+		},
+		"yes when cannot change": {
+			yesNo: form.Yes,
+			provided: &donordata.Provided{
+				LpaID:            "lpa-id",
+				Donor:            donordata.Donor{FirstNames: "b", LastName: "b", DateOfBirth: existingDob, Address: testAddress},
+				IdentityUserData: identity.UserData{FirstNames: "B", LastName: "B", DateOfBirth: identityDob, CurrentAddress: identityAddress},
 				SignedAt:         time.Now(),
 			},
 			eventClient: func(*testing.T) *mockEventClient { return nil },
 			redirect:    donor.PathWithdrawThisLpa.Format("lpa-id"),
 		},
-		"no cannot change": {
+		"no when cannot change": {
 			yesNo: form.No,
 			provided: &donordata.Provided{
 				LpaID:            "lpa-id",
 				LpaUID:           "lpa-uid",
 				Donor:            donordata.Donor{FirstNames: "b", LastName: "b", DateOfBirth: existingDob, Address: testAddress},
-				IdentityUserData: identity.UserData{FirstNames: "B", LastName: "B", DateOfBirth: identityDob, CurrentAddress: place.Address{Line1: "a"}},
+				IdentityUserData: identity.UserData{FirstNames: "B", LastName: "B", DateOfBirth: identityDob, CurrentAddress: identityAddress},
 				SignedAt:         testNow,
 			},
 			updated: &donordata.Provided{
 				LpaID:                            "lpa-id",
 				LpaUID:                           "lpa-uid",
 				Donor:                            donordata.Donor{FirstNames: "b", LastName: "b", DateOfBirth: existingDob, Address: testAddress},
-				IdentityUserData:                 identity.UserData{FirstNames: "B", LastName: "B", DateOfBirth: identityDob, CurrentAddress: place.Address{Line1: "a"}},
-				Tasks:                            donordata.Tasks{ConfirmYourIdentity: task.IdentityStatePending},
-				RegisteringWithCourtOfProtection: true,
+				IdentityUserData:                 identity.UserData{FirstNames: "B", LastName: "B", DateOfBirth: identityDob, CurrentAddress: identityAddress},
 				SignedAt:                         testNow,
+				RegisteringWithCourtOfProtection: true,
+				Tasks:                            donordata.Tasks{ConfirmYourIdentity: task.IdentityStatePending},
 			},
 			eventClient: func(*testing.T) *mockEventClient {
 				eventClient := newMockEventClient(t)
@@ -185,7 +363,7 @@ func TestPostIdentityDetails(t *testing.T) {
 			f := url.Values{form.FieldNames.YesNo: {tc.yesNo.String()}}
 
 			w := httptest.NewRecorder()
-			r := httptest.NewRequest(http.MethodPost, "/", strings.NewReader(f.Encode()))
+			r := httptest.NewRequest(http.MethodPost, "/?canUpdateAddress=1", strings.NewReader(f.Encode()))
 			r.Header.Set("Content-Type", "application/x-www-form-urlencoded")
 
 			donorStore := newMockDonorStore(t)
@@ -240,7 +418,10 @@ func TestPostIdentityDetailsWhenEventClientError(t *testing.T) {
 		SendRegisterWithCourtOfProtection(r.Context(), mock.Anything).
 		Return(expectedError)
 
-	err := IdentityDetails(nil, nil, eventClient)(testAppData, w, r, &donordata.Provided{SignedAt: time.Now()})
+	err := IdentityDetails(nil, nil, eventClient)(testAppData, w, r, &donordata.Provided{
+		Donor:    donordata.Donor{FirstNames: "a"},
+		SignedAt: time.Now(),
+	})
 	resp := w.Result()
 
 	assert.Equal(t, expectedError, err)

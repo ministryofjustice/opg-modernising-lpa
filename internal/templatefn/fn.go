@@ -97,6 +97,7 @@ func All(globals *Globals) map[string]any {
 		"htmlContent":          htmlContent,
 		"addressLines":         addressLines,
 		"stackedNotifications": stackedNotifications,
+		"list":                 list,
 	}
 }
 
@@ -627,4 +628,8 @@ func stackedNotifications(appData appcontext.Data, notifications []page.Notifica
 		Count:         slices.Contains(options, "count"),
 		Success:       slices.Contains(options, "success"),
 	}
+}
+
+func list(els ...string) []string {
+	return els
 }

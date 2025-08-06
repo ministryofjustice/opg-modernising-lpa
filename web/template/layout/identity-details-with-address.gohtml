@@ -1,4 +1,4 @@
-{{ define "identity-details" }}
+{{ define "identity-details-with-address" }}
     <div class="govuk-summary-card">
         <div class="govuk-summary-card__title-wrapper">
             <h2 class="govuk-summary-card__title">{{ tr .App "yourConfirmedIdentityDetails" }}</h2>
@@ -8,6 +8,7 @@
                 {{ template "summary-row" (staticSummaryRow .App "firstNames" .Item.FirstNames) }}
                 {{ template "summary-row" (staticSummaryRow .App "lastName" .Item.LastName) }}
                 {{ template "summary-row" (staticSummaryRow .App "dateOfBirth" (formatDate .App .Item.DateOfBirth)) }}
+                {{ template "address-summary-row" (staticSummaryRow $.App "address" .Item.CurrentAddress) }}
             </dl>
         </div>
     </div>
