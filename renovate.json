@@ -54,6 +54,6 @@
         "minimumReleaseAge": "3 days"
     },
     "vulnerabilityAlerts": {
-        "enabled": false
+        "enabled": true
     }
 }
