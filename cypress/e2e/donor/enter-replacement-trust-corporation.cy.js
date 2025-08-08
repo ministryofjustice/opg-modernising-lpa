@@ -1,4 +1,4 @@
-import { TestEmail } from "../../support/e2e";
+import {TestEmail} from "../../support/e2e";
 
 describe('Enter replacement trust corporation', () => {
     beforeEach(() => {
@@ -9,7 +9,6 @@ describe('Enter replacement trust corporation', () => {
         cy.checkA11yApp();
 
         cy.get('#f-name').invoke('val', 'Yoyodyne');
-        cy.get('#f-company-number').invoke('val', '123456');
         cy.get('#f-email').invoke('val', TestEmail);
 
         cy.contains('button', 'Save and continue').click();
@@ -22,12 +21,10 @@ describe('Enter replacement trust corporation', () => {
         cy.contains('button', 'Save and continue').click();
 
         cy.get('.govuk-error-summary').within(() => {
-            cy.contains('Enter company name');
-            cy.contains('Enter company number');
+            cy.contains('Enter trust corporation name');
         });
 
-        cy.contains('[for=f-name] + .govuk-error-message', 'Enter company name');
-        cy.contains('[for=f-company-number] + div + .govuk-error-message', 'Enter company number');
+        cy.contains('[for=f-name] + .govuk-error-message', 'Enter trust corporation name');
     });
 
     it('errors when invalid email', () => {
@@ -35,6 +32,6 @@ describe('Enter replacement trust corporation', () => {
 
         cy.contains('button', 'Save and continue').click();
 
-        cy.contains('[for=f-email] + div + .govuk-error-message', 'Company email address must be in the correct format, like name@example.com');
+        cy.contains('[for=f-email] + div + .govuk-error-message', 'Trust corporation email address must be in the correct format, like name@example.com');
     });
 });
