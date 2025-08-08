@@ -4,7 +4,7 @@ describe('Provide your details', () => {
     it('requests a UID', () => {
         cy.visit('/fixtures?redirect=');
 
-        cy.contains('Make or add an LPA').click();
+        cy.contains('Make or add LPAs').click();
         cy.contains('Start').click();
 
         const rnd = Cypress._.random(0, 1e6);
