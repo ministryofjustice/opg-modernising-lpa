@@ -12,8 +12,6 @@ type TrustCorporation struct {
 	UID actoruid.UID
 	// Name of the company
 	Name string
-	// CompanyNumber as registered by Companies House
-	CompanyNumber string
 	// Email to contact the company
 	Email string
 	// Address of the company

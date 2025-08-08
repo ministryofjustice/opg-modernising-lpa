@@ -32,7 +32,7 @@
                                         value="{{ $i }}"
                                     >
                                     <label class="govuk-label govuk-radios__label" for="f-{{ fieldID "option" $i }}">
-                                        {{ trFormatHtml $.App "selectTrustCorporation" "Name" .Name "CompanyNumber" .CompanyNumber "Postcode" .Address.Postcode }}
+                                        {{ trFormatHtml $.App "selectTrustCorporation" "Name" .Name "Postcode" .Address.Postcode }}
                                     </label>
                                 </div>
                             {{ end }}

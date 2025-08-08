@@ -67,7 +67,27 @@ func TestGetTaskList(t *testing.T) {
 			provided: &attorneydata.Provided{},
 			appData:  testTrustCorporationAppData,
 			expected: func(items []taskListItem) []taskListItem {
+				items[0].Path = attorney.PathCompanyNumber
+
+				return items
+			},
+		},
+		"trust corporation with company number": {
+			lpa:      &lpadata.Lpa{LpaID: "lpa-id"},
+			provided: &attorneydata.Provided{CompanyNumber: "a"},
+			appData:  testTrustCorporationAppData,
+			expected: func(items []taskListItem) []taskListItem {
 				items[0].Path = attorney.PathPhoneNumber
+
+				return items
+			},
+		},
+		"trust corporation with company number and phone number": {
+			lpa:      &lpadata.Lpa{LpaID: "lpa-id"},
+			provided: &attorneydata.Provided{CompanyNumber: "a", Phone: "b"},
+			appData:  testTrustCorporationAppData,
+			expected: func(items []taskListItem) []taskListItem {
+				items[0].Path = attorney.PathYourPreferredLanguage
 
 				return items
 			},

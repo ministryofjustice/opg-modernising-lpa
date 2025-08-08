@@ -21,9 +21,6 @@
           {{ $companyNameChangeLink := printf "%s#f-name" (link .App .Link.TrustCorporation) }}
           {{ template "summary-row" (summaryRow $.App "name" .TrustCorporation.Name $companyNameChangeLink .TrustCorporation.Name $.CanChange (eq $.App.AttorneyUID .TrustCorporation.UID)) }}
 
-          {{ $companyNumberChangeLink := printf "%s#f-company-number" (link .App .Link.TrustCorporation) }}
-          {{ template "summary-row" (summaryRow $.App "companyNumber" .TrustCorporation.CompanyNumber $companyNumberChangeLink .TrustCorporation.Name $.CanChange (eq $.App.AttorneyUID .TrustCorporation.UID)) }}
-
           {{ $companyEmailAddressChangeLink := printf "%s#f-email" (link .App .Link.TrustCorporation) }}
           {{ template "optional-summary-row" (summaryRow $.App "companyEmailAddress" .TrustCorporation.Email $companyEmailAddressChangeLink .TrustCorporation.Name $.CanChange (eq $.App.AttorneyUID .TrustCorporation.UID)) }}
 

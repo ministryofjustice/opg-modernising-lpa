@@ -14,6 +14,7 @@ const (
 	PathCodeOfConduct               = Path("/code-of-conduct")
 	PathConfirmDontWantToBeAttorney = Path("/confirm-you-do-not-want-to-be-an-attorney")
 	PathConfirmYourDetails          = Path("/confirm-your-details")
+	PathCompanyNumber               = Path("/company-number")
 	PathPhoneNumber                 = Path("/phone-number")
 	PathProgress                    = Path("/progress")
 	PathReadTheLpa                  = Path("/read-the-lpa")

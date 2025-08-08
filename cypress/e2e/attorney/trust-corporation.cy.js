@@ -23,6 +23,10 @@ describe('As a trust corporation', () => {
         // task list
         cy.contains('a', 'Confirm your details').click();
 
+        // company number
+        cy.get('#f-company-number').invoke('val', 'ABCD1234');
+        cy.contains('button', 'Save and continue').click();
+
         // phone number
         cy.get('#f-phone').invoke('val', TestMobile);
         cy.contains('button', 'Save and continue').click();
@@ -32,11 +36,11 @@ describe('As a trust corporation', () => {
         cy.contains('button', 'Save and continue').click()
 
         // confirm your company details
+        cy.contains('ABCD1234');
         cy.contains('07700 900 000');
         cy.contains('Welsh');
         cy.contains('Confirm your company details');
         cy.contains('First Choice Trust Corporation Ltd.');
-        cy.contains('555555555');
         cy.contains('simulate-delivered@notifications.service.gov.uk');
         cy.contains('2 RICHMOND PLACE');
         cy.contains('B14 7ED');
