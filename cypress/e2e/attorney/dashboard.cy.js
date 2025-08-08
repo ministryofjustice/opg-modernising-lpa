@@ -1,4 +1,4 @@
-import { randomAccessCode, TestEmail } from "../../support/e2e.js";
+import {randomAccessCode, TestEmail} from "../../support/e2e.js";
 
 describe('Attorney dashboard', () => {
     context('original attorney', () => {
@@ -75,7 +75,7 @@ describe('Attorney dashboard', () => {
             cy.visit(`/fixtures/attorney?redirect=&withAccessCode=${randomCode}&progress=signedByCertificateProvider&email=${TestEmail}`);
             cy.visit(`/fixtures?redirect=/task-list&progress=provideYourDetails`);
 
-            cy.contains('a', 'Make or add an LPA').click();
+            cy.contains('a', 'Make or add LPAs').click();
 
             cy.contains('a', 'Continue').click();
 

@@ -18,7 +18,7 @@ describe('Dashboard', () => {
         });
 
         it('can create another LPA', () => {
-            cy.contains('a', 'Make or add an LPA').click();
+            cy.contains('a', 'Make or add LPAs').click();
 
             cy.url().should('contain', '/make-or-add-an-lpa');
             cy.contains('button', 'Start').click();

@@ -56,7 +56,7 @@ describe('You have told us you are under 18', () => {
     context('when creating another lpa', () => {
         it('shows the warning', () => {
             cy.visit('/fixtures/dashboard?asDonor=1&redirect=/dashboard');
-            cy.contains('Make or add an LPA').click();
+            cy.contains('Make or add LPAs').click();
             cy.contains('button', 'Start').click();
 
             cy.contains("dd", "2 January 2000").parent().contains("a", "Change").click()
