@@ -51,8 +51,11 @@ func TaskList(tmpl template.Template) Handler {
 			}}
 		}
 
-		confirmYourDetailsPath := attorney.PathPhoneNumber
-		if _, mobile, _ := lpa.Attorney(provided.UID); mobile != "" {
+		confirmYourDetailsPath := attorney.PathCompanyNumber
+		if provided.CompanyNumber != "" || !appData.IsTrustCorporation() {
+			confirmYourDetailsPath = attorney.PathPhoneNumber
+		}
+		if _, mobile, _ := lpa.Attorney(provided.UID); mobile != "" || provided.Phone != "" {
 			confirmYourDetailsPath = attorney.PathYourPreferredLanguage
 		}
 		if tasks.ConfirmYourDetails.IsCompleted() {

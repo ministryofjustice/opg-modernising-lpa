@@ -124,10 +124,9 @@ func TestClientSendLpa(t *testing.T) {
 				},
 				Attorneys: donordata.Attorneys{
 					TrustCorporation: donordata.TrustCorporation{
-						UID:           trustCorporationUID,
-						Name:          "Trusty",
-						CompanyNumber: "55555",
-						Email:         "trusty@example.com",
+						UID:   trustCorporationUID,
+						Name:  "Trusty",
+						Email: "trusty@example.com",
 						Address: place.Address{
 							Line1:      "a-line-1",
 							Line2:      "a-line-2",
@@ -171,9 +170,8 @@ func TestClientSendLpa(t *testing.T) {
 				},
 				ReplacementAttorneys: donordata.Attorneys{
 					TrustCorporation: donordata.TrustCorporation{
-						UID:           replacementTrustCorporationUID,
-						Name:          "UnTrusty",
-						CompanyNumber: "65555",
+						UID:  replacementTrustCorporationUID,
+						Name: "UnTrusty",
 						Address: place.Address{
 							Line1:      "a-line-1",
 							Line2:      "a-line-2",
@@ -292,8 +290,8 @@ func TestClientSendLpa(t *testing.T) {
 {"uid":"` + replacementAttorney2UID.String() + `","firstNames":"Rachel","lastName":"Attorney","dateOfBirth":"1998-11-12","email":"rachel@example.com","address":{"line1":"rr-line-1","line2":"rr-line-2","line3":"rr-line-3","town":"rr-town","postcode":"R1 1RF","country":"GB"},"appointmentType":"replacement","status":"inactive","channel":"online"}
 ],
 "trustCorporations":[
-{"uid":"` + trustCorporationUID.String() + `","name":"Trusty","companyNumber":"55555","email":"trusty@example.com","address":{"line1":"a-line-1","line2":"a-line-2","line3":"a-line-3","town":"a-town","postcode":"A1 1FF","country":"GB"},"appointmentType":"original","status":"active","channel":"online"},
-{"uid":"` + replacementTrustCorporationUID.String() + `","name":"UnTrusty","companyNumber":"65555","address":{"line1":"a-line-1","line2":"a-line-2","line3":"a-line-3","town":"a-town","postcode":"A1 1FF","country":"GB"},"appointmentType":"replacement","status":"inactive","channel":"paper"}
+{"uid":"` + trustCorporationUID.String() + `","name":"Trusty","email":"trusty@example.com","address":{"line1":"a-line-1","line2":"a-line-2","line3":"a-line-3","town":"a-town","postcode":"A1 1FF","country":"GB"},"appointmentType":"original","status":"active","channel":"online"},
+{"uid":"` + replacementTrustCorporationUID.String() + `","name":"UnTrusty","address":{"line1":"a-line-1","line2":"a-line-2","line3":"a-line-3","town":"a-town","postcode":"A1 1FF","country":"GB"},"appointmentType":"replacement","status":"inactive","channel":"paper"}
 ],
 "certificateProvider":{"uid":"` + certificateProviderUID.String() + `","firstNames":"Carol","lastName":"Cert","email":"carol@example.com","phone":"0700009000","address":{"line1":"c-line-1","line2":"c-line-2","line3":"c-line-3","town":"c-town","postcode":"C1 1FF","country":"GB"},"channel":"online"},
 "peopleToNotify":[{"uid":"` + personToNotifyUID.String() + `","firstNames":"Peter","lastName":"Notify","address":{"line1":"p-line-1","line2":"p-line-2","line3":"p-line-3","town":"p-town","postcode":"P1 1FF","country":"GB"}}],
@@ -580,10 +578,9 @@ func TestClientLpa(t *testing.T) {
 				},
 				Attorneys: lpadata.Attorneys{
 					TrustCorporation: lpadata.TrustCorporation{
-						UID:           trustCorporationUID,
-						Name:          "Trusty",
-						CompanyNumber: "55555",
-						Email:         "trusty@example.com",
+						UID:   trustCorporationUID,
+						Name:  "Trusty",
+						Email: "trusty@example.com",
 						Address: place.Address{
 							Line1:      "a-line-1",
 							Line2:      "a-line-2",
@@ -629,9 +626,8 @@ func TestClientLpa(t *testing.T) {
 				},
 				ReplacementAttorneys: lpadata.Attorneys{
 					TrustCorporation: lpadata.TrustCorporation{
-						UID:           replacementTrustCorporationUID,
-						Name:          "UnTrusty",
-						CompanyNumber: "65555",
+						UID:  replacementTrustCorporationUID,
+						Name: "UnTrusty",
 						Address: place.Address{
 							Line1:      "a-line-1",
 							Line2:      "a-line-2",
@@ -749,8 +745,8 @@ func TestClientLpa(t *testing.T) {
 {"uid":"` + replacementAttorney2UID.String() + `","firstNames":"Rachel","lastName":"Attorney","dateOfBirth":"1998-11-12","email":"rachel@example.com","address":{"line1":"rr-line-1","line2":"rr-line-2","line3":"rr-line-3","town":"rr-town","postcode":"R1 1RF","country":"GB"},"status":"inactive","appointmentType":"replacement"}
 ],
 "trustCorporations":[
-{"uid":"` + trustCorporationUID.String() + `","name":"Trusty","companyNumber":"55555","email":"trusty@example.com","address":{"line1":"a-line-1","line2":"a-line-2","line3":"a-line-3","town":"a-town","postcode":"A1 1FF","country":"GB"},"status":"active","channel":"online","appointmentType":"original"},
-{"uid":"` + replacementTrustCorporationUID.String() + `","name":"UnTrusty","companyNumber":"65555","address":{"line1":"a-line-1","line2":"a-line-2","line3":"a-line-3","town":"a-town","postcode":"A1 1FF","country":"GB"},"status":"inactive","channel":"paper","appointmentType":"replacement"}
+{"uid":"` + trustCorporationUID.String() + `","name":"Trusty","email":"trusty@example.com","address":{"line1":"a-line-1","line2":"a-line-2","line3":"a-line-3","town":"a-town","postcode":"A1 1FF","country":"GB"},"status":"active","channel":"online","appointmentType":"original"},
+{"uid":"` + replacementTrustCorporationUID.String() + `","name":"UnTrusty","address":{"line1":"a-line-1","line2":"a-line-2","line3":"a-line-3","town":"a-town","postcode":"A1 1FF","country":"GB"},"status":"inactive","channel":"paper","appointmentType":"replacement"}
 ],
 "certificateProvider":{"uid":"` + certificateProviderUID.String() + `","firstNames":"Carol","lastName":"Cert","email":"carol@example.com","phone":"0700009000","address":{"line1":"c-line-1","line2":"c-line-2","line3":"c-line-3","town":"c-town","postcode":"C1 1FF","country":"GB"},"channel":"online","identityCheck":{"checkedAt":"2002-01-01T13:14:15.000000016Z","type":"one-login"}},
 "peopleToNotify":[{"uid":"` + personToNotifyUID.String() + `","firstNames":"Peter","lastName":"Notify","address":{"line1":"p-line-1","line2":"p-line-2","line3":"p-line-3","town":"p-town","postcode":"P1 1FF","country":"GB"}}],
@@ -981,10 +977,9 @@ func TestClientLpas(t *testing.T) {
 					},
 					Attorneys: lpadata.Attorneys{
 						TrustCorporation: lpadata.TrustCorporation{
-							UID:           trustCorporationUID,
-							Name:          "Trusty",
-							CompanyNumber: "55555",
-							Email:         "trusty@example.com",
+							UID:   trustCorporationUID,
+							Name:  "Trusty",
+							Email: "trusty@example.com",
 							Address: place.Address{
 								Line1:      "a-line-1",
 								Line2:      "a-line-2",
@@ -1030,10 +1025,9 @@ func TestClientLpas(t *testing.T) {
 					},
 					ReplacementAttorneys: lpadata.Attorneys{
 						TrustCorporation: lpadata.TrustCorporation{
-							UID:           replacementTrustCorporationUID,
-							Name:          "UnTrusty",
-							CompanyNumber: "65555",
-							Email:         "untrusty@example.com",
+							UID:   replacementTrustCorporationUID,
+							Name:  "UnTrusty",
+							Email: "untrusty@example.com",
 							Address: place.Address{
 								Line1:      "a-line-1",
 								Line2:      "a-line-2",
@@ -1127,8 +1121,8 @@ func TestClientLpas(t *testing.T) {
 {"uid":"` + replacementAttorney2UID.String() + `","firstNames":"Rachel","lastName":"Attorney","dateOfBirth":"1998-11-12","email":"rachel@example.com","address":{"line1":"rr-line-1","line2":"rr-line-2","line3":"rr-line-3","town":"rr-town","postcode":"R1 1RF","country":"GB"},"status":"inactive","appointmentType":"replacement"}
 ],
 "trustCorporations":[
-{"uid":"` + trustCorporationUID.String() + `","name":"Trusty","companyNumber":"55555","email":"trusty@example.com","address":{"line1":"a-line-1","line2":"a-line-2","line3":"a-line-3","town":"a-town","postcode":"A1 1FF","country":"GB"},"status":"active","appointmentType":"original"},
-{"uid":"` + replacementTrustCorporationUID.String() + `","name":"UnTrusty","companyNumber":"65555","email":"untrusty@example.com","address":{"line1":"a-line-1","line2":"a-line-2","line3":"a-line-3","town":"a-town","postcode":"A1 1FF","country":"GB"},"status":"removed","appointmentType":"replacement"}
+{"uid":"` + trustCorporationUID.String() + `","name":"Trusty","email":"trusty@example.com","address":{"line1":"a-line-1","line2":"a-line-2","line3":"a-line-3","town":"a-town","postcode":"A1 1FF","country":"GB"},"status":"active","appointmentType":"original"},
+{"uid":"` + replacementTrustCorporationUID.String() + `","name":"UnTrusty","email":"untrusty@example.com","address":{"line1":"a-line-1","line2":"a-line-2","line3":"a-line-3","town":"a-town","postcode":"A1 1FF","country":"GB"},"status":"removed","appointmentType":"replacement"}
 ],
 "certificateProvider":{"uid":"` + certificateProviderUID.String() + `","firstNames":"Carol","lastName":"Cert","email":"carol@example.com","phone":"0700009000","address":{"line1":"c-line-1","line2":"c-line-2","line3":"c-line-3","town":"c-town","postcode":"C1 1FF","country":"GB"},"channel":"online"},
 "peopleToNotify":[{"uid":"` + personToNotifyUID.String() + `","firstNames":"Peter","lastName":"Notify","address":{"line1":"p-line-1","line2":"p-line-2","line3":"p-line-3","town":"p-town","postcode":"P1 1FF","country":"GB"}}],

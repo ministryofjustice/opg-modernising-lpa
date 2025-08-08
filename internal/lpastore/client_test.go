@@ -128,9 +128,8 @@ func TestClientServiceContract(t *testing.T) {
 							"appointmentType": matchers.Regex("original", "original|replacement"),
 						}, 1),
 						"trustCorporations": matchers.EachLike(map[string]any{
-							"uid":           matchers.UUID(),
-							"name":          matchers.String("Trust us Corp."),
-							"companyNumber": matchers.String("66654321"),
+							"uid":  matchers.UUID(),
+							"name": matchers.String("Trust us Corp."),
 							"address": matchers.Like(map[string]any{
 								"line1":    matchers.String("tc-line-1"),
 								"line2":    matchers.String("tc-line-2"),
@@ -209,10 +208,9 @@ func TestClientServiceContract(t *testing.T) {
 						Address:     address,
 					}},
 					TrustCorporation: donordata.TrustCorporation{
-						UID:           actoruid.New(),
-						Name:          "Trust us Corp.",
-						CompanyNumber: "66654321",
-						Address:       address,
+						UID:     actoruid.New(),
+						Name:    "Trust us Corp.",
+						Address: address,
 					},
 				},
 				AttorneyDecisions: donordata.AttorneyDecisions{How: lpadata.Jointly},
@@ -562,10 +560,9 @@ func TestClientServiceContract(t *testing.T) {
 					LpaUID: "M-0000-1111-2222",
 					Attorneys: lpadata.Attorneys{
 						TrustCorporation: lpadata.TrustCorporation{
-							UID:           uid,
-							Name:          "Trust us Corp.",
-							CompanyNumber: "66654321",
-							Channel:       lpadata.ChannelPaper,
+							UID:     uid,
+							Name:    "Trust us Corp.",
+							Channel: lpadata.ChannelPaper,
 						},
 					},
 				},

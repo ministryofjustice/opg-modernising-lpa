@@ -1916,5 +1916,8 @@
     "manageLPAsContent": "<p class=\"govuk-body app-two-thirds-fixed-desktop\">This is your LPA dashboard. If you are a donor, you can view and complete tasks on LPAs in progress, delete or revoke LPAs, and access registered LPAs.</p><p class=\"govuk-body app-two-thirds-fixed-desktop\">If you are an attorney or certificate provider, you can view and complete tasks on LPAs in progress.</p>",
     "makeOrAddLPAsContent": "This page allows you to either make a new LPA, or add an LPA using the access code you received via email from the Office of the Public Guardian (OPG).",
     "youHaveSignedContactToChangeDetails": "You have signed your LPA. You will now need to <a href=\"{{.ContactLink}}\" class=\"govuk-link\" target=\"_blank\" rel=\"noreferrer noopener\">contact the Office of the Public Guardian (opens in new tab)</a> to make changes to your contact details.",
-    "addressInYourLpa": "Address in your LPA"
+    "addressInYourLpa": "Address in your LPA",
+    "enterYourCompanyNumber": "Enter your company number",
+    "enterYourCompanyNumberHint": "You can find this on your Companies House listing",
+    "yourCompanyNumber": "your company number"
 }
