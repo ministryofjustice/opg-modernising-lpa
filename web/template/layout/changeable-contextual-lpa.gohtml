@@ -164,11 +164,6 @@
                             (fromLink $.App global.Paths.EnterTrustCorporation "#f-name")
                             .Name $canChange false) }}
 
-                        {{ template "summary-row" (summaryRow $.App "companyNumber"
-                            .CompanyNumber
-                            (fromLink $.App global.Paths.EnterTrustCorporation "#f-company-number")
-                            .Name $canChange false) }}
-
                         {{ template "optional-summary-row" (summaryRow $.App "companyEmailAddress"
                             .Email
                             (fromLink $.App global.Paths.EnterTrustCorporation "#f-email")
@@ -242,11 +237,6 @@
                         {{ template "summary-row" (summaryRow $.App "name"
                             .Name
                             (fromLink $.App global.Paths.EnterReplacementTrustCorporation "#f-name")
-                            .Name $canChange false) }}
-
-                        {{ template "summary-row" (summaryRow $.App "companyNumber"
-                            .CompanyNumber
-                            (fromLink $.App global.Paths.EnterReplacementTrustCorporation "#f-company-number")
                             .Name $canChange false) }}
 
                         {{ template "optional-summary-row" (summaryRow $.App "companyEmailAddress"

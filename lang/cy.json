@@ -691,10 +691,9 @@
     "companyEmailAddress": "Cyfeiriad e-bost y cwmni",
     "companyEmailAddressOptional": "Cyfeiriad e-bost y cwmni (dewisol)",
     "companyEmailHint": "Rhaid i hwn beidio â bod yn gyfeiriad e-bost unigolyn.",
-    "ifTheDetailsYouProvideAreNotCorrect": "Gall unrhyw wallau yn eich manylion wneud yr LPA yn anodd ei ddefnyddio. Mae’n bosibl na fydd sefydliadau’n derbyn yr LPA os nad yw’ch manylion yn cyfateb i’ch data adnabod.",
     "ifUsePreviousAddressOrEnterNew": "os hoffech ddefnyddio cyfeiriad rydych eisoes wedi’i roi neu rhowch gyfeiriad newydd",
     "trustCorporation": "Corfforaeth ymddiriedolaeth",
-    "confirmYourCompanyDetails": "Cadarnhau manylion eich cwmni",
+    "confirmYourTrustCorporationDetails": "Welsh",
     "youMustConfirmTheDetailsAboutYourCompany": "Mae’n rhaid i chi gadarnhau bod y manylion mae {{.DonorFullName}} wedi eu rhoi i ni am eich cwmni yn gywir.",
     "detailsTheDonorHasGivenAboutYourCompany": "Manylion y mae’r rhoddwr wedi eu rhoi am eich cwmni",
     "whatToDoIfAnyDetailsAboutCompanyAreIncorrect": "Beth i’w wneud os yw unrhyw rai o’r manylion a roddwyd am eich cwmni yn anghywir",
@@ -2016,5 +2015,8 @@
     "manageLPAsContent": "<p class=\"govuk-body app-two-thirds-fixed-desktop\">Welsh</p><p class=\"govuk-body app-two-thirds-fixed-desktop\">Welsh</p>",
     "makeOrAddLPAsContent": "Welsh",
     "youHaveSignedContactToChangeDetails": "Welsh <a href=\"{{.ContactLink}}\" class=\"govuk-link\" target=\"_blank\" rel=\"noreferrer noopener\">Welsh</a>",
-    "addressInYourLpa": "Welsh"
+    "addressInYourLpa": "Welsh",
+    "enterYourCompanyNumber": "Welsh",
+    "enterYourCompanyNumberHint": "Welsh",
+    "yourCompanyNumber": "Welsh"
 }

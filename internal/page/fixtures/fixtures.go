@@ -117,10 +117,9 @@ func makeAttorney(name Name) donordata.Attorney {
 
 func makeTrustCorporation(name string) donordata.TrustCorporation {
 	return donordata.TrustCorporation{
-		UID:           actoruid.New(),
-		Name:          name,
-		CompanyNumber: "555555555",
-		Email:         testEmail,
+		UID:   actoruid.New(),
+		Name:  name,
+		Email: testEmail,
 		Address: place.Address{
 			Line1:      "2 RICHMOND PLACE",
 			Line2:      "KINGS HEATH",

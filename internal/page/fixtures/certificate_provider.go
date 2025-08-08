@@ -55,7 +55,7 @@ func CertificateProvider(
 		acceptCookiesConsent(w)
 
 		var (
-			email                  = r.FormValue("email")
+			email                  = cmp.Or(r.FormValue("email"), testEmail)
 			phone                  = r.FormValue("phone")
 			certificateProviderSub = cmp.Or(r.FormValue("certificateProviderSub"), random.AlphaNumeric(16))
 			donorEmail             = cmp.Or(r.FormValue("donorEmail"), testEmail)
@@ -379,7 +379,7 @@ func CertificateProvider(
 			accessCodeSender.UseTestCode(accessCode)
 		}
 
-		if email != "" {
+		if email != testEmail || accessCode != "" {
 			accessCodeSender.SendCertificateProviderInvite(donorCtx, appcontext.Data{
 				SessionID: donorSessionID,
 				LpaID:     donorDetails.LpaID,
