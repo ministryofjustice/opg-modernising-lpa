@@ -233,6 +233,10 @@ type Provided struct {
 	// details
 	IdentityDetailsCausedCheck bool `checkhash:"-"`
 
+	// ContinueWithMismatchedDetails is set when the donor wishes to continue
+	// using details that do not match those returned by the identity check.
+	ContinueWithMismatchedDetails bool `checkhash:"-"`
+
 	HasSentApplicationUpdatedEvent bool `hash:"-" checkhash:"-"`
 }
 
