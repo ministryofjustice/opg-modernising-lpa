@@ -1,0 +1,17 @@
+{{ template "page" . }}
+
+{{ define "pageTitle" }}{{ tr .App "enterYourCompanyNumber" }}{{ end }}
+
+{{ define "main" }}
+    <div class="govuk-grid-row">
+        <div class="govuk-grid-column-two-thirds">
+            <form novalidate method="post">
+                {{ template "input" (input . "company-number" "enterYourCompanyNumber" .Form.CompanyNumber
+                "classes" "govuk-input--width-20" "heading" true "hint" "enterYourCompanyNumberHint") }}
+
+                {{ template "buttons" (button .App "saveAndContinue") }}
+                {{ template "csrf-field" . }}
+            </form>
+        </div>
+    </div>
+{{ end }}

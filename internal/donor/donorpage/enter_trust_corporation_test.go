@@ -91,9 +91,8 @@ func TestGetEnterTrustCorporationWhenTemplateErrors(t *testing.T) {
 
 func TestPostEnterTrustCorporation(t *testing.T) {
 	form := url.Values{
-		"name":           {"Co co."},
-		"company-number": {"453345"},
-		"email":          {"name@example.com"},
+		"name":  {"Co co."},
+		"email": {"name@example.com"},
 	}
 
 	w := httptest.NewRecorder()
@@ -101,9 +100,8 @@ func TestPostEnterTrustCorporation(t *testing.T) {
 	r.Header.Add("Content-Type", page.FormUrlEncoded)
 
 	trustCorporation := donordata.TrustCorporation{
-		Name:          "Co co.",
-		CompanyNumber: "453345",
-		Email:         "name@example.com",
+		Name:  "Co co.",
+		Email: "name@example.com",
 	}
 
 	provided := &donordata.Provided{
@@ -125,9 +123,8 @@ func TestPostEnterTrustCorporation(t *testing.T) {
 
 func TestPostEnterTrustCorporationWhenAddressSet(t *testing.T) {
 	form := url.Values{
-		"name":           {"Co co."},
-		"company-number": {"453345"},
-		"email":          {"name@example.com"},
+		"name":  {"Co co."},
+		"email": {"name@example.com"},
 	}
 
 	w := httptest.NewRecorder()
@@ -135,19 +132,17 @@ func TestPostEnterTrustCorporationWhenAddressSet(t *testing.T) {
 	r.Header.Add("Content-Type", page.FormUrlEncoded)
 
 	trustCorporation := donordata.TrustCorporation{
-		Name:          "Co co.",
-		CompanyNumber: "453345",
-		Email:         "name@example.com",
-		Address:       place.Address{Line1: "123"},
+		Name:    "Co co.",
+		Email:   "name@example.com",
+		Address: place.Address{Line1: "123"},
 	}
 
 	provided := &donordata.Provided{
 		LpaID: "lpa-id",
 		Attorneys: donordata.Attorneys{TrustCorporation: donordata.TrustCorporation{
-			Name:          "Other co.",
-			CompanyNumber: "453346",
-			Email:         "name@example.com",
-			Address:       place.Address{Line1: "123"},
+			Name:    "Other co.",
+			Email:   "name@example.com",
+			Address: place.Address{Line1: "123"},
 		}},
 	}
 
@@ -166,8 +161,7 @@ func TestPostEnterTrustCorporationWhenAddressSet(t *testing.T) {
 
 func TestPostEnterTrustCorporationWhenValidationError(t *testing.T) {
 	form := url.Values{
-		"company-number": {"453345"},
-		"email":          {"name@example.com"},
+		"email": {"name@example.com"},
 	}
 
 	w := httptest.NewRecorder()
@@ -192,9 +186,8 @@ func TestPostEnterTrustCorporationWhenValidationError(t *testing.T) {
 
 func TestPostEnterTrustCorporationWhenReuseStoreErrors(t *testing.T) {
 	form := url.Values{
-		"name":           {"Co co."},
-		"company-number": {"453345"},
-		"email":          {"name@example.com"},
+		"name":  {"Co co."},
+		"email": {"name@example.com"},
 	}
 
 	w := httptest.NewRecorder()
@@ -209,10 +202,9 @@ func TestPostEnterTrustCorporationWhenReuseStoreErrors(t *testing.T) {
 	err := EnterTrustCorporation(nil, service, testUIDFn)(testAppData, w, r, &donordata.Provided{
 		LpaID: "lpa-id",
 		Attorneys: donordata.Attorneys{TrustCorporation: donordata.TrustCorporation{
-			Name:          "Other co.",
-			CompanyNumber: "453346",
-			Email:         "name@example.com",
-			Address:       place.Address{Line1: "123"},
+			Name:    "Other co.",
+			Email:   "name@example.com",
+			Address: place.Address{Line1: "123"},
 		}},
 	})
 	assert.Equal(t, expectedError, err)
@@ -222,9 +214,8 @@ func TestReadEnterTrustCorporationForm(t *testing.T) {
 	assert := assert.New(t)
 
 	form := url.Values{
-		"name":           {"  Yoyodyne "},
-		"company-number": {"23468723"},
-		"email":          {"contact@example.com"},
+		"name":  {"  Yoyodyne "},
+		"email": {"contact@example.com"},
 	}
 
 	r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(form.Encode()))
@@ -233,7 +224,6 @@ func TestReadEnterTrustCorporationForm(t *testing.T) {
 	result := readEnterTrustCorporationForm(r)
 
 	assert.Equal("Yoyodyne", result.Name)
-	assert.Equal("23468723", result.CompanyNumber)
 	assert.Equal("contact@example.com", result.Email)
 }
 
@@ -246,30 +236,26 @@ func TestEnterTrustCorporationFormValidate(t *testing.T) {
 	}{
 		"valid": {
 			form: &enterTrustCorporationForm{
-				Name:          "A",
-				CompanyNumber: "B",
-				Email:         "a@b.c",
+				Name:  "A",
+				Email: "a@b.c",
 			},
 		},
 		"missing all": {
 			form: &enterTrustCorporationForm{},
 			errors: validation.
-				With("name", validation.EnterError{Label: "companyName"}).
-				With("company-number", validation.EnterError{Label: "companyNumber"}),
+				With("name", validation.EnterError{Label: "companyName"}),
 		},
 		"invalid email": {
 			form: &enterTrustCorporationForm{
-				Name:          "A",
-				CompanyNumber: "B",
-				Email:         "person@",
+				Name:  "A",
+				Email: "person@",
 			},
 			errors: validation.With("email", validation.EmailError{Label: "companyEmailAddress"}),
 		},
 		"name matches original": {
 			form: &enterTrustCorporationForm{
-				Name:          "A",
-				CompanyNumber: "B",
-				Email:         "person@whatever.com",
+				Name:  "A",
+				Email: "person@whatever.com",
 			},
 			isReplacement:         true,
 			otherTrustCorporation: donordata.TrustCorporation{Name: "A"},
@@ -277,9 +263,8 @@ func TestEnterTrustCorporationFormValidate(t *testing.T) {
 		},
 		"name matches replacement": {
 			form: &enterTrustCorporationForm{
-				Name:          "A",
-				CompanyNumber: "B",
-				Email:         "person@whatever.com",
+				Name:  "A",
+				Email: "person@whatever.com",
 			},
 			otherTrustCorporation: donordata.TrustCorporation{Name: "A"},
 			errors:                validation.With("name", trustCorporationCannotAlsoBeError{Name: "A"}),

@@ -2014,5 +2014,8 @@
     "someOfTheDetailsOnYourLpaDoNotMatch": "Welsh",
     "youChoseNotToCorrectMismatch": "<p class=\"govuk-notification-banner__heading\">Welsh.</p>",
     "manageLPAsContent": "<p class=\"govuk-body app-two-thirds-fixed-desktop\">Welsh</p><p class=\"govuk-body app-two-thirds-fixed-desktop\">Welsh</p>",
-    "makeOrAddLPAsContent": "Welsh"
+    "makeOrAddLPAsContent": "Welsh",
+    "enterYourCompanyNumber": "Welsh",
+    "enterYourCompanyNumberHint": "Welsh",
+    "yourCompanyNumber": "Welsh"
 }
