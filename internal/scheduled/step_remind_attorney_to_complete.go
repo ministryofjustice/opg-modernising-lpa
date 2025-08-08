@@ -108,16 +108,32 @@ func (r *Runner) stepRemindAttorneyToCompleteAttorney(ctx context.Context, lpa *
 
 		toAttorneyEmail := notify.ToLpaAttorney(attorney)
 
-		if err := r.notifyClient.SendActorEmail(ctx, toAttorneyEmail, lpa.LpaUID, notify.AdviseAttorneyToSignOrOptOutEmail{
-			DonorFullName:           lpa.Donor.FullName(),
-			DonorFullNamePossessive: localizer.Possessive(lpa.Donor.FullName()),
-			LpaType:                 localizer.T(lpa.Type.String()),
-			AttorneyFullName:        attorney.FullName(),
-			InvitedDate:             localizer.FormatDate(lpa.AttorneysInvitedAt),
-			DeadlineDate:            localizer.FormatDate(lpa.ExpiresAt()),
-			AttorneyStartPageURL:    r.attorneyStartURL,
-			AttorneyOptOutURL:       r.attorneyOptOutURL,
-		}); err != nil {
+		var email notify.Email
+
+		if provided == nil {
+			email = notify.AdviseAttorneyToSignOrOptOutEmail{
+				DonorFullName:           lpa.Donor.FullName(),
+				DonorFullNamePossessive: localizer.Possessive(lpa.Donor.FullName()),
+				LpaType:                 localizer.T(lpa.Type.String()),
+				AttorneyFullName:        attorney.FullName(),
+				InvitedDate:             localizer.FormatDate(lpa.AttorneysInvitedAt),
+				DeadlineDate:            localizer.FormatDate(lpa.ExpiresAt()),
+				AttorneyStartPageURL:    r.attorneyStartURL,
+				AttorneyOptOutURL:       r.attorneyOptOutURL,
+			}
+		} else {
+			email = notify.AdviseAttorneyToSignOrOptOutEmailAccessCodeUsed{
+				DonorFullName:           lpa.Donor.FullName(),
+				DonorFullNamePossessive: localizer.Possessive(lpa.Donor.FullName()),
+				LpaType:                 localizer.T(lpa.Type.String()),
+				AttorneyFullName:        attorney.FullName(),
+				DeadlineDate:            localizer.FormatDate(lpa.ExpiresAt()),
+				AttorneyStartPageURL:    r.attorneyStartURL,
+				AttorneyOptOutURL:       r.attorneyOptOutURL,
+			}
+		}
+
+		if err := r.notifyClient.SendActorEmail(ctx, toAttorneyEmail, lpa.LpaUID, email); err != nil {
 			return fmt.Errorf("could not send attorney email: %w", err)
 		}
 	}
@@ -190,16 +206,32 @@ func (r *Runner) stepRemindAttorneyToCompleteTrustCorporation(ctx context.Contex
 
 		toAttorneyEmail := notify.ToLpaTrustCorporation(trustCorporation)
 
-		if err := r.notifyClient.SendActorEmail(ctx, toAttorneyEmail, lpa.LpaUID, notify.AdviseAttorneyToSignOrOptOutEmail{
-			DonorFullName:           lpa.Donor.FullName(),
-			DonorFullNamePossessive: localizer.Possessive(lpa.Donor.FullName()),
-			LpaType:                 localizer.T(lpa.Type.String()),
-			AttorneyFullName:        trustCorporation.Name,
-			InvitedDate:             localizer.FormatDate(lpa.AttorneysInvitedAt),
-			DeadlineDate:            localizer.FormatDate(lpa.ExpiresAt()),
-			AttorneyStartPageURL:    r.attorneyStartURL,
-			AttorneyOptOutURL:       r.attorneyOptOutURL,
-		}); err != nil {
+		var email notify.Email
+
+		if provided == nil {
+			email = notify.AdviseAttorneyToSignOrOptOutEmail{
+				DonorFullName:           lpa.Donor.FullName(),
+				DonorFullNamePossessive: localizer.Possessive(lpa.Donor.FullName()),
+				LpaType:                 localizer.T(lpa.Type.String()),
+				AttorneyFullName:        trustCorporation.Name,
+				InvitedDate:             localizer.FormatDate(lpa.AttorneysInvitedAt),
+				DeadlineDate:            localizer.FormatDate(lpa.ExpiresAt()),
+				AttorneyStartPageURL:    r.attorneyStartURL,
+				AttorneyOptOutURL:       r.attorneyOptOutURL,
+			}
+		} else {
+			email = notify.AdviseAttorneyToSignOrOptOutEmailAccessCodeUsed{
+				DonorFullName:           lpa.Donor.FullName(),
+				DonorFullNamePossessive: localizer.Possessive(lpa.Donor.FullName()),
+				LpaType:                 localizer.T(lpa.Type.String()),
+				AttorneyFullName:        trustCorporation.Name,
+				DeadlineDate:            localizer.FormatDate(lpa.ExpiresAt()),
+				AttorneyStartPageURL:    r.attorneyStartURL,
+				AttorneyOptOutURL:       r.attorneyOptOutURL,
+			}
+		}
+
+		if err := r.notifyClient.SendActorEmail(ctx, toAttorneyEmail, lpa.LpaUID, email); err != nil {
 			return fmt.Errorf("could not send trust corporation email: %w", err)
 		}
 	}
