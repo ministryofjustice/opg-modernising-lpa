@@ -1,6 +1,6 @@
 {{ template "page" . }}
 
-{{ define "pageTitle" }}{{ tr .App "manageYourLpas" }}{{ end }}
+{{ define "pageTitle" }}{{ tr .App "manageLPAs" }}{{ end }}
 
 {{ define "donorCard" }}
     <div class="app-dashboard-card">
@@ -219,12 +219,13 @@
 {{ define "main" }}
     <div class="govuk-grid-row">
         <div class="govuk-grid-column-two-thirds">
-            <h1 class="govuk-heading-xl">{{ tr .App "manageYourLpas" }}</h1>
+            <h1 class="govuk-heading-xl">{{ tr .App "manageLPAs" }}</h1>
+            {{ trHtml .App "manageLPAsContent" }}
         </div>
     </div>
 
     <div class="govuk-grid-row govuk-!-margin-top-4">
-        <div class="govuk-grid-column-full">
+        <div class="govuk-grid-column-two-thirds">
             {{ if .NeedsTabs }}
                 <div class="govuk-tabs app-tabs-no-border" data-module="govuk-tabs">
                     <ul class="govuk-tabs__list">
@@ -254,13 +255,6 @@
             {{ if or .DonorLpas .RegisteredDonorLpas }}
                 {{ if .NeedsTabs }}<div class="govuk-tabs__panel" id="donor">{{ end }}
                     <h2 class="govuk-heading-l">{{ tr .App "myLpas" }}</h2>
-                    <p class="govuk-body">
-                        {{ if .DonorLpas }}
-                            {{ tr .App "viewAndManageDonor" }}
-                        {{ else }}
-                            {{ tr .App "yourLpasHaveBeenSuccessfullyRegistered" }}
-                        {{ end }}
-                    </p>
 
                     {{ range .DonorLpas }}
                         {{ template "donorCard" (card $.App .) }}

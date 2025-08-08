@@ -55,7 +55,7 @@ describe('Smoke tests', () => {
                 })
 
                 cy.url().should('contain', '/make-or-add-an-lpa');
-                cy.contains('Make or add an LPA');
+                cy.contains('Make or add LPAs');
             } else {
                 cy.contains('a', 'Start');
             }
