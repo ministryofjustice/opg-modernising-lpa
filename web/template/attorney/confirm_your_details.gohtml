@@ -16,7 +16,13 @@
             <h2 class="govuk-heading-m">{{ tr .App "detailsYouHaveGivenUs" }}</h2>
             <dl class="govuk-summary-list">
                 {{ $attorneyFullName := .Attorney.FullName }}
-                {{ if .TrustCorporation.Name }}{{ $attorneyFullName = .TrustCorporation.Name }}{{ end }}
+                {{ if .TrustCorporation.Name }}
+                    {{ $attorneyFullName = .TrustCorporation.Name }}
+                    {{ template "summary-row" (summaryRow .App "companyNumber"
+                        .AttorneyProvidedDetails.CompanyNumber
+                        (fromLink .App global.Paths.Attorney.CompanyNumber "#f-company-number")
+                        $attorneyFullName true true) }}
+                {{ end }}
 
                 {{ if or .AttorneyProvidedDetails.PhoneSet (not .DonorProvidedMobile) }}
                     {{ template "summary-row" (summaryRow .App "phoneNumber"
@@ -35,7 +41,6 @@
                 <h2 class="govuk-heading-m">{{ tr .App "detailsTheDonorHasGivenAboutYourCompany" }}</h2>
                 <dl class="govuk-summary-list">
                     {{ template "summary-row" (staticSummaryRow .App "companyName" .TrustCorporation.Name) }}
-                    {{ template "summary-row" (staticSummaryRow .App "companyNumber" .TrustCorporation.CompanyNumber) }}
                     {{ template "summary-row" (staticSummaryRow .App "companyEmailAddress" .TrustCorporation.Email) }}
                     {{ template "address-summary-row" (staticSummaryRow .App "address" .TrustCorporation.Address) }}
                     {{ if and .DonorProvidedMobile (not .AttorneyProvidedDetails.PhoneSet) }}

@@ -9,7 +9,6 @@ import (
 type TrustCorporation struct {
 	UID             actoruid.UID    `json:"uid"`
 	Name            string          `json:"name"`
-	CompanyNumber   string          `json:"companyNumber"`
 	Email           string          `json:"email,omitempty"`
 	Address         place.Address   `json:"address"`
 	Channel         Channel         `json:"channel"`

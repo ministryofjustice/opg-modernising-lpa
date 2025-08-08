@@ -389,11 +389,10 @@ func listAttorneys(app appcontext.Data, attorneys any, attorneyType string, head
 
 		if t := v.TrustCorporation; t.Name != "" {
 			data.TrustCorporation = lpadata.TrustCorporation{
-				UID:           t.UID,
-				Name:          t.Name,
-				CompanyNumber: t.CompanyNumber,
-				Email:         t.Email,
-				Address:       t.Address,
+				UID:     t.UID,
+				Name:    t.Name,
+				Email:   t.Email,
+				Address: t.Address,
 			}
 		}
 	default:

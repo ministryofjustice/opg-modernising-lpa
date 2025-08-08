@@ -134,7 +134,6 @@ func CreateLpaFromDonorProvided(donor *donordata.Provided) CreateLpa {
 		body.TrustCorporations = append(body.TrustCorporations, lpadata.TrustCorporation{
 			UID:             trustCorporation.UID,
 			Name:            trustCorporation.Name,
-			CompanyNumber:   trustCorporation.CompanyNumber,
 			Email:           trustCorporation.Email,
 			Address:         trustCorporation.Address,
 			Status:          lpadata.AttorneyStatusActive,
@@ -161,7 +160,6 @@ func CreateLpaFromDonorProvided(donor *donordata.Provided) CreateLpa {
 		body.TrustCorporations = append(body.TrustCorporations, lpadata.TrustCorporation{
 			UID:             trustCorporation.UID,
 			Name:            trustCorporation.Name,
-			CompanyNumber:   trustCorporation.CompanyNumber,
 			Email:           trustCorporation.Email,
 			Address:         trustCorporation.Address,
 			Status:          lpadata.AttorneyStatusInactive,
@@ -353,7 +351,6 @@ func lpaResponseToLpa(l lpaResponse) *lpadata.Lpa {
 		tc := lpadata.TrustCorporation{
 			UID:                       t.UID,
 			Name:                      t.Name,
-			CompanyNumber:             t.CompanyNumber,
 			Email:                     t.Email,
 			Address:                   t.Address,
 			Mobile:                    t.Mobile,
@@ -483,11 +480,10 @@ func LpaFromDonorProvided(l *donordata.Provided) *lpadata.Lpa {
 
 	if c := l.Attorneys.TrustCorporation; c.Name != "" {
 		data.Attorneys.TrustCorporation = lpadata.TrustCorporation{
-			UID:           c.UID,
-			Name:          c.Name,
-			CompanyNumber: c.CompanyNumber,
-			Email:         c.Email,
-			Address:       c.Address,
+			UID:     c.UID,
+			Name:    c.Name,
+			Email:   c.Email,
+			Address: c.Address,
 		}
 	}
 
@@ -504,11 +500,10 @@ func LpaFromDonorProvided(l *donordata.Provided) *lpadata.Lpa {
 
 	if c := l.ReplacementAttorneys.TrustCorporation; c.Name != "" {
 		data.ReplacementAttorneys.TrustCorporation = lpadata.TrustCorporation{
-			UID:           c.UID,
-			Name:          c.Name,
-			CompanyNumber: c.CompanyNumber,
-			Email:         c.Email,
-			Address:       c.Address,
+			UID:     c.UID,
+			Name:    c.Name,
+			Email:   c.Email,
+			Address: c.Address,
 		}
 	}
 
