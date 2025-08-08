@@ -7,18 +7,33 @@
 {{ define "main" }}
     <div class="govuk-grid-row">
         <div class="govuk-grid-column-two-thirds">
-            {{ template "notification-banner" (notificationBanner .App "success" (trHtml .App "yourLPADetailsHaveBeenUpdatedToMatchIdentitySuccess") "success" "heading") }}
+            {{ if .App.Query.Has "address" }}
+                {{ template "notification-banner" (notificationBanner .App "success" (trHtml .App "theAddressInYourLpaHasBeenUpdated") "success" "heading") }}
 
-            <h1 class="govuk-heading-m">{{ tr .App "theDetailsOnYourLPA" }}</h1>
+                {{ template "identity-details-with-address" (card .App .Donor.IdentityUserData) }}
 
-            <dl class="govuk-summary-list govuk-!-margin-bottom-9">
-                {{ template "summary-row" (staticSummaryRow .App "firstNames" .Donor.Donor.FirstNames) }}
-                {{ template "summary-row" (staticSummaryRow .App "lastName" .Donor.Donor.LastName) }}
-                {{ template "summary-row" (staticSummaryRow .App "dateOfBirth" (formatDate .App .Donor.Donor.DateOfBirth)) }}
-                {{ template "address-summary-row" (staticSummaryRow .App "address" .Donor.Donor.Address) }}
-            </dl>
+                <h1 class="govuk-heading-m">{{ tr .App "theDetailsOnYourLPA" }}</h1>
 
-            {{ template "identity-details" (card .App .Donor.IdentityUserData) }}
+                <dl class="govuk-summary-list">
+                    {{ template "address-summary-row" (staticSummaryRow .App "address" .Donor.Donor.Address) }}
+                </dl>
+
+                <div class="govuk-inset-text">
+                    {{ trHtml .App "returnToTaskListToUpdateAddressInFuture" }}
+                </div>
+            {{ else }}
+                {{ template "notification-banner" (notificationBanner .App "success" (trHtml .App "yourLPADetailsHaveBeenUpdatedToMatchIdentitySuccess") "success" "contents") }}
+
+                {{ template "identity-details" (card .App .Donor.IdentityUserData) }}
+
+                <h1 class="govuk-heading-m">{{ tr .App "theDetailsOnYourLPA" }}</h1>
+
+                <dl class="govuk-summary-list">
+                    {{ template "summary-row" (staticSummaryRow .App "firstNames" .Donor.Donor.FirstNames) }}
+                    {{ template "summary-row" (staticSummaryRow .App "lastName" .Donor.Donor.LastName) }}
+                    {{ template "summary-row" (staticSummaryRow .App "dateOfBirth" (formatDate .App .Donor.Donor.DateOfBirth)) }}
+                </dl>
+            {{ end }}
 
             <div class="govuk-inset-text">
                 {{ trHtml .App "yourCertificateProviderMustBeNotifiedDetailsUpdated" }}
