@@ -25,236 +25,417 @@ func TestRunnerRemindAttorneyToComplete(t *testing.T) {
 	trustCorporationUID := actoruid.New()
 	replacementTrustCorporationUID := actoruid.New()
 
-	testcases := map[string]struct {
-		attorneys     []*attorneydata.Provided
-		attorneyError error
-	}{
-		"not started": {
-			attorneyError: dynamo.NotFoundError{},
+	row := &Event{
+		TargetLpaKey:      dynamo.LpaKey("an-lpa"),
+		TargetLpaOwnerKey: dynamo.LpaOwnerKey(dynamo.DonorKey("a-donor")),
+	}
+	donor := &donordata.Provided{
+		LpaUID: "lpa-uid",
+	}
+
+	signedAt := testNow.AddDate(0, -3, 0).Add(-time.Second)
+
+	lpa := &lpadata.Lpa{
+		LpaUID: "lpa-uid",
+		Type:   lpadata.LpaTypePersonalWelfare,
+		Donor: lpadata.Donor{
+			FirstNames:                "a",
+			LastName:                  "b",
+			ContactLanguagePreference: localize.En,
 		},
-		"started": {
-			attorneys: []*attorneydata.Provided{{
+		Attorneys: lpadata.Attorneys{
+			Attorneys: []lpadata.Attorney{{
 				UID:                       attorneyUID,
-				ContactLanguagePreference: localize.En,
-			}, {
-				UID:                       replacementAttorneyUID,
-				IsReplacement:             true,
-				ContactLanguagePreference: localize.En,
-			}, {
-				UID:                       trustCorporationUID,
-				IsTrustCorporation:        true,
-				ContactLanguagePreference: localize.En,
-			}, {
-				UID:                       replacementTrustCorporationUID,
-				IsReplacement:             true,
-				IsTrustCorporation:        true,
+				FirstNames:                "c",
+				LastName:                  "d",
 				ContactLanguagePreference: localize.En,
 			}},
+			TrustCorporation: lpadata.TrustCorporation{
+				UID:                       trustCorporationUID,
+				Name:                      "trusty",
+				ContactLanguagePreference: localize.En,
+			},
 		},
+		ReplacementAttorneys: lpadata.Attorneys{
+			Attorneys: []lpadata.Attorney{{
+				UID:                       replacementAttorneyUID,
+				FirstNames:                "e",
+				LastName:                  "f",
+				ContactLanguagePreference: localize.En,
+			}},
+			TrustCorporation: lpadata.TrustCorporation{
+				UID:                       replacementTrustCorporationUID,
+				Name:                      "untrusty",
+				ContactLanguagePreference: localize.En,
+			},
+		},
+		SignedAt: signedAt,
 	}
 
-	for name, tc := range testcases {
-		t.Run(name, func(t *testing.T) {
-			row := &Event{
-				TargetLpaKey:      dynamo.LpaKey("an-lpa"),
-				TargetLpaOwnerKey: dynamo.LpaOwnerKey(dynamo.DonorKey("a-donor")),
-			}
-			donor := &donordata.Provided{
-				LpaUID: "lpa-uid",
-			}
+	donorStore := newMockDonorStore(t)
+	donorStore.EXPECT().
+		One(ctx, row.TargetLpaKey, row.TargetLpaOwnerKey).
+		Return(donor, nil)
 
-			attorneysInvitedAt := testNow.AddDate(0, -3, -1)
-			signedAt := testNow.AddDate(0, -3, 0).Add(-time.Second)
+	lpaStoreResolvingService := newMockLpaStoreResolvingService(t)
+	lpaStoreResolvingService.EXPECT().
+		Resolve(ctx, donor).
+		Return(lpa, nil)
 
-			lpa := &lpadata.Lpa{
-				LpaUID: "lpa-uid",
-				Type:   lpadata.LpaTypePersonalWelfare,
-				Donor: lpadata.Donor{
-					FirstNames:                "a",
-					LastName:                  "b",
-					ContactLanguagePreference: localize.En,
-				},
-				Attorneys: lpadata.Attorneys{
-					Attorneys: []lpadata.Attorney{{
-						UID:                       attorneyUID,
-						FirstNames:                "c",
-						LastName:                  "d",
-						ContactLanguagePreference: localize.En,
-					}},
-					TrustCorporation: lpadata.TrustCorporation{
-						UID:                       trustCorporationUID,
-						Name:                      "trusty",
-						ContactLanguagePreference: localize.En,
-					},
-				},
-				ReplacementAttorneys: lpadata.Attorneys{
-					Attorneys: []lpadata.Attorney{{
-						UID:                       replacementAttorneyUID,
-						FirstNames:                "e",
-						LastName:                  "f",
-						ContactLanguagePreference: localize.En,
-					}},
-					TrustCorporation: lpadata.TrustCorporation{
-						UID:                       replacementTrustCorporationUID,
-						Name:                      "untrusty",
-						ContactLanguagePreference: localize.En,
-					},
-				},
-				AttorneysInvitedAt: attorneysInvitedAt,
-				SignedAt:           signedAt,
-			}
+	attorneyStore := newMockAttorneyStore(t)
+	attorneyStore.EXPECT().
+		All(ctx, row.TargetLpaKey).
+		Return([]*attorneydata.Provided{{
+			UID:                       attorneyUID,
+			ContactLanguagePreference: localize.En,
+		}, {
+			UID:                       replacementAttorneyUID,
+			IsReplacement:             true,
+			ContactLanguagePreference: localize.En,
+		}, {
+			UID:                       trustCorporationUID,
+			IsTrustCorporation:        true,
+			ContactLanguagePreference: localize.En,
+		}, {
+			UID:                       replacementTrustCorporationUID,
+			IsReplacement:             true,
+			IsTrustCorporation:        true,
+			ContactLanguagePreference: localize.En,
+		}}, nil)
 
-			donorStore := newMockDonorStore(t)
-			donorStore.EXPECT().
-				One(ctx, row.TargetLpaKey, row.TargetLpaOwnerKey).
-				Return(donor, nil)
+	notifyClient := newMockNotifyClient(t)
+	notifyClient.EXPECT().
+		EmailGreeting(lpa).
+		Return("hey")
+	notifyClient.EXPECT().
+		SendActorEmail(ctx, notify.ToLpaAttorney(lpa.Attorneys.Attorneys[0]), "lpa-uid", notify.AdviseAttorneyToSignOrOptOutEmailAccessCodeUsed{
+			DonorFullName:           "a b",
+			DonorFullNamePossessive: "a b’s",
+			LpaType:                 "Personal welfare",
+			AttorneyFullName:        "c d",
+			DeadlineDate:            "2 April 2000",
+			AttorneyStartPageURL:    "http://example.com/attorney",
+			AttorneyOptOutURL:       "http://example.com/attorney-opt-out",
+		}).
+		Return(nil).
+		Once()
+	notifyClient.EXPECT().
+		SendActorEmail(ctx, notify.ToLpaTrustCorporation(lpa.Attorneys.TrustCorporation), "lpa-uid", notify.AdviseAttorneyToSignOrOptOutEmailAccessCodeUsed{
+			DonorFullName:           "a b",
+			DonorFullNamePossessive: "a b’s",
+			LpaType:                 "Personal welfare",
+			AttorneyFullName:        "trusty",
+			DeadlineDate:            "2 April 2000",
+			AttorneyStartPageURL:    "http://example.com/attorney",
+			AttorneyOptOutURL:       "http://example.com/attorney-opt-out",
+		}).
+		Return(nil).
+		Once()
+	notifyClient.EXPECT().
+		SendActorEmail(ctx, notify.ToLpaAttorney(lpa.ReplacementAttorneys.Attorneys[0]), "lpa-uid", notify.AdviseAttorneyToSignOrOptOutEmailAccessCodeUsed{
+			DonorFullName:           "a b",
+			DonorFullNamePossessive: "a b’s",
+			LpaType:                 "Personal welfare",
+			AttorneyFullName:        "e f",
+			DeadlineDate:            "2 April 2000",
+			AttorneyStartPageURL:    "http://example.com/attorney",
+			AttorneyOptOutURL:       "http://example.com/attorney-opt-out",
+		}).
+		Return(nil).
+		Once()
+	notifyClient.EXPECT().
+		SendActorEmail(ctx, notify.ToLpaTrustCorporation(lpa.ReplacementAttorneys.TrustCorporation), "lpa-uid", notify.AdviseAttorneyToSignOrOptOutEmailAccessCodeUsed{
+			DonorFullName:           "a b",
+			DonorFullNamePossessive: "a b’s",
+			LpaType:                 "Personal welfare",
+			AttorneyFullName:        "untrusty",
+			DeadlineDate:            "2 April 2000",
+			AttorneyStartPageURL:    "http://example.com/attorney",
+			AttorneyOptOutURL:       "http://example.com/attorney-opt-out",
+		}).
+		Return(nil).
+		Once()
+	notifyClient.EXPECT().
+		SendActorEmail(ctx, notify.ToLpaDonor(lpa), "lpa-uid", notify.InformDonorAttorneyHasNotActedEmail{
+			Greeting:             "hey",
+			AttorneyFullName:     "c d",
+			LpaType:              "Personal welfare",
+			LpaReferenceNumber:   "lpa-uid",
+			DeadlineDate:         "2 April 2000",
+			AttorneyStartPageURL: "http://example.com/attorney",
+		}).
+		Return(nil).
+		Once()
+	notifyClient.EXPECT().
+		SendActorEmail(ctx, notify.ToLpaDonor(lpa), "lpa-uid", notify.InformDonorAttorneyHasNotActedEmail{
+			Greeting:             "hey",
+			AttorneyFullName:     "trusty",
+			LpaType:              "Personal welfare",
+			LpaReferenceNumber:   "lpa-uid",
+			DeadlineDate:         "2 April 2000",
+			AttorneyStartPageURL: "http://example.com/attorney",
+		}).
+		Return(nil).
+		Once()
+	notifyClient.EXPECT().
+		SendActorEmail(ctx, notify.ToLpaDonor(lpa), "lpa-uid", notify.InformDonorAttorneyHasNotActedEmail{
+			Greeting:             "hey",
+			AttorneyFullName:     "e f",
+			LpaType:              "Personal welfare",
+			LpaReferenceNumber:   "lpa-uid",
+			DeadlineDate:         "2 April 2000",
+			AttorneyStartPageURL: "http://example.com/attorney",
+		}).
+		Return(nil).
+		Once()
+	notifyClient.EXPECT().
+		SendActorEmail(ctx, notify.ToLpaDonor(lpa), "lpa-uid", notify.InformDonorAttorneyHasNotActedEmail{
+			Greeting:             "hey",
+			AttorneyFullName:     "untrusty",
+			LpaType:              "Personal welfare",
+			LpaReferenceNumber:   "lpa-uid",
+			DeadlineDate:         "2 April 2000",
+			AttorneyStartPageURL: "http://example.com/attorney",
+		}).
+		Return(nil).
+		Once()
 
-			lpaStoreResolvingService := newMockLpaStoreResolvingService(t)
-			lpaStoreResolvingService.EXPECT().
-				Resolve(ctx, donor).
-				Return(lpa, nil)
+	localizer := newMockLocalizer(t)
+	localizer.EXPECT().
+		Possessive("a b").
+		Return("a b’s")
+	localizer.EXPECT().
+		T("personal-welfare").
+		Return("Personal welfare").
+		Times(8)
+	localizer.EXPECT().
+		FormatDate(signedAt.AddDate(0, 6, 0)).
+		Return("2 April 2000")
 
-			attorneyStore := newMockAttorneyStore(t)
-			attorneyStore.EXPECT().
-				All(ctx, row.TargetLpaKey).
-				Return(tc.attorneys, tc.attorneyError)
+	bundle := newMockBundle(t)
+	bundle.EXPECT().
+		For(localize.En).
+		Return(localizer)
 
-			notifyClient := newMockNotifyClient(t)
-			notifyClient.EXPECT().
-				EmailGreeting(lpa).
-				Return("hey")
-			notifyClient.EXPECT().
-				SendActorEmail(ctx, notify.ToLpaAttorney(lpa.Attorneys.Attorneys[0]), "lpa-uid", notify.AdviseAttorneyToSignOrOptOutEmail{
-					DonorFullName:           "a b",
-					DonorFullNamePossessive: "a b’s",
-					LpaType:                 "Personal welfare",
-					AttorneyFullName:        "c d",
-					InvitedDate:             "1 October 1999",
-					DeadlineDate:            "2 April 2000",
-					AttorneyStartPageURL:    "http://example.com/attorney",
-					AttorneyOptOutURL:       "http://example.com/attorney-opt-out",
-				}).
-				Return(nil).
-				Once()
-			notifyClient.EXPECT().
-				SendActorEmail(ctx, notify.ToLpaTrustCorporation(lpa.Attorneys.TrustCorporation), "lpa-uid", notify.AdviseAttorneyToSignOrOptOutEmail{
-					DonorFullName:           "a b",
-					DonorFullNamePossessive: "a b’s",
-					LpaType:                 "Personal welfare",
-					AttorneyFullName:        "trusty",
-					InvitedDate:             "1 October 1999",
-					DeadlineDate:            "2 April 2000",
-					AttorneyStartPageURL:    "http://example.com/attorney",
-					AttorneyOptOutURL:       "http://example.com/attorney-opt-out",
-				}).
-				Return(nil).
-				Once()
-			notifyClient.EXPECT().
-				SendActorEmail(ctx, notify.ToLpaAttorney(lpa.ReplacementAttorneys.Attorneys[0]), "lpa-uid", notify.AdviseAttorneyToSignOrOptOutEmail{
-					DonorFullName:           "a b",
-					DonorFullNamePossessive: "a b’s",
-					LpaType:                 "Personal welfare",
-					AttorneyFullName:        "e f",
-					InvitedDate:             "1 October 1999",
-					DeadlineDate:            "2 April 2000",
-					AttorneyStartPageURL:    "http://example.com/attorney",
-					AttorneyOptOutURL:       "http://example.com/attorney-opt-out",
-				}).
-				Return(nil).
-				Once()
-			notifyClient.EXPECT().
-				SendActorEmail(ctx, notify.ToLpaTrustCorporation(lpa.ReplacementAttorneys.TrustCorporation), "lpa-uid", notify.AdviseAttorneyToSignOrOptOutEmail{
-					DonorFullName:           "a b",
-					DonorFullNamePossessive: "a b’s",
-					LpaType:                 "Personal welfare",
-					AttorneyFullName:        "untrusty",
-					InvitedDate:             "1 October 1999",
-					DeadlineDate:            "2 April 2000",
-					AttorneyStartPageURL:    "http://example.com/attorney",
-					AttorneyOptOutURL:       "http://example.com/attorney-opt-out",
-				}).
-				Return(nil).
-				Once()
-			notifyClient.EXPECT().
-				SendActorEmail(ctx, notify.ToLpaDonor(lpa), "lpa-uid", notify.InformDonorAttorneyHasNotActedEmail{
-					Greeting:             "hey",
-					AttorneyFullName:     "c d",
-					LpaType:              "Personal welfare",
-					LpaReferenceNumber:   "lpa-uid",
-					DeadlineDate:         "2 April 2000",
-					AttorneyStartPageURL: "http://example.com/attorney",
-				}).
-				Return(nil).
-				Once()
-			notifyClient.EXPECT().
-				SendActorEmail(ctx, notify.ToLpaDonor(lpa), "lpa-uid", notify.InformDonorAttorneyHasNotActedEmail{
-					Greeting:             "hey",
-					AttorneyFullName:     "trusty",
-					LpaType:              "Personal welfare",
-					LpaReferenceNumber:   "lpa-uid",
-					DeadlineDate:         "2 April 2000",
-					AttorneyStartPageURL: "http://example.com/attorney",
-				}).
-				Return(nil).
-				Once()
-			notifyClient.EXPECT().
-				SendActorEmail(ctx, notify.ToLpaDonor(lpa), "lpa-uid", notify.InformDonorAttorneyHasNotActedEmail{
-					Greeting:             "hey",
-					AttorneyFullName:     "e f",
-					LpaType:              "Personal welfare",
-					LpaReferenceNumber:   "lpa-uid",
-					DeadlineDate:         "2 April 2000",
-					AttorneyStartPageURL: "http://example.com/attorney",
-				}).
-				Return(nil).
-				Once()
-			notifyClient.EXPECT().
-				SendActorEmail(ctx, notify.ToLpaDonor(lpa), "lpa-uid", notify.InformDonorAttorneyHasNotActedEmail{
-					Greeting:             "hey",
-					AttorneyFullName:     "untrusty",
-					LpaType:              "Personal welfare",
-					LpaReferenceNumber:   "lpa-uid",
-					DeadlineDate:         "2 April 2000",
-					AttorneyStartPageURL: "http://example.com/attorney",
-				}).
-				Return(nil).
-				Once()
-
-			localizer := newMockLocalizer(t)
-			localizer.EXPECT().
-				Possessive("a b").
-				Return("a b’s")
-			localizer.EXPECT().
-				T("personal-welfare").
-				Return("Personal welfare").
-				Times(8)
-			localizer.EXPECT().
-				FormatDate(attorneysInvitedAt).
-				Return("1 October 1999")
-			localizer.EXPECT().
-				FormatDate(signedAt.AddDate(0, 6, 0)).
-				Return("2 April 2000")
-
-			bundle := newMockBundle(t)
-			bundle.EXPECT().
-				For(localize.En).
-				Return(localizer)
-
-			runner := &Runner{
-				donorStore:               donorStore,
-				lpaStoreResolvingService: lpaStoreResolvingService,
-				attorneyStore:            attorneyStore,
-				notifyClient:             notifyClient,
-				bundle:                   bundle,
-				now:                      testNowFn,
-				attorneyStartURL:         "http://example.com/attorney",
-				attorneyOptOutURL:        "http://example.com/attorney-opt-out",
-			}
-
-			err := runner.stepRemindAttorneyToComplete(ctx, row)
-			assert.Nil(t, err)
-		})
+	runner := &Runner{
+		donorStore:               donorStore,
+		lpaStoreResolvingService: lpaStoreResolvingService,
+		attorneyStore:            attorneyStore,
+		notifyClient:             notifyClient,
+		bundle:                   bundle,
+		now:                      testNowFn,
+		attorneyStartURL:         "http://example.com/attorney",
+		attorneyOptOutURL:        "http://example.com/attorney-opt-out",
 	}
+
+	err := runner.stepRemindAttorneyToComplete(ctx, row)
+	assert.Nil(t, err)
+}
+
+func TestRunnerRemindAttorneyToCompleteNotStarted(t *testing.T) {
+	attorneyUID := actoruid.New()
+	replacementAttorneyUID := actoruid.New()
+	trustCorporationUID := actoruid.New()
+	replacementTrustCorporationUID := actoruid.New()
+
+	row := &Event{
+		TargetLpaKey:      dynamo.LpaKey("an-lpa"),
+		TargetLpaOwnerKey: dynamo.LpaOwnerKey(dynamo.DonorKey("a-donor")),
+	}
+	donor := &donordata.Provided{
+		LpaUID: "lpa-uid",
+	}
+
+	attorneysInvitedAt := testNow.AddDate(0, -3, -1)
+	signedAt := testNow.AddDate(0, -3, 0).Add(-time.Second)
+
+	lpa := &lpadata.Lpa{
+		LpaUID: "lpa-uid",
+		Type:   lpadata.LpaTypePersonalWelfare,
+		Donor: lpadata.Donor{
+			FirstNames:                "a",
+			LastName:                  "b",
+			ContactLanguagePreference: localize.En,
+		},
+		Attorneys: lpadata.Attorneys{
+			Attorneys: []lpadata.Attorney{{
+				UID:                       attorneyUID,
+				FirstNames:                "c",
+				LastName:                  "d",
+				ContactLanguagePreference: localize.En,
+			}},
+			TrustCorporation: lpadata.TrustCorporation{
+				UID:                       trustCorporationUID,
+				Name:                      "trusty",
+				ContactLanguagePreference: localize.En,
+			},
+		},
+		ReplacementAttorneys: lpadata.Attorneys{
+			Attorneys: []lpadata.Attorney{{
+				UID:                       replacementAttorneyUID,
+				FirstNames:                "e",
+				LastName:                  "f",
+				ContactLanguagePreference: localize.En,
+			}},
+			TrustCorporation: lpadata.TrustCorporation{
+				UID:                       replacementTrustCorporationUID,
+				Name:                      "untrusty",
+				ContactLanguagePreference: localize.En,
+			},
+		},
+		AttorneysInvitedAt: attorneysInvitedAt,
+		SignedAt:           signedAt,
+	}
+
+	donorStore := newMockDonorStore(t)
+	donorStore.EXPECT().
+		One(ctx, row.TargetLpaKey, row.TargetLpaOwnerKey).
+		Return(donor, nil)
+
+	lpaStoreResolvingService := newMockLpaStoreResolvingService(t)
+	lpaStoreResolvingService.EXPECT().
+		Resolve(ctx, donor).
+		Return(lpa, nil)
+
+	attorneyStore := newMockAttorneyStore(t)
+	attorneyStore.EXPECT().
+		All(ctx, row.TargetLpaKey).
+		Return(nil, dynamo.NotFoundError{})
+
+	notifyClient := newMockNotifyClient(t)
+	notifyClient.EXPECT().
+		EmailGreeting(lpa).
+		Return("hey")
+	notifyClient.EXPECT().
+		SendActorEmail(ctx, notify.ToLpaAttorney(lpa.Attorneys.Attorneys[0]), "lpa-uid", notify.AdviseAttorneyToSignOrOptOutEmail{
+			DonorFullName:           "a b",
+			DonorFullNamePossessive: "a b’s",
+			LpaType:                 "Personal welfare",
+			AttorneyFullName:        "c d",
+			InvitedDate:             "1 October 1999",
+			DeadlineDate:            "2 April 2000",
+			AttorneyStartPageURL:    "http://example.com/attorney",
+			AttorneyOptOutURL:       "http://example.com/attorney-opt-out",
+		}).
+		Return(nil).
+		Once()
+	notifyClient.EXPECT().
+		SendActorEmail(ctx, notify.ToLpaTrustCorporation(lpa.Attorneys.TrustCorporation), "lpa-uid", notify.AdviseAttorneyToSignOrOptOutEmail{
+			DonorFullName:           "a b",
+			DonorFullNamePossessive: "a b’s",
+			LpaType:                 "Personal welfare",
+			AttorneyFullName:        "trusty",
+			InvitedDate:             "1 October 1999",
+			DeadlineDate:            "2 April 2000",
+			AttorneyStartPageURL:    "http://example.com/attorney",
+			AttorneyOptOutURL:       "http://example.com/attorney-opt-out",
+		}).
+		Return(nil).
+		Once()
+	notifyClient.EXPECT().
+		SendActorEmail(ctx, notify.ToLpaAttorney(lpa.ReplacementAttorneys.Attorneys[0]), "lpa-uid", notify.AdviseAttorneyToSignOrOptOutEmail{
+			DonorFullName:           "a b",
+			DonorFullNamePossessive: "a b’s",
+			LpaType:                 "Personal welfare",
+			AttorneyFullName:        "e f",
+			InvitedDate:             "1 October 1999",
+			DeadlineDate:            "2 April 2000",
+			AttorneyStartPageURL:    "http://example.com/attorney",
+			AttorneyOptOutURL:       "http://example.com/attorney-opt-out",
+		}).
+		Return(nil).
+		Once()
+	notifyClient.EXPECT().
+		SendActorEmail(ctx, notify.ToLpaTrustCorporation(lpa.ReplacementAttorneys.TrustCorporation), "lpa-uid", notify.AdviseAttorneyToSignOrOptOutEmail{
+			DonorFullName:           "a b",
+			DonorFullNamePossessive: "a b’s",
+			LpaType:                 "Personal welfare",
+			AttorneyFullName:        "untrusty",
+			InvitedDate:             "1 October 1999",
+			DeadlineDate:            "2 April 2000",
+			AttorneyStartPageURL:    "http://example.com/attorney",
+			AttorneyOptOutURL:       "http://example.com/attorney-opt-out",
+		}).
+		Return(nil).
+		Once()
+	notifyClient.EXPECT().
+		SendActorEmail(ctx, notify.ToLpaDonor(lpa), "lpa-uid", notify.InformDonorAttorneyHasNotActedEmail{
+			Greeting:             "hey",
+			AttorneyFullName:     "c d",
+			LpaType:              "Personal welfare",
+			LpaReferenceNumber:   "lpa-uid",
+			DeadlineDate:         "2 April 2000",
+			AttorneyStartPageURL: "http://example.com/attorney",
+		}).
+		Return(nil).
+		Once()
+	notifyClient.EXPECT().
+		SendActorEmail(ctx, notify.ToLpaDonor(lpa), "lpa-uid", notify.InformDonorAttorneyHasNotActedEmail{
+			Greeting:             "hey",
+			AttorneyFullName:     "trusty",
+			LpaType:              "Personal welfare",
+			LpaReferenceNumber:   "lpa-uid",
+			DeadlineDate:         "2 April 2000",
+			AttorneyStartPageURL: "http://example.com/attorney",
+		}).
+		Return(nil).
+		Once()
+	notifyClient.EXPECT().
+		SendActorEmail(ctx, notify.ToLpaDonor(lpa), "lpa-uid", notify.InformDonorAttorneyHasNotActedEmail{
+			Greeting:             "hey",
+			AttorneyFullName:     "e f",
+			LpaType:              "Personal welfare",
+			LpaReferenceNumber:   "lpa-uid",
+			DeadlineDate:         "2 April 2000",
+			AttorneyStartPageURL: "http://example.com/attorney",
+		}).
+		Return(nil).
+		Once()
+	notifyClient.EXPECT().
+		SendActorEmail(ctx, notify.ToLpaDonor(lpa), "lpa-uid", notify.InformDonorAttorneyHasNotActedEmail{
+			Greeting:             "hey",
+			AttorneyFullName:     "untrusty",
+			LpaType:              "Personal welfare",
+			LpaReferenceNumber:   "lpa-uid",
+			DeadlineDate:         "2 April 2000",
+			AttorneyStartPageURL: "http://example.com/attorney",
+		}).
+		Return(nil).
+		Once()
+
+	localizer := newMockLocalizer(t)
+	localizer.EXPECT().
+		Possessive("a b").
+		Return("a b’s")
+	localizer.EXPECT().
+		T("personal-welfare").
+		Return("Personal welfare").
+		Times(8)
+	localizer.EXPECT().
+		FormatDate(attorneysInvitedAt).
+		Return("1 October 1999")
+	localizer.EXPECT().
+		FormatDate(signedAt.AddDate(0, 6, 0)).
+		Return("2 April 2000")
+
+	bundle := newMockBundle(t)
+	bundle.EXPECT().
+		For(localize.En).
+		Return(localizer)
+
+	runner := &Runner{
+		donorStore:               donorStore,
+		lpaStoreResolvingService: lpaStoreResolvingService,
+		attorneyStore:            attorneyStore,
+		notifyClient:             notifyClient,
+		bundle:                   bundle,
+		now:                      testNowFn,
+		attorneyStartURL:         "http://example.com/attorney",
+		attorneyOptOutURL:        "http://example.com/attorney-opt-out",
+	}
+
+	err := runner.stepRemindAttorneyToComplete(ctx, row)
+	assert.Nil(t, err)
 }
 
 func TestRunnerRemindAttorneyToCompleteWhenOnPaper(t *testing.T) {
