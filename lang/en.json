@@ -629,11 +629,10 @@
     "companyEmailAddress": "Company email address",
     "companyEmailAddressOptional": "Company email address (optional)",
     "companyEmailHint": "This must not belong to an individual person.",
-    "ifTheDetailsYouProvideAreNotCorrect": "Any errors in your details can make the LPA difficult to use. Organisations might not accept the LPA if your details do not match your ID.",
     "ifUsePreviousAddressOrEnterNew": "if you would like to use an address you’ve already entered or enter a new address",
     "trustCorporation": "Trust corporation",
-    "confirmYourCompanyDetails": "Confirm your company details",
-    "youMustConfirmTheDetailsAboutYourCompany": "You must confirm the details {{.DonorFullName}} has given us about your company are correct.",
+    "confirmYourTrustCorporationDetails": "Confirm your trust corporation details",
+    "youMustConfirmTheDetailsAboutYourCompany": "You must confirm that the details {{.DonorFullName}} has given us about your company are correct.",
     "detailsTheDonorHasGivenAboutYourCompany": "Details the donor has given about your company",
     "whatToDoIfAnyDetailsAboutCompanyAreIncorrect": "What to do if any of the details given about your company are incorrect",
     "whatToDoIfAnyDetailsAboutCompanyAreIncorrectAttorneyContent": "<p class=\"govuk-body\">If you notice a mistake in any of the details the donor provided for your company, you should not continue.</p><p class=\"govuk-body\">You’ll need to let the donor know so they can change the details.</p><p class=\"govuk-body\">Once they’ve made the changes, you’ll need to log back in again and confirm the details are correct.</p>",
@@ -1916,5 +1915,8 @@
     "manageLPAsContent": "<p class=\"govuk-body app-two-thirds-fixed-desktop\">This is your LPA dashboard. If you are a donor, you can view and complete tasks on LPAs in progress, delete or revoke LPAs, and access registered LPAs.</p><p class=\"govuk-body app-two-thirds-fixed-desktop\">If you are an attorney or certificate provider, you can view and complete tasks on LPAs in progress.</p>",
     "makeOrAddLPAsContent": "This page allows you to either make a new LPA, or add an LPA using the access code you received via email from the Office of the Public Guardian (OPG).",
     "youHaveSignedContactToChangeDetails": "You have signed your LPA. You will now need to <a href=\"{{.ContactLink}}\" class=\"govuk-link\" target=\"_blank\" rel=\"noreferrer noopener\">contact the Office of the Public Guardian (opens in new tab)</a> to make changes to your contact details.",
-    "addressInYourLpa": "Address in your LPA"
+    "addressInYourLpa": "Address in your LPA",
+    "enterYourCompanyNumber": "Enter your company number",
+    "enterYourCompanyNumberHint": "You can find this on your Companies House listing",
+    "yourCompanyNumber": "your company number"
 }

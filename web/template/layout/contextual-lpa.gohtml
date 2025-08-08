@@ -73,8 +73,6 @@
                 </div>
                 <div class="govuk-summary-card__content">
                     <dl class="govuk-summary-list">
-                        {{ template "summary-row" (staticSummaryRow $.App "companyNumber"
-                            .CompanyNumber) }}
                         {{ template "summary-row" (staticSummaryRow $.App "companyEmailAddress"
                             .Email) }}
                         {{ template "address-summary-row" (staticSummaryRow $.App "address"
@@ -117,8 +115,6 @@
                 </div>
                 <div class="govuk-summary-card__content">
                     <dl class="govuk-summary-list">
-                        {{ template "summary-row" (staticSummaryRow $.App "companyNumber"
-                            .CompanyNumber) }}
                         {{ template "summary-row" (staticSummaryRow $.App "companyEmailAddress"
                             .Email) }}
                         {{ template "address-summary-row" (staticSummaryRow $.App "address"

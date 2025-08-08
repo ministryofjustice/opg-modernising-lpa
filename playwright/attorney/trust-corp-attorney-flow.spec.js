@@ -30,7 +30,7 @@ test('trust corporation wants to be an attorney', async ({ page }) => {
     await extractTextFromMainAndSave(page)
     await page.getByRole('button', { name: 'Save and continue' }).click();
 
-    await expect(page.locator('h1')).toContainText('Confirm your company details');
+    await expect(page.locator('h1')).toContainText('Confirm your trust corporation details');
     await screenshot(page)
     await extractTextFromMainAndSave(page)
     await page.getByRole('button', { name: 'Continue' }).click();
