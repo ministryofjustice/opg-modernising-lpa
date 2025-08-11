@@ -8,6 +8,8 @@
 @import "patterns/supporter-lpa-context";
 @import "patterns/trans_switch";
 
+$app-two-thirds-width: ($govuk-page-width * 2 / 3) / $govuk-root-font-size * 1rem;
+
 @media print {
     .app-print-background {
         -webkit-print-color-adjust: exact !important;
@@ -195,4 +197,12 @@ body.js-enabled .js-only {
 
 .app-inset-text-error {
     border-left: 5px solid $govuk-error-colour;
+}
+
+.app-two-thirds-fixed-desktop {
+    width: 100%;
+
+    @include govuk-media-query($from: tablet) {
+        max-width: $app-two-thirds-width;
+    }
 }
