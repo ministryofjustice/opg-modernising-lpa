@@ -1,6 +1,6 @@
 {{ template "page" . }}
 
-{{ define "pageTitle" }}{{ tr .App "manageYourLpas" }}{{ end }}
+{{ define "pageTitle" }}{{ tr .App "manageLPAs" }}{{ end }}
 
 {{ define "donorCard" }}
     <div class="app-dashboard-card">
@@ -218,8 +218,9 @@
 
 {{ define "main" }}
     <div class="govuk-grid-row">
-        <div class="govuk-grid-column-two-thirds">
-            <h1 class="govuk-heading-xl">{{ tr .App "manageYourLpas" }}</h1>
+        <div class="govuk-grid-column-full">
+            <h1 class="govuk-heading-xl">{{ tr .App "manageLPAs" }}</h1>
+            {{ trHtml .App "manageLPAsContent" }}
         </div>
     </div>
 
@@ -254,28 +255,24 @@
             {{ if or .DonorLpas .RegisteredDonorLpas }}
                 {{ if .NeedsTabs }}<div class="govuk-tabs__panel" id="donor">{{ end }}
                     <h2 class="govuk-heading-l">{{ tr .App "myLpas" }}</h2>
-                    <p class="govuk-body">
-                        {{ if .DonorLpas }}
-                            {{ tr .App "viewAndManageDonor" }}
-                        {{ else }}
-                            {{ tr .App "yourLpasHaveBeenSuccessfullyRegistered" }}
-                        {{ end }}
-                    </p>
 
                     {{ range .DonorLpas }}
                         {{ template "donorCard" (card $.App .) }}
                     {{ end }}
 
                     {{ if .RegisteredDonorLpas }}
-                        <h3 class="govuk-heading-m">{{ tr .App "myRegisteredLPAs" }}</h3>
+                            <h3 class="govuk-heading-m">{{ tr .App "myRegisteredLPAs" }}</h3>
 
-                        {{ trHtml .App "registeredLpasContent" }}
+                            <p class="govuk-body app-two-thirds-fixed-desktop">
+                                {{ tr .App "registeredLpasContent" }}
+                            </p>
 
-                        {{ range .RegisteredDonorLpas }}
-                            {{ template "donorCard" (card $.App .) }}
-                        {{ end }}
+                            {{ range .RegisteredDonorLpas }}
+                                {{ template "donorCard" (card $.App .) }}
+                            {{ end }}
 
-                        <a class="govuk-button" href="{{.UseURL}}">{{ tr .App "useALpa" }}</a>
+                            <a class="govuk-button" href="{{.UseURL}}">{{ tr .App "useALpa" }}</a>
+
                     {{ end }}
                 {{ if .NeedsTabs }}</div>{{ end }}
             {{ end }}
@@ -284,7 +281,7 @@
                 {{ if .NeedsTabs }}<div class="govuk-tabs__panel" id="attorney">{{ end }}
                     <h2 class="govuk-heading-l">{{ tr .App "imAnAttorney" }}</h2>
 
-                    <p class="govuk-body">
+                    <p class="govuk-body app-two-thirds-fixed-desktop">
                         {{ if .AttorneyLpas }}
                             {{ tr .App "viewAndManageAttorney" }}
                         {{ else }}
@@ -299,7 +296,9 @@
                     {{ if .RegisteredAttorneyLpas }}
                         <h3 class="govuk-heading-m">{{ tr .App "viewAndUseRegisteredLpasAsAttorney" }}</h3>
 
-                        {{ trHtml .App "registeredLpasContent" }}
+                        <p class="govuk-body app-two-thirds-fixed-desktop">
+                            {{ tr .App "registeredLpasContent" }}
+                        </p>
 
                         {{ range .RegisteredAttorneyLpas }}
                             {{ template "donorCard" (card $.App .) }}
@@ -314,7 +313,7 @@
                 {{ if .NeedsTabs }}<div class="govuk-tabs__panel" id="certificate-provider">{{ end }}
                     <h2 class="govuk-heading-l">{{ tr .App "imACertificateProvider" }}</h2>
 
-                    <p class="govuk-body">{{ tr .App "viewAndManageCertificateProvider" }}</p>
+                    <p class="govuk-body app-two-thirds-fixed-desktop">{{ tr .App "viewAndManageCertificateProvider" }}</p>
                     {{ range .CertificateProviderLpas }}
                         {{ template "certificateProviderCard" (card $.App .) }}
                     {{ end }}
@@ -325,7 +324,7 @@
                 {{ if .NeedsTabs }}<div class="govuk-tabs__panel" id="voucher">{{ end }}
                     <h2 class="govuk-heading-l">{{ tr .App "imVouchingForSomeone" }}</h2>
 
-                    <p class="govuk-body">{{ tr .App "viewAndManageVouchingForSomeonesIdentity" }}</p>
+                    <p class="govuk-body app-two-thirds-fixed-desktop">{{ tr .App "viewAndManageVouchingForSomeonesIdentity" }}</p>
                     {{ range .VoucherLpas }}
                         {{ template "voucherCard" (card $.App .) }}
                     {{ end }}
