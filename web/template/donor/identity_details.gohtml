@@ -116,26 +116,34 @@
     {{ template "notification-banner" (notificationBanner .App "important" (trFormatHtml .App "identityDetailAddressMismatch") "contents") }}
     {{ template "identity-details-with-address" (card .App .Provided.IdentityUserData) }}
 
-    <h1 class="govuk-heading-m">{{ tr .App "theDetailsOnYourLPA" }}</h1>
+    <h1 class="govuk-heading-m">{{ tr .App "addressInYourLpa" }}</h1>
     <dl class="govuk-summary-list">
         {{ template "identity-details-address-row" . }}
     </dl>
 
     {{ trHtml .App "theAddressInYouLpaDoesNotMatchHowever" }}
 
-    <form novalidate method="post">
-        {{ template "radios-fieldset" (fieldset . .Form.FieldName .Form.YesNo.String
-            (legend "whatWouldYouLikeToDo" "govuk-fieldset__legend--m")
-            (item .Form.Options.Yes.String "updateTheAddressToMatch")
-            (item .Form.Options.No.String "keepTheAddressItIsCurrent")) }}
+    {{ if .Provided.CanChange }}
+        <form novalidate method="post">
+            {{ template "radios-fieldset" (fieldset . .Form.FieldName .Form.YesNo.String
+                (legend "whatWouldYouLikeToDo" "govuk-fieldset__legend--m")
+                (item .Form.Options.Yes.String "updateTheAddressToMatch")
+                (item .Form.Options.No.String "keepTheAddressItIsCurrent")) }}
 
+            <div class="govuk-inset-text">
+                {{ trHtml .App "returnToTaskListToUpdateAddressInFuture" }}
+            </div>
+
+            {{ template "button" (button .App "saveAndContinue") }}
+            {{ template "csrf-field" . }}
+        </form>
+    {{ else }}
         <div class="govuk-inset-text">
-            {{ trHtml .App "returnToTaskListToUpdateAddressInFuture" }}
+            {{ trFormatHtml .App "youHaveSignedContactToChangeDetails" "ContactLink" (link .App global.Paths.ContactTheOfficeOfThePublicGuardian.Format) }}
         </div>
 
-        {{ template "button" (button .App "saveAndContinue") }}
-        {{ template "csrf-field" . }}
-    </form>
+        {{ template "button" (button .App "continue" "link" global.Paths.Dashboard.Format) }}
+    {{ end }}
 {{ end }}
 
 {{ define "identity-details-matched" }}

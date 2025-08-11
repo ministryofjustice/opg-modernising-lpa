@@ -2015,5 +2015,7 @@
     "anOptionForTheAddressInYourLpa": "Welsh",
     "theAddressInYourLpaHasBeenUpdated": "Welsh",
     "someOfTheDetailsOnYourLpaDoNotMatch": "Welsh",
-    "youChoseNotToCorrectMismatch": "<p class=\"govuk-notification-banner__heading\">Welsh.</p>"
+    "youChoseNotToCorrectMismatch": "<p class=\"govuk-notification-banner__heading\">Welsh.</p>",
+    "youHaveSignedContactToChangeDetails": "Welsh <a href=\"{{.ContactLink}}\" class=\"govuk-link\" target=\"_blank\" rel=\"noreferrer noopener\">Welsh</a>",
+    "addressInYourLpa": "Welsh"
 }

@@ -1915,5 +1915,7 @@
     "anOptionForTheAddressInYourLpa": "an option for the address in your LPA",
     "theAddressInYourLpaHasBeenUpdated": "The address in your LPA has been updated",
     "someOfTheDetailsOnYourLpaDoNotMatch": "Some of the details on your LPA do not match your confirmed identity details.",
-    "youChoseNotToCorrectMismatch": "<p class=\"govuk-notification-banner__heading\">You chose not to correct the mismatch between your confirmed identity details and the name or date of birth in your LPA</p><p class=\"govuk-body\">You will be guided through the process of applying to the Court of Protection to register your LPA.</p>"
+    "youChoseNotToCorrectMismatch": "<p class=\"govuk-notification-banner__heading\">You chose not to correct the mismatch between your confirmed identity details and the name or date of birth in your LPA</p><p class=\"govuk-body\">You will be guided through the process of applying to the Court of Protection to register your LPA.</p>",
+    "youHaveSignedContactToChangeDetails": "You have signed your LPA. You will now need to <a href=\"{{.ContactLink}}\" class=\"govuk-link\" target=\"_blank\" rel=\"noreferrer noopener\">contact the Office of the Public Guardian (opens in new tab)</a> to make changes to your contact details.",
+    "addressInYourLpa": "Address in your LPA"
 }
