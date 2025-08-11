@@ -10,7 +10,7 @@ COPY --link internal ./internal
 
 RUN GOOS=${TARGETOS} GOARCH=${TARGETARCH} CGO_ENABLED=0 go build -o event-received ./cmd/event-received
 
-FROM public.ecr.aws/lambda/provided:al2023.2025.08.05.12 AS production
+FROM public.ecr.aws/lambda/provided:al2023.2025.08.05.12@sha256:a6fd59cc309cef2fb8585bb15f60d74a81bedbe2f46cf2a73a4307513925c884 AS production
 
 WORKDIR /app
 COPY --link  docker/install_lambda_insights.sh /app/
