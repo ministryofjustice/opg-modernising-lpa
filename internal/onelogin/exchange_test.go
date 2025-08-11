@@ -27,6 +27,9 @@ type mockKeyfunc struct{}
 func (*mockKeyfunc) Keyfunc(*jwt.Token) (any, error)            { return []byte("my-key"), nil }
 func (*mockKeyfunc) Storage() jwkset.Storage                    { return (jwkset.Storage)(nil) }
 func (*mockKeyfunc) KeyfuncCtx(ctx context.Context) jwt.Keyfunc { return (jwt.Keyfunc)(nil) }
+func (*mockKeyfunc) VerificationKeySet(ctx context.Context) (jwt.VerificationKeySet, error) {
+	return jwt.VerificationKeySet{}, nil
+}
 
 func TestExchange(t *testing.T) {
 	privateKey, _ := rsa.GenerateKey(rand.New(rand.NewSource(99)), 2048)
