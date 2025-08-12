@@ -57,8 +57,8 @@ data "aws_iam_policy_document" "cloudwatch_kms" {
     principals {
       type = "Service"
       identifiers = [
-        "logs.${data.aws_region.eu_west_1.name}.amazonaws.com",
-        "logs.${data.aws_region.eu_west_2.name}.amazonaws.com",
+        "logs.${data.aws_region.eu_west_1.region}.amazonaws.com",
+        "logs.${data.aws_region.eu_west_2.region}.amazonaws.com",
         "events.amazonaws.com"
       ]
     }

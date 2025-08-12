@@ -1,5 +1,5 @@
 locals {
-  policy_region_prefix = lower(replace(data.aws_region.current.name, "-", ""))
+  policy_region_prefix = lower(replace(data.aws_region.current.region, "-", ""))
 }
 
 variable "ecs_execution_role" {

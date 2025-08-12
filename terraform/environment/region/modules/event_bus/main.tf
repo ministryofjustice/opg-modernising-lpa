@@ -45,9 +45,9 @@ data "aws_iam_policy_document" "event_bus_dead_letter_queue" {
       variable = "aws:SourceArn"
       values = [
         aws_cloudwatch_event_rule.cross_account_put.arn,
-        "arn:aws:events:${data.aws_region.current.name}:${data.aws_caller_identity.current.account_id}:rule/${data.aws_default_tags.current.tags.environment-name}/${data.aws_default_tags.current.tags.environment-name}-receive-events-lpa-store",
-        "arn:aws:events:${data.aws_region.current.name}:${data.aws_caller_identity.current.account_id}:rule/${data.aws_default_tags.current.tags.environment-name}/${data.aws_default_tags.current.tags.environment-name}-receive-events-mlpa",
-        "arn:aws:events:${data.aws_region.current.name}:${data.aws_caller_identity.current.account_id}:rule/${data.aws_default_tags.current.tags.environment-name}/${data.aws_default_tags.current.tags.environment-name}-receive-events-sirius",
+        "arn:aws:events:${data.aws_region.current.region}:${data.aws_caller_identity.current.account_id}:rule/${data.aws_default_tags.current.tags.environment-name}/${data.aws_default_tags.current.tags.environment-name}-receive-events-lpa-store",
+        "arn:aws:events:${data.aws_region.current.region}:${data.aws_caller_identity.current.account_id}:rule/${data.aws_default_tags.current.tags.environment-name}/${data.aws_default_tags.current.tags.environment-name}-receive-events-mlpa",
+        "arn:aws:events:${data.aws_region.current.region}:${data.aws_caller_identity.current.account_id}:rule/${data.aws_default_tags.current.tags.environment-name}/${data.aws_default_tags.current.tags.environment-name}-receive-events-sirius",
       ]
     }
   }
@@ -94,7 +94,7 @@ resource "aws_cloudwatch_metric_alarm" "event_bus_dead_letter_queue" {
 
 # Send event to remote account event bus
 resource "aws_iam_role_policy" "cross_account_put" {
-  name     = "${data.aws_default_tags.current.tags.environment-name}-${data.aws_region.current.name}-cross-account-put"
+  name     = "${data.aws_default_tags.current.tags.environment-name}-${data.aws_region.current.region}-cross-account-put"
   policy   = data.aws_iam_policy_document.cross_account_put_access.json
   role     = var.iam_role.id
   provider = aws.region
@@ -108,7 +108,7 @@ data "aws_iam_policy_document" "cross_account_put_access" {
       "events:PutEvents",
     ]
     # replace "region" in each arn with the current region assuming that event busses in other accounts will exist in each region.
-    resources = values({ for k, v in var.target_event_bus_arns : k => replace(v, "region", data.aws_region.current.name) })
+    resources = values({ for k, v in var.target_event_bus_arns : k => replace(v, "region", data.aws_region.current.region) })
   }
   provider = aws.region
 }
@@ -129,7 +129,7 @@ resource "aws_cloudwatch_event_target" "cross_account_put" {
   for_each       = var.target_event_bus_arns
   target_id      = "${data.aws_default_tags.current.tags.environment-name}-${each.key}-cross-account-put-event"
   event_bus_name = aws_cloudwatch_event_bus.main.name
-  arn            = replace(each.value, "region", data.aws_region.current.name)
+  arn            = replace(each.value, "region", data.aws_region.current.region)
   dead_letter_config {
     arn = aws_sqs_queue.event_bus_dead_letter_queue.arn
   }
@@ -146,7 +146,7 @@ data "aws_iam_policy_document" "events_emitted" {
       "logs:PutLogEvents",
     ]
     resources = [
-      "arn:aws:logs:${data.aws_region.current.name}:${data.aws_caller_identity.current.account_id}:log-group:/aws/events/*:*"
+      "arn:aws:logs:${data.aws_region.current.region}:${data.aws_caller_identity.current.account_id}:log-group:/aws/events/*:*"
     ]
 
     principals {

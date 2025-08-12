@@ -1,5 +1,5 @@
 resource "aws_s3_bucket" "bucket" {
-  bucket   = "batch-manifests-${data.aws_default_tags.current.tags.application}-${data.aws_default_tags.current.tags.account-name}-${data.aws_region.current.name}"
+  bucket   = "batch-manifests-${data.aws_default_tags.current.tags.application}-${data.aws_default_tags.current.tags.account-name}-${data.aws_region.current.region}"
   provider = aws.region
 }
 
