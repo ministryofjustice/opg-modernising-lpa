@@ -195,7 +195,7 @@ func (p Path) RedirectQuery(w http.ResponseWriter, r *http.Request, appData appc
 func (p Path) CanGoTo(donor *donordata.Provided) bool {
 	if !donor.SignedAt.IsZero() {
 		switch p {
-		case PathProgress, PathViewLPA, PathDeleteThisLpa, PathWithdrawThisLpa, PathYouHaveSubmittedYourLpa:
+		case PathProgress, PathViewLPA, PathDeleteThisLpa, PathWithdrawThisLpa, PathYouHaveSubmittedYourLpa, PathIdentityDetails:
 			return true
 
 		case PathTaskList:
@@ -209,7 +209,7 @@ func (p Path) CanGoTo(donor *donordata.Provided) bool {
 			return !donor.Tasks.PayForLpa.IsCompleted()
 
 		case PathConfirmYourIdentity, PathHowWillYouConfirmYourIdentity, PathCompletingYourIdentityConfirmation,
-			PathIdentityWithOneLogin, PathIdentityWithOneLoginCallback, PathIdentityDetails, PathRegisterWithCourtOfProtection,
+			PathIdentityWithOneLogin, PathIdentityWithOneLoginCallback, PathRegisterWithCourtOfProtection,
 			PathUnableToConfirmIdentity, PathChooseSomeoneToVouchForYou, PathEnterVoucher, PathConfirmPersonAllowedToVouch,
 			PathCheckYourDetails, PathWeHaveContactedVoucher, PathWhatYouCanDoNow, PathWhatYouCanDoNowExpired,
 			PathWhatHappensNextRegisteringWithCourtOfProtection, PathAreYouSureYouNoLongerNeedVoucher,
