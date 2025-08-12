@@ -33,8 +33,8 @@ MRLPA Account (development, preproduction or production) - deployed region (eg. 
 Management Account - deployed region (eg. eu-west-1, eu-west-2)
 
 ```text
-/modernising-lpa/reduced_fees_uploads_bucket_kms_key_arn/${var.reduced_fees.target_environment}/${data.aws_region.current.name}
-/modernising-lpa/reduced_fees_uploads_bucket_arn/${var.reduced_fees.target_environment}/${data.aws_region.current.name}
+/modernising-lpa/reduced_fees_uploads_bucket_kms_key_arn/${var.reduced_fees.target_environment}/${data.aws_region.current.region}
+/modernising-lpa/reduced_fees_uploads_bucket_arn/${var.reduced_fees.target_environment}/${data.aws_region.current.region}
 ```
 
 We can make it easier to work with parameters by rationalising the locations and defining how we choose where to locate them.
