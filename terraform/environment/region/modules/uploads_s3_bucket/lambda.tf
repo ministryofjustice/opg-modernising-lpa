@@ -1,7 +1,7 @@
 module "s3_create_batch_replication_jobs" {
   source      = "../lambda"
   lambda_name = "create-s3-batch-replication-jobs"
-  description = "Function to create and run batch replication jobs in ${data.aws_region.current.name}"
+  description = "Function to create and run batch replication jobs in ${data.aws_region.current.region}"
   environment_variables = {
     ENVIRONMENT = data.aws_default_tags.current.tags.environment-name
   }
@@ -78,7 +78,7 @@ resource "aws_scheduler_schedule" "invoke_lambda_every_x_minutes" {
 
 # TODO: move this resource to global and pass it in using the roles variable
 resource "aws_iam_role" "scheduler_role" {
-  name               = "scheduler-${data.aws_default_tags.current.tags.environment-name}-${data.aws_region.current.name}"
+  name               = "scheduler-${data.aws_default_tags.current.tags.environment-name}-${data.aws_region.current.region}"
   assume_role_policy = data.aws_iam_policy_document.scheduler_assume_role.json
   provider           = aws.region
 }
@@ -98,7 +98,7 @@ data "aws_iam_policy_document" "scheduler_assume_role" {
 }
 
 resource "aws_iam_role_policy" "scheduler_invoke_lambda" {
-  name     = "scheduler-invoke-lambda-${data.aws_default_tags.current.tags.environment-name}-${data.aws_region.current.name}"
+  name     = "scheduler-invoke-lambda-${data.aws_default_tags.current.tags.environment-name}-${data.aws_region.current.region}"
   policy   = data.aws_iam_policy_document.scheduler_invoke_lambda.json
   role     = aws_iam_role.scheduler_role.id
   provider = aws.region

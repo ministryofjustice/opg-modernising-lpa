@@ -4,7 +4,7 @@ data "aws_ecr_repository" "event_received" {
 }
 
 data "aws_security_group" "lambda_egress" {
-  name     = "lambda-egress-${data.aws_region.current.name}"
+  name     = "lambda-egress-${data.aws_region.current.region}"
   provider = aws.region
 }
 

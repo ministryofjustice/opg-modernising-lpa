@@ -1,6 +1,6 @@
 resource "aws_s3_bucket" "access_log" {
   provider = aws.region
-  bucket   = "${data.aws_default_tags.current.tags.application}-${data.aws_default_tags.current.tags.account-name}-lb-access-logs-${data.aws_region.current.name}"
+  bucket   = "${data.aws_default_tags.current.tags.application}-${data.aws_default_tags.current.tags.account-name}-lb-access-logs-${data.aws_region.current.region}"
 }
 
 #tfsec:ignore:aws-s3-encryption-customer-key
@@ -25,7 +25,7 @@ resource "aws_s3_bucket_versioning" "access_log" {
 
 data "aws_s3_bucket" "s3_access_logging" {
   provider = aws.region
-  bucket   = "s3-access-logs-${data.aws_default_tags.current.tags.application}-${data.aws_default_tags.current.tags.account-name}-${data.aws_region.current.name}"
+  bucket   = "s3-access-logs-${data.aws_default_tags.current.tags.application}-${data.aws_default_tags.current.tags.account-name}-${data.aws_region.current.region}"
 }
 
 resource "aws_s3_bucket_logging" "access_log" {
@@ -44,7 +44,7 @@ resource "aws_s3_bucket_policy" "access_log" {
 
 data "aws_elb_service_account" "main" {
   provider = aws.region
-  region   = data.aws_region.current.name
+  region   = data.aws_region.current.region
 }
 
 resource "aws_s3_bucket_lifecycle_configuration" "lifecycle" {

@@ -1,6 +1,6 @@
 #tfsec:ignore:aws-cloudwatch-log-group-customer-key:exp:2025-08-30
 resource "aws_cloudwatch_log_group" "route_53_resolver_logs" {
-  name              = "${data.aws_default_tags.current.tags.account-name}-route53-resolver-logs-${data.aws_region.current.name}"
+  name              = "${data.aws_default_tags.current.tags.account-name}-route53-resolver-logs-${data.aws_region.current.region}"
   retention_in_days = 400
   provider          = aws.region
 }

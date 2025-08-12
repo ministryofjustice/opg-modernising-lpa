@@ -1,6 +1,6 @@
 locals {
   security_template_vars = {
-    region                = data.aws_region.current.name
+    region                = data.aws_region.current.region
     account_name          = data.aws_default_tags.current.tags.account-name
     environment_name      = data.aws_default_tags.current.tags.environment-name
     app_loadbalancer_name = module.app.load_balancer.arn_suffix

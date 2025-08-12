@@ -29,7 +29,7 @@ resource "aws_ecs_service" "mock_pay" {
   }
 
   lifecycle {
-    create_before_destroy = true
+    create_before_destroy = false
   }
 
   timeouts {
@@ -51,10 +51,6 @@ resource "aws_service_discovery_service" "mock_pay" {
     }
 
     routing_policy = "MULTIVALUE"
-  }
-
-  health_check_custom_config {
-    failure_threshold = 1
   }
 
   provider = aws.region
@@ -148,7 +144,7 @@ locals {
         logDriver = "awslogs",
         options = {
           awslogs-group         = var.ecs_application_log_group_name,
-          awslogs-region        = data.aws_region.current.name,
+          awslogs-region        = data.aws_region.current.region,
           awslogs-stream-prefix = data.aws_default_tags.current.tags.environment-name
           mode                  = "non-blocking"
           max-buffer-size       = "25m"

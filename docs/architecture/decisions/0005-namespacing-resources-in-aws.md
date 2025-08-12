@@ -35,8 +35,8 @@ Some examples of namespaced IAM role resources are:
 
 - `event-received-${data.aws_default_tags.current.tags.environment-name}`
 - `${data.aws_default_tags.current.tags.environment-name}-execution-role`
-- `${data.aws_default_tags.current.tags.environment-name}-execution-role-${data.aws_region.current.name}`
-- `batch-manifests-${data.aws_default_tags.current.tags.application}-${data.aws_default_tags.current.tags.account-name}-${data.aws_region.current.name}/*`
+- `${data.aws_default_tags.current.tags.environment-name}-execution-role-${data.aws_region.current.region}`
+- `batch-manifests-${data.aws_default_tags.current.tags.application}-${data.aws_default_tags.current.tags.account-name}-${data.aws_region.current.region}/*`
 
 IAM policies support wildcards in the resource name, so we can use wildcards to grant access to all resources that match a pattern. This is useful when granting access to resources that are created dynamically.
 
