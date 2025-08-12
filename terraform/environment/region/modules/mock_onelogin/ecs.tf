@@ -53,10 +53,6 @@ resource "aws_service_discovery_service" "mock_onelogin" {
     routing_policy = "MULTIVALUE"
   }
 
-  health_check_custom_config {
-    failure_threshold = 1
-  }
-
   provider = aws.region
 }
 
@@ -131,7 +127,7 @@ resource "aws_ecs_task_definition" "mock_onelogin" {
 }
 
 resource "aws_iam_role_policy" "mock_onelogin_task_role" {
-  name     = "${data.aws_default_tags.current.tags.environment-name}-${data.aws_region.current.name}-mock-onelogin-task-role"
+  name     = "${data.aws_default_tags.current.tags.environment-name}-${data.aws_region.current.region}-mock-onelogin-task-role"
   policy   = data.aws_iam_policy_document.task_role_access_policy.json
   role     = var.ecs_task_role.name
   provider = aws.region
@@ -183,7 +179,7 @@ locals {
         logDriver = "awslogs",
         options = {
           awslogs-group         = var.ecs_application_log_group_name,
-          awslogs-region        = data.aws_region.current.name,
+          awslogs-region        = data.aws_region.current.region,
           awslogs-stream-prefix = data.aws_default_tags.current.tags.environment-name
           mode                  = "non-blocking"
           max-buffer-size       = "25m"

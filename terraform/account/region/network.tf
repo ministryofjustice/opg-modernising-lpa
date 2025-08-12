@@ -41,11 +41,11 @@ resource "aws_networkfirewall_rule_group" "rule_file" {
 }
 
 resource "aws_security_group" "lambda_egress" {
-  name        = "lambda-egress-${data.aws_region.current.name}"
+  name        = "lambda-egress-${data.aws_region.current.region}"
   vpc_id      = module.network.vpc.id
   description = "Shared security group lambda for outbound traffic"
 
-  tags     = { "Name" = "lambda-egress-${data.aws_region.current.name}" }
+  tags     = { "Name" = "lambda-egress-${data.aws_region.current.region}" }
   provider = aws.region
 }
 

@@ -76,5 +76,5 @@ resource "aws_lambda_permission" "allow_cloudwatch_scheduler_to_call_schedule_ru
 }
 
 locals {
-  policy_region_prefix = lower(replace(data.aws_region.current.name, "-", ""))
+  policy_region_prefix = lower(replace(data.aws_region.current.region, "-", ""))
 }

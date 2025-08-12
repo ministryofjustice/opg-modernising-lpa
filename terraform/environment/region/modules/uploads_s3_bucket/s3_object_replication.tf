@@ -76,7 +76,7 @@ data "aws_iam_policy_document" "replication" {
     effect = "Allow"
 
     resources = [
-      "arn:aws:s3:::batch-manifests-${data.aws_default_tags.current.tags.application}-${data.aws_default_tags.current.tags.account-name}-${data.aws_region.current.name}/*"
+      "arn:aws:s3:::batch-manifests-${data.aws_default_tags.current.tags.application}-${data.aws_default_tags.current.tags.account-name}-${data.aws_region.current.region}/*"
     ]
   }
   statement {
@@ -87,14 +87,14 @@ data "aws_iam_policy_document" "replication" {
     ]
 
     resources = [
-      "arn:aws:s3:::batch-manifests-${data.aws_default_tags.current.tags.application}-${data.aws_default_tags.current.tags.account-name}-${data.aws_region.current.name}"
+      "arn:aws:s3:::batch-manifests-${data.aws_default_tags.current.tags.application}-${data.aws_default_tags.current.tags.account-name}-${data.aws_region.current.region}"
     ]
   }
   provider = aws.region
 }
 
 resource "aws_iam_policy" "replication" {
-  name     = "reduced-fees-uploads-replication-${data.aws_default_tags.current.tags.environment-name}-${data.aws_region.current.name}"
+  name     = "reduced-fees-uploads-replication-${data.aws_default_tags.current.tags.environment-name}-${data.aws_region.current.region}"
   policy   = data.aws_iam_policy_document.replication.json
   provider = aws.region
 }
@@ -172,19 +172,19 @@ resource "aws_ssm_parameter" "s3_batch_configuration" {
   type = "String"
   value = jsonencode({
     "aws_account_id" : data.aws_caller_identity.current.account_id,
-    "report_and_manifests_bucket" : "arn:aws:s3:::batch-manifests-${data.aws_default_tags.current.tags.application}-${data.aws_default_tags.current.tags.account-name}-${data.aws_region.current.name}",
+    "report_and_manifests_bucket" : "arn:aws:s3:::batch-manifests-${data.aws_default_tags.current.tags.application}-${data.aws_default_tags.current.tags.account-name}-${data.aws_region.current.region}",
     "source_bucket" : aws_s3_bucket.bucket.arn,
     "role_arn" : data.aws_iam_role.replication.arn,
-    "aws_region" : data.aws_region.current.name,
+    "aws_region" : data.aws_region.current.region,
   })
   provider = aws.region
 }
 
 resource "aws_cloudwatch_metric_alarm" "replication-failed" {
   actions_enabled     = var.s3_replication.enabled
-  alarm_actions       = ["arn:aws:sns:${data.aws_region.current.name}:${data.aws_caller_identity.current.account_id}:custom_cloudwatch_alarms"]
+  alarm_actions       = ["arn:aws:sns:${data.aws_region.current.region}:${data.aws_caller_identity.current.account_id}:custom_cloudwatch_alarms"]
   alarm_description   = null
-  alarm_name          = "${data.aws_default_tags.current.tags.environment-name}-${data.aws_region.current.name}-replication-failed"
+  alarm_name          = "${data.aws_default_tags.current.tags.environment-name}-${data.aws_region.current.region}-replication-failed"
   comparison_operator = "GreaterThanThreshold"
   datapoints_to_alarm = 1
   dimensions = {

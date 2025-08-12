@@ -102,7 +102,7 @@ resource "aws_ecs_task_definition" "app" {
 }
 
 resource "aws_iam_role_policy" "app_task_role" {
-  name     = "${data.aws_default_tags.current.tags.environment-name}-${data.aws_region.current.name}-app-task-role"
+  name     = "${data.aws_default_tags.current.tags.environment-name}-${data.aws_region.current.region}-app-task-role"
   policy   = var.fault_injection_experiments_enabled ? data.aws_iam_policy_document.combined.json : data.aws_iam_policy_document.task_role_access_policy.json
   role     = var.ecs_task_role.name
   provider = aws.region
@@ -177,7 +177,7 @@ data "aws_secretsmanager_secret" "lpa_store_jwt_key" {
 }
 
 data "aws_secretsmanager_secret" "rum_monitor_identity_pool_id" {
-  name     = "rum-monitor-identity-pool-id-${data.aws_region.current.name}"
+  name     = "rum-monitor-identity-pool-id-${data.aws_region.current.region}"
   provider = aws.region
 }
 
@@ -379,7 +379,7 @@ locals {
         logDriver = "awslogs",
         options = {
           awslogs-group         = var.ecs_application_log_group_name,
-          awslogs-region        = data.aws_region.current.name,
+          awslogs-region        = data.aws_region.current.region,
           awslogs-stream-prefix = data.aws_default_tags.current.tags.environment-name
           mode                  = "non-blocking"
           max-buffer-size       = "25m"
@@ -459,11 +459,11 @@ locals {
         },
         {
           name  = "AWS_RUM_ENDPOINT",
-          value = "https://dataplane.rum.${data.aws_region.current.name}.amazonaws.com"
+          value = "https://dataplane.rum.${data.aws_region.current.region}.amazonaws.com"
         },
         {
           name  = "AWS_RUM_APPLICATION_REGION",
-          value = data.aws_region.current.name
+          value = data.aws_region.current.region
         },
         {
           name  = "UID_BASE_URL",
@@ -551,7 +551,7 @@ locals {
         logDriver = "awslogs",
         options = {
           awslogs-group         = var.ecs_application_log_group_name,
-          awslogs-region        = data.aws_region.current.name,
+          awslogs-region        = data.aws_region.current.region,
           awslogs-stream-prefix = "${data.aws_default_tags.current.tags.environment-name}.otel.app"
           mode                  = "non-blocking"
           max-buffer-size       = "25m"
@@ -586,7 +586,7 @@ locals {
         logDriver = "awslogs",
         options = {
           awslogs-group         = var.ecs_application_log_group_name,
-          awslogs-region        = data.aws_region.current.name,
+          awslogs-region        = data.aws_region.current.region,
           awslogs-stream-prefix = "${data.aws_default_tags.current.tags.environment-name}.otel.app"
           mode                  = "non-blocking"
           max-buffer-size       = "25m"

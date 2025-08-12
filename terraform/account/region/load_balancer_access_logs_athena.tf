@@ -1,6 +1,6 @@
 resource "aws_s3_bucket" "athena_results" {
   count         = var.athena_enabled ? 1 : 0
-  bucket        = "${data.aws_default_tags.current.tags.application}-${data.aws_default_tags.current.tags.account-name}-lb-logs-athena-${data.aws_region.current.name}"
+  bucket        = "${data.aws_default_tags.current.tags.application}-${data.aws_default_tags.current.tags.account-name}-lb-logs-athena-${data.aws_region.current.region}"
   force_destroy = true
   provider      = aws.region
 }
@@ -126,8 +126,8 @@ data "aws_iam_policy_document" "athena_results" {
 
 resource "aws_athena_workgroup" "alb_logs" {
   count         = var.athena_enabled ? 1 : 0
-  name          = "${data.aws_default_tags.current.tags.account-name}-${data.aws_region.current.name}"
-  description   = "Workgroup for the interrogation of Load Balancer Logs in ${data.aws_default_tags.current.tags.account-name} ${data.aws_region.current.name}"
+  name          = "${data.aws_default_tags.current.tags.account-name}-${data.aws_region.current.region}"
+  description   = "Workgroup for the interrogation of Load Balancer Logs in ${data.aws_default_tags.current.tags.account-name} ${data.aws_region.current.region}"
   force_destroy = true
 
   configuration {
@@ -171,7 +171,7 @@ locals {
   template_vars = {
     bucket     = aws_s3_bucket.access_log.id
     account_id = data.aws_caller_identity.current.account_id
-    region     = data.aws_region.current.name
+    region     = data.aws_region.current.region
     workspace  = data.aws_default_tags.current.tags.account-name
   }
 }
