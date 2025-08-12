@@ -133,6 +133,7 @@ type EventClient interface {
 	SendAttorneyStarted(ctx context.Context, event event.AttorneyStarted) error
 	SendNotificationSent(ctx context.Context, notificationSentEvent event.NotificationSent) error
 	SendPaperFormRequested(ctx context.Context, paperFormRequestedEvent event.PaperFormRequested) error
+	SendLetterRequested(ctx context.Context, event event.LetterRequested) error
 }
 
 type ScheduledStore interface {
