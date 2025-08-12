@@ -10,6 +10,7 @@ import (
 
 	"github.com/aws/aws-lambda-go/events"
 	"github.com/aws/aws-sdk-go-v2/feature/dynamodb/attributevalue"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor/actoruid"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/appcontext"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/certificateprovider/certificateproviderdata"
@@ -1945,6 +1946,47 @@ func TestHandleMaterialChangeConfirmed(t *testing.T) {
 }
 
 func TestHandleCertificateProviderIdentityCheckFailed(t *testing.T) {
+	testcases := map[lpadata.Channel]struct {
+		notifyClient func(*testing.T, *lpadata.Lpa) *mockNotifyClient
+		eventClient  func(*testing.T, *lpadata.Lpa) *mockEventClient
+	}{
+		lpadata.ChannelOnline: {
+			notifyClient: func(t *testing.T, lpa *lpadata.Lpa) *mockNotifyClient {
+				notifyClient := newMockNotifyClient(t)
+				notifyClient.EXPECT().
+					EmailGreeting(lpa).
+					Return("greeting")
+				notifyClient.EXPECT().
+					SendActorEmail(ctx, notify.ToLpaDonor(lpa), "M-1111-2222-3333", notify.InformDonorPaperCertificateProviderIdentityCheckFailed{
+						Greeting:                    "greeting",
+						CertificateProviderFullName: "a b",
+						LpaType:                     "property and affairs",
+						DonorStartPageURL:           "app:///start",
+					}).
+					Return(nil)
+
+				return notifyClient
+			},
+			eventClient: func(_ *testing.T, _ *lpadata.Lpa) *mockEventClient { return nil },
+		},
+		lpadata.ChannelPaper: {
+			notifyClient: func(_ *testing.T, _ *lpadata.Lpa) *mockNotifyClient { return nil },
+			eventClient: func(t *testing.T, lpa *lpadata.Lpa) *mockEventClient {
+				eventClient := newMockEventClient(t)
+				eventClient.EXPECT().
+					SendLetterRequested(ctx, event.LetterRequested{
+						UID:        lpa.LpaUID,
+						LetterType: "INFORM_DONOR_CERTIFICATE_PROVIDER_HAS_NOT_CONFIRMED_IDENTITY",
+						ActorType:  actor.TypeDonor,
+						ActorUID:   lpa.Donor.UID,
+					}).
+					Return(nil)
+
+				return eventClient
+			},
+		},
+	}
+
 	event := &events.CloudWatchEvent{
 		DetailType: "certificate-provider-identity-check-failed",
 		Detail:     json.RawMessage(`{"uid":"M-1111-2222-3333"}`),
@@ -1957,52 +1999,51 @@ func TestHandleCertificateProviderIdentityCheckFailed(t *testing.T) {
 		CertificateProvider: lpadata.CertificateProvider{FirstNames: "a", LastName: "b"},
 	}
 
-	lpaStoreClient := newMockLpaStoreClient(t)
-	lpaStoreClient.EXPECT().
-		Lpa(ctx, "M-1111-2222-3333").
-		Return(lpa, nil)
+	for channel, tc := range testcases {
+		t.Run(channel.String(), func(t *testing.T) {
+			lpa := lpa
+			lpa.Donor.Channel = channel
 
-	notifyClient := newMockNotifyClient(t)
-	notifyClient.EXPECT().
-		EmailGreeting(lpa).
-		Return("greeting")
-	notifyClient.EXPECT().
-		SendActorEmail(ctx, notify.ToLpaDonor(lpa), "M-1111-2222-3333", notify.InformDonorPaperCertificateProviderIdentityCheckFailed{
-			Greeting:                    "greeting",
-			CertificateProviderFullName: "a b",
-			LpaType:                     "property and affairs",
-			DonorStartPageURL:           "app:///start",
-		}).
-		Return(nil)
+			lpaStoreClient := newMockLpaStoreClient(t)
+			lpaStoreClient.EXPECT().
+				Lpa(ctx, "M-1111-2222-3333").
+				Return(lpa, nil)
 
-	localizer := newMockLocalizer(t)
-	localizer.EXPECT().
-		T("property-and-affairs").
-		Return("Property and affairs")
+			localizer := newMockLocalizer(t)
+			localizer.EXPECT().
+				T("property-and-affairs").
+				Return("Property and affairs").
+				Maybe()
 
-	bundle := newMockBundle(t)
-	bundle.EXPECT().
-		For(localize.En).
-		Return(localizer)
+			bundle := newMockBundle(t)
+			bundle.EXPECT().
+				For(localize.En).
+				Return(localizer).
+				Maybe()
 
-	factory := newMockFactory(t)
-	factory.EXPECT().
-		LpaStoreClient().
-		Return(lpaStoreClient, nil)
-	factory.EXPECT().
-		NotifyClient(ctx).
-		Return(notifyClient, nil)
-	factory.EXPECT().
-		Bundle().
-		Return(bundle, nil)
-	factory.EXPECT().
-		DonorStartURL().
-		Return("app:///start")
+			factory := newMockFactory(t)
+			factory.EXPECT().
+				LpaStoreClient().
+				Return(lpaStoreClient, nil)
+			factory.EXPECT().
+				NotifyClient(ctx).
+				Return(tc.notifyClient(t, lpa), nil)
+			factory.EXPECT().
+				Bundle().
+				Return(bundle, nil)
+			factory.EXPECT().
+				DonorStartURL().
+				Return("app:///start")
+			factory.EXPECT().
+				EventClient().
+				Return(tc.eventClient(t, lpa))
 
-	handler := &siriusEventHandler{}
-	err := handler.Handle(ctx, factory, event)
+			handler := &siriusEventHandler{}
+			err := handler.Handle(ctx, factory, event)
 
-	assert.Nil(t, err)
+			assert.Nil(t, err)
+		})
+	}
 }
 
 func TestHandleCertificateProviderIdentityCheckFailedWhenLpaStoreError(t *testing.T) {
@@ -2016,7 +2057,7 @@ func TestHandleCertificateProviderIdentityCheckFailedWhenLpaStoreError(t *testin
 		Lpa(mock.Anything, mock.Anything).
 		Return(&lpadata.Lpa{}, expectedError)
 
-	err := handleCertificateProviderIdentityCheckedFailed(ctx, lpaStoreClient, nil, nil, "", event)
+	err := handleCertificateProviderIdentityCheckedFailed(ctx, lpaStoreClient, nil, nil, nil, "", event)
 
 	assert.ErrorIs(t, err, expectedError)
 }
@@ -2050,7 +2091,28 @@ func TestHandleCertificateProviderIdentityCheckFailedWhenNotifyError(t *testing.
 		SendActorEmail(ctx, mock.Anything, mock.Anything, mock.Anything).
 		Return(expectedError)
 
-	err := handleCertificateProviderIdentityCheckedFailed(ctx, lpaStoreClient, notifyClient, bundle, "", event)
+	err := handleCertificateProviderIdentityCheckedFailed(ctx, lpaStoreClient, notifyClient, nil, bundle, "", event)
+
+	assert.ErrorIs(t, err, expectedError)
+}
+
+func TestHandleCertificateProviderIdentityCheckFailedWhenEventError(t *testing.T) {
+	event := &events.CloudWatchEvent{
+		DetailType: "certificate-provider-identity-check-failed",
+		Detail:     json.RawMessage(`{"uid":"M-1111-2222-3333"}`),
+	}
+
+	lpaStoreClient := newMockLpaStoreClient(t)
+	lpaStoreClient.EXPECT().
+		Lpa(mock.Anything, mock.Anything).
+		Return(&lpadata.Lpa{Donor: lpadata.Donor{Channel: lpadata.ChannelPaper}}, nil)
+
+	eventClient := newMockEventClient(t)
+	eventClient.EXPECT().
+		SendLetterRequested(mock.Anything, mock.Anything).
+		Return(expectedError)
+
+	err := handleCertificateProviderIdentityCheckedFailed(ctx, lpaStoreClient, nil, eventClient, nil, "", event)
 
 	assert.ErrorIs(t, err, expectedError)
 }

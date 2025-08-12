@@ -104,7 +104,7 @@ func (h *siriusEventHandler) Handle(ctx context.Context, factory factory, cloudW
 			return fmt.Errorf("failed to instantiaite lpaStoreClient: %w", err)
 		}
 
-		return handleCertificateProviderIdentityCheckedFailed(ctx, lpaStoreClient, notifyClient, bundle, factory.DonorStartURL(), cloudWatchEvent)
+		return handleCertificateProviderIdentityCheckedFailed(ctx, lpaStoreClient, notifyClient, factory.EventClient(), bundle, factory.DonorStartURL(), cloudWatchEvent)
 	default:
 		return fmt.Errorf("unknown sirius event")
 	}
@@ -444,15 +444,24 @@ func handleChangeConfirmed(ctx context.Context, client dynamodbClient, certifica
 	return nil
 }
 
-func handleCertificateProviderIdentityCheckedFailed(ctx context.Context, lpaStoreClient LpaStoreClient, notifyClient NotifyClient, bundle Bundle, donorStartURL string, event *events.CloudWatchEvent) error {
+func handleCertificateProviderIdentityCheckedFailed(ctx context.Context, lpaStoreClient LpaStoreClient, notifyClient NotifyClient, eventClient EventClient, bundle Bundle, donorStartURL string, e *events.CloudWatchEvent) error {
 	var v uidEvent
-	if err := json.Unmarshal(event.Detail, &v); err != nil {
+	if err := json.Unmarshal(e.Detail, &v); err != nil {
 		return fmt.Errorf("failed to unmarshal detail: %w", err)
 	}
 
 	lpa, err := lpaStoreClient.Lpa(ctx, v.UID)
 	if err != nil {
 		return fmt.Errorf("failed to retrieve lpa: %w", err)
+	}
+
+	if lpa.Donor.Channel.IsPaper() {
+		return eventClient.SendLetterRequested(ctx, event.LetterRequested{
+			UID:        lpa.LpaUID,
+			LetterType: "INFORM_DONOR_CERTIFICATE_PROVIDER_HAS_NOT_CONFIRMED_IDENTITY",
+			ActorType:  actor.TypeDonor,
+			ActorUID:   lpa.Donor.UID,
+		})
 	}
 
 	localizer := bundle.For(lpa.Donor.ContactLanguagePreference)
