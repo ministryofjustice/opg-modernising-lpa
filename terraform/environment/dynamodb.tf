@@ -230,6 +230,11 @@ resource "aws_dynamodb_table" "sessions_table" {
     enabled        = true
   }
 
+  #tfsec:ignore:aws-dynamodb-enable-recovery
+  point_in_time_recovery {
+    enabled = false
+  }
+
   lifecycle {
     ignore_changes = [replica]
   }
