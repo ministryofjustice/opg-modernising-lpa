@@ -1,5 +1,5 @@
 resource "aws_backup_vault" "main" {
-  name     = "${data.aws_region.current.name}-${data.aws_default_tags.current.tags.account-name}-backup-vault"
+  name     = "${data.aws_region.current.region}-${data.aws_default_tags.current.tags.account-name}-backup-vault"
   provider = aws.region
 }
 

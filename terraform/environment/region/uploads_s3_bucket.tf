@@ -1,10 +1,10 @@
 data "aws_ssm_parameter" "replication_encryption_key" {
-  name     = "/modernising-lpa/reduced_fees_uploads_bucket_kms_key_arn/${var.reduced_fees.target_environment}/${data.aws_region.current.name}"
+  name     = "/modernising-lpa/reduced_fees_uploads_bucket_kms_key_arn/${var.reduced_fees.target_environment}/${data.aws_region.current.region}"
   provider = aws.management
 }
 
 data "aws_ssm_parameter" "replication_bucket_arn" {
-  name     = "/modernising-lpa/reduced_fees_uploads_bucket_arn/${var.reduced_fees.target_environment}/${data.aws_region.current.name}"
+  name     = "/modernising-lpa/reduced_fees_uploads_bucket_arn/${var.reduced_fees.target_environment}/${data.aws_region.current.region}"
   provider = aws.management
 }
 
@@ -16,7 +16,7 @@ data "aws_ecr_repository" "s3_create_batch_replication_jobs" {
 module "uploads_s3_bucket" {
   source = "./modules/uploads_s3_bucket"
 
-  bucket_name                                      = "uploads-${data.aws_default_tags.current.tags.application}-${data.aws_default_tags.current.tags.environment-name}-${data.aws_region.current.name}"
+  bucket_name                                      = "uploads-${data.aws_default_tags.current.tags.application}-${data.aws_default_tags.current.tags.environment-name}-${data.aws_region.current.region}"
   force_destroy                                    = data.aws_default_tags.current.tags.environment-name != "production" ? true : false
   events_received_lambda_function                  = module.event_received.lambda_function
   create_s3_batch_replication_jobs_lambda_iam_role = var.iam_roles.create_s3_batch_replication_jobs_lambda

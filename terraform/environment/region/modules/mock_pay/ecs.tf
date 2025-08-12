@@ -148,7 +148,7 @@ locals {
         logDriver = "awslogs",
         options = {
           awslogs-group         = var.ecs_application_log_group_name,
-          awslogs-region        = data.aws_region.current.name,
+          awslogs-region        = data.aws_region.current.region,
           awslogs-stream-prefix = data.aws_default_tags.current.tags.environment-name
           mode                  = "non-blocking"
           max-buffer-size       = "25m"

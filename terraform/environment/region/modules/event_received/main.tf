@@ -223,7 +223,7 @@ data "aws_kms_alias" "aws_lambda" {
 }
 
 locals {
-  policy_region_prefix = lower(replace(data.aws_region.current.name, "-", ""))
+  policy_region_prefix = lower(replace(data.aws_region.current.region, "-", ""))
 }
 
 data "aws_iam_policy_document" "event_received" {

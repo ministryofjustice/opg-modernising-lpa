@@ -16,7 +16,7 @@ data "aws_ssm_parameter" "opg_metrics_arn" {
 }
 
 resource "aws_iam_role_policy" "opg_metrics" {
-  name     = "opg-metrics-${data.aws_region.current.name}"
+  name     = "opg-metrics-${data.aws_region.current.region}"
   role     = var.opg_metrics_api_destination_role.name
   policy   = data.aws_iam_policy_document.opg_metrics.json
   provider = aws.region

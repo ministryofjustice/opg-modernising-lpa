@@ -7,7 +7,7 @@ data "pagerduty_service" "main" {
 }
 
 resource "pagerduty_service_integration" "ecs_autoscaling_alarms" {
-  name    = "Modernising LPA ${data.aws_default_tags.current.tags.environment-name} ${data.aws_region.current.name} ECS AutoScaling Alarm - Maximum Reached"
+  name    = "Modernising LPA ${data.aws_default_tags.current.tags.environment-name} ${data.aws_region.current.region} ECS AutoScaling Alarm - Maximum Reached"
   service = data.pagerduty_service.main.id
   vendor  = data.pagerduty_vendor.cloudwatch.id
 }
@@ -27,7 +27,7 @@ data "aws_sns_topic" "cloudwatch_application_insights" {
 
 resource "pagerduty_service_integration" "cloudwatch_application_insights" {
   count   = var.cloudwatch_application_insights_enabled ? 1 : 0
-  name    = "Modernising LPA ${data.aws_default_tags.current.tags.environment-name} ${data.aws_region.current.name} Cloudwatch Application Insights Ops Item Alarm"
+  name    = "Modernising LPA ${data.aws_default_tags.current.tags.environment-name} ${data.aws_region.current.region} Cloudwatch Application Insights Ops Item Alarm"
   service = data.pagerduty_service.main.id
   vendor  = data.pagerduty_vendor.cloudwatch.id
 }
@@ -63,7 +63,7 @@ resource "aws_sns_topic" "event_alarms" {
 }
 
 resource "pagerduty_service_integration" "event_alarms" {
-  name    = "Modernising LPA ${data.aws_default_tags.current.tags.environment-name} ${data.aws_region.current.name} Eventbridge Event Alarm"
+  name    = "Modernising LPA ${data.aws_default_tags.current.tags.environment-name} ${data.aws_region.current.region} Eventbridge Event Alarm"
   service = data.pagerduty_service.main.id
   vendor  = data.pagerduty_vendor.cloudwatch.id
 }
@@ -77,7 +77,7 @@ resource "aws_sns_topic_subscription" "event_alarms" {
 }
 
 resource "pagerduty_service_integration" "environment_event_bus_dlq_alarms" {
-  name    = "Modernising LPA ${data.aws_default_tags.current.tags.environment-name} ${data.aws_region.current.name} Eventbus DLQ Alarms"
+  name    = "Modernising LPA ${data.aws_default_tags.current.tags.environment-name} ${data.aws_region.current.region} Eventbus DLQ Alarms"
   service = data.pagerduty_service.main.id
   vendor  = data.pagerduty_vendor.cloudwatch.id
 }

@@ -1,5 +1,5 @@
 resource "aws_iam_role_policy" "execution_role_region" {
-  name     = "${data.aws_default_tags.current.tags.environment-name}-execution-role-${data.aws_region.current.name}"
+  name     = "${data.aws_default_tags.current.tags.environment-name}-execution-role-${data.aws_region.current.region}"
   policy   = data.aws_iam_policy_document.execution_role_region.json
   role     = var.iam_roles.ecs_execution_role.id
   provider = aws.global

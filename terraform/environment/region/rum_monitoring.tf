@@ -1,5 +1,5 @@
 data "aws_iam_role" "rum_monitor_unauthenticated" {
-  name     = "RUM-Monitor-Unauthenticated-${data.aws_region.current.name}"
+  name     = "RUM-Monitor-Unauthenticated-${data.aws_region.current.region}"
   provider = aws.global
 }
 
@@ -15,7 +15,7 @@ data "aws_iam_policy_document" "rum_monitor_unauthenticated" {
   statement {
     effect = "Allow"
     resources = [
-      "arn:aws:rum:${data.aws_region.current.name}:${data.aws_caller_identity.current.account_id}:appmonitor/${data.aws_default_tags.current.tags.environment-name}",
+      "arn:aws:rum:${data.aws_region.current.region}:${data.aws_caller_identity.current.account_id}:appmonitor/${data.aws_default_tags.current.tags.environment-name}",
     ]
     actions = [
       "rum:PutRumEvents",
@@ -32,7 +32,7 @@ resource "aws_secretsmanager_secret" "rum_monitor_application_id" {
 }
 
 data "aws_secretsmanager_secret_version" "rum_monitor_identity_pool_id" {
-  secret_id = "rum-monitor-identity-pool-id-${data.aws_region.current.name}"
+  secret_id = "rum-monitor-identity-pool-id-${data.aws_region.current.region}"
   provider  = aws.region
 }
 
