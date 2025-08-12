@@ -53,6 +53,10 @@ resource "aws_service_discovery_service" "mock_pay" {
     routing_policy = "MULTIVALUE"
   }
 
+  health_check_custom_config {
+    failure_threshold = 3
+  }
+
   provider = aws.region
 }
 
