@@ -29,7 +29,7 @@ resource "aws_ecs_service" "mock_pay" {
   }
 
   lifecycle {
-    create_before_destroy = true
+    create_before_destroy = false
   }
 
   timeouts {
