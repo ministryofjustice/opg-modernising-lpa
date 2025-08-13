@@ -1044,7 +1044,7 @@
     "addCorrespondent": "Add a correspondent",
     "wouldYouLikeToAddCorrespondent": "Would you like to add a correspondent?",
     "supporterAddCorrespondentContent": "<p class=\"govuk-body\">A correspondent is someone who will receive any communication from the Office of the Public Guardian (OPG) instead of the donor.</p><p class=\"govuk-body\">The donor will still be contacted by OPG when the LPA registration process can begin.</p>",
-    "donorAddCorrespondentContent": "<p class=\"govuk-body\">A correspondent is someone who will receive any communication from the Office of the Public Guardian (OPG) instead of you.</p><p class=\"govuk-body\">You will still be contacted by OPG when the LPA registration process can begin.</p>",
+    "donorAddCorrespondentContent": "<p class=\"govuk-body\">You can choose another person to get updates about your LPA from the Office of the Public Guardian (OPG) instead of you.</p><p class=\"govuk-body\">This person could be:</p><ul class=\"govuk-list govuk-list--bullet\"><li>a trusted friend</li><li>a professional, for example, a solicitor</li></ul><p class=\"govuk-body\">A correspondent can be helpful if you think you’ll need support or advice managing your LPA paperwork.</p><p class=\"govuk-body\">You’ll get an official notification from OPG when your LPA is ready to be registered.</p><p class=\"govuk-body\">You can delete or change your correspondent if you need to.</p>",
     "enterCorrespondentDetails": "Enter the correspondent’s details",
     "organisationOptional": "Organisation (optional)",
     "phoneNumberOptional": "Phone number (optional)",
@@ -1916,5 +1916,7 @@
     "manageLPAsContent": "<p class=\"govuk-body app-two-thirds-fixed-desktop\">This is your LPA dashboard. If you are a donor, you can view and complete tasks on LPAs in progress, delete or revoke LPAs, and access registered LPAs.</p><p class=\"govuk-body app-two-thirds-fixed-desktop\">If you are an attorney or certificate provider, you can view and complete tasks on LPAs in progress.</p>",
     "makeOrAddLPAsContent": "This page allows you to either make a new LPA, or add an LPA using the access code you received via email from the Office of the Public Guardian (OPG).",
     "youHaveSignedContactToChangeDetails": "You have signed your LPA. You will now need to <a href=\"{{.ContactLink}}\" class=\"govuk-link\" target=\"_blank\" rel=\"noreferrer noopener\">contact the Office of the Public Guardian (opens in new tab)</a> to make changes to your contact details.",
-    "addressInYourLpa": "Address in your LPA"
+    "addressInYourLpa": "Address in your LPA",
+    "yesWouldLikeToSendUpdatesToCorrespondent": "Yes, I would like OPG to send updates about my LPA to my correspondent",
+    "noWouldLikeToSendUpdatesToMe": "No, I would like OPG to send updates about my LPA to me"
 }

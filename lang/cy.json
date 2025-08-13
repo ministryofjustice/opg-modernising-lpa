@@ -2016,5 +2016,7 @@
     "manageLPAsContent": "<p class=\"govuk-body app-two-thirds-fixed-desktop\">Welsh</p><p class=\"govuk-body app-two-thirds-fixed-desktop\">Welsh</p>",
     "makeOrAddLPAsContent": "Welsh",
     "youHaveSignedContactToChangeDetails": "Welsh <a href=\"{{.ContactLink}}\" class=\"govuk-link\" target=\"_blank\" rel=\"noreferrer noopener\">Welsh</a>",
-    "addressInYourLpa": "Welsh"
+    "addressInYourLpa": "Welsh",
+    "yesWouldLikeToSendUpdatesToCorrespondent": "Welsh",
+    "noWouldLikeToSendUpdatesToMe": "Welsh"
 }
