@@ -54,6 +54,7 @@ variable "container_version" {
 variable "ingress_allow_list_cidr" {
   type        = list(string)
   description = "List of CIDR ranges permitted to access the service"
+  sensitive   = true
 }
 
 variable "alb_deletion_protection_enabled" {
