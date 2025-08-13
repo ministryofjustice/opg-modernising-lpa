@@ -12,13 +12,12 @@
             {{ else }}
                 {{ trHtml .App "donorAddCorrespondentContent" }}
             {{ end }}
-            
+
             <form novalidate method="post">
                 {{ template "radios-fieldset" (fieldset . .Form.FieldName .Form.YesNo.String
                     (legend "wouldYouLikeToAddCorrespondent" "govuk-fieldset__legend--m")
-                    (item .Form.Options.Yes.String "yes")
-                    (item .Form.Options.No.String "no")
-                    ) }}
+                    (item .Form.Options.Yes.String "yesWouldLikeToSendUpdatesToCorrespondent")
+                    (item .Form.Options.No.String "noWouldLikeToSendUpdatesToMe")) }}
 
                 {{ template "buttons" (button .App "saveAndContinue") }}
                 {{ template "csrf-field" . }}
