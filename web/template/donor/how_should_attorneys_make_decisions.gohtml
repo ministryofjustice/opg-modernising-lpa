@@ -44,7 +44,7 @@
                                     <label class="govuk-label" for="f-mixed-details" {{ if .Errors.Has "mixed-details" }}aria-describedby="mixed-details-error"{{ end }}>
                                         {{ tr .App "useTheTextBoxToAddRestrictionForAttorneys" }}
                                     </label>
-                                    <p class="govuk-body govuk-!-margin-top-4"><a class="govuk-link" href="{{ (link .App global.Paths.HowDecisionsAreMadeWithMultipleAttorneys.Format) }}">{{ tr .App "seeExamplesOfRestrictionsInstructingAttorneys" }}</a>.</p>
+                                    <p class="govuk-body govuk-!-margin-top-4"><a class="govuk-link" href="{{ (link .App global.Paths.HowDecisionsAreMadeWithMultipleAttorneys.Format) }}#jointly-for-some-decisions-and-jointly-and-severally-attorneys-must-agree-and-act-together-for-some-decisions" target="_blank" rel="noreferrer noopener">{{ tr .App "seeExamplesOfRestrictionsInstructingAttorneys" }}</a>.</p>
                                     {{ template "error-message" (errorMessage . "mixed-details") }}
                                     <textarea class="govuk-textarea {{ if .Errors.Has "mixed-details" }}govuk-input--error{{ end }}" id="f-mixed-details" name="mixed-details" rows="10">{{ .Form.DecisionsDetails }}</textarea>
                                 </div>
