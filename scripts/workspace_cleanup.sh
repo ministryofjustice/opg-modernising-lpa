@@ -31,8 +31,21 @@ do
       if ! terraform destroy -auto-approve; then
         TF_EXIT_CODE=1
       fi
-        terraform workspace select default
-        terraform workspace delete "$workspace"
+      aws logs delete-log-group --log-group-name /aws/ecs/containerinsights/"$workspace"/performance
+      # response=$(awscurl \
+      #   "${{ secrets.DEVELOPMENT_OPENSEARCH_COLLECTION_ENDPOINT }}/lpas_v2_$workspace" \
+      #   --request DELETE \
+      #   --region eu-west-1 \
+      #   --service aoss)
+      #   if [[ $response == *'"acknowledged":true'* ]]; then
+      #     echo "Request successful."
+      #   elif [[ $response == *'"status":404'* ]]; then
+      #     echo "Request successful but index not found."
+      #   else
+      #     exit 1
+      #   fi
+      terraform workspace select default
+      terraform workspace delete "$workspace"
       ;;
   esac
 done
