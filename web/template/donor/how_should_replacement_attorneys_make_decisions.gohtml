@@ -34,7 +34,7 @@
                 </label>
 
                 <div id="decision-type-2-item-hint" class="govuk-radios__hint">
-                  <p class="govuk-body">{{ tr .App "jointlyHintReplacementAttorneys" }}</p>
+                  <p class="govuk-body">{{ trFormatHtml .App "jointlyHintReplacementAttorneys" "ReplacementAttorneysGuidanceLink" (link .App global.Paths.ReplacementAttorneys.Format) }}</p>
                 </div>
               </div>
               <div class="govuk-radios__item govuk-!-margin-top-6">
