@@ -2,6 +2,7 @@ package voucherpage
 
 import (
 	"fmt"
+	"log"
 	"net/http"
 	"net/url"
 
@@ -45,6 +46,7 @@ func IdentityWithOneLoginCallback(oneLoginClient OneLoginClient, sessionStore Se
 			return fmt.Errorf("error parsing identity claim: %w", err)
 		}
 
+		nameMatches := userData.MatchName(provided.FirstNames, provided.LastName)
 		provided.IdentityUserData = userData
 
 		if userData.Status.IsConfirmed() {
@@ -52,7 +54,8 @@ func IdentityWithOneLoginCallback(oneLoginClient OneLoginClient, sessionStore Se
 			provided.LastName = userData.LastName
 		}
 
-		if provided.NameMatches(lpa).IsNone() {
+		log.Println(nameMatches, provided.NameMatches(lpa).IsNone())
+		if nameMatches || provided.NameMatches(lpa).IsNone() {
 			provided.Tasks.ConfirmYourIdentity = task.IdentityStateCompleted
 		}
 
