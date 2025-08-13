@@ -33,7 +33,7 @@ describe('Confirm your identity', () => {
         cy.contains('I’m vouching for someone');
     });
 
-    it('warns when matches another actor', () => {
+    it('can be confirmed when name matching other actor has already been checked', () => {
         cy.visitLpa('/your-name');
         cy.get('#f-first-names').invoke('val', 'Charlie');
         cy.get('#f-last-name').invoke('val', 'Cooper');
@@ -50,12 +50,11 @@ describe('Confirm your identity', () => {
             cy.contains('button', 'Continue').click();
         });
 
-        cy.url().should('contain', '/confirm-allowed-to-vouch');
+        cy.url().should('contain', '/one-login-identity-details');
         cy.checkA11yApp();
-        cy.contains('Your confirmed identity details match someone');
+        cy.contains('You have successfully confirmed your identity');
 
-        cy.contains('label', 'Yes').click();
-        cy.contains('button', 'Continue').click();
+        cy.contains('a', 'Continue').click();
         cy.get('ul li:nth-child(3)').should('contain', 'Completed');
     });
 
