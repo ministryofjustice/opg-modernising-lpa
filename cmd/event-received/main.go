@@ -2,7 +2,6 @@
 package main
 
 import (
-	"cmp"
 	"context"
 	"encoding/json"
 	"errors"
@@ -25,7 +24,6 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/localize"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/lpastore/lpadata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/notify"
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/pay"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/random"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/s3"
@@ -44,21 +42,21 @@ const (
 var (
 	tableName                   = os.Getenv("LPAS_TABLE")
 	appPublicURL                = os.Getenv("APP_PUBLIC_URL")
-	donorStartURL               = cmp.Or(os.Getenv("DONOR_START_URL"), appPublicURL+page.PathStart.Format())
-	certificateProviderStartURL = cmp.Or(os.Getenv("CERTIFICATE_PROVIDER_START_URL"), appPublicURL+page.PathCertificateProviderStart.Format())
-	attorneyStartURL            = cmp.Or(os.Getenv("ATTORNEY_START_URL"), appPublicURL+page.PathAttorneyStart.Format())
+	donorStartURL               = os.Getenv("DONOR_START_URL")
+	certificateProviderStartURL = os.Getenv("CERTIFICATE_PROVIDER_START_URL")
+	attorneyStartURL            = os.Getenv("ATTORNEY_START_URL")
 	awsBaseURL                  = os.Getenv("AWS_BASE_URL")
 	notifyBaseURL               = os.Getenv("GOVUK_NOTIFY_BASE_URL")
 	evidenceBucketName          = os.Getenv("UPLOADS_S3_BUCKET_NAME")
 	uidBaseURL                  = os.Getenv("UID_BASE_URL")
 	lpaStoreBaseURL             = os.Getenv("LPA_STORE_BASE_URL")
 	lpaStoreSecretARN           = os.Getenv("LPA_STORE_SECRET_ARN")
-	eventBusName                = cmp.Or(os.Getenv("EVENT_BUS_NAME"), "default")
+	eventBusName                = os.Getenv("EVENT_BUS_NAME")
 	searchEndpoint              = os.Getenv("SEARCH_ENDPOINT")
-	searchIndexName             = cmp.Or(os.Getenv("SEARCH_INDEX_NAME"), "lpas")
+	searchIndexName             = os.Getenv("SEARCH_INDEX_NAME")
 	searchIndexingEnabled       = os.Getenv("SEARCH_INDEXING_DISABLED") != "1"
 	xrayEnabled                 = os.Getenv("XRAY_ENABLED") == "1"
-	kmsKeyAlias                 = cmp.Or(os.Getenv("S3_UPLOADS_KMS_KEY_ALIAS"), "alias/custom-key")
+	kmsKeyAlias                 = os.Getenv("S3_UPLOADS_KMS_KEY_ALIAS")
 	environment                 = os.Getenv("ENVIRONMENT")
 
 	cfg        aws.Config
