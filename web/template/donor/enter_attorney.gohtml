@@ -16,7 +16,8 @@
               </p>
           {{ end }}
 
-          {{ template "details" (details . "whoWouldYouLikeToBeTheAttorneysDetailsTitle" (printf "whoWouldYouLikeToBeTheAttorneysDetailsContent:%s" .Donor.Type.String) false) }}
+          {{ $detailsContent := trFormat .App (printf "whoWouldYouLikeToBeTheAttorneysDetailsContent:%s" .Donor.Type.String) "AttorneysGuidanceLink" (link .App global.Paths.HowToSelectAttorneysForAnLPA.Format) "ReplacementAttorneysGuidanceLink" (link .App global.Paths.ReplacementAttorneys.Format) }}
+          {{ template "details" (details . "whoWouldYouLikeToBeTheAttorneysDetailsTitle" $detailsContent false) }}
 
           <p class="govuk-body">{{ tr .App "youMustEnterTheirNameAsItAppears" }}</p>
 
