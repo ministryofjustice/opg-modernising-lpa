@@ -25,13 +25,19 @@ func TestGetIdentityWithOneLoginCallback(t *testing.T) {
 	userData := identity.UserData{Status: identity.StatusConfirmed, FirstNames: "John", LastName: "Doe", CheckedAt: now}
 
 	testcases := map[string]struct {
-		lpa            *lpadata.Lpa
-		updatedVoucher *voucherdata.Provided
-		redirect       voucher.Path
+		lpa      *lpadata.Lpa
+		provided *voucherdata.Provided
+		updated  *voucherdata.Provided
+		redirect voucher.Path
 	}{
 		"confirmed": {
-			lpa: &lpadata.Lpa{LpaUID: "lpa-uid", Voucher: lpadata.Voucher{FirstNames: "John", LastName: "Doe"}},
-			updatedVoucher: &voucherdata.Provided{
+			lpa: &lpadata.Lpa{LpaUID: "lpa-uid"},
+			provided: &voucherdata.Provided{
+				LpaID:      "lpa-id",
+				FirstNames: "John",
+				LastName:   "DOE",
+			},
+			updated: &voucherdata.Provided{
 				LpaID:            "lpa-id",
 				FirstNames:       "John",
 				LastName:         "Doe",
@@ -42,17 +48,40 @@ func TestGetIdentityWithOneLoginCallback(t *testing.T) {
 		},
 		"matches other actor": {
 			lpa: &lpadata.Lpa{
-				LpaUID:  "lpa-uid",
-				Donor:   lpadata.Donor{FirstNames: "John", LastName: "Doe"},
-				Voucher: lpadata.Voucher{FirstNames: "John", LastName: "Doe"},
+				LpaUID: "lpa-uid",
+				Donor:  lpadata.Donor{FirstNames: "John", LastName: "Doe"},
 			},
-			updatedVoucher: &voucherdata.Provided{
+			provided: &voucherdata.Provided{
+				LpaID:      "lpa-id",
+				FirstNames: "John",
+				LastName:   "Smith",
+			},
+			updated: &voucherdata.Provided{
 				LpaID:            "lpa-id",
 				FirstNames:       "John",
 				LastName:         "Doe",
 				IdentityUserData: userData,
 			},
 			redirect: voucher.PathConfirmAllowedToVouch,
+		},
+		"matches other actor already checked": {
+			lpa: &lpadata.Lpa{
+				LpaUID: "lpa-uid",
+				Donor:  lpadata.Donor{FirstNames: "John", LastName: "Doe"},
+			},
+			provided: &voucherdata.Provided{
+				LpaID:      "lpa-id",
+				FirstNames: "John",
+				LastName:   "Doe",
+			},
+			updated: &voucherdata.Provided{
+				LpaID:            "lpa-id",
+				FirstNames:       "John",
+				LastName:         "Doe",
+				IdentityUserData: userData,
+				Tasks:            voucherdata.Tasks{ConfirmYourIdentity: task.IdentityStateCompleted},
+			},
+			redirect: voucher.PathOneLoginIdentityDetails,
 		},
 	}
 
@@ -68,7 +97,7 @@ func TestGetIdentityWithOneLoginCallback(t *testing.T) {
 
 			voucherStore := newMockVoucherStore(t)
 			voucherStore.EXPECT().
-				Put(r.Context(), tc.updatedVoucher).
+				Put(r.Context(), tc.updated).
 				Return(nil)
 
 			sessionStore := newMockSessionStore(t)
@@ -87,11 +116,7 @@ func TestGetIdentityWithOneLoginCallback(t *testing.T) {
 				ParseIdentityClaim(userInfo).
 				Return(userData, nil)
 
-			err := IdentityWithOneLoginCallback(oneLoginClient, sessionStore, voucherStore, lpaStoreResolvingService, nil)(testAppData, w, r, &voucherdata.Provided{
-				LpaID:      "lpa-id",
-				FirstNames: "John",
-				LastName:   "Doe",
-			})
+			err := IdentityWithOneLoginCallback(oneLoginClient, sessionStore, voucherStore, lpaStoreResolvingService, nil)(testAppData, w, r, tc.provided)
 			resp := w.Result()
 
 			assert.Nil(t, err)
