@@ -1,7 +1,6 @@
 package main
 
 import (
-	"cmp"
 	"context"
 	"fmt"
 	"log/slog"
@@ -35,12 +34,12 @@ import (
 
 var (
 	awsBaseURL   = os.Getenv("AWS_BASE_URL")
-	eventBusName = cmp.Or(os.Getenv("EVENT_BUS_NAME"), "default")
+	eventBusName = os.Getenv("EVENT_BUS_NAME")
 	// TODO remove in MLPAB-2690
 	metricsEnabled              = os.Getenv("METRICS_ENABLED") == "1"
 	notifyBaseURL               = os.Getenv("GOVUK_NOTIFY_BASE_URL")
 	searchEndpoint              = os.Getenv("SEARCH_ENDPOINT")
-	searchIndexName             = cmp.Or(os.Getenv("SEARCH_INDEX_NAME"), "lpas")
+	searchIndexName             = os.Getenv("SEARCH_INDEX_NAME")
 	searchIndexingEnabled       = os.Getenv("SEARCH_INDEXING_DISABLED") != "1"
 	tableName                   = os.Getenv("LPAS_TABLE")
 	xrayEnabled                 = os.Getenv("XRAY_ENABLED") == "1"
