@@ -2018,5 +2018,10 @@
     "addressInYourLpa": "Welsh",
     "enterYourCompanyNumber": "Welsh",
     "enterYourCompanyNumberHint": "Welsh",
-    "yourCompanyNumber": "Welsh"
+    "yourCompanyNumber": "Welsh",
+    "yesWouldLikeToSendUpdatesToCorrespondent": "Welsh",
+    "noWouldLikeToSendUpdatesToMe": "Welsh",
+    "addCorrespondentForThisLpa": "Welsh",
+    "yesShouldSendUpdatesToCorrespondent": "Welsh",
+    "noShouldSendUpdatesToDonor": "Welsh"
 }

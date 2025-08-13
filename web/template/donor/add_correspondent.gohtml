@@ -7,18 +7,25 @@
         <div class="govuk-grid-column-two-thirds">
             <h1 class="govuk-heading-xl">{{ tr .App "addCorrespondent" }}</h1>
 
+            {{ $content := "donorAddCorrespondentContent" }}
+            {{ $legend := "wouldYouLikeToAddCorrespondent" }}
+            {{ $yes := "yesWouldLikeToSendUpdatesToCorrespondent" }}
+            {{ $no := "noWouldLikeToSendUpdatesToMe" }}
+
             {{ if .App.SupporterData }}
-                {{ trHtml .App "supporterAddCorrespondentContent" }}
-            {{ else }}
-                {{ trHtml .App "donorAddCorrespondentContent" }}
+                {{ $content = "supporterAddCorrespondentContent" }}
+                {{ $legend = "addCorrespondentForThisLpa" }}
+                {{ $yes = "yesShouldSendUpdatesToCorrespondent" }}
+                {{ $no = "noShouldSendUpdatesToDonor" }}
             {{ end }}
-            
+
+            {{ trHtml .App $content }}
+
             <form novalidate method="post">
                 {{ template "radios-fieldset" (fieldset . .Form.FieldName .Form.YesNo.String
-                    (legend "wouldYouLikeToAddCorrespondent" "govuk-fieldset__legend--m")
-                    (item .Form.Options.Yes.String "yes")
-                    (item .Form.Options.No.String "no")
-                    ) }}
+                    (legend $legend "govuk-fieldset__legend--m")
+                    (item .Form.Options.Yes.String $yes)
+                    (item .Form.Options.No.String $no)) }}
 
                 {{ template "buttons" (button .App "saveAndContinue") }}
                 {{ template "csrf-field" . }}
