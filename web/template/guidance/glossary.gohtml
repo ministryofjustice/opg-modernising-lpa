@@ -24,7 +24,7 @@
                 <h2 class="govuk-heading-l" id="{{ lowerFirst $letter }}-section">{{ $letter }}</h2>
 
                 {{ $letterContentKey := printf "%s%s" "glossary:" $letter }}
-                {{ trFormatHtml $.App $letterContentKey "AdvanceDecisionLink" "#" "ChoosingAttorneysLink" (link $.App global.Paths.HowToSelectAttorneysForAnLPA.Format) "MultipleAttorneysDecisionsLink" (link $.App global.Paths.HowDecisionsAreMadeWithMultipleAttorneys.Format) "TwoTypesOfLPAsLink" (link $.App global.Paths.TheTwoTypesOfLPA.Format) "LifeSustainingTreatmentLink" (link $.App global.Paths.UnderstandingLifeSustainingTreatment.Format) "MentalCapacityLink" (link $.App global.Paths.UnderstandingMentalCapacity.Format) "ExternalMentalCapacityLink" "#" "OPGGovernanceLink" "#" }}
+                {{ trFormatHtml $.App $letterContentKey "AdvanceDecisionLink" "#" "ChoosingAttorneysLink" (link $.App global.Paths.HowToSelectAttorneysForAnLPA.Format) "MultipleAttorneysDecisionsLink" (link $.App global.Paths.HowDecisionsAreMadeWithMultipleAttorneys.Format) "TwoTypesOfLPAsLink" (link $.App global.Paths.TheTwoTypesOfLPA.Format) "LifeSustainingTreatmentLink" (link $.App global.Paths.UnderstandingLifeSustainingTreatment.Format) "MentalCapacityLink" (link $.App global.Paths.UnderstandingMentalCapacity.Format) "ExternalMentalCapacityLink" "#" "OPGGovernanceLink" "#" "ContactOPGLink" (link $.App global.Paths.ContactTheOfficeOfThePublicGuardian.Format) }}
 
                 <hr class="govuk-section-break govuk-section-break--l govuk-section-break--visible">
             {{ end }}
