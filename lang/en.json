@@ -1042,8 +1042,8 @@
     "youAreDraftingDonorsTypeLpa": "You are drafting <span class=\"govuk-!-font-weight-bold\">{{possessive .DonorFullName }} {{lowerFirst .LpaType}}</span> LPA",
     "addCorrespondent": "Add a correspondent",
     "wouldYouLikeToAddCorrespondent": "Would you like to add a correspondent?",
-    "supporterAddCorrespondentContent": "<p class=\"govuk-body\">A correspondent is someone who will receive any communication from the Office of the Public Guardian (OPG) instead of the donor.</p><p class=\"govuk-body\">The donor will still be contacted by OPG when the LPA registration process can begin.</p>",
-    "donorAddCorrespondentContent": "<p class=\"govuk-body\">A correspondent is someone who will receive any communication from the Office of the Public Guardian (OPG) instead of you.</p><p class=\"govuk-body\">You will still be contacted by OPG when the LPA registration process can begin.</p>",
+    "supporterAddCorrespondentContent": "<p class=\"govuk-body\">The donor can choose another person to get updates about their LPA from the Office of the Public Guardian (OPG) instead of themselves.</p><p class=\"govuk-body\">This person could be:</p><ul class=\"govuk-list govuk-list--bullet\"><li>a trusted friend</li><li>a professional, for example, a solicitor</li></ul><p class=\"govuk-body\">A correspondent can be helpful if you think the donor will need further support or advice managing their LPA paperwork.</p><p class=\"govuk-body\">The donor will get an official notification from OPG when their LPA is ready to be registered.</p><p class=\"govuk-body\">They can delete or change their correspondent if they need to.</p>",
+    "donorAddCorrespondentContent": "<p class=\"govuk-body\">You can choose another person to get updates about your LPA from the Office of the Public Guardian (OPG) instead of you.</p><p class=\"govuk-body\">This person could be:</p><ul class=\"govuk-list govuk-list--bullet\"><li>a trusted friend</li><li>a professional, for example, a solicitor</li></ul><p class=\"govuk-body\">A correspondent can be helpful if you think you’ll need support or advice managing your LPA paperwork.</p><p class=\"govuk-body\">You’ll get an official notification from OPG when your LPA is ready to be registered.</p><p class=\"govuk-body\">You can delete or change your correspondent if you need to.</p>",
     "enterCorrespondentDetails": "Enter the correspondent’s details",
     "organisationOptional": "Organisation (optional)",
     "phoneNumberOptional": "Phone number (optional)",
@@ -1918,5 +1918,7 @@
     "addressInYourLpa": "Address in your LPA",
     "enterYourCompanyNumber": "Enter your company number",
     "enterYourCompanyNumberHint": "You can find this on your Companies House listing",
-    "yourCompanyNumber": "your company number"
+    "yourCompanyNumber": "your company number",
+    "yesWouldLikeToSendUpdatesToCorrespondent": "Yes, I would like OPG to send updates about my LPA to my correspondent",
+    "noWouldLikeToSendUpdatesToMe": "No, I would like OPG to send updates about my LPA to me"
 }
