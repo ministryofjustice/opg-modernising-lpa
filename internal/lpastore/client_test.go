@@ -517,6 +517,10 @@ func TestClientServiceContract(t *testing.T) {
 							"old": matchers.Like("paper"),
 							"new": matchers.Like("online"),
 						}, {
+							"key": matchers.Like("/trustCorporations/0/companyNumber"),
+							"old": matchers.Like(nil),
+							"new": matchers.Like("ABCD1234"),
+						}, {
 							"key": matchers.Like("/trustCorporations/0/signatories/0/firstNames"),
 							"old": matchers.Like(nil),
 							"new": matchers.Like("John"),
