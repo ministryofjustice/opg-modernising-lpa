@@ -49,6 +49,8 @@ type Provided struct {
 	ContactLanguagePreference localize.Lang
 	// Email is the email address returned from OneLogin when the attorney logged in
 	Email string
+	// CompanyNumber is the companies house number of the trust corporation
+	CompanyNumber string
 }
 
 // Signed checks whether the attorney has confirmed and if that confirmation is

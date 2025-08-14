@@ -38,9 +38,8 @@ func EnterTrustCorporation(tmpl template.Template, service AttorneyService, newU
 		data := &enterTrustCorporationData{
 			App: appData,
 			Form: &enterTrustCorporationForm{
-				Name:          trustCorporation.Name,
-				CompanyNumber: trustCorporation.CompanyNumber,
-				Email:         trustCorporation.Email,
+				Name:  trustCorporation.Name,
+				Email: trustCorporation.Email,
 			},
 			LpaID:               provided.LpaID,
 			ChooseAttorneysPath: enterPath.FormatQuery(provided.LpaID, url.Values{"id": {newUID().String()}}),
@@ -52,7 +51,6 @@ func EnterTrustCorporation(tmpl template.Template, service AttorneyService, newU
 
 			if data.Errors.None() {
 				trustCorporation.Name = data.Form.Name
-				trustCorporation.CompanyNumber = data.Form.CompanyNumber
 				trustCorporation.Email = data.Form.Email
 
 				if err := service.PutTrustCorporation(r.Context(), provided, trustCorporation); err != nil {
@@ -68,23 +66,21 @@ func EnterTrustCorporation(tmpl template.Template, service AttorneyService, newU
 }
 
 type enterTrustCorporationForm struct {
-	Name          string
-	CompanyNumber string
-	Email         string
+	Name  string
+	Email string
 }
 
 func readEnterTrustCorporationForm(r *http.Request) *enterTrustCorporationForm {
 	return &enterTrustCorporationForm{
-		Name:          page.PostFormString(r, "name"),
-		CompanyNumber: page.PostFormString(r, "company-number"),
-		Email:         page.PostFormString(r, "email"),
+		Name:  page.PostFormString(r, "name"),
+		Email: page.PostFormString(r, "email"),
 	}
 }
 
 func (f *enterTrustCorporationForm) Validate(isReplacement bool, otherTrustCorporation donordata.TrustCorporation) validation.List {
 	var errors validation.List
 
-	errors.String("name", "companyName", f.Name,
+	errors.String("name", "trustCorporationName", f.Name,
 		validation.Empty())
 
 	if f.Name == otherTrustCorporation.Name {
@@ -92,10 +88,7 @@ func (f *enterTrustCorporationForm) Validate(isReplacement bool, otherTrustCorpo
 
 	}
 
-	errors.String("company-number", "companyNumber", f.CompanyNumber,
-		validation.Empty())
-
-	errors.String("email", "companyEmailAddress", f.Email,
+	errors.String("email", "trustCorporationEmailAddress", f.Email,
 		validation.Email())
 
 	return errors
