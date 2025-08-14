@@ -512,15 +512,15 @@ locals {
         },
         {
           name  = "DONOR_START_URL",
-          value = var.app_env_vars.donor_start_url
+          value = var.app_env_vars.donor_start_url == "" ? "${local.app_url}/start" : var.app_env_vars.donor_start_url
         },
         {
           name  = "CERTIFICATE_PROVIDER_START_URL",
-          value = var.app_env_vars.certificate_provider_start_url
+          value = var.app_env_vars.certificate_provider_start_url == "" ? "${local.app_url}/certificate-provider-start" : var.app_env_vars.certificate_provider_start_url
         },
         {
           name  = "ATTORNEY_START_URL",
-          value = var.app_env_vars.attorney_start_url
+          value = var.app_env_vars.attorney_start_url == "" ? "${local.app_url}/attorney-start" : var.app_env_vars.attorney_start_url
         },
         {
           name  = "USE_TEST_WITNESS_CODE",

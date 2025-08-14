@@ -1,7 +1,6 @@
 package main
 
 import (
-	"cmp"
 	"context"
 	"encoding/json"
 	"fmt"
@@ -81,23 +80,24 @@ func main() {
 
 func run(ctx context.Context, logger *slog.Logger) error {
 	var (
+		webDir = "web"
+
 		devMode                     = os.Getenv("DEV_MODE") == "1"
-		appPublicURL                = cmp.Or(os.Getenv("APP_PUBLIC_URL"), "http://localhost:5050")
-		donorStartURL               = cmp.Or(os.Getenv("DONOR_START_URL"), appPublicURL+page.PathStart.Format())
-		certificateProviderStartURL = cmp.Or(os.Getenv("CERTIFICATE_PROVIDER_START_URL"), appPublicURL+page.PathCertificateProviderStart.Format())
-		attorneyStartURL            = cmp.Or(os.Getenv("ATTORNEY_START_URL"), appPublicURL+page.PathAttorneyStart.Format())
-		authRedirectBaseURL         = cmp.Or(os.Getenv("AUTH_REDIRECT_BASE_URL"), "http://localhost:5050")
-		webDir                      = cmp.Or(os.Getenv("WEB_DIR"), "web")
+		appPublicURL                = os.Getenv("APP_PUBLIC_URL")
+		donorStartURL               = os.Getenv("DONOR_START_URL")
+		certificateProviderStartURL = os.Getenv("CERTIFICATE_PROVIDER_START_URL")
+		attorneyStartURL            = os.Getenv("ATTORNEY_START_URL")
+		authRedirectBaseURL         = os.Getenv("AUTH_REDIRECT_BASE_URL")
 		awsBaseURL                  = os.Getenv("AWS_BASE_URL")
-		clientID                    = cmp.Or(os.Getenv("CLIENT_ID"), "client-id-value")
-		issuer                      = cmp.Or(os.Getenv("ISSUER"), "http://mock-onelogin:8080")
-		identityURL                 = cmp.Or(os.Getenv("IDENTITY_URL"), "http://mock-onelogin:8080")
+		clientID                    = os.Getenv("CLIENT_ID")
+		issuer                      = os.Getenv("ISSUER")
+		identityURL                 = os.Getenv("IDENTITY_URL")
 		dynamoTableLpas             = os.Getenv("DYNAMODB_TABLE_LPAS")
 		dynamoTableSessions         = os.Getenv("DYNAMODB_TABLE_SESSIONS")
-		notifyBaseURL               = cmp.Or(os.Getenv("GOVUK_NOTIFY_BASE_URL"), "http://mock-notify:8080")
-		ordnanceSurveyBaseURL       = cmp.Or(os.Getenv("ORDNANCE_SURVEY_BASE_URL"), "http://mock-os-api:8080")
-		payBaseURL                  = cmp.Or(os.Getenv("GOVUK_PAY_BASE_URL"), "http://mock-pay:8080")
-		port                        = cmp.Or(os.Getenv("APP_PORT"), "8080")
+		notifyBaseURL               = os.Getenv("GOVUK_NOTIFY_BASE_URL")
+		ordnanceSurveyBaseURL       = os.Getenv("ORDNANCE_SURVEY_BASE_URL")
+		payBaseURL                  = os.Getenv("GOVUK_PAY_BASE_URL")
+		port                        = os.Getenv("APP_PORT")
 		xrayEnabled                 = os.Getenv("XRAY_ENABLED") == "1"
 		rumConfig                   = templatefn.RumConfig{
 			GuestRoleArn:      os.Getenv("AWS_RUM_GUEST_ROLE_ARN"),
@@ -106,19 +106,19 @@ func run(ctx context.Context, logger *slog.Logger) error {
 			IdentityPoolID:    os.Getenv("AWS_RUM_IDENTITY_POOL_ID"),
 			ApplicationID:     os.Getenv("AWS_RUM_APPLICATION_ID"),
 		}
-		uidBaseURL            = cmp.Or(os.Getenv("UID_BASE_URL"), "http://mock-uid:8080")
-		lpaStoreBaseURL       = cmp.Or(os.Getenv("LPA_STORE_BASE_URL"), "http://mock-lpa-store:8080")
+		uidBaseURL            = os.Getenv("UID_BASE_URL")
+		lpaStoreBaseURL       = os.Getenv("LPA_STORE_BASE_URL")
 		lpaStoreSecretARN     = os.Getenv("LPA_STORE_SECRET_ARN")
 		metadataURL           = os.Getenv("ECS_CONTAINER_METADATA_URI_V4")
-		oneloginURL           = cmp.Or(os.Getenv("ONELOGIN_URL"), "https://home.integration.account.gov.uk")
-		evidenceBucketName    = cmp.Or(os.Getenv("UPLOADS_S3_BUCKET_NAME"), "evidence")
-		eventBusName          = cmp.Or(os.Getenv("EVENT_BUS_NAME"), "default")
+		oneloginURL           = os.Getenv("ONELOGIN_URL")
+		evidenceBucketName    = os.Getenv("UPLOADS_S3_BUCKET_NAME")
+		eventBusName          = os.Getenv("EVENT_BUS_NAME")
 		searchEndpoint        = os.Getenv("SEARCH_ENDPOINT")
-		searchIndexName       = cmp.Or(os.Getenv("SEARCH_INDEX_NAME"), "lpas")
+		searchIndexName       = os.Getenv("SEARCH_INDEX_NAME")
 		searchIndexingEnabled = os.Getenv("SEARCH_INDEXING_DISABLED") != "1"
 		useURL                = os.Getenv("USE_A_LASTING_POWER_OF_ATTORNEY_URL")
-		kmsKeyAlias           = cmp.Or(os.Getenv("S3_UPLOADS_KMS_KEY_ALIAS"), "alias/custom-key")
-		useTestWitnessCode    = cmp.Or(os.Getenv("USE_TEST_WITNESS_CODE") == "1", false)
+		kmsKeyAlias           = os.Getenv("S3_UPLOADS_KMS_KEY_ALIAS")
+		useTestWitnessCode    = os.Getenv("USE_TEST_WITNESS_CODE") == "1"
 		environment           = os.Getenv("ENVIRONMENT")
 	)
 

@@ -21,18 +21,37 @@ services:
     ports:
       - "5050:8080"
     environment:
+      - APP_PORT=8080
+      - APP_PUBLIC_URL=http://localhost:5050
+      - ATTORNEY_START_URL=http://localhost:5050/attorney-start
+      - AUTH_REDIRECT_BASE_URL=http://localhost:5050
       - AWS_ACCESS_KEY_ID=fakeKeyId
       - AWS_BASE_URL=http://localstack:4566
       - AWS_REGION=eu-west-1
       - AWS_SECRET_ACCESS_KEY=fakeAccessKey
+      - CERTIFICATE_PROVIDER_START_URL=http://localhost:5050/certificate-provider-start
+      - CLIENT_ID=client-id-value
+      - DONOR_START_URL=http://localhost:5050/start
       - DEV_MODE=1
       - DYNAMODB_TABLE_LPAS=Lpas
       - DYNAMODB_TABLE_SESSIONS=Sessions
       - ENVIRONMENT=local
+      - EVENT_BUS_NAME=default
+      - GOVUK_NOTIFY_BASE_URL=http://mock-notify:8080
+      - GOVUK_PAY_BASE_URL=http://mock-pay:8080
+      - IDENTITY_URL=http://mock-onelogin:8080
+      - ISSUER=http://mock-onelogin:8080
+      - LPA_STORE_BASE_URL=http://mock-lpa-store:8080
       - LPA_STORE_SECRET_ARN=lpa-store-jwt-secret-key
+      - ONELOGIN_URL=https://home.integration.account.gov.uk
+      - ORDNANCE_SURVEY_BASE_URL=http://mock-os-api:8080
       - SCHEDULED_RUNNER_PERIOD=1m
+      - S3_UPLOADS_KMS_KEY_ALIAS=alias/custom-key
       - SEARCH_ENDPOINT=http://my-domain.eu-west-1.opensearch.localhost.localstack.cloud:4566
       - SEARCH_INDEXING_DISABLED=0
+      - SEARCH_INDEX_NAME=lpas
+      - UID_BASE_URL=http://mock-uid:8080
+      - UPLOADS_S3_BUCKET_NAME=evidence
       - USE_TEST_WITNESS_CODE=1
 
   event-logger:
@@ -67,31 +86,33 @@ services:
     volumes:
       - "/var/run/docker.sock:/var/run/docker.sock"
     environment:
-      - DOCKER_HOST=unix:///var/run/docker.sock
-      - SERVICES=s3,secretsmanager,sqs,dynamodb,events,kms,lambda,opensearch,scheduler,logs,cloudwatch
-      - DATA_DIR=/tmp/localstack/data
-      - DEBUG=1
+      - APP_PUBLIC_URL=http://localhost:5050
+      - ATTORNEY_START_URL=http://localhost:5050/attorney-start
       - AWS_ACCESS_KEY_ID=fakeKeyId
       - AWS_BASE_URL=http://localstack:4566
       - AWS_REGION=eu-west-1
       - AWS_SECRET_ACCESS_KEY=fakeAccessKey
-      - OPENSEARCH_CUSTOM_BACKEND=http://opensearch:9200
-      - LPAS_TABLE=Lpas
-      - TAG=0.0.0
+      - CERTIFICATE_PROVIDER_START_URL=http://localhost:5050/certificate-provider-start
+      - DATA_DIR=/tmp/localstack/data
+      - DEBUG=1
+      - DOCKER_HOST=unix:///var/run/docker.sock
+      - DONOR_START_URL=http://localhost:5050/start
+      - EVENT_BUS_NAME=default
       - GOVUK_NOTIFY_BASE_URL=http://mock-notify:8080
+      - LPA_STORE_BASE_URL=http://mock-lpa-store:8080
+      - LPA_STORE_SECRET_ARN=lpa-store-jwt-secret-key
+      - LPAS_TABLE=Lpas
+      - METRICS_ENABLED=1
+      - OPENSEARCH_CUSTOM_BACKEND=http://opensearch:9200
+      - S3_UPLOADS_KMS_KEY_ALIAS=alias/custom-key
       - SEARCH_ENDPOINT=http://my-domain.eu-west-1.opensearch.localhost.localstack.cloud:4566
       - SEARCH_INDEXING_DISABLED=0
       - SEARCH_INDEX_NAME=lpas
-      - APP_PUBLIC_URL=http://localhost:5050
-      - UPLOAD_S3_BUCKET=evidence
+      - SERVICES=s3,secretsmanager,sqs,dynamodb,events,kms,lambda,opensearch,scheduler,logs,cloudwatch
+      - TAG=0.0.0
       - UID_BASE_URL=http://mock-uid:8080
+      - UPLOAD_S3_BUCKET=evidence
       - XRAY_ENABLED=0
-      - METRICS_ENABLED=1
-      - LPA_STORE_BASE_URL=http://mock-lpa-store:8080
-      - LPA_STORE_SECRET_ARN=lpa-store-jwt-secret-key
-      - S3_UPLOADS_KMS_KEY_ALIAS=alias/custom-key
-      - CERTIFICATE_PROVIDER_START_URL=http://localhost:5050/certificate-provider-start
-      - ATTORNEY_START_URL=http://localhost:5050/attorney-start
     networks:
       default:
         aliases:
@@ -154,6 +175,8 @@ services:
       context: ..
       dockerfile: docker/mock-os-api/Dockerfile
     container_name: mock-os-api
+    environment:
+      - PORT=8080
 
   mock-pay:
     build:

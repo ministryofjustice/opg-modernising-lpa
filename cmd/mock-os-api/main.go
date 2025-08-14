@@ -2,14 +2,13 @@
 package main
 
 import (
-	"cmp"
 	"log"
 	"net/http"
 	"os"
 )
 
 func main() {
-	port := cmp.Or(os.Getenv("PORT"), "8080")
+	port := os.Getenv("PORT")
 
 	http.HandleFunc("/search/places/v1/postcode", func(w http.ResponseWriter, r *http.Request) {
 		postcode := r.URL.Query().Get("postcode")
