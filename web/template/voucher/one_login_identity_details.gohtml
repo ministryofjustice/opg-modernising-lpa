@@ -11,10 +11,11 @@
 
             {{ template "identity-details" (card .App .Provided.IdentityUserData) }}
 
-            <form novalidate method="post">
+            {{ if .Provided.Tasks.ConfirmYourIdentity.IsCompleted }}
                 {{ template "buttons" (button .App "continue" "link" (global.Paths.Voucher.TaskList.Format .App.LpaID)) }}
-                {{ template "csrf-field" . }}
-            </form>
+            {{ else }}
+                {{ template "buttons" (button .App "continue" "link" (global.Paths.Voucher.ConfirmAllowedToVouch.Format .App.LpaID)) }}
+            {{ end }}
         </div>
     </div>
 {{ end }}

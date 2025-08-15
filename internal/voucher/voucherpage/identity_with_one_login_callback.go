@@ -72,10 +72,6 @@ func IdentityWithOneLoginCallback(oneLoginClient OneLoginClient, sessionStore Se
 			})
 		}
 
-		if provided.Tasks.ConfirmYourIdentity.IsCompleted() {
-			return voucher.PathOneLoginIdentityDetails.Redirect(w, r, appData, appData.LpaID)
-		}
-
-		return voucher.PathConfirmAllowedToVouch.Redirect(w, r, appData, appData.LpaID)
+		return voucher.PathOneLoginIdentityDetails.Redirect(w, r, appData, appData.LpaID)
 	}
 }
