@@ -11,8 +11,8 @@
         "build:fonts": "mkdir -p web/static/assets/fonts && cp node_modules/govuk-frontend/dist/govuk/assets/fonts/* web/static/assets/fonts",
         "cypress:open": "node_modules/.bin/cypress open",
         "cypress:run": "node_modules/.bin/cypress run -vvv",
-        "cypress:parallel": "cypress-parallel -s cypress:run -t 6 --spec cypress/e2e/**/*.cy.js cypress/smoke/*.cy.js",
-        "cypress:parallel-with-specs": "cypress-parallel -s cypress:run -t 2",
+        "cypress:parallel": "cypress-parallel --no-color -s cypress:run -t 6 --spec cypress/e2e/**/*.cy.js cypress/smoke/*.cy.js 2>&1 | tee ./test-results/cypress-output.txt",
+        "cypress:parallel-with-specs": "cypress-parallel -s cypress:run -t 2 2>&1 | tee ./test-results/cypress-output.txt",
         "test": "jest",
         "playwright": "npx playwright test --headed",
         "playwright:record": "npx playwright codegen https://demo.app.modernising.opg.service.justice.gov.uk/fixtures"

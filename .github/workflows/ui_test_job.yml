@@ -135,8 +135,9 @@ jobs:
           CYPRESS_TEST_ONELOGIN_TOTP_KEY: ${{ secrets.test_onelogin_totp_key }}
           CYPRESS_TEST_ONELOGIN_PASSWORD: ${{ secrets.test_onelogin_password }}
           GITHUB_TOKEN: ${{ secrets.github_access_token }}
-        run:
+        run: |
           yarn run cypress:parallel-with-specs --spec ${{ inputs.specs }}
+          node ./scripts/extract-failed-specs.js
 
       - name: Persist Cypress failure screenshots as artifacts
         if: failure()
