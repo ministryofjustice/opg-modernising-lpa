@@ -132,3 +132,16 @@ func (e PaperDonorCertificateProvidedSMS) smsID(lang localize.Lang) string {
 
 	return "6b3d9a6c-5103-4c16-8c09-6ebaaec58f93"
 }
+
+type OnlineDonorLPASubmissionConfirmation struct {
+	LpaType            string
+	LpaReferenceNumber string
+}
+
+func (e OnlineDonorLPASubmissionConfirmation) smsID(lang localize.Lang) string {
+	if lang.IsCy() {
+		return "87dc8630-0248-41e1-af0e-2963b77e0cf6"
+	}
+
+	return "7e0d73ff-9ee6-444d-b85d-f72ffbe9e7b4"
+}
