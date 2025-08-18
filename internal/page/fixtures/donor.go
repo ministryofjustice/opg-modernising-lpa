@@ -149,6 +149,16 @@ func Donor(
 				App:        appData,
 				Sub:        data.DonorSub,
 				DonorEmail: data.DonorEmail,
+				PaymentStatuses: []string{
+					"",
+					task.PaymentStateNotStarted.String(),
+					task.PaymentStateInProgress.String(),
+					task.PaymentStatePending.String(),
+					task.PaymentStateApproved.String(),
+					task.PaymentStateDenied.String(),
+					task.PaymentStateMoreEvidenceRequired.String(),
+					task.PaymentStateCompleted.String(),
+				},
 				IdStatuses: []string{
 					identity.StatusUnknown.String(),
 					identity.StatusConfirmed.String(),
@@ -872,11 +882,6 @@ func setFixtureData(r *http.Request) FixtureData {
 	r.ParseForm()
 	options := r.Form["options"]
 
-	paymentTaskProgress := r.FormValue("paymentTaskProgress")
-	if slices.Contains(options, "paymentTaskInProgress") {
-		paymentTaskProgress = "InProgress"
-	}
-
 	return FixtureData{
 		LpaType:                    r.FormValue("lpa-type"),
 		Progress:                   slices.Index(progressValues, r.FormValue("progress")),
@@ -886,7 +891,7 @@ func setFixtureData(r *http.Request) FixtureData {
 		PeopleToNotify:             r.FormValue("peopleToNotify"),
 		ReplacementAttorneys:       r.FormValue("replacementAttorneys"),
 		FeeType:                    r.FormValue("feeType"),
-		PaymentTaskProgress:        paymentTaskProgress,
+		PaymentTaskProgress:        r.FormValue("paymentTaskProgress"),
 		WithVirus:                  r.FormValue("withVirus") == "1",
 		UseRealID:                  slices.Contains(options, "uid"),
 		CertificateProviderSub:     r.FormValue("certificateProviderSub"),
