@@ -72,7 +72,7 @@ jobs:
         with:
           ref: ${{ inputs.checkout_tag }}
           fetch-depth: '0'
-      - uses: unfor19/install-aws-cli-action@e8b481e524a99f37fbd39fdc1dcb3341ab091367 # v1
+      - uses: unfor19/install-aws-cli-action@f5b46b7f32cf5e7ebd652656c5036bf83dd1e60c # v1
       - name: Parse terraform version
         id: tf_version_setup
         working-directory: ./terraform/environment
