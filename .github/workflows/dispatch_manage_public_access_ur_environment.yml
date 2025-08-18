@@ -29,7 +29,7 @@ jobs:
   ur_toggle_public_access:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+      - uses: actions/checkout@08eba0b27e820071cde6df949e0beb9ba4906955 # v4.3.0
       - uses: unfor19/install-aws-cli-action@e8b481e524a99f37fbd39fdc1dcb3341ab091367 # v1
       - name: Parse terraform version
         id: tf_version_setup
