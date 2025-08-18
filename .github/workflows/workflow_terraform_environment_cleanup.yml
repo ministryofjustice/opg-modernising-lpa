@@ -68,5 +68,6 @@ jobs:
         working-directory: ./terraform/environment
         env:
           TF_VAR_pagerduty_api_key: ${{ secrets.PAGERDUTY_API_KEY }}
+          DEVELOPMENT_OPENSEARCH_COLLECTION_ENDPOINT: ${{ secrets.DEVELOPMENT_OPENSEARCH_COLLECTION_ENDPOINT }}
         run: |
           ../../scripts/workspace_cleanup.sh $(terraform-workspace-manager -protected-workspaces=true -aws-account-id=653761790766 -aws-iam-role=modernising-lpa-ci)
