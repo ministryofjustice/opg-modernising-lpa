@@ -45,6 +45,7 @@ jobs:
       - name: Run tests and generate coverage report
         run: |
           sudo mv ~/pact-lib/libpact_ffi.so /usr/local/lib
+          go env -w GOTOOLCHAIN=go1.25.0+auto
           make go-test
 
       - name: Publish pacts
