@@ -138,6 +138,9 @@ func TestHandleFeeApproved(t *testing.T) {
 		SK:      dynamo.LpaOwnerKey(dynamo.DonorKey("456")),
 		FeeType: pay.NoFee,
 		Tasks:   donordata.Tasks{PayForLpa: task.PaymentStatePending, SignTheLpa: task.StateCompleted},
+		LpaUID:  "lpa-uid",
+		Type:    lpadata.LpaTypePropertyAndAffairs,
+		Donor:   donordata.Donor{Mobile: "a"},
 	}
 
 	completedDonorProvided := donorProvided
@@ -150,9 +153,14 @@ func TestHandleFeeApproved(t *testing.T) {
 		}).
 		Return(nil)
 
+	localizer := newMockLocalizer(t)
+	localizer.EXPECT().
+		T("property-and-affairs").
+		Return("a")
+
 	accessCodeSender := newMockAccessCodeSender(t)
 	accessCodeSender.EXPECT().
-		SendCertificateProviderPrompt(ctx, appcontext.Data{}, &completedDonorProvided).
+		SendCertificateProviderPrompt(ctx, appcontext.Data{Localizer: localizer}, &completedDonorProvided).
 		Return(nil)
 
 	client := newMockDynamodbClient(t)
@@ -176,13 +184,21 @@ func TestHandleFeeApproved(t *testing.T) {
 		Put(ctx, &updatedDonorProvided).
 		Return(nil)
 
+	notifyClient := newMockNotifyClient(t)
+	notifyClient.EXPECT().
+		SendActorSMS(ctx, notify.ToDonor(&updatedDonorProvided), "lpa-uid", notify.OnlineDonorLPASubmissionConfirmation{
+			LpaType:            "a",
+			LpaReferenceNumber: "lpa-uid",
+		}).
+		Return(nil)
+
 	factory := newMockFactory(t)
 	factory.EXPECT().
 		DynamoClient().
 		Return(client)
 	factory.EXPECT().
 		AppData().
-		Return(appcontext.Data{}, nil)
+		Return(appcontext.Data{Localizer: localizer}, nil)
 	factory.EXPECT().
 		AccessCodeSender(ctx).
 		Return(accessCodeSender, nil)
@@ -195,11 +211,61 @@ func TestHandleFeeApproved(t *testing.T) {
 	factory.EXPECT().
 		EventClient().
 		Return(eventClient)
+	factory.EXPECT().
+		NotifyClient(ctx).
+		Return(notifyClient, nil)
 
 	handler := &siriusEventHandler{}
 	err := handler.Handle(ctx, factory, e)
 
 	assert.Nil(t, err)
+}
+
+func TestHandleFeeApprovedWhenFactoryErrors(t *testing.T) {
+	testcases := map[string]func(t *testing.T) *mockFactory{
+		"AppData": func(t *testing.T) *mockFactory {
+			factory := newMockFactory(t)
+			factory.EXPECT().
+				AppData().
+				Return(appcontext.Data{}, expectedError)
+			return factory
+		},
+		"AccessCodeSender": func(t *testing.T) *mockFactory {
+			factory := newMockFactory(t)
+			factory.EXPECT().
+				AppData().
+				Return(appcontext.Data{}, nil)
+			factory.EXPECT().
+				AccessCodeSender(mock.Anything).
+				Return(newMockAccessCodeSender(t), expectedError)
+			return factory
+		},
+		"NotifyClient": func(t *testing.T) *mockFactory {
+			factory := newMockFactory(t)
+			factory.EXPECT().
+				AppData().
+				Return(appcontext.Data{}, nil)
+			factory.EXPECT().
+				AccessCodeSender(mock.Anything).
+				Return(newMockAccessCodeSender(t), nil)
+			factory.EXPECT().
+				NotifyClient(mock.Anything).
+				Return(newMockNotifyClient(t), expectedError)
+			return factory
+		},
+	}
+
+	for name, setupFactoryFn := range testcases {
+		t.Run(name, func(t *testing.T) {
+			handler := &siriusEventHandler{}
+			err := handler.Handle(ctx, setupFactoryFn(t), &events.CloudWatchEvent{
+				DetailType: "reduced-fee-approved",
+				Detail:     json.RawMessage(`{"uid":"M-1111-2222-3333","approvedType":"HalfFee"}`),
+			})
+
+			assert.ErrorIs(t, err, expectedError)
+		})
+	}
 }
 
 func TestHandleFeeApprovedWhenNotPaid(t *testing.T) {
@@ -258,6 +324,9 @@ func TestHandleFeeApprovedWhenNotPaid(t *testing.T) {
 	factory.EXPECT().
 		EventClient().
 		Return(nil)
+	factory.EXPECT().
+		NotifyClient(ctx).
+		Return(newMockNotifyClient(t), nil)
 
 	handler := &siriusEventHandler{}
 	err := handler.Handle(ctx, factory, event)
@@ -300,7 +369,7 @@ func TestHandleFeeApprovedWhenNotSigned(t *testing.T) {
 		Put(ctx, &updatedDonorProvided).
 		Return(nil)
 
-	err := handleFeeApproved(ctx, client, event, nil, nil, appcontext.Data{}, testNowFn)
+	err := handleFeeApproved(ctx, client, event, nil, nil, appcontext.Data{}, testNowFn, nil)
 	assert.Nil(t, err)
 }
 
@@ -334,7 +403,7 @@ func TestHandleFeeApprovedWhenAlreadyPaidOrApproved(t *testing.T) {
 					return nil
 				})
 
-			err := handleFeeApproved(ctx, client, event, nil, nil, appcontext.Data{}, nil)
+			err := handleFeeApproved(ctx, client, event, nil, nil, appcontext.Data{}, nil, nil)
 			assert.Nil(t, err)
 		})
 	}
@@ -481,7 +550,7 @@ func TestHandleFeeApprovedWhenApprovedTypeDiffers(t *testing.T) {
 				Put(ctx, &updatedDonorProvided).
 				Return(nil)
 
-			err := handleFeeApproved(ctx, client, event, nil, nil, appcontext.Data{}, testNowFn)
+			err := handleFeeApproved(ctx, client, event, nil, nil, appcontext.Data{}, testNowFn, nil)
 			assert.Nil(t, err)
 		})
 	}
@@ -531,7 +600,7 @@ func TestHandleFeeApprovedWhenVoucherSelected(t *testing.T) {
 		}, appcontext.Data{}).
 		Return(nil)
 
-	err := handleFeeApproved(ctx, client, event, accessCodeSender, nil, appcontext.Data{}, testNowFn)
+	err := handleFeeApproved(ctx, client, event, accessCodeSender, nil, appcontext.Data{}, testNowFn, nil)
 	assert.Nil(t, err)
 }
 
@@ -563,7 +632,7 @@ func TestHandleFeeApprovedWhenVoucherSelectedAndAccessCodeSenderError(t *testing
 		SendVoucherInvite(mock.Anything, mock.Anything, mock.Anything).
 		Return(expectedError)
 
-	err := handleFeeApproved(ctx, client, event, accessCodeSender, nil, appcontext.Data{}, testNowFn)
+	err := handleFeeApproved(ctx, client, event, accessCodeSender, nil, appcontext.Data{}, testNowFn, nil)
 	assert.ErrorIs(t, err, expectedError)
 }
 
@@ -588,7 +657,7 @@ func TestHandleFeeApprovedWhenDynamoClientPutError(t *testing.T) {
 		Put(ctx, mock.Anything).
 		Return(expectedError)
 
-	err := handleFeeApproved(ctx, client, event, nil, nil, appcontext.Data{}, testNowFn)
+	err := handleFeeApproved(ctx, client, event, nil, nil, appcontext.Data{}, testNowFn, nil)
 	assert.Equal(t, fmt.Errorf("failed to update donor provided details: %w", expectedError), err)
 }
 
@@ -625,7 +694,7 @@ func TestHandleFeeApprovedWhenAccessCodeSenderError(t *testing.T) {
 		SendCertificateProviderPrompt(ctx, appcontext.Data{}, mock.Anything).
 		Return(expectedError)
 
-	err := handleFeeApproved(ctx, client, event, accessCodeSender, eventClient, appcontext.Data{}, testNowFn)
+	err := handleFeeApproved(ctx, client, event, accessCodeSender, eventClient, appcontext.Data{}, testNowFn, nil)
 	assert.Equal(t, fmt.Errorf("failed to send share code to certificate provider: %w", expectedError), err)
 }
 
@@ -657,8 +726,56 @@ func TestHandleFeeApprovedWhenEventClientError(t *testing.T) {
 		SendCertificateProviderStarted(mock.Anything, mock.Anything).
 		Return(expectedError)
 
-	err := handleFeeApproved(ctx, client, event, nil, eventClient, appcontext.Data{}, testNowFn)
+	err := handleFeeApproved(ctx, client, event, nil, eventClient, appcontext.Data{}, testNowFn, nil)
 	assert.Equal(t, fmt.Errorf("failed to send certificate-provider-started event: %w", expectedError), err)
+}
+
+func TestHandleFeeApprovedWhenNotifyClientError(t *testing.T) {
+	event := &events.CloudWatchEvent{
+		DetailType: "reduced-fee-approved",
+		Detail:     json.RawMessage(`{"uid":"M-1111-2222-3333","approvedType":"NoFee"}`),
+	}
+
+	client := newMockDynamodbClient(t)
+	client.EXPECT().
+		OneByUID(mock.Anything, mock.Anything).
+		Return(dynamo.Keys{PK: dynamo.LpaKey("123"), SK: dynamo.DonorKey("456")}, nil)
+	client.
+		On("One", mock.Anything, mock.Anything, mock.Anything, mock.Anything).
+		Return(func(ctx context.Context, pk dynamo.PK, sk dynamo.SK, v interface{}) error {
+			b, _ := attributevalue.Marshal(donordata.Provided{
+				PK:      dynamo.LpaKey("123"),
+				SK:      dynamo.LpaOwnerKey(dynamo.DonorKey("456")),
+				FeeType: pay.NoFee,
+				Tasks:   donordata.Tasks{PayForLpa: task.PaymentStatePending, SignTheLpa: task.StateCompleted},
+				Donor:   donordata.Donor{Mobile: "a"},
+			})
+			attributevalue.Unmarshal(b, v)
+			return nil
+		})
+
+	eventClient := newMockEventClient(t)
+	eventClient.EXPECT().
+		SendCertificateProviderStarted(mock.Anything, mock.Anything).
+		Return(nil)
+
+	accessCodeSender := newMockAccessCodeSender(t)
+	accessCodeSender.EXPECT().
+		SendCertificateProviderPrompt(mock.Anything, mock.Anything, mock.Anything).
+		Return(nil)
+
+	notifyClient := newMockNotifyClient(t)
+	notifyClient.EXPECT().
+		SendActorSMS(mock.Anything, mock.Anything, mock.Anything, mock.Anything).
+		Return(expectedError)
+
+	localizer := newMockLocalizer(t)
+	localizer.EXPECT().
+		T(mock.Anything).
+		Return("")
+
+	err := handleFeeApproved(ctx, client, event, accessCodeSender, eventClient, appcontext.Data{Localizer: localizer}, testNowFn, notifyClient)
+	assert.ErrorIs(t, err, expectedError)
 }
 
 func TestHandleFurtherInfoRequested(t *testing.T) {
