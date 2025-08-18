@@ -372,7 +372,7 @@ func TestGetPaymentConfirmationApprovedOrDeniedWhenSigned(t *testing.T) {
 
 			updatedDonor := &donordata.Provided{
 				Type:    lpadata.LpaTypePersonalWelfare,
-				Donor:   donordata.Donor{FirstNames: "a", LastName: "b"},
+				Donor:   donordata.Donor{FirstNames: "a", LastName: "b", Mobile: "c"},
 				LpaID:   "lpa-id",
 				LpaUID:  "lpa-uid",
 				FeeType: pay.FullFee,
@@ -395,6 +395,9 @@ func TestGetPaymentConfirmationApprovedOrDeniedWhenSigned(t *testing.T) {
 
 			localizer := newMockLocalizer(t).
 				withEmailLocalizations()
+			localizer.EXPECT().
+				T("personal-welfare").
+				Return("a")
 
 			testAppData.Localizer = localizer
 
@@ -428,10 +431,16 @@ func TestGetPaymentConfirmationApprovedOrDeniedWhenSigned(t *testing.T) {
 
 			notifyClient := newMockNotifyClient(t).
 				withEmailPersonalizations(r.Context(), "£82")
+			notifyClient.EXPECT().
+				SendActorSMS(r.Context(), notify.ToDonor(updatedDonor), "lpa-uid", notify.OnlineDonorLPASubmissionConfirmation{
+					LpaType:            "a",
+					LpaReferenceNumber: "lpa-uid",
+				}).
+				Return(nil)
 
 			err := PaymentConfirmation(newMockLogger(t), payClient, donorStore, sessionStore, accessCodeSender, eventClient, notifyClient)(testAppData, w, r, &donordata.Provided{
 				Type:    lpadata.LpaTypePersonalWelfare,
-				Donor:   donordata.Donor{FirstNames: "a", LastName: "b"},
+				Donor:   donordata.Donor{FirstNames: "a", LastName: "b", Mobile: "c"},
 				LpaID:   "lpa-id",
 				LpaUID:  "lpa-uid",
 				FeeType: pay.FullFee,
@@ -874,6 +883,60 @@ func TestGetPaymentConfirmationWhenAccessCodeSenderErrors(t *testing.T) {
 		LpaUID:  "lpa-uid",
 		Type:    lpadata.LpaTypePersonalWelfare,
 		Donor:   donordata.Donor{FirstNames: "a", LastName: "b"},
+		FeeType: pay.FullFee,
+		CertificateProvider: donordata.CertificateProvider{
+			Email: "certificateprovider@example.com",
+		},
+		Tasks: donordata.Tasks{
+			PayForLpa:  task.PaymentStateApproved,
+			SignTheLpa: task.StateCompleted,
+		},
+	})
+
+	assert.ErrorIs(t, err, expectedError)
+}
+
+func TestGetPaymentConfirmationWhenNotifyClientSMSError(t *testing.T) {
+	w := httptest.NewRecorder()
+	r, _ := http.NewRequest(http.MethodGet, "/payment-confirmation", nil)
+
+	payClient := newMockPayClient(t).
+		withASuccessfulPayment(8200, r.Context())
+
+	sessionStore := newMockSessionStore(t).
+		withPaySession(r)
+
+	accessCodeSender := newMockAccessCodeSender(t)
+	accessCodeSender.EXPECT().
+		SendCertificateProviderPrompt(mock.Anything, mock.Anything, mock.Anything).
+		Return(nil)
+
+	eventClient := newMockEventClient(t)
+	eventClient.EXPECT().
+		SendPaymentReceived(r.Context(), mock.Anything).
+		Return(nil)
+	eventClient.EXPECT().
+		SendCertificateProviderStarted(r.Context(), mock.Anything).
+		Return(nil)
+
+	localizer := newMockLocalizer(t).
+		withEmailLocalizations()
+	localizer.EXPECT().
+		T(mock.Anything).
+		Return("")
+
+	testAppData.Localizer = localizer
+
+	notifyClient := newMockNotifyClient(t).
+		withEmailPersonalizations(r.Context(), "£82")
+	notifyClient.EXPECT().
+		SendActorSMS(mock.Anything, mock.Anything, mock.Anything, mock.Anything).
+		Return(expectedError)
+
+	err := PaymentConfirmation(newMockLogger(t), payClient, nil, sessionStore, accessCodeSender, eventClient, notifyClient)(testAppData, w, r, &donordata.Provided{
+		LpaUID:  "lpa-uid",
+		Type:    lpadata.LpaTypePersonalWelfare,
+		Donor:   donordata.Donor{FirstNames: "a", LastName: "b", Mobile: "a"},
 		FeeType: pay.FullFee,
 		CertificateProvider: donordata.CertificateProvider{
 			Email: "certificateprovider@example.com",

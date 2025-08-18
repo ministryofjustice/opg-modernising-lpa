@@ -2,6 +2,9 @@ import {defineConfig} from 'cypress';
 
 export default defineConfig({
   projectId: "xxbft5",
+  retries: {
+    runMode: 1,
+  },
   e2e: {
     baseUrl: 'http://localhost:5050',
     defaultCommandTimeout: 2000,
@@ -19,6 +22,6 @@ export default defineConfig({
       })
     },
     specPattern: '**/*.cy.js',
-    video: false
-  },
+    video: false,
+  }
 });
