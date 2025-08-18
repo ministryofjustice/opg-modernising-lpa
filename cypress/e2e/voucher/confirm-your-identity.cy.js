@@ -81,6 +81,9 @@ describe('Confirm your identity', () => {
             cy.contains('button', 'Continue').click();
         });
 
+        cy.url().should('contain', '/one-login-identity-details');
+        cy.contains('a', 'Continue').click();
+
         cy.url().should('contain', '/confirm-allowed-to-vouch');
         cy.contains('label', 'Yes').click();
         cy.contains('button', 'Continue').click();
@@ -105,6 +108,9 @@ describe('Confirm your identity', () => {
             cy.contains('label', 'Sam Smith').click();
             cy.contains('button', 'Continue').click();
         });
+
+        cy.url().should('contain', '/one-login-identity-details');
+        cy.contains('a', 'Continue').click();
 
         cy.url().should('contain', '/confirm-allowed-to-vouch');
         cy.contains('label', 'No').click();

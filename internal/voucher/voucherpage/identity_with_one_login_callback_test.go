@@ -62,7 +62,7 @@ func TestGetIdentityWithOneLoginCallback(t *testing.T) {
 				LastName:         "Doe",
 				IdentityUserData: userData,
 			},
-			redirect: voucher.PathConfirmAllowedToVouch,
+			redirect: voucher.PathOneLoginIdentityDetails,
 		},
 		"matches other actor already checked": {
 			lpa: &lpadata.Lpa{
