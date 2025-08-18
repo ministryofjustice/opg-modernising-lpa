@@ -40,7 +40,12 @@ func (h *siriusEventHandler) Handle(ctx context.Context, factory factory, cloudW
 			return err
 		}
 
-		return handleFeeApproved(ctx, factory.DynamoClient(), cloudWatchEvent, accessCodeSender, factory.EventClient(), appData, factory.Now())
+		notifyClient, err := factory.NotifyClient(ctx)
+		if err != nil {
+			return err
+		}
+
+		return handleFeeApproved(ctx, factory.DynamoClient(), cloudWatchEvent, accessCodeSender, factory.EventClient(), appData, factory.Now(), notifyClient)
 
 	case "reduced-fee-declined":
 		return handleFeeDenied(ctx, factory.DynamoClient(), cloudWatchEvent, factory.Now())
@@ -140,6 +145,7 @@ func handleFeeApproved(
 	eventClient EventClient,
 	appData appcontext.Data,
 	now func() time.Time,
+	notifyClient NotifyClient,
 ) error {
 	var v feeApprovedEvent
 	if err := json.Unmarshal(e.Detail, &v); err != nil {
@@ -169,6 +175,15 @@ func handleFeeApproved(
 
 			if err := accessCodeSender.SendCertificateProviderPrompt(ctx, appData, donor); err != nil {
 				return fmt.Errorf("failed to send share code to certificate provider: %w", err)
+			}
+
+			if donor.Donor.Mobile != "" {
+				if err := notifyClient.SendActorSMS(ctx, notify.ToDonor(donor), donor.LpaUID, notify.OnlineDonorLPASubmissionConfirmation{
+					LpaType:            appData.Localizer.T(donor.Type.String()),
+					LpaReferenceNumber: donor.LpaUID,
+				}); err != nil {
+					return fmt.Errorf("failed to send SMS to donor: %w", err)
+				}
 			}
 		}
 
