@@ -986,7 +986,7 @@
     "pending": "Yn yr arfaeth",
     "denied": "Gwrthodwyd",
     "makeANewLPA": "Gwneud LPA newydd",
-    "youShouldOnlyChangeYourDetailsIfTheyNeedToBeUpdated": "<p class=\"govuk-body\">Dim ond os oes angen eu diweddaru y dylech newid eich manylion. Allwch chi ddim gwneud LPA ar ran rhywun arall gan ddefnyddio eich cyfrif chi. <a href=\"#\" class=\"govuk-link\">Rhagor o wybodaeth am sut mae gwneud LPA ar ran rhywun arall</a>.</p>",
+    "youShouldOnlyChangeYourDetailsIfTheyNeedToBeUpdated": "<p class=\"govuk-body\">Dim ond os oes angen eu diweddaru y dylech newid eich manylion. Allwch chi ddim gwneud LPA ar ran rhywun arall gan ddefnyddio eich cyfrif chi.</p>",
     "yourName": "Eich enw",
     "yourNameWarning": "Dim ond eich manylion chi y dylech eu rhoi. Allwch chi ddim gwneud LPA ar ran rhywun arall gan ddefnyddio eich cyfrif.",
     "yourDateOfBirth": "Eich dyddiad geni",
