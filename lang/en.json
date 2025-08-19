@@ -902,7 +902,7 @@
     "pending": "Pending",
     "denied": "Denied",
     "makeANewLPA": "Make a new LPA",
-    "youShouldOnlyChangeYourDetailsIfTheyNeedToBeUpdated": "<p class=\"govuk-body\">You should only change your details if they need to be updated. You cannot make an LPA for someone else using your own account. <a href=\"#\" class=\"govuk-link\">Find out more about how to make an LPA for someone else</a>.</p>",
+    "youShouldOnlyChangeYourDetailsIfTheyNeedToBeUpdated": "<p class=\"govuk-body\">You should only change your details if they need to be updated. You cannot make an LPA for someone else using your own account.</p>",
     "yourName": "Your name",
     "yourNameWarning": "You should only enter your details. You cannot make an LPA for someone else using your account.",
     "yourDateOfBirth": "Your date of birth",
