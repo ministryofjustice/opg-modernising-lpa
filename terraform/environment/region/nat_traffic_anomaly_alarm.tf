@@ -10,7 +10,7 @@ data "aws_nat_gateways" "ngws" {
 
 resource "aws_cloudwatch_metric_alarm" "nat_traffic_increase_anomaly_detection" {
   count                     = length(data.aws_nat_gateways.ngws.ids)
-  alarm_name                = "NAT Gateway Inbound Traffic Increase Anomaly ${count.index}"
+  alarm_name                = "nat-gateway-inbound-traffic-increase-anomaly-${count.index}"
   comparison_operator       = "GreaterThanUpperThreshold"
   evaluation_periods        = 2
   threshold_metric_id       = "ad${count.index}"
