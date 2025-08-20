@@ -1,0 +1,43 @@
+data "aws_nat_gateways" "ngws" {
+  vpc_id = data.aws_vpc.main.id
+
+  filter {
+    name   = "state"
+    values = ["available"]
+  }
+  provider = aws.region
+}
+
+resource "aws_cloudwatch_metric_alarm" "nat_traffic_increase_anomaly_detection" {
+  count                     = length(data.aws_nat_gateways.ngws.ids)
+  alarm_name                = "NAT Gateway Inbound Traffic Increase Anomaly"
+  comparison_operator       = "GreaterThanUpperThreshold"
+  evaluation_periods        = 2
+  threshold_metric_id       = "e${count.index}"
+  alarm_description         = "This metric monitors NAT Gateway traffic into the VPC"
+  insufficient_data_actions = []
+
+  metric_query {
+    id          = "e${count.index}"
+    return_data = true
+    expression  = "ANOMALY_DETECTION_BAND(m${count.index}, 2)"
+    label       = "AWS NAT Gateway ${tolist(data.aws_nat_gateways.ngws.ids)[count.index]} BytesOutToSource (Expected)"
+  }
+
+  metric_query {
+    id          = "m${count.index}"
+    return_data = true
+    metric {
+      metric_name = "BytesOutToSource"
+      namespace   = "AWS/NATGateway"
+      period      = 300
+      stat        = "Average"
+      unit        = "Count"
+
+      dimensions = {
+        NatGatewayId = tolist(data.aws_nat_gateways.ngws.ids)[count.index]
+      }
+    }
+  }
+  provider = aws.region
+}
