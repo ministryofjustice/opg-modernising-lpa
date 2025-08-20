@@ -20,7 +20,7 @@ resource "aws_cloudwatch_metric_alarm" "nat_traffic_increase_anomaly_detection" 
   metric_query {
     id          = "ad${count.index}"
     return_data = true
-    expression  = "ANOMALY_DETECTION_BAND(m${count.index}, 2)"
+    expression  = "ANOMALY_DETECTION_BAND(m${count.index}, 4)"
     label       = "AWS NAT Gateway ${tolist(data.aws_nat_gateways.ngws.ids)[count.index]} BytesOutToSource (Expected)"
   }
 
