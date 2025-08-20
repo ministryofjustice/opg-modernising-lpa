@@ -6,6 +6,9 @@ data "aws_nat_gateways" "ngws" {
     values = ["available"]
   }
   provider = aws.region
+  depends_on = [
+    module.network
+  ]
 }
 
 resource "aws_cloudwatch_metric_alarm" "nat_traffic_increase_anomaly_detection" {
