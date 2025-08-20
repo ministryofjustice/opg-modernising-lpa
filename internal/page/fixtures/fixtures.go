@@ -40,8 +40,10 @@ type fixturesData struct {
 	App                    appcontext.Data
 	Sub                    string
 	DonorEmail             string
+	DonorMobile            string
 	Errors                 validation.List
 	Members                []Name
+	PaymentStatuses        []string
 	IdStatuses             []string
 	CertificateProviderSub string
 }
