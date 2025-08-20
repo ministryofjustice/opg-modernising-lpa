@@ -32,7 +32,7 @@ resource "aws_cloudwatch_metric_alarm" "nat_traffic_increase_anomaly_detection" 
       namespace   = "AWS/NATGateway"
       period      = 120
       stat        = "Average"
-      unit        = "Count"
+      unit        = "Bytes"
 
       dimensions = {
         NatGatewayId = tolist(data.aws_nat_gateways.ngws.ids)[count.index]
