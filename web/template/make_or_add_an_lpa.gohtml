@@ -24,7 +24,7 @@
                 {{ template "csrf-field" . }}
             </form>
 
-            {{ trHtml .App "makingAnLPAForSomeoneElseDetails" }}
+            {{ template "details" (details . "makingAnLPAForSomeoneElse" "makingAnLPAForSomeoneElseDetailContent" false) }}
 
             <hr class="govuk-section-break govuk-section-break--m govuk-section-break--visible">
 
