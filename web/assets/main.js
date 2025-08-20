@@ -1,7 +1,7 @@
 import {AwsRum} from 'aws-rum-web';
-import * as MOJFrontend from '@ministryofjustice/frontend'
+import * as MOJFrontend from '@ministryofjustice/frontend';
 import * as GOVUKFrontend from "govuk-frontend";
-import {CrossServiceHeader} from './service-header';
+import {initCrossServiceHeader} from './service-header';
 import {DataLossWarning} from './data-loss-warning';
 import {FileUploadModal} from "./file-upload-modal";
 import {GuidanceNav} from "./guidance-nav";
@@ -19,10 +19,7 @@ function init() {
     GOVUKFrontend.initAll();
     MOJFrontend.initAll();
 
-    const header = document.querySelector("[data-module='one-login-header']");
-    if (header) {
-        new CrossServiceHeader(header).init();
-    }
+    initCrossServiceHeader();
 
     document.querySelectorAll(".moj-button-menu").forEach(buttonMenu => {
         new MOJFrontend.ButtonMenu({
