@@ -30,7 +30,7 @@ resource "aws_cloudwatch_metric_alarm" "nat_traffic_increase_anomaly_detection" 
     metric {
       metric_name = "BytesOutToSource"
       namespace   = "AWS/NATGateway"
-      period      = 150
+      period      = 120
       stat        = "Average"
       unit        = "Count"
 
