@@ -111,11 +111,6 @@ body:not(.js-enabled) .govuk-back-link {
 }
 
 .app-service-header-caption {
-    @include govuk-responsive-padding(1, "top");
-
-    @include govuk-media-query($from: tablet) {
-        @include govuk-responsive-padding(4, "bottom");
-    }
     color: govuk-colour("black");
 }
 
