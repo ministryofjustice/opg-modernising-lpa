@@ -6,6 +6,7 @@
 
 {{ define "fixtures-main" }}
     {{ template "input" (input . "donorEmail" "Donor email" .DonorEmail "classes" "govuk-input--width-20") }}
+    {{ template "input" (input . "donorMobile" "Donor mobile" .DonorMobile "classes" "govuk-input--width-20") }}
     {{ template "input" (input . "donorFirstNames" "Donor first names" "Sam" "classes" "govuk-input--width-20") }}
     {{ template "input" (input . "donorLastName" "Donor last name" "Smith" "classes" "govuk-input--width-20") }}
     {{ template "input" (input . "donorSub" "Donor OneLogin sub" .Sub "classes" "govuk-input--width-20") }}
@@ -32,7 +33,19 @@
     <div class="govuk-form-group">
         {{ template "checkboxes" (items . "options" "uid"
             (item "uid" "Real UID" "hint" "You may need to wait a bit and refresh the dashboard to see the LPA as this requires events to be sent and received")
-            (item "paymentTaskInProgress" "Payment in progress")) }}
+        ) }}
+    </div>
+
+
+    <div class="govuk-form-group">
+        <label class="govuk-label" for="paymentStatus">
+            Payment status
+        </label>
+        <select class="govuk-select" id="paymentStatus" name="paymentTaskProgress">
+            {{ range $_, $s := .PaymentStatuses }}
+                <option value="{{$s}}">{{$s}}</option>
+            {{ end }}
+        </select>
     </div>
 
     <div class="govuk-form-group">
