@@ -101,6 +101,15 @@ func PaymentConfirmation(logger Logger, payClient PayClient, donorStore DonorSto
 					}); err != nil {
 						return fmt.Errorf("failed to send certificate-provider-started event: %w", err)
 					}
+
+					if provided.Donor.Mobile != "" {
+						if err := notifyClient.SendActorSMS(r.Context(), notify.ToDonor(provided), provided.LpaUID, notify.OnlineDonorLPASubmissionConfirmation{
+							LpaType:            appData.Localizer.T(provided.Type.String()),
+							LpaReferenceNumber: provided.LpaUID,
+						}); err != nil {
+							return fmt.Errorf("failed to send SMS to donor: %w", err)
+						}
+					}
 				}
 			}
 		}
