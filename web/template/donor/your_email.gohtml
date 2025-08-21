@@ -4,7 +4,7 @@
     {{ if .App.SupporterData }}
         {{ tr .App "whatIsYourEmail" }}
     {{ else }}
-        {{ tr .App "yourEmailAddressForUpdates" }}
+        {{ tr .App "enterYourEmailAddress" }}
     {{ end }}
 {{ end }}
 
@@ -21,22 +21,22 @@
                         "autocomplete" "email"
                         "heading" true) }}
                 {{ else }}
-                    <h1 class="govuk-heading-xl">{{ tr .App "yourEmailAddressForUpdates" }}</h1>
-
                     {{ template "input" (input . "email" "enterYourEmailAddress"
                         .Form.Email
                         "classes" "govuk-input--width-20"
                         "type" "email"
                         "spellcheck" "false"
-                        "autocomplete" "email") }}
+                        "autocomplete" "email"
+                        "heading" true
+                        "context" "weWillSendUpdatesToThisAddress") }}
                 {{ end }}
-                    
+
                 {{ if .CanTaskList }}
                     {{ template "buttons" (button .App "saveAndContinue") }}
                 {{ else }}
                     {{ template "button" (button .App "saveAndContinue") }}
                 {{ end }}
-                    
+
                 {{ template "csrf-field" . }}
             </form>
         </div>

@@ -204,7 +204,7 @@ func (s *Sender) SendVoucherInvite(ctx context.Context, provided *donordata.Prov
 		return err
 	}
 
-	if provided.Correspondent.Email != "" {
+	if provided.HasCorrespondent() {
 		if err := s.sendEmail(ctx, notify.ToCorrespondent(provided), provided.LpaUID, notify.CorrespondentInformedVouchingInProgress{
 			CorrespondentFullName:   provided.Correspondent.FullName(),
 			DonorFullName:           provided.Donor.FullName(),

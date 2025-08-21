@@ -48,6 +48,7 @@ const (
 	PathConfirmPersonAllowedToVouch                          = Path("/confirm-person-allowed-to-vouch")
 	PathConfirmYourCertificateProviderIsNotRelated           = Path("/confirm-your-certificate-provider-is-not-related")
 	PathConfirmYourIdentity                                  = Path("/confirm-your-identity")
+	PathContactDetails                                       = Path("/contact-details")
 	PathCorrespondentSummary                                 = Path("/correspondent-summary")
 	PathCostOfRepeatApplication                              = Path("/cost-of-repeat-application")
 	PathDeleteThisLpa                                        = Path("/delete-this-lpa")
@@ -195,7 +196,9 @@ func (p Path) RedirectQuery(w http.ResponseWriter, r *http.Request, appData appc
 func (p Path) CanGoTo(donor *donordata.Provided) bool {
 	if !donor.SignedAt.IsZero() {
 		switch p {
-		case PathProgress, PathViewLPA, PathDeleteThisLpa, PathWithdrawThisLpa, PathYouHaveSubmittedYourLpa, PathIdentityDetails:
+		case PathProgress, PathViewLPA, PathDeleteThisLpa, PathWithdrawThisLpa, PathYouHaveSubmittedYourLpa, PathIdentityDetails,
+			PathContactDetails, PathYourMobile, PathYourEmail, PathAddCorrespondent, PathChooseCorrespondent, PathEnterCorrespondentDetails,
+			PathEnterCorrespondentAddress, PathRemoveCorrespondent, PathCorrespondentSummary:
 			return true
 
 		case PathTaskList:

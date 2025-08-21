@@ -7,11 +7,7 @@
         <div class="govuk-grid-column-two-thirds">
             <h1 class="govuk-heading-xl">{{ tr .App "addCorrespondent" }}</h1>
 
-            {{ if .App.SupporterData }}
-                {{ trHtml .App "supporterAddCorrespondentContent" }}
-            {{ else }}
-                {{ trHtml .App "donorAddCorrespondentContent" }}
-            {{ end }}
+            {{ trHtml .App "donorAddCorrespondentContent" }}
 
             <form novalidate method="post">
                 {{ template "radios-fieldset" (fieldset . .Form.FieldName .Form.YesNo.String
@@ -19,7 +15,11 @@
                     (item .Form.Options.Yes.String "yesWouldLikeToSendUpdatesToCorrespondent")
                     (item .Form.Options.No.String "noWouldLikeToSendUpdatesToMe")) }}
 
-                {{ template "buttons" (button .App "saveAndContinue") }}
+                {{ if .Donor.CompletedAllTasks }}
+                    {{ template "button" (button .App "saveAndContinue") }}
+                {{ else }}
+                    {{ template "buttons" (button .App "saveAndContinue") }}
+                {{ end }}
                 {{ template "csrf-field" . }}
             </form>
         </div>
