@@ -10,7 +10,9 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor/donordata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/form"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/lpastore/lpadata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/task"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/validation"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
@@ -63,6 +65,7 @@ func TestGetAddCorrespondentWhenExists(t *testing.T) {
 	err := AddCorrespondent(nil, nil)(testAppData, w, r, &donordata.Provided{
 		LpaID:         "lpa-id",
 		Correspondent: donordata.Correspondent{UID: testUID},
+		Tasks:         donordata.Tasks{AddCorrespondent: task.StateCompleted},
 	})
 	resp := w.Result()
 
@@ -119,34 +122,70 @@ func TestPostAddCorrespondentWhenYes(t *testing.T) {
 }
 
 func TestPostAddCorrespondentWhenNo(t *testing.T) {
-	f := url.Values{
-		form.FieldNames.YesNo: {form.No.String()},
+	testcases := map[string]struct {
+		tasks    donordata.Tasks
+		redirect donor.Path
+	}{
+		"tasks not all completed": {
+			redirect: donor.PathTaskList,
+		},
+		"tasks all completed": {
+			tasks: donordata.Tasks{
+				YourDetails:                task.StateCompleted,
+				ChooseAttorneys:            task.StateCompleted,
+				ChooseReplacementAttorneys: task.StateCompleted,
+				WhenCanTheLpaBeUsed:        task.StateCompleted,
+				Restrictions:               task.StateCompleted,
+				CertificateProvider:        task.StateCompleted,
+				PeopleToNotify:             task.StateCompleted,
+				AddCorrespondent:           task.StateCompleted,
+				CheckYourLpa:               task.StateCompleted,
+				PayForLpa:                  task.PaymentStateCompleted,
+				ConfirmYourIdentity:        task.IdentityStateCompleted,
+				SignTheLpa:                 task.StateCompleted,
+			},
+			redirect: donor.PathProgress,
+		},
 	}
 
-	w := httptest.NewRecorder()
-	r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(f.Encode()))
-	r.Header.Add("Content-Type", page.FormUrlEncoded)
+	for name, tc := range testcases {
+		t.Run(name, func(t *testing.T) {
+			f := url.Values{
+				form.FieldNames.YesNo: {form.No.String()},
+			}
 
-	service := newMockCorrespondentService(t)
-	service.EXPECT().
-		NotWanted(r.Context(), &donordata.Provided{
-			LpaID:            "lpa-id",
-			LpaUID:           "lpa-uid",
-			AddCorrespondent: form.No,
-			Correspondent:    donordata.Correspondent{FirstNames: "John"},
-		}).
-		Return(nil)
+			w := httptest.NewRecorder()
+			r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(f.Encode()))
+			r.Header.Add("Content-Type", page.FormUrlEncoded)
 
-	err := AddCorrespondent(nil, service)(testAppData, w, r, &donordata.Provided{
-		LpaID:         "lpa-id",
-		LpaUID:        "lpa-uid",
-		Correspondent: donordata.Correspondent{FirstNames: "John"},
-	})
-	resp := w.Result()
+			service := newMockCorrespondentService(t)
+			service.EXPECT().
+				NotWanted(r.Context(), &donordata.Provided{
+					LpaID:            "lpa-id",
+					LpaUID:           "lpa-uid",
+					Type:             lpadata.LpaTypePropertyAndAffairs,
+					Donor:            donordata.Donor{CanSign: form.Yes},
+					AddCorrespondent: form.No,
+					Correspondent:    donordata.Correspondent{FirstNames: "John"},
+					Tasks:            tc.tasks,
+				}).
+				Return(nil)
 
-	assert.Nil(t, err)
-	assert.Equal(t, http.StatusFound, resp.StatusCode)
-	assert.Equal(t, donor.PathTaskList.Format("lpa-id"), resp.Header.Get("Location"))
+			err := AddCorrespondent(nil, service)(testAppData, w, r, &donordata.Provided{
+				LpaID:         "lpa-id",
+				LpaUID:        "lpa-uid",
+				Type:          lpadata.LpaTypePropertyAndAffairs,
+				Donor:         donordata.Donor{CanSign: form.Yes},
+				Correspondent: donordata.Correspondent{FirstNames: "John"},
+				Tasks:         tc.tasks,
+			})
+			resp := w.Result()
+
+			assert.Nil(t, err)
+			assert.Equal(t, http.StatusFound, resp.StatusCode)
+			assert.Equal(t, tc.redirect.Format("lpa-id"), resp.Header.Get("Location"))
+		})
+	}
 }
 
 func TestPostAddCorrespondentWhenServiceErrors(t *testing.T) {

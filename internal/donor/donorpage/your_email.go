@@ -26,7 +26,7 @@ func YourEmail(tmpl template.Template, donorStore DonorStore, accessCodeSender A
 			Form: &yourEmailForm{
 				Email: provided.Donor.Email,
 			},
-			CanTaskList: !provided.Type.Empty(),
+			CanTaskList: !provided.Type.Empty() && !provided.CompletedAllTasks(),
 		}
 
 		if r.Method == http.MethodPost {
