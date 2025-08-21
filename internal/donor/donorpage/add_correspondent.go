@@ -20,7 +20,7 @@ type addCorrespondentData struct {
 
 func AddCorrespondent(tmpl template.Template, service CorrespondentService) Handler {
 	return func(appData appcontext.Data, w http.ResponseWriter, r *http.Request, provided *donordata.Provided) error {
-		if !provided.Correspondent.UID.IsZero() {
+		if provided.HasCorrespondent() {
 			return donor.PathCorrespondentSummary.Redirect(w, r, appData, provided)
 		}
 
@@ -42,7 +42,11 @@ func AddCorrespondent(tmpl template.Template, service CorrespondentService) Hand
 						return err
 					}
 
-					return donor.PathTaskList.Redirect(w, r, appData, provided)
+					if provided.SignedAt.IsZero() {
+						return donor.PathTaskList.Redirect(w, r, appData, provided)
+					} else {
+						return donor.PathProgress.Redirect(w, r, appData, provided)
+					}
 				} else {
 					if err := service.Put(r.Context(), provided); err != nil {
 						return err

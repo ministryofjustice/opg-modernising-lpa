@@ -20,6 +20,7 @@ func EnterCorrespondentAddress(logger Logger, tmpl template.Template, addressCli
 			provided.Correspondent.FullName(),
 			actoruid.UID{},
 		)
+		data.CompletedAllTasks = provided.CompletedAllTasks()
 
 		if provided.Correspondent.Address.Line1 != "" {
 			data.Form.Action = "manual"

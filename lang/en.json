@@ -1042,7 +1042,6 @@
     "youAreDraftingDonorsTypeLpa": "You are drafting <span class=\"govuk-!-font-weight-bold\">{{possessive .DonorFullName }} {{lowerFirst .LpaType}}</span> LPA",
     "addCorrespondent": "Add a correspondent",
     "wouldYouLikeToAddCorrespondent": "Would you like to add a correspondent?",
-    "supporterAddCorrespondentContent": "<p class=\"govuk-body\">You can choose another person to get updates about your LPA from the Office of the Public Guardian (OPG) instead of you.</p><p class=\"govuk-body\">This person could be:</p><ul class=\"govuk-list govuk-list--bullet\"><li>a trusted friend</li><li>a professional, for example, a solicitor</li></ul><p class=\"govuk-body\">A correspondent can be helpful if you think you’ll need support or advice managing your LPA paperwork.</p><p class=\"govuk-body\">You’ll get an official notification from OPG when your LPA is ready to be registered.</p><p class=\"govuk-body\">You can delete or change your correspondent if you need to.</p>",
     "donorAddCorrespondentContent": "<p class=\"govuk-body\">You can choose another person to get updates about your LPA from the Office of the Public Guardian (OPG) instead of you.</p><p class=\"govuk-body\">This person could be:</p><ul class=\"govuk-list govuk-list--bullet\"><li>a trusted friend</li><li>a professional, for example, a solicitor</li></ul><p class=\"govuk-body\">A correspondent can be helpful if you think you’ll need support or advice managing your LPA paperwork.</p><p class=\"govuk-body\">You’ll get an official notification from OPG when your LPA is ready to be registered.</p><p class=\"govuk-body\">You can delete or change your correspondent if you need to.</p>",
     "enterCorrespondentDetails": "Enter the correspondent’s details",
     "organisationOptional": "Organisation (optional)",
@@ -1921,5 +1920,17 @@
     "enterYourCompanyNumberHint": "You can find this on your Companies House listing",
     "yourCompanyNumber": "your company number",
     "yesWouldLikeToSendUpdatesToCorrespondent": "Yes, I would like OPG to send updates about my LPA to my correspondent",
-    "noWouldLikeToSendUpdatesToMe": "No, I would like OPG to send updates about my LPA to me"
+    "noWouldLikeToSendUpdatesToMe": "No, I would like OPG to send updates about my LPA to me",
+    "updatesAboutYourLpa": "Updates about your LPA",
+    "youAskedUsToSendUpdatesToCorrespondent": "You’ve asked us to send updates about your LPA to your correspondent:",
+    "changeWhoGetsUpdates": "Change who gets updates",
+    "youCanChangeOrDeleteCorrespondent": "You can <a href=\"{{.Link}}\" class=\"govuk-link\">change your correspondent, delete your correspondent, or get updates about your LPA sent to you</a>.",
+    "youCanChangeYourDetailsOrAddCorrespondent": "You can <a href=\"{{.Link}}\" class=\"govuk-link\">change your contact details, or add a correspondent</a>  – your correspondent will then get updates about your LPA instead of you.",
+    "youAskedUsToSendUpdatesToYou": "You’ve asked us to send updates about your LPA to you:",
+    "returnToCheckLpaProgress": "Return to check LPA progress",
+    "changeWhoGetsUpdatesAboutYourLpa": "Change who gets updates about your LPA",
+    "youCanAddCorrespondentInstead": "You can <a href=\"{{.Link}}\" class=\"govuk-link\">add a correspondent</a> – your correspondent will then get updates about your LPA instead of you.",
+    "weWillSendUpdatesToThisAddress": "We will send updates about your LPA to this address.",
+    "yourCorrespondentsDetails": "Your correspondent’s details",
+    "youHaveAskedToSendUpdatesToCorrespondentToChooseDifferent": "<p class=\"govuk-body\">You have asked us to send updates about your LPA to your correspondent, {{.CorrespondentFullName}}.</p><p class=\"govuk-body\">To choose a different correspondent, or get updates sent to you, select ‘Remove correspondent’.</p>"
 }

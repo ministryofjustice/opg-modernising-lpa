@@ -300,6 +300,10 @@ func Register(
 		DeleteLpa(logger, tmpls.Get("delete_this_lpa.gohtml"), donorStore, notifyClient, certificateProviderStartURL, eventClient))
 	handleWithDonor(donor.PathWithdrawThisLpa, page.None,
 		WithdrawLpa(tmpls.Get("withdraw_this_lpa.gohtml"), donorStore, time.Now, lpaStoreClient, notifyClient, lpaStoreResolvingService, certificateProviderStore, certificateProviderStartURL, attorneyStartURL))
+	handleWithDonor(donor.PathContactDetails, page.None,
+		Guidance(tmpls.Get("contact_details.gohtml")))
+	handleWithDonor(donor.PathContactEmail, page.CanGoBack,
+		YourEmail(tmpls.Get("contact_email.gohtml"), donorStore, nil))
 
 	handleWithDonor(donor.PathMakeANewLPA, page.None,
 		Guidance(tmpls.Get("make_a_new_lpa.gohtml")))

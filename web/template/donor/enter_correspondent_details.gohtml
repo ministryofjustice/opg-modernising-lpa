@@ -32,7 +32,11 @@
                     </fieldset>
                 </div>
 
-                {{ template "buttons" (button .App "saveAndContinue") }}
+                {{ if .CompletedAllTasks }}
+                    {{ template "button" (button .App "saveAndContinue") }}
+                {{ else }}
+                    {{ template "buttons" (button .App "saveAndContinue") }}
+                {{ end }}
                 {{ template "csrf-field" . }}
             </form>
         </div>

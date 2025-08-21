@@ -1,11 +1,22 @@
 {{ template "page" . }}
 
-{{ define "pageTitle" }}{{ tr .App "youveAddedACorrespondent" }}{{ end }}
+{{ define "pageTitle" }}
+    {{ if .Donor.CompletedAllTasks }}
+        {{ tr .App "yourCorrespondentsDetails" }}
+    {{ else }}
+        {{ tr .App "youveAddedACorrespondent" }}
+    {{ end }}
+{{ end }}
 
 {{ define "main" }}
     <div class="govuk-grid-row">
         <div class="govuk-grid-column-two-thirds">
             <h1 class="govuk-heading-xl">{{ template "pageTitle" . }}</h1>
+
+            {{ if .Donor.CompletedAllTasks }}
+                {{ trFormatHtml .App "youHaveAskedToSendUpdatesToCorrespondentToChooseDifferent"
+                    "CorrespondentFullName" .Donor.Correspondent.FullName }}
+            {{ end }}
 
             <div class="govuk-summary-card">
                 <div class="govuk-summary-card__title-wrapper">
@@ -48,7 +59,11 @@
                 </div>
             </div>
 
-            {{ template "button" (button .App "returnToTaskList" "link" (global.Paths.TaskList.Format .App.LpaID)) }}
+            {{ if .Donor.CompletedAllTasks }}
+                {{ template "button" (button .App "returnToCheckLpaProgress" "link" (global.Paths.Progress.Format .App.LpaID)) }}
+            {{ else }}
+                {{ template "button" (button .App "returnToTaskList" "link" (global.Paths.TaskList.Format .App.LpaID)) }}
+            {{ end }}
         </div>
     </div>
 {{ end }}

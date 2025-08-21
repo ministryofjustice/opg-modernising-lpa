@@ -21,6 +21,42 @@
 
             {{ if .Donor.WithdrawnAt.IsZero }}
                 {{ trHtml .App "checkTheProgressOfYourLpaContent" }}
+
+                <h2 class="govuk-heading-m">{{ tr .App "updatesAboutYourLpa" }}</h2>
+
+                {{ if or .Donor.Correspondent.UID.IsZero .Donor.Tasks.AddCorrespondent.IsInProgress }}
+                    <p class="govuk-body">{{ tr .App "youAskedUsToSendUpdatesToYou" }}</p>
+
+                    <div class="govuk-inset-text">
+                        <dl class="govuk-summary-list govuk-summary-list--no-border app-summary-list--no-vertical-padding">
+                            {{ template "summary-row" (staticSummaryRow .App "email"
+                                .Donor.Donor.Email) }}
+                            {{ if .Donor.Donor.Mobile }}
+                                {{ template "summary-row" (staticSummaryRow .App "mobile"
+                                    .Donor.Donor.Mobile) }}
+                            {{ end }}
+                        </dl>
+                    </div>
+
+                    <h3 class="govuk-heading-s">{{ tr .App "changeWhoGetsUpdates" }}</h3>
+
+                    <p class="govuk-body">{{ trFormatHtml .App "youCanChangeYourDetailsOrAddCorrespondent" "Link" (global.Paths.ContactDetails.Format .Donor.LpaID) }}</p>
+                {{ else }}
+                    <p class="govuk-body">{{ tr .App "youAskedUsToSendUpdatesToCorrespondent" }}</p>
+
+                    <div class="govuk-inset-text">
+                        <dl class="govuk-summary-list govuk-summary-list--no-border app-summary-list--no-vertical-padding">
+                            {{ template "summary-row" (staticSummaryRow .App "name"
+                                .Donor.Correspondent.FullName) }}
+                            {{ template "summary-row" (staticSummaryRow .App "email"
+                                .Donor.Correspondent.Email) }}
+                        </dl>
+                    </div>
+
+                    <h3 class="govuk-heading-s">{{ tr .App "changeWhoGetsUpdates" }}</h3>
+
+                    <p class="govuk-body">{{ trFormatHtml .App "youCanChangeOrDeleteCorrespondent" "Link" (global.Paths.CorrespondentSummary.Format .Donor.LpaID) }}</p>
+                {{ end }}
             {{ end }}
 
             <hr class="govuk-section-break govuk-section-break--l govuk-section-break--visible">

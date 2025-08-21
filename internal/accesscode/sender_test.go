@@ -20,6 +20,7 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/scheduled"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/scheduled/scheduleddata"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/task"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
 )
@@ -1634,6 +1635,7 @@ func TestSendVoucherInvite(t *testing.T) {
 				Email:      "donor@example.com",
 			},
 			correspondent: donordata.Correspondent{
+				UID:        actoruid.New(),
 				FirstNames: "corr",
 				LastName:   "espond",
 				Email:      "correspondent@example.com",
@@ -1658,6 +1660,7 @@ func TestSendVoucherInvite(t *testing.T) {
 					LastName:   "d",
 					Email:      "voucher@example.com",
 				},
+				Tasks: donordata.Tasks{AddCorrespondent: task.StateCompleted},
 			}
 
 			accessCodeStore := newMockAccessCodeStore(t)

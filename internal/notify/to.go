@@ -61,11 +61,12 @@ func ToDonor(donor *donordata.Provided) To {
 		lang:   donor.Donor.ContactLanguagePreference,
 	}
 
-	if donor.Correspondent.Email != "" {
+	if donor.HasCorrespondent() {
 		to.email = donor.Correspondent.Email
-	}
-	if donor.Correspondent.Phone != "" {
-		to.mobile = donor.Correspondent.Phone
+
+		if donor.Correspondent.Phone != "" {
+			to.mobile = donor.Correspondent.Phone
+		}
 	}
 
 	return to

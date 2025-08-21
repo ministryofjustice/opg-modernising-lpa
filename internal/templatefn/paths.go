@@ -175,6 +175,9 @@ type appPaths struct {
 	ChooseYourCertificateProvider                        donor.Path
 	ConfirmPersonAllowedToVouch                          donor.Path
 	ConfirmYourCertificateProviderIsNotRelated           donor.Path
+	ContactDetails                                       donor.Path
+	ContactEmail                                         donor.Path
+	CorrespondentSummary                                 donor.Path
 	DeleteThisLpa                                        donor.Path
 	DoYouLiveInTheUK                                     donor.Path
 	DoYouWantReplacementAttorneys                        donor.Path
@@ -427,6 +430,9 @@ var paths = appPaths{
 	ChooseYourCertificateProvider:                        donor.PathChooseYourCertificateProvider,
 	ConfirmPersonAllowedToVouch:                          donor.PathConfirmPersonAllowedToVouch,
 	ConfirmYourCertificateProviderIsNotRelated:           donor.PathConfirmYourCertificateProviderIsNotRelated,
+	ContactDetails:                                       donor.PathContactDetails,
+	ContactEmail:                                         donor.PathContactEmail,
+	CorrespondentSummary:                                 donor.PathCorrespondentSummary,
 	DeleteThisLpa:                                        donor.PathDeleteThisLpa,
 	DoYouLiveInTheUK:                                     donor.PathDoYouLiveInTheUK,
 	DoYouWantReplacementAttorneys:                        donor.PathDoYouWantReplacementAttorneys,
