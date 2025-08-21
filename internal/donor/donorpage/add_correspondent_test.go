@@ -11,6 +11,7 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor/donordata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/form"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/task"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/validation"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
@@ -63,6 +64,7 @@ func TestGetAddCorrespondentWhenExists(t *testing.T) {
 	err := AddCorrespondent(nil, nil)(testAppData, w, r, &donordata.Provided{
 		LpaID:         "lpa-id",
 		Correspondent: donordata.Correspondent{UID: testUID},
+		Tasks:         donordata.Tasks{AddCorrespondent: task.StateCompleted},
 	})
 	resp := w.Result()
 

@@ -37,7 +37,11 @@
                         {{ template "input" (input . .Form.FieldNames.Postcode "postcode" .Form.Address.Postcode "classes" "govuk-input--width-10" "autocomplete" "postal-code") }}
                     </fieldset>
 
-                    {{ template "buttons" (button .App "saveAndContinue") }}
+                    {{ if .CompletedAllTasks }}
+                        {{ template "button" (button .App "saveAndContinue") }}
+                    {{ else }}
+                        {{ template "buttons" (button .App "saveAndContinue") }}
+                    {{ end }}
                     <input type="hidden" name="{{ .Form.FieldNames.Action }}" value="manual" />
 
                 {{ else if eq .Form.Action "postcode-select" "postcode-lookup" }}
@@ -139,7 +143,11 @@
                         </fieldset>
                     </div>
 
-                    {{ template "buttons" (button .App "saveAndContinue") }}
+                    {{ if .CompletedAllTasks }}
+                        {{ template "button" (button .App "saveAndContinue") }}
+                    {{ else }}
+                        {{ template "buttons" (button .App "saveAndContinue") }}
+                    {{ end }}
                     <input type="hidden" name="{{ .Form.FieldNames.Action }}" value="reuse-select" />
 
                 {{ else }}
@@ -166,7 +174,11 @@
                         (item "postcode" "enterNewAddress")
                         ) }}
 
-                    {{ template "buttons" (button .App "continue") }}
+                    {{ if .CompletedAllTasks }}
+                        {{ template "button" (button .App "continue") }}
+                    {{ else }}
+                        {{ template "buttons" (button .App "continue") }}
+                    {{ end }}
                 {{ end }}
 
                 {{ template "csrf-field" . }}

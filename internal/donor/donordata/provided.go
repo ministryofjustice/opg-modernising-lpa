@@ -98,9 +98,9 @@ type Provided struct {
 	// Details on how replacement attorneys must step in if HowShouldReplacementAttorneysStepIn is set to "other"
 	HowShouldReplacementAttorneysStepInDetails string
 	// Whether the applicant wants to add a correspondent
-	AddCorrespondent form.YesNo
+	AddCorrespondent form.YesNo `checkhash:"-"`
 	// Correspondent is sent updates on an application in place of a (supporter) donor
-	Correspondent Correspondent
+	Correspondent Correspondent `checkhash:"-"`
 	// Whether the applicant wants to notify people about the application
 	DoYouWantToNotifyPeople form.YesNo
 	// People to notify about the application
@@ -249,7 +249,6 @@ func (p *Provided) CompletedAllTasks() bool {
 		p.Tasks.Restrictions.IsCompleted() &&
 		p.Tasks.CertificateProvider.IsCompleted() &&
 		p.Tasks.PeopleToNotify.IsCompleted() &&
-		p.Tasks.AddCorrespondent.IsCompleted() &&
 		(p.Donor.CanSign.IsYes() || p.Tasks.ChooseYourSignatory.IsCompleted()) &&
 		p.Tasks.CheckYourLpa.IsCompleted() &&
 		p.Tasks.PayForLpa.IsCompleted() &&
@@ -450,12 +449,11 @@ func (p *Provided) Under18ActorDetails() []Under18ActorDetails {
 	return data
 }
 
-func (p *Provided) CorrespondentEmail() string {
-	if p.Correspondent.Email == "" {
-		return p.Donor.Email
-	}
-
-	return p.Correspondent.Email
+// HasCorrespondent returns whether a correspondent has been fully set on the
+// LPA. For consistency, use this to check whether to send notifications to the
+// correspondent.
+func (p *Provided) HasCorrespondent() bool {
+	return !p.Correspondent.UID.IsZero() && p.Tasks.AddCorrespondent.IsCompleted()
 }
 
 func (p *Provided) ActorAddresses() []place.Address {
