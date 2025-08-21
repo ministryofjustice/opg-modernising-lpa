@@ -3,11 +3,13 @@ package notify
 import (
 	"testing"
 
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor/actoruid"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/certificateprovider/certificateproviderdata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor/donordata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/localize"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/lpastore/lpadata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/pay"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/task"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -64,7 +66,8 @@ func TestToDonor(t *testing.T) {
 func TestToDonorWhenCorrespondent(t *testing.T) {
 	to := ToDonor(&donordata.Provided{
 		Donor:         donordata.Donor{Mobile: "0777", Email: "a@b.c", ContactLanguagePreference: localize.Cy},
-		Correspondent: donordata.Correspondent{Phone: "0779", Email: "d@e.f"},
+		Correspondent: donordata.Correspondent{UID: actoruid.New(), Phone: "0779", Email: "d@e.f"},
+		Tasks:         donordata.Tasks{AddCorrespondent: task.StateCompleted},
 	})
 
 	email, lang := to.toEmail()

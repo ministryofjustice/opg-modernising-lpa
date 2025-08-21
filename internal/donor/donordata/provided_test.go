@@ -269,13 +269,13 @@ func TestGenerateCheckedHash(t *testing.T) {
 	}
 
 	// DO change this value to match the updates
-	const modified uint64 = 0xe6f7219faac2c8dc
+	const modified uint64 = 0xd649d27ee8cdc8e1
 
 	// DO NOT change these initial hash values. If a field has been added/removed
 	// you will need to handle the version gracefully by modifying
 	// toCheck.HashInclude and adding another testcase for the new version.
 	testcases := map[uint8]uint64{
-		0: 0x725a601dfe9f124f,
+		0: 0xde870304c3752a3e,
 	}
 
 	for version, initial := range testcases {
@@ -539,19 +539,18 @@ func TestUnder18ActorDetails(t *testing.T) {
 	}, actors)
 }
 
-func TestProvidedCorrespondentEmail(t *testing.T) {
-	lpa := &Provided{
-		Donor: Donor{Email: "donor"},
-	}
-	assert.Equal(t, "donor", lpa.CorrespondentEmail())
-}
+func TestHasCorrespondent(t *testing.T) {
+	noCorrespondent := &Provided{}
+	assert.False(t, noCorrespondent.HasCorrespondent())
 
-func TestProvidedCorrespondentEmailWhenCorrespondentProvided(t *testing.T) {
-	lpa := &Provided{
-		Donor:         Donor{Email: "donor"},
-		Correspondent: Correspondent{Email: "correspondent"},
-	}
-	assert.Equal(t, "correspondent", lpa.CorrespondentEmail())
+	notCompleted := &Provided{Correspondent: Correspondent{UID: actoruid.New()}}
+	assert.False(t, notCompleted.HasCorrespondent())
+
+	notSet := &Provided{Tasks: Tasks{AddCorrespondent: task.StateCompleted}}
+	assert.False(t, notSet.HasCorrespondent())
+
+	completedAndSet := &Provided{Correspondent: Correspondent{UID: actoruid.New()}, Tasks: Tasks{AddCorrespondent: task.StateCompleted}}
+	assert.True(t, completedAndSet.HasCorrespondent())
 }
 
 func TestActorAddresses(t *testing.T) {

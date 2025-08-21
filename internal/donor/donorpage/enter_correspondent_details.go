@@ -15,9 +15,10 @@ import (
 )
 
 type enterCorrespondentDetailsData struct {
-	App    appcontext.Data
-	Errors validation.List
-	Form   *enterCorrespondentDetailsForm
+	App               appcontext.Data
+	Errors            validation.List
+	Form              *enterCorrespondentDetailsForm
+	CompletedAllTasks bool
 }
 
 func EnterCorrespondentDetails(tmpl template.Template, service CorrespondentService) Handler {
@@ -32,6 +33,7 @@ func EnterCorrespondentDetails(tmpl template.Template, service CorrespondentServ
 				Phone:        provided.Correspondent.Phone,
 				WantAddress:  form.NewYesNoForm(provided.Correspondent.WantAddress),
 			},
+			CompletedAllTasks: provided.CompletedAllTasks(),
 		}
 
 		if r.Method == http.MethodPost {

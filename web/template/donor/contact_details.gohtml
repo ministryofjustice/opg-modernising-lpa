@@ -1,0 +1,31 @@
+{{ template "page" . }}
+
+{{ define "pageTitle" }}{{ tr .App "yourDetails" }}{{ end }}
+
+{{ define "main" }}
+    <div class="govuk-grid-row">
+        <div class="govuk-grid-column-two-thirds">
+            <h1 class="govuk-heading-xl">{{ tr .App "yourDetails" }}</h1>
+
+            <p class="govuk-body">{{ tr .App "youAskedUsToSendUpdatesToYou" }}</p>
+
+            <dl class="govuk-summary-list">
+                {{ template "summary-row" (summaryRow .App "email"
+                    .Donor.Donor.Email
+                    (fromLink .App global.Paths.YourEmail "#f-email")
+                    .Donor.Donor.FullName true true) }}
+
+                {{ template "summary-row" (summaryRow .App "mobile"
+                    .Donor.Donor.Mobile
+                    (fromLink .App global.Paths.YourMobile "#f-mobile")
+                    .Donor.Donor.FullName true true) }}
+            </dl>
+
+            <h2 class="govuk-heading-m">{{ tr .App "changeWhoGetsUpdatesAboutYourLpa" }}</h2>
+
+            <p class="govuk-body">{{ trFormatHtml .App "youCanAddCorrespondentInstead" "Link" (global.Paths.AddCorrespondent.Format .App.LpaID) }}</p>
+
+            {{ template "button" (button .App "returnToCheckLpaProgress" "link" (global.Paths.Progress.Format .App.LpaID))  }}
+        </div>
+    </div>
+{{ end }}
