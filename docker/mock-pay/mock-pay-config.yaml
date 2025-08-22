@@ -1,7 +1,19 @@
 plugin: openapi
 specFile: publicapi_spec.json
-response:
-  scriptFile: payments.js
+
+resources:
+  - path: /v1/payments/*
+    method: GET
+    steps:
+      - type: script
+        lang: javascript
+        file: payments.js
+  - path: /v1/payments
+    method: POST
+    steps:
+      - type: script
+        lang: javascript
+        file: payments.js
 
 validation:
-  request: true
+  request: log
