@@ -45,11 +45,16 @@ func Cost(feeType FeeType, previousFee PreviousFee, costOfRepeatApplication Cost
 	case QuarterFee:
 		return feeQuarter
 	case RepeatApplicationFee:
-		if costOfRepeatApplication.IsHalfFee() || previousFee.IsFull() {
+		if costOfRepeatApplication.IsNoFee() {
+			return 0
+		}
+
+		switch previousFee {
+		case PreviousFeeFull:
 			return feeHalf
-		} else if previousFee.IsHalf() {
+		case PreviousFeeHalf:
 			return feeQuarter
-		} else {
+		default:
 			return 0
 		}
 	default:
