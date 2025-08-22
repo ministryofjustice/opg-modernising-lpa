@@ -3,12 +3,16 @@ package main
 import (
 	"bytes"
 	"encoding/json"
+	"fmt"
 	"io"
+	"io/fs"
 	"iter"
+	"log"
 	"maps"
 	"net/http"
 	"net/http/httptest"
 	"os"
+	"path/filepath"
 	"regexp"
 	"slices"
 	"strings"
@@ -207,6 +211,75 @@ func loadTranslations(path string) translationData {
 	json.Unmarshal(data, &v)
 
 	return v
+}
+
+func TestUnusedTranslations(t *testing.T) {
+	en := loadTranslations("../../lang/en.json").Flat()
+
+	filesMap, err := readFilesFrom("/internal", "/web/template")
+	if err != nil {
+		panic(err)
+	}
+
+	for k := range en {
+		splitK := k
+		if strings.Contains(k, ":") {
+			splitK = strings.Split(k, ":")[0]
+		}
+
+		if strings.Contains(k, ".") {
+			splitK = strings.Split(k, ".")[0]
+		}
+
+		used := false
+		for _, contents := range filesMap {
+			if used = strings.Contains(contents, splitK); used {
+				break
+			}
+		}
+		if !used {
+			t.Errorf("Translation key '%s' is not used in /internal or /web/template", k)
+		}
+	}
+}
+
+func readFilesFrom(directories ...string) (map[string]string, error) {
+	files := make(map[string]string)
+	cwd, _ := os.Getwd()
+	rootDir := strings.Split(cwd, "/cmd")[0]
+
+	for _, dir := range directories {
+		err := filepath.WalkDir(rootDir+dir, func(path string, d fs.DirEntry, err error) error {
+			if err != nil {
+				return err
+			}
+
+			if d.IsDir() {
+				return nil
+			}
+
+			name := d.Name()
+			if strings.Contains(name, "_test.go") ||
+				(!strings.HasSuffix(name, ".go") && !strings.HasSuffix(name, ".gohtml")) {
+				return nil
+			}
+
+			content, err := os.ReadFile(path)
+			if err != nil {
+				log.Printf("Warning: failed to read %s: %v", path, err)
+				return nil
+			}
+
+			files[path] = string(content)
+			return nil
+		})
+
+		if err != nil {
+			return nil, fmt.Errorf("failed to walk directory %s: %w", rootDir, err)
+		}
+	}
+
+	return files, nil
 }
 
 type translationData map[string]any
