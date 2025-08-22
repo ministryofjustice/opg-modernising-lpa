@@ -3,12 +3,15 @@ package main
 import (
 	"bytes"
 	"encoding/json"
+	"fmt"
 	"io"
+	"io/fs"
 	"iter"
 	"maps"
 	"net/http"
 	"net/http/httptest"
 	"os"
+	"path/filepath"
 	"regexp"
 	"slices"
 	"strings"
@@ -227,6 +230,104 @@ func loadTranslations(path string) translationData {
 	json.Unmarshal(data, &v)
 
 	return v
+}
+
+// This test enforces conventions we have with the keys for our translations:
+//
+// - normally keys do not contain ":" or "."
+// - keys used dynamically are used in the form "something:%s"
+func TestUnusedTranslations(t *testing.T) {
+	en := loadTranslations("../../lang/en.json").Flat()
+
+	// for keys that are constructed that we know are used
+	ignoreList := []string{
+		"your-jointly-for-some-severally-for-others",
+		"your-jointly-and-severally",
+		"your-jointly",
+	}
+
+	tokens, err := readStringsFromFiles("internal", "web/template")
+	if !assert.NoError(t, err) {
+		return
+	}
+
+	for k := range en {
+		// only care about matching these once
+		if before, after, ok := strings.Cut(k, "."); ok {
+			if after == "one" {
+				k = before
+			} else {
+				continue
+			}
+		}
+
+		_, hasToken := tokens[k]
+
+		if !hasToken {
+			if before, _, ok := strings.Cut(k, ":"); ok {
+				_, hasToken = tokens[before+":%s"]
+				if hasToken {
+					k = before + ":%s"
+				}
+			}
+		}
+
+		if !hasToken && !slices.Contains(ignoreList, k) {
+			t.Errorf("Translation key '%s' is not used in /internal or /web/template", k)
+		}
+	}
+}
+
+func readStringsFromFiles(directories ...string) (map[string]struct{}, error) {
+	cwd, _ := os.Getwd()
+	rootDir, _, _ := strings.Cut(cwd, "/cmd")
+
+	tokens := map[string]struct{}{}
+
+	for _, dir := range directories {
+		err := filepath.WalkDir(filepath.Join(rootDir, dir), func(path string, d fs.DirEntry, err error) error {
+			if err != nil {
+				return err
+			}
+
+			if d.IsDir() {
+				return nil
+			}
+
+			if name := d.Name(); strings.HasSuffix(name, ".go") || strings.HasSuffix(name, ".gohtml") {
+				if strings.HasSuffix(name, "_test.go") {
+					return nil
+				}
+
+				content, err := os.ReadFile(path)
+				if err != nil {
+					return fmt.Errorf("read file '%s': %w", path, err)
+				}
+
+				for token := range strings.FieldsSeq(string(content)) {
+					_, inner, ok := strings.Cut(token, `"`)
+					if !ok {
+						continue
+					}
+
+					inner, _, ok = strings.Cut(inner, `"`)
+					if !ok {
+						continue
+					}
+
+					tokens[inner] = struct{}{}
+				}
+			}
+
+			return nil
+		})
+
+		if err != nil {
+			return nil, fmt.Errorf("failed to walk directory %s: %w", rootDir, err)
+		}
+	}
+
+	return tokens, nil
 }
 
 type translationData map[string]any
