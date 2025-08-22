@@ -56,6 +56,7 @@ func TestCost(t *testing.T) {
 		"repeat entitled to half": {
 			feeType:                 RepeatApplicationFee,
 			costOfRepeatApplication: CostOfRepeatApplicationHalfFee,
+			previousFee:             PreviousFeeFull,
 			expected:                4100,
 		},
 		"repeat entitled to no": {
