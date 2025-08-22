@@ -197,6 +197,32 @@ func TestTranslationContentMustMatch(t *testing.T) {
 	}
 }
 
+func TestTranslationExternalLinksMustContainRelNoopenerNoreferrer(t *testing.T) {
+	assertRelCorrectFn := func(t *testing.T, translationMap iter.Seq2[string, string], lang string) {
+		linkRegex := regexp.MustCompile(`.*<a.*href=\"https?://.*>.*`)
+
+		for k, translation := range translationMap {
+			linkTranslation := linkRegex.FindString(translation)
+
+			if linkTranslation == "" {
+				continue
+			}
+
+			if !strings.Contains(linkTranslation, "rel=") {
+				t.Errorf("Translation key '%s' (%s) with external link does not contain 'rel' attribute.", k, lang)
+				continue
+			}
+
+			if !strings.Contains(linkTranslation, "noopener") || !strings.Contains(linkTranslation, "noreferrer") {
+				t.Errorf("Translation key '%s' (%s) contains external link missing required 'rel' attributes.", k, lang)
+			}
+		}
+	}
+
+	assertRelCorrectFn(t, loadTranslations("../../lang/en.json").Flat(), "en")
+	assertRelCorrectFn(t, loadTranslations("../../lang/cy.json").Flat(), "cy")
+}
+
 func loadTranslations(path string) translationData {
 	data, err := os.ReadFile(path)
 	if err != nil {
