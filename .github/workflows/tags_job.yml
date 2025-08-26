@@ -25,7 +25,7 @@ jobs:
           fetch-depth: '0'
       - name: "Generate semver tag and release"
         id: semver_tag
-        uses: ministryofjustice/opg-github-actions/actions/semver@ded4624de0a3e2cdb0363d14290ecd82954a0461 # v4.2.3
+        uses: ministryofjustice/opg-github-actions/actions/semver@9c80e2dfa5701930bcd444f26081c1183d951409 # v4.3.2
         with:
           create_release: false
     outputs:
