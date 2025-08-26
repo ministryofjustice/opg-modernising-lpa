@@ -25,12 +25,11 @@ jobs:
           fetch-depth: '0'
       - name: "Generate semver tag and release"
         id: semver_tag
-        uses: ministryofjustice/opg-github-actions/.github/actions/semver-tag@ea1e81f43e7593acd74cc114085930f5f54914a2 # v3.1.7
+        uses: ministryofjustice/opg-github-actions/actions/semver@9c80e2dfa5701930bcd444f26081c1183d951409 # v4.3.2
         with:
-          releases_enabled: false
-          with_v: true
+          create_release: false
     outputs:
-      docker_tag: ${{ steps.semver_tag.outputs.created_tag }}
+      docker_tag: ${{ steps.semver_tag.outputs.tag }}
 
   generate_environment_workspace_name:
     if: github.ref != 'refs/heads/main'
