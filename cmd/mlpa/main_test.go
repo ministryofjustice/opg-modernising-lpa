@@ -15,6 +15,7 @@ import (
 	"testing"
 
 	"github.com/stretchr/testify/assert"
+	"golang.org/x/net/html"
 )
 
 var headingTagRe = regexp.MustCompile(`<\s*(/\s*h\d\s*|h\d.+?)\s*>`)
@@ -197,6 +198,25 @@ func TestTranslationContentMustMatch(t *testing.T) {
 	}
 }
 
+func TestTranslationExternalLinksMustContainRelNoopenerNoreferrer(t *testing.T) {
+	en := loadTranslations("../../lang/en.json")
+	cy := loadTranslations("../../lang/cy.json")
+
+	for k, v := range en.Flat() {
+		if !externalLinksCorrect(v) {
+			t.Fail()
+			t.Log("lang/en.json:", k)
+		}
+	}
+
+	for k, v := range cy.Flat() {
+		if !externalLinksCorrect(v) {
+			t.Fail()
+			t.Log("lang/cy.json:", k)
+		}
+	}
+}
+
 func loadTranslations(path string) translationData {
 	data, err := os.ReadFile(path)
 	if err != nil {
@@ -236,4 +256,47 @@ func TestStripHTML(t *testing.T) {
 
 func stripHeadings(s string) string {
 	return headingTagRe.ReplaceAllString(s, "<X>")
+}
+
+func TestExternalLinksCorrect(t *testing.T) {
+	assert.True(t, externalLinksCorrect(`No links here`))
+	assert.True(t, externalLinksCorrect(`<a href="https://example.com" class="govuk-link" target="_blank" rel="noreferrer noopener">`))
+	assert.True(t, externalLinksCorrect(`<a href="https://example.com" class="govuk-link" rel="noreferrer noopener"></a><a href="https://example.com" class="govuk-link" target="_blank" rel="noreferrer noopener"></a>`))
+	assert.True(t, externalLinksCorrect(`<a href="/ok">`))
+
+	assert.False(t, externalLinksCorrect(`<a href="https://example.com" class="govuk-link" target="_blank" rel="noreferrer">`))
+	assert.False(t, externalLinksCorrect(`<a href="https://example.com" class="govuk-link" rel="noreferrer noopener"></a><a href="https://example.com" class="govuk-link" target="_blank" rel="noopener"></a>`))
+}
+
+func externalLinksCorrect(s string) bool {
+	doc, err := html.Parse(strings.NewReader(s))
+	if err != nil {
+		return true
+	}
+
+	for n := range doc.Descendants() {
+		if n.Type == html.ElementNode && n.Data == "a" {
+			var (
+				href string
+				rels []string
+			)
+
+			for _, a := range n.Attr {
+				switch a.Key {
+				case "href":
+					href = a.Val
+				case "rel":
+					rels = strings.Fields(a.Val)
+				}
+			}
+
+			if strings.HasPrefix(href, "https://") {
+				if !slices.Contains(rels, "noreferrer") || !slices.Contains(rels, "noopener") {
+					return false
+				}
+			}
+		}
+	}
+
+	return true
 }
