@@ -64,8 +64,7 @@ func TestLanguageFilesUniqueKeys(t *testing.T) {
 			valTok, _ := dec.Token()
 
 			if _, found := keys[tok]; found {
-				t.Fail()
-				t.Log(path, "duplicate:", tok)
+				t.Error(path, "duplicate:", tok)
 			}
 
 			keys[tok] = struct{}{}
@@ -88,34 +87,25 @@ func TestLanguageFilesMatch(t *testing.T) {
 
 	for k := range en {
 		if _, ok := cy[k]; !ok {
-			t.Fail()
-			t.Log("lang/cy.json missing:", k)
+			t.Error("lang/cy.json missing:", k)
 		}
 	}
 
 	for k := range cy {
 		if _, ok := en[k]; !ok {
-			t.Fail()
-			t.Log("lang/en.json missing:", k)
+			t.Error("lang/en.json missing:", k)
 		}
 	}
 }
 
 func TestApostrophesAreCurly(t *testing.T) {
-	en := loadTranslations("../../lang/en.json")
-	cy := loadTranslations("../../lang/cy.json")
+	for _, path := range []string{"lang/en.json", "lang/cy.json"} {
+		list := loadTranslations("../../" + path)
 
-	for k, v := range en.Flat() {
-		if strings.Contains(v, "'") {
-			t.Fail()
-			t.Log("lang/en.json:", k)
-		}
-	}
-
-	for k, v := range cy.Flat() {
-		if strings.Contains(v, "'") {
-			t.Fail()
-			t.Log("lang/cy.json:", k)
+		for k, v := range list.Flat() {
+			if strings.Contains(v, "'") {
+				t.Errorf("%s: %s", path, k)
+			}
 		}
 	}
 }
@@ -126,18 +116,15 @@ func TestNoJSON(t *testing.T) {
 
 		for k, v := range list.Flat() {
 			if strings.Contains(v, "\\\"") {
-				t.Fail()
-				t.Log(path, `contains \\\":`, k)
+				t.Error(path, `contains \\\":`, k)
 			}
 
 			if strings.HasPrefix(v, "\"") {
-				t.Fail()
-				t.Log(path, `starts with \":`, k)
+				t.Error(path, `starts with \":`, k)
 			}
 
 			if strings.HasSuffix(v, "\",") {
-				t.Fail()
-				t.Log(path, `ends with \",:`, k)
+				t.Error(path, `ends with \",:`, k)
 			}
 		}
 	}
@@ -149,8 +136,7 @@ func TestNoWelshPossessive(t *testing.T) {
 
 	for k, v := range cy.Flat() {
 		if possessiveRe.MatchString(v) {
-			t.Fail()
-			t.Log("lang/cy.json:", k)
+			t.Error("lang/cy.json:", k)
 		}
 	}
 }
@@ -180,8 +166,7 @@ func TestTranslationVariablesMustMatch(t *testing.T) {
 			slices.Sort(cyGroups)
 
 			if !slices.Equal(enGroups, cyGroups) {
-				t.Fail()
-				t.Logf("missing translation variable in %s en: %v | cy: %v", k, enGroups, cyGroups)
+				t.Errorf("missing translation variable in %s en: %v | cy: %v", k, enGroups, cyGroups)
 			}
 		}
 	}
@@ -202,20 +187,13 @@ func TestTranslationContentMustMatch(t *testing.T) {
 }
 
 func TestTranslationExternalLinksMustContainRelNoopenerNoreferrer(t *testing.T) {
-	en := loadTranslations("../../lang/en.json")
-	cy := loadTranslations("../../lang/cy.json")
+	for _, path := range []string{"lang/en.json", "lang/cy.json"} {
+		list := loadTranslations("../../" + path)
 
-	for k, v := range en.Flat() {
-		if !externalLinksCorrect(v) {
-			t.Fail()
-			t.Log("lang/en.json:", k)
-		}
-	}
-
-	for k, v := range cy.Flat() {
-		if !externalLinksCorrect(v) {
-			t.Fail()
-			t.Log("lang/cy.json:", k)
+		for k, v := range list.Flat() {
+			if !externalLinksCorrect(v) {
+				t.Errorf("%s: %s", path, k)
+			}
 		}
 	}
 }
@@ -237,8 +215,6 @@ func loadTranslations(path string) translationData {
 // - normally keys do not contain ":" or "."
 // - keys used dynamically are used in the form "something:%s"
 func TestUnusedTranslations(t *testing.T) {
-	en := loadTranslations("../../lang/en.json").Flat()
-
 	// keys that don't follow the rules, yet
 	exceptions := []string{
 		"your-jointly-for-some-severally-for-others",
@@ -255,16 +231,7 @@ func TestUnusedTranslations(t *testing.T) {
 		return
 	}
 
-	for k := range en {
-		// only care about matching these once
-		if before, after, ok := strings.Cut(k, "."); ok {
-			if after == "one" {
-				k = before
-			} else {
-				continue
-			}
-		}
-
+	for k := range loadTranslations("../../lang/en.json") {
 		_, hasToken := tokens[k]
 
 		if !hasToken {
@@ -277,7 +244,7 @@ func TestUnusedTranslations(t *testing.T) {
 		}
 
 		if !hasToken && !slices.Contains(exceptions, k) {
-			t.Errorf("Translation key '%s' is not used in /internal or /web/template", k)
+			t.Error("unused:", k)
 		}
 	}
 }
