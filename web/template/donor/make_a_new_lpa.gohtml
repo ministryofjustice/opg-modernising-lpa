@@ -7,9 +7,11 @@
         <div class="govuk-grid-column-two-thirds">
             <h1 class="govuk-heading-xl">{{ tr .App "makeANewLPA" }}</h1>
 
-            <p class="govuk-body">{{ tr .App "youShouldOnlyChangeYourDetailsIfTheyNeedToBeUpdated" }}</p>
+            {{ trHtml .App "makeANewLpaContent" }}
 
             {{ template "details" (details . "makingAnLPAForSomeoneElse" "makingAnLPAForSomeoneElseDetailContent" false) }}
+
+            <p class="govuk-body">{{ tr .App "changeYoureDetailsIfNotCorrect" }}</p>
 
             <div class="govuk-summary-card">
                 <div class="govuk-summary-card__title-wrapper">

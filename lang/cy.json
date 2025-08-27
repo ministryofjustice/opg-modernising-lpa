@@ -925,7 +925,6 @@
     "pending": "Yn yr arfaeth",
     "denied": "Gwrthodwyd",
     "makeANewLPA": "Gwneud LPA newydd",
-    "youShouldOnlyChangeYourDetailsIfTheyNeedToBeUpdated": "Dim ond os oes angen eu diweddaru y dylech newid eich manylion. Allwch chi ddim gwneud LPA ar ran rhywun arall gan ddefnyddio eich cyfrif chi.",
     "yourName": "Eich enw",
     "yourNameWarning": "Dim ond eich manylion chi y dylech eu rhoi. Allwch chi ddim gwneud LPA ar ran rhywun arall gan ddefnyddio eich cyfrif.",
     "yourDateOfBirth": "Eich dyddiad geni",
@@ -1941,5 +1940,7 @@
     "youCanAddCorrespondentInstead": "Welsh <a href=\"{{.Link}}\" class=\"govuk-link\">Welsh</a>",
     "weWillSendUpdatesToThisAddress": "Welsh",
     "yourCorrespondentsDetails": "Welsh",
-    "youHaveAskedToSendUpdatesToCorrespondentToChooseDifferent": "<p class=\"govuk-body\">Welsh {{.CorrespondentFullName}}</p>"
+    "youHaveAskedToSendUpdatesToCorrespondentToChooseDifferent": "<p class=\"govuk-body\">Welsh {{.CorrespondentFullName}}</p>",
+    "makeANewLpaContent": "<p class=\"govuk-body\">Welsh</p>",
+    "changeYoureDetailsIfNotCorrect": "Welsh"
 }

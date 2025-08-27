@@ -857,7 +857,6 @@
     "pending": "Pending",
     "denied": "Denied",
     "makeANewLPA": "Make a new LPA",
-    "youShouldOnlyChangeYourDetailsIfTheyNeedToBeUpdated": "You should only change your details if they need to be updated. You cannot make an LPA for someone else using your own account.",
     "yourName": "Your name",
     "yourNameWarning": "You should only enter your details. You cannot make an LPA for someone else using your account.",
     "yourDateOfBirth": "Your date of birth",
@@ -1857,5 +1856,7 @@
     "youCanAddCorrespondentInstead": "You can <a href=\"{{.Link}}\" class=\"govuk-link\">add a correspondent</a> – your correspondent will then get updates about your LPA instead of you.",
     "weWillSendUpdatesToThisAddress": "We will send updates about your LPA to this address.",
     "yourCorrespondentsDetails": "Your correspondent’s details",
-    "youHaveAskedToSendUpdatesToCorrespondentToChooseDifferent": "<p class=\"govuk-body\">You have asked us to send updates about your LPA to your correspondent, {{.CorrespondentFullName}}.</p><p class=\"govuk-body\">To choose a different correspondent, or get updates sent to you, select ‘Remove correspondent’.</p>"
+    "youHaveAskedToSendUpdatesToCorrespondentToChooseDifferent": "<p class=\"govuk-body\">You have asked us to send updates about your LPA to your correspondent, {{.CorrespondentFullName}}.</p><p class=\"govuk-body\">To choose a different correspondent, or get updates sent to you, select ‘Remove correspondent’.</p>",
+    "makeANewLpaContent": "<p class=\"govuk-body\">We’ll ask you to:</p><ul class=\"govuk-list govuk-list--bullet\"><li>check your details</li><li>answer some general questions about making an LPA</li><li>read your legal rights and responsibilities</li></ul><p class=\"govuk-body\">You’ll then be able to choose the type of LPA you want to make.</p>",
+    "changeYoureDetailsIfNotCorrect": "Change your details if they’re not correct."
 }
