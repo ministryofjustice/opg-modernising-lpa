@@ -60,6 +60,10 @@
                     {{ if .App.IsTrustCorporation }}
                         {{ trHtml .App "signAsTrustCorporationBullets" }}
                     {{ else }}
+                        <li>{{ tr .App "iAmAged18OrOver" }}</li>
+                        {{ if .Lpa.Type.IsPropertyAndAffairs }}
+                            <li>{{ tr .App "iAmNotSubjectToBankruptcy" }}</li>
+                        {{ end }}
                         {{ trFormatHtml .App "signAsAttorneyBullets" "DonorFullName" .Lpa.Donor.FullName }}
                     {{ end }}
                     {{ if .Lpa.Type.IsPersonalWelfare }}
