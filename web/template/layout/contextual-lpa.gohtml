@@ -405,6 +405,10 @@
                     <p class="govuk-body govuk-!-font-weight-bold">{{ tr $.App "iUnderstandAndConfirmThat" }}</p>
 
                     <ul class="govuk-list govuk-list--bullet">
+                        <li>{{ tr $.App "iAmAged18OrOver" }}</li>
+                        {{ if $.Lpa.Type.IsPropertyAndAffairs }}
+                            <li>{{ tr $.App "iAmNotSubjectToBankruptcy" }}</li>
+                        {{ end }}
                         {{ trFormatHtml $.App "signAsAttorneyBullets" "DonorFullName" $.Lpa.Donor.FullName }}
                         {{ if $.Lpa.Type.IsPersonalWelfare }}
                             <li>{{ tr $.App "iUnderstandWhetherICanConstentToLst" }}</li>
@@ -473,6 +477,10 @@
                     <p class="govuk-body govuk-!-font-weight-bold">{{ tr $.App "iUnderstandAndConfirmThat" }}</p>
 
                     <ul class="govuk-list govuk-list--bullet">
+                        <li>{{ tr $.App "iAmAged18OrOver" }}</li>
+                        {{ if $.Lpa.Type.IsPropertyAndAffairs }}
+                            <li>{{ tr $.App "iAmNotSubjectToBankruptcy" }}</li>
+                        {{ end }}
                         {{ trFormatHtml $.App "signAsAttorneyBullets" "DonorFullName" $.Lpa.Donor.FullName }}
                         {{ if $.Lpa.Type.IsPersonalWelfare }}
                             <li>{{ tr $.App "iUnderstandWhetherICanConstentToLst" }}</li>
