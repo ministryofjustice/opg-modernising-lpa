@@ -58,8 +58,6 @@
     <h2 class="govuk-heading-m">{{ tr .App "whatHappensNext" }}</h2>
     {{ trHtml .App "theDetailsOnYourLpaCannotBeUpdatedAsSigned" }}
 
-    {{ template "warning" (content .App "onceYouApplyToRegisterWithCourtOfProtection") }}
-
     <form novalidate method="post">
         {{ template "radios-fieldset" (fieldset . .Form.FieldName .Form.YesNo.String
             (legend "whatWouldYouLikeToDo" "govuk-fieldset__legend--m")
