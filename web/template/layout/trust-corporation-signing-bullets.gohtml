@@ -1,0 +1,12 @@
+{{ define "trust-corporation-signing-bullets" }}
+    <ul class="govuk-list govuk-list--bullet">
+        {{ trHtml .App "signAsTrustCorporationBullets" }}
+        <li>
+            {{ if .Lpa.WhenCanTheLpaBeUsed.IsHasCapacity }}
+                {{ tr .App "signAsTrustCorporationWhenRegisteredBullet" }}
+            {{ else }}
+                {{ tr .App "signAsTrustCorporationWhenCapacityLostBullet" }}
+            {{ end }}
+        </li>
+    </ul>
+{{ end }}

@@ -1,0 +1,19 @@
+{{ define "attorney-signing-bullets" }}
+    <ul class="govuk-list govuk-list--bullet">
+        <li>{{ tr .App "iAmAged18OrOver" }}</li>
+        {{ if .Lpa.Type.IsPropertyAndAffairs }}
+            <li>{{ tr .App "iAmNotSubjectToBankruptcy" }}</li>
+        {{ end }}
+        {{ trFormatHtml .App "signAsAttorneyBullets" "DonorFullName" .Lpa.Donor.FullName }}
+        {{ if .Lpa.Type.IsPersonalWelfare }}
+            <li>{{ tr .App "iUnderstandWhetherICanConstentToLst" }}</li>
+        {{ end }}
+        <li>
+            {{ if .Lpa.WhenCanTheLpaBeUsed.IsHasCapacity }}
+                {{ trFormat .App "signAsAttorneyWhenRegisteredBullet" "DonorFullName" .Lpa.Donor.FullName }}
+            {{ else }}
+                {{ tr .App "signAsAttorneyWhenCapacityLostBullet" }}
+            {{ end }}
+        </li>
+    </ul>
+{{ end }}
