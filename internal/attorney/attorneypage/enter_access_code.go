@@ -29,7 +29,7 @@ func EnterAccessCode(attorneyStore AttorneyStore, lpaStoreClient LpaStoreClient,
 			return err
 		}
 
-		if err := eventClient.SendMetric(r.Context(), event.CategoryFunnelStartRate, event.MeasureOnlineAttorney); err != nil {
+		if err := eventClient.SendMetric(r.Context(), lpa.LpaID+"/"+session.Sub, event.CategoryFunnelStartRate, event.MeasureOnlineAttorney); err != nil {
 			return fmt.Errorf("sending metric: %w", err)
 		}
 

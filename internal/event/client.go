@@ -3,6 +3,8 @@ package event
 
 import (
 	"context"
+	"crypto/sha256"
+	"encoding/hex"
 	"encoding/json"
 	"errors"
 	"strconv"
@@ -114,13 +116,15 @@ func (c *Client) SendRegisterWithCourtOfProtection(ctx context.Context, event Re
 	return send[RegisterWithCourtOfProtection](ctx, c, event)
 }
 
-func (c *Client) SendMetric(ctx context.Context, category Category, measure Measure) error {
+func (c *Client) SendMetric(ctx context.Context, key string, category Category, measure Measure) error {
+	hashedKey := sha256.Sum256([]byte(key))
+
 	return send[Metrics](ctx, c, Metrics{
 		Metrics: []MetricWrapper{{
 			Metric: Metric{
 				Project:          "MRLPA",
-				Category:         "metric",
-				Subcategory:      category,
+				Category:         category,
+				Subcategory:      hex.EncodeToString(hashedKey[:]),
 				Environment:      c.environment,
 				MeasureName:      measure,
 				MeasureValue:     "1",

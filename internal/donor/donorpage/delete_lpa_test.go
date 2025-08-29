@@ -62,10 +62,11 @@ func TestPostDeleteLpa(t *testing.T) {
 
 	eventClient := newMockEventClient(t)
 	eventClient.EXPECT().
-		SendMetric(r.Context(), event.CategoryDraftLPADeleted, event.MeasureOnlineDonor).
+		SendMetric(r.Context(), "lpa-id", event.CategoryDraftLPADeleted, event.MeasureOnlineDonor).
 		Return(nil)
 
 	err := DeleteLpa(nil, nil, donorStore, nil, "app://", eventClient)(testAppData, w, r, &donordata.Provided{
+		LpaID:  "lpa-id",
 		LpaUID: "lpa-uid",
 		Donor:  donordata.Donor{FirstNames: "a", LastName: "b"},
 		Type:   lpadata.LpaTypePersonalWelfare,
@@ -129,10 +130,11 @@ func TestPostDeleteLpaWhenCertificateProviderInvited(t *testing.T) {
 
 	eventClient := newMockEventClient(t)
 	eventClient.EXPECT().
-		SendMetric(r.Context(), event.CategoryDraftLPADeleted, event.MeasureOnlineDonor).
+		SendMetric(r.Context(), "lpa-id", event.CategoryDraftLPADeleted, event.MeasureOnlineDonor).
 		Return(nil)
 
 	err := DeleteLpa(nil, nil, donorStore, notifyClient, "http://example.com/certificate-provider", eventClient)(testAppData, w, r, &donordata.Provided{
+		LpaID:                        "lpa-id",
 		LpaUID:                       "lpa-uid",
 		Donor:                        donordata.Donor{FirstNames: "a", LastName: "b"},
 		Type:                         lpadata.LpaTypePersonalWelfare,
@@ -154,6 +156,7 @@ func TestPostDeleteLpaWhenVoucherInvited(t *testing.T) {
 	r.Header.Add("Content-Type", page.FormUrlEncoded)
 
 	provided := &donordata.Provided{
+		LpaID:            "lpa-id",
 		LpaUID:           "lpa-uid",
 		Type:             lpadata.LpaTypePropertyAndAffairs,
 		Donor:            donordata.Donor{FirstNames: "A", LastName: "B"},
@@ -187,7 +190,7 @@ func TestPostDeleteLpaWhenVoucherInvited(t *testing.T) {
 
 	eventClient := newMockEventClient(t)
 	eventClient.EXPECT().
-		SendMetric(r.Context(), event.CategoryDraftLPADeleted, event.MeasureOnlineDonor).
+		SendMetric(r.Context(), "lpa-id", event.CategoryDraftLPADeleted, event.MeasureOnlineDonor).
 		Return(nil)
 
 	err := DeleteLpa(nil, nil, donorStore, notifyClient, "", eventClient)(appData, w, r, provided)
@@ -256,7 +259,7 @@ func TestPostDeleteLpaWhenEventClientError(t *testing.T) {
 
 	eventClient := newMockEventClient(t)
 	eventClient.EXPECT().
-		SendMetric(mock.Anything, mock.Anything, mock.Anything).
+		SendMetric(mock.Anything, mock.Anything, mock.Anything, mock.Anything).
 		Return(expectedError)
 
 	logger := newMockLogger(t)

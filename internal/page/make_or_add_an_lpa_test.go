@@ -101,7 +101,7 @@ func TestPostMakeOrAddAnLPA(t *testing.T) {
 
 			eventClient := newMockEventClient(t)
 			eventClient.EXPECT().
-				SendMetric(r.Context(), event.CategoryFunnelStartRate, event.MeasureOnlineDonor).
+				SendMetric(r.Context(), "lpa-id", event.CategoryFunnelStartRate, event.MeasureOnlineDonor).
 				Return(nil)
 
 			err := MakeOrAddAnLPA(nil, donorStore, dashboardStore, eventClient)(appcontext.Data{}, w, r)
@@ -147,11 +147,11 @@ func TestPostMakeOrAddAnLPAWhenEventClientError(t *testing.T) {
 	donorStore := newMockDonorStore(t)
 	donorStore.EXPECT().
 		Create(mock.Anything).
-		Return(nil, nil)
+		Return(&donordata.Provided{}, nil)
 
 	eventClient := newMockEventClient(t)
 	eventClient.EXPECT().
-		SendMetric(mock.Anything, mock.Anything, mock.Anything).
+		SendMetric(mock.Anything, mock.Anything, mock.Anything, mock.Anything).
 		Return(expectedError)
 
 	err := MakeOrAddAnLPA(nil, donorStore, dashboardStore, eventClient)(appcontext.Data{}, w, r)

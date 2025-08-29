@@ -109,8 +109,8 @@ func TestClientSendEvents(t *testing.T) {
 				Metrics: []MetricWrapper{{
 					Metric: Metric{
 						Project:          "MRLPA",
-						Category:         "metric",
-						Subcategory:      "CAT",
+						Category:         "CAT",
+						Subcategory:      "2c70e12b7a0646f92279f427c7b38e7334d8e5389cff167a1dc30e73f826b683",
 						Environment:      "ENV",
 						MeasureName:      "ME",
 						MeasureValue:     "1",
@@ -120,7 +120,7 @@ func TestClientSendEvents(t *testing.T) {
 				}},
 			}
 
-			return func(client *Client) error { return client.SendMetric(ctx, Category("CAT"), Measure("ME")) }, event
+			return func(client *Client) error { return client.SendMetric(ctx, "key", Category("CAT"), Measure("ME")) }, event
 		},
 	}
 

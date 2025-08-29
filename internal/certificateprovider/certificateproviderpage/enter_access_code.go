@@ -46,7 +46,7 @@ func EnterAccessCode(sessionStore SessionStore, certificateProviderStore Certifi
 			return fmt.Errorf("creating certificate provider: %w", err)
 		}
 
-		if err := eventClient.SendMetric(r.Context(), event.CategoryFunnelStartRate, event.MeasureOnlineCertificateProvider); err != nil {
+		if err := eventClient.SendMetric(r.Context(), lpa.LpaID+"/"+session.Sub, event.CategoryFunnelStartRate, event.MeasureOnlineCertificateProvider); err != nil {
 			return fmt.Errorf("sending metric: %w", err)
 		}
 

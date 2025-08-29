@@ -59,7 +59,7 @@ type Handler func(data appcontext.Data, w http.ResponseWriter, r *http.Request) 
 type EventClient interface {
 	SendNotificationSent(ctx context.Context, notificationSentEvent event.NotificationSent) error
 	SendPaperFormRequested(ctx context.Context, paperFormRequestedEvent event.PaperFormRequested) error
-	SendMetric(ctx context.Context, category event.Category, measure event.Measure) error
+	SendMetric(ctx context.Context, key string, category event.Category, measure event.Measure) error
 }
 
 type SessionStore interface {

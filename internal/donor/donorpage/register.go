@@ -174,7 +174,7 @@ type EventClient interface {
 	SendCorrespondentUpdated(ctx context.Context, e event.CorrespondentUpdated) error
 	SendConfirmAtPostOfficeSelected(ctx context.Context, e event.ConfirmAtPostOfficeSelected) error
 	SendRegisterWithCourtOfProtection(ctx context.Context, e event.RegisterWithCourtOfProtection) error
-	SendMetric(ctx context.Context, category event.Category, measure event.Measure) error
+	SendMetric(ctx context.Context, key string, category event.Category, measure event.Measure) error
 }
 
 type DashboardStore interface {

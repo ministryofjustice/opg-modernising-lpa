@@ -21,7 +21,7 @@ func EnterAccessCode(logger Logger, donorStore DonorStore, eventClient EventClie
 
 		logger.InfoContext(r.Context(), "donor access added", slog.String("lpa_id", link.LpaKey.ID()))
 
-		if err := eventClient.SendMetric(r.Context(), event.CategoryFunnelStartRate, event.MeasureOnlineDonor); err != nil {
+		if err := eventClient.SendMetric(r.Context(), lpa.LpaID+"/"+session.Sub, event.CategoryFunnelStartRate, event.MeasureOnlineDonor); err != nil {
 			return fmt.Errorf("sending metric: %w", err)
 		}
 
