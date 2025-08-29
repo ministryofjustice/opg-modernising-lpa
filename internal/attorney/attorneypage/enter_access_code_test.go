@@ -60,10 +60,10 @@ func TestEnterAccessCode(t *testing.T) {
 
 			eventClient := newMockEventClient(t)
 			eventClient.EXPECT().
-				SendMetric(r.Context(), event.CategoryFunnelStartRate, event.MeasureOnlineAttorney).
+				SendMetric(r.Context(), "lpa-id/hey", event.CategoryFunnelStartRate, event.MeasureOnlineAttorney).
 				Return(nil)
 
-			err := EnterAccessCode(attorneyStore, nil, eventClient)(testAppData, w, r, session, &lpadata.Lpa{}, tc.accessCode)
+			err := EnterAccessCode(attorneyStore, nil, eventClient)(testAppData, w, r, session, &lpadata.Lpa{LpaID: "lpa-id"}, tc.accessCode)
 			resp := w.Result()
 
 			assert.Nil(t, err)
@@ -176,7 +176,7 @@ func TestEnterAccessCodeOnEventClientError(t *testing.T) {
 
 	eventClient := newMockEventClient(t)
 	eventClient.EXPECT().
-		SendMetric(mock.Anything, mock.Anything, mock.Anything).
+		SendMetric(mock.Anything, mock.Anything, mock.Anything, mock.Anything).
 		Return(expectedError)
 
 	err := EnterAccessCode(attorneyStore, nil, eventClient)(testAppData, w, r, &sesh.LoginSession{}, &lpadata.Lpa{}, accessCode)

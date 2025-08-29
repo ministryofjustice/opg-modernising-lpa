@@ -56,7 +56,7 @@ func DeleteLpa(logger Logger, tmpl template.Template, donorStore DonorStore, not
 				return fmt.Errorf("error deleting lpa: %w", err)
 			}
 
-			if err := eventClient.SendMetric(r.Context(), event.CategoryDraftLPADeleted, event.MeasureOnlineDonor); err != nil {
+			if err := eventClient.SendMetric(r.Context(), provided.LpaID, event.CategoryDraftLPADeleted, event.MeasureOnlineDonor); err != nil {
 				logger.ErrorContext(r.Context(), "error sending metric", slog.Any("err", err))
 			}
 

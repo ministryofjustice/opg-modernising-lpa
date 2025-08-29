@@ -22,17 +22,17 @@ func (_m *mockEventClient) EXPECT() *mockEventClient_Expecter {
 	return &mockEventClient_Expecter{mock: &_m.Mock}
 }
 
-// SendMetric provides a mock function with given fields: ctx, category, measure
-func (_m *mockEventClient) SendMetric(ctx context.Context, category event.Category, measure event.Measure) error {
-	ret := _m.Called(ctx, category, measure)
+// SendMetric provides a mock function with given fields: ctx, key, category, measure
+func (_m *mockEventClient) SendMetric(ctx context.Context, key string, category event.Category, measure event.Measure) error {
+	ret := _m.Called(ctx, key, category, measure)
 
 	if len(ret) == 0 {
 		panic("no return value specified for SendMetric")
 	}
 
 	var r0 error
-	if rf, ok := ret.Get(0).(func(context.Context, event.Category, event.Measure) error); ok {
-		r0 = rf(ctx, category, measure)
+	if rf, ok := ret.Get(0).(func(context.Context, string, event.Category, event.Measure) error); ok {
+		r0 = rf(ctx, key, category, measure)
 	} else {
 		r0 = ret.Error(0)
 	}
@@ -47,15 +47,16 @@ type mockEventClient_SendMetric_Call struct {
 
 // SendMetric is a helper method to define mock.On call
 //   - ctx context.Context
+//   - key string
 //   - category event.Category
 //   - measure event.Measure
-func (_e *mockEventClient_Expecter) SendMetric(ctx interface{}, category interface{}, measure interface{}) *mockEventClient_SendMetric_Call {
-	return &mockEventClient_SendMetric_Call{Call: _e.mock.On("SendMetric", ctx, category, measure)}
+func (_e *mockEventClient_Expecter) SendMetric(ctx interface{}, key interface{}, category interface{}, measure interface{}) *mockEventClient_SendMetric_Call {
+	return &mockEventClient_SendMetric_Call{Call: _e.mock.On("SendMetric", ctx, key, category, measure)}
 }
 
-func (_c *mockEventClient_SendMetric_Call) Run(run func(ctx context.Context, category event.Category, measure event.Measure)) *mockEventClient_SendMetric_Call {
+func (_c *mockEventClient_SendMetric_Call) Run(run func(ctx context.Context, key string, category event.Category, measure event.Measure)) *mockEventClient_SendMetric_Call {
 	_c.Call.Run(func(args mock.Arguments) {
-		run(args[0].(context.Context), args[1].(event.Category), args[2].(event.Measure))
+		run(args[0].(context.Context), args[1].(string), args[2].(event.Category), args[3].(event.Measure))
 	})
 	return _c
 }
@@ -65,7 +66,7 @@ func (_c *mockEventClient_SendMetric_Call) Return(_a0 error) *mockEventClient_Se
 	return _c
 }
 
-func (_c *mockEventClient_SendMetric_Call) RunAndReturn(run func(context.Context, event.Category, event.Measure) error) *mockEventClient_SendMetric_Call {
+func (_c *mockEventClient_SendMetric_Call) RunAndReturn(run func(context.Context, string, event.Category, event.Measure) error) *mockEventClient_SendMetric_Call {
 	_c.Call.Return(run)
 	return _c
 }

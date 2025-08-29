@@ -35,7 +35,7 @@ func MakeOrAddAnLPA(tmpl template.Template, donorStore DonorStore, dashboardStor
 				path = donor.PathMakeANewLPA
 			}
 
-			if err := eventClient.SendMetric(r.Context(), event.CategoryFunnelStartRate, event.MeasureOnlineDonor); err != nil {
+			if err := eventClient.SendMetric(r.Context(), provided.LpaID, event.CategoryFunnelStartRate, event.MeasureOnlineDonor); err != nil {
 				return fmt.Errorf("sending metric: %w", err)
 			}
 

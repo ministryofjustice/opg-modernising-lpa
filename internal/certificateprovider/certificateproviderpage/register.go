@@ -39,7 +39,7 @@ type LpaStoreResolvingService interface {
 type EventClient interface {
 	SendIdentityCheckMismatched(ctx context.Context, e event.IdentityCheckMismatched) error
 	SendLetterRequested(ctx context.Context, event event.LetterRequested) error
-	SendMetric(ctx context.Context, category event.Category, measure event.Measure) error
+	SendMetric(ctx context.Context, key string, category event.Category, measure event.Measure) error
 }
 
 type Logger interface {

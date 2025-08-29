@@ -25,8 +25,8 @@ type MetricWrapper struct {
 
 type Metric struct {
 	Project          string
-	Category         string
-	Subcategory      Category
+	Category         Category
+	Subcategory      string
 	Environment      string
 	MeasureName      Measure
 	MeasureValue     string

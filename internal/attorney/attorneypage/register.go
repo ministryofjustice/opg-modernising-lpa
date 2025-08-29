@@ -97,7 +97,7 @@ type NotifyClient interface {
 type ErrorHandler func(http.ResponseWriter, *http.Request, error)
 
 type EventClient interface {
-	SendMetric(ctx context.Context, category event.Category, measure event.Measure) error
+	SendMetric(ctx context.Context, key string, category event.Category, measure event.Measure) error
 }
 
 type Bundle interface {
