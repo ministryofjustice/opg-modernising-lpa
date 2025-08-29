@@ -2,7 +2,6 @@ package donorpage
 
 import (
 	"fmt"
-	"log/slog"
 	"net/http"
 	"net/url"
 
@@ -22,7 +21,7 @@ type deleteLpaData struct {
 	Donor  *donordata.Provided
 }
 
-func DeleteLpa(logger Logger, tmpl template.Template, donorStore DonorStore, notifyClient NotifyClient, certificateProviderStartURL string, eventClient EventClient) Handler {
+func DeleteLpa(tmpl template.Template, donorStore DonorStore, notifyClient NotifyClient, certificateProviderStartURL string, eventClient EventClient) Handler {
 	return func(appData appcontext.Data, w http.ResponseWriter, r *http.Request, provided *donordata.Provided) error {
 		if r.Method == http.MethodPost {
 			if !provided.CertificateProviderInvitedAt.IsZero() {
@@ -57,7 +56,7 @@ func DeleteLpa(logger Logger, tmpl template.Template, donorStore DonorStore, not
 			}
 
 			if err := eventClient.SendMetric(r.Context(), event.CategoryDraftLPADeleted, event.MeasureOnlineDonor); err != nil {
-				logger.ErrorContext(r.Context(), "error sending metric", slog.Any("err", err))
+				return fmt.Errorf("sending metric: %w", err)
 			}
 
 			return page.PathLpaDeleted.RedirectQuery(w, r, appData, url.Values{"uid": {provided.LpaUID}})
