@@ -23,16 +23,16 @@ func (_m *mockAccessCodeStore) EXPECT() *mockAccessCodeStore_Expecter {
 	return &mockAccessCodeStore_Expecter{mock: &_m.Mock}
 }
 
-// Delete provides a mock function with given fields: ctx, link
-func (_m *mockAccessCodeStore) Delete(ctx context.Context, link accesscodedata.Link) error {
+// DeleteDonor provides a mock function with given fields: ctx, link
+func (_m *mockAccessCodeStore) DeleteDonor(ctx context.Context, link accesscodedata.DonorLink) error {
 	ret := _m.Called(ctx, link)
 
 	if len(ret) == 0 {
-		panic("no return value specified for Delete")
+		panic("no return value specified for DeleteDonor")
 	}
 
 	var r0 error
-	if rf, ok := ret.Get(0).(func(context.Context, accesscodedata.Link) error); ok {
+	if rf, ok := ret.Get(0).(func(context.Context, accesscodedata.DonorLink) error); ok {
 		r0 = rf(ctx, link)
 	} else {
 		r0 = ret.Error(0)
@@ -41,52 +41,52 @@ func (_m *mockAccessCodeStore) Delete(ctx context.Context, link accesscodedata.L
 	return r0
 }
 
-// mockAccessCodeStore_Delete_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'Delete'
-type mockAccessCodeStore_Delete_Call struct {
+// mockAccessCodeStore_DeleteDonor_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'DeleteDonor'
+type mockAccessCodeStore_DeleteDonor_Call struct {
 	*mock.Call
 }
 
-// Delete is a helper method to define mock.On call
+// DeleteDonor is a helper method to define mock.On call
 //   - ctx context.Context
-//   - link accesscodedata.Link
-func (_e *mockAccessCodeStore_Expecter) Delete(ctx interface{}, link interface{}) *mockAccessCodeStore_Delete_Call {
-	return &mockAccessCodeStore_Delete_Call{Call: _e.mock.On("Delete", ctx, link)}
+//   - link accesscodedata.DonorLink
+func (_e *mockAccessCodeStore_Expecter) DeleteDonor(ctx interface{}, link interface{}) *mockAccessCodeStore_DeleteDonor_Call {
+	return &mockAccessCodeStore_DeleteDonor_Call{Call: _e.mock.On("DeleteDonor", ctx, link)}
 }
 
-func (_c *mockAccessCodeStore_Delete_Call) Run(run func(ctx context.Context, link accesscodedata.Link)) *mockAccessCodeStore_Delete_Call {
+func (_c *mockAccessCodeStore_DeleteDonor_Call) Run(run func(ctx context.Context, link accesscodedata.DonorLink)) *mockAccessCodeStore_DeleteDonor_Call {
 	_c.Call.Run(func(args mock.Arguments) {
-		run(args[0].(context.Context), args[1].(accesscodedata.Link))
+		run(args[0].(context.Context), args[1].(accesscodedata.DonorLink))
 	})
 	return _c
 }
 
-func (_c *mockAccessCodeStore_Delete_Call) Return(_a0 error) *mockAccessCodeStore_Delete_Call {
+func (_c *mockAccessCodeStore_DeleteDonor_Call) Return(_a0 error) *mockAccessCodeStore_DeleteDonor_Call {
 	_c.Call.Return(_a0)
 	return _c
 }
 
-func (_c *mockAccessCodeStore_Delete_Call) RunAndReturn(run func(context.Context, accesscodedata.Link) error) *mockAccessCodeStore_Delete_Call {
+func (_c *mockAccessCodeStore_DeleteDonor_Call) RunAndReturn(run func(context.Context, accesscodedata.DonorLink) error) *mockAccessCodeStore_DeleteDonor_Call {
 	_c.Call.Return(run)
 	return _c
 }
 
-// GetDonor provides a mock function with given fields: ctx
-func (_m *mockAccessCodeStore) GetDonor(ctx context.Context) (accesscodedata.Link, error) {
+// GetDonorAccess provides a mock function with given fields: ctx
+func (_m *mockAccessCodeStore) GetDonorAccess(ctx context.Context) (accesscodedata.DonorLink, error) {
 	ret := _m.Called(ctx)
 
 	if len(ret) == 0 {
-		panic("no return value specified for GetDonor")
+		panic("no return value specified for GetDonorAccess")
 	}
 
-	var r0 accesscodedata.Link
+	var r0 accesscodedata.DonorLink
 	var r1 error
-	if rf, ok := ret.Get(0).(func(context.Context) (accesscodedata.Link, error)); ok {
+	if rf, ok := ret.Get(0).(func(context.Context) (accesscodedata.DonorLink, error)); ok {
 		return rf(ctx)
 	}
-	if rf, ok := ret.Get(0).(func(context.Context) accesscodedata.Link); ok {
+	if rf, ok := ret.Get(0).(func(context.Context) accesscodedata.DonorLink); ok {
 		r0 = rf(ctx)
 	} else {
-		r0 = ret.Get(0).(accesscodedata.Link)
+		r0 = ret.Get(0).(accesscodedata.DonorLink)
 	}
 
 	if rf, ok := ret.Get(1).(func(context.Context) error); ok {
@@ -98,36 +98,36 @@ func (_m *mockAccessCodeStore) GetDonor(ctx context.Context) (accesscodedata.Lin
 	return r0, r1
 }
 
-// mockAccessCodeStore_GetDonor_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'GetDonor'
-type mockAccessCodeStore_GetDonor_Call struct {
+// mockAccessCodeStore_GetDonorAccess_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'GetDonorAccess'
+type mockAccessCodeStore_GetDonorAccess_Call struct {
 	*mock.Call
 }
 
-// GetDonor is a helper method to define mock.On call
+// GetDonorAccess is a helper method to define mock.On call
 //   - ctx context.Context
-func (_e *mockAccessCodeStore_Expecter) GetDonor(ctx interface{}) *mockAccessCodeStore_GetDonor_Call {
-	return &mockAccessCodeStore_GetDonor_Call{Call: _e.mock.On("GetDonor", ctx)}
+func (_e *mockAccessCodeStore_Expecter) GetDonorAccess(ctx interface{}) *mockAccessCodeStore_GetDonorAccess_Call {
+	return &mockAccessCodeStore_GetDonorAccess_Call{Call: _e.mock.On("GetDonorAccess", ctx)}
 }
 
-func (_c *mockAccessCodeStore_GetDonor_Call) Run(run func(ctx context.Context)) *mockAccessCodeStore_GetDonor_Call {
+func (_c *mockAccessCodeStore_GetDonorAccess_Call) Run(run func(ctx context.Context)) *mockAccessCodeStore_GetDonorAccess_Call {
 	_c.Call.Run(func(args mock.Arguments) {
 		run(args[0].(context.Context))
 	})
 	return _c
 }
 
-func (_c *mockAccessCodeStore_GetDonor_Call) Return(_a0 accesscodedata.Link, _a1 error) *mockAccessCodeStore_GetDonor_Call {
+func (_c *mockAccessCodeStore_GetDonorAccess_Call) Return(_a0 accesscodedata.DonorLink, _a1 error) *mockAccessCodeStore_GetDonorAccess_Call {
 	_c.Call.Return(_a0, _a1)
 	return _c
 }
 
-func (_c *mockAccessCodeStore_GetDonor_Call) RunAndReturn(run func(context.Context) (accesscodedata.Link, error)) *mockAccessCodeStore_GetDonor_Call {
+func (_c *mockAccessCodeStore_GetDonorAccess_Call) RunAndReturn(run func(context.Context) (accesscodedata.DonorLink, error)) *mockAccessCodeStore_GetDonorAccess_Call {
 	_c.Call.Return(run)
 	return _c
 }
 
 // PutDonor provides a mock function with given fields: ctx, code, link
-func (_m *mockAccessCodeStore) PutDonor(ctx context.Context, code accesscodedata.Hashed, link accesscodedata.Link) error {
+func (_m *mockAccessCodeStore) PutDonor(ctx context.Context, code accesscodedata.Hashed, link accesscodedata.DonorLink) error {
 	ret := _m.Called(ctx, code, link)
 
 	if len(ret) == 0 {
@@ -135,7 +135,7 @@ func (_m *mockAccessCodeStore) PutDonor(ctx context.Context, code accesscodedata
 	}
 
 	var r0 error
-	if rf, ok := ret.Get(0).(func(context.Context, accesscodedata.Hashed, accesscodedata.Link) error); ok {
+	if rf, ok := ret.Get(0).(func(context.Context, accesscodedata.Hashed, accesscodedata.DonorLink) error); ok {
 		r0 = rf(ctx, code, link)
 	} else {
 		r0 = ret.Error(0)
@@ -152,14 +152,14 @@ type mockAccessCodeStore_PutDonor_Call struct {
 // PutDonor is a helper method to define mock.On call
 //   - ctx context.Context
 //   - code accesscodedata.Hashed
-//   - link accesscodedata.Link
+//   - link accesscodedata.DonorLink
 func (_e *mockAccessCodeStore_Expecter) PutDonor(ctx interface{}, code interface{}, link interface{}) *mockAccessCodeStore_PutDonor_Call {
 	return &mockAccessCodeStore_PutDonor_Call{Call: _e.mock.On("PutDonor", ctx, code, link)}
 }
 
-func (_c *mockAccessCodeStore_PutDonor_Call) Run(run func(ctx context.Context, code accesscodedata.Hashed, link accesscodedata.Link)) *mockAccessCodeStore_PutDonor_Call {
+func (_c *mockAccessCodeStore_PutDonor_Call) Run(run func(ctx context.Context, code accesscodedata.Hashed, link accesscodedata.DonorLink)) *mockAccessCodeStore_PutDonor_Call {
 	_c.Call.Run(func(args mock.Arguments) {
-		run(args[0].(context.Context), args[1].(accesscodedata.Hashed), args[2].(accesscodedata.Link))
+		run(args[0].(context.Context), args[1].(accesscodedata.Hashed), args[2].(accesscodedata.DonorLink))
 	})
 	return _c
 }
@@ -169,7 +169,7 @@ func (_c *mockAccessCodeStore_PutDonor_Call) Return(_a0 error) *mockAccessCodeSt
 	return _c
 }
 
-func (_c *mockAccessCodeStore_PutDonor_Call) RunAndReturn(run func(context.Context, accesscodedata.Hashed, accesscodedata.Link) error) *mockAccessCodeStore_PutDonor_Call {
+func (_c *mockAccessCodeStore_PutDonor_Call) RunAndReturn(run func(context.Context, accesscodedata.Hashed, accesscodedata.DonorLink) error) *mockAccessCodeStore_PutDonor_Call {
 	_c.Call.Return(run)
 	return _c
 }
