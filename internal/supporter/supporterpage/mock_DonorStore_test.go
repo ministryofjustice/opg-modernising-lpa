@@ -28,7 +28,7 @@ func (_m *mockDonorStore) EXPECT() *mockDonorStore_Expecter {
 }
 
 // DeleteDonorAccess provides a mock function with given fields: ctx, link
-func (_m *mockDonorStore) DeleteDonorAccess(ctx context.Context, link accesscodedata.Link) error {
+func (_m *mockDonorStore) DeleteDonorAccess(ctx context.Context, link accesscodedata.DonorLink) error {
 	ret := _m.Called(ctx, link)
 
 	if len(ret) == 0 {
@@ -36,7 +36,7 @@ func (_m *mockDonorStore) DeleteDonorAccess(ctx context.Context, link accesscode
 	}
 
 	var r0 error
-	if rf, ok := ret.Get(0).(func(context.Context, accesscodedata.Link) error); ok {
+	if rf, ok := ret.Get(0).(func(context.Context, accesscodedata.DonorLink) error); ok {
 		r0 = rf(ctx, link)
 	} else {
 		r0 = ret.Error(0)
@@ -52,14 +52,14 @@ type mockDonorStore_DeleteDonorAccess_Call struct {
 
 // DeleteDonorAccess is a helper method to define mock.On call
 //   - ctx context.Context
-//   - link accesscodedata.Link
+//   - link accesscodedata.DonorLink
 func (_e *mockDonorStore_Expecter) DeleteDonorAccess(ctx interface{}, link interface{}) *mockDonorStore_DeleteDonorAccess_Call {
 	return &mockDonorStore_DeleteDonorAccess_Call{Call: _e.mock.On("DeleteDonorAccess", ctx, link)}
 }
 
-func (_c *mockDonorStore_DeleteDonorAccess_Call) Run(run func(ctx context.Context, link accesscodedata.Link)) *mockDonorStore_DeleteDonorAccess_Call {
+func (_c *mockDonorStore_DeleteDonorAccess_Call) Run(run func(ctx context.Context, link accesscodedata.DonorLink)) *mockDonorStore_DeleteDonorAccess_Call {
 	_c.Call.Run(func(args mock.Arguments) {
-		run(args[0].(context.Context), args[1].(accesscodedata.Link))
+		run(args[0].(context.Context), args[1].(accesscodedata.DonorLink))
 	})
 	return _c
 }
@@ -69,7 +69,7 @@ func (_c *mockDonorStore_DeleteDonorAccess_Call) Return(_a0 error) *mockDonorSto
 	return _c
 }
 
-func (_c *mockDonorStore_DeleteDonorAccess_Call) RunAndReturn(run func(context.Context, accesscodedata.Link) error) *mockDonorStore_DeleteDonorAccess_Call {
+func (_c *mockDonorStore_DeleteDonorAccess_Call) RunAndReturn(run func(context.Context, accesscodedata.DonorLink) error) *mockDonorStore_DeleteDonorAccess_Call {
 	_c.Call.Return(run)
 	return _c
 }

@@ -269,7 +269,7 @@ func CertificateProvider(
 				return err
 			}
 
-			if err := donorStore.Link(appcontext.ContextWithSession(r.Context(), orgSession), accesscodedata.Link{
+			if err := donorStore.Link(appcontext.ContextWithSession(r.Context(), orgSession), accesscodedata.DonorLink{
 				LpaKey:      donorDetails.PK,
 				LpaOwnerKey: donorDetails.SK,
 				LpaUID:      donorDetails.LpaUID,

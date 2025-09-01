@@ -36,7 +36,7 @@ import (
 type DonorStore interface {
 	Create(ctx context.Context) (*donordata.Provided, error)
 	Get(ctx context.Context) (*donordata.Provided, error)
-	Link(ctx context.Context, link accesscodedata.Link, donorEmail string) error
+	Link(ctx context.Context, link accesscodedata.DonorLink, donorEmail string) error
 	Put(ctx context.Context, donorProvidedDetails *donordata.Provided) error
 }
 
@@ -177,7 +177,7 @@ func Attorney(
 			}
 
 			if isSupported {
-				if err := donorStore.Link(appcontext.ContextWithSession(r.Context(), createSession), accesscodedata.Link{
+				if err := donorStore.Link(appcontext.ContextWithSession(r.Context(), createSession), accesscodedata.DonorLink{
 					LpaKey:      donorDetails.PK,
 					LpaOwnerKey: donorDetails.SK,
 					LpaUID:      donorDetails.LpaUID,

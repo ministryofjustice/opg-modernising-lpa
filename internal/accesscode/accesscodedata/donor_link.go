@@ -7,8 +7,9 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/dynamo"
 )
 
-// A Link provides the details of the LPA that will be accessed by a share code.
-type Link struct {
+// A DonorLink provides the details of the LPA that will be accessed by a share
+// code. It remains once a donor has gained access.
+type DonorLink struct {
 	PK        dynamo.ShareKeyType
 	SK        dynamo.ShareSortKeyType
 	UpdatedAt time.Time
@@ -21,14 +22,15 @@ type Link struct {
 	LpaUID string `dynamodbav:",omitempty"`
 	// ActorUID is the UID of the actor being given access to the LPA
 	ActorUID actoruid.UID
-	// IsReplacementAttorney is true when the actor being given access is being
-	// appointed as a replacement (attorney or trust corporation)
-	IsReplacementAttorney bool
-	// IsTrustCorporation is true when the actor being given access is a trust
-	// corporation
-	IsTrustCorporation bool
+	// InviteSentTo is the email address the supporter sent the invite to
+	InviteSentTo string
+	// LpaLinkedAt is the time the donor entered the access code
+	LpaLinkedAt time.Time
+	// LpaLinkedTo is set to the email address the donor used to sign-in when
+	// using the code
+	LpaLinkedTo string
 }
 
-func (l Link) HasExpired(now time.Time) bool {
-	return l.UpdatedAt.AddDate(2, 0, 0).Before(now)
+func (l DonorLink) HasExpired(now time.Time) bool {
+	return l.UpdatedAt.AddDate(0, 3, 0).Before(now)
 }

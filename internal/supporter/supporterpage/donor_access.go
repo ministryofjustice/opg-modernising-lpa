@@ -24,7 +24,7 @@ type donorAccessData struct {
 	Errors     validation.List
 	Form       *donorAccessForm
 	Donor      *donordata.Provided
-	AccessCode *accesscodedata.Link
+	AccessCode *accesscodedata.DonorLink
 }
 
 func DonorAccess(logger Logger, tmpl template.Template, donorStore DonorStore, accessCodeStore AccessCodeStore, notifyClient NotifyClient, donorStartURL string, generate func() (accesscodedata.PlainText, accesscodedata.Hashed)) Handler {
@@ -40,13 +40,13 @@ func DonorAccess(logger Logger, tmpl template.Template, donorStore DonorStore, a
 			Form:  &donorAccessForm{Email: donor.Donor.Email},
 		}
 
-		accessCodeData, err := accessCodeStore.GetDonor(r.Context())
+		accessCodeData, err := accessCodeStore.GetDonorAccess(r.Context())
 		if err == nil {
 			data.AccessCode = &accessCodeData
 
 			switch page.PostFormString(r, "action") {
 			case "recall":
-				if err := accessCodeStore.Delete(r.Context(), accessCodeData); err != nil {
+				if err := accessCodeStore.DeleteDonor(r.Context(), accessCodeData); err != nil {
 					return err
 				}
 
@@ -91,7 +91,7 @@ func DonorAccess(logger Logger, tmpl template.Template, donorStore DonorStore, a
 				}
 
 				plainCode, hashedCode := generate()
-				accessCodeData := accesscodedata.Link{
+				accessCodeData := accesscodedata.DonorLink{
 					LpaOwnerKey:  dynamo.LpaOwnerKey(organisation.PK),
 					LpaKey:       dynamo.LpaKey(appData.LpaID),
 					LpaUID:       donor.LpaUID,
