@@ -43,7 +43,7 @@ func (s *Store) Get(ctx context.Context, actorType actor.Type, accessCode access
 		return accesscodedata.Link{}, err
 	}
 
-	if data.HasExpired(s.now()) || !data.LpaLinkedAt.IsZero() {
+	if data.HasExpired(s.now()) {
 		return accesscodedata.Link{}, dynamo.NotFoundError{}
 	}
 
@@ -94,7 +94,26 @@ func (s *Store) Put(ctx context.Context, actorType actor.Type, accessCode access
 	return s.dynamoClient.WriteTransaction(ctx, transaction)
 }
 
-func (s *Store) PutDonor(ctx context.Context, accessCode accesscodedata.Hashed, data accesscodedata.Link) error {
+func (s *Store) GetDonor(ctx context.Context, accessCode accesscodedata.Hashed) (accesscodedata.DonorLink, error) {
+	var data accesscodedata.DonorLink
+
+	pk, err := accessCodeKey(actor.TypeDonor, accessCode)
+	if err != nil {
+		return data, err
+	}
+
+	if err := s.dynamoClient.OneByPK(ctx, pk, &data); err != nil {
+		return accesscodedata.DonorLink{}, err
+	}
+
+	if data.HasExpired(s.now()) || !data.LpaLinkedAt.IsZero() {
+		return accesscodedata.DonorLink{}, dynamo.NotFoundError{}
+	}
+
+	return data, nil
+}
+
+func (s *Store) PutDonor(ctx context.Context, accessCode accesscodedata.Hashed, data accesscodedata.DonorLink) error {
 	organisationKey, ok := data.LpaOwnerKey.Organisation()
 	if !ok {
 		return errors.New("accessCodeStore.PutDonor can only be used by organisations")
@@ -107,32 +126,27 @@ func (s *Store) PutDonor(ctx context.Context, accessCode accesscodedata.Hashed, 
 	return s.dynamoClient.Create(ctx, data)
 }
 
-func (s *Store) GetDonor(ctx context.Context) (accesscodedata.Link, error) {
-	var data accesscodedata.Link
-
+func (s *Store) GetDonorAccess(ctx context.Context) (accesscodedata.DonorLink, error) {
 	sessionData, err := appcontext.SessionFromContext(ctx)
 	if err != nil {
-		return data, err
+		return accesscodedata.DonorLink{}, err
 	}
 
 	sk := dynamo.DonorInviteKey(dynamo.OrganisationKey(sessionData.OrganisationID), dynamo.LpaKey(sessionData.LpaID))
 
+	var data accesscodedata.DonorLink
 	if err := s.dynamoClient.OneBySK(ctx, sk, &data); err != nil {
-		return accesscodedata.Link{}, err
+		return accesscodedata.DonorLink{}, err
 	}
 
 	if data.HasExpired(s.now()) {
-		return accesscodedata.Link{}, dynamo.NotFoundError{}
+		return accesscodedata.DonorLink{}, dynamo.NotFoundError{}
 	}
 
 	return data, nil
 }
 
 func (s *Store) Delete(ctx context.Context, link accesscodedata.Link) error {
-	if _, ok := link.LpaOwnerKey.Organisation(); ok {
-		return s.dynamoClient.DeleteOne(ctx, link.PK, link.SK)
-	}
-
 	transaction := dynamo.NewTransaction().
 		Delete(dynamo.Keys{PK: link.PK, SK: link.SK}).
 		Delete(dynamo.Keys{
@@ -158,6 +172,10 @@ func (s *Store) DeleteByActor(ctx context.Context, actorUID actoruid.UID) error 
 		Delete(dynamo.Keys{PK: actorAccess.PK, SK: actorAccess.SK})
 
 	return s.dynamoClient.WriteTransaction(ctx, transaction)
+}
+
+func (s *Store) DeleteDonor(ctx context.Context, link accesscodedata.DonorLink) error {
+	return s.dynamoClient.DeleteOne(ctx, link.PK, link.SK)
 }
 
 func accessCodeKey(actorType actor.Type, accessCode accesscodedata.Hashed) (pk dynamo.ShareKeyType, err error) {

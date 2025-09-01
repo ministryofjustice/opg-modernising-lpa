@@ -56,7 +56,7 @@ type DonorStore interface {
 	Latest(ctx context.Context) (*donordata.Provided, error)
 	Put(ctx context.Context, donor *donordata.Provided) error
 	Delete(ctx context.Context) error
-	Link(ctx context.Context, data accesscodedata.Link, donorEmail string) error
+	Link(ctx context.Context, data accesscodedata.DonorLink, donorEmail string) error
 	DeleteVoucher(ctx context.Context, provided *donordata.Provided) error
 }
 
@@ -191,6 +191,7 @@ type LpaStoreClient interface {
 
 type AccessCodeStore interface {
 	Get(ctx context.Context, actorType actor.Type, code accesscodedata.Hashed) (accesscodedata.Link, error)
+	GetDonor(ctx context.Context, code accesscodedata.Hashed) (accesscodedata.DonorLink, error)
 	DeleteByActor(ctx context.Context, actorUID actoruid.UID) error
 }
 
@@ -288,8 +289,7 @@ func Register(
 	handleRoot(page.PathLoginCallback, page.None,
 		page.LoginCallback(logger, oneLoginClient, sessionStore, page.PathMakeOrAddAnLPA, dashboardStore, actor.TypeDonor))
 	handleRoot(page.PathEnterAccessCode, page.RequireSession,
-		page.EnterAccessCode(tmpls.Get("enter_access_code.gohtml"), accessCodeStore, sessionStore, lpaStoreResolvingService, actor.TypeDonor,
-			EnterAccessCode(logger, donorStore, eventClient)))
+		EnterAccessCode(logger, tmpls.Get("enter_access_code.gohtml"), accessCodeStore, sessionStore, lpaStoreResolvingService, donorStore, eventClient))
 
 	handleWithDonor := makeLpaHandle(rootMux, sessionStore, errorHandler, donorStore, donorStartURL)
 
