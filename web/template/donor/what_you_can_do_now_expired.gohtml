@@ -20,8 +20,6 @@
 
             {{ trHtml .App "registerYourLPAThroughTheCOPContent" }}
 
-            {{ template "warning" (content .App "onceYouSelectThisOptionYouCannotChangeYourMindWarning") }}
-
             <form novalidate method="post">
                 {{ if .Form.CanHaveVoucher }}
                     {{ template "radios-fieldset" (fieldset . "do-next" ""

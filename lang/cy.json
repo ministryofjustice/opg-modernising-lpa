@@ -507,7 +507,9 @@
     "signAsReplacementAttorney": "Llofnodwch fel atwrnai wrth gefn ar yr LPA hon",
     "lpaCantBeRegisteredUntilAttorneysSign": "Ni ellir cofrestru’r LPA hon nes eich bod chi, ac unrhyw atwrneiod eraill a enwir yn yr LPA hon, wedi’i llofnodi.",
     "bySigningIUnderstandAndConfirmAllOfTheFollowing": "Drwy lofnodi, rwy’n deall ac yn cadarnhau pob un o’r canlynol:",
-    "signAsAttorneyBullets": "Welsh {{ .DonorFullName }} <li>rydw i’n 18 oed neu hŷn</li><li>rwyf wedi darllen yr atwrneiaeth arhosol (LPA) hon neu mae rhywun wedi ei darllen i mi. Mae hyn yn cynnwys fy hawliau a’m cyfrifoldebau cyfreithiol</li><li>mae dyletswydd arnaf i weithredu ar sail egwyddorion Deddf Galluedd Meddyliol 2005, ac ystyried <a href=\"#\" class=\"govuk-link\">Cod Ymarfer y Ddeddf Galluedd Meddyliol</a></li><li>rhaid i mi wneud penderfyniadau a gweithredu er budd pennaf y rhoddwr</li><li>rhaid i mi ystyried unrhyw gyfyngiadau ac amodau a nodir yn yr LPA hon</li>",
+    "iAmAged18OrOver": "Welsh",
+    "iAmNotSubjectToBankruptcy": "Welsh",
+    "signAsAttorneyBullets": "Welsh {{ .DonorFullName }}",
     "signAsAttorneyWhenRegisteredBullet": "Welsh {{ .DonorFullName }} dim ond ar ôl cofrestru’r LPA hon y gallaf wneud penderfyniadau a gweithredu ",
     "signAsAttorneyWhenCapacityLostBullet": "dim ond pan fydd yr LPA hon wedi’i chofrestru a dim ond pan nad oes gan y rhoddwr alluedd meddyliol y gallaf wneud penderfyniadau a gweithredu",
     "iAttorneyConfirmTheseStatements": "Rydw i, {{.AttorneyFullName}}, yn cadarnhau bod y datganiadau hyn yn wir ac yn deall bod ticio’r blwch hwn yn gweithredu fel fy llofnod cyfreithiol.",
@@ -925,7 +927,6 @@
     "pending": "Yn yr arfaeth",
     "denied": "Gwrthodwyd",
     "makeANewLPA": "Gwneud LPA newydd",
-    "youShouldOnlyChangeYourDetailsIfTheyNeedToBeUpdated": "Dim ond os oes angen eu diweddaru y dylech newid eich manylion. Allwch chi ddim gwneud LPA ar ran rhywun arall gan ddefnyddio eich cyfrif chi.",
     "yourName": "Eich enw",
     "yourNameWarning": "Dim ond eich manylion chi y dylech eu rhoi. Allwch chi ddim gwneud LPA ar ran rhywun arall gan ddefnyddio eich cyfrif.",
     "yourDateOfBirth": "Eich dyddiad geni",
@@ -1133,7 +1134,6 @@
     "whatYouCanDoNowContent": "<p class=\"govuk-body\">Ni fydd Swyddfa’r Gwarcheidwad Cyhoeddus yn gallu cofrestru eich LPA nes eich bod wedi cadarnhau pwy ydych chi.</p>",
     "replaceFindOrGetNewIDContent": "<h2 class=\"govuk-heading-m\">Adnewyddu, canfod neu gael dogfennau adnabod newydd</h2><p class=\"govuk-body\">Er enghraifft, fe allech chi wneud y canlynol:</p><ul class=\"govuk-list govuk-list--bullet govuk-list--spaced\"><li><a href=\"https://www.gov.uk/find-national-insurance-number\" class=\"govuk-link\" target=\"_blank\" rel=\"noreferrer noopener\">dod o hyd i rif Yswiriant Gwladol coll (yn agor mewn tab newydd)</a></li><li><a href=\"https://www.gov.uk/apply-renew-passport\" class=\"govuk-link\" target=\"_blank\" rel=\"noreferrer noopener\">gwneud cais ar-lein am basbort y DU (yn agor mewn tab newydd)</a></li><li><a href=\"https://www.gov.uk/apply-online-to-replace-a-driving-licence\" class=\"govuk-link\" target=\"_blank\" rel=\"noreferrer noopener\">cael copi newydd o drwydded yrru sydd ar goll, wedi’i dwyn, wedi’i difrodi neu wedi’i dinistrio (yn agor mewn tab newydd)</a></li></ul>",
     "registerYourLPAThroughTheCOPContent": "<h2 class=\"govuk-heading-m\">Cofrestru eich LPA drwy’r Llys Gwarchod</h2><p class=\"govuk-body\">Os nad oes gennych ddewis arall, gallwch wneud cais i’r Llys Gwarchod gofrestru eich LPA heb wirio eich manylion adnabod.</p><p class=\"govuk-body\">Mae’n costio £421 i gofrestru eich LPA drwy’r Llys Gwarchod a bydd yn cymryd sawl mis.</p>",
-    "onceYouSelectThisOptionYouCannotChangeYourMindWarning": "Ar ôl i chi ddewis yr opsiwn hwn, ni allwch newid eich meddwl. Os byddwch yn penderfynu cadarnhau pwy ydych chi mewn ffordd arall, bydd angen i chi greu LPA newydd",
     "iWillGetOrFindID": "Byddaf yn cael neu’n dod o hyd i ddogfennau adnabod ac yn cadarnhau pwy ydw i",
     "iHaveSomeoneWhoCanVouch": "Mae gen i rywun sy’n gallu tystio drosof",
     "iNoLongerWantToMakeThisLPA": "Dydw i ddim eisiau gwneud yr LPA hon mwyach",
@@ -1816,7 +1816,6 @@
     "removeCertificateProvider": "Welsh",
     "youChoseNotToCorrectIdentityDetails": "Welsh",
     "iWantToDeleteThisLpa": "Welsh",
-    "onceYouApplyToRegisterWithCourtOfProtection": "Welsh",
     "revokeThisLpaAndMakeNew": "Welsh",
     "applyToTheCourtOfProtection": "Welsh",
     "yesToRevokeThisLpaAndMakeNew": "Welsh",
@@ -1941,5 +1940,7 @@
     "youCanAddCorrespondentInstead": "Welsh <a href=\"{{.Link}}\" class=\"govuk-link\">Welsh</a>",
     "weWillSendUpdatesToThisAddress": "Welsh",
     "yourCorrespondentsDetails": "Welsh",
-    "youHaveAskedToSendUpdatesToCorrespondentToChooseDifferent": "<p class=\"govuk-body\">Welsh {{.CorrespondentFullName}}</p>"
+    "youHaveAskedToSendUpdatesToCorrespondentToChooseDifferent": "<p class=\"govuk-body\">Welsh {{.CorrespondentFullName}}</p>",
+    "makeANewLpaContent": "<p class=\"govuk-body\">Welsh</p>",
+    "changeYoureDetailsIfNotCorrect": "Welsh"
 }
