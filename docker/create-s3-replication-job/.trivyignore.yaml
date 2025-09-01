@@ -7,3 +7,6 @@ vulnerabilities:
   - id: CVE-2022-49043
     statement: Patched version of libxml2 unavailable in latest image
     expired_at: 2025-03-30
+  - id: CVE-2025-47907
+    statement: Waiting for lambda image and collector to be updated
+    expired_at: 2025-09-15
