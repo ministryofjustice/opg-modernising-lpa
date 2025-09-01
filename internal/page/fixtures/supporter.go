@@ -151,7 +151,7 @@ func Supporter(
 					return fmt.Errorf("error putting donor: %w", err)
 				}
 
-				accessCodeData := accesscodedata.Link{
+				accessCodeData := accesscodedata.DonorLink{
 					LpaOwnerKey:  dynamo.LpaOwnerKey(org.PK),
 					LpaKey:       donor.PK,
 					LpaUID:       donor.LpaUID,

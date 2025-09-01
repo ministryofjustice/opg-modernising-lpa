@@ -132,22 +132,6 @@ func TestAccessCodeStoreGetWhenExpired(t *testing.T) {
 	}
 }
 
-func TestAccessCodeStoreGetWhenLinked(t *testing.T) {
-	ctx := context.Background()
-
-	dynamoClient := newMockDynamoClient(t)
-	dynamoClient.EXPECT().
-		OneByPK(ctx, mock.Anything, mock.Anything).
-		Return(nil).
-		SetData(accesscodedata.Link{LpaLinkedAt: time.Now(), UpdatedAt: testNow})
-
-	accessCodeStore := &Store{dynamoClient: dynamoClient, now: testNowFn}
-
-	result, err := accessCodeStore.Get(ctx, actor.TypeDonor, accesscodedata.HashedFromString("123"))
-	assert.Equal(t, dynamo.NotFoundError{}, err)
-	assert.Equal(t, accesscodedata.Link{}, result)
-}
-
 func TestAccessCodeStoreGetForBadActorType(t *testing.T) {
 	ctx := context.Background()
 	accessCodeStore := &Store{}
@@ -334,11 +318,79 @@ func TestNewAccessCodeStore(t *testing.T) {
 }
 
 func TestAccessCodeStoreGetDonor(t *testing.T) {
+	ctx := context.Background()
+	hashedCode := accesscodedata.HashedFromString("123")
+	data := accesscodedata.DonorLink{LpaKey: "lpa-id", UpdatedAt: testNow.AddDate(0, -3, 1)}
+
+	dynamoClient := newMockDynamoClient(t)
+	dynamoClient.EXPECT().
+		OneByPK(ctx, dynamo.AccessKey(dynamo.DonorAccessKey(hashedCode.String())), mock.Anything).
+		Return(nil).
+		SetData(data)
+
+	accessCodeStore := &Store{dynamoClient: dynamoClient, now: testNowFn}
+
+	result, err := accessCodeStore.GetDonor(ctx, hashedCode)
+	assert.Nil(t, err)
+	assert.Equal(t, data, result)
+}
+
+func TestAccessCodeStoreGetDonorWhenExpired(t *testing.T) {
+	ctx := context.Background()
+	hashedCode := accesscodedata.HashedFromString("123")
+	data := accesscodedata.Link{LpaKey: "lpa-id", UpdatedAt: testNow.AddDate(0, -3, -1)}
+
+	dynamoClient := newMockDynamoClient(t)
+	dynamoClient.EXPECT().
+		OneByPK(ctx, dynamo.AccessKey(dynamo.DonorAccessKey(hashedCode.String())), mock.Anything).
+		Return(nil).
+		SetData(data)
+
+	accessCodeStore := &Store{dynamoClient: dynamoClient, now: testNowFn}
+
+	_, err := accessCodeStore.GetDonor(ctx, hashedCode)
+	assert.ErrorIs(t, err, dynamo.NotFoundError{})
+}
+
+func TestAccessCodeStoreGetDonorWhenLinked(t *testing.T) {
+	ctx := context.Background()
+
+	dynamoClient := newMockDynamoClient(t)
+	dynamoClient.EXPECT().
+		OneByPK(ctx, mock.Anything, mock.Anything).
+		Return(nil).
+		SetData(accesscodedata.DonorLink{LpaLinkedAt: time.Now(), UpdatedAt: testNow})
+
+	accessCodeStore := &Store{dynamoClient: dynamoClient, now: testNowFn}
+
+	result, err := accessCodeStore.GetDonor(ctx, accesscodedata.HashedFromString("123"))
+	assert.Equal(t, dynamo.NotFoundError{}, err)
+	assert.Equal(t, accesscodedata.DonorLink{}, result)
+}
+
+func TestAccessCodeStoreGetDonorOnError(t *testing.T) {
+	ctx := context.Background()
+	data := accesscodedata.DonorLink{LpaKey: "lpa-id"}
+	_, hashedCode := accesscodedata.Generate()
+
+	dynamoClient := newMockDynamoClient(t)
+	dynamoClient.EXPECT().
+		OneByPK(ctx, dynamo.AccessKey(dynamo.DonorAccessKey(hashedCode.String())), mock.Anything).
+		Return(expectedError).
+		SetData(data)
+
+	accessCodeStore := &Store{dynamoClient: dynamoClient}
+
+	_, err := accessCodeStore.GetDonor(ctx, hashedCode)
+	assert.Equal(t, expectedError, err)
+}
+
+func TestAccessCodeStoreGetDonorAccess(t *testing.T) {
 	ctx := appcontext.ContextWithSession(context.Background(), &appcontext.Session{
 		OrganisationID: "org-id",
 		LpaID:          "lpa-id",
 	})
-	data := accesscodedata.Link{LpaKey: dynamo.LpaKey("lpa-id"), UpdatedAt: testNow}
+	data := accesscodedata.DonorLink{LpaKey: dynamo.LpaKey("lpa-id"), UpdatedAt: testNow}
 
 	dynamoClient := newMockDynamoClient(t)
 	dynamoClient.EXPECT().
@@ -348,12 +400,12 @@ func TestAccessCodeStoreGetDonor(t *testing.T) {
 
 	accessCodeStore := &Store{dynamoClient: dynamoClient, now: testNowFn}
 
-	result, err := accessCodeStore.GetDonor(ctx)
+	result, err := accessCodeStore.GetDonorAccess(ctx)
 	assert.Nil(t, err)
 	assert.Equal(t, data, result)
 }
 
-func TestAccessCodeStoreGetDonorWhenExpired(t *testing.T) {
+func TestAccessCodeStoreGetDonorAccessWhenExpired(t *testing.T) {
 	ctx := appcontext.ContextWithSession(context.Background(), &appcontext.Session{
 		OrganisationID: "org-id",
 		LpaID:          "lpa-id",
@@ -368,19 +420,19 @@ func TestAccessCodeStoreGetDonorWhenExpired(t *testing.T) {
 
 	accessCodeStore := &Store{dynamoClient: dynamoClient, now: testNowFn}
 
-	_, err := accessCodeStore.GetDonor(ctx)
+	_, err := accessCodeStore.GetDonorAccess(ctx)
 	assert.Equal(t, dynamo.NotFoundError{}, err)
 }
 
-func TestAccessCodeStoreGetDonorWithSessionMissing(t *testing.T) {
+func TestAccessCodeStoreGetDonorAccessWithSessionMissing(t *testing.T) {
 	ctx := context.Background()
 	accessCodeStore := &Store{}
 
-	_, err := accessCodeStore.GetDonor(ctx)
+	_, err := accessCodeStore.GetDonorAccess(ctx)
 	assert.NotNil(t, err)
 }
 
-func TestAccessCodeStoreGetDonorWhenDynamoErrors(t *testing.T) {
+func TestAccessCodeStoreGetDonorAccessWhenDynamoErrors(t *testing.T) {
 	ctx := appcontext.ContextWithSession(context.Background(), &appcontext.Session{
 		OrganisationID: "org-id",
 		LpaID:          "lpa-id",
@@ -393,7 +445,7 @@ func TestAccessCodeStoreGetDonorWhenDynamoErrors(t *testing.T) {
 
 	accessCodeStore := &Store{dynamoClient: dynamoClient, now: testNowFn}
 
-	_, err := accessCodeStore.GetDonor(ctx)
+	_, err := accessCodeStore.GetDonorAccess(ctx)
 	assert.Equal(t, err, expectedError)
 }
 
@@ -403,7 +455,7 @@ func TestAccessCodeStorePutDonor(t *testing.T) {
 
 	dynamoClient := newMockDynamoClient(t)
 	dynamoClient.EXPECT().
-		Create(ctx, accesscodedata.Link{
+		Create(ctx, accesscodedata.DonorLink{
 			PK:          dynamo.AccessKey(dynamo.DonorAccessKey(hashedCode.String())),
 			SK:          dynamo.ShareSortKey(dynamo.DonorInviteKey(dynamo.OrganisationKey("org-id"), dynamo.LpaKey("lpa-id"))),
 			LpaOwnerKey: dynamo.LpaOwnerKey(dynamo.OrganisationKey("org-id")),
@@ -414,7 +466,7 @@ func TestAccessCodeStorePutDonor(t *testing.T) {
 
 	accessCodeStore := &Store{dynamoClient: dynamoClient, now: testNowFn}
 
-	err := accessCodeStore.PutDonor(ctx, hashedCode, accesscodedata.Link{LpaOwnerKey: dynamo.LpaOwnerKey(dynamo.OrganisationKey("org-id")), LpaKey: dynamo.LpaKey("lpa-id")})
+	err := accessCodeStore.PutDonor(ctx, hashedCode, accesscodedata.DonorLink{LpaOwnerKey: dynamo.LpaOwnerKey(dynamo.OrganisationKey("org-id")), LpaKey: dynamo.LpaKey("lpa-id")})
 	assert.Nil(t, err)
 }
 
@@ -423,7 +475,7 @@ func TestAccessCodeStorePutDonorWhenDonor(t *testing.T) {
 
 	accessCodeStore := &Store{}
 
-	err := accessCodeStore.PutDonor(ctx, accesscodedata.HashedFromString("123"), accesscodedata.Link{LpaOwnerKey: dynamo.LpaOwnerKey(dynamo.DonorKey("org-id")), LpaKey: dynamo.LpaKey("lpa-id")})
+	err := accessCodeStore.PutDonor(ctx, accesscodedata.HashedFromString("123"), accesscodedata.DonorLink{LpaOwnerKey: dynamo.LpaOwnerKey(dynamo.DonorKey("org-id")), LpaKey: dynamo.LpaKey("lpa-id")})
 	assert.Error(t, err)
 }
 
@@ -460,7 +512,7 @@ func TestAccessCodeStoreDeleteWhenError(t *testing.T) {
 	assert.Equal(t, expectedError, err)
 }
 
-func TestAccessCodeStoreDeleteForOrganisation(t *testing.T) {
+func TestAccessCodeStoreDeleteDonor(t *testing.T) {
 	pk := dynamo.AccessKey(dynamo.AttorneyAccessKey("a-pk"))
 	sk := dynamo.ShareSortKey(dynamo.MetadataKey("a-sk"))
 
@@ -471,11 +523,11 @@ func TestAccessCodeStoreDeleteForOrganisation(t *testing.T) {
 
 	accessCodeStore := &Store{dynamoClient: dynamoClient}
 
-	err := accessCodeStore.Delete(ctx, accesscodedata.Link{LpaKey: "123", PK: pk, SK: sk, LpaOwnerKey: dynamo.LpaOwnerKey(dynamo.OrganisationKey("org-id"))})
+	err := accessCodeStore.DeleteDonor(ctx, accesscodedata.DonorLink{LpaKey: "123", PK: pk, SK: sk, LpaOwnerKey: dynamo.LpaOwnerKey(dynamo.OrganisationKey("org-id"))})
 	assert.Nil(t, err)
 }
 
-func TestAccessCodeStoreDeleteForOrganisationWhenError(t *testing.T) {
+func TestAccessCodeStoreDeleteDonorWhenError(t *testing.T) {
 	dynamoClient := newMockDynamoClient(t)
 	dynamoClient.EXPECT().
 		DeleteOne(ctx, mock.Anything, mock.Anything).
@@ -483,7 +535,7 @@ func TestAccessCodeStoreDeleteForOrganisationWhenError(t *testing.T) {
 
 	accessCodeStore := &Store{dynamoClient: dynamoClient}
 
-	err := accessCodeStore.Delete(ctx, accesscodedata.Link{LpaOwnerKey: dynamo.LpaOwnerKey(dynamo.OrganisationKey("org-id"))})
+	err := accessCodeStore.DeleteDonor(ctx, accesscodedata.DonorLink{LpaOwnerKey: dynamo.LpaOwnerKey(dynamo.OrganisationKey("org-id"))})
 	assert.Equal(t, expectedError, err)
 }
 

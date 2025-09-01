@@ -180,7 +180,7 @@ func (s *Store) findDonorLink(ctx context.Context, lpaKey dynamo.LpaKeyType) (*d
 //  1. an lpaReference which allows the donor's session ID to be queried for the
 //     organisation ID that holds the Lpa data;
 //  2. an lpaLink which allows the Lpa to be shown on the donor's dashboard.
-func (s *Store) Link(ctx context.Context, accessCode accesscodedata.Link, donorEmail string) error {
+func (s *Store) Link(ctx context.Context, accessCode accesscodedata.DonorLink, donorEmail string) error {
 	organisationKey, ok := accessCode.LpaOwnerKey.Organisation()
 	if !ok {
 		return errors.New("donorStore.Link can only be used with organisations")
@@ -437,7 +437,7 @@ func (s *Store) Delete(ctx context.Context) error {
 	return s.dynamoClient.DeleteKeys(ctx, keys)
 }
 
-func (s *Store) DeleteDonorAccess(ctx context.Context, accessCodeData accesscodedata.Link) error {
+func (s *Store) DeleteDonorAccess(ctx context.Context, accessCodeData accesscodedata.DonorLink) error {
 	organisationKey, ok := accessCodeData.LpaOwnerKey.Organisation()
 	if !ok {
 		return errors.New("donorStore.DeleteDonorAccess can only be used with organisations")

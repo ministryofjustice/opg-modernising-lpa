@@ -84,7 +84,6 @@ func TestPostEnterAccessCode(t *testing.T) {
 
 	for name, tc := range testcases {
 		t.Run(name, func(t *testing.T) {
-
 			form := url.Values{
 				form.FieldNames.AccessCode:    {"abcd1234"},
 				form.FieldNames.DonorLastName: {"Smith"},
