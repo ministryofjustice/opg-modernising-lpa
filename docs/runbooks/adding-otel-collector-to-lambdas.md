@@ -26,6 +26,7 @@ Check at <https://aws-otel.github.io/docs/getting-started/lambda/lambda-go#lambd
 - aws-otel-collector-arm64-ver-0-115-0:2
 - aws-otel-collector-amd64-ver-0-115-0:3
 - aws-otel-collector-arm64-ver-0-115-0:3
+- aws-otel-collector-arm64-ver-0-117-0:1
 
 ```sh
 export VERSION=amd64-ver-0-115-0:3
