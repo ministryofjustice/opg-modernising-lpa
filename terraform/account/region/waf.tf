@@ -153,7 +153,6 @@ resource "aws_wafv2_web_acl" "main" {
       managed_rule_group_statement {
         name        = "AWSManagedRulesSQLiRuleSet"
         vendor_name = "AWS"
-        # (1 unchanged attribute hidden)
       }
     }
 
@@ -176,7 +175,6 @@ resource "aws_wafv2_web_acl" "main" {
       managed_rule_group_statement {
         name        = "AWSManagedRulesAmazonIpReputationList"
         vendor_name = "AWS"
-        # (1 unchanged attribute hidden)
       }
     }
 
