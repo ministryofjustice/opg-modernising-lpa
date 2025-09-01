@@ -10,7 +10,7 @@ COPY --link internal ./internal
 
 RUN GOOS=${TARGETOS} GOARCH=${TARGETARCH} CGO_ENABLED=0 go build -o create-s3-replication-job ./cmd/create-s3-replication-job
 
-FROM public.ecr.aws/lambda/provided:al2023.2025.08.05.12 AS production
+FROM public.ecr.aws/lambda/provided:al2023.2025.08.26.15 AS production
 
 WORKDIR /app
 COPY --link  docker/install_lambda_insights.sh /app/
