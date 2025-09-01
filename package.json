@@ -31,7 +31,7 @@
         "@playwright/test": "1.55.0",
         "axe-core": "4.10.3",
         "cypress": "14.5.4",
-        "cypress-axe": "1.6.0",
+        "cypress-axe": "1.7.0",
         "cypress-file-upload": "5.0.8",
         "cypress-multi-reporters": "2.0.5",
         "cypress-parallel": "0.15.0",
@@ -39,7 +39,7 @@
         "playwright": "1.55.0"
     },
     "engines": {
-        "node": "22.18.0"
+        "node": "22.19.0"
     },
     "packageManager": "yarn@1.22.22+sha512.a6b2f7906b721bba3d67d4aff083df04dad64c399707841b7acf00f6b133b7ac24255f2652fa22ae3534329dc6180534e98d17432037ff6fd140556e2bb3137e"
 }
