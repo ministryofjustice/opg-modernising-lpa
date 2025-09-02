@@ -27,6 +27,7 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/search"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/sesh"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/supporter"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/supporter/invitecode"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/supporter/supporterdata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/task"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/voucher"
@@ -159,14 +160,14 @@ func Supporter(
 					InviteSentTo: "email@example.com",
 				}
 
-				hashedCode := accesscodedata.HashedFromString(accessCode)
+				hashedCode := accesscodedata.HashedFromString(accessCode, "")
 				if err := accessCodeStore.PutDonor(r.Context(), hashedCode, accessCodeData); err != nil {
 					return fmt.Errorf("error putting accesscode for donor: %w", err)
 				}
 
 				if linkDonor {
 					accessCodeData.PK = dynamo.AccessKey(dynamo.DonorAccessKey(hashedCode.String()))
-					accessCodeData.SK = dynamo.ShareSortKey(dynamo.DonorInviteKey(org.PK, accessCodeData.LpaKey))
+					accessCodeData.SK = dynamo.AccessSortKey(dynamo.DonorInviteKey(org.PK, accessCodeData.LpaKey))
 					accessCodeData.UpdatedAt = time.Now()
 
 					if err := donorStore.Link(donorCtx, accessCodeData, donor.Donor.Email); err != nil {
@@ -243,7 +244,7 @@ func Supporter(
 						now = now.Add(time.Hour * -time.Duration(48))
 					}
 
-					_, hashedCode := accesscodedata.Generate()
+					_, hashedCode := invitecode.Generate()
 
 					invite := &supporterdata.MemberInvite{
 						PK:               dynamo.OrganisationKey(org.ID),
@@ -255,7 +256,7 @@ func Supporter(
 						FirstNames:       member.Firstnames,
 						LastName:         member.Lastname,
 						Permission:       supporterdata.PermissionAdmin,
-						AccessCode:       hashedCode,
+						InviteCode:       hashedCode,
 					}
 
 					if err := dynamoClient.Create(appcontext.ContextWithSession(r.Context(), &appcontext.Session{OrganisationID: org.ID}), invite); err != nil {
@@ -285,7 +286,7 @@ func Supporter(
 					email := strings.ToLower(fmt.Sprintf("%s-%s@example.org", member.Firstnames, member.Lastname))
 					sub := []byte(random.AlphaNumeric(16))
 					memberCtx := appcontext.ContextWithSession(r.Context(), &appcontext.Session{SessionID: base64.StdEncoding.EncodeToString(sub), Email: email})
-					_, hashedCode := accesscodedata.Generate()
+					_, hashedCode := invitecode.Generate()
 
 					if err = memberStore.CreateFromInvite(
 						memberCtx,
@@ -299,7 +300,7 @@ func Supporter(
 							FirstNames:     member.Firstnames,
 							LastName:       member.Lastname,
 							Permission:     permission,
-							AccessCode:     hashedCode,
+							InviteCode:     hashedCode,
 						},
 					); err != nil {
 						return err

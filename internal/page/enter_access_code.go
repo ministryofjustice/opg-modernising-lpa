@@ -36,7 +36,7 @@ func EnterAccessCode(tmpl template.Template, accessCodeStore AccessCodeStore, se
 			data.Errors = data.Form.Validate()
 
 			if len(data.Errors) == 0 {
-				referenceNumber := accesscodedata.HashedFromString(data.Form.AccessCode)
+				referenceNumber := accesscodedata.HashedFromString(data.Form.AccessCode, data.Form.DonorLastName)
 
 				accessCode, err := accessCodeStore.Get(r.Context(), actorType, referenceNumber)
 				if err != nil {

@@ -291,11 +291,11 @@ func Attorney(
 			attorneyCtx,
 			accessCodeStore,
 			attorneyStore,
+			donorDetails,
 			attorneyUID,
 			isReplacement,
 			isTrustCorporation,
-			donorDetails.SK,
-			donorDetails.CertificateProvider.Email,
+			email,
 		)
 		if err != nil {
 			return err
@@ -360,10 +360,10 @@ func Attorney(
 						ctx,
 						accessCodeStore,
 						attorneyStore,
+						donorDetails,
 						a.UID,
 						isReplacement,
 						false,
-						donorDetails.SK,
 						a.Email,
 					)
 					if err != nil {
@@ -391,10 +391,10 @@ func Attorney(
 						ctx,
 						accessCodeStore,
 						attorneyStore,
+						donorDetails,
 						list.TrustCorporation.UID,
 						isReplacement,
 						true,
-						donorDetails.SK,
 						list.TrustCorporation.Email,
 					)
 					if err != nil {

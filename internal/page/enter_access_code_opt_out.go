@@ -31,7 +31,7 @@ func EnterAccessCodeOptOut(tmpl template.Template, accessCodeStore AccessCodeSto
 			data.Errors = data.Form.Validate()
 
 			if data.Errors.None() {
-				referenceNumber := accesscodedata.HashedFromString(data.Form.AccessCode)
+				referenceNumber := accesscodedata.HashedFromString(data.Form.AccessCode, data.Form.DonorLastName)
 
 				accessCode, err := accessCodeStore.Get(r.Context(), actorType, referenceNumber)
 				if err != nil {

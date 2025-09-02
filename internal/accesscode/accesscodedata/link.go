@@ -9,8 +9,8 @@ import (
 
 // A Link provides the details of the LPA that will be accessed by a share code.
 type Link struct {
-	PK        dynamo.ShareKeyType
-	SK        dynamo.ShareSortKeyType
+	PK        dynamo.AccessKeyType
+	SK        dynamo.AccessSortKeyType
 	UpdatedAt time.Time
 
 	// LpaKey is the key for the LPA that will be accessed

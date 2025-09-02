@@ -24,6 +24,13 @@ import (
 	"github.com/stretchr/testify/mock"
 )
 
+var (
+	testPlainCode, testHashedCode = accesscodedata.Generate("Smith")
+	testGenerateFn                = func(_ string) (accesscodedata.PlainText, accesscodedata.Hashed) {
+		return testPlainCode, testHashedCode
+	}
+)
+
 func TestGetDonorAccess(t *testing.T) {
 	donor := &donordata.Provided{Donor: donordata.Donor{Email: "x"}}
 	accessCodeData := accesscodedata.DonorLink{PK: dynamo.AccessKey(dynamo.DonorAccessKey("1"))}
@@ -398,7 +405,7 @@ func TestPostDonorAccessRemove(t *testing.T) {
 
 	accessCodeData := accesscodedata.DonorLink{
 		PK:           dynamo.AccessKey(dynamo.DonorAccessKey("1")),
-		SK:           dynamo.ShareSortKey(dynamo.DonorInviteKey("donor-session-id", "lpa-id")),
+		SK:           dynamo.AccessSortKey(dynamo.DonorInviteKey("donor-session-id", "lpa-id")),
 		InviteSentTo: "email@example.com",
 		LpaOwnerKey:  dynamo.LpaOwnerKey(dynamo.DonorKey("donor-session-id")),
 	}
@@ -439,7 +446,7 @@ func TestPostDonorAccessRemoveWhenDonorHasPaid(t *testing.T) {
 
 	accessCodeData := accesscodedata.DonorLink{
 		PK:           dynamo.AccessKey(dynamo.DonorAccessKey("1")),
-		SK:           dynamo.ShareSortKey(dynamo.DonorInviteKey("donor-session-id", "lpa-id")),
+		SK:           dynamo.AccessSortKey(dynamo.DonorInviteKey("donor-session-id", "lpa-id")),
 		InviteSentTo: "email@example.com",
 		LpaOwnerKey:  dynamo.LpaOwnerKey(dynamo.DonorKey("donor-session-id")),
 	}

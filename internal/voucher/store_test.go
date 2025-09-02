@@ -63,7 +63,7 @@ func TestVoucherStoreCreate(t *testing.T) {
 
 	accessCode := accesscodedata.Link{
 		PK:          dynamo.AccessKey(dynamo.VoucherAccessKey("123")),
-		SK:          dynamo.ShareSortKey(dynamo.MetadataKey("123")),
+		SK:          dynamo.AccessSortKey(dynamo.MetadataKey("123")),
 		ActorUID:    uid,
 		UpdatedAt:   now,
 		LpaOwnerKey: dynamo.LpaOwnerKey(dynamo.DonorKey("donor")),
@@ -84,7 +84,7 @@ func TestVoucherStoreCreate(t *testing.T) {
 		Deletes: []dynamo.Keys{
 			{
 				PK: dynamo.AccessKey(dynamo.VoucherAccessKey("123")),
-				SK: dynamo.ShareSortKey(dynamo.MetadataKey("123")),
+				SK: dynamo.AccessSortKey(dynamo.MetadataKey("123")),
 			},
 		},
 	}
@@ -141,7 +141,7 @@ func TestVoucherStoreCreateWhenWriteTransactionError(t *testing.T) {
 
 	_, err := store.Create(ctx, accesscodedata.Link{
 		PK: dynamo.AccessKey(dynamo.VoucherAccessKey("123")),
-		SK: dynamo.ShareSortKey(dynamo.MetadataKey("123")),
+		SK: dynamo.AccessSortKey(dynamo.MetadataKey("123")),
 	}, "")
 	assert.Equal(t, expectedError, err)
 }

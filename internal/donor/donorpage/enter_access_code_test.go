@@ -96,7 +96,7 @@ func TestPostEnterAccessCode(t *testing.T) {
 
 	accessCodeStore := newMockAccessCodeStore(t)
 	accessCodeStore.EXPECT().
-		GetDonor(r.Context(), accesscodedata.HashedFromString("abcd1234")).
+		GetDonor(r.Context(), accesscodedata.HashedFromString("abcd1234", "Smith")).
 		Return(accessCode, nil)
 
 	sessionStore := newMockSessionStore(t)
@@ -285,7 +285,7 @@ func TestPostEnterAccessCodeOnSessionGetError(t *testing.T) {
 
 	accessCodeStore := newMockAccessCodeStore(t)
 	accessCodeStore.EXPECT().
-		GetDonor(r.Context(), accesscodedata.HashedFromString("abcd1234")).
+		GetDonor(r.Context(), accesscodedata.HashedFromString("abcd1234", "Smith")).
 		Return(accesscodedata.DonorLink{LpaKey: dynamo.LpaKey("lpa-id"), LpaOwnerKey: dynamo.LpaOwnerKey(dynamo.DonorKey("")), LpaUID: "lpa-uid"}, nil)
 
 	sessionStore := newMockSessionStore(t)

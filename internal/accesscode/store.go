@@ -69,9 +69,9 @@ func (s *Store) Put(ctx context.Context, actorType actor.Type, accessCode access
 	data.UpdatedAt = s.now()
 	data.PK = pk
 	if actorType.IsVoucher() {
-		data.SK = dynamo.ShareSortKey(dynamo.VoucherShareSortKey(data.LpaKey))
+		data.SK = dynamo.AccessSortKey(dynamo.VoucherAccessSortKey(data.LpaKey))
 	} else {
-		data.SK = dynamo.ShareSortKey(dynamo.MetadataKey(accessCode.String()))
+		data.SK = dynamo.AccessSortKey(dynamo.MetadataKey(accessCode.String()))
 	}
 
 	newActorAccess := accesscodedata.ActorAccess{
@@ -120,7 +120,7 @@ func (s *Store) PutDonor(ctx context.Context, accessCode accesscodedata.Hashed, 
 	}
 
 	data.PK = dynamo.AccessKey(dynamo.DonorAccessKey(accessCode.String()))
-	data.SK = dynamo.ShareSortKey(dynamo.DonorInviteKey(organisationKey, data.LpaKey))
+	data.SK = dynamo.AccessSortKey(dynamo.DonorInviteKey(organisationKey, data.LpaKey))
 	data.UpdatedAt = s.now()
 
 	return s.dynamoClient.Create(ctx, data)
@@ -178,7 +178,7 @@ func (s *Store) DeleteDonor(ctx context.Context, link accesscodedata.DonorLink) 
 	return s.dynamoClient.DeleteOne(ctx, link.PK, link.SK)
 }
 
-func accessCodeKey(actorType actor.Type, accessCode accesscodedata.Hashed) (pk dynamo.ShareKeyType, err error) {
+func accessCodeKey(actorType actor.Type, accessCode accesscodedata.Hashed) (pk dynamo.AccessKeyType, err error) {
 	switch actorType {
 	case actor.TypeDonor:
 		return dynamo.AccessKey(dynamo.DonorAccessKey(accessCode.String())), nil

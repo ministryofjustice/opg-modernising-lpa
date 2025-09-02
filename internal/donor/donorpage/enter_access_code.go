@@ -34,7 +34,7 @@ func EnterAccessCode(logger Logger, tmpl template.Template, accessCodeStore Acce
 			data.Errors = data.Form.Validate()
 
 			if len(data.Errors) == 0 {
-				referenceNumber := accesscodedata.HashedFromString(data.Form.AccessCode)
+				referenceNumber := accesscodedata.HashedFromString(data.Form.AccessCode, data.Form.DonorLastName)
 
 				accessCode, err := accessCodeStore.GetDonor(r.Context(), referenceNumber)
 				if err != nil {

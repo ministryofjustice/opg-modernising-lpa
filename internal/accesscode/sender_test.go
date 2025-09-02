@@ -32,8 +32,8 @@ var (
 		LpaID:     "lpa-id",
 		Lang:      localize.En,
 	}
-	testPlainCode, testHashedCode = accesscodedata.Generate()
-	testGenerateFn                = func() (accesscodedata.PlainText, accesscodedata.Hashed) {
+	testPlainCode, testHashedCode = accesscodedata.Generate("Smith")
+	testGenerateFn                = func(_ string) (accesscodedata.PlainText, accesscodedata.Hashed) {
 		return testPlainCode, testHashedCode
 	}
 )
@@ -157,7 +157,7 @@ func TestAccessCodeSenderSendCertificateProviderInviteWithTestCode(t *testing.T)
 
 			accessCodeStore := newMockAccessCodeStore(t)
 			accessCodeStore.EXPECT().
-				Put(ctx, actor.TypeCertificateProvider, accesscodedata.HashedFromString(tc.expectedTestCode), accesscodedata.Link{
+				Put(ctx, actor.TypeCertificateProvider, accesscodedata.HashedFromString(tc.expectedTestCode, "Smith"), accesscodedata.Link{
 					LpaKey:      dynamo.LpaKey("lpa"),
 					LpaOwnerKey: dynamo.LpaOwnerKey(dynamo.DonorKey("donor")),
 					LpaUID:      "lpa-uid",
@@ -1241,7 +1241,7 @@ func TestAccessCodeSenderSendAttorneysWithTestCode(t *testing.T) {
 
 			accessCodeStore := newMockAccessCodeStore(t)
 			accessCodeStore.EXPECT().
-				Put(ctx, actor.TypeAttorney, accesscodedata.HashedFromString(tc.expectedTestCode), accesscodedata.Link{
+				Put(ctx, actor.TypeAttorney, accesscodedata.HashedFromString(tc.expectedTestCode, "Smith"), accesscodedata.Link{
 					LpaOwnerKey: dynamo.LpaOwnerKey(dynamo.DonorKey("donor")), LpaKey: dynamo.LpaKey("lpa"),
 					LpaUID:   "lpa-uid",
 					ActorUID: uid,

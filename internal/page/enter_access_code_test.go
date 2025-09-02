@@ -113,7 +113,7 @@ func TestPostEnterAccessCode(t *testing.T) {
 
 			accessCodeStore := newMockAccessCodeStore(t)
 			accessCodeStore.EXPECT().
-				Get(r.Context(), actor.TypeAttorney, accesscodedata.HashedFromString("abcd1234")).
+				Get(r.Context(), actor.TypeAttorney, accesscodedata.HashedFromString("abcd1234", "Smith")).
 				Return(accessCode, nil)
 
 			sessionStore := newMockSessionStore(t)
@@ -209,7 +209,7 @@ func TestPostEnterAccessCodeOnAccessCodeStoreError(t *testing.T) {
 
 	accessCodeStore := newMockAccessCodeStore(t)
 	accessCodeStore.EXPECT().
-		Get(r.Context(), actor.TypeAttorney, accesscodedata.HashedFromString("abcd1234")).
+		Get(r.Context(), actor.TypeAttorney, accesscodedata.HashedFromString("abcd1234", "Smith")).
 		Return(accesscodedata.Link{LpaKey: dynamo.LpaKey("lpa-id"), LpaOwnerKey: dynamo.LpaOwnerKey(dynamo.DonorKey(""))}, expectedError)
 
 	err := EnterAccessCode(nil, accessCodeStore, nil, nil, actor.TypeAttorney, nil)(testAppData, w, r)
@@ -239,7 +239,7 @@ func TestPostEnterAccessCodeOnAccessCodeStoreNotFoundError(t *testing.T) {
 
 	accessCodeStore := newMockAccessCodeStore(t)
 	accessCodeStore.EXPECT().
-		Get(r.Context(), actor.TypeAttorney, accesscodedata.HashedFromString("abcd1234")).
+		Get(r.Context(), actor.TypeAttorney, accesscodedata.HashedFromString("abcd1234", "Smith")).
 		Return(accesscodedata.Link{LpaKey: dynamo.LpaKey("lpa-id"), LpaOwnerKey: dynamo.LpaOwnerKey(dynamo.DonorKey(""))}, dynamo.NotFoundError{})
 
 	err := EnterAccessCode(template.Execute, accessCodeStore, nil, nil, actor.TypeAttorney, nil)(testAppData, w, r)
@@ -291,7 +291,7 @@ func TestPostEnterAccessCodeOnSessionGetError(t *testing.T) {
 
 	accessCodeStore := newMockAccessCodeStore(t)
 	accessCodeStore.EXPECT().
-		Get(r.Context(), actor.TypeAttorney, accesscodedata.HashedFromString("abcd1234")).
+		Get(r.Context(), actor.TypeAttorney, accesscodedata.HashedFromString("abcd1234", "Smith")).
 		Return(accesscodedata.Link{LpaKey: dynamo.LpaKey("lpa-id"), LpaOwnerKey: dynamo.LpaOwnerKey(dynamo.DonorKey("")), LpaUID: "lpa-uid"}, nil)
 
 	sessionStore := newMockSessionStore(t)

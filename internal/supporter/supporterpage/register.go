@@ -22,6 +22,7 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/search"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/sesh"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/supporter"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/supporter/invitecode"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/supporter/supporterdata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/task"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/validation"
@@ -50,7 +51,7 @@ type MemberStore interface {
 		ctx context.Context,
 		organisation *supporterdata.Organisation,
 		firstNames, lastname, email string,
-		code accesscodedata.Hashed,
+		code invitecode.Hashed,
 		permission supporterdata.Permission,
 	) error
 	DeleteMemberInvite(ctx context.Context, organisationID, email string) error
@@ -170,9 +171,9 @@ func Register(
 	handleWithSupporter(supporter.PathEditOrganisationName, RequireAdmin,
 		EditOrganisationName(tmpls.Get("edit_organisation_name.gohtml"), organisationStore))
 	handleWithSupporter(supporter.PathManageTeamMembers, RequireAdmin,
-		ManageTeamMembers(tmpls.Get("manage_team_members.gohtml"), memberStore, accesscodedata.Generate, notifyClient, appPublicURL))
+		ManageTeamMembers(tmpls.Get("manage_team_members.gohtml"), memberStore, invitecode.Generate, notifyClient, appPublicURL))
 	handleWithSupporter(supporter.PathInviteMember, CanGoBack|RequireAdmin,
-		InviteMember(tmpls.Get("invite_member.gohtml"), memberStore, notifyClient, accesscodedata.Generate, appPublicURL))
+		InviteMember(tmpls.Get("invite_member.gohtml"), memberStore, notifyClient, invitecode.Generate, appPublicURL))
 	handleWithSupporter(supporter.PathDeleteOrganisation, CanGoBack,
 		DeleteOrganisation(logger, tmpls.Get("delete_organisation.gohtml"), organisationStore, sessionStore, searchClient))
 	handleWithSupporter(supporter.PathEditMember, CanGoBack,
