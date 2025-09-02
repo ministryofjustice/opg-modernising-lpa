@@ -10,8 +10,8 @@ import (
 // A DonorLink provides the details of the LPA that will be accessed by a share
 // code. It remains once a donor has gained access.
 type DonorLink struct {
-	PK        dynamo.ShareKeyType
-	SK        dynamo.ShareSortKeyType
+	PK        dynamo.AccessKeyType
+	SK        dynamo.AccessSortKeyType
 	UpdatedAt time.Time
 
 	// LpaKey is the key for the LPA that will be accessed

@@ -24,7 +24,7 @@ func TestStoreCreate(t *testing.T) {
 
 	link := accesscodedata.Link{
 		PK:          dynamo.AccessKey(dynamo.CertificateProviderAccessKey("share-key")),
-		SK:          dynamo.ShareSortKey(dynamo.MetadataKey("share-key")),
+		SK:          dynamo.AccessSortKey(dynamo.MetadataKey("share-key")),
 		ActorUID:    uid,
 		UpdatedAt:   testNow,
 		LpaOwnerKey: dynamo.LpaOwnerKey(dynamo.DonorKey("donor")),
@@ -95,7 +95,7 @@ func TestStoreCreateWhenWriteTransactionError(t *testing.T) {
 
 	_, err := certificateProviderStore.Create(ctx, accesscodedata.Link{
 		PK: dynamo.AccessKey(dynamo.CertificateProviderAccessKey("123")),
-		SK: dynamo.ShareSortKey(dynamo.MetadataKey("123")),
+		SK: dynamo.AccessSortKey(dynamo.MetadataKey("123")),
 	}, "")
 	assert.Equal(t, expectedError, err)
 }

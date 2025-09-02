@@ -175,11 +175,11 @@ func TestLpaOwnerKey(t *testing.T) {
 	})
 }
 
-func TestShareKey(t *testing.T) {
-	for str, key := range map[string]ShareKeyType{
-		"DONORSHARE#123":               AccessKey(DonorAccessKey("123")),
-		"CERTIFICATEPROVIDERSHARE#123": AccessKey(CertificateProviderAccessKey("123")),
-		"ATTORNEYSHARE#123":            AccessKey(AttorneyAccessKey("123")),
+func TestAccessKey(t *testing.T) {
+	for str, key := range map[string]AccessKeyType{
+		"DONORACCESS#123":               AccessKey(DonorAccessKey("123")),
+		"CERTIFICATEPROVIDERACCESS#123": AccessKey(CertificateProviderAccessKey("123")),
+		"ATTORNEYACCESS#123":            AccessKey(AttorneyAccessKey("123")),
 	} {
 		t.Run(str+"/PK", func(t *testing.T) {
 			assert.Equal(t, str, key.PK())
@@ -190,7 +190,7 @@ func TestShareKey(t *testing.T) {
 			assert.Nil(t, err)
 			assert.Equal(t, `"`+str+`"`, string(data))
 
-			var v ShareKeyType
+			var v AccessKeyType
 			err = json.Unmarshal(data, &v)
 			assert.Nil(t, err)
 			assert.Equal(t, key, v)
@@ -201,7 +201,7 @@ func TestShareKey(t *testing.T) {
 			assert.Nil(t, err)
 			assert.Equal(t, &types.AttributeValueMemberS{Value: str}, data)
 
-			var v ShareKeyType
+			var v AccessKeyType
 			err = attributevalue.Unmarshal(data, &v)
 			assert.Nil(t, err)
 			assert.Equal(t, key, v)
@@ -209,22 +209,22 @@ func TestShareKey(t *testing.T) {
 	}
 
 	t.Run("malformed", func(t *testing.T) {
-		var v ShareKeyType
+		var v AccessKeyType
 		err := json.Unmarshal([]byte(`"WHAT"`), &v)
 		assert.Error(t, err)
 	})
 
 	t.Run("invalid", func(t *testing.T) {
-		var v ShareKeyType
+		var v AccessKeyType
 		err := json.Unmarshal([]byte(`"ATTORNEY#123"`), &v)
 		assert.Error(t, err)
 	})
 
 	t.Run("empty json", func(t *testing.T) {
-		var v ShareKeyType
+		var v AccessKeyType
 		err := json.Unmarshal([]byte(`""`), &v)
 		assert.Nil(t, err)
-		assert.Equal(t, ShareKeyType{}, v)
+		assert.Equal(t, AccessKeyType{}, v)
 
 		data, err := json.Marshal(v)
 		assert.Nil(t, err)
@@ -232,10 +232,10 @@ func TestShareKey(t *testing.T) {
 	})
 
 	t.Run("empty attributevalue", func(t *testing.T) {
-		var v ShareKeyType
+		var v AccessKeyType
 		err := attributevalue.Unmarshal(&types.AttributeValueMemberS{Value: ""}, &v)
 		assert.Nil(t, err)
-		assert.Equal(t, ShareKeyType{}, v)
+		assert.Equal(t, AccessKeyType{}, v)
 
 		av, err := attributevalue.Marshal(v)
 		assert.Nil(t, err)
@@ -243,10 +243,10 @@ func TestShareKey(t *testing.T) {
 	})
 }
 
-func TestShareSortKey(t *testing.T) {
-	for str, key := range map[string]ShareSortKeyType{
-		"DONORINVITE#123#abc": ShareSortKey(DonorInviteKey(OrganisationKey("123"), LpaKey("abc"))),
-		"METADATA#123":        ShareSortKey(MetadataKey("123")),
+func TestAccessSortKey(t *testing.T) {
+	for str, key := range map[string]AccessSortKeyType{
+		"DONORINVITE#123#abc": AccessSortKey(DonorInviteKey(OrganisationKey("123"), LpaKey("abc"))),
+		"METADATA#123":        AccessSortKey(MetadataKey("123")),
 	} {
 		t.Run(str+"/SK", func(t *testing.T) {
 			assert.Equal(t, str, key.SK())
@@ -257,7 +257,7 @@ func TestShareSortKey(t *testing.T) {
 			assert.Nil(t, err)
 			assert.Equal(t, `"`+str+`"`, string(data))
 
-			var v ShareSortKeyType
+			var v AccessSortKeyType
 			err = json.Unmarshal(data, &v)
 			assert.Nil(t, err)
 			assert.Equal(t, key, v)
@@ -268,7 +268,7 @@ func TestShareSortKey(t *testing.T) {
 			assert.Nil(t, err)
 			assert.Equal(t, &types.AttributeValueMemberS{Value: str}, data)
 
-			var v ShareSortKeyType
+			var v AccessSortKeyType
 			err = attributevalue.Unmarshal(data, &v)
 			assert.Nil(t, err)
 			assert.Equal(t, key, v)
@@ -276,22 +276,22 @@ func TestShareSortKey(t *testing.T) {
 	}
 
 	t.Run("malformed", func(t *testing.T) {
-		var v ShareSortKeyType
+		var v AccessSortKeyType
 		err := json.Unmarshal([]byte(`"WHAT"`), &v)
 		assert.Error(t, err)
 	})
 
 	t.Run("invalid", func(t *testing.T) {
-		var v ShareSortKeyType
+		var v AccessSortKeyType
 		err := json.Unmarshal([]byte(`"ATTORNEY#123"`), &v)
 		assert.Error(t, err)
 	})
 
 	t.Run("empty json", func(t *testing.T) {
-		var v ShareSortKeyType
+		var v AccessSortKeyType
 		err := json.Unmarshal([]byte(`""`), &v)
 		assert.Nil(t, err)
-		assert.Equal(t, ShareSortKeyType{}, v)
+		assert.Equal(t, AccessSortKeyType{}, v)
 
 		data, err := json.Marshal(v)
 		assert.Nil(t, err)
@@ -299,10 +299,10 @@ func TestShareSortKey(t *testing.T) {
 	})
 
 	t.Run("empty attributevalue", func(t *testing.T) {
-		var v ShareSortKeyType
+		var v AccessSortKeyType
 		err := attributevalue.Unmarshal(&types.AttributeValueMemberS{Value: ""}, &v)
 		assert.Nil(t, err)
-		assert.Equal(t, ShareSortKeyType{}, v)
+		assert.Equal(t, AccessSortKeyType{}, v)
 
 		av, err := attributevalue.Marshal(v)
 		assert.Nil(t, err)

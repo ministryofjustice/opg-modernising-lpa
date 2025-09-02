@@ -697,10 +697,10 @@ func updateLPAProgress(
 	certificateProviderCtx := appcontext.ContextWithSession(r.Context(), &appcontext.Session{SessionID: certificateProviderSessionID, LpaID: donorDetails.LpaID})
 
 	if data.Progress >= slices.Index(progressValues, "certificateProviderInvited") {
-		plainCode, hashedCode := accesscodedata.Generate()
+		plainCode, hashedCode := accesscodedata.Generate(donorDetails.Donor.LastName)
 		accessCodeData := accesscodedata.Link{
 			PK:          dynamo.AccessKey(dynamo.CertificateProviderAccessKey(hashedCode.String())),
-			SK:          dynamo.ShareSortKey(dynamo.MetadataKey(hashedCode.String())),
+			SK:          dynamo.AccessSortKey(dynamo.MetadataKey(hashedCode.String())),
 			ActorUID:    donorDetails.CertificateProvider.UID,
 			LpaOwnerKey: donorDetails.SK,
 			LpaUID:      donorDetails.LpaUID,
@@ -776,10 +776,10 @@ func updateLPAProgress(
 					ctx,
 					accessCodeStore,
 					attorneyStore,
+					donorDetails,
 					a.UID,
 					isReplacement,
 					false,
-					donorDetails.SK,
 					a.Email,
 				)
 				if err != nil {
@@ -809,10 +809,10 @@ func updateLPAProgress(
 					ctx,
 					accessCodeStore,
 					attorneyStore,
+					donorDetails,
 					list.TrustCorporation.UID,
 					isReplacement,
 					true,
-					donorDetails.SK,
 					list.TrustCorporation.Email,
 				)
 				if err != nil {

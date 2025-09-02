@@ -44,11 +44,11 @@ func (c *mockDynamoClient_One_Call) SetData(data any) {
 }
 
 func TestAccessCodeStoreGet(t *testing.T) {
-	hashedCode := accesscodedata.HashedFromString("123")
+	hashedCode := accesscodedata.HashedFromString("123", "Jones")
 
 	testcases := map[string]struct {
 		t  actor.Type
-		pk dynamo.ShareKeyType
+		pk dynamo.AccessKeyType
 	}{
 		"attorney": {
 			t:  actor.TypeAttorney,
@@ -89,11 +89,11 @@ func TestAccessCodeStoreGet(t *testing.T) {
 }
 
 func TestAccessCodeStoreGetWhenExpired(t *testing.T) {
-	hashedCode := accesscodedata.HashedFromString("123")
+	hashedCode := accesscodedata.HashedFromString("123", "Jones")
 
 	testcases := map[string]struct {
 		t  actor.Type
-		pk dynamo.ShareKeyType
+		pk dynamo.AccessKeyType
 	}{
 		"attorney": {
 			t:  actor.TypeAttorney,
@@ -136,14 +136,14 @@ func TestAccessCodeStoreGetForBadActorType(t *testing.T) {
 	ctx := context.Background()
 	accessCodeStore := &Store{}
 
-	_, err := accessCodeStore.Get(ctx, actor.TypeIndependentWitness, accesscodedata.HashedFromString("123"))
+	_, err := accessCodeStore.Get(ctx, actor.TypeIndependentWitness, accesscodedata.HashedFromString("123", "Jones"))
 	assert.NotNil(t, err)
 }
 
 func TestAccessCodeStoreGetOnError(t *testing.T) {
 	ctx := context.Background()
 	data := accesscodedata.Link{LpaKey: "lpa-id"}
-	_, hashedCode := accesscodedata.Generate()
+	_, hashedCode := accesscodedata.Generate("Jones")
 
 	dynamoClient := newMockDynamoClient(t)
 	dynamoClient.EXPECT().
@@ -158,32 +158,32 @@ func TestAccessCodeStoreGetOnError(t *testing.T) {
 }
 
 func TestAccessCodeStorePut(t *testing.T) {
-	_, hashedCode := accesscodedata.Generate()
+	_, hashedCode := accesscodedata.Generate("Jones")
 
 	testcases := map[string]struct {
 		actor actor.Type
-		pk    dynamo.ShareKeyType
-		sk    dynamo.ShareSortKeyType
+		pk    dynamo.AccessKeyType
+		sk    dynamo.AccessSortKeyType
 	}{
 		"attorney": {
 			actor: actor.TypeAttorney,
 			pk:    dynamo.AccessKey(dynamo.AttorneyAccessKey(hashedCode.String())),
-			sk:    dynamo.ShareSortKey(dynamo.MetadataKey(hashedCode.String())),
+			sk:    dynamo.AccessSortKey(dynamo.MetadataKey(hashedCode.String())),
 		},
 		"replacement attorney": {
 			actor: actor.TypeReplacementAttorney,
 			pk:    dynamo.AccessKey(dynamo.AttorneyAccessKey(hashedCode.String())),
-			sk:    dynamo.ShareSortKey(dynamo.MetadataKey(hashedCode.String())),
+			sk:    dynamo.AccessSortKey(dynamo.MetadataKey(hashedCode.String())),
 		},
 		"certificate provider": {
 			actor: actor.TypeCertificateProvider,
 			pk:    dynamo.AccessKey(dynamo.CertificateProviderAccessKey(hashedCode.String())),
-			sk:    dynamo.ShareSortKey(dynamo.MetadataKey(hashedCode.String())),
+			sk:    dynamo.AccessSortKey(dynamo.MetadataKey(hashedCode.String())),
 		},
 		"voucher": {
 			actor: actor.TypeVoucher,
 			pk:    dynamo.AccessKey(dynamo.VoucherAccessKey(hashedCode.String())),
-			sk:    dynamo.ShareSortKey(dynamo.VoucherShareSortKey("lpa-id")),
+			sk:    dynamo.AccessSortKey(dynamo.VoucherAccessSortKey("lpa-id")),
 		},
 	}
 
@@ -220,32 +220,32 @@ func TestAccessCodeStorePut(t *testing.T) {
 }
 
 func TestAccessCodeStorePutWhenHasAccessCode(t *testing.T) {
-	_, hashedCode := accesscodedata.Generate()
+	_, hashedCode := accesscodedata.Generate("Jones")
 
 	testcases := map[string]struct {
 		actor actor.Type
-		pk    dynamo.ShareKeyType
-		sk    dynamo.ShareSortKeyType
+		pk    dynamo.AccessKeyType
+		sk    dynamo.AccessSortKeyType
 	}{
 		"attorney": {
 			actor: actor.TypeAttorney,
 			pk:    dynamo.AccessKey(dynamo.AttorneyAccessKey(hashedCode.String())),
-			sk:    dynamo.ShareSortKey(dynamo.MetadataKey(hashedCode.String())),
+			sk:    dynamo.AccessSortKey(dynamo.MetadataKey(hashedCode.String())),
 		},
 		"replacement attorney": {
 			actor: actor.TypeReplacementAttorney,
 			pk:    dynamo.AccessKey(dynamo.AttorneyAccessKey(hashedCode.String())),
-			sk:    dynamo.ShareSortKey(dynamo.MetadataKey(hashedCode.String())),
+			sk:    dynamo.AccessSortKey(dynamo.MetadataKey(hashedCode.String())),
 		},
 		"certificate provider": {
 			actor: actor.TypeCertificateProvider,
 			pk:    dynamo.AccessKey(dynamo.CertificateProviderAccessKey(hashedCode.String())),
-			sk:    dynamo.ShareSortKey(dynamo.MetadataKey(hashedCode.String())),
+			sk:    dynamo.AccessSortKey(dynamo.MetadataKey(hashedCode.String())),
 		},
 		"voucher": {
 			actor: actor.TypeVoucher,
 			pk:    dynamo.AccessKey(dynamo.VoucherAccessKey(hashedCode.String())),
-			sk:    dynamo.ShareSortKey(dynamo.VoucherShareSortKey("lpa-id")),
+			sk:    dynamo.AccessSortKey(dynamo.VoucherAccessSortKey("lpa-id")),
 		},
 	}
 
@@ -256,7 +256,7 @@ func TestAccessCodeStorePutWhenHasAccessCode(t *testing.T) {
 			data := accesscodedata.Link{PK: tc.pk, SK: tc.sk, LpaKey: "lpa-id", ActorUID: actorUID, UpdatedAt: testNow}
 			actorAccess := accesscodedata.ActorAccess{
 				ShareKey:     dynamo.AccessKey(dynamo.DonorAccessKey("what")),
-				ShareSortKey: dynamo.ShareSortKey(dynamo.MetadataKey("what")),
+				ShareSortKey: dynamo.AccessSortKey(dynamo.MetadataKey("what")),
 			}
 
 			dynamoClient := newMockDynamoClient(t)
@@ -291,7 +291,7 @@ func TestAccessCodeStorePutForBadActorType(t *testing.T) {
 	ctx := context.Background()
 	accessCodeStore := &Store{}
 
-	err := accessCodeStore.Put(ctx, actor.TypePersonToNotify, accesscodedata.HashedFromString("123"), accesscodedata.Link{
+	err := accessCodeStore.Put(ctx, actor.TypePersonToNotify, accesscodedata.HashedFromString("123", "Jones"), accesscodedata.Link{
 		ActorUID: actoruid.New(),
 	})
 	assert.NotNil(t, err)
@@ -305,7 +305,7 @@ func TestAccessCodeStoreWhenOneByPKError(t *testing.T) {
 
 	accessCodeStore := &Store{dynamoClient: dynamoClient, now: testNowFn}
 
-	err := accessCodeStore.Put(ctx, actor.TypeAttorney, accesscodedata.HashedFromString("123"), accesscodedata.Link{LpaKey: "123"})
+	err := accessCodeStore.Put(ctx, actor.TypeAttorney, accesscodedata.HashedFromString("123", "Jones"), accesscodedata.Link{LpaKey: "123"})
 	assert.Equal(t, expectedError, err)
 }
 
@@ -319,7 +319,7 @@ func TestNewAccessCodeStore(t *testing.T) {
 
 func TestAccessCodeStoreGetDonor(t *testing.T) {
 	ctx := context.Background()
-	hashedCode := accesscodedata.HashedFromString("123")
+	hashedCode := accesscodedata.HashedFromString("123", "Jones")
 	data := accesscodedata.DonorLink{LpaKey: "lpa-id", UpdatedAt: testNow.AddDate(0, -3, 1)}
 
 	dynamoClient := newMockDynamoClient(t)
@@ -337,7 +337,7 @@ func TestAccessCodeStoreGetDonor(t *testing.T) {
 
 func TestAccessCodeStoreGetDonorWhenExpired(t *testing.T) {
 	ctx := context.Background()
-	hashedCode := accesscodedata.HashedFromString("123")
+	hashedCode := accesscodedata.HashedFromString("123", "Jones")
 	data := accesscodedata.Link{LpaKey: "lpa-id", UpdatedAt: testNow.AddDate(0, -3, -1)}
 
 	dynamoClient := newMockDynamoClient(t)
@@ -363,7 +363,7 @@ func TestAccessCodeStoreGetDonorWhenLinked(t *testing.T) {
 
 	accessCodeStore := &Store{dynamoClient: dynamoClient, now: testNowFn}
 
-	result, err := accessCodeStore.GetDonor(ctx, accesscodedata.HashedFromString("123"))
+	result, err := accessCodeStore.GetDonor(ctx, accesscodedata.HashedFromString("123", "Jones"))
 	assert.Equal(t, dynamo.NotFoundError{}, err)
 	assert.Equal(t, accesscodedata.DonorLink{}, result)
 }
@@ -371,7 +371,7 @@ func TestAccessCodeStoreGetDonorWhenLinked(t *testing.T) {
 func TestAccessCodeStoreGetDonorOnError(t *testing.T) {
 	ctx := context.Background()
 	data := accesscodedata.DonorLink{LpaKey: "lpa-id"}
-	_, hashedCode := accesscodedata.Generate()
+	_, hashedCode := accesscodedata.Generate("Jones")
 
 	dynamoClient := newMockDynamoClient(t)
 	dynamoClient.EXPECT().
@@ -451,13 +451,13 @@ func TestAccessCodeStoreGetDonorAccessWhenDynamoErrors(t *testing.T) {
 
 func TestAccessCodeStorePutDonor(t *testing.T) {
 	ctx := context.Background()
-	hashedCode := accesscodedata.HashedFromString("123")
+	hashedCode := accesscodedata.HashedFromString("123", "Jones")
 
 	dynamoClient := newMockDynamoClient(t)
 	dynamoClient.EXPECT().
 		Create(ctx, accesscodedata.DonorLink{
 			PK:          dynamo.AccessKey(dynamo.DonorAccessKey(hashedCode.String())),
-			SK:          dynamo.ShareSortKey(dynamo.DonorInviteKey(dynamo.OrganisationKey("org-id"), dynamo.LpaKey("lpa-id"))),
+			SK:          dynamo.AccessSortKey(dynamo.DonorInviteKey(dynamo.OrganisationKey("org-id"), dynamo.LpaKey("lpa-id"))),
 			LpaOwnerKey: dynamo.LpaOwnerKey(dynamo.OrganisationKey("org-id")),
 			LpaKey:      dynamo.LpaKey("lpa-id"),
 			UpdatedAt:   testNow,
@@ -475,14 +475,14 @@ func TestAccessCodeStorePutDonorWhenDonor(t *testing.T) {
 
 	accessCodeStore := &Store{}
 
-	err := accessCodeStore.PutDonor(ctx, accesscodedata.HashedFromString("123"), accesscodedata.DonorLink{LpaOwnerKey: dynamo.LpaOwnerKey(dynamo.DonorKey("org-id")), LpaKey: dynamo.LpaKey("lpa-id")})
+	err := accessCodeStore.PutDonor(ctx, accesscodedata.HashedFromString("123", "Jones"), accesscodedata.DonorLink{LpaOwnerKey: dynamo.LpaOwnerKey(dynamo.DonorKey("org-id")), LpaKey: dynamo.LpaKey("lpa-id")})
 	assert.Error(t, err)
 }
 
 func TestAccessCodeStoreDelete(t *testing.T) {
 	actorUID := actoruid.New()
 	pk := dynamo.AccessKey(dynamo.AttorneyAccessKey("a-pk"))
-	sk := dynamo.ShareSortKey(dynamo.MetadataKey("a-sk"))
+	sk := dynamo.AccessSortKey(dynamo.MetadataKey("a-sk"))
 
 	dynamoClient := newMockDynamoClient(t)
 	dynamoClient.EXPECT().
@@ -514,7 +514,7 @@ func TestAccessCodeStoreDeleteWhenError(t *testing.T) {
 
 func TestAccessCodeStoreDeleteDonor(t *testing.T) {
 	pk := dynamo.AccessKey(dynamo.AttorneyAccessKey("a-pk"))
-	sk := dynamo.ShareSortKey(dynamo.MetadataKey("a-sk"))
+	sk := dynamo.AccessSortKey(dynamo.MetadataKey("a-sk"))
 
 	dynamoClient := newMockDynamoClient(t)
 	dynamoClient.EXPECT().
@@ -545,7 +545,7 @@ func TestAccessCodeStoreDeleteByActor(t *testing.T) {
 		PK:           dynamo.ActorAccessKey(actorUID.String()),
 		SK:           dynamo.MetadataKey(actorUID.String()),
 		ShareKey:     dynamo.AccessKey(dynamo.CertificateProviderAccessKey("blah")),
-		ShareSortKey: dynamo.ShareSortKey(dynamo.MetadataKey("blah")),
+		ShareSortKey: dynamo.AccessSortKey(dynamo.MetadataKey("blah")),
 	}
 
 	dynamoClient := newMockDynamoClient(t)
@@ -598,18 +598,18 @@ func TestAccessCodeStoreDeleteByActorWhenError(t *testing.T) {
 
 func TestAccessKey(t *testing.T) {
 	testcases := map[actor.Type]dynamo.PK{
-		actor.TypeDonor:                       dynamo.AccessKey(dynamo.DonorAccessKey("8de0b3c47f112c59745f717a626932264c422a7563954872e237b223af4ad643")),
-		actor.TypeAttorney:                    dynamo.AccessKey(dynamo.AttorneyAccessKey("8de0b3c47f112c59745f717a626932264c422a7563954872e237b223af4ad643")),
-		actor.TypeReplacementAttorney:         dynamo.AccessKey(dynamo.AttorneyAccessKey("8de0b3c47f112c59745f717a626932264c422a7563954872e237b223af4ad643")),
-		actor.TypeTrustCorporation:            dynamo.AccessKey(dynamo.AttorneyAccessKey("8de0b3c47f112c59745f717a626932264c422a7563954872e237b223af4ad643")),
-		actor.TypeReplacementTrustCorporation: dynamo.AccessKey(dynamo.AttorneyAccessKey("8de0b3c47f112c59745f717a626932264c422a7563954872e237b223af4ad643")),
-		actor.TypeCertificateProvider:         dynamo.AccessKey(dynamo.CertificateProviderAccessKey("8de0b3c47f112c59745f717a626932264c422a7563954872e237b223af4ad643")),
-		actor.TypeVoucher:                     dynamo.AccessKey(dynamo.VoucherAccessKey("8de0b3c47f112c59745f717a626932264c422a7563954872e237b223af4ad643")),
+		actor.TypeDonor:                       dynamo.AccessKey(dynamo.DonorAccessKey("955e0e614eac028c6a648f09308987e34e8e7d7ca9ecb2ba42694d8c3bf6a419")),
+		actor.TypeAttorney:                    dynamo.AccessKey(dynamo.AttorneyAccessKey("955e0e614eac028c6a648f09308987e34e8e7d7ca9ecb2ba42694d8c3bf6a419")),
+		actor.TypeReplacementAttorney:         dynamo.AccessKey(dynamo.AttorneyAccessKey("955e0e614eac028c6a648f09308987e34e8e7d7ca9ecb2ba42694d8c3bf6a419")),
+		actor.TypeTrustCorporation:            dynamo.AccessKey(dynamo.AttorneyAccessKey("955e0e614eac028c6a648f09308987e34e8e7d7ca9ecb2ba42694d8c3bf6a419")),
+		actor.TypeReplacementTrustCorporation: dynamo.AccessKey(dynamo.AttorneyAccessKey("955e0e614eac028c6a648f09308987e34e8e7d7ca9ecb2ba42694d8c3bf6a419")),
+		actor.TypeCertificateProvider:         dynamo.AccessKey(dynamo.CertificateProviderAccessKey("955e0e614eac028c6a648f09308987e34e8e7d7ca9ecb2ba42694d8c3bf6a419")),
+		actor.TypeVoucher:                     dynamo.AccessKey(dynamo.VoucherAccessKey("955e0e614eac028c6a648f09308987e34e8e7d7ca9ecb2ba42694d8c3bf6a419")),
 	}
 
 	for actorType, prefix := range testcases {
 		t.Run(actorType.String(), func(t *testing.T) {
-			pk, err := accessCodeKey(actorType, accesscodedata.HashedFromString("S"))
+			pk, err := accessCodeKey(actorType, accesscodedata.HashedFromString("S", "Jones"))
 			assert.Nil(t, err)
 			assert.Equal(t, prefix, pk)
 		})
@@ -617,6 +617,6 @@ func TestAccessKey(t *testing.T) {
 }
 
 func TestAccessKeyWhenUnknownType(t *testing.T) {
-	_, err := accessCodeKey(actor.TypeAuthorisedSignatory, accesscodedata.HashedFromString("S"))
+	_, err := accessCodeKey(actor.TypeAuthorisedSignatory, accesscodedata.HashedFromString("S", "Jones"))
 	assert.NotNil(t, err)
 }

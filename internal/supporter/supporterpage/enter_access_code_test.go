@@ -9,11 +9,11 @@ import (
 	"testing"
 	"time"
 
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/accesscode/accesscodedata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/form"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/sesh"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/supporter"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/supporter/invitecode"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/supporter/supporterdata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/validation"
 	"github.com/stretchr/testify/assert"
@@ -70,7 +70,7 @@ func TestPostEnterAccessCode(t *testing.T) {
 	r.Header.Add("Content-Type", page.FormUrlEncoded)
 
 	invite := &supporterdata.MemberInvite{
-		AccessCode:       accesscodedata.HashedFromString("abcd1234"),
+		InviteCode:       invitecode.HashedFromString("abcd1234"),
 		OrganisationID:   "org-id",
 		OrganisationName: "org name",
 		CreatedAt:        time.Now().Add(-47 * time.Hour),
@@ -116,7 +116,7 @@ func TestPostEnterAccessCodeWhenIncorrectAccessCode(t *testing.T) {
 	memberStore := newMockMemberStore(t)
 	memberStore.EXPECT().
 		InvitedMember(r.Context()).
-		Return(&supporterdata.MemberInvite{AccessCode: accesscodedata.HashedFromString("notmatch123"), OrganisationID: "org-id"}, nil)
+		Return(&supporterdata.MemberInvite{InviteCode: invitecode.HashedFromString("notmatch123"), OrganisationID: "org-id"}, nil)
 
 	template := newMockTemplate(t)
 	template.EXPECT().
@@ -149,7 +149,7 @@ func TestPostEnterAccessCodeWhenInviteExpired(t *testing.T) {
 	memberStore.EXPECT().
 		InvitedMember(r.Context()).
 		Return(&supporterdata.MemberInvite{
-			AccessCode:     accesscodedata.HashedFromString("match123"),
+			InviteCode:     invitecode.HashedFromString("match123"),
 			OrganisationID: "org-id",
 			CreatedAt:      time.Now().Add(-49 * time.Hour),
 		}, nil)
@@ -192,7 +192,7 @@ func TestPostEnterAccessCodeWhenMemberStoreCreateError(t *testing.T) {
 	memberStore.EXPECT().
 		InvitedMember(mock.Anything).
 		Return(&supporterdata.MemberInvite{
-			AccessCode:     accesscodedata.HashedFromString("abcd1234"),
+			InviteCode:     invitecode.HashedFromString("abcd1234"),
 			OrganisationID: "org-id",
 			CreatedAt:      time.Now(),
 		}, nil)
@@ -219,7 +219,7 @@ func TestPostEnterAccessCodeWhenSessionGetError(t *testing.T) {
 	memberStore.EXPECT().
 		InvitedMember(mock.Anything).
 		Return(&supporterdata.MemberInvite{
-			AccessCode:     accesscodedata.HashedFromString("abcd1234"),
+			InviteCode:     invitecode.HashedFromString("abcd1234"),
 			OrganisationID: "org-id",
 			CreatedAt:      time.Now(),
 		}, nil)
@@ -252,7 +252,7 @@ func TestPostEnterAccessCodeWhenSessionSaveError(t *testing.T) {
 	memberStore.EXPECT().
 		InvitedMember(mock.Anything).
 		Return(&supporterdata.MemberInvite{
-			AccessCode:     accesscodedata.HashedFromString("abcd1234"),
+			InviteCode:     invitecode.HashedFromString("abcd1234"),
 			OrganisationID: "org-id",
 			CreatedAt:      time.Now(),
 		}, nil)

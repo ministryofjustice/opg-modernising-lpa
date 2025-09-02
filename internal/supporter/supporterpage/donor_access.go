@@ -27,7 +27,7 @@ type donorAccessData struct {
 	AccessCode *accesscodedata.DonorLink
 }
 
-func DonorAccess(logger Logger, tmpl template.Template, donorStore DonorStore, accessCodeStore AccessCodeStore, notifyClient NotifyClient, donorStartURL string, generate func() (accesscodedata.PlainText, accesscodedata.Hashed)) Handler {
+func DonorAccess(logger Logger, tmpl template.Template, donorStore DonorStore, accessCodeStore AccessCodeStore, notifyClient NotifyClient, donorStartURL string, generate accesscodedata.Generator) Handler {
 	return func(appData appcontext.Data, w http.ResponseWriter, r *http.Request, organisation *supporterdata.Organisation, member *supporterdata.Member) error {
 		donor, err := donorStore.Get(r.Context())
 		if err != nil {
@@ -90,7 +90,7 @@ func DonorAccess(logger Logger, tmpl template.Template, donorStore DonorStore, a
 					}
 				}
 
-				plainCode, hashedCode := generate()
+				plainCode, hashedCode := generate("")
 				accessCodeData := accesscodedata.DonorLink{
 					LpaOwnerKey:  dynamo.LpaOwnerKey(organisation.PK),
 					LpaKey:       dynamo.LpaKey(appData.LpaID),

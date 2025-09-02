@@ -71,7 +71,7 @@ func TestPostEnterAccessCodeOptOut(t *testing.T) {
 
 	accessCodeStore := newMockAccessCodeStore(t)
 	accessCodeStore.EXPECT().
-		Get(r.Context(), actor.TypeAttorney, accesscodedata.HashedFromString("abcd1234")).
+		Get(r.Context(), actor.TypeAttorney, accesscodedata.HashedFromString("abcd1234", "Smith")).
 		Return(accesscodedata.Link{
 			LpaKey:      dynamo.LpaKey("lpa-id"),
 			LpaOwnerKey: dynamo.LpaOwnerKey(dynamo.DonorKey("session-id")),
@@ -98,7 +98,7 @@ func TestPostEnterAccessCodeOptOut(t *testing.T) {
 
 	assert.Nil(t, err)
 	assert.Equal(t, http.StatusFound, resp.StatusCode)
-	assert.Equal(t, PathDashboard.Format()+"?code=e9cee71ab932fde863338d08be4de9dfe39ea049bdafb342ce659ec5450b69ae", resp.Header.Get("Location"))
+	assert.Equal(t, PathDashboard.Format()+"?code=a307b26acffc16da146c9bad4344d510eec887be5e0b78ae6b6f3401730761c3", resp.Header.Get("Location"))
 }
 
 func TestPostEnterAccessCodeOptOutWhenDonorLastNameIncorrect(t *testing.T) {
@@ -114,7 +114,7 @@ func TestPostEnterAccessCodeOptOutWhenDonorLastNameIncorrect(t *testing.T) {
 
 	accessCodeStore := newMockAccessCodeStore(t)
 	accessCodeStore.EXPECT().
-		Get(r.Context(), actor.TypeAttorney, accesscodedata.HashedFromString("abcd1234")).
+		Get(r.Context(), actor.TypeAttorney, accesscodedata.HashedFromString("abcd1234", "Smithy")).
 		Return(accesscodedata.Link{
 			LpaKey:      dynamo.LpaKey("lpa-id"),
 			LpaOwnerKey: dynamo.LpaOwnerKey(dynamo.DonorKey("session-id")),
@@ -241,7 +241,7 @@ func TestPostEnterAccessCodeOptOutOnAccessCodeStoreNotFoundError(t *testing.T) {
 
 	accessCodeStore := newMockAccessCodeStore(t)
 	accessCodeStore.EXPECT().
-		Get(r.Context(), actor.TypeAttorney, accesscodedata.HashedFromString("abcd1234")).
+		Get(r.Context(), actor.TypeAttorney, accesscodedata.HashedFromString("abcd1234", "Smith")).
 		Return(accesscodedata.Link{LpaKey: dynamo.LpaKey("lpa-id"), LpaOwnerKey: dynamo.LpaOwnerKey(dynamo.DonorKey("session-id"))}, dynamo.NotFoundError{})
 
 	template := newMockTemplate(t)
