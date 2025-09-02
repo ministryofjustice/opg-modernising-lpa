@@ -45,8 +45,7 @@ do
           exit 1
         fi
       echo "deleting containter insights log group..."
-      export AWS_REGION=eu-west-1
-      aws logs delete-log-group --log-group-name /aws/ecs/containerinsights/"$workspace"/performance
+      aws logs delete-log-group --region eu-west-1 --log-group-name /aws/ecs/containerinsights/"$workspace"/performance
       terraform workspace select default
       terraform workspace delete "$workspace"
       ;;
