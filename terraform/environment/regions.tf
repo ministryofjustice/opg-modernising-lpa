@@ -154,7 +154,7 @@ module "eu_west_2" {
   }
   lpa_store_service = {
     base_url = local.environment.lpa_store_service.base_url
-    api_arns = local.environment.lpa_store_service.api_arns
+    api_arns = flatten(local.environment.lpa_store_service.api_arns)
   }
   mock_onelogin                           = local.environment.mock_onelogin
   mock_pay_enabled                        = local.environment.mock_pay_enabled

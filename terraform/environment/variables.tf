@@ -68,10 +68,17 @@ variable "environments" {
       uid_service = object({
         base_url = string
         api_arns = list(string)
+
       })
       lpa_store_service = object({
         base_url = string
-        api_arns = list(string)
+        api_arns = object({
+          post        = list(string)
+          get         = list(string)
+          put         = list(string)
+          update      = list(string)
+          healthcheck = list(string)
+        })
       })
       backups = object({
         backup_plan_enabled = bool
