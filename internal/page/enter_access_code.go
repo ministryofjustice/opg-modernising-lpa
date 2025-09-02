@@ -11,12 +11,11 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/appcontext"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/dynamo"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/form"
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/lpastore/lpadata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/sesh"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/validation"
 )
 
-type EnterAccessCodeHandler func(appData appcontext.Data, w http.ResponseWriter, r *http.Request, session *sesh.LoginSession, lpa *lpadata.Lpa, link accesscodedata.Link) error
+type EnterAccessCodeHandler func(appData appcontext.Data, w http.ResponseWriter, r *http.Request, session *sesh.LoginSession, link accesscodedata.Link) error
 
 type enterAccessCodeData struct {
 	App    appcontext.Data
@@ -24,7 +23,7 @@ type enterAccessCodeData struct {
 	Form   *form.AccessCodeForm
 }
 
-func EnterAccessCode(tmpl template.Template, accessCodeStore AccessCodeStore, sessionStore UpdateLoginSessionStore, lpaStoreResolvingService LpaStoreResolvingService, actorType actor.Type, next EnterAccessCodeHandler) Handler {
+func EnterAccessCode(tmpl template.Template, accessCodeStore AccessCodeStore, sessionStore UpdateLoginSessionStore, actorType actor.Type, next EnterAccessCodeHandler) Handler {
 	return func(appData appcontext.Data, w http.ResponseWriter, r *http.Request) error {
 		data := enterAccessCodeData{
 			App:  appData,
@@ -36,7 +35,7 @@ func EnterAccessCode(tmpl template.Template, accessCodeStore AccessCodeStore, se
 			data.Errors = data.Form.Validate()
 
 			if len(data.Errors) == 0 {
-				referenceNumber := accesscodedata.HashedFromString(data.Form.AccessCode)
+				referenceNumber := accesscodedata.HashedFromString(data.Form.AccessCode, data.Form.DonorLastName)
 
 				accessCode, err := accessCodeStore.Get(r.Context(), actorType, referenceNumber)
 				if err != nil {
@@ -66,21 +65,11 @@ func EnterAccessCode(tmpl template.Template, accessCodeStore AccessCodeStore, se
 				ctx := appcontext.ContextWithSession(r.Context(), appSession)
 				appData.LpaID = accessCode.LpaKey.ID()
 
-				lpa, err := lpaStoreResolvingService.Get(ctx)
-				if err != nil {
-					return fmt.Errorf("getting LPA from LPA store: %w", err)
-				}
-
-				if lpa.Donor.LastName != data.Form.DonorLastName {
-					data.Errors.Add(form.FieldNames.DonorLastName, validation.IncorrectError{Label: "donorLastName"})
-					return tmpl(w, data)
-				}
-
 				if err := sessionStore.SetLogin(r, w, session); err != nil {
 					return fmt.Errorf("saving login session: %w", err)
 				}
 
-				return next(appData, w, r.WithContext(ctx), session, lpa, accessCode)
+				return next(appData, w, r.WithContext(ctx), session, accessCode)
 			}
 		}
 

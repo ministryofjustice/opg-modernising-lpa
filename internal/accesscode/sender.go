@@ -59,7 +59,7 @@ type Sender struct {
 	certificateProviderStartURL string
 	attorneyStartURL            string
 	eventClient                 EventClient
-	generate                    func() (accesscodedata.PlainText, accesscodedata.Hashed)
+	generate                    accesscodedata.Generator
 	now                         func() time.Time
 }
 
@@ -83,7 +83,7 @@ func (s *Sender) UseTestCode(accessCode string) {
 }
 
 func (s *Sender) SendCertificateProviderInvite(ctx context.Context, appData appcontext.Data, provided *donordata.Provided) error {
-	accessCode, err := s.createAccessCode(ctx, provided.PK, provided.SK, provided.LpaUID, provided.CertificateProvider.UID, actor.TypeCertificateProvider)
+	accessCode, err := s.createAccessCode(ctx, provided.PK, provided.SK, provided.LpaUID, provided.Donor.LastName, provided.CertificateProvider.UID, actor.TypeCertificateProvider)
 	if err != nil {
 		return err
 	}
@@ -108,7 +108,7 @@ func (s *Sender) SendCertificateProviderInvite(ctx context.Context, appData appc
 
 func (s *Sender) SendCertificateProviderPrompt(ctx context.Context, appData appcontext.Data, provided *donordata.Provided) error {
 	if provided.CertificateProvider.CarryOutBy.IsPaper() {
-		accessCode, err := s.createAccessCode(ctx, provided.PK, provided.SK, provided.LpaUID, provided.CertificateProvider.UID, actor.TypeCertificateProvider)
+		accessCode, err := s.createAccessCode(ctx, provided.PK, provided.SK, provided.LpaUID, provided.Donor.LastName, provided.CertificateProvider.UID, actor.TypeCertificateProvider)
 		if err != nil {
 			return err
 		}
@@ -138,7 +138,7 @@ func (s *Sender) SendCertificateProviderPrompt(ctx context.Context, appData appc
 
 func (s *Sender) SendLpaCertificateProviderPrompt(ctx context.Context, appData appcontext.Data, lpaKey dynamo.LpaKeyType, lpaOwnerKey dynamo.LpaOwnerKeyType, lpa *lpadata.Lpa) error {
 	if lpa.CertificateProvider.Channel.IsPaper() {
-		accessCode, err := s.createAccessCode(ctx, lpaKey, lpaOwnerKey, lpa.LpaUID, lpa.CertificateProvider.UID, actor.TypeCertificateProvider)
+		accessCode, err := s.createAccessCode(ctx, lpaKey, lpaOwnerKey, lpa.LpaUID, lpa.Donor.LastName, lpa.CertificateProvider.UID, actor.TypeCertificateProvider)
 		if err != nil {
 			return err
 		}
@@ -226,7 +226,7 @@ func (s *Sender) SendVoucherInvite(ctx context.Context, provided *donordata.Prov
 }
 
 func (s *Sender) SendVoucherAccessCode(ctx context.Context, provided *donordata.Provided, appData appcontext.Data) error {
-	accessCode, err := s.createAccessCode(ctx, provided.PK, provided.SK, provided.LpaUID, provided.Voucher.UID, actor.TypeVoucher)
+	accessCode, err := s.createAccessCode(ctx, provided.PK, provided.SK, provided.LpaUID, provided.Donor.LastName, provided.Voucher.UID, actor.TypeVoucher)
 	if err != nil {
 		return err
 	}
@@ -266,7 +266,7 @@ func (s *Sender) SendVoucherAccessCode(ctx context.Context, provided *donordata.
 }
 
 func (s *Sender) sendOriginalAttorney(ctx context.Context, appData appcontext.Data, lpa *lpadata.Lpa, attorney lpadata.Attorney) error {
-	accessCode, err := s.createAccessCode(ctx, lpa.LpaKey, lpa.LpaOwnerKey, lpa.LpaUID, attorney.UID, actor.TypeAttorney)
+	accessCode, err := s.createAccessCode(ctx, lpa.LpaKey, lpa.LpaOwnerKey, lpa.LpaUID, lpa.Donor.LastName, attorney.UID, actor.TypeAttorney)
 	if err != nil {
 		return err
 	}
@@ -293,7 +293,7 @@ func (s *Sender) sendOriginalAttorney(ctx context.Context, appData appcontext.Da
 }
 
 func (s *Sender) sendReplacementAttorney(ctx context.Context, appData appcontext.Data, lpa *lpadata.Lpa, attorney lpadata.Attorney) error {
-	accessCode, err := s.createAccessCode(ctx, lpa.LpaKey, lpa.LpaOwnerKey, lpa.LpaUID, attorney.UID, actor.TypeReplacementAttorney)
+	accessCode, err := s.createAccessCode(ctx, lpa.LpaKey, lpa.LpaOwnerKey, lpa.LpaUID, lpa.Donor.LastName, attorney.UID, actor.TypeReplacementAttorney)
 	if err != nil {
 		return err
 	}
@@ -324,7 +324,7 @@ func (s *Sender) sendTrustCorporation(ctx context.Context, appData appcontext.Da
 		return nil
 	}
 
-	accessCode, err := s.createAccessCode(ctx, lpa.LpaKey, lpa.LpaOwnerKey, lpa.LpaUID, trustCorporation.UID, actor.TypeTrustCorporation)
+	accessCode, err := s.createAccessCode(ctx, lpa.LpaKey, lpa.LpaOwnerKey, lpa.LpaUID, lpa.Donor.LastName, trustCorporation.UID, actor.TypeTrustCorporation)
 	if err != nil {
 		return err
 	}
@@ -355,7 +355,7 @@ func (s *Sender) sendReplacementTrustCorporation(ctx context.Context, appData ap
 		return nil
 	}
 
-	accessCode, err := s.createAccessCode(ctx, lpa.LpaKey, lpa.LpaOwnerKey, lpa.LpaUID, trustCorporation.UID, actor.TypeReplacementTrustCorporation)
+	accessCode, err := s.createAccessCode(ctx, lpa.LpaKey, lpa.LpaOwnerKey, lpa.LpaUID, lpa.Donor.LastName, trustCorporation.UID, actor.TypeReplacementTrustCorporation)
 	if err != nil {
 		return err
 	}
@@ -381,12 +381,12 @@ func (s *Sender) sendReplacementTrustCorporation(ctx context.Context, appData ap
 		})
 }
 
-func (s *Sender) createAccessCode(ctx context.Context, lpaKey dynamo.LpaKeyType, lpaOwnerKey dynamo.LpaOwnerKeyType, lpaUID string, actorUID actoruid.UID, actorType actor.Type) (accesscodedata.PlainText, error) {
-	plainCode, hashedCode := s.generate()
+func (s *Sender) createAccessCode(ctx context.Context, lpaKey dynamo.LpaKeyType, lpaOwnerKey dynamo.LpaOwnerKeyType, lpaUID, donorLastName string, actorUID actoruid.UID, actorType actor.Type) (accesscodedata.PlainText, error) {
+	plainCode, hashedCode := s.generate(donorLastName)
 
 	if s.testCode != "" {
 		plainCode = accesscodedata.PlainText(s.testCode)
-		hashedCode = accesscodedata.HashedFromString(s.testCode)
+		hashedCode = accesscodedata.HashedFromString(s.testCode, donorLastName)
 		s.testCode = ""
 	}
 

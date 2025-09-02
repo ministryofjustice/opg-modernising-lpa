@@ -28,6 +28,11 @@ func TestEnterAccessCode(t *testing.T) {
 	r, _ := http.NewRequest(http.MethodPost, "/", nil)
 	r.Header.Add("Content-Type", page.FormUrlEncoded)
 
+	lpaStoreResolvingService := newMockLpaStoreResolvingService(t)
+	lpaStoreResolvingService.EXPECT().
+		Get(r.Context()).
+		Return(&lpadata.Lpa{}, nil)
+
 	certificateProviderStore := newMockCertificateProviderStore(t)
 	certificateProviderStore.EXPECT().
 		Create(r.Context(), accessCode, "a@example.com").
@@ -38,7 +43,7 @@ func TestEnterAccessCode(t *testing.T) {
 		SendMetric(r.Context(), event.CategoryFunnelStartRate, event.MeasureOnlineCertificateProvider).
 		Return(nil)
 
-	err := EnterAccessCode(nil, certificateProviderStore, nil, nil, eventClient)(testAppData, w, r, session, &lpadata.Lpa{}, accessCode)
+	err := EnterAccessCode(nil, certificateProviderStore, lpaStoreResolvingService, nil, nil, eventClient)(testAppData, w, r, session, accessCode)
 
 	resp := w.Result()
 
@@ -76,6 +81,11 @@ func TestEnterAccessCodeWhenPaperCertificateExists(t *testing.T) {
 			w := httptest.NewRecorder()
 			r, _ := http.NewRequest(http.MethodPost, "/", nil)
 
+			lpaStoreResolvingService := newMockLpaStoreResolvingService(t)
+			lpaStoreResolvingService.EXPECT().
+				Get(r.Context()).
+				Return(lpa, nil)
+
 			dashboardStore := newMockDashboardStore(t)
 			dashboardStore.EXPECT().
 				GetAll(r.Context()).
@@ -93,7 +103,7 @@ func TestEnterAccessCodeWhenPaperCertificateExists(t *testing.T) {
 					Return(nil)
 			}
 
-			err := EnterAccessCode(sessionStore, nil, lpaStoreClient, dashboardStore, nil)(testAppData, w, r, session, lpa, accessCode)
+			err := EnterAccessCode(sessionStore, nil, lpaStoreResolvingService, lpaStoreClient, dashboardStore, nil)(testAppData, w, r, session, accessCode)
 			resp := w.Result()
 
 			assert.Nil(t, err)
@@ -117,12 +127,17 @@ func TestEnterAccessCodeWhenSendPaperCertificateProviderAccessOnlineError(t *tes
 	r, _ := http.NewRequest(http.MethodPost, "/", nil)
 	r.Header.Add("Content-Type", page.FormUrlEncoded)
 
+	lpaStoreResolvingService := newMockLpaStoreResolvingService(t)
+	lpaStoreResolvingService.EXPECT().
+		Get(r.Context()).
+		Return(lpa, nil)
+
 	lpaStoreClient := newMockLpaStoreClient(t)
 	lpaStoreClient.EXPECT().
 		SendPaperCertificateProviderAccessOnline(mock.Anything, mock.Anything, mock.Anything).
 		Return(expectedError)
 
-	err := EnterAccessCode(nil, nil, lpaStoreClient, nil, nil)(testAppData, w, r, session, lpa, accessCode)
+	err := EnterAccessCode(nil, nil, lpaStoreResolvingService, lpaStoreClient, nil, nil)(testAppData, w, r, session, accessCode)
 	resp := w.Result()
 
 	assert.ErrorIs(t, err, expectedError)
@@ -142,6 +157,11 @@ func TestEnterAccessCodeWhenDashboardStoreError(t *testing.T) {
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest(http.MethodPost, "/", nil)
 
+	lpaStoreResolvingService := newMockLpaStoreResolvingService(t)
+	lpaStoreResolvingService.EXPECT().
+		Get(r.Context()).
+		Return(lpa, nil)
+
 	dashboardStore := newMockDashboardStore(t)
 	dashboardStore.EXPECT().
 		GetAll(r.Context()).
@@ -152,7 +172,7 @@ func TestEnterAccessCodeWhenDashboardStoreError(t *testing.T) {
 		SendPaperCertificateProviderAccessOnline(mock.Anything, mock.Anything, mock.Anything).
 		Return(nil)
 
-	err := EnterAccessCode(nil, nil, lpaStoreClient, dashboardStore, nil)(testAppData, w, r, session, lpa, accessCode)
+	err := EnterAccessCode(nil, nil, lpaStoreResolvingService, lpaStoreClient, dashboardStore, nil)(testAppData, w, r, session, accessCode)
 	resp := w.Result()
 
 	assert.ErrorIs(t, err, expectedError)
@@ -172,6 +192,11 @@ func TestEnterAccessCodeWhenClearLoginError(t *testing.T) {
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest(http.MethodPost, "/", nil)
 
+	lpaStoreResolvingService := newMockLpaStoreResolvingService(t)
+	lpaStoreResolvingService.EXPECT().
+		Get(r.Context()).
+		Return(lpa, nil)
+
 	dashboardStore := newMockDashboardStore(t)
 	dashboardStore.EXPECT().
 		GetAll(r.Context()).
@@ -187,11 +212,25 @@ func TestEnterAccessCodeWhenClearLoginError(t *testing.T) {
 		ClearLogin(mock.Anything, mock.Anything).
 		Return(expectedError)
 
-	err := EnterAccessCode(sessionStore, nil, lpaStoreClient, dashboardStore, nil)(testAppData, w, r, session, lpa, accessCode)
+	err := EnterAccessCode(sessionStore, nil, lpaStoreResolvingService, lpaStoreClient, dashboardStore, nil)(testAppData, w, r, session, accessCode)
 	resp := w.Result()
 
 	assert.ErrorIs(t, err, expectedError)
 	assert.Equal(t, http.StatusOK, resp.StatusCode)
+}
+
+func TestPostEnterAccessCodeWhenLpaStoreResolvingServiceError(t *testing.T) {
+	w := httptest.NewRecorder()
+	r, _ := http.NewRequest(http.MethodPost, "/", nil)
+	r.Header.Add("Content-Type", page.FormUrlEncoded)
+
+	lpaStoreResolvingService := newMockLpaStoreResolvingService(t)
+	lpaStoreResolvingService.EXPECT().
+		Get(mock.Anything).
+		Return(nil, expectedError)
+
+	err := EnterAccessCode(nil, nil, lpaStoreResolvingService, nil, nil, nil)(testAppData, w, r, &sesh.LoginSession{}, accesscodedata.Link{})
+	assert.ErrorIs(t, err, expectedError)
 }
 
 func TestPostEnterAccessCodeWhenCreateError(t *testing.T) {
@@ -199,18 +238,28 @@ func TestPostEnterAccessCodeWhenCreateError(t *testing.T) {
 	r, _ := http.NewRequest(http.MethodPost, "/", nil)
 	r.Header.Add("Content-Type", page.FormUrlEncoded)
 
+	lpaStoreResolvingService := newMockLpaStoreResolvingService(t)
+	lpaStoreResolvingService.EXPECT().
+		Get(mock.Anything).
+		Return(&lpadata.Lpa{}, nil)
+
 	certificateProviderStore := newMockCertificateProviderStore(t)
 	certificateProviderStore.EXPECT().
 		Create(mock.Anything, mock.Anything, mock.Anything).
 		Return(nil, expectedError)
 
-	err := EnterAccessCode(nil, certificateProviderStore, nil, nil, nil)(testAppData, w, r, &sesh.LoginSession{}, &lpadata.Lpa{}, accesscodedata.Link{})
+	err := EnterAccessCode(nil, certificateProviderStore, lpaStoreResolvingService, nil, nil, nil)(testAppData, w, r, &sesh.LoginSession{}, accesscodedata.Link{})
 	assert.ErrorIs(t, err, expectedError)
 }
 
 func TestPostEnterAccessCodeWhenEventClientError(t *testing.T) {
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest(http.MethodPost, "/", nil)
+
+	lpaStoreResolvingService := newMockLpaStoreResolvingService(t)
+	lpaStoreResolvingService.EXPECT().
+		Get(mock.Anything).
+		Return(&lpadata.Lpa{}, nil)
 
 	certificateProviderStore := newMockCertificateProviderStore(t)
 	certificateProviderStore.EXPECT().
@@ -222,6 +271,6 @@ func TestPostEnterAccessCodeWhenEventClientError(t *testing.T) {
 		SendMetric(mock.Anything, mock.Anything, mock.Anything).
 		Return(expectedError)
 
-	err := EnterAccessCode(nil, certificateProviderStore, nil, nil, eventClient)(testAppData, w, r, &sesh.LoginSession{}, &lpadata.Lpa{}, accesscodedata.Link{})
+	err := EnterAccessCode(nil, certificateProviderStore, lpaStoreResolvingService, nil, nil, eventClient)(testAppData, w, r, &sesh.LoginSession{}, accesscodedata.Link{})
 	assert.ErrorIs(t, err, expectedError)
 }

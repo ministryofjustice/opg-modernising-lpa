@@ -4,8 +4,8 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/accesscode/accesscodedata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/dynamo"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/supporter/invitecode"
 )
 
 const memberInviteExpireAfter = time.Hour * 48
@@ -28,8 +28,8 @@ type MemberInvite struct {
 	LastName   string
 	// Permission is the type of permissions assigned to the member to set available actions in an Organisation
 	Permission Permission
-	// AccessCode is a unique code used to invite a Member to and Organisation
-	AccessCode accesscodedata.Hashed
+	// InviteCode is a unique code used to invite a Member to and Organisation
+	InviteCode invitecode.Hashed
 }
 
 func (i MemberInvite) HasExpired() bool {
