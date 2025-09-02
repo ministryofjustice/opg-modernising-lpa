@@ -1,35 +1,34 @@
-package accesscodedata
+package invitecode
 
 import (
 	"crypto/sha256"
 	"encoding/hex"
 	"log/slog"
 	"net/url"
-	"slices"
 
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/random"
 )
 
-type Generator func(string) (PlainText, Hashed)
+type Generator func() (PlainText, Hashed)
 
-func Generate(lastName string) (PlainText, Hashed) {
+func Generate() (PlainText, Hashed) {
 	plain := random.Friendly(8)
 
-	return PlainText(plain), HashedFromString(plain, lastName)
+	return PlainText(plain), HashedFromString(plain)
 }
 
 type PlainText string
 
 func (PlainText) String() string {
-	return "<accesscode>"
+	return "<code>"
 }
 
 func (PlainText) GoString() string {
-	return "<accesscode>"
+	return "<code>"
 }
 
 func (PlainText) LogValue() slog.Value {
-	return slog.StringValue("<accesscode>")
+	return slog.StringValue("<code>")
 }
 
 func (p PlainText) Plain() string {
@@ -48,7 +47,7 @@ func (h Hashed) Query() url.Values {
 	return url.Values{"code": {h.String()}}
 }
 
-func HashedFromString(plain, lastName string) Hashed {
+func HashedFromString(plain string) Hashed {
 	var s []byte
 	for _, b := range []byte(plain) {
 		if b != ' ' && b != '\t' && b != '-' {
@@ -56,7 +55,7 @@ func HashedFromString(plain, lastName string) Hashed {
 		}
 	}
 
-	hash := sha256.Sum256(slices.Concat(s, []byte{' '}, []byte(lastName)))
+	hash := sha256.Sum256(s)
 
 	return Hashed(hash)
 }

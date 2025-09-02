@@ -25,7 +25,7 @@ func TestEnterAccessCode(t *testing.T) {
 		Create(r.Context(), accessCode, "a@example.com").
 		Return(nil, nil)
 
-	err := EnterAccessCode(voucherStore)(testAppData, w, r, session, nil, accessCode)
+	err := EnterAccessCode(voucherStore)(testAppData, w, r, session, accessCode)
 	resp := w.Result()
 
 	assert.Nil(t, err)
@@ -45,7 +45,7 @@ func TestEnterAccessCodeOnVoucherStoreError(t *testing.T) {
 		Create(mock.Anything, mock.Anything, mock.Anything).
 		Return(nil, expectedError)
 
-	err := EnterAccessCode(voucherStore)(testAppData, w, r, session, nil, accessCode)
+	err := EnterAccessCode(voucherStore)(testAppData, w, r, session, accessCode)
 	resp := w.Result()
 
 	assert.ErrorIs(t, err, expectedError)

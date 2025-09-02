@@ -1074,16 +1074,16 @@ func TestDonorStoreDeleteVoucher(t *testing.T) {
 
 	dynamoClient := newMockDynamoClient(t)
 	dynamoClient.
-		ExpectOneBySK(ctx, dynamo.VoucherShareSortKey(dynamo.LpaKey("lpa-id")),
+		ExpectOneBySK(ctx, dynamo.VoucherAccessSortKey(dynamo.LpaKey("lpa-id")),
 			accesscodedata.Link{
 				PK: dynamo.AccessKey(dynamo.VoucherAccessKey("hey")),
-				SK: dynamo.ShareSortKey(dynamo.VoucherShareSortKey(dynamo.LpaKey("lpa-id"))),
+				SK: dynamo.AccessSortKey(dynamo.VoucherAccessSortKey(dynamo.LpaKey("lpa-id"))),
 			}, nil)
 	dynamoClient.EXPECT().
 		WriteTransaction(ctx, &dynamo.Transaction{
 			Deletes: []dynamo.Keys{{
 				PK: dynamo.AccessKey(dynamo.VoucherAccessKey("hey")),
-				SK: dynamo.ShareSortKey(dynamo.VoucherShareSortKey(dynamo.LpaKey("lpa-id"))),
+				SK: dynamo.AccessSortKey(dynamo.VoucherAccessSortKey(dynamo.LpaKey("lpa-id"))),
 			}},
 			Puts: []any{
 				&donordata.Provided{},
@@ -1113,7 +1113,7 @@ func TestDonorStoreDeleteVoucherWhenOneBySKErrors(t *testing.T) {
 
 	dynamoClient := newMockDynamoClient(t)
 	dynamoClient.
-		ExpectOneBySK(ctx, dynamo.VoucherShareSortKey(dynamo.LpaKey("lpa-id")),
+		ExpectOneBySK(ctx, dynamo.VoucherAccessSortKey(dynamo.LpaKey("lpa-id")),
 			accesscodedata.Link{}, expectedError)
 
 	donorStore := &Store{dynamoClient: dynamoClient}
@@ -1129,16 +1129,16 @@ func TestDonorStoreDeleteVoucherWhenWriteTransactionError(t *testing.T) {
 
 	dynamoClient := newMockDynamoClient(t)
 	dynamoClient.
-		ExpectOneBySK(ctx, dynamo.VoucherShareSortKey(dynamo.LpaKey("lpa-id")),
+		ExpectOneBySK(ctx, dynamo.VoucherAccessSortKey(dynamo.LpaKey("lpa-id")),
 			accesscodedata.Link{
 				PK: dynamo.AccessKey(dynamo.VoucherAccessKey("hey")),
-				SK: dynamo.ShareSortKey(dynamo.VoucherShareSortKey(dynamo.LpaKey("lpa-id"))),
+				SK: dynamo.AccessSortKey(dynamo.VoucherAccessSortKey(dynamo.LpaKey("lpa-id"))),
 			}, nil)
 	dynamoClient.EXPECT().
 		WriteTransaction(ctx, &dynamo.Transaction{
 			Deletes: []dynamo.Keys{{
 				PK: dynamo.AccessKey(dynamo.VoucherAccessKey("hey")),
-				SK: dynamo.ShareSortKey(dynamo.VoucherShareSortKey(dynamo.LpaKey("lpa-id"))),
+				SK: dynamo.AccessSortKey(dynamo.VoucherAccessSortKey(dynamo.LpaKey("lpa-id"))),
 			}},
 			Puts: []any{
 				&donordata.Provided{},
@@ -1161,10 +1161,10 @@ func TestDonorStoreDeleteVoucherWhenAccessCodeUsed(t *testing.T) {
 
 	dynamoClient := newMockDynamoClient(t)
 	dynamoClient.
-		ExpectOneBySK(ctx, dynamo.VoucherShareSortKey(dynamo.LpaKey("lpa-id")),
+		ExpectOneBySK(ctx, dynamo.VoucherAccessSortKey(dynamo.LpaKey("lpa-id")),
 			accesscodedata.Link{
 				PK: dynamo.AccessKey(dynamo.VoucherAccessKey("hey")),
-				SK: dynamo.ShareSortKey(dynamo.VoucherShareSortKey(dynamo.LpaKey("lpa-id"))),
+				SK: dynamo.AccessSortKey(dynamo.VoucherAccessSortKey(dynamo.LpaKey("lpa-id"))),
 			}, dynamo.NotFoundError{})
 	dynamoClient.
 		ExpectOneByPartialSK(ctx, dynamo.LpaKey("lpa-id"), dynamo.VoucherKey(""),
@@ -1200,10 +1200,10 @@ func TestDonorStoreDeleteVoucherWhenExpectOneByPartialSKError(t *testing.T) {
 
 	dynamoClient := newMockDynamoClient(t)
 	dynamoClient.
-		ExpectOneBySK(ctx, dynamo.VoucherShareSortKey(dynamo.LpaKey("lpa-id")),
+		ExpectOneBySK(ctx, dynamo.VoucherAccessSortKey(dynamo.LpaKey("lpa-id")),
 			accesscodedata.Link{
 				PK: dynamo.AccessKey(dynamo.VoucherAccessKey("hey")),
-				SK: dynamo.ShareSortKey(dynamo.VoucherShareSortKey(dynamo.LpaKey("lpa-id"))),
+				SK: dynamo.AccessSortKey(dynamo.VoucherAccessSortKey(dynamo.LpaKey("lpa-id"))),
 			}, dynamo.NotFoundError{})
 	dynamoClient.
 		ExpectOneByPartialSK(ctx, dynamo.LpaKey("lpa-id"), dynamo.VoucherKey(""),
@@ -1228,10 +1228,10 @@ func TestDonorFailVoucher(t *testing.T) {
 
 	dynamoClient := newMockDynamoClient(t)
 	dynamoClient.
-		ExpectOneBySK(ctx, dynamo.VoucherShareSortKey(dynamo.LpaKey("lpa-id")),
+		ExpectOneBySK(ctx, dynamo.VoucherAccessSortKey(dynamo.LpaKey("lpa-id")),
 			accesscodedata.Link{
 				PK: dynamo.AccessKey(dynamo.VoucherAccessKey("hey")),
-				SK: dynamo.ShareSortKey(dynamo.VoucherShareSortKey(dynamo.LpaKey("lpa-id"))),
+				SK: dynamo.AccessSortKey(dynamo.VoucherAccessSortKey(dynamo.LpaKey("lpa-id"))),
 			}, dynamo.NotFoundError{})
 	dynamoClient.
 		ExpectOneByPartialSK(ctx, dynamo.LpaKey("lpa-id"), dynamo.VoucherKey(""),

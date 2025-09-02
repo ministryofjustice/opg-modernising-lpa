@@ -7,20 +7,20 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/accesscode/accesscodedata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/localize"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/notify"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/supporter"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/supporter/invitecode"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/supporter/supporterdata"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
 )
 
 var (
-	testPlainCode, testHashedCode = accesscodedata.Generate()
-	testGenerateFn                = func() (accesscodedata.PlainText, accesscodedata.Hashed) {
-		return testPlainCode, testHashedCode
+	testInvitePlainCode, testInviteHashedCode = invitecode.Generate()
+	testGenerateInviteFn                      = func() (invitecode.PlainText, invitecode.Hashed) {
+		return testInvitePlainCode, testInviteHashedCode
 	}
 )
 
@@ -137,7 +137,7 @@ func TestPostManageTeamMembers(t *testing.T) {
 		DeleteMemberInvite(r.Context(), organisation.ID, "email@example.com").
 		Return(nil)
 	memberStore.EXPECT().
-		CreateMemberInvite(r.Context(), organisation, "a", "b", "email@example.com", testHashedCode, supporterdata.PermissionAdmin).
+		CreateMemberInvite(r.Context(), organisation, "a", "b", "email@example.com", testInviteHashedCode, supporterdata.PermissionAdmin).
 		Return(nil)
 
 	notifyClient := newMockNotifyClient(t)
@@ -145,12 +145,12 @@ func TestPostManageTeamMembers(t *testing.T) {
 		SendEmail(r.Context(), notify.ToCustomEmail(localize.En, "email@example.com"), notify.OrganisationMemberInviteEmail{
 			OrganisationName:      "My organisation",
 			InviterEmail:          "supporter@example.com",
-			InviteCode:            testPlainCode.Plain(),
+			InviteCode:            testInvitePlainCode.Plain(),
 			JoinAnOrganisationURL: "http://base" + page.PathSupporterStart.Format(),
 		}).
 		Return(nil)
 
-	err := ManageTeamMembers(nil, memberStore, testGenerateFn, notifyClient, "http://base")(testOrgMemberAppData, w, r, organisation, nil)
+	err := ManageTeamMembers(nil, memberStore, testGenerateInviteFn, notifyClient, "http://base")(testOrgMemberAppData, w, r, organisation, nil)
 
 	resp := w.Result()
 
@@ -171,7 +171,7 @@ func TestPostManageTeamMembersWhenValidationErrors(t *testing.T) {
 	r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(form.Encode()))
 	r.Header.Add("Content-Type", page.FormUrlEncoded)
 
-	err := ManageTeamMembers(nil, nil, testGenerateFn, nil, "http://base")(testAppData, w, r, &supporterdata.Organisation{ID: "org-id", Name: "My organisation"}, nil)
+	err := ManageTeamMembers(nil, nil, testGenerateInviteFn, nil, "http://base")(testAppData, w, r, &supporterdata.Organisation{ID: "org-id", Name: "My organisation"}, nil)
 
 	resp := w.Result()
 
@@ -216,7 +216,7 @@ func TestPostManageTeamMembersWhenMemberStoreErrors(t *testing.T) {
 					Return(tc.createMemberInvite)
 			}
 
-			err := ManageTeamMembers(nil, memberStore, testGenerateFn, nil, "")(testAppData, w, r, &supporterdata.Organisation{}, nil)
+			err := ManageTeamMembers(nil, memberStore, testGenerateInviteFn, nil, "")(testAppData, w, r, &supporterdata.Organisation{}, nil)
 
 			resp := w.Result()
 
@@ -251,7 +251,7 @@ func TestPostManageTeamMembersWhenNotifyClientError(t *testing.T) {
 		SendEmail(mock.Anything, mock.Anything, mock.Anything).
 		Return(expectedError)
 
-	err := ManageTeamMembers(nil, memberStore, testGenerateFn, notifyClient, "")(testAppData, w, r, &supporterdata.Organisation{}, nil)
+	err := ManageTeamMembers(nil, memberStore, testGenerateInviteFn, notifyClient, "")(testAppData, w, r, &supporterdata.Organisation{}, nil)
 
 	resp := w.Result()
 

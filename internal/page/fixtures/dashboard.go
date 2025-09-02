@@ -109,10 +109,10 @@ func Dashboard(
 				attorneyCtx,
 				accessCodeStore,
 				attorneyStore,
+				donor,
 				donor.Attorneys.Attorneys[0].UID,
 				false,
 				false,
-				donor.SK,
 				donor.Attorneys.Attorneys[0].Email,
 			)
 			if err != nil {
