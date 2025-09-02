@@ -67,7 +67,10 @@ variable "environments" {
       mock_pay_enabled = bool
       uid_service = object({
         base_url = string
-        api_arns = list(string)
+        api_arns = object({
+          post        = list(string)
+          healthcheck = list(string)
+        })
 
       })
       lpa_store_service = object({
