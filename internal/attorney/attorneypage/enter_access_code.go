@@ -8,13 +8,17 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/appcontext"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/attorney"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/event"
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/lpastore/lpadata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/sesh"
 )
 
-func EnterAccessCode(attorneyStore AttorneyStore, lpaStoreClient LpaStoreClient, eventClient EventClient) page.EnterAccessCodeHandler {
-	return func(appData appcontext.Data, w http.ResponseWriter, r *http.Request, session *sesh.LoginSession, lpa *lpadata.Lpa, accessCode accesscodedata.Link) error {
+func EnterAccessCode(attorneyStore AttorneyStore, lpaStoreResolvingService LpaStoreResolvingService, lpaStoreClient LpaStoreClient, eventClient EventClient) page.EnterAccessCodeHandler {
+	return func(appData appcontext.Data, w http.ResponseWriter, r *http.Request, session *sesh.LoginSession, accessCode accesscodedata.Link) error {
+		lpa, err := lpaStoreResolvingService.Get(r.Context())
+		if err != nil {
+			return fmt.Errorf("resolving lpa: %w", err)
+		}
+
 		lpaAttorney, found := lpa.Attorneys.Get(accessCode.ActorUID)
 
 		if found && lpaAttorney.Channel.IsPaper() && !lpaAttorney.SignedAt.IsZero() {
@@ -26,7 +30,7 @@ func EnterAccessCode(attorneyStore AttorneyStore, lpaStoreClient LpaStoreClient,
 		}
 
 		if _, err := attorneyStore.Create(r.Context(), accessCode, session.Email); err != nil {
-			return err
+			return fmt.Errorf("create attorney: %w", err)
 		}
 
 		if err := eventClient.SendMetric(r.Context(), event.CategoryFunnelStartRate, event.MeasureOnlineAttorney); err != nil {

@@ -81,7 +81,7 @@ describe('Enter access code', () => {
 
             cy.checkA11yApp();
 
-            cy.get('#f-donor-last-name').type('Bundlaaaa');
+            cy.get('#f-donor-last-name').type('Smith');
             cy.get('#f-access-code').invoke('val', accessCode);
             cy.contains('Save and continue').click();
 

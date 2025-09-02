@@ -53,6 +53,11 @@ func TestEnterAccessCode(t *testing.T) {
 			w := httptest.NewRecorder()
 			r, _ := http.NewRequest(http.MethodPost, "/", nil)
 
+			lpaStoreResolvingService := newMockLpaStoreResolvingService(t)
+			lpaStoreResolvingService.EXPECT().
+				Get(r.Context()).
+				Return(&lpadata.Lpa{}, nil)
+
 			attorneyStore := newMockAttorneyStore(t)
 			attorneyStore.EXPECT().
 				Create(r.Context(), tc.accessCode, "a@example.com").
@@ -63,7 +68,7 @@ func TestEnterAccessCode(t *testing.T) {
 				SendMetric(r.Context(), event.CategoryFunnelStartRate, event.MeasureOnlineAttorney).
 				Return(nil)
 
-			err := EnterAccessCode(attorneyStore, nil, eventClient)(testAppData, w, r, session, &lpadata.Lpa{}, tc.accessCode)
+			err := EnterAccessCode(attorneyStore, lpaStoreResolvingService, nil, eventClient)(testAppData, w, r, session, tc.accessCode)
 			resp := w.Result()
 
 			assert.Nil(t, err)
@@ -111,12 +116,17 @@ func TestEnterAccessCodeWhenAttorneyAlreadySubmittedOnPaper(t *testing.T) {
 			w := httptest.NewRecorder()
 			r, _ := http.NewRequest(http.MethodPost, "/", nil)
 
+			lpaStoreResolvingService := newMockLpaStoreResolvingService(t)
+			lpaStoreResolvingService.EXPECT().
+				Get(r.Context()).
+				Return(lpa, nil)
+
 			lpaStoreClient := newMockLpaStoreClient(t)
 			lpaStoreClient.EXPECT().
 				SendPaperAttorneyAccessOnline(r.Context(), "lpa-uid", "a@example.com", testUID).
 				Return(nil)
 
-			err := EnterAccessCode(nil, lpaStoreClient, nil)(testAppData, w, r, tc.session, lpa, tc.accessCode)
+			err := EnterAccessCode(nil, lpaStoreResolvingService, lpaStoreClient, nil)(testAppData, w, r, tc.session, tc.accessCode)
 
 			resp := w.Result()
 
@@ -136,16 +146,36 @@ func TestEnterAccessCodeOnLpaStoreSendPaperAttorneyAccessOnlineError(t *testing.
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest(http.MethodPost, "/", nil)
 
+	lpaStoreResolvingService := newMockLpaStoreResolvingService(t)
+	lpaStoreResolvingService.EXPECT().
+		Get(r.Context()).
+		Return(lpa, nil)
+
 	lpaStoreClient := newMockLpaStoreClient(t)
 	lpaStoreClient.EXPECT().
 		SendPaperAttorneyAccessOnline(mock.Anything, mock.Anything, mock.Anything, mock.Anything).
 		Return(expectedError)
 
-	err := EnterAccessCode(nil, lpaStoreClient, nil)(testAppData, w, r, &sesh.LoginSession{}, lpa, accessCode)
+	err := EnterAccessCode(nil, lpaStoreResolvingService, lpaStoreClient, nil)(testAppData, w, r, &sesh.LoginSession{}, accessCode)
 	resp := w.Result()
 
 	assert.ErrorIs(t, err, expectedError)
 	assert.Equal(t, http.StatusOK, resp.StatusCode)
+}
+
+func TestEnterAccessCodeOnLpaStoreResolvingServiceError(t *testing.T) {
+	accessCode := accesscodedata.Link{LpaKey: dynamo.LpaKey("lpa-id"), LpaOwnerKey: dynamo.LpaOwnerKey(dynamo.DonorKey("")), LpaUID: "lpa-uid"}
+
+	w := httptest.NewRecorder()
+	r, _ := http.NewRequest(http.MethodPost, "/", nil)
+
+	lpaStoreResolvingService := newMockLpaStoreResolvingService(t)
+	lpaStoreResolvingService.EXPECT().
+		Get(mock.Anything).
+		Return(nil, expectedError)
+
+	err := EnterAccessCode(nil, lpaStoreResolvingService, nil, nil)(testAppData, w, r, &sesh.LoginSession{}, accessCode)
+	assert.ErrorIs(t, err, expectedError)
 }
 
 func TestEnterAccessCodeOnAttorneyStoreError(t *testing.T) {
@@ -154,13 +184,18 @@ func TestEnterAccessCodeOnAttorneyStoreError(t *testing.T) {
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest(http.MethodPost, "/", nil)
 
+	lpaStoreResolvingService := newMockLpaStoreResolvingService(t)
+	lpaStoreResolvingService.EXPECT().
+		Get(mock.Anything).
+		Return(&lpadata.Lpa{}, nil)
+
 	attorneyStore := newMockAttorneyStore(t)
 	attorneyStore.EXPECT().
 		Create(mock.Anything, mock.Anything, mock.Anything).
 		Return(&attorneydata.Provided{}, expectedError)
 
-	err := EnterAccessCode(attorneyStore, nil, nil)(testAppData, w, r, &sesh.LoginSession{}, &lpadata.Lpa{}, accessCode)
-	assert.Equal(t, expectedError, err)
+	err := EnterAccessCode(attorneyStore, lpaStoreResolvingService, nil, nil)(testAppData, w, r, &sesh.LoginSession{}, accessCode)
+	assert.ErrorIs(t, err, expectedError)
 }
 
 func TestEnterAccessCodeOnEventClientError(t *testing.T) {
@@ -168,6 +203,11 @@ func TestEnterAccessCodeOnEventClientError(t *testing.T) {
 
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest(http.MethodPost, "/", nil)
+
+	lpaStoreResolvingService := newMockLpaStoreResolvingService(t)
+	lpaStoreResolvingService.EXPECT().
+		Get(mock.Anything).
+		Return(&lpadata.Lpa{}, nil)
 
 	attorneyStore := newMockAttorneyStore(t)
 	attorneyStore.EXPECT().
@@ -179,6 +219,6 @@ func TestEnterAccessCodeOnEventClientError(t *testing.T) {
 		SendMetric(mock.Anything, mock.Anything, mock.Anything).
 		Return(expectedError)
 
-	err := EnterAccessCode(attorneyStore, nil, eventClient)(testAppData, w, r, &sesh.LoginSession{}, &lpadata.Lpa{}, accessCode)
+	err := EnterAccessCode(attorneyStore, lpaStoreResolvingService, nil, eventClient)(testAppData, w, r, &sesh.LoginSession{}, accessCode)
 	assert.ErrorIs(t, err, expectedError)
 }

@@ -6,11 +6,11 @@ import (
 	"net/http"
 
 	"github.com/ministryofjustice/opg-go-common/template"
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/accesscode/accesscodedata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/appcontext"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/form"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/supporter"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/supporter/invitecode"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/validation"
 )
 
@@ -39,7 +39,7 @@ func EnterAccessCode(logger Logger, tmpl template.Template, memberStore MemberSt
 					return fmt.Errorf("get invited member: %w", err)
 				}
 
-				if invite.AccessCode != accesscodedata.HashedFromString(data.Form.AccessCode) {
+				if invite.InviteCode != invitecode.HashedFromString(data.Form.AccessCode) {
 					data.Errors.Add(form.FieldNames.AccessCode, validation.IncorrectError{Label: "accessCode"})
 					return tmpl(w, data)
 				}

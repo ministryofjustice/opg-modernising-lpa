@@ -8,8 +8,6 @@ import (
 
 	http "net/http"
 
-	lpadata "github.com/ministryofjustice/opg-modernising-lpa/internal/lpastore/lpadata"
-
 	mock "github.com/stretchr/testify/mock"
 
 	sesh "github.com/ministryofjustice/opg-modernising-lpa/internal/sesh"
@@ -28,17 +26,17 @@ func (_m *mockEnterAccessCodeHandler) EXPECT() *mockEnterAccessCodeHandler_Expec
 	return &mockEnterAccessCodeHandler_Expecter{mock: &_m.Mock}
 }
 
-// Execute provides a mock function with given fields: appData, w, r, session, lpa, link
-func (_m *mockEnterAccessCodeHandler) Execute(appData appcontext.Data, w http.ResponseWriter, r *http.Request, session *sesh.LoginSession, lpa *lpadata.Lpa, link accesscodedata.Link) error {
-	ret := _m.Called(appData, w, r, session, lpa, link)
+// Execute provides a mock function with given fields: appData, w, r, session, link
+func (_m *mockEnterAccessCodeHandler) Execute(appData appcontext.Data, w http.ResponseWriter, r *http.Request, session *sesh.LoginSession, link accesscodedata.Link) error {
+	ret := _m.Called(appData, w, r, session, link)
 
 	if len(ret) == 0 {
 		panic("no return value specified for Execute")
 	}
 
 	var r0 error
-	if rf, ok := ret.Get(0).(func(appcontext.Data, http.ResponseWriter, *http.Request, *sesh.LoginSession, *lpadata.Lpa, accesscodedata.Link) error); ok {
-		r0 = rf(appData, w, r, session, lpa, link)
+	if rf, ok := ret.Get(0).(func(appcontext.Data, http.ResponseWriter, *http.Request, *sesh.LoginSession, accesscodedata.Link) error); ok {
+		r0 = rf(appData, w, r, session, link)
 	} else {
 		r0 = ret.Error(0)
 	}
@@ -56,15 +54,14 @@ type mockEnterAccessCodeHandler_Execute_Call struct {
 //   - w http.ResponseWriter
 //   - r *http.Request
 //   - session *sesh.LoginSession
-//   - lpa *lpadata.Lpa
 //   - link accesscodedata.Link
-func (_e *mockEnterAccessCodeHandler_Expecter) Execute(appData interface{}, w interface{}, r interface{}, session interface{}, lpa interface{}, link interface{}) *mockEnterAccessCodeHandler_Execute_Call {
-	return &mockEnterAccessCodeHandler_Execute_Call{Call: _e.mock.On("Execute", appData, w, r, session, lpa, link)}
+func (_e *mockEnterAccessCodeHandler_Expecter) Execute(appData interface{}, w interface{}, r interface{}, session interface{}, link interface{}) *mockEnterAccessCodeHandler_Execute_Call {
+	return &mockEnterAccessCodeHandler_Execute_Call{Call: _e.mock.On("Execute", appData, w, r, session, link)}
 }
 
-func (_c *mockEnterAccessCodeHandler_Execute_Call) Run(run func(appData appcontext.Data, w http.ResponseWriter, r *http.Request, session *sesh.LoginSession, lpa *lpadata.Lpa, link accesscodedata.Link)) *mockEnterAccessCodeHandler_Execute_Call {
+func (_c *mockEnterAccessCodeHandler_Execute_Call) Run(run func(appData appcontext.Data, w http.ResponseWriter, r *http.Request, session *sesh.LoginSession, link accesscodedata.Link)) *mockEnterAccessCodeHandler_Execute_Call {
 	_c.Call.Run(func(args mock.Arguments) {
-		run(args[0].(appcontext.Data), args[1].(http.ResponseWriter), args[2].(*http.Request), args[3].(*sesh.LoginSession), args[4].(*lpadata.Lpa), args[5].(accesscodedata.Link))
+		run(args[0].(appcontext.Data), args[1].(http.ResponseWriter), args[2].(*http.Request), args[3].(*sesh.LoginSession), args[4].(accesscodedata.Link))
 	})
 	return _c
 }
@@ -74,7 +71,7 @@ func (_c *mockEnterAccessCodeHandler_Execute_Call) Return(_a0 error) *mockEnterA
 	return _c
 }
 
-func (_c *mockEnterAccessCodeHandler_Execute_Call) RunAndReturn(run func(appcontext.Data, http.ResponseWriter, *http.Request, *sesh.LoginSession, *lpadata.Lpa, accesscodedata.Link) error) *mockEnterAccessCodeHandler_Execute_Call {
+func (_c *mockEnterAccessCodeHandler_Execute_Call) RunAndReturn(run func(appcontext.Data, http.ResponseWriter, *http.Request, *sesh.LoginSession, accesscodedata.Link) error) *mockEnterAccessCodeHandler_Execute_Call {
 	_c.Call.Return(run)
 	return _c
 }

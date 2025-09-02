@@ -30,17 +30,17 @@ func TestPK(t *testing.T) {
 		key PK
 		str string
 	}{
-		"LpaKey":                      {LpaKey("S"), "LPA#S"},
-		"OrganisationKey":             {OrganisationKey("S"), "ORGANISATION#S"},
-		"DonorShareKey":               {DonorAccessKey("S"), "DONORSHARE#S"},
-		"CertificateProviderShareKey": {CertificateProviderAccessKey("S"), "CERTIFICATEPROVIDERSHARE#S"},
-		"AttorneyShareKey":            {AttorneyAccessKey("S"), "ATTORNEYSHARE#S"},
-		"VoucherShareKey":             {VoucherAccessKey("S"), "VOUCHERSHARE#S"},
-		"ScheduledDayKey":             {ScheduledDayKey(time.Date(2024, time.January, 2, 12, 13, 14, 15, time.UTC)), "SCHEDULEDDAY#2024-01-02"},
-		"UIDKey":                      {UIDKey("S"), "UID#S"},
-		"SessionKey":                  {SessionKey("S"), "SESSION#S"},
-		"ReuseKey":                    {ReuseKey("S", "T"), "REUSE#S#T"},
-		"ActorAccessKey":              {ActorAccessKey("S"), "ACTORACCESS#S"},
+		"LpaKey":                       {LpaKey("S"), "LPA#S"},
+		"OrganisationKey":              {OrganisationKey("S"), "ORGANISATION#S"},
+		"DonorAccessKey":               {DonorAccessKey("S"), "DONORACCESS#S"},
+		"CertificateProviderAccessKey": {CertificateProviderAccessKey("S"), "CERTIFICATEPROVIDERACCESS#S"},
+		"AttorneyAccessKey":            {AttorneyAccessKey("S"), "ATTORNEYACCESS#S"},
+		"VoucherAccessKey":             {VoucherAccessKey("S"), "VOUCHERACCESS#S"},
+		"ScheduledDayKey":              {ScheduledDayKey(time.Date(2024, time.January, 2, 12, 13, 14, 15, time.UTC)), "SCHEDULEDDAY#2024-01-02"},
+		"UIDKey":                       {UIDKey("S"), "UID#S"},
+		"SessionKey":                   {SessionKey("S"), "SESSION#S"},
+		"ReuseKey":                     {ReuseKey("S", "T"), "REUSE#S#T"},
+		"ActorAccessKey":               {ActorAccessKey("S"), "ACTORACCESS#S"},
 	}
 
 	for name, tc := range testcases {
@@ -84,7 +84,7 @@ func TestSK(t *testing.T) {
 		"MemberIDKey":            {MemberIDKey("S"), "MEMBERID#S"},
 		"OrganisationKey":        {OrganisationKey("S"), "ORGANISATION#S"},
 		"MetadataKey":            {MetadataKey("S"), "METADATA#S"},
-		"VoucherShareSortKey":    {VoucherShareSortKey(LpaKey("S")), "VOUCHERSHARESORT#S"},
+		"VoucherAccessSortKey":   {VoucherAccessSortKey(LpaKey("S")), "VOUCHERACCESSSORT#S"},
 		"DonorInviteKey":         {DonorInviteKey(OrganisationKey("org-id"), LpaKey("lpa-id")), "DONORINVITE#org-id#lpa-id"},
 		"VoucherKey":             {VoucherKey("S"), "VOUCHER#S"},
 		"ScheduledKey":           {ScheduledKey(time.Date(2024, time.January, 2, 12, 13, 14, 15, time.UTC), "some-string"), "SCHEDULED#2024-01-02T12:13:14Z#some-string"},
@@ -123,23 +123,23 @@ func TestLpaOwnerKeyTypes(t *testing.T) {
 	}
 }
 
-func TestShareKeyTypes(t *testing.T) {
-	for _, key := range []interface{ share() }{
+func TestAccessKeyTypes(t *testing.T) {
+	for _, key := range []interface{ access() }{
 		DonorAccessKey("hey"),
 		CertificateProviderAccessKey("what"),
 		AttorneyAccessKey("hello"),
 	} {
-		key.share()
+		key.access()
 	}
 }
 
-func TestShareSortKeyTypes(t *testing.T) {
-	for _, key := range []interface{ shareSort() }{
+func TestAccessSortKeyTypes(t *testing.T) {
+	for _, key := range []interface{ accessSort() }{
 		MetadataKey("hey"),
 		DonorInviteKey(OrganisationKey("what"), LpaKey("hello")),
-		VoucherShareSortKey(LpaKey("hi")),
+		VoucherAccessSortKey(LpaKey("hi")),
 	} {
-		key.shareSort()
+		key.accessSort()
 	}
 }
 

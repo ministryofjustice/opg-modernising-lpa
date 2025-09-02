@@ -5,12 +5,12 @@ import (
 	"net/url"
 
 	"github.com/ministryofjustice/opg-go-common/template"
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/accesscode/accesscodedata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/appcontext"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/localize"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/notify"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/supporter"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/supporter/invitecode"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/supporter/supporterdata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/validation"
 )
@@ -22,7 +22,7 @@ type inviteMemberData struct {
 	Options supporterdata.PermissionOptions
 }
 
-func InviteMember(tmpl template.Template, memberStore MemberStore, notifyClient NotifyClient, generate func() (accesscodedata.PlainText, accesscodedata.Hashed), appPublicURL string) Handler {
+func InviteMember(tmpl template.Template, memberStore MemberStore, notifyClient NotifyClient, generate invitecode.Generator, appPublicURL string) Handler {
 	return func(appData appcontext.Data, w http.ResponseWriter, r *http.Request, organisation *supporterdata.Organisation, _ *supporterdata.Member) error {
 		data := &inviteMemberData{
 			App:     appData,
