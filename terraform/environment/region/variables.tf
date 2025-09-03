@@ -218,8 +218,7 @@ variable "log_emitted_events" {
 
 variable "start_page_redirects" {
   type = object({
-    enabled                 = bool
-    start_page_redirect_url = string
+    enabled = bool
   })
 }
 

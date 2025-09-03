@@ -118,8 +118,7 @@ variable "environments" {
       })
       log_emitted_events = bool
       start_page_redirects = object({
-        enabled                 = bool
-        start_page_redirect_url = string
+        enabled = bool
       })
 
     })
