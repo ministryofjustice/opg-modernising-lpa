@@ -157,7 +157,7 @@ func Register(
 		page.EnterAccessCode(tmpls.Get("enter_access_code.gohtml"), accessCodeStore, sessionStore, actor.TypeCertificateProvider,
 			EnterAccessCode(sessionStore, certificateProviderStore, lpaStoreResolvingService, lpaStoreClient, dashboardStore, eventClient)))
 	handleRoot(page.PathCertificateProviderEnterAccessCodeOptOut, page.None,
-		page.EnterAccessCodeOptOut(tmpls.Get("enter_access_code_opt_out.gohtml"), accessCodeStore, sessionStore, lpaStoreResolvingService, actor.TypeCertificateProvider,
+		page.EnterAccessCodeOptOut(tmpls.Get("enter_access_code_opt_out.gohtml"), accessCodeStore, sessionStore, actor.TypeCertificateProvider,
 			page.PathCertificateProviderConfirmDontWantToBeCertificateProviderLoggedOut))
 	handleRoot(page.PathCertificateProviderConfirmDontWantToBeCertificateProviderLoggedOut, page.None,
 		ConfirmDontWantToBeCertificateProviderLoggedOut(tmpls.Get("confirm_dont_want_to_be_certificate_provider.gohtml"), accessCodeStore, lpaStoreResolvingService, lpaStoreClient, donorStore, sessionStore, notifyClient, donorStartURL))

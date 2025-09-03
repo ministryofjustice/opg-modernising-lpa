@@ -45,7 +45,12 @@ func EnterAccessCode(tmpl template.Template, accessCodeStore AccessCodeStore, se
 						return tmpl(w, data)
 					}
 
-					return err
+					if errors.Is(err, dynamo.ErrTooManyRequests) {
+						data.Errors.Add(form.FieldNames.AccessCode, validation.CustomError{Label: "tooManyAccessCodeAttempts"})
+						return tmpl(w, data)
+					}
+
+					return fmt.Errorf("getting accesscode: %w", err)
 				}
 
 				session, err := sessionStore.Login(r)
