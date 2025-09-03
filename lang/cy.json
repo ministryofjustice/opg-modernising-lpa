@@ -1942,5 +1942,6 @@
     "yourCorrespondentsDetails": "Welsh",
     "youHaveAskedToSendUpdatesToCorrespondentToChooseDifferent": "<p class=\"govuk-body\">Welsh {{.CorrespondentFullName}}</p>",
     "makeANewLpaContent": "<p class=\"govuk-body\">Welsh</p>",
-    "changeYoureDetailsIfNotCorrect": "Welsh"
+    "changeYoureDetailsIfNotCorrect": "Welsh",
+    "tooManyAccessCodeAttempts": "Welsh"
 }
