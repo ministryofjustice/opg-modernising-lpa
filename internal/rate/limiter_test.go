@@ -1,4 +1,4 @@
-package donordata
+package rate
 
 import (
 	"testing"
@@ -8,7 +8,7 @@ import (
 )
 
 func TestNewLimiter(t *testing.T) {
-	limiter := NewLimiter(time.Minute, 5, 10)
+	limiter := NewLimiter(time.Now(), time.Minute, 5, 10)
 
 	assert.Equal(t, time.Minute, limiter.TokenPer)
 	assert.Equal(t, float64(5), limiter.Tokens)
