@@ -35,6 +35,7 @@ const (
 	sessionPrefix                   = "SESSION"
 	reusePrefix                     = "REUSE"
 	actorAccessPrefix               = "ACTORACCESS"
+	accessLimiterPrefix             = "ACCESSLIMITER"
 )
 
 func readKey(s string) (any, error) {
@@ -96,6 +97,8 @@ func readKey(s string) (any, error) {
 		return ReuseKeyType(s), nil
 	case actorAccessPrefix:
 		return ActorAccessKeyType(s), nil
+	case accessLimiterPrefix:
+		return AccessLimiterKeyType(s), nil
 	default:
 		return nil, errors.New("unknown key prefix")
 	}
@@ -387,4 +390,14 @@ func (t ActorAccessKeyType) PK() string { return string(t) }
 // access code has been created for the actor.
 func ActorAccessKey(actorUID string) ActorAccessKeyType {
 	return ActorAccessKeyType(actorAccessPrefix + "#" + actorUID)
+}
+
+type AccessLimiterKeyType string
+
+func (t AccessLimiterKeyType) PK() string { return string(t) }
+
+// AccessLimiterKey is used as the PK (with MetadataKey as SK) to limit the rate
+// at which a user is attempting to enter access codes.
+func AccessLimiterKey(s string) AccessLimiterKeyType {
+	return AccessLimiterKeyType(accessLimiterPrefix + "#" + s)
 }

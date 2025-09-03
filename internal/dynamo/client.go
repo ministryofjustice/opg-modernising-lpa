@@ -33,6 +33,8 @@ type Client struct {
 	svc   dynamoDB
 }
 
+var ErrTooManyRequests = errors.New("too many requests")
+
 type NotFoundError struct{}
 
 func (n NotFoundError) Error() string {
