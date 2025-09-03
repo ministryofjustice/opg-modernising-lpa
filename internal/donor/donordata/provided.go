@@ -19,6 +19,7 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/lpastore/lpadata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/pay"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/place"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/rate"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/task"
 )
 
@@ -170,7 +171,7 @@ type Provided struct {
 	// When the signing was witnessed by the independent witness
 	WitnessedByIndependentWitnessAt time.Time `checkhash:"-"`
 	// Used to rate limit witness code attempts
-	WitnessCodeLimiter *Limiter `checkhash:"-"`
+	WitnessCodeLimiter *rate.Limiter `checkhash:"-"`
 
 	// FeeType is the type of fee the user is applying for
 	FeeType pay.FeeType `checkhash:"-"`

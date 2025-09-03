@@ -1,4 +1,5 @@
-package donordata
+// Package rate provides a serialisable rate limiter.
+package rate
 
 import (
 	"sync"
@@ -6,6 +7,9 @@ import (
 )
 
 // Limiter is a basic rate limiter that can be serialised.
+//
+// For use with DynamoDB ensure it is wrapped in a struct that sets Version so
+// there is protection against updating the rate concurrently.
 type Limiter struct {
 	TokenPer  time.Duration
 	MaxTokens float64
@@ -15,12 +19,12 @@ type Limiter struct {
 	TokensAt time.Time
 }
 
-func NewLimiter(tokenPer time.Duration, initialTokens, maxTokens float64) *Limiter {
+func NewLimiter(tokensAt time.Time, tokenPer time.Duration, initialTokens, maxTokens float64) *Limiter {
 	return &Limiter{
 		TokenPer:  tokenPer,
 		MaxTokens: maxTokens,
 		Tokens:    initialTokens,
-		TokensAt:  time.Now(),
+		TokensAt:  tokensAt,
 	}
 }
 
