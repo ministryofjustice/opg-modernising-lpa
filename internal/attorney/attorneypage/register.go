@@ -128,8 +128,8 @@ func Register(
 	handleRoot(page.PathAttorneyLoginCallback, None,
 		page.LoginCallback(logger, oneLoginClient, sessionStore, page.PathAttorneyEnterAccessCode, dashboardStore, actor.TypeAttorney))
 	handleRoot(page.PathAttorneyEnterAccessCode, RequireSession,
-		page.EnterAccessCode(tmpls.Get("enter_access_code.gohtml"), accessCodeStore, sessionStore, lpaStoreResolvingService, actor.TypeAttorney,
-			EnterAccessCode(attorneyStore, lpaStoreClient, eventClient)))
+		page.EnterAccessCode(tmpls.Get("enter_access_code.gohtml"), accessCodeStore, sessionStore, actor.TypeAttorney,
+			EnterAccessCode(attorneyStore, lpaStoreResolvingService, lpaStoreClient, eventClient)))
 	handleRoot(page.PathAttorneyEnterAccessCodeOptOut, None,
 		page.EnterAccessCodeOptOut(tmpls.Get("enter_access_code_opt_out.gohtml"), accessCodeStore, sessionStore, lpaStoreResolvingService, actor.TypeAttorney,
 			page.PathAttorneyConfirmDontWantToBeAttorneyLoggedOut))

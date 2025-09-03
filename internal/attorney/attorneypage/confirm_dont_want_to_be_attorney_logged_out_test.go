@@ -149,7 +149,7 @@ func TestPostConfirmDontWantToBeAttorneyLoggedOut(t *testing.T) {
 
 	for name, tc := range testcases {
 		t.Run(name, func(t *testing.T) {
-			r, _ := http.NewRequest(http.MethodPost, "/?code=da4ec3358a10c9b0872eb877953cc7b07af5f4d75e4c1cb0597cbbf41e5dbe35", nil)
+			r, _ := http.NewRequest(http.MethodPost, "/?code=fabf53077cb40662eaec1bd6461c094401179a11af81d20d09edcad9ebd4a53b", nil)
 			w := httptest.NewRecorder()
 			ctx := appcontext.ContextWithSession(r.Context(), &appcontext.Session{LpaID: "lpa-id"})
 
@@ -188,7 +188,7 @@ func TestPostConfirmDontWantToBeAttorneyLoggedOut(t *testing.T) {
 
 			accessCodeStore := newMockAccessCodeStore(t)
 			accessCodeStore.EXPECT().
-				Get(r.Context(), actor.TypeAttorney, accesscodedata.HashedFromString("abcdef123456")).
+				Get(r.Context(), actor.TypeAttorney, accesscodedata.HashedFromString("abcdef123456", "c")).
 				Return(accessCodeData, nil)
 			accessCodeStore.EXPECT().
 				Delete(r.Context(), accessCodeData).
@@ -236,7 +236,7 @@ func TestPostConfirmDontWantToBeAttorneyLoggedOut(t *testing.T) {
 }
 
 func TestPostConfirmDontWantToBeAttorneyLoggedOutWhenAttorneyNotFound(t *testing.T) {
-	r, _ := http.NewRequest(http.MethodPost, "/?code=da4ec3358a10c9b0872eb877953cc7b07af5f4d75e4c1cb0597cbbf41e5dbe35", nil)
+	r, _ := http.NewRequest(http.MethodPost, "/?code=fabf53077cb40662eaec1bd6461c094401179a11af81d20d09edcad9ebd4a53b", nil)
 	w := httptest.NewRecorder()
 	ctx := appcontext.ContextWithSession(r.Context(), &appcontext.Session{LpaID: "lpa-id"})
 
@@ -253,7 +253,7 @@ func TestPostConfirmDontWantToBeAttorneyLoggedOutWhenAttorneyNotFound(t *testing
 
 	accessCodeStore := newMockAccessCodeStore(t)
 	accessCodeStore.EXPECT().
-		Get(r.Context(), actor.TypeAttorney, accesscodedata.HashedFromString("abcdef123456")).
+		Get(r.Context(), actor.TypeAttorney, accesscodedata.HashedFromString("abcdef123456", "c")).
 		Return(accessCodeData, nil)
 
 	lpaStoreResolvingService := newMockLpaStoreResolvingService(t)

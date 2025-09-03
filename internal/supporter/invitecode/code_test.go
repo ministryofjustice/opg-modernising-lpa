@@ -1,4 +1,4 @@
-package accesscodedata
+package invitecode
 
 import (
 	"bytes"
@@ -10,23 +10,23 @@ import (
 )
 
 func TestGenerate(t *testing.T) {
-	plain, hashed := Generate("Smith")
+	plain, hashed := Generate()
 
 	s := plain.Plain()
-	assert.Equal(t, HashedFromString(s[:4]+s[5:], "Smith"), hashed)
+	assert.Equal(t, HashedFromString(s[:4]+s[5:]), hashed)
 }
 
 func TestPlainText(t *testing.T) {
 	plain := PlainText("abcdefgh")
 
-	assert.Equal(t, "<accesscode>", plain.String())
-	assert.Equal(t, "<accesscode>", plain.GoString())
+	assert.Equal(t, "<code>", plain.String())
+	assert.Equal(t, "<code>", plain.GoString())
 
 	var buf bytes.Buffer
 	logger := slog.New(slog.NewTextHandler(&buf, nil))
 	logger.Info("hey", slog.Any("code", plain))
 	assert.NotContains(t, buf.String(), "abc")
-	assert.Contains(t, buf.String(), "code=<accesscode>")
+	assert.Contains(t, buf.String(), "code=<code>")
 
 	assert.Equal(t, "abcd-efgh", plain.Plain())
 }
@@ -47,9 +47,9 @@ func TestHashed(t *testing.T) {
 
 func TestHashedFromString(t *testing.T) {
 	assert.Equal(t, Hashed([32]byte{
-		0x6e, 0x94, 0x58, 0x29, 0x44, 0xab, 0x45, 0x63, 0x79, 0xe6, 0x98, 0x9e, 0x7f, 0x4d, 0xcb, 0x9b,
-		0x18, 0xb5, 0x6e, 0x49, 0x78, 0x9e, 0x48, 0x42, 0xae, 0x31, 0x10, 0x15, 0xb9, 0xc5, 0x29, 0x14,
-	}), HashedFromString("hello", "Smith"))
+		0x2c, 0xf2, 0x4d, 0xba, 0x5f, 0xb0, 0xa3, 0xe, 0x26, 0xe8, 0x3b, 0x2a, 0xc5, 0xb9, 0xe2, 0x9e,
+		0x1b, 0x16, 0x1e, 0x5c, 0x1f, 0xa7, 0x42, 0x5e, 0x73, 0x4, 0x33, 0x62, 0x93, 0x8b, 0x98, 0x24,
+	}), HashedFromString("hello"))
 }
 
 func TestHashedFromQuery(t *testing.T) {

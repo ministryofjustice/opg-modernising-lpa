@@ -138,18 +138,18 @@ func (k LpaOwnerKeyType) Organisation() (OrganisationKeyType, bool) {
 	return v, ok
 }
 
-type ShareKeyType struct{ pk PK }
+type AccessKeyType struct{ pk PK }
 
-// AccessKey is used as the PK (with ShareSortKey as SK) for sharing an LPA with
+// AccessKey is used as the PK (with AccessSortKey as SK) for sharing an LPA with
 // another actor.
 func AccessKey(pk interface {
 	PK
-	share()
-}) ShareKeyType {
-	return ShareKeyType{pk: pk}
+	access()
+}) AccessKeyType {
+	return AccessKeyType{pk: pk}
 }
 
-func (k ShareKeyType) MarshalText() ([]byte, error) {
+func (k AccessKeyType) MarshalText() ([]byte, error) {
 	if k.pk == nil {
 		return []byte(nil), nil
 	}
@@ -157,7 +157,7 @@ func (k ShareKeyType) MarshalText() ([]byte, error) {
 	return []byte(k.pk.PK()), nil
 }
 
-func (k *ShareKeyType) UnmarshalText(text []byte) error {
+func (k *AccessKeyType) UnmarshalText(text []byte) error {
 	if len(text) == 0 {
 		return nil
 	}
@@ -169,7 +169,7 @@ func (k *ShareKeyType) UnmarshalText(text []byte) error {
 
 	pk, ok := v.(interface {
 		PK
-		share()
+		access()
 	})
 	if !ok {
 		return errors.New("invalid key")
@@ -179,13 +179,13 @@ func (k *ShareKeyType) UnmarshalText(text []byte) error {
 	return err
 }
 
-func (k ShareKeyType) MarshalDynamoDBAttributeValue() (types.AttributeValue, error) {
+func (k AccessKeyType) MarshalDynamoDBAttributeValue() (types.AttributeValue, error) {
 	text, _ := k.MarshalText()
 
 	return attributevalue.Marshal(string(text))
 }
 
-func (k *ShareKeyType) UnmarshalDynamoDBAttributeValue(av types.AttributeValue) error {
+func (k *AccessKeyType) UnmarshalDynamoDBAttributeValue(av types.AttributeValue) error {
 	var s string
 	if err := attributevalue.Unmarshal(av, &s); err != nil {
 		return err
@@ -194,22 +194,22 @@ func (k *ShareKeyType) UnmarshalDynamoDBAttributeValue(av types.AttributeValue) 
 	return k.UnmarshalText([]byte(s))
 }
 
-func (k ShareKeyType) PK() string {
+func (k AccessKeyType) PK() string {
 	return k.pk.PK()
 }
 
-type ShareSortKeyType struct{ sk SK }
+type AccessSortKeyType struct{ sk SK }
 
-// ShareSortKey is used as the SK (with ShareKey as the PK) for sharing an LPA
+// AccessSortKey is used as the SK (with AccessKey as the PK) for sharing an LPA
 // with another actor.
-func ShareSortKey(sk interface {
+func AccessSortKey(sk interface {
 	SK
-	shareSort()
-}) ShareSortKeyType {
-	return ShareSortKeyType{sk: sk}
+	accessSort()
+}) AccessSortKeyType {
+	return AccessSortKeyType{sk: sk}
 }
 
-func (k ShareSortKeyType) MarshalText() ([]byte, error) {
+func (k AccessSortKeyType) MarshalText() ([]byte, error) {
 	if k.sk == nil {
 		return []byte(nil), nil
 	}
@@ -217,7 +217,7 @@ func (k ShareSortKeyType) MarshalText() ([]byte, error) {
 	return []byte(k.sk.SK()), nil
 }
 
-func (k *ShareSortKeyType) UnmarshalText(text []byte) error {
+func (k *AccessSortKeyType) UnmarshalText(text []byte) error {
 	if len(text) == 0 {
 		return nil
 	}
@@ -229,7 +229,7 @@ func (k *ShareSortKeyType) UnmarshalText(text []byte) error {
 
 	sk, ok := v.(interface {
 		SK
-		shareSort()
+		accessSort()
 	})
 	if !ok {
 		return errors.New("invalid key")
@@ -239,13 +239,13 @@ func (k *ShareSortKeyType) UnmarshalText(text []byte) error {
 	return nil
 }
 
-func (k ShareSortKeyType) MarshalDynamoDBAttributeValue() (types.AttributeValue, error) {
+func (k AccessSortKeyType) MarshalDynamoDBAttributeValue() (types.AttributeValue, error) {
 	text, _ := k.MarshalText()
 
 	return attributevalue.Marshal(string(text))
 }
 
-func (k *ShareSortKeyType) UnmarshalDynamoDBAttributeValue(av types.AttributeValue) error {
+func (k *AccessSortKeyType) UnmarshalDynamoDBAttributeValue(av types.AttributeValue) error {
 	var s string
 	if err := attributevalue.Unmarshal(av, &s); err != nil {
 		return err
@@ -254,6 +254,6 @@ func (k *ShareSortKeyType) UnmarshalDynamoDBAttributeValue(av types.AttributeVal
 	return k.UnmarshalText([]byte(s))
 }
 
-func (k ShareSortKeyType) SK() string {
+func (k AccessSortKeyType) SK() string {
 	return k.sk.SK()
 }

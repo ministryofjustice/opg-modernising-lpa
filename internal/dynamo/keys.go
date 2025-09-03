@@ -22,12 +22,12 @@ const (
 	memberIDPrefix                  = "MEMBERID"
 	voucherPrefix                   = "VOUCHER"
 	metadataPrefix                  = "METADATA"
-	voucherAccessSortPrefix         = "VOUCHERSHARESORT"
-	donorAccessPrefix               = "DONORSHARE"
+	voucherAccessSortPrefix         = "VOUCHERACCESSSORT"
+	donorAccessPrefix               = "DONORACCESS"
 	donorInvitePrefix               = "DONORINVITE"
-	certificateProviderAccessPrefix = "CERTIFICATEPROVIDERSHARE"
-	attorneyAccessPrefix            = "ATTORNEYSHARE"
-	voucherAccessPrefix             = "VOUCHERSHARE"
+	certificateProviderAccessPrefix = "CERTIFICATEPROVIDERACCESS"
+	attorneyAccessPrefix            = "ATTORNEYACCESS"
+	voucherAccessPrefix             = "VOUCHERACCESS"
 	scheduledDayPrefix              = "SCHEDULEDDAY"
 	scheduledPrefix                 = "SCHEDULED"
 	reservedPrefix                  = "RESERVED"
@@ -47,13 +47,13 @@ func readKey(s string) (any, error) {
 	case lpaPrefix:
 		return LpaKeyType(s), nil
 	case donorAccessPrefix:
-		return DonorShareKeyType(s), nil
+		return DonorAccessKeyType(s), nil
 	case certificateProviderAccessPrefix:
-		return CertificateProviderShareKeyType(s), nil
+		return CertificateProviderAccessKeyType(s), nil
 	case attorneyAccessPrefix:
-		return AttorneyShareKeyType(s), nil
+		return AttorneyAccessKeyType(s), nil
 	case voucherAccessPrefix:
-		return VoucherShareKeyType(s), nil
+		return VoucherAccessKeyType(s), nil
 	case donorPrefix:
 		return DonorKeyType(s), nil
 	case subPrefix:
@@ -77,7 +77,7 @@ func readKey(s string) (any, error) {
 	case metadataPrefix:
 		return MetadataKeyType(s), nil
 	case voucherAccessSortPrefix:
-		return VoucherShareSortKeyType(s), nil
+		return VoucherAccessSortKeyType(s), nil
 	case donorInvitePrefix:
 		return DonorInviteKeyType(s), nil
 	case voucherPrefix:
@@ -242,8 +242,8 @@ func VoucherKey(s string) VoucherKeyType {
 
 type MetadataKeyType string
 
-func (t MetadataKeyType) SK() string { return string(t) }
-func (t MetadataKeyType) shareSort() {} // mark as usable with ShareSortKey
+func (t MetadataKeyType) SK() string  { return string(t) }
+func (t MetadataKeyType) accessSort() {} // mark as usable with AccessSortKey
 
 // Metadata is used as the SK when the value of the SK is not used for any
 // purpose.
@@ -251,66 +251,66 @@ func MetadataKey(s string) MetadataKeyType {
 	return MetadataKeyType(metadataPrefix + "#" + s)
 }
 
-type VoucherShareSortKeyType string
+type VoucherAccessSortKeyType string
 
-func (t VoucherShareSortKeyType) SK() string { return string(t) }
-func (t VoucherShareSortKeyType) shareSort() {} // mark as usable with ShareSortKey
+func (t VoucherAccessSortKeyType) SK() string  { return string(t) }
+func (t VoucherAccessSortKeyType) accessSort() {} // mark as usable with AccessSortKey
 
-// VoucherShareSortKey is used as the SK (with ShareKey as PK) for sharing an Lpa
+// VoucherAccessSortKey is used as the SK (with AccessKey as PK) for sharing an Lpa
 // with an actor.
-func VoucherShareSortKey(lpa LpaKeyType) VoucherShareSortKeyType {
-	return VoucherShareSortKeyType(voucherAccessSortPrefix + "#" + lpa.ID())
+func VoucherAccessSortKey(lpa LpaKeyType) VoucherAccessSortKeyType {
+	return VoucherAccessSortKeyType(voucherAccessSortPrefix + "#" + lpa.ID())
 }
 
-type DonorShareKeyType string
+type DonorAccessKeyType string
 
-func (t DonorShareKeyType) PK() string { return string(t) }
-func (t DonorShareKeyType) share()     {} // mark as usable with ShareKey
+func (t DonorAccessKeyType) PK() string { return string(t) }
+func (t DonorAccessKeyType) access()    {} // mark as usable with AccessKey
 
 // DonorAccessKey is used as the PK for sharing an Lpa with a donor.
-func DonorAccessKey(code string) DonorShareKeyType {
-	return DonorShareKeyType(donorAccessPrefix + "#" + code)
+func DonorAccessKey(code string) DonorAccessKeyType {
+	return DonorAccessKeyType(donorAccessPrefix + "#" + code)
 }
 
 type DonorInviteKeyType string
 
-func (t DonorInviteKeyType) SK() string { return string(t) }
-func (t DonorInviteKeyType) shareSort() {} // mark as usable with ShareSortKey
+func (t DonorInviteKeyType) SK() string  { return string(t) }
+func (t DonorInviteKeyType) accessSort() {} // mark as usable with AccessSortKey
 
-// DonorInviteKey is used as the SK (with DonorShareKey as PK) for an invitation
+// DonorInviteKey is used as the SK (with DonorAccessKey as PK) for an invitation
 // to a donor to link an Lpa being created by a member of an organisation.
 func DonorInviteKey(organisation OrganisationKeyType, lpa LpaKeyType) DonorInviteKeyType {
 	return DonorInviteKeyType(donorInvitePrefix + "#" + organisation.ID() + "#" + lpa.ID())
 }
 
-type CertificateProviderShareKeyType string
+type CertificateProviderAccessKeyType string
 
-func (t CertificateProviderShareKeyType) PK() string { return string(t) }
-func (t CertificateProviderShareKeyType) share()     {} // mark as usable with ShareKey
+func (t CertificateProviderAccessKeyType) PK() string { return string(t) }
+func (t CertificateProviderAccessKeyType) access()    {} // mark as usable with AccessKey
 
 // CertificateProviderAccessKey is used as the PK for sharing an Lpa with a certificate provider.
-func CertificateProviderAccessKey(code string) CertificateProviderShareKeyType {
-	return CertificateProviderShareKeyType(certificateProviderAccessPrefix + "#" + code)
+func CertificateProviderAccessKey(code string) CertificateProviderAccessKeyType {
+	return CertificateProviderAccessKeyType(certificateProviderAccessPrefix + "#" + code)
 }
 
-type AttorneyShareKeyType string
+type AttorneyAccessKeyType string
 
-func (t AttorneyShareKeyType) PK() string { return string(t) }
-func (t AttorneyShareKeyType) share()     {} // mark as usable with ShareKey
+func (t AttorneyAccessKeyType) PK() string { return string(t) }
+func (t AttorneyAccessKeyType) access()    {} // mark as usable with AccessKey
 
 // AttorneyAccessKey is used as the PK for sharing an Lpa with an attorney.
-func AttorneyAccessKey(code string) AttorneyShareKeyType {
-	return AttorneyShareKeyType(attorneyAccessPrefix + "#" + code)
+func AttorneyAccessKey(code string) AttorneyAccessKeyType {
+	return AttorneyAccessKeyType(attorneyAccessPrefix + "#" + code)
 }
 
-type VoucherShareKeyType string
+type VoucherAccessKeyType string
 
-func (t VoucherShareKeyType) PK() string { return string(t) }
-func (t VoucherShareKeyType) share()     {} // mark as usable with ShareKey
+func (t VoucherAccessKeyType) PK() string { return string(t) }
+func (t VoucherAccessKeyType) access()    {} // mark as usable with AccessKey
 
 // VoucherAccessKey is used as the PK for sharing an Lpa with a voucher.
-func VoucherAccessKey(code string) VoucherShareKeyType {
-	return VoucherShareKeyType(voucherAccessPrefix + "#" + code)
+func VoucherAccessKey(code string) VoucherAccessKeyType {
+	return VoucherAccessKeyType(voucherAccessPrefix + "#" + code)
 }
 
 type ScheduledDayKeyType string

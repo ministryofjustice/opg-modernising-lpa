@@ -485,7 +485,7 @@ func (s *Store) DeleteVoucher(ctx context.Context, provided *donordata.Provided)
 	}
 
 	var link accesscodedata.Link
-	linkErr := s.dynamoClient.OneBySK(ctx, dynamo.VoucherShareSortKey(dynamo.LpaKey(sessionData.LpaID)), &link)
+	linkErr := s.dynamoClient.OneBySK(ctx, dynamo.VoucherAccessSortKey(dynamo.LpaKey(sessionData.LpaID)), &link)
 	if linkErr != nil && !errors.As(linkErr, &dynamo.NotFoundError{}) {
 		return linkErr
 	}
