@@ -36,3 +36,33 @@ resource "aws_route53_record" "certificate_validation_app" {
   type            = each.value.type
   zone_id         = data.aws_route53_zone.modernising_lpa.zone_id
 }
+
+resource "aws_acm_certificate" "mainstream_content" {
+  domain_name       = "${local.dev_wildcard}mainstreamcontent.modernising.opg.service.justice.gov.uk"
+  validation_method = "DNS"
+  provider          = aws.region
+}
+
+resource "aws_acm_certificate_validation" "mainstream_content" {
+  certificate_arn         = aws_acm_certificate.mainstream_content.arn
+  validation_record_fqdns = [for record in aws_route53_record.certificate_validation_mainstream_content : record.fqdn]
+  provider                = aws.region
+}
+
+resource "aws_route53_record" "certificate_validation_mainstream_content" {
+  provider = aws.management
+  for_each = {
+    for dvo in aws_acm_certificate.mainstream_content.domain_validation_options : dvo.domain_name => {
+      name   = dvo.resource_record_name
+      record = dvo.resource_record_value
+      type   = dvo.resource_record_type
+    }
+  }
+
+  allow_overwrite = true
+  name            = each.value.name
+  records         = [each.value.record]
+  ttl             = 60
+  type            = each.value.type
+  zone_id         = data.aws_route53_zone.modernising_lpa.zone_id
+}
