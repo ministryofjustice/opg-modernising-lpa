@@ -29,12 +29,10 @@ module "event_received" {
   lpa_store_secret_arn           = data.aws_secretsmanager_secret.lpa_store_jwt_key.arn
   allowed_api_arns = concat(
     var.uid_service.api_arns.post,
-    var.uid_service.api_arns.healthcheck,
     var.lpa_store_service.api_arns.post,
     var.lpa_store_service.api_arns.put,
     var.lpa_store_service.api_arns.get,
     var.lpa_store_service.api_arns.update,
-    var.lpa_store_service.api_arns.healthcheck
   )
   search_endpoint             = var.search_endpoint
   search_index_name           = var.search_index_name

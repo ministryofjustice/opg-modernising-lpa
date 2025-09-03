@@ -32,7 +32,6 @@ module "app" {
   app_service_repository_url     = var.app_service_repository_url
   app_service_container_version  = var.app_service_container_version
   app_allowed_api_arns = concat(
-    var.uid_service.api_arns.post,
     var.uid_service.api_arns.healthcheck,
     var.lpa_store_service.api_arns.post,
     var.lpa_store_service.api_arns.put,

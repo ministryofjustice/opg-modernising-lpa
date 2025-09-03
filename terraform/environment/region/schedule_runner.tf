@@ -17,11 +17,7 @@ module "schedule_runner" {
   lpa_store_base_url             = var.lpa_store_service.base_url
   app_public_url                 = aws_route53_record.app.fqdn
   allowed_api_arns = concat(
-    var.lpa_store_service.api_arns.post,
-    var.lpa_store_service.api_arns.put,
     var.lpa_store_service.api_arns.get,
-    var.lpa_store_service.api_arns.update,
-    var.lpa_store_service.api_arns.healthcheck
   )
   vpc_config = {
     subnet_ids         = data.aws_subnet.application[*].id
