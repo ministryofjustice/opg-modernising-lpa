@@ -42,6 +42,7 @@ do
         elif [[ $response == *'"status":404'* ]]; then
           echo "Request successful but index not found."
         else
+          echo "$response"
           exit 1
         fi
       echo "deleting containter insights log group..."

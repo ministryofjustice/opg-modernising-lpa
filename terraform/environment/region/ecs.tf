@@ -21,17 +21,24 @@ data "aws_ssm_parameter" "additional_allowed_ingress_cidrs" {
 }
 
 module "app" {
-  source                          = "./modules/app"
-  ecs_cluster                     = aws_ecs_cluster.main.id
-  ecs_execution_role              = var.iam_roles.ecs_execution_role
-  ecs_task_role                   = var.iam_roles.app_ecs_task_role
-  ecs_service_desired_count       = var.ecs_task_autoscaling.minimum
-  ecs_application_log_group_name  = module.application_logs.cloudwatch_log_group.name
-  ecs_capacity_provider           = var.ecs_capacity_provider
-  app_env_vars                    = var.app_env_vars
-  app_service_repository_url      = var.app_service_repository_url
-  app_service_container_version   = var.app_service_container_version
-  app_allowed_api_arns            = concat(var.uid_service.api_arns, var.lpa_store_service.api_arns)
+  source                         = "./modules/app"
+  ecs_cluster                    = aws_ecs_cluster.main.id
+  ecs_execution_role             = var.iam_roles.ecs_execution_role
+  ecs_task_role                  = var.iam_roles.app_ecs_task_role
+  ecs_service_desired_count      = var.ecs_task_autoscaling.minimum
+  ecs_application_log_group_name = module.application_logs.cloudwatch_log_group.name
+  ecs_capacity_provider          = var.ecs_capacity_provider
+  app_env_vars                   = var.app_env_vars
+  app_service_repository_url     = var.app_service_repository_url
+  app_service_container_version  = var.app_service_container_version
+  app_allowed_api_arns = concat(
+    var.uid_service.api_arns.healthcheck,
+    var.lpa_store_service.api_arns.post,
+    var.lpa_store_service.api_arns.put,
+    var.lpa_store_service.api_arns.get,
+    var.lpa_store_service.api_arns.update,
+    var.lpa_store_service.api_arns.healthcheck
+  )
   ingress_allow_list_cidr         = concat(var.ingress_allow_list_cidr, split(",", data.aws_ssm_parameter.additional_allowed_ingress_cidrs.value))
   alb_deletion_protection_enabled = var.alb_deletion_protection_enabled
   waf_alb_association_enabled     = var.waf_alb_association_enabled

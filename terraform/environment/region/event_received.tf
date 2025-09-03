@@ -27,12 +27,18 @@ module "event_received" {
   uid_base_url                   = var.uid_service.base_url
   lpa_store_base_url             = var.lpa_store_service.base_url
   lpa_store_secret_arn           = data.aws_secretsmanager_secret.lpa_store_jwt_key.arn
-  allowed_api_arns               = concat(var.uid_service.api_arns, var.lpa_store_service.api_arns)
-  search_endpoint                = var.search_endpoint
-  search_index_name              = var.search_index_name
-  search_collection_arn          = var.search_collection_arn
-  event_received_lambda_role     = var.iam_roles.event_received_lambda
-  event_bus_dead_letter_queue    = module.event_bus.event_bus_dead_letter_queue
+  allowed_api_arns = concat(
+    var.uid_service.api_arns.post,
+    var.lpa_store_service.api_arns.post,
+    var.lpa_store_service.api_arns.put,
+    var.lpa_store_service.api_arns.get,
+    var.lpa_store_service.api_arns.update,
+  )
+  search_endpoint             = var.search_endpoint
+  search_index_name           = var.search_index_name
+  search_collection_arn       = var.search_collection_arn
+  event_received_lambda_role  = var.iam_roles.event_received_lambda
+  event_bus_dead_letter_queue = module.event_bus.event_bus_dead_letter_queue
   vpc_config = {
     subnet_ids         = data.aws_subnet.application[*].id
     security_group_ids = [data.aws_security_group.lambda_egress.id]
