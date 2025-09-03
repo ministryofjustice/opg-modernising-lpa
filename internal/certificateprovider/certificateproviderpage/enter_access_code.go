@@ -9,13 +9,17 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/appcontext"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/certificateprovider"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/event"
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/lpastore/lpadata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/sesh"
 )
 
-func EnterAccessCode(sessionStore SessionStore, certificateProviderStore CertificateProviderStore, lpaStoreClient LpaStoreClient, dashboardStore DashboardStore, eventClient EventClient) page.EnterAccessCodeHandler {
-	return func(appData appcontext.Data, w http.ResponseWriter, r *http.Request, session *sesh.LoginSession, lpa *lpadata.Lpa, link accesscodedata.Link) error {
+func EnterAccessCode(sessionStore SessionStore, certificateProviderStore CertificateProviderStore, lpaStoreResolvingService LpaStoreResolvingService, lpaStoreClient LpaStoreClient, dashboardStore DashboardStore, eventClient EventClient) page.EnterAccessCodeHandler {
+	return func(appData appcontext.Data, w http.ResponseWriter, r *http.Request, session *sesh.LoginSession, link accesscodedata.Link) error {
+		lpa, err := lpaStoreResolvingService.Get(r.Context())
+		if err != nil {
+			return fmt.Errorf("resolving lpa: %w", err)
+		}
+
 		if lpa.CertificateProvider.Channel.IsPaper() && !lpa.CertificateProvider.SignedAt.IsZero() {
 			if err := lpaStoreClient.SendPaperCertificateProviderAccessOnline(r.Context(), lpa, session.Email); err != nil {
 				return fmt.Errorf("sending certificate provider email to LPA store: %w", err)

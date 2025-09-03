@@ -22,7 +22,7 @@ type enterAccessCodeData struct {
 	Form   *form.AccessCodeForm
 }
 
-func EnterAccessCode(logger Logger, tmpl template.Template, accessCodeStore AccessCodeStore, sessionStore SessionStore, lpaStoreResolvingService LpaStoreResolvingService, donorStore DonorStore, eventClient EventClient) page.Handler {
+func EnterAccessCode(logger Logger, tmpl template.Template, accessCodeStore AccessCodeStore, sessionStore SessionStore, donorStore DonorStore, eventClient EventClient) page.Handler {
 	return func(appData appcontext.Data, w http.ResponseWriter, r *http.Request) error {
 		data := enterAccessCodeData{
 			App:  appData,
@@ -34,12 +34,13 @@ func EnterAccessCode(logger Logger, tmpl template.Template, accessCodeStore Acce
 			data.Errors = data.Form.Validate()
 
 			if len(data.Errors) == 0 {
-				referenceNumber := accesscodedata.HashedFromString(data.Form.AccessCode)
+				referenceNumber := accesscodedata.HashedFromString(data.Form.AccessCode, data.Form.DonorLastName)
 
 				accessCode, err := accessCodeStore.GetDonor(r.Context(), referenceNumber)
 				if err != nil {
 					if errors.Is(err, dynamo.NotFoundError{}) {
 						data.Errors.Add(form.FieldNames.AccessCode, validation.IncorrectError{Label: "accessCode"})
+						data.Errors.Add(form.FieldNames.DonorLastName, validation.IncorrectError{Label: "donorLastName"})
 						return tmpl(w, data)
 					}
 
@@ -53,6 +54,10 @@ func EnterAccessCode(logger Logger, tmpl template.Template, accessCodeStore Acce
 
 				session.HasLPAs = true
 
+				if err := sessionStore.SetLogin(r, w, session); err != nil {
+					return fmt.Errorf("saving login session: %w", err)
+				}
+
 				appSession := &appcontext.Session{
 					SessionID: session.SessionID(),
 					LpaID:     accessCode.LpaKey.ID(),
@@ -61,22 +66,8 @@ func EnterAccessCode(logger Logger, tmpl template.Template, accessCodeStore Acce
 					appSession.OrganisationID = org.ID()
 				}
 
-				ctx := appcontext.ContextWithSession(r.Context(), appSession)
+				r = r.WithContext(appcontext.ContextWithSession(r.Context(), appSession))
 				appData.LpaID = accessCode.LpaKey.ID()
-
-				lpa, err := lpaStoreResolvingService.Get(ctx)
-				if err != nil {
-					return fmt.Errorf("getting LPA from LPA store: %w", err)
-				}
-
-				if lpa.Donor.LastName != data.Form.DonorLastName {
-					data.Errors.Add(form.FieldNames.DonorLastName, validation.IncorrectError{Label: "donorLastName"})
-					return tmpl(w, data)
-				}
-
-				if err := sessionStore.SetLogin(r, w, session); err != nil {
-					return fmt.Errorf("saving login session: %w", err)
-				}
 
 				if err := donorStore.Link(r.Context(), accessCode, session.Email); err != nil {
 					return err

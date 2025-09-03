@@ -232,15 +232,16 @@ func acceptCookiesConsent(w http.ResponseWriter) {
 	})
 }
 
-func createAttorney(ctx context.Context, accessCodeStore *accesscode.Store, attorneyStore AttorneyStore, actorUID actoruid.UID, isReplacement, isTrustCorporation bool, lpaOwnerKey dynamo.LpaOwnerKeyType, email string) (*attorneydata.Provided, error) {
-	_, hashedCode := accesscodedata.Generate()
+func createAttorney(ctx context.Context, accessCodeStore *accesscode.Store, attorneyStore AttorneyStore, donor *donordata.Provided, actorUID actoruid.UID, isReplacement, isTrustCorporation bool, email string) (*attorneydata.Provided, error) {
+	_, hashedCode := accesscodedata.Generate(donor.Donor.LastName)
 	accessCodeData := accesscodedata.Link{
 		PK:                    dynamo.AccessKey(dynamo.AttorneyAccessKey(hashedCode.String())),
-		SK:                    dynamo.ShareSortKey(dynamo.MetadataKey(hashedCode.String())),
+		SK:                    dynamo.AccessSortKey(dynamo.MetadataKey(hashedCode.String())),
 		ActorUID:              actorUID,
 		IsReplacementAttorney: isReplacement,
 		IsTrustCorporation:    isTrustCorporation,
-		LpaOwnerKey:           lpaOwnerKey,
+		LpaOwnerKey:           donor.SK,
+		LpaKey:                donor.PK,
 	}
 
 	attorneyType := actor.TypeAttorney
@@ -257,10 +258,10 @@ func createAttorney(ctx context.Context, accessCodeStore *accesscode.Store, atto
 }
 
 func createCertificateProvider(ctx context.Context, accessCodeStore *accesscode.Store, certificateProviderStore CertificateProviderStore, donor *donordata.Provided) (*certificateproviderdata.Provided, error) {
-	_, hashedCode := accesscodedata.Generate()
+	_, hashedCode := accesscodedata.Generate(donor.Donor.LastName)
 	accessCodeData := accesscodedata.Link{
 		PK:          dynamo.AccessKey(dynamo.CertificateProviderAccessKey(hashedCode.String())),
-		SK:          dynamo.ShareSortKey(dynamo.MetadataKey(hashedCode.String())),
+		SK:          dynamo.AccessSortKey(dynamo.MetadataKey(hashedCode.String())),
 		ActorUID:    donor.CertificateProvider.UID,
 		LpaOwnerKey: donor.SK,
 		LpaUID:      donor.LpaUID,
@@ -276,10 +277,10 @@ func createCertificateProvider(ctx context.Context, accessCodeStore *accesscode.
 }
 
 func createVoucher(ctx context.Context, accessCodeStore *accesscode.Store, voucherStore *voucher.Store, donor *donordata.Provided) (*voucherdata.Provided, error) {
-	_, hashedCode := accesscodedata.Generate()
+	_, hashedCode := accesscodedata.Generate(donor.Donor.LastName)
 	accessCodeData := accesscodedata.Link{
 		PK:          dynamo.AccessKey(dynamo.VoucherAccessKey(hashedCode.String())),
-		SK:          dynamo.ShareSortKey(dynamo.MetadataKey(hashedCode.String())),
+		SK:          dynamo.AccessSortKey(dynamo.MetadataKey(hashedCode.String())),
 		LpaUID:      donor.LpaUID,
 		ActorUID:    donor.Voucher.UID,
 		LpaOwnerKey: donor.SK,

@@ -47,7 +47,7 @@ func TestAttorneyStoreCreate(t *testing.T) {
 
 			link := accesscodedata.Link{
 				PK:                    dynamo.AccessKey(dynamo.AttorneyAccessKey("123")),
-				SK:                    dynamo.ShareSortKey(dynamo.MetadataKey("123")),
+				SK:                    dynamo.AccessSortKey(dynamo.MetadataKey("123")),
 				ActorUID:              uid,
 				IsReplacementAttorney: tc.replacement,
 				IsTrustCorporation:    tc.trustCorporation,
@@ -70,7 +70,7 @@ func TestAttorneyStoreCreate(t *testing.T) {
 				Deletes: []dynamo.Keys{
 					{
 						PK: dynamo.AccessKey(dynamo.AttorneyAccessKey("123")),
-						SK: dynamo.ShareSortKey(dynamo.MetadataKey("123")),
+						SK: dynamo.AccessSortKey(dynamo.MetadataKey("123")),
 					},
 				},
 			}
@@ -129,7 +129,7 @@ func TestAttorneyStoreCreateWhenWriteTransactionError(t *testing.T) {
 
 	_, err := attorneyStore.Create(ctx, accesscodedata.Link{
 		PK: dynamo.AccessKey(dynamo.AttorneyAccessKey("123")),
-		SK: dynamo.ShareSortKey(dynamo.MetadataKey("123")),
+		SK: dynamo.AccessSortKey(dynamo.MetadataKey("123")),
 	}, "")
 	assert.Equal(t, expectedError, err)
 }
