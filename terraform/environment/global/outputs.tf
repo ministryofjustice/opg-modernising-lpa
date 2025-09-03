@@ -16,5 +16,6 @@ output "iam_roles" {
     schedule_runner_scheduler               = aws_iam_role.schedule_runner_scheduler
     guardduty_malware_protection            = aws_iam_role.guardduty_malware_protection
     opg_metrics                             = aws_iam_role.opg_metrics
+    mainstream_content_task_role            = aws_iam_role.mainstream_content_task_role
   }
 }
