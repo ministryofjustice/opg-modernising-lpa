@@ -61,3 +61,26 @@ resource "aws_service_discovery_private_dns_namespace" "internal" {
   vpc         = data.aws_vpc.main.id
   provider    = aws.region
 }
+
+resource "aws_route53_record" "mainstream_content" {
+  # mainstreamcontent.modernising.opg.service.justice.gov.uk
+  provider       = aws.management
+  zone_id        = data.aws_route53_zone.modernising_lpa.zone_id
+  name           = "${local.dns_namespace_for_environment}mainstreamcontent.${data.aws_route53_zone.modernising_lpa.name}"
+  type           = "A"
+  set_identifier = data.aws_region.current.region
+
+  alias {
+    evaluate_target_health = false
+    name                   = module.mainstream_content.load_balancer.dns_name
+    zone_id                = module.mainstream_content.load_balancer.zone_id
+  }
+
+  weighted_routing_policy {
+    weight = var.dns_weighting
+  }
+
+  lifecycle {
+    create_before_destroy = true
+  }
+}

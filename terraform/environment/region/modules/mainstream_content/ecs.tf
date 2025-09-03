@@ -1,5 +1,5 @@
 resource "aws_ecs_service" "app" {
-  name                  = "app"
+  name                  = "mainstream_content"
   cluster               = var.ecs_cluster
   task_definition       = aws_ecs_task_definition.app.arn
   desired_count         = var.ecs_service_desired_count
@@ -123,7 +123,7 @@ locals {
         logDriver = "awslogs",
         options = {
           awslogs-group         = var.ecs_application_log_group_name,
-          awslogs-region        = data.aws_region.current.name,
+          awslogs-region        = data.aws_region.current.region,
           awslogs-stream-prefix = data.aws_default_tags.current.tags.environment-name
           mode                  = "non-blocking"
           max-buffer-size       = "25m"
