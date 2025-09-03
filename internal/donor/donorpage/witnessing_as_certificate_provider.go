@@ -11,6 +11,7 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/event"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/lpastore"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/rate"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/task"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/validation"
 )
@@ -42,7 +43,7 @@ func WitnessingAsCertificateProvider(
 			data.Errors = data.Form.Validate()
 
 			if provided.WitnessCodeLimiter == nil {
-				provided.WitnessCodeLimiter = donordata.NewLimiter(time.Minute, 5, 10)
+				provided.WitnessCodeLimiter = rate.NewLimiter(time.Minute, 5, 10)
 			}
 
 			if !provided.WitnessCodeLimiter.Allow(now()) {

@@ -9,6 +9,7 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor/donordata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/rate"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/validation"
 )
 
@@ -32,7 +33,7 @@ func WitnessingAsIndependentWitness(tmpl template.Template, donorStore DonorStor
 			data.Errors = data.Form.Validate()
 
 			if provided.WitnessCodeLimiter == nil {
-				provided.WitnessCodeLimiter = donordata.NewLimiter(time.Minute, 5, 10)
+				provided.WitnessCodeLimiter = rate.NewLimiter(time.Minute, 5, 10)
 			}
 
 			if !provided.WitnessCodeLimiter.Allow(now()) {

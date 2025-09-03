@@ -12,6 +12,7 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor/donordata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/identity"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/rate"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/validation"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
@@ -298,7 +299,7 @@ func TestPostWitnessingAsIndependentWitnessCodeLimitBreached(t *testing.T) {
 		Return(nil)
 
 	err := WitnessingAsIndependentWitness(template.Execute, donorStore, time.Now)(testAppData, w, r, &donordata.Provided{
-		WitnessCodeLimiter:      donordata.NewLimiter(time.Minute, 0, 10),
+		WitnessCodeLimiter:      rate.NewLimiter(time.Minute, 0, 10),
 		IndependentWitnessCodes: donordata.WitnessCodes{{Code: "1234", Created: now}},
 	})
 	resp := w.Result()

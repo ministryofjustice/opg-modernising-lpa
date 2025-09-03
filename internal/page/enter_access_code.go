@@ -45,6 +45,11 @@ func EnterAccessCode(tmpl template.Template, accessCodeStore AccessCodeStore, se
 						return tmpl(w, data)
 					}
 
+					if errors.Is(err, dynamo.ErrTooManyRequests) {
+						data.Errors.Add("whatever", validation.CustomError{Label: "tooManyAttempts"})
+						return tmpl(w, data)
+					}
+
 					return err
 				}
 
