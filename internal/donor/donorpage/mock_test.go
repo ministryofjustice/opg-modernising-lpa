@@ -9,9 +9,9 @@ import (
 
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor/actoruid"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/appcontext"
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor/donordata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/localize"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/place"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/rate"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/sesh"
 	"github.com/stretchr/testify/mock"
 )
@@ -42,8 +42,8 @@ var (
 	testNowFn   = func() time.Time { return testNow }
 	testUID     = actoruid.New()
 	testUIDFn   = func() actoruid.UID { return testUID }
-	testLimiter = func() *donordata.Limiter {
-		return &donordata.Limiter{TokensAt: testNow, MaxTokens: 1, TokenPer: time.Second, Tokens: 1}
+	testLimiter = func() *rate.Limiter {
+		return &rate.Limiter{TokensAt: testNow, MaxTokens: 1, TokenPer: time.Second, Tokens: 1}
 	}
 )
 

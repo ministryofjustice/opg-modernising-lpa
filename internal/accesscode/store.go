@@ -11,13 +11,15 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor/actoruid"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/appcontext"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/dynamo"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/rate"
 )
 
 type DynamoClient interface {
-	One(ctx context.Context, pk dynamo.PK, sk dynamo.SK, v interface{}) error
-	OneByPK(ctx context.Context, pk dynamo.PK, v interface{}) error
-	OneBySK(ctx context.Context, sk dynamo.SK, v interface{}) error
-	Create(ctx context.Context, v interface{}) error
+	One(ctx context.Context, pk dynamo.PK, sk dynamo.SK, v any) error
+	OneByPK(ctx context.Context, pk dynamo.PK, v any) error
+	OneBySK(ctx context.Context, sk dynamo.SK, v any) error
+	Create(ctx context.Context, v any) error
+	Put(ctx context.Context, v any) error
 	DeleteOne(ctx context.Context, pk dynamo.PK, sk dynamo.SK) error
 	WriteTransaction(ctx context.Context, transaction *dynamo.Transaction) error
 }
@@ -31,14 +33,71 @@ func NewStore(dynamoClient DynamoClient) *Store {
 	return &Store{dynamoClient: dynamoClient, now: time.Now}
 }
 
-func (s *Store) Get(ctx context.Context, actorType actor.Type, accessCode accesscodedata.Hashed) (accesscodedata.Link, error) {
-	var data accesscodedata.Link
+type accessLimiter struct {
+	PK        dynamo.AccessLimiterKeyType
+	SK        dynamo.MetadataKeyType
+	Version   int
+	ExpiresAt time.Time
+	Limiter   *rate.Limiter
+}
 
-	pk, err := accessCodeKey(actorType, accessCode)
+func (s *Store) allowed(ctx context.Context) error {
+	data, err := appcontext.SessionFromContext(ctx)
+	// As a compromise we count unauthenticated requests together, these are for
+	// the opt-out pages. Otherwise we'd be leaving them open for abuse, or as a
+	// way to determine valid combinations to use to add LPAs. I suspect they'll
+	// never get enough legitimate use to ever hit the rate.
 	if err != nil {
-		return data, err
+		data = &appcontext.Session{}
 	}
 
+	var v accessLimiter
+	fresh := false
+	if err := s.dynamoClient.OneByPK(ctx, dynamo.AccessLimiterKey(data.SessionID), &v); err != nil {
+		if errors.Is(err, dynamo.NotFoundError{}) {
+			fresh = true
+			v = accessLimiter{
+				PK:      dynamo.AccessLimiterKey(data.SessionID),
+				SK:      dynamo.MetadataKey(data.SessionID),
+				Version: 1,
+				Limiter: rate.NewLimiter(s.now(), 5*time.Minute, 5, 10),
+			}
+		} else {
+			return fmt.Errorf("retrieve rate limiter: %w", err)
+		}
+	}
+
+	allowed := v.Limiter.Allow(s.now())
+	v.ExpiresAt = s.now().Add(time.Hour)
+
+	if fresh {
+		if err := s.dynamoClient.Create(ctx, v); err != nil {
+			return fmt.Errorf("create rate limiter: %w", err)
+		}
+	} else {
+		if err := s.dynamoClient.Put(ctx, v); err != nil {
+			return fmt.Errorf("update rate limiter: %w", err)
+		}
+	}
+
+	if !allowed {
+		return dynamo.ErrTooManyRequests
+	}
+
+	return nil
+}
+
+func (s *Store) Get(ctx context.Context, actorType actor.Type, accessCode accesscodedata.Hashed) (accesscodedata.Link, error) {
+	pk, err := accessCodeKey(actorType, accessCode)
+	if err != nil {
+		return accesscodedata.Link{}, err
+	}
+
+	if err := s.allowed(ctx); err != nil {
+		return accesscodedata.Link{}, err
+	}
+
+	var data accesscodedata.Link
 	if err := s.dynamoClient.OneByPK(ctx, pk, &data); err != nil {
 		return accesscodedata.Link{}, err
 	}
@@ -95,13 +154,16 @@ func (s *Store) Put(ctx context.Context, actorType actor.Type, accessCode access
 }
 
 func (s *Store) GetDonor(ctx context.Context, accessCode accesscodedata.Hashed) (accesscodedata.DonorLink, error) {
-	var data accesscodedata.DonorLink
+	if err := s.allowed(ctx); err != nil {
+		return accesscodedata.DonorLink{}, err
+	}
 
 	pk, err := accessCodeKey(actor.TypeDonor, accessCode)
 	if err != nil {
-		return data, err
+		return accesscodedata.DonorLink{}, err
 	}
 
+	var data accesscodedata.DonorLink
 	if err := s.dynamoClient.OneByPK(ctx, pk, &data); err != nil {
 		return accesscodedata.DonorLink{}, err
 	}

@@ -14,6 +14,7 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/identity"
 	lpastore "github.com/ministryofjustice/opg-modernising-lpa/internal/lpastore"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/rate"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/task"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/validation"
 	"github.com/stretchr/testify/assert"
@@ -407,7 +408,7 @@ func TestPostWitnessingAsCertificateProviderCodeLimitBreached(t *testing.T) {
 		Return(nil)
 
 	err := WitnessingAsCertificateProvider(template.Execute, donorStore, nil, nil, nil, testNowFn)(testAppData, w, r, &donordata.Provided{
-		WitnessCodeLimiter:       donordata.NewLimiter(time.Minute, 0, 10),
+		WitnessCodeLimiter:       rate.NewLimiter(testNow, time.Minute, 0, 10),
 		CertificateProviderCodes: donordata.WitnessCodes{{Code: "1234", Created: testNow}},
 	})
 	resp := w.Result()
