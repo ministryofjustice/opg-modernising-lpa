@@ -12,7 +12,6 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor/actoruid"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/dynamo"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/form"
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/lpastore/lpadata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/sesh"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/validation"
 	"github.com/stretchr/testify/assert"
@@ -33,7 +32,7 @@ func TestGetEnterAccessCodeOptOut(t *testing.T) {
 		Execute(w, data).
 		Return(nil)
 
-	err := EnterAccessCodeOptOut(template.Execute, newMockAccessCodeStore(t), nil, nil, actor.TypeAttorney, PathDashboard)(testAppData, w, r)
+	err := EnterAccessCodeOptOut(template.Execute, newMockAccessCodeStore(t), nil, actor.TypeAttorney, PathDashboard)(testAppData, w, r)
 
 	resp := w.Result()
 
@@ -50,7 +49,7 @@ func TestGetEnterAccessCodeOptOutOnTemplateError(t *testing.T) {
 		Execute(mock.Anything, mock.Anything).
 		Return(expectedError)
 
-	err := EnterAccessCodeOptOut(template.Execute, newMockAccessCodeStore(t), nil, nil, actor.TypeAttorney, PathDashboard)(testAppData, w, r)
+	err := EnterAccessCodeOptOut(template.Execute, newMockAccessCodeStore(t), nil, actor.TypeAttorney, PathDashboard)(testAppData, w, r)
 
 	resp := w.Result()
 
@@ -83,65 +82,13 @@ func TestPostEnterAccessCodeOptOut(t *testing.T) {
 		SetLpaData(r, w, &sesh.LpaDataSession{LpaID: "lpa-id"}).
 		Return(nil)
 
-	lpaStoreResolvingService := newMockLpaStoreResolvingService(t)
-	lpaStoreResolvingService.EXPECT().
-		Get(mock.Anything).
-		Return(&lpadata.Lpa{
-			Donor: lpadata.Donor{
-				LastName: "Smith",
-			},
-		}, nil)
-
-	err := EnterAccessCodeOptOut(nil, accessCodeStore, sessionStore, lpaStoreResolvingService, actor.TypeAttorney, PathDashboard)(testAppData, w, r)
+	err := EnterAccessCodeOptOut(nil, accessCodeStore, sessionStore, actor.TypeAttorney, PathDashboard)(testAppData, w, r)
 
 	resp := w.Result()
 
 	assert.Nil(t, err)
 	assert.Equal(t, http.StatusFound, resp.StatusCode)
 	assert.Equal(t, PathDashboard.Format()+"?code=a307b26acffc16da146c9bad4344d510eec887be5e0b78ae6b6f3401730761c3", resp.Header.Get("Location"))
-}
-
-func TestPostEnterAccessCodeOptOutWhenDonorLastNameIncorrect(t *testing.T) {
-	f := url.Values{
-		form.FieldNames.AccessCode:    {"abcd 123-4"},
-		form.FieldNames.DonorLastName: {"Smithy"},
-	}
-
-	uid := actoruid.New()
-	w := httptest.NewRecorder()
-	r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(f.Encode()))
-	r.Header.Add("Content-Type", FormUrlEncoded)
-
-	accessCodeStore := newMockAccessCodeStore(t)
-	accessCodeStore.EXPECT().
-		Get(r.Context(), actor.TypeAttorney, accesscodedata.HashedFromString("abcd1234", "Smithy")).
-		Return(accesscodedata.Link{
-			LpaKey:      dynamo.LpaKey("lpa-id"),
-			LpaOwnerKey: dynamo.LpaOwnerKey(dynamo.DonorKey("session-id")),
-			ActorUID:    uid,
-		}, nil)
-
-	lpaStoreResolvingService := newMockLpaStoreResolvingService(t)
-	lpaStoreResolvingService.EXPECT().
-		Get(mock.Anything).
-		Return(&lpadata.Lpa{
-			Donor: lpadata.Donor{
-				LastName: "Smith",
-			},
-		}, nil)
-
-	template := newMockTemplate(t)
-	template.EXPECT().
-		Execute(mock.Anything, mock.MatchedBy(func(data enterAccessCodeData) bool {
-			return assert.Equal(t, validation.With(form.FieldNames.DonorLastName, validation.IncorrectError{Label: "donorLastName"}), data.Errors)
-		})).
-		Return(nil)
-
-	err := EnterAccessCodeOptOut(template.Execute, accessCodeStore, nil, lpaStoreResolvingService, actor.TypeAttorney, PathDashboard)(testAppData, w, r)
-	resp := w.Result()
-
-	assert.Nil(t, err)
-	assert.Equal(t, http.StatusOK, resp.StatusCode)
 }
 
 func TestPostEnterAccessCodeOptOutErrors(t *testing.T) {
@@ -154,9 +101,8 @@ func TestPostEnterAccessCodeOptOutErrors(t *testing.T) {
 	r.Header.Add("Content-Type", FormUrlEncoded)
 
 	testcases := map[string]struct {
-		accessCodeStore          func() *mockAccessCodeStore
-		lpaStoreResolvingService func() *mockLpaStoreResolvingService
-		sessionStore             func() *mockSetLpaDataSessionStore
+		accessCodeStore func() *mockAccessCodeStore
+		sessionStore    func() *mockSetLpaDataSessionStore
 	}{
 		"when accessCodeStore error": {
 			accessCodeStore: func() *mockAccessCodeStore {
@@ -166,26 +112,6 @@ func TestPostEnterAccessCodeOptOutErrors(t *testing.T) {
 					Return(accesscodedata.Link{}, expectedError)
 
 				return accessCodeStore
-			},
-			lpaStoreResolvingService: func() *mockLpaStoreResolvingService { return nil },
-			sessionStore:             func() *mockSetLpaDataSessionStore { return nil },
-		},
-		"when lpaStoreResolvingService error": {
-			accessCodeStore: func() *mockAccessCodeStore {
-				accessCodeStore := newMockAccessCodeStore(t)
-				accessCodeStore.EXPECT().
-					Get(mock.Anything, mock.Anything, mock.Anything).
-					Return(accesscodedata.Link{LpaKey: dynamo.LpaKey("lpa-id")}, nil)
-
-				return accessCodeStore
-			},
-			lpaStoreResolvingService: func() *mockLpaStoreResolvingService {
-				lpaStoreResolvingService := newMockLpaStoreResolvingService(t)
-				lpaStoreResolvingService.EXPECT().
-					Get(mock.Anything).
-					Return(nil, expectedError)
-
-				return lpaStoreResolvingService
 			},
 			sessionStore: func() *mockSetLpaDataSessionStore { return nil },
 		},
@@ -197,18 +123,6 @@ func TestPostEnterAccessCodeOptOutErrors(t *testing.T) {
 					Return(accesscodedata.Link{LpaKey: dynamo.LpaKey("lpa-id")}, nil)
 
 				return accessCodeStore
-			},
-			lpaStoreResolvingService: func() *mockLpaStoreResolvingService {
-				lpaStoreResolvingService := newMockLpaStoreResolvingService(t)
-				lpaStoreResolvingService.EXPECT().
-					Get(mock.Anything).
-					Return(&lpadata.Lpa{
-						Donor: lpadata.Donor{
-							LastName: "Smith",
-						},
-					}, nil)
-
-				return lpaStoreResolvingService
 			},
 			sessionStore: func() *mockSetLpaDataSessionStore {
 				sessionStore := newMockSetLpaDataSessionStore(t)
@@ -223,7 +137,7 @@ func TestPostEnterAccessCodeOptOutErrors(t *testing.T) {
 
 	for name, tc := range testcases {
 		t.Run(name, func(t *testing.T) {
-			err := EnterAccessCodeOptOut(nil, tc.accessCodeStore(), tc.sessionStore(), tc.lpaStoreResolvingService(), actor.TypeAttorney, PathDashboard)(testAppData, w, r)
+			err := EnterAccessCodeOptOut(nil, tc.accessCodeStore(), tc.sessionStore(), actor.TypeAttorney, PathDashboard)(testAppData, w, r)
 			assert.ErrorIs(t, err, expectedError)
 		})
 	}
@@ -247,11 +161,12 @@ func TestPostEnterAccessCodeOptOutOnAccessCodeStoreNotFoundError(t *testing.T) {
 	template := newMockTemplate(t)
 	template.EXPECT().
 		Execute(mock.Anything, mock.MatchedBy(func(data enterAccessCodeData) bool {
-			return assert.Equal(t, validation.With(form.FieldNames.AccessCode, validation.IncorrectError{Label: "accessCode"}), data.Errors)
+			return assert.Equal(t, validation.With(form.FieldNames.AccessCode, validation.IncorrectError{Label: "accessCode"}).
+				With(form.FieldNames.DonorLastName, validation.IncorrectError{Label: "donorLastName"}), data.Errors)
 		})).
 		Return(nil)
 
-	err := EnterAccessCodeOptOut(template.Execute, accessCodeStore, nil, nil, actor.TypeAttorney, PathDashboard)(testAppData, w, r)
+	err := EnterAccessCodeOptOut(template.Execute, accessCodeStore, nil, actor.TypeAttorney, PathDashboard)(testAppData, w, r)
 	resp := w.Result()
 
 	assert.Nil(t, err)
