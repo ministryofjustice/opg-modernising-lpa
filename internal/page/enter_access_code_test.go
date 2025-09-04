@@ -147,7 +147,7 @@ func TestPostEnterAccessCodeOnAccessCodeStoreError(t *testing.T) {
 
 	resp := w.Result()
 
-	assert.Equal(t, expectedError, err)
+	assert.ErrorIs(t, err, expectedError)
 	assert.Equal(t, http.StatusOK, resp.StatusCode)
 }
 
@@ -173,7 +173,37 @@ func TestPostEnterAccessCodeOnAccessCodeStoreNotFoundError(t *testing.T) {
 	accessCodeStore := newMockAccessCodeStore(t)
 	accessCodeStore.EXPECT().
 		Get(r.Context(), actor.TypeAttorney, accesscodedata.HashedFromString("abcd1234", "Smith")).
-		Return(accesscodedata.Link{LpaKey: dynamo.LpaKey("lpa-id"), LpaOwnerKey: dynamo.LpaOwnerKey(dynamo.DonorKey(""))}, dynamo.NotFoundError{})
+		Return(accesscodedata.Link{}, dynamo.NotFoundError{})
+
+	err := EnterAccessCode(template.Execute, accessCodeStore, nil, actor.TypeAttorney, nil)(testAppData, w, r)
+
+	resp := w.Result()
+
+	assert.Nil(t, err)
+	assert.Equal(t, http.StatusOK, resp.StatusCode)
+}
+
+func TestPostEnterAccessCodeOnAccessCodeStoreTooManyRequestsError(t *testing.T) {
+	f := url.Values{
+		form.FieldNames.AccessCode:    {"abcd 1-234 "},
+		form.FieldNames.DonorLastName: {"Smith"},
+	}
+
+	w := httptest.NewRecorder()
+	r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(f.Encode()))
+	r.Header.Add("Content-Type", FormUrlEncoded)
+
+	template := newMockTemplate(t)
+	template.EXPECT().
+		Execute(mock.Anything, mock.MatchedBy(func(data enterAccessCodeData) bool {
+			return assert.Equal(t, validation.With(form.FieldNames.AccessCode, validation.CustomError{Label: "tooManyAccessCodeAttempts"}), data.Errors)
+		})).
+		Return(nil)
+
+	accessCodeStore := newMockAccessCodeStore(t)
+	accessCodeStore.EXPECT().
+		Get(r.Context(), actor.TypeAttorney, accesscodedata.HashedFromString("abcd1234", "Smith")).
+		Return(accesscodedata.Link{}, dynamo.ErrTooManyRequests)
 
 	err := EnterAccessCode(template.Execute, accessCodeStore, nil, actor.TypeAttorney, nil)(testAppData, w, r)
 

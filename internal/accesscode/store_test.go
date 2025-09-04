@@ -12,6 +12,7 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor/actoruid"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/appcontext"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/dynamo"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/rate"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
 )
@@ -22,8 +23,8 @@ var (
 	testNowFn     = func() time.Time { return testNow }
 )
 
-func (c *mockDynamoClient_OneByPK_Call) SetData(data any) {
-	c.Run(func(_ context.Context, _ dynamo.PK, v any) {
+func (c *mockDynamoClient_OneByPK_Call) SetData(data any) *mockDynamoClient_OneByPK_Call {
+	return c.Run(func(_ context.Context, _ dynamo.PK, v any) {
 		b, _ := attributevalue.Marshal(data)
 		attributevalue.Unmarshal(b, v)
 	})
@@ -70,14 +71,28 @@ func TestAccessCodeStoreGet(t *testing.T) {
 
 	for name, tc := range testcases {
 		t.Run(name, func(t *testing.T) {
-			ctx := context.Background()
+			ctx := appcontext.ContextWithSession(context.Background(), &appcontext.Session{SessionID: "session-id"})
 			data := accesscodedata.Link{LpaKey: "lpa-id", UpdatedAt: testNow.AddDate(-2, 0, 1)}
 
 			dynamoClient := newMockDynamoClient(t)
 			dynamoClient.EXPECT().
+				OneByPK(ctx, dynamo.AccessLimiterKey("session-id"), mock.Anything).
+				Return(nil).
+				SetData(accessLimiter{
+					Limiter: &rate.Limiter{TokenPer: time.Minute, MaxTokens: 5},
+				}).
+				Once()
+			dynamoClient.EXPECT().
+				Put(ctx, accessLimiter{
+					Limiter:   &rate.Limiter{TokenPer: time.Minute, MaxTokens: 5, Tokens: 4, TokensAt: testNow},
+					ExpiresAt: testNow.Add(time.Hour),
+				}).
+				Return(nil)
+			dynamoClient.EXPECT().
 				OneByPK(ctx, tc.pk, mock.Anything).
 				Return(nil).
-				SetData(data)
+				SetData(data).
+				Once()
 
 			accessCodeStore := &Store{dynamoClient: dynamoClient, now: testNowFn}
 
@@ -120,14 +135,80 @@ func TestAccessCodeStoreGetWhenExpired(t *testing.T) {
 
 			dynamoClient := newMockDynamoClient(t)
 			dynamoClient.EXPECT().
+				OneByPK(ctx, dynamo.AccessLimiterKey(""), mock.Anything).
+				Return(dynamo.NotFoundError{}).
+				Once()
+			dynamoClient.EXPECT().
+				Create(ctx, accessLimiter{
+					PK:        dynamo.AccessLimiterKey(""),
+					SK:        dynamo.MetadataKey(""),
+					Version:   1,
+					Limiter:   &rate.Limiter{TokenPer: 5 * time.Minute, MaxTokens: 10, Tokens: 9, TokensAt: testNow},
+					ExpiresAt: testNow.Add(time.Hour),
+				}).
+				Return(nil)
+			dynamoClient.EXPECT().
 				OneByPK(ctx, tc.pk, mock.Anything).
 				Return(nil).
-				SetData(data)
+				SetData(data).
+				Once()
 
 			accessCodeStore := &Store{dynamoClient: dynamoClient, now: testNowFn}
 
 			_, err := accessCodeStore.Get(ctx, tc.t, hashedCode)
 			assert.ErrorIs(t, err, dynamo.NotFoundError{})
+		})
+	}
+}
+
+func TestAccessCodeStoreGetWhenLimited(t *testing.T) {
+	hashedCode := accesscodedata.HashedFromString("123", "Jones")
+
+	testcases := map[string]struct {
+		t  actor.Type
+		pk dynamo.AccessKeyType
+	}{
+		"attorney": {
+			t:  actor.TypeAttorney,
+			pk: dynamo.AccessKey(dynamo.AttorneyAccessKey(hashedCode.String())),
+		},
+		"replacement attorney": {
+			t:  actor.TypeReplacementAttorney,
+			pk: dynamo.AccessKey(dynamo.AttorneyAccessKey(hashedCode.String())),
+		},
+		"certificate provider": {
+			t:  actor.TypeCertificateProvider,
+			pk: dynamo.AccessKey(dynamo.CertificateProviderAccessKey(hashedCode.String())),
+		},
+		"voucher": {
+			t:  actor.TypeVoucher,
+			pk: dynamo.AccessKey(dynamo.VoucherAccessKey(hashedCode.String())),
+		},
+	}
+
+	for name, tc := range testcases {
+		t.Run(name, func(t *testing.T) {
+			ctx := appcontext.ContextWithSession(context.Background(), &appcontext.Session{SessionID: "session-id"})
+
+			dynamoClient := newMockDynamoClient(t)
+			dynamoClient.EXPECT().
+				OneByPK(ctx, dynamo.AccessLimiterKey("session-id"), mock.Anything).
+				Return(nil).
+				SetData(accessLimiter{
+					Limiter: &rate.Limiter{TokenPer: time.Minute, MaxTokens: 5, Tokens: -1, TokensAt: testNow.Add(-time.Minute)},
+				}).
+				Once()
+			dynamoClient.EXPECT().
+				Put(ctx, accessLimiter{
+					Limiter:   &rate.Limiter{TokenPer: time.Minute, MaxTokens: 5, Tokens: 0, TokensAt: testNow},
+					ExpiresAt: testNow.Add(time.Hour),
+				}).
+				Return(nil)
+
+			accessCodeStore := &Store{dynamoClient: dynamoClient, now: testNowFn}
+
+			_, err := accessCodeStore.Get(ctx, tc.t, hashedCode)
+			assert.ErrorIs(t, err, dynamo.ErrTooManyRequests)
 		})
 	}
 }
@@ -140,6 +221,57 @@ func TestAccessCodeStoreGetForBadActorType(t *testing.T) {
 	assert.NotNil(t, err)
 }
 
+func TestAccessCodeStoreGetWhenGetRateLimiterError(t *testing.T) {
+	ctx := context.Background()
+
+	dynamoClient := newMockDynamoClient(t)
+	dynamoClient.EXPECT().
+		OneByPK(mock.Anything, mock.Anything, mock.Anything).
+		Return(expectedError)
+
+	accessCodeStore := &Store{dynamoClient: dynamoClient, now: testNowFn}
+
+	_, err := accessCodeStore.Get(ctx, actor.TypeAttorney, accesscodedata.HashedFromString("123", "Jones"))
+	assert.ErrorIs(t, err, expectedError)
+}
+
+func TestAccessCodeStoreGetWhenPutRateLimiterError(t *testing.T) {
+	ctx := context.Background()
+
+	dynamoClient := newMockDynamoClient(t)
+	dynamoClient.EXPECT().
+		OneByPK(mock.Anything, mock.Anything, mock.Anything).
+		Return(nil).
+		SetData(accessLimiter{
+			Limiter: &rate.Limiter{TokenPer: time.Minute, MaxTokens: 5},
+		})
+	dynamoClient.EXPECT().
+		Put(mock.Anything, mock.Anything).
+		Return(expectedError)
+
+	accessCodeStore := &Store{dynamoClient: dynamoClient, now: testNowFn}
+
+	_, err := accessCodeStore.Get(ctx, actor.TypeAttorney, accesscodedata.HashedFromString("123", "Jones"))
+	assert.ErrorIs(t, err, expectedError)
+}
+
+func TestAccessCodeStoreGetWhenCreateRateLimiterError(t *testing.T) {
+	ctx := context.Background()
+
+	dynamoClient := newMockDynamoClient(t)
+	dynamoClient.EXPECT().
+		OneByPK(mock.Anything, mock.Anything, mock.Anything).
+		Return(dynamo.NotFoundError{})
+	dynamoClient.EXPECT().
+		Create(mock.Anything, mock.Anything).
+		Return(expectedError)
+
+	accessCodeStore := &Store{dynamoClient: dynamoClient, now: testNowFn}
+
+	_, err := accessCodeStore.Get(ctx, actor.TypeAttorney, accesscodedata.HashedFromString("123", "Jones"))
+	assert.ErrorIs(t, err, expectedError)
+}
+
 func TestAccessCodeStoreGetOnError(t *testing.T) {
 	ctx := context.Background()
 	data := accesscodedata.Link{LpaKey: "lpa-id"}
@@ -147,11 +279,19 @@ func TestAccessCodeStoreGetOnError(t *testing.T) {
 
 	dynamoClient := newMockDynamoClient(t)
 	dynamoClient.EXPECT().
+		OneByPK(mock.Anything, mock.Anything, mock.Anything).
+		Return(dynamo.NotFoundError{}).
+		Once()
+	dynamoClient.EXPECT().
+		Create(mock.Anything, mock.Anything).
+		Return(nil)
+	dynamoClient.EXPECT().
 		OneByPK(ctx, dynamo.AccessKey(dynamo.AttorneyAccessKey(hashedCode.String())), mock.Anything).
 		Return(expectedError).
-		SetData(data)
+		SetData(data).
+		Once()
 
-	accessCodeStore := &Store{dynamoClient: dynamoClient}
+	accessCodeStore := &Store{dynamoClient: dynamoClient, now: testNowFn}
 
 	_, err := accessCodeStore.Get(ctx, actor.TypeAttorney, hashedCode)
 	assert.Equal(t, expectedError, err)
@@ -318,15 +458,29 @@ func TestNewAccessCodeStore(t *testing.T) {
 }
 
 func TestAccessCodeStoreGetDonor(t *testing.T) {
-	ctx := context.Background()
+	ctx := appcontext.ContextWithSession(context.Background(), &appcontext.Session{SessionID: "session-id"})
 	hashedCode := accesscodedata.HashedFromString("123", "Jones")
 	data := accesscodedata.DonorLink{LpaKey: "lpa-id", UpdatedAt: testNow.AddDate(0, -3, 1)}
 
 	dynamoClient := newMockDynamoClient(t)
 	dynamoClient.EXPECT().
+		OneByPK(ctx, dynamo.AccessLimiterKey("session-id"), mock.Anything).
+		Return(nil).
+		SetData(accessLimiter{
+			Limiter: &rate.Limiter{TokenPer: time.Minute, MaxTokens: 5},
+		}).
+		Once()
+	dynamoClient.EXPECT().
+		Put(ctx, accessLimiter{
+			Limiter:   &rate.Limiter{TokenPer: time.Minute, MaxTokens: 5, Tokens: 4, TokensAt: testNow},
+			ExpiresAt: testNow.Add(time.Hour),
+		}).
+		Return(nil)
+	dynamoClient.EXPECT().
 		OneByPK(ctx, dynamo.AccessKey(dynamo.DonorAccessKey(hashedCode.String())), mock.Anything).
 		Return(nil).
-		SetData(data)
+		SetData(data).
+		Once()
 
 	accessCodeStore := &Store{dynamoClient: dynamoClient, now: testNowFn}
 
@@ -336,15 +490,29 @@ func TestAccessCodeStoreGetDonor(t *testing.T) {
 }
 
 func TestAccessCodeStoreGetDonorWhenExpired(t *testing.T) {
-	ctx := context.Background()
+	ctx := appcontext.ContextWithSession(context.Background(), &appcontext.Session{SessionID: "session-id"})
 	hashedCode := accesscodedata.HashedFromString("123", "Jones")
 	data := accesscodedata.Link{LpaKey: "lpa-id", UpdatedAt: testNow.AddDate(0, -3, -1)}
 
 	dynamoClient := newMockDynamoClient(t)
 	dynamoClient.EXPECT().
+		OneByPK(ctx, dynamo.AccessLimiterKey("session-id"), mock.Anything).
+		Return(nil).
+		SetData(accessLimiter{
+			Limiter: &rate.Limiter{TokenPer: time.Minute, MaxTokens: 5},
+		}).
+		Once()
+	dynamoClient.EXPECT().
+		Put(ctx, accessLimiter{
+			Limiter:   &rate.Limiter{TokenPer: time.Minute, MaxTokens: 5, Tokens: 4, TokensAt: testNow},
+			ExpiresAt: testNow.Add(time.Hour),
+		}).
+		Return(nil)
+	dynamoClient.EXPECT().
 		OneByPK(ctx, dynamo.AccessKey(dynamo.DonorAccessKey(hashedCode.String())), mock.Anything).
 		Return(nil).
-		SetData(data)
+		SetData(data).
+		Once()
 
 	accessCodeStore := &Store{dynamoClient: dynamoClient, now: testNowFn}
 
@@ -357,15 +525,50 @@ func TestAccessCodeStoreGetDonorWhenLinked(t *testing.T) {
 
 	dynamoClient := newMockDynamoClient(t)
 	dynamoClient.EXPECT().
+		OneByPK(mock.Anything, mock.Anything, mock.Anything).
+		Return(nil).
+		SetData(accessLimiter{
+			Limiter: &rate.Limiter{TokenPer: time.Minute, MaxTokens: 5},
+		}).
+		Once()
+	dynamoClient.EXPECT().
+		Put(mock.Anything, mock.Anything).
+		Return(nil)
+	dynamoClient.EXPECT().
 		OneByPK(ctx, mock.Anything, mock.Anything).
 		Return(nil).
-		SetData(accesscodedata.DonorLink{LpaLinkedAt: time.Now(), UpdatedAt: testNow})
+		SetData(accesscodedata.DonorLink{LpaLinkedAt: time.Now(), UpdatedAt: testNow}).
+		Once()
 
 	accessCodeStore := &Store{dynamoClient: dynamoClient, now: testNowFn}
 
 	result, err := accessCodeStore.GetDonor(ctx, accesscodedata.HashedFromString("123", "Jones"))
 	assert.Equal(t, dynamo.NotFoundError{}, err)
 	assert.Equal(t, accesscodedata.DonorLink{}, result)
+}
+
+func TestAccessCodeStoreGetDonorWhenRateLimited(t *testing.T) {
+	ctx := appcontext.ContextWithSession(context.Background(), &appcontext.Session{SessionID: "session-id"})
+	hashedCode := accesscodedata.HashedFromString("123", "Jones")
+
+	dynamoClient := newMockDynamoClient(t)
+	dynamoClient.EXPECT().
+		OneByPK(ctx, dynamo.AccessLimiterKey("session-id"), mock.Anything).
+		Return(nil).
+		SetData(accessLimiter{
+			Limiter: &rate.Limiter{TokenPer: time.Minute, MaxTokens: 5, Tokens: -1, TokensAt: testNow.Add(-time.Minute)},
+		})
+	dynamoClient.EXPECT().
+		Put(ctx, accessLimiter{
+			Limiter:   &rate.Limiter{TokenPer: time.Minute, MaxTokens: 5, Tokens: 0, TokensAt: testNow},
+			ExpiresAt: testNow.Add(time.Hour),
+		}).
+		Return(nil)
+
+	accessCodeStore := &Store{dynamoClient: dynamoClient, now: testNowFn}
+
+	_, err := accessCodeStore.GetDonor(ctx, hashedCode)
+	assert.ErrorIs(t, err, dynamo.ErrTooManyRequests)
 }
 
 func TestAccessCodeStoreGetDonorOnError(t *testing.T) {
@@ -375,11 +578,22 @@ func TestAccessCodeStoreGetDonorOnError(t *testing.T) {
 
 	dynamoClient := newMockDynamoClient(t)
 	dynamoClient.EXPECT().
+		OneByPK(mock.Anything, mock.Anything, mock.Anything).
+		Return(nil).
+		SetData(accessLimiter{
+			Limiter: &rate.Limiter{TokenPer: time.Minute, MaxTokens: 5},
+		}).
+		Once()
+	dynamoClient.EXPECT().
+		Put(mock.Anything, mock.Anything).
+		Return(nil)
+	dynamoClient.EXPECT().
 		OneByPK(ctx, dynamo.AccessKey(dynamo.DonorAccessKey(hashedCode.String())), mock.Anything).
 		Return(expectedError).
-		SetData(data)
+		SetData(data).
+		Once()
 
-	accessCodeStore := &Store{dynamoClient: dynamoClient}
+	accessCodeStore := &Store{dynamoClient: dynamoClient, now: testNowFn}
 
 	_, err := accessCodeStore.GetDonor(ctx, hashedCode)
 	assert.Equal(t, expectedError, err)

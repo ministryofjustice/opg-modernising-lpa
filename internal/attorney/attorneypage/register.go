@@ -131,7 +131,7 @@ func Register(
 		page.EnterAccessCode(tmpls.Get("enter_access_code.gohtml"), accessCodeStore, sessionStore, actor.TypeAttorney,
 			EnterAccessCode(attorneyStore, lpaStoreResolvingService, lpaStoreClient, eventClient)))
 	handleRoot(page.PathAttorneyEnterAccessCodeOptOut, None,
-		page.EnterAccessCodeOptOut(tmpls.Get("enter_access_code_opt_out.gohtml"), accessCodeStore, sessionStore, lpaStoreResolvingService, actor.TypeAttorney,
+		page.EnterAccessCodeOptOut(tmpls.Get("enter_access_code_opt_out.gohtml"), accessCodeStore, sessionStore, actor.TypeAttorney,
 			page.PathAttorneyConfirmDontWantToBeAttorneyLoggedOut))
 	handleRoot(page.PathAttorneyConfirmDontWantToBeAttorneyLoggedOut, None,
 		ConfirmDontWantToBeAttorneyLoggedOut(tmpls.Get("confirm_dont_want_to_be_attorney.gohtml"), accessCodeStore, lpaStoreResolvingService, sessionStore, notifyClient, lpaStoreClient))
