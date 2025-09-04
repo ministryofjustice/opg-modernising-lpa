@@ -175,12 +175,16 @@ func item(value, label string, attrs ...interface{}) map[string]interface{} {
 	return item
 }
 
-func fieldID(name string, i int) string {
-	if i == 0 {
+func fieldID(name string, is ...int) string {
+	if len(is) == 1 && is[0] == 0 {
 		return name
 	}
 
-	return fmt.Sprintf("%s-%d", name, i+1)
+	for _, i := range is {
+		name += fmt.Sprintf("-%d", i+1)
+	}
+
+	return name
 }
 
 func errorMessage(top interface{}, name string) map[string]interface{} {
