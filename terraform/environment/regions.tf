@@ -19,6 +19,17 @@ data "aws_ecr_image" "mock_onelogin" {
   provider        = aws.management_eu_west_1
 }
 
+data "aws_ecr_repository" "make_and_register_lpa_mainstream_content" {
+  name     = "make-and-register-lpa-mainstream-content"
+  provider = aws.management_eu_west_1
+}
+
+data "aws_ecr_image" "make_and_register_lpa_mainstream_content" {
+  repository_name = data.aws_ecr_repository.make_and_register_lpa_mainstream_content.name
+  image_tag       = "latest"
+  provider        = aws.management_eu_west_1
+}
+
 module "allow_list" {
   source = "git@github.com:ministryofjustice/opg-terraform-aws-moj-ip-allow-list.git?ref=v3.4.3"
 }
@@ -38,6 +49,7 @@ module "eu_west_1" {
     schedule_runner_scheduler               = module.global.iam_roles.schedule_runner_scheduler
     guardduty_malware_protection            = module.global.iam_roles.guardduty_malware_protection
     opg_metrics                             = module.global.iam_roles.opg_metrics
+    mainstream_content_task_role            = module.global.iam_roles.mainstream_content_task_role
   }
   application_log_retention_days          = local.environment.cloudwatch_log_groups.application_log_retention_days
   ecs_capacity_provider                   = local.ecs_capacity_provider
@@ -47,6 +59,8 @@ module "eu_west_1" {
   mock_onelogin_service_repository_url    = data.aws_ecr_repository.mock_onelogin.repository_url
   mock_onelogin_service_container_version = data.aws_ecr_image.mock_onelogin.id
   mock_pay_service_repository_url         = data.aws_ecr_repository.mock_pay.repository_url
+  mrlpa_content_container_sha_digest      = data.aws_ecr_image.make_and_register_lpa_mainstream_content.image_digest
+  mrlpa_content_repository_url            = data.aws_ecr_repository.make_and_register_lpa_mainstream_content.repository_url
   mock_pay_service_container_version      = var.container_version
   ingress_allow_list_cidr                 = module.allow_list.moj_sites
   alb_deletion_protection_enabled         = local.environment.application_load_balancer.deletion_protection_enabled
@@ -115,6 +129,7 @@ module "eu_west_2" {
     schedule_runner_scheduler               = module.global.iam_roles.schedule_runner_scheduler
     guardduty_malware_protection            = module.global.iam_roles.guardduty_malware_protection
     opg_metrics                             = module.global.iam_roles.opg_metrics
+    mainstream_content_task_role            = module.global.iam_roles.mainstream_content_task_role
   }
   application_log_retention_days          = local.environment.cloudwatch_log_groups.application_log_retention_days
   ecs_capacity_provider                   = local.ecs_capacity_provider
@@ -125,6 +140,8 @@ module "eu_west_2" {
   mock_onelogin_service_container_version = local.mock_onelogin_version
   mock_pay_service_repository_url         = data.aws_ecr_repository.mock_pay.repository_url
   mock_pay_service_container_version      = var.container_version
+  mrlpa_content_container_sha_digest      = data.aws_ecr_image.make_and_register_lpa_mainstream_content.image_digest
+  mrlpa_content_repository_url            = data.aws_ecr_repository.make_and_register_lpa_mainstream_content.repository_url
   ingress_allow_list_cidr                 = module.allow_list.moj_sites
   alb_deletion_protection_enabled         = local.environment.application_load_balancer.deletion_protection_enabled
   waf_alb_association_enabled             = local.environment.application_load_balancer.waf_alb_association_enabled

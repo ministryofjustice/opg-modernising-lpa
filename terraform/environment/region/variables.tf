@@ -11,6 +11,7 @@ variable "iam_roles" {
     schedule_runner_lambda                  = any
     guardduty_malware_protection            = any
     opg_metrics                             = any
+    mainstream_content_task_role            = any
   })
   description = "ARN of IAM role that allows your Amazon ECS container task to make calls to other AWS services."
 }
@@ -217,7 +218,16 @@ variable "log_emitted_events" {
 
 variable "start_page_redirects" {
   type = object({
-    enabled                 = bool
-    start_page_redirect_url = string
+    enabled = bool
   })
+}
+
+variable "mrlpa_content_container_sha_digest" {
+  type        = string
+  description = "The SHA256 digest of the container image to deploy"
+}
+
+variable "mrlpa_content_repository_url" {
+  type        = string
+  description = "The URL of the ECR repository containing the container image to deploy"
 }
