@@ -2,6 +2,7 @@
 resource "aws_cloudwatch_log_group" "route_53_resolver_logs" {
   name              = "${data.aws_default_tags.current.tags.account-name}-route53-resolver-logs-${data.aws_region.current.region}"
   retention_in_days = 400
+  kms_key_id        = data.aws_kms_alias.cloudwatch_application_logs_encryption.target_key_arn
   provider          = aws.region
 }
 

@@ -60,7 +60,8 @@ data "aws_iam_policy_document" "dynamodb_cloudtrail_log_group" {
       identifiers = [
         "logs.${data.aws_region.eu_west_1.region}.amazonaws.com",
         "logs.${data.aws_region.eu_west_2.region}.amazonaws.com",
-        "cloudtrail.amazonaws.com"
+        "cloudtrail.amazonaws.com",
+        "route53.amazonaws.com"
       ]
     }
   }
