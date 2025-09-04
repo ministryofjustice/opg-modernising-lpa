@@ -356,7 +356,7 @@ data "aws_iam_policy_document" "task_role_access_policy" {
 }
 
 locals {
-  app_url = "https://${data.aws_default_tags.current.tags.environment-name}.app.modernising.opg.service.justice.gov.uk"
+  app_url = data.aws_default_tags.current.tags.account-name != "production" ? "https://${data.aws_default_tags.current.tags.environment-name}.app.modernising.opg.service.justice.gov.uk" : "https://app.modernising.opg.service.justice.gov.uk"
 
   app = jsonencode(
     {
