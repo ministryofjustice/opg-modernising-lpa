@@ -140,6 +140,7 @@ func TestFieldID(t *testing.T) {
 	assert.Equal(t, "field", fieldID("field", 0))
 	assert.Equal(t, "field-2", fieldID("field", 1))
 	assert.Equal(t, "field-3", fieldID("field", 2))
+	assert.Equal(t, "field-3-4", fieldID("field", 2, 3))
 }
 
 func TestErrorMessage(t *testing.T) {

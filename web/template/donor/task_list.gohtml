@@ -89,17 +89,17 @@
                         <li class="govuk-task-list__item {{ if $hasLink }}govuk-task-list__item--with-link{{ end }}">
                             <span class="govuk-task-list__name-and-hint">
                                 {{ if $hasLink }}
-                                    <a href="{{ link $.App (.Path.Format $.App.LpaID) }}" class="govuk-link govuk-task-list__link" aria-describedby="{{ fieldID "status" $j }} {{ if gt .Count 0 }}{{ fieldID "task-hint" $j }}{{ end }}">{{ tr $.App .Name }}</a>
+                                    <a href="{{ link $.App (.Path.Format $.App.LpaID) }}" class="govuk-link govuk-task-list__link" aria-describedby="{{ fieldID "status" $i $j }} {{ if gt .Count 0 }}{{ fieldID "task-hint" $i $j }}{{ end }}">{{ tr $.App .Name }}</a>
                                 {{ else }}
-                                    <div aria-describedby="{{ fieldID "status" $j }}">{{ tr $.App .Name }}</div>
+                                    <div aria-describedby="{{ fieldID "status" $i $j }}">{{ tr $.App .Name }}</div>
                                 {{ end }}
 
                                 {{ if gt .Count 0 }}
-                                    <div id="{{ fieldID "task-hint" $j }}" class="govuk-task-list__hint">{{ trFormat $.App "added" "Count" .Count }}</div>
+                                    <div id="{{ fieldID "task-hint" $i $j }}" class="govuk-task-list__hint">{{ trFormat $.App "added" "Count" .Count }}</div>
                                 {{ end }}
                             </span>
 
-                            <div id="{{ fieldID "status" $j }}" class="govuk-task-list__status">
+                            <div id="{{ fieldID "status" $i $j }}" class="govuk-task-list__status">
                                 {{ if or .State.IsCompleted .PaymentState.IsCompleted .IdentityState.IsCompleted }}
                                     {{ tr $.App "completed" }}
                                 {{ else if or .State.IsInProgress .PaymentState.IsInProgress .PaymentState.IsApproved .IdentityState.IsInProgress }}
