@@ -74,27 +74,25 @@
                 {{ template "details" (details . "tipsForTakingPhotosAndCopies" "tipsForTakingPhotosAndCopiesDetails" false) }}
             {{ end }}
 
-            <div class="govuk-!-width-two-thirds">
-                <form novalidate method="post" enctype="multipart/form-data" id="upload-form">
-                    {{ template "csrf-field" . }}
+            <form novalidate method="post" enctype="multipart/form-data" id="upload-form">
+                {{ template "csrf-field" . }}
 
-                    <input type="hidden" id="f-upload-action" name="action" value="upload" />
+                <input type="hidden" id="f-upload-action" name="action" value="upload" />
 
-                    <div class="govuk-form-group {{ if .Errors.Has "upload" }}govuk-form-group--error{{ end }}">
-                        <label class="govuk-label govuk-label--m" for="f-upload" {{ if .Errors.Has "upload" }}aria-describedby="upload-error"{{ end }}>{{ tr .App "uploadAFile" }}</label>
+                <div class="govuk-form-group {{ if .Errors.Has "upload" }}govuk-form-group--error{{ end }}">
+                    <label class="govuk-label govuk-label--m" for="f-upload" {{ if .Errors.Has "upload" }}aria-describedby="upload-error"{{ end }}>{{ tr .App "uploadAFile" }}</label>
 
-                        {{ template "error-message" (errorMessage . "upload") }}
+                    {{ template "error-message" (errorMessage . "upload") }}
 
-                        {{ trFormatHtml .App "uploadGuidance" "NumberOfAllowedFiles" .NumberOfAllowedFiles }}
+                    <p class="govuk-caption-m" id="upload-hint">{{ trFormat .App "uploadGuidance" "NumberOfAllowedFiles" .NumberOfAllowedFiles }}</p>
 
-                        <input class="govuk-file-upload" id="f-upload" name="upload" type="file" accept="{{ concatComma .MimeTypes }}" multiple />
-                    </div>
+                    <input class="govuk-file-upload" id="f-upload" name="upload" type="file" accept="{{ concatComma .MimeTypes }}" multiple aria-describedby="upload-hint" />
+                </div>
 
-                    <div class="govuk-form-group">
-                        <button type="submit" class="govuk-button" data-module="govuk-button">{{ tr .App "uploadFiles" }}</button>
-                    </div>
-                </form>
-            </div>
+                <div class="govuk-form-group">
+                    <button type="submit" class="govuk-button" data-module="govuk-button">{{ tr .App "uploadFiles" }}</button>
+                </div>
+            </form>
 
             {{ $scannedDocumentsNotSentCount := (len .Documents.ScannedNotSent) }}
             {{ $sentDocumentsCount := (len .Documents.Sent) }}
