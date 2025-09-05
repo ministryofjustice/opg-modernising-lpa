@@ -102,7 +102,7 @@ func (s *Store) Get(ctx context.Context, actorType actor.Type, accessCode access
 		return accesscodedata.Link{}, err
 	}
 
-	if data.HasExpired(s.now()) {
+	if data.ExpiresAt.Before(s.now()) {
 		return accesscodedata.Link{}, dynamo.NotFoundError{}
 	}
 
@@ -125,7 +125,6 @@ func (s *Store) Put(ctx context.Context, actorType actor.Type, accessCode access
 		}
 	}
 
-	data.UpdatedAt = s.now()
 	data.PK = pk
 	if actorType.IsVoucher() {
 		data.SK = dynamo.AccessSortKey(dynamo.VoucherAccessSortKey(data.LpaKey))
@@ -140,7 +139,7 @@ func (s *Store) Put(ctx context.Context, actorType actor.Type, accessCode access
 		ShareSortKey: data.SK,
 	}
 
-	transaction := dynamo.NewTransaction().Create(data)
+	transaction := dynamo.NewTransaction().Create(data.For(s.now()))
 
 	if hasActorAccess {
 		transaction.
@@ -181,9 +180,9 @@ func (s *Store) PutDonor(ctx context.Context, accessCode accesscodedata.Hashed, 
 		return errors.New("accessCodeStore.PutDonor can only be used by organisations")
 	}
 
+	data.UpdatedAt = s.now()
 	data.PK = dynamo.AccessKey(dynamo.DonorAccessKey(accessCode.String()))
 	data.SK = dynamo.AccessSortKey(dynamo.DonorInviteKey(organisationKey, data.LpaKey))
-	data.UpdatedAt = s.now()
 
 	return s.dynamoClient.Create(ctx, data)
 }
