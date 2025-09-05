@@ -13,6 +13,7 @@ type DonorLink struct {
 	PK        dynamo.AccessKeyType
 	SK        dynamo.AccessSortKeyType
 	UpdatedAt time.Time
+	ExpiresAt time.Time
 
 	// LpaKey is the key for the LPA that will be accessed
 	LpaKey dynamo.LpaKeyType
@@ -31,6 +32,9 @@ type DonorLink struct {
 	LpaLinkedTo string
 }
 
-func (l DonorLink) HasExpired(now time.Time) bool {
-	return l.UpdatedAt.AddDate(0, 3, 0).Before(now)
+// For must be used to get the DonorLink to store.
+func (l DonorLink) For(now time.Time) DonorLink {
+	l.UpdatedAt = now
+	l.ExpiresAt = now.AddDate(0, 3, 0)
+	return l
 }

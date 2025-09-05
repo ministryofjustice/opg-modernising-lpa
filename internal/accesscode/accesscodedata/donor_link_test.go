@@ -7,9 +7,12 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func TestDonorLinkHasExpired(t *testing.T) {
-	now := time.Date(2000, time.April, 2, 13, 14, 15, 0, time.UTC)
+func TestDonorLinkFor(t *testing.T) {
+	now := time.Date(2000, time.January, 2, 13, 14, 15, 0, time.UTC)
+	link := DonorLink{}
 
-	assert.True(t, DonorLink{UpdatedAt: time.Date(2000, time.January, 2, 13, 14, 14, 0, time.UTC)}.HasExpired(now))
-	assert.False(t, DonorLink{UpdatedAt: time.Date(2000, time.January, 2, 13, 14, 15, 0, time.UTC)}.HasExpired(now))
+	assert.Equal(t, DonorLink{
+		UpdatedAt: now,
+		ExpiresAt: time.Date(2000, time.April, 2, 13, 14, 15, 0, time.UTC),
+	}, link.For(now))
 }

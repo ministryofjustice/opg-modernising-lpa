@@ -72,7 +72,7 @@ func TestAccessCodeStoreGet(t *testing.T) {
 	for name, tc := range testcases {
 		t.Run(name, func(t *testing.T) {
 			ctx := appcontext.ContextWithSession(context.Background(), &appcontext.Session{SessionID: "session-id"})
-			data := accesscodedata.Link{LpaKey: "lpa-id", UpdatedAt: testNow.AddDate(-2, 0, 1)}
+			data := accesscodedata.Link{LpaKey: "lpa-id", ExpiresAt: testNow}
 
 			dynamoClient := newMockDynamoClient(t)
 			dynamoClient.EXPECT().
@@ -331,7 +331,14 @@ func TestAccessCodeStorePut(t *testing.T) {
 		t.Run(name, func(t *testing.T) {
 			ctx := context.Background()
 			actorUID := actoruid.New()
-			data := accesscodedata.Link{PK: tc.pk, SK: tc.sk, LpaKey: "lpa-id", ActorUID: actorUID, UpdatedAt: testNow}
+			data := accesscodedata.Link{
+				PK:        tc.pk,
+				SK:        tc.sk,
+				LpaKey:    "lpa-id",
+				ActorUID:  actorUID,
+				UpdatedAt: testNow,
+				ExpiresAt: testNow.AddDate(2, 0, 0),
+			}
 
 			dynamoClient := newMockDynamoClient(t)
 			dynamoClient.EXPECT().
@@ -393,7 +400,14 @@ func TestAccessCodeStorePutWhenHasAccessCode(t *testing.T) {
 		t.Run(name, func(t *testing.T) {
 			ctx := context.Background()
 			actorUID := actoruid.New()
-			data := accesscodedata.Link{PK: tc.pk, SK: tc.sk, LpaKey: "lpa-id", ActorUID: actorUID, UpdatedAt: testNow}
+			data := accesscodedata.Link{
+				PK:        tc.pk,
+				SK:        tc.sk,
+				LpaKey:    "lpa-id",
+				ActorUID:  actorUID,
+				UpdatedAt: testNow,
+				ExpiresAt: testNow.AddDate(2, 0, 0),
+			}
 			actorAccess := accesscodedata.ActorAccess{
 				ShareKey:     dynamo.AccessKey(dynamo.DonorAccessKey("what")),
 				ShareSortKey: dynamo.AccessSortKey(dynamo.MetadataKey("what")),
@@ -460,7 +474,7 @@ func TestNewAccessCodeStore(t *testing.T) {
 func TestAccessCodeStoreGetDonor(t *testing.T) {
 	ctx := appcontext.ContextWithSession(context.Background(), &appcontext.Session{SessionID: "session-id"})
 	hashedCode := accesscodedata.HashedFromString("123", "Jones")
-	data := accesscodedata.DonorLink{LpaKey: "lpa-id", UpdatedAt: testNow.AddDate(0, -3, 1)}
+	data := accesscodedata.DonorLink{LpaKey: "lpa-id", ExpiresAt: testNow}
 
 	dynamoClient := newMockDynamoClient(t)
 	dynamoClient.EXPECT().
@@ -604,7 +618,7 @@ func TestAccessCodeStoreGetDonorAccess(t *testing.T) {
 		OrganisationID: "org-id",
 		LpaID:          "lpa-id",
 	})
-	data := accesscodedata.DonorLink{LpaKey: dynamo.LpaKey("lpa-id"), UpdatedAt: testNow}
+	data := accesscodedata.DonorLink{LpaKey: dynamo.LpaKey("lpa-id"), ExpiresAt: testNow}
 
 	dynamoClient := newMockDynamoClient(t)
 	dynamoClient.EXPECT().
@@ -624,7 +638,7 @@ func TestAccessCodeStoreGetDonorAccessWhenExpired(t *testing.T) {
 		OrganisationID: "org-id",
 		LpaID:          "lpa-id",
 	})
-	data := accesscodedata.Link{LpaKey: dynamo.LpaKey("lpa-id"), UpdatedAt: testNow.AddDate(-2, 0, -1)}
+	data := accesscodedata.Link{LpaKey: dynamo.LpaKey("lpa-id"), ExpiresAt: testNow.Add(-time.Second)}
 
 	dynamoClient := newMockDynamoClient(t)
 	dynamoClient.EXPECT().
@@ -675,6 +689,7 @@ func TestAccessCodeStorePutDonor(t *testing.T) {
 			LpaOwnerKey: dynamo.LpaOwnerKey(dynamo.OrganisationKey("org-id")),
 			LpaKey:      dynamo.LpaKey("lpa-id"),
 			UpdatedAt:   testNow,
+			ExpiresAt:   testNow.AddDate(0, 3, 0),
 		}).
 		Return(nil)
 
