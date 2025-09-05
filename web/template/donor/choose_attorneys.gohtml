@@ -22,10 +22,10 @@
             <form novalidate method="post">
                 <div class="govuk-form-group {{ if .Errors.Has "option" }}govuk-form-group--error{{ end }}">
                     <fieldset class="govuk-fieldset" {{ if .Errors.Has "option" }}aria-describedby="option-error"{{ end }}>
-                        <legend class="govuk-fieldset__legend govuk-fieldset__legend--s">{{ tr .App "chooseAttorneysYouHaveUsedInPreviousLpasOptional" }}</legend>
+                        <legend class="govuk-fieldset__legend govuk-fieldset__legend--m">{{ tr .App "chooseAttorneysYouHaveUsedInPreviousLpasOptional" }}</legend>
                         {{ template "error-message" (errorMessage . "option") }}
 
-                        <div class="govuk-hint">{{ tr .App "selectOneOrMoreAttorneysUsedInPreviousLpas" }}</div>
+                        <p class="govuk-body">{{ tr .App "toChooseOneOrMoreAttorneysSelectThem" }}</p>
 
                         <div class="govuk-checkboxes {{ if .Errors.Has "option" }}govuk-checkboxes--error{{ end }}" data-module="govuk-checkboxes">
                             {{ range $i, $_ := .Attorneys }}
@@ -49,6 +49,10 @@
                 </div>
 
                 {{ template "details" (details . "whyAreSomeAttorneyNotInList" "whyAreSomeAttorneyNotInListContent" false) }}
+
+                <h2 class="govuk-heading-m">{{ tr .App "addNewAttorneys" }}</h2>
+
+                <p class="govuk-body">{{ tr .App "toAddNewAttorneysSelectContinue" }}</p>
 
                 {{ template "buttons" (button .App "continue") }}
                 {{ template "csrf-field" . }}

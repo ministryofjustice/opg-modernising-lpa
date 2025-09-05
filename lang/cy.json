@@ -1794,7 +1794,6 @@
     "organisation": "Welsh",
     "youCanChooseAttorneysUsedInPreviousLpas": "Welsh",
     "chooseAttorneysYouHaveUsedInPreviousLpasOptional": "Welsh",
-    "selectOneOrMoreAttorneysUsedInPreviousLpas": "Welsh",
     "selectAttorney": "<span class=\"govuk-!-font-weight-bold\">Welsh {{.FullName}}</span><br>{{.DateOfBirth}}<br> {{.Postcode}}",
     "whyAreSomeAttorneyNotInList": "Welsh",
     "whyAreSomeAttorneyNotInListContent": "Welsh",
@@ -1851,7 +1850,6 @@
     "choosePeopleToNotifyAboutLpa": "Welsh",
     "weCanNotifyUpto5PeopleYouCanChoose": "Welsh",
     "choosePeopleToNotifyYouHaveUsedInPreviousLpasOptional": "Welsh",
-    "selectOneOrMorePeopleToNotifyUsedInPreviousLpas": "Welsh",
     "youCannotSelectMoreThanFivePeopleToNotify": "Welsh",
     "yesWantToChoosePreviousPersonToNotify": "Welsh",
     "yesWantToAddNewPersonToNotify": "Welsh",
@@ -1943,5 +1941,14 @@
     "youHaveAskedToSendUpdatesToCorrespondentToChooseDifferent": "<p class=\"govuk-body\">Welsh {{.CorrespondentFullName}}</p>",
     "makeANewLpaContent": "<p class=\"govuk-body\">Welsh</p>",
     "changeYoureDetailsIfNotCorrect": "Welsh",
-    "tooManyAccessCodeAttempts": "Welsh"
+    "tooManyAccessCodeAttempts": "Welsh",
+    "toChooseOneOrMoreAttorneysSelectThem": "Welsh",
+    "addNewAttorneys": "Welsh",
+    "toAddNewAttorneysSelectContinue": "Welsh",
+    "toChooseOneOrMoreReplacementAttorneysSelectThem": "Welsh",
+    "addNewReplacementAttorneys": "Welsh",
+    "toAddNewReplacementAttorneysSelectContinue": "Welsh",
+    "toChooseOneOrMorePeopleToNotifySelectThem": "Welsh",
+    "addNewPeopleToNotify": "Welsh",
+    "toAddNewPeopleToNotifySelectContinue": "Welsh"
 }

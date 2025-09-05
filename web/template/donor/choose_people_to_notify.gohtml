@@ -15,7 +15,7 @@
                         <legend class="govuk-fieldset__legend govuk-fieldset__legend--m">{{ tr .App "choosePeopleToNotifyYouHaveUsedInPreviousLpasOptional" }}</legend>
                         {{ template "error-message" (errorMessage . "option") }}
 
-                        <div class="govuk-hint">{{ tr .App "selectOneOrMorePeopleToNotifyUsedInPreviousLpas" }}</div>
+                        <p class="govuk-body">{{ tr .App "toChooseOneOrMorePeopleToNotifySelectThem" }}</p>
 
                         <div class="govuk-checkboxes {{ if .Errors.Has "option" }}govuk-checkboxes--error{{ end }}" data-module="govuk-checkboxes">
                             {{ range $i, $_ := .PeopleToNotify }}
@@ -37,6 +37,10 @@
                         </div>
                     </fieldset>
                 </div>
+
+                <h2 class="govuk-heading-m">{{ tr .App "addNewPeopleToNotify" }}</h2>
+
+                <p class="govuk-body">{{ tr .App "toAddNewPeopleToNotifySelectContinue" }}</p>
 
                 {{ template "buttons" (button .App "continue") }}
                 {{ template "csrf-field" . }}
