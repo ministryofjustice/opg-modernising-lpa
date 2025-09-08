@@ -12,6 +12,7 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/appcontext"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/dynamo"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/rate"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/supporter/supporterdata"
 )
 
 type DynamoClient interface {
@@ -128,6 +129,13 @@ func (s *Store) Put(ctx context.Context, actorType actor.Type, accessCode access
 	data.PK = pk
 	if actorType.IsVoucher() {
 		data.SK = dynamo.AccessSortKey(dynamo.VoucherAccessSortKey(data.LpaKey))
+	} else if actorType.IsDonor() {
+		organisationKey, ok := data.LpaOwnerKey.Organisation()
+		if !ok {
+			return errors.New("accessCodeStore.PutDonor can only be used by organisations")
+		}
+
+		data.SK = dynamo.AccessSortKey(dynamo.DonorInviteKey(organisationKey, data.LpaKey))
 	} else {
 		data.SK = dynamo.AccessSortKey(dynamo.MetadataKey(accessCode.String()))
 	}
@@ -152,59 +160,34 @@ func (s *Store) Put(ctx context.Context, actorType actor.Type, accessCode access
 	return s.dynamoClient.WriteTransaction(ctx, transaction)
 }
 
-func (s *Store) GetDonor(ctx context.Context, accessCode accesscodedata.Hashed) (accesscodedata.DonorLink, error) {
-	pk, err := accessCodeKey(actor.TypeDonor, accessCode)
-	if err != nil {
-		return accesscodedata.DonorLink{}, err
-	}
-
-	if err := s.allowed(ctx); err != nil {
-		return accesscodedata.DonorLink{}, err
-	}
-
-	var data accesscodedata.DonorLink
-	if err := s.dynamoClient.OneByPK(ctx, pk, &data); err != nil {
-		return accesscodedata.DonorLink{}, err
-	}
-
-	if data.HasExpired(s.now()) || !data.LpaLinkedAt.IsZero() {
-		return accesscodedata.DonorLink{}, dynamo.NotFoundError{}
-	}
-
-	return data, nil
-}
-
-func (s *Store) PutDonor(ctx context.Context, accessCode accesscodedata.Hashed, data accesscodedata.DonorLink) error {
-	organisationKey, ok := data.LpaOwnerKey.Organisation()
-	if !ok {
-		return errors.New("accessCodeStore.PutDonor can only be used by organisations")
-	}
-
-	data.UpdatedAt = s.now()
-	data.PK = dynamo.AccessKey(dynamo.DonorAccessKey(accessCode.String()))
-	data.SK = dynamo.AccessSortKey(dynamo.DonorInviteKey(organisationKey, data.LpaKey))
-
-	return s.dynamoClient.Create(ctx, data)
-}
-
-func (s *Store) GetDonorAccess(ctx context.Context) (accesscodedata.DonorLink, error) {
+func (s *Store) GetDonorAccess(ctx context.Context) (accesscodedata.Link, supporterdata.LpaLink, error) {
 	sessionData, err := appcontext.SessionFromContext(ctx)
 	if err != nil {
-		return accesscodedata.DonorLink{}, err
+		return accesscodedata.Link{}, supporterdata.LpaLink{}, err
 	}
 
 	sk := dynamo.DonorInviteKey(dynamo.OrganisationKey(sessionData.OrganisationID), dynamo.LpaKey(sessionData.LpaID))
 
-	var data accesscodedata.DonorLink
-	if err := s.dynamoClient.OneBySK(ctx, sk, &data); err != nil {
-		return accesscodedata.DonorLink{}, err
+	// TODO: tidy this up
+	var accessLink accesscodedata.Link
+	if err := s.dynamoClient.OneBySK(ctx, sk, &accessLink); err != nil {
+		if errors.Is(err, dynamo.NotFoundError{}) {
+			var supporterLink supporterdata.LpaLink
+			if err := s.dynamoClient.One(ctx, dynamo.LpaKey(sessionData.LpaID), dynamo.OrganisationLink(sessionData.OrganisationID), &supporterLink); err != nil {
+				return accesscodedata.Link{}, supporterdata.LpaLink{}, err
+			}
+
+			return accesscodedata.Link{}, supporterLink, nil
+		}
+
+		return accesscodedata.Link{}, supporterdata.LpaLink{}, err
 	}
 
-	if data.HasExpired(s.now()) {
-		return accesscodedata.DonorLink{}, dynamo.NotFoundError{}
+	if accessLink.ExpiresAt.Before(s.now()) {
+		return accesscodedata.Link{}, supporterdata.LpaLink{}, dynamo.NotFoundError{}
 	}
 
-	return data, nil
+	return accessLink, supporterdata.LpaLink{}, nil
 }
 
 func (s *Store) Delete(ctx context.Context, link accesscodedata.Link) error {
@@ -233,10 +216,6 @@ func (s *Store) DeleteByActor(ctx context.Context, actorUID actoruid.UID) error 
 		Delete(dynamo.Keys{PK: actorAccess.PK, SK: actorAccess.SK})
 
 	return s.dynamoClient.WriteTransaction(ctx, transaction)
-}
-
-func (s *Store) DeleteDonor(ctx context.Context, link accesscodedata.DonorLink) error {
-	return s.dynamoClient.DeleteOne(ctx, link.PK, link.SK)
 }
 
 func accessCodeKey(actorType actor.Type, accessCode accesscodedata.Hashed) (pk dynamo.AccessKeyType, err error) {

@@ -28,11 +28,17 @@ type Link struct {
 	// IsTrustCorporation is true when the actor being given access is a trust
 	// corporation
 	IsTrustCorporation bool
+	// InviteSentTo is set for donor invites to the invited email address
+	InviteSentTo string
 }
 
 // For must be used to get the Link to store.
 func (l Link) For(now time.Time) Link {
 	l.UpdatedAt = now
-	l.ExpiresAt = now.AddDate(2, 0, 0)
+	if l.InviteSentTo != "" { // invites to donors expire in 3 months
+		l.ExpiresAt = now.AddDate(0, 3, 0)
+	} else {
+		l.ExpiresAt = now.AddDate(2, 0, 0)
+	}
 	return l
 }

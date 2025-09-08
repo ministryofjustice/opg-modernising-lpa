@@ -15,6 +15,7 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/accesscode/accesscodedata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/appcontext"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor/donordata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/dynamo"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/event"
@@ -47,7 +48,7 @@ func Supporter(
 	tmpl template.Template,
 	sessionStore *sesh.Store,
 	organisationStore OrganisationStore,
-	donorStore DonorStore,
+	donorStore *donor.Store,
 	memberStore *supporter.MemberStore,
 	dynamoClient DynamoClient,
 	searchClient *search.Client,
@@ -152,7 +153,7 @@ func Supporter(
 					return fmt.Errorf("error putting donor: %w", err)
 				}
 
-				accessCodeData := accesscodedata.DonorLink{
+				accessCodeData := accesscodedata.Link{
 					LpaOwnerKey:  dynamo.LpaOwnerKey(org.PK),
 					LpaKey:       donor.PK,
 					LpaUID:       donor.LpaUID,
@@ -161,7 +162,7 @@ func Supporter(
 				}
 
 				hashedCode := accesscodedata.HashedFromString(accessCode, donor.Donor.LastName)
-				if err := accessCodeStore.PutDonor(r.Context(), hashedCode, accessCodeData); err != nil {
+				if err := accessCodeStore.Put(r.Context(), actor.TypeDonor, hashedCode, accessCodeData); err != nil {
 					return fmt.Errorf("error putting accesscode for donor: %w", err)
 				}
 
