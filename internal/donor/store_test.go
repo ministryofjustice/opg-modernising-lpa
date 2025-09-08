@@ -7,6 +7,7 @@ import (
 	"testing"
 	"time"
 
+	"github.com/aws/aws-sdk-go-v2/aws"
 	"github.com/aws/aws-sdk-go-v2/feature/dynamodb/attributevalue"
 	"github.com/aws/aws-sdk-go-v2/service/dynamodb/types"
 	"github.com/gohugoio/hashstructure"
@@ -23,6 +24,7 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/lpastore/lpadata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/place"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/search"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/supporter/supporterdata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/task"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/voucher/voucherdata"
 	"github.com/stretchr/testify/assert"
@@ -643,7 +645,7 @@ func TestDonorStoreLink(t *testing.T) {
 	for name, links := range testcases {
 		t.Run(name, func(t *testing.T) {
 			ctx := appcontext.ContextWithSession(context.Background(), &appcontext.Session{SessionID: "session-id"})
-			accessCode := accesscodedata.DonorLink{
+			accessCode := accesscodedata.Link{
 				LpaKey:      dynamo.LpaKey("lpa-id"),
 				LpaOwnerKey: dynamo.LpaOwnerKey(dynamo.OrganisationKey("org-id")),
 			}
@@ -663,13 +665,25 @@ func TestDonorStoreLink(t *testing.T) {
 						UpdatedAt: testNowFn(),
 					},
 				},
-				Puts: []any{
-					accesscodedata.DonorLink{
-						LpaKey:      dynamo.LpaKey("lpa-id"),
-						LpaOwnerKey: dynamo.LpaOwnerKey(dynamo.OrganisationKey("org-id")),
-						LpaLinkedTo: "a@example.com",
-						LpaLinkedAt: testNowFn(),
+				Updates: []*types.Update{
+					{
+						Key: map[string]types.AttributeValue{
+							"PK": &types.AttributeValueMemberS{Value: dynamo.LpaKey("lpa-id").PK()},
+							"SK": &types.AttributeValueMemberS{Value: dynamo.OrganisationLinkKey("org-id").SK()},
+						},
+						UpdateExpression: aws.String("SET #Field0 = :Value0, #Field1 = :Value1"),
+						ExpressionAttributeValues: map[string]types.AttributeValue{
+							":Value0": &types.AttributeValueMemberS{Value: testNow.Format(time.RFC3339Nano)},
+							":Value1": &types.AttributeValueMemberS{Value: "a@example.com"},
+						},
+						ExpressionAttributeNames: map[string]string{
+							"#Field0": "LpaLinkedAt",
+							"#Field1": "LpaLinkedTo",
+						},
 					},
+				},
+				Deletes: []dynamo.Keys{
+					{PK: accessCode.PK, SK: accessCode.SK},
 				},
 			}
 
@@ -693,14 +707,14 @@ func TestDonorStoreLink(t *testing.T) {
 func TestDonorStoreLinkWithDonor(t *testing.T) {
 	donorStore := &Store{}
 
-	err := donorStore.Link(ctx, accesscodedata.DonorLink{LpaOwnerKey: dynamo.LpaOwnerKey(dynamo.DonorKey("donor"))}, "a@example.com")
+	err := donorStore.Link(ctx, accesscodedata.Link{LpaOwnerKey: dynamo.LpaOwnerKey(dynamo.DonorKey("donor"))}, "a@example.com")
 	assert.Error(t, err)
 }
 
 func TestDonorStoreLinkWithSessionMissing(t *testing.T) {
 	donorStore := &Store{}
 
-	err := donorStore.Link(ctx, accesscodedata.DonorLink{LpaOwnerKey: dynamo.LpaOwnerKey(dynamo.OrganisationKey("org"))}, "a@example.com")
+	err := donorStore.Link(ctx, accesscodedata.Link{LpaOwnerKey: dynamo.LpaOwnerKey(dynamo.OrganisationKey("org"))}, "a@example.com")
 	assert.Equal(t, appcontext.SessionMissingError{}, err)
 }
 
@@ -708,7 +722,7 @@ func TestDonorStoreLinkWithSessionIDMissing(t *testing.T) {
 	ctx := appcontext.ContextWithSession(context.Background(), &appcontext.Session{})
 	donorStore := &Store{}
 
-	err := donorStore.Link(ctx, accesscodedata.DonorLink{LpaOwnerKey: dynamo.LpaOwnerKey(dynamo.OrganisationKey("org"))}, "a@example.com")
+	err := donorStore.Link(ctx, accesscodedata.Link{LpaOwnerKey: dynamo.LpaOwnerKey(dynamo.OrganisationKey("org"))}, "a@example.com")
 	assert.Error(t, err)
 }
 
@@ -727,7 +741,7 @@ func TestDonorStoreLinkWhenDonorLinkAlreadyExists(t *testing.T) {
 
 	err := donorStore.Link(
 		ctx,
-		accesscodedata.DonorLink{LpaKey: dynamo.LpaKey("lpa-id"), LpaOwnerKey: dynamo.LpaOwnerKey(dynamo.OrganisationKey("org"))},
+		accesscodedata.Link{LpaKey: dynamo.LpaKey("lpa-id"), LpaOwnerKey: dynamo.LpaOwnerKey(dynamo.OrganisationKey("org"))},
 		"a@example.com",
 	)
 
@@ -757,7 +771,7 @@ func TestDonorStoreLinkWhenError(t *testing.T) {
 	for name, setupDynamoClient := range testcases {
 		t.Run(name, func(t *testing.T) {
 			ctx := appcontext.ContextWithSession(context.Background(), &appcontext.Session{SessionID: "an-id"})
-			accessCode := accesscodedata.DonorLink{
+			accessCode := accesscodedata.Link{
 				LpaKey:      dynamo.LpaKey("lpa-id"),
 				LpaOwnerKey: dynamo.LpaOwnerKey(dynamo.OrganisationKey("org-id")),
 			}
@@ -971,7 +985,7 @@ func TestDonorStoreDeleteDonorAccess(t *testing.T) {
 	ctx := appcontext.ContextWithSession(context.Background(), &appcontext.Session{SessionID: "an-id", OrganisationID: "org-id"})
 
 	link := dashboarddata.LpaLink{PK: dynamo.LpaKey("lpa-id"), SK: dynamo.SubKey("donor-sub"), ActorType: actor.TypeDonor}
-	accessCodeData := accesscodedata.DonorLink{LpaOwnerKey: dynamo.LpaOwnerKey(dynamo.OrganisationKey("org-id")), LpaKey: dynamo.LpaKey("lpa-id")}
+	supporterLink := supporterdata.LpaLink{PK: dynamo.LpaKey("lpa-id"), SK: dynamo.OrganisationLinkKey("org-id")}
 
 	dynamoClient := newMockDynamoClient(t)
 	dynamoClient.EXPECT().
@@ -985,48 +999,16 @@ func TestDonorStoreDeleteDonorAccess(t *testing.T) {
 		WriteTransaction(ctx, &dynamo.Transaction{
 			Deletes: []dynamo.Keys{
 				{PK: link.PK, SK: link.SK},
-				{PK: accessCodeData.LpaKey, SK: dynamo.DonorKey(link.UserSub())},
-				{PK: accessCodeData.PK, SK: accessCodeData.SK},
+				{PK: supporterLink.PK, SK: dynamo.DonorKey(link.UserSub())},
+				{PK: supporterLink.PK, SK: supporterLink.SK},
 			},
 		}).
 		Return(nil)
 
 	donorStore := &Store{dynamoClient: dynamoClient}
 
-	err := donorStore.DeleteDonorAccess(ctx, accessCodeData)
+	err := donorStore.DeleteDonorAccess(ctx, supporterLink)
 	assert.Nil(t, err)
-}
-
-func TestDonorStoreDeleteDonorAccessWhenDonor(t *testing.T) {
-	donorStore := &Store{}
-
-	err := donorStore.DeleteDonorAccess(ctx, accesscodedata.DonorLink{LpaOwnerKey: dynamo.LpaOwnerKey(dynamo.DonorKey("donor"))})
-	assert.Error(t, err)
-}
-
-func TestDonorStoreDeleteDonorAccessWhenSessionMissing(t *testing.T) {
-	testcases := map[string]context.Context{
-		"missing":           context.Background(),
-		"no organisationID": appcontext.ContextWithSession(context.Background(), &appcontext.Session{SessionID: "an-id"}),
-	}
-
-	for name, ctx := range testcases {
-		t.Run(name, func(t *testing.T) {
-			donorStore := &Store{}
-
-			err := donorStore.DeleteDonorAccess(ctx, accesscodedata.DonorLink{LpaOwnerKey: dynamo.LpaOwnerKey(dynamo.OrganisationKey("org"))})
-			assert.Error(t, err)
-		})
-	}
-}
-
-func TestDonorStoreDeleteDonorAccessWhenDeleterInDifferentOrganisation(t *testing.T) {
-	ctx := appcontext.ContextWithSession(context.Background(), &appcontext.Session{SessionID: "an-id", OrganisationID: "a-different-org-id"})
-
-	donorStore := &Store{}
-
-	err := donorStore.DeleteDonorAccess(ctx, accesscodedata.DonorLink{LpaOwnerKey: dynamo.LpaOwnerKey(dynamo.OrganisationKey("org-id")), LpaKey: dynamo.LpaKey("lpa-id")})
-	assert.Error(t, err)
 }
 
 func TestDonorStoreDeleteDonorAccessWhenOneByPartialSKError(t *testing.T) {
@@ -1039,10 +1021,7 @@ func TestDonorStoreDeleteDonorAccessWhenOneByPartialSKError(t *testing.T) {
 
 	donorStore := &Store{dynamoClient: dynamoClient}
 
-	err := donorStore.DeleteDonorAccess(ctx, accesscodedata.DonorLink{
-		LpaOwnerKey: dynamo.LpaOwnerKey(dynamo.OrganisationKey("org-id")),
-		LpaKey:      dynamo.LpaKey("lpa-id"),
-	})
+	err := donorStore.DeleteDonorAccess(ctx, supporterdata.LpaLink{SK: dynamo.OrganisationLinkKey("org-id")})
 	assert.Error(t, err)
 }
 
@@ -1062,10 +1041,7 @@ func TestDonorStoreDeleteDonorAccessWhenWriteTransactionError(t *testing.T) {
 
 	donorStore := &Store{dynamoClient: dynamoClient}
 
-	err := donorStore.DeleteDonorAccess(ctx, accesscodedata.DonorLink{
-		LpaOwnerKey: dynamo.LpaOwnerKey(dynamo.OrganisationKey("org-id")),
-		LpaKey:      dynamo.LpaKey("lpa-id"),
-	})
+	err := donorStore.DeleteDonorAccess(ctx, supporterdata.LpaLink{SK: dynamo.OrganisationLinkKey("org-id")})
 	assert.Error(t, err)
 }
 
