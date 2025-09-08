@@ -56,7 +56,7 @@ type DonorStore interface {
 	Latest(ctx context.Context) (*donordata.Provided, error)
 	Put(ctx context.Context, donor *donordata.Provided) error
 	Delete(ctx context.Context) error
-	Link(ctx context.Context, data accesscodedata.DonorLink, donorEmail string) error
+	Link(ctx context.Context, data accesscodedata.Link, donorEmail string) error
 	DeleteVoucher(ctx context.Context, provided *donordata.Provided) error
 }
 
@@ -191,7 +191,6 @@ type LpaStoreClient interface {
 
 type AccessCodeStore interface {
 	Get(ctx context.Context, actorType actor.Type, code accesscodedata.Hashed) (accesscodedata.Link, error)
-	GetDonor(ctx context.Context, code accesscodedata.Hashed) (accesscodedata.DonorLink, error)
 	DeleteByActor(ctx context.Context, actorUID actoruid.UID) error
 }
 

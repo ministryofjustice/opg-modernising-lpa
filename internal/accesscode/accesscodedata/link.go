@@ -33,6 +33,10 @@ type Link struct {
 // For must be used to get the Link to store.
 func (l Link) For(now time.Time) Link {
 	l.UpdatedAt = now
-	l.ExpiresAt = now.AddDate(2, 0, 0)
+	if l.PK.IsDonor() {
+		l.ExpiresAt = now.AddDate(0, 3, 0)
+	} else {
+		l.ExpiresAt = now.AddDate(2, 0, 0)
+	}
 	return l
 }

@@ -36,6 +36,7 @@ const (
 	reusePrefix                     = "REUSE"
 	actorAccessPrefix               = "ACTORACCESS"
 	accessLimiterPrefix             = "ACCESSLIMITER"
+	organisationLinkPrefix          = "ORGANISATIONLINK"
 )
 
 func readKey(s string) (any, error) {
@@ -400,4 +401,14 @@ func (t AccessLimiterKeyType) PK() string { return string(t) }
 // at which a user is attempting to enter access codes.
 func AccessLimiterKey(s string) AccessLimiterKeyType {
 	return AccessLimiterKeyType(accessLimiterPrefix + "#" + s)
+}
+
+type OrganisationLinkType string
+
+func (t OrganisationLinkType) SK() string { return string(t) }
+
+// OrganisationLink is used as the SK (with LpaKey as PK) to record information
+// on the donor who accessed a supported LPA.
+func OrganisationLink(id string) OrganisationLinkType {
+	return OrganisationLinkType(organisationLinkPrefix + "#" + id)
 }

@@ -14,6 +14,7 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor/actoruid"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/appcontext"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/date"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor/donordata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/dynamo"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/event"
@@ -34,7 +35,7 @@ func CertificateProvider(
 	tmpl template.Template,
 	sessionStore *sesh.Store,
 	accessCodeSender *accesscode.Sender,
-	donorStore DonorStore,
+	donorStore *donor.Store,
 	certificateProviderStore CertificateProviderStore,
 	eventClient *event.Client,
 	lpaStoreClient *lpastore.Client,
@@ -269,7 +270,7 @@ func CertificateProvider(
 				return err
 			}
 
-			if err := donorStore.Link(appcontext.ContextWithSession(r.Context(), orgSession), accesscodedata.DonorLink{
+			if err := donorStore.Link(appcontext.ContextWithSession(r.Context(), orgSession), accesscodedata.Link{
 				LpaKey:      donorDetails.PK,
 				LpaOwnerKey: donorDetails.SK,
 				LpaUID:      donorDetails.LpaUID,
