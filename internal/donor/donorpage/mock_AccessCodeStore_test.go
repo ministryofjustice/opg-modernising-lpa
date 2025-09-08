@@ -131,63 +131,6 @@ func (_c *mockAccessCodeStore_Get_Call) RunAndReturn(run func(context.Context, a
 	return _c
 }
 
-// GetDonor provides a mock function with given fields: ctx, code
-func (_m *mockAccessCodeStore) GetDonor(ctx context.Context, code accesscodedata.Hashed) (accesscodedata.DonorLink, error) {
-	ret := _m.Called(ctx, code)
-
-	if len(ret) == 0 {
-		panic("no return value specified for GetDonor")
-	}
-
-	var r0 accesscodedata.DonorLink
-	var r1 error
-	if rf, ok := ret.Get(0).(func(context.Context, accesscodedata.Hashed) (accesscodedata.DonorLink, error)); ok {
-		return rf(ctx, code)
-	}
-	if rf, ok := ret.Get(0).(func(context.Context, accesscodedata.Hashed) accesscodedata.DonorLink); ok {
-		r0 = rf(ctx, code)
-	} else {
-		r0 = ret.Get(0).(accesscodedata.DonorLink)
-	}
-
-	if rf, ok := ret.Get(1).(func(context.Context, accesscodedata.Hashed) error); ok {
-		r1 = rf(ctx, code)
-	} else {
-		r1 = ret.Error(1)
-	}
-
-	return r0, r1
-}
-
-// mockAccessCodeStore_GetDonor_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'GetDonor'
-type mockAccessCodeStore_GetDonor_Call struct {
-	*mock.Call
-}
-
-// GetDonor is a helper method to define mock.On call
-//   - ctx context.Context
-//   - code accesscodedata.Hashed
-func (_e *mockAccessCodeStore_Expecter) GetDonor(ctx interface{}, code interface{}) *mockAccessCodeStore_GetDonor_Call {
-	return &mockAccessCodeStore_GetDonor_Call{Call: _e.mock.On("GetDonor", ctx, code)}
-}
-
-func (_c *mockAccessCodeStore_GetDonor_Call) Run(run func(ctx context.Context, code accesscodedata.Hashed)) *mockAccessCodeStore_GetDonor_Call {
-	_c.Call.Run(func(args mock.Arguments) {
-		run(args[0].(context.Context), args[1].(accesscodedata.Hashed))
-	})
-	return _c
-}
-
-func (_c *mockAccessCodeStore_GetDonor_Call) Return(_a0 accesscodedata.DonorLink, _a1 error) *mockAccessCodeStore_GetDonor_Call {
-	_c.Call.Return(_a0, _a1)
-	return _c
-}
-
-func (_c *mockAccessCodeStore_GetDonor_Call) RunAndReturn(run func(context.Context, accesscodedata.Hashed) (accesscodedata.DonorLink, error)) *mockAccessCodeStore_GetDonor_Call {
-	_c.Call.Return(run)
-	return _c
-}
-
 // newMockAccessCodeStore creates a new instance of mockAccessCodeStore. It also registers a testing interface on the mock and a cleanup function to assert the mocks expectations.
 // The first argument is typically a *testing.T value.
 func newMockAccessCodeStore(t interface {

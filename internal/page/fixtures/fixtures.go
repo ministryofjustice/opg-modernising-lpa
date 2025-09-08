@@ -18,6 +18,7 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/attorney/attorneydata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/certificateprovider/certificateproviderdata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/date"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor/donordata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/dynamo"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/form"
@@ -317,7 +318,7 @@ func makeRestriction(provided *donordata.Provided) string {
 	return restrictions[provided.Type][provided.Donor.LpaLanguagePreference]
 }
 
-func waitForRealUID(waitFor int, donorStore DonorStore, donorCtx context.Context) string {
+func waitForRealUID(waitFor int, donorStore *donor.Store, donorCtx context.Context) string {
 	for {
 		if waitFor <= 0 {
 			log.Println("out of time")
