@@ -36,6 +36,7 @@ const (
 	reusePrefix                     = "REUSE"
 	actorAccessPrefix               = "ACTORACCESS"
 	accessLimiterPrefix             = "ACCESSLIMITER"
+	organisationLinkPrefix          = "ORGANISATIONLINK"
 )
 
 func readKey(s string) (any, error) {
@@ -99,6 +100,8 @@ func readKey(s string) (any, error) {
 		return ActorAccessKeyType(s), nil
 	case accessLimiterPrefix:
 		return AccessLimiterKeyType(s), nil
+	case organisationLinkPrefix:
+		return OrganisationLinkKeyType(s), nil
 	default:
 		return nil, errors.New("unknown key prefix")
 	}
@@ -400,4 +403,14 @@ func (t AccessLimiterKeyType) PK() string { return string(t) }
 // at which a user is attempting to enter access codes.
 func AccessLimiterKey(s string) AccessLimiterKeyType {
 	return AccessLimiterKeyType(accessLimiterPrefix + "#" + s)
+}
+
+type OrganisationLinkKeyType string
+
+func (t OrganisationLinkKeyType) SK() string { return string(t) }
+
+// OrganisationLinkKey is used as the SK (with LpaKey as PK) to record information
+// on the donor who accessed a supported LPA.
+func OrganisationLinkKey(id string) OrganisationLinkKeyType {
+	return OrganisationLinkKeyType(organisationLinkPrefix + "#" + id)
 }

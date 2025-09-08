@@ -149,6 +149,11 @@ func AccessKey(pk interface {
 	return AccessKeyType{pk: pk}
 }
 
+func (k AccessKeyType) IsDonor() bool {
+	_, ok := k.pk.(DonorAccessKeyType)
+	return ok
+}
+
 func (k AccessKeyType) MarshalText() ([]byte, error) {
 	if k.pk == nil {
 		return []byte(nil), nil
