@@ -20,11 +20,11 @@ import (
 )
 
 type donorAccessData struct {
-	App        appcontext.Data
-	Errors     validation.List
-	Form       *donorAccessForm
-	Donor      *donordata.Provided
-	AccessCode *accesscodedata.DonorLink
+	App           appcontext.Data
+	Errors        validation.List
+	Form          *donorAccessForm
+	Donor         *donordata.Provided
+	SupporterLink *supporterdata.LpaLink
 }
 
 func DonorAccess(logger Logger, tmpl template.Template, donorStore DonorStore, accessCodeStore AccessCodeStore, notifyClient NotifyClient, donorStartURL string, generate accesscodedata.Generator) Handler {
@@ -40,18 +40,18 @@ func DonorAccess(logger Logger, tmpl template.Template, donorStore DonorStore, a
 			Form:  &donorAccessForm{Email: donor.Donor.Email},
 		}
 
-		accessCodeData, err := accessCodeStore.GetDonorAccess(r.Context())
+		supporterLink, err := accessCodeStore.GetDonorAccess(r.Context())
 		if err == nil {
-			data.AccessCode = &accessCodeData
+			data.SupporterLink = &supporterLink
 
 			switch page.PostFormString(r, "action") {
 			case "recall":
-				if err := accessCodeStore.DeleteDonor(r.Context(), accessCodeData); err != nil {
+				if err := accessCodeStore.DeleteDonorAccess(r.Context(), supporterLink); err != nil {
 					return err
 				}
 
 				return supporter.PathViewLPA.RedirectQuery(w, r, appData, appData.LpaID, url.Values{
-					"inviteRecalledFor": {accessCodeData.InviteSentTo},
+					"inviteRecalledFor": {supporterLink.InviteSentTo},
 				})
 
 			case "remove":
@@ -59,13 +59,13 @@ func DonorAccess(logger Logger, tmpl template.Template, donorStore DonorStore, a
 					return errors.New("cannot remove LPA access when donor has paid")
 				}
 
-				if err := donorStore.DeleteDonorAccess(r.Context(), accessCodeData); err != nil {
+				if err := donorStore.DeleteDonorAccess(r.Context(), supporterLink); err != nil {
 					return err
 				}
 				logger.InfoContext(r.Context(), "donor access removed", slog.String("lpa_id", appData.LpaID))
 
 				return supporter.PathViewLPA.RedirectQuery(w, r, appData, appData.LpaID, url.Values{
-					"accessRemovedFor": {accessCodeData.InviteSentTo},
+					"accessRemovedFor": {supporterLink.InviteSentTo},
 				})
 
 			default:
@@ -91,15 +91,14 @@ func DonorAccess(logger Logger, tmpl template.Template, donorStore DonorStore, a
 				}
 
 				plainCode, hashedCode := generate(donor.Donor.LastName)
-				accessCodeData := accesscodedata.DonorLink{
-					LpaOwnerKey:  dynamo.LpaOwnerKey(organisation.PK),
-					LpaKey:       dynamo.LpaKey(appData.LpaID),
-					LpaUID:       donor.LpaUID,
-					ActorUID:     donor.Donor.UID,
-					InviteSentTo: data.Form.Email,
+				accessCodeData := accesscodedata.Link{
+					LpaOwnerKey: dynamo.LpaOwnerKey(organisation.PK),
+					LpaKey:      dynamo.LpaKey(appData.LpaID),
+					LpaUID:      donor.LpaUID,
+					ActorUID:    donor.Donor.UID,
 				}
 
-				if err := accessCodeStore.PutDonor(r.Context(), hashedCode, accessCodeData); err != nil {
+				if err := accessCodeStore.PutDonorAccess(r.Context(), hashedCode, accessCodeData, data.Form.Email); err != nil {
 					return err
 				}
 

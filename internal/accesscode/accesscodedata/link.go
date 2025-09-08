@@ -29,10 +29,3 @@ type Link struct {
 	// corporation
 	IsTrustCorporation bool
 }
-
-// For must be used to get the Link to store.
-func (l Link) For(now time.Time) Link {
-	l.UpdatedAt = now
-	l.ExpiresAt = now.AddDate(2, 0, 0)
-	return l
-}
