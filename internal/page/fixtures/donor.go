@@ -21,6 +21,7 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/attorney/attorneydata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/certificateprovider/certificateproviderdata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/document"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor/donordata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/dynamo"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/event"
@@ -107,7 +108,7 @@ type FixtureData struct {
 func Donor(
 	tmpl template.Template,
 	sessionStore *sesh.Store,
-	donorStore DonorStore,
+	donorStore *donor.Store,
 	certificateProviderStore CertificateProviderStore,
 	attorneyStore AttorneyStore,
 	documentStore DocumentStore,
@@ -249,7 +250,7 @@ func updateLPAProgress(
 	reuseStore *reuse.Store,
 	notifyClient *notify.Client,
 	appPublicURL string,
-	donorStore DonorStore,
+	donorStore *donor.Store,
 ) (*donordata.Provided, []func(context.Context, *lpastore.Client, *lpadata.Lpa) error, error) {
 	var fns []func(context.Context, *lpastore.Client, *lpadata.Lpa) error
 	if data.Progress >= slices.Index(progressValues, "provideYourDetails") {

@@ -3,6 +3,8 @@ package dynamo
 import (
 	"context"
 	"errors"
+	"fmt"
+	"strings"
 
 	"github.com/aws/aws-sdk-go-v2/aws"
 	"github.com/aws/aws-sdk-go-v2/feature/dynamodb/attributevalue"
@@ -84,12 +86,12 @@ func NewTransaction() *Transaction {
 	return &Transaction{}
 }
 
-func (t *Transaction) Create(v interface{}) *Transaction {
+func (t *Transaction) Create(v any) *Transaction {
 	t.Creates = append(t.Creates, v)
 	return t
 }
 
-func (t *Transaction) Put(v interface{}) *Transaction {
+func (t *Transaction) Put(v any) *Transaction {
 	t.Puts = append(t.Puts, v)
 	return t
 }
@@ -109,6 +111,32 @@ func (t *Transaction) UpdateValue(pk PK, sk SK, field string, value any) *Transa
 		ExpressionAttributeNames: map[string]string{
 			"#Field": field,
 		},
+	})
+
+	return t
+}
+
+func (t *Transaction) SetValues(pk PK, sk SK, fields map[string]any) *Transaction {
+	i := 0
+	attributeNames := map[string]string{}
+	attributeValues := map[string]types.AttributeValue{}
+	expression := []string{}
+
+	for k, v := range fields {
+		i++
+		attributeNames[fmt.Sprintf("#Field%d", i)] = k
+		attributeValues[fmt.Sprintf(":Value%d", i)], _ = attributevalue.Marshal(v)
+		expression = append(expression, fmt.Sprintf("#Field%d = :Value%d", i, i))
+	}
+
+	t.Updates = append(t.Updates, &types.Update{
+		Key: map[string]types.AttributeValue{
+			"PK": &types.AttributeValueMemberS{Value: pk.PK()},
+			"SK": &types.AttributeValueMemberS{Value: sk.SK()},
+		},
+		UpdateExpression:          aws.String("SET " + strings.Join(expression, ", ")),
+		ExpressionAttributeValues: attributeValues,
+		ExpressionAttributeNames:  attributeNames,
 	})
 
 	return t
