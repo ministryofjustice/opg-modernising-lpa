@@ -9,6 +9,7 @@ import (
 
 	"github.com/ministryofjustice/opg-go-common/template"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/accesscode/accesscodedata"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/appcontext"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/certificateprovider/certificateproviderdata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor/donordata"
@@ -66,7 +67,7 @@ type MemberStore interface {
 }
 
 type DonorStore interface {
-	DeleteDonorAccess(ctx context.Context, link accesscodedata.DonorLink) error
+	DeleteDonorAccess(ctx context.Context, link supporterdata.LpaLink) error
 	Get(ctx context.Context) (*donordata.Provided, error)
 	GetByKeys(ctx context.Context, keys []dynamo.Keys) ([]donordata.Provided, error)
 	Put(ctx context.Context, donor *donordata.Provided) error
@@ -99,9 +100,9 @@ type NotifyClient interface {
 }
 
 type AccessCodeStore interface {
-	PutDonor(ctx context.Context, code accesscodedata.Hashed, link accesscodedata.DonorLink) error
-	GetDonorAccess(ctx context.Context) (accesscodedata.DonorLink, error)
-	DeleteDonor(ctx context.Context, link accesscodedata.DonorLink) error
+	Put(ctx context.Context, actorType actor.Type, code accesscodedata.Hashed, link accesscodedata.Link) error
+	GetDonorAccess(ctx context.Context) (accesscodedata.Link, supporterdata.LpaLink, error)
+	Delete(ctx context.Context, link accesscodedata.Link) error
 }
 
 type Template func(w io.Writer, data interface{}) error

@@ -8,6 +8,7 @@ import (
 
 	"github.com/ministryofjustice/opg-go-common/template"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/accesscode/accesscodedata"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/appcontext"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/dynamo"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/event"
@@ -36,7 +37,7 @@ func EnterAccessCode(logger Logger, tmpl template.Template, accessCodeStore Acce
 			if len(data.Errors) == 0 {
 				referenceNumber := accesscodedata.HashedFromString(data.Form.AccessCode, data.Form.DonorLastName)
 
-				accessCode, err := accessCodeStore.GetDonor(r.Context(), referenceNumber)
+				accessCode, err := accessCodeStore.Get(r.Context(), actor.TypeDonor, referenceNumber)
 				if err != nil {
 					if errors.Is(err, dynamo.NotFoundError{}) {
 						data.Errors.Add(form.FieldNames.AccessCode, validation.IncorrectError{Label: "accessCode"})
@@ -44,7 +45,7 @@ func EnterAccessCode(logger Logger, tmpl template.Template, accessCodeStore Acce
 						return tmpl(w, data)
 					}
 
-					return err
+					return fmt.Errorf("get accesscode: %w", err)
 				}
 
 				session, err := sessionStore.Login(r)
@@ -70,7 +71,7 @@ func EnterAccessCode(logger Logger, tmpl template.Template, accessCodeStore Acce
 				appData.LpaID = accessCode.LpaKey.ID()
 
 				if err := donorStore.Link(r.Context(), accessCode, session.Email); err != nil {
-					return err
+					return fmt.Errorf("link donor: %w", err)
 				}
 
 				logger.InfoContext(r.Context(), "donor access added", slog.String("lpa_id", accessCode.LpaKey.ID()))

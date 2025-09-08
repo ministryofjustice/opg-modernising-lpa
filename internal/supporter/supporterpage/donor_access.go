@@ -8,6 +8,7 @@ import (
 
 	"github.com/ministryofjustice/opg-go-common/template"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/accesscode/accesscodedata"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/appcontext"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor/donordata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/dynamo"
@@ -20,11 +21,12 @@ import (
 )
 
 type donorAccessData struct {
-	App        appcontext.Data
-	Errors     validation.List
-	Form       *donorAccessForm
-	Donor      *donordata.Provided
-	AccessCode *accesscodedata.DonorLink
+	App           appcontext.Data
+	Errors        validation.List
+	Form          *donorAccessForm
+	Donor         *donordata.Provided
+	AccessCode    *accesscodedata.Link
+	SupporterLink *supporterdata.LpaLink
 }
 
 func DonorAccess(logger Logger, tmpl template.Template, donorStore DonorStore, accessCodeStore AccessCodeStore, notifyClient NotifyClient, donorStartURL string, generate accesscodedata.Generator) Handler {
@@ -40,13 +42,21 @@ func DonorAccess(logger Logger, tmpl template.Template, donorStore DonorStore, a
 			Form:  &donorAccessForm{Email: donor.Donor.Email},
 		}
 
-		accessCodeData, err := accessCodeStore.GetDonorAccess(r.Context())
+		accessCodeData, supporterLink, err := accessCodeStore.GetDonorAccess(r.Context())
 		if err == nil {
-			data.AccessCode = &accessCodeData
+			if accessCodeData.ActorUID.IsZero() {
+				data.SupporterLink = &supporterLink
+			} else {
+				data.AccessCode = &accessCodeData
+			}
 
 			switch page.PostFormString(r, "action") {
 			case "recall":
-				if err := accessCodeStore.DeleteDonor(r.Context(), accessCodeData); err != nil {
+				if data.AccessCode == nil {
+					return errors.New("action not supported")
+				}
+
+				if err := accessCodeStore.Delete(r.Context(), accessCodeData); err != nil {
 					return err
 				}
 
@@ -55,17 +65,21 @@ func DonorAccess(logger Logger, tmpl template.Template, donorStore DonorStore, a
 				})
 
 			case "remove":
+				if data.SupporterLink == nil {
+					return errors.New("action not supported")
+				}
+
 				if donor.Tasks.PayForLpa.IsCompleted() {
 					return errors.New("cannot remove LPA access when donor has paid")
 				}
 
-				if err := donorStore.DeleteDonorAccess(r.Context(), accessCodeData); err != nil {
+				if err := donorStore.DeleteDonorAccess(r.Context(), supporterLink); err != nil {
 					return err
 				}
 				logger.InfoContext(r.Context(), "donor access removed", slog.String("lpa_id", appData.LpaID))
 
 				return supporter.PathViewLPA.RedirectQuery(w, r, appData, appData.LpaID, url.Values{
-					"accessRemovedFor": {accessCodeData.InviteSentTo},
+					"accessRemovedFor": {supporterLink.InviteSentTo},
 				})
 
 			default:
@@ -91,7 +105,7 @@ func DonorAccess(logger Logger, tmpl template.Template, donorStore DonorStore, a
 				}
 
 				plainCode, hashedCode := generate(donor.Donor.LastName)
-				accessCodeData := accesscodedata.DonorLink{
+				accessCodeData := accesscodedata.Link{
 					LpaOwnerKey:  dynamo.LpaOwnerKey(organisation.PK),
 					LpaKey:       dynamo.LpaKey(appData.LpaID),
 					LpaUID:       donor.LpaUID,
@@ -99,7 +113,7 @@ func DonorAccess(logger Logger, tmpl template.Template, donorStore DonorStore, a
 					InviteSentTo: data.Form.Email,
 				}
 
-				if err := accessCodeStore.PutDonor(r.Context(), hashedCode, accessCodeData); err != nil {
+				if err := accessCodeStore.Put(r.Context(), actor.TypeDonor, hashedCode, accessCodeData); err != nil {
 					return err
 				}
 

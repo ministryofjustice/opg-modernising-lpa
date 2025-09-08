@@ -34,11 +34,12 @@ For sharing an LPA with each actor we generate records like:
 	| PK                            | SK                    | Description                                                    | Type                     |
 	| ----------------------------- | --------------------- | -------------------------------------------------------------- | ------------------------ |
 	| VOUCHERACCESS#...             | VOUCHERACCESSSORT#... | A share of the LPA to a voucher                                | accesscodedata.Link      |
-	| DONORACCESS#...               | DONORINVITE#...       | A share of an organisation created LPA to a donor              | accesscodedata.DonorLink |
+	| DONORACCESS#...               | DONORINVITE#...       | A share of an organisation created LPA to a donor              | accesscodedata.Link      |
 	| CERTIFICATEPROVIDERACCESS#... | METADATA#...          | A share of the LPA to a certificate provider                   | accesscodedata.Link      |
 	| ATTORNEYACCESS#...            | METADATA#...          | A share of the LPA to an attorney (or replacement/trust corp.) | accesscodedata.Link      |
 	| ACTORACCESS#...               | METADATA#...          | Ensure an actor only has one access code                       |                          |
 	| ACCESSLIMITER#...             | METADATA#...          | Rate limit entering access codes                               | accesscode.accessLimiter |
+	| LPA#...                       | ORGANISATIONLINK#...  | When and who accessed a supported LPA                          | supporterdata.LpaLink    |
 
 The scheduler uses the following structure:
 

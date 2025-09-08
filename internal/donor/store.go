@@ -20,6 +20,7 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/form"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/lpastore/lpadata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/search"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/supporter/supporterdata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/task"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/uid"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/voucher/voucherdata"
@@ -174,13 +175,14 @@ func (s *Store) findDonorLink(ctx context.Context, lpaKey dynamo.LpaKeyType) (*d
 	return nil, nil
 }
 
-// Link allows a donor to access an Lpa created by a supporter. It adds the donor's email to
-// the access code and creates two records:
+// Link allows a donor to access an Lpa created by a supporter. It creates three
+// records:
 //
 //  1. an lpaReference which allows the donor's session ID to be queried for the
 //     organisation ID that holds the Lpa data;
 //  2. an lpaLink which allows the Lpa to be shown on the donor's dashboard.
-func (s *Store) Link(ctx context.Context, accessCode accesscodedata.DonorLink, donorEmail string) error {
+//  3. an LpaLink which allows the supporter to see when and who accessed the LPA.
+func (s *Store) Link(ctx context.Context, accessCode accesscodedata.Link, donorEmail string) error {
 	organisationKey, ok := accessCode.LpaOwnerKey.Organisation()
 	if !ok {
 		return errors.New("donorStore.Link can only be used with organisations")
@@ -201,9 +203,6 @@ func (s *Store) Link(ctx context.Context, accessCode accesscodedata.DonorLink, d
 		return errors.New("a donor link already exists for " + accessCode.LpaKey.ID())
 	}
 
-	accessCode.LpaLinkedTo = donorEmail
-	accessCode.LpaLinkedAt = s.now()
-
 	transaction := dynamo.NewTransaction().
 		Create(lpaReference{
 			PK:           accessCode.LpaKey,
@@ -219,7 +218,15 @@ func (s *Store) Link(ctx context.Context, accessCode accesscodedata.DonorLink, d
 			ActorType: actor.TypeDonor,
 			UpdatedAt: s.now(),
 		}).
-		Put(accessCode)
+		Create(supporterdata.LpaLink{
+			PK:           accessCode.LpaKey,
+			SK:           dynamo.OrganisationLink(organisationKey.ID()),
+			InviteSentTo: accessCode.InviteSentTo,
+			InviteSentAt: accessCode.UpdatedAt,
+			LpaLinkedTo:  donorEmail,
+			LpaLinkedAt:  s.now(),
+		}).
+		Delete(dynamo.Keys{PK: accessCode.PK, SK: accessCode.SK})
 
 	return s.dynamoClient.WriteTransaction(ctx, transaction)
 }
@@ -437,12 +444,7 @@ func (s *Store) Delete(ctx context.Context) error {
 	return s.dynamoClient.DeleteKeys(ctx, keys)
 }
 
-func (s *Store) DeleteDonorAccess(ctx context.Context, accessCodeData accesscodedata.DonorLink) error {
-	organisationKey, ok := accessCodeData.LpaOwnerKey.Organisation()
-	if !ok {
-		return errors.New("donorStore.DeleteDonorAccess can only be used with organisations")
-	}
-
+func (s *Store) DeleteDonorAccess(ctx context.Context, lpaLink supporterdata.LpaLink) error {
 	data, err := appcontext.SessionFromContext(ctx)
 	if err != nil {
 		return err
@@ -452,11 +454,7 @@ func (s *Store) DeleteDonorAccess(ctx context.Context, accessCodeData accesscode
 		return errors.New("donorStore.DeleteDonorAccess requires OrganisationID")
 	}
 
-	if data.OrganisationID != organisationKey.ID() {
-		return errors.New("cannot remove access to another organisations LPA")
-	}
-
-	link, err := s.findDonorLink(ctx, accessCodeData.LpaKey)
+	link, err := s.findDonorLink(ctx, lpaLink.PK)
 	if err != nil {
 		return err
 	}
@@ -467,12 +465,12 @@ func (s *Store) DeleteDonorAccess(ctx context.Context, accessCodeData accesscode
 			SK: link.SK,
 		}).
 		Delete(dynamo.Keys{
-			PK: accessCodeData.LpaKey,
+			PK: lpaLink.PK,
 			SK: dynamo.DonorKey(link.UserSub()),
 		}).
 		Delete(dynamo.Keys{
-			PK: accessCodeData.PK,
-			SK: accessCodeData.SK,
+			PK: lpaLink.PK,
+			SK: lpaLink.SK,
 		})
 
 	return s.dynamoClient.WriteTransaction(ctx, transaction)
