@@ -15,6 +15,7 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/appcontext"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/attorney/attorneydata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/certificateprovider/certificateproviderdata"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor/donordata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/dynamo"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/event"
@@ -32,13 +33,6 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/uid"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/validation"
 )
-
-type DonorStore interface {
-	Create(ctx context.Context) (*donordata.Provided, error)
-	Get(ctx context.Context) (*donordata.Provided, error)
-	Link(ctx context.Context, link accesscodedata.DonorLink, donorEmail string) error
-	Put(ctx context.Context, donorProvidedDetails *donordata.Provided) error
-}
 
 type CertificateProviderStore interface {
 	Create(ctx context.Context, link accesscodedata.Link, email string) (*certificateproviderdata.Provided, error)
@@ -58,7 +52,7 @@ func Attorney(
 	tmpl template.Template,
 	sessionStore *sesh.Store,
 	accessCodeSender *accesscode.Sender,
-	donorStore DonorStore,
+	donorStore *donor.Store,
 	certificateProviderStore CertificateProviderStore,
 	attorneyStore AttorneyStore,
 	eventClient *event.Client,
@@ -177,7 +171,7 @@ func Attorney(
 			}
 
 			if isSupported {
-				if err := donorStore.Link(appcontext.ContextWithSession(r.Context(), createSession), accesscodedata.DonorLink{
+				if err := donorStore.Link(appcontext.ContextWithSession(r.Context(), createSession), accesscodedata.Link{
 					LpaKey:      donorDetails.PK,
 					LpaOwnerKey: donorDetails.SK,
 					LpaUID:      donorDetails.LpaUID,
