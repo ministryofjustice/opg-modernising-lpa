@@ -31,6 +31,7 @@ do
       if ! terraform destroy -auto-approve; then
         TF_EXIT_CODE=1
       fi
+      export AWS_ROLE_ARN="arn:aws:iam::653761790766:role/modernising-lpa-ci"
       echo "deleting opensearch index..."
       response=$(awscurl \
         "${DEVELOPMENT_OPENSEARCH_COLLECTION_ENDPOINT}/lpas_v2_$workspace" \
@@ -49,6 +50,7 @@ do
       aws logs delete-log-group --region eu-west-1 --log-group-name /aws/ecs/containerinsights/"$workspace"/performance
       terraform workspace select default
       terraform workspace delete "$workspace"
+      export AWS_ROLE_ARN=""
       ;;
   esac
 done
