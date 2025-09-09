@@ -721,12 +721,7 @@ func TestClientServiceContract(t *testing.T) {
 				&certificateproviderdata.Provided{
 					SignedAt:                  time.Date(2020, time.January, 1, 12, 13, 14, 0, time.UTC),
 					ContactLanguagePreference: localize.Cy,
-					HomeAddress: place.Address{
-						Line1:      "123 Fake Street",
-						TownOrCity: "Faketon",
-						Country:    "GB",
-					},
-					Email: "a@example.com",
+					Email:                     "a@example.com",
 				}, &lpadata.Lpa{
 					CertificateProvider: lpadata.CertificateProvider{
 						Channel: lpadata.ChannelPaper,

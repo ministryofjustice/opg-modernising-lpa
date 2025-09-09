@@ -21,7 +21,6 @@ type confirmYourDetailsData struct {
 	AddressLabel           string
 	DetailComponentContent string
 	ShowPhone              bool
-	ShowHomeAddress        bool
 }
 
 func ConfirmYourDetails(tmpl template.Template, certificateProviderStore CertificateProviderStore) Handler {
@@ -49,7 +48,6 @@ func ConfirmYourDetails(tmpl template.Template, certificateProviderStore Certifi
 			AddressLabel:           "address",
 			DetailComponentContent: "whatToDoIfAnyDetailsAreIncorrectCertificateProviderContentLay",
 			ShowPhone:              lpa.CertificateProvider.Phone != "",
-			ShowHomeAddress:        certificateProvider.HomeAddress.Line1 != "",
 		}
 
 		if !data.ShowPhone {

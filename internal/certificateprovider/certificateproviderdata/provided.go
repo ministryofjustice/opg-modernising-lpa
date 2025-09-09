@@ -10,7 +10,6 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/dynamo"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/identity"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/localize"
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/place"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/task"
 )
 
@@ -26,8 +25,6 @@ type Provided struct {
 	UpdatedAt time.Time
 	// Date of birth of the certificate provider
 	DateOfBirth date.Date
-	// HomeAddress is the personal address of the certificate provider
-	HomeAddress place.Address
 	// Data returned from an identity check
 	IdentityUserData identity.UserData
 	// SignedAt is when the certificate provider submitted their signature

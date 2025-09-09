@@ -22,22 +22,6 @@ test('certificate provider provides certificate (professional)', async ({page}) 
     await page.getByRole('textbox', {name: 'Home postcode'}).click();
     await page.getByRole('textbox', {name: 'Home postcode'}).fill('B73 6TQ');
 
-    await expect(page.locator('h1')).toContainText('What is your home postcode?');
-    await screenshot(page)
-    await extractTextFromMainAndSave(page)
-    await page.getByRole('button', {name: 'Find address'}).click();
-    await page.getByLabel('Select an address').selectOption('{"line1":"35 SUTTON OAK ROAD","line2":"","line3":"","town":"SUTTON COLDFIELD","postcode":"B73 6TQ","country":"GB"}');
-
-    await expect(page.locator('h1')).toContainText('Select your home address');
-    await screenshot(page)
-    await extractTextFromMainAndSave(page)
-    await page.getByRole('button', {name: 'Continue'}).click();
-
-    await expect(page.locator('h1')).toContainText('Your home address');
-    await screenshot(page)
-    await extractTextFromMainAndSave(page)
-    await page.getByRole('button', {name: 'Save and continue'}).click();
-
     await expect(page.locator('h1')).toContainText('Your preferred language');
     await page.getByRole('radio', {name: 'English'}).check();
     await screenshot(page)
