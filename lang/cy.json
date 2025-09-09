@@ -1950,5 +1950,6 @@
     "toAddNewReplacementAttorneysSelectContinue": "Welsh",
     "toChooseOneOrMorePeopleToNotifySelectThem": "Welsh",
     "addNewPeopleToNotify": "Welsh",
-    "toAddNewPeopleToNotifySelectContinue": "Welsh"
+    "toAddNewPeopleToNotifySelectContinue": "Welsh",
+    "donorHasChosenToHaveTheirLpaRegisteredInContentCertificateProvider": "<p class=\"govuk-notification-banner__heading\">Mae {{.DonorFullName}} wedi dewis cofrestru ei LPA {{.InSelected}}.</p><p class=\"govuk-body\">I ddarparu tystysgrif {{.DonorFullName}}, mae'n rhaid i chi ei gweld a'i llofnodi {{.InSelected}}.</p><p class=\"govuk-body\">Gallwch ddewis y ddolen ‘{{.Unselected}}’ i ddarllen cyfieithiad  {{.Unselected}} o’r dystysgrif ar gyfer yr LPA hon a ddarperir gan Swyddfa'r Gwarcheidwaid Cyhoeddus.</p><p class=\"govuk-body\">Fodd bynnag, pan fyddwch chi'n llofnodi'r dystysgrif, rhaid ei gweld yn newis iaith {{.DonorFullName}}.</p>"
 }
