@@ -178,8 +178,6 @@ func Register(
 		EnterDateOfBirth(tmpls.Get("enter_date_of_birth.gohtml"), certificateProviderStore))
 	handleCertificateProvider(certificateprovider.PathYourPreferredLanguage, page.CanGoBack,
 		YourPreferredLanguage(commonTmpls.Get("your_preferred_language.gohtml"), certificateProviderStore))
-	handleCertificateProvider(certificateprovider.PathWhatIsYourHomeAddress, page.None,
-		WhatIsYourHomeAddress(logger, tmpls.Get("what_is_your_home_address.gohtml"), addressClient, certificateProviderStore))
 	handleCertificateProvider(certificateprovider.PathConfirmYourDetails, page.None,
 		ConfirmYourDetails(tmpls.Get("confirm_your_details.gohtml"), certificateProviderStore))
 	handleCertificateProvider(certificateprovider.PathYourRole, page.CanGoBack,

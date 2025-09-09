@@ -53,7 +53,6 @@ type certificateProviderPaths struct {
 	ReadTheLpa                             certificateprovider.Path
 	TaskList                               certificateprovider.Path
 	WhatHappensNext                        certificateprovider.Path
-	WhatIsYourHomeAddress                  certificateprovider.Path
 	WhoIsEligible                          certificateprovider.Path
 	YourPreferredLanguage                  certificateprovider.Path
 	YourRole                               certificateprovider.Path
@@ -292,7 +291,6 @@ var paths = appPaths{
 		ReadTheDraftLpa:                        certificateprovider.PathReadTheDraftLpa,
 		TaskList:                               certificateprovider.PathTaskList,
 		WhatHappensNext:                        certificateprovider.PathWhatHappensNext,
-		WhatIsYourHomeAddress:                  certificateprovider.PathWhatIsYourHomeAddress,
 		WhoIsEligible:                          certificateprovider.PathWhoIsEligible,
 		YourPreferredLanguage:                  certificateprovider.PathYourPreferredLanguage,
 		YourRole:                               certificateprovider.PathYourRole,
