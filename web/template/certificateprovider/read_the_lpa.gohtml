@@ -10,7 +10,7 @@
             {{ $inSelected := tr .BannerApp (printf "in:%s" .Lpa.Language.String) }}
 
             {{ if and (ne .BannerApp.Lang .App.Lang) (ne .BannerApp.Lang .Lpa.Language) }}
-                {{ template "notification-banner" (notificationBanner .BannerApp "important" (trFormatHtml .BannerApp "donorHasChosenToHaveTheirLpaRegisteredInContent" "DonorFullName" .Lpa.Donor.FullName "Unselected" $unselected "InSelected" $inSelected "InUnselected" $inUnselected) "contents") }}
+                {{ template "notification-banner" (notificationBanner .BannerApp "important" (trFormatHtml .BannerApp "donorHasChosenToHaveTheirLpaRegisteredInContentCertificateProvider" "DonorFullName" .Lpa.Donor.FullName "Unselected" $unselected "InSelected" $inSelected "InUnselected" $inUnselected) "contents") }}
             {{ else if ne .App.Lang .Lpa.Language }}
                 {{ template "notification-banner" (notificationBanner .BannerApp "important" (trFormatHtml .BannerApp "donorHasChosenToHaveTheirLpaRegisteredInThisIsTranslationContent" "DonorFullName" .Lpa.Donor.FullName "InSelected" $inSelected) "contents") }}
             {{ end }}
