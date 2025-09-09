@@ -176,35 +176,49 @@ func TestLpaOwnerKey(t *testing.T) {
 }
 
 func TestAccessKey(t *testing.T) {
-	for str, key := range map[string]AccessKeyType{
-		"DONORACCESS#123":               AccessKey(DonorAccessKey("123")),
-		"CERTIFICATEPROVIDERACCESS#123": AccessKey(CertificateProviderAccessKey("123")),
-		"ATTORNEYACCESS#123":            AccessKey(AttorneyAccessKey("123")),
+	for str, tc := range map[string]struct {
+		key     AccessKeyType
+		isDonor bool
+	}{
+		"DONORACCESS#123": {
+			key:     AccessKey(DonorAccessKey("123")),
+			isDonor: true,
+		},
+		"CERTIFICATEPROVIDERACCESS#123": {
+			key: AccessKey(CertificateProviderAccessKey("123")),
+		},
+		"ATTORNEYACCESS#123": {
+			key: AccessKey(AttorneyAccessKey("123")),
+		},
 	} {
 		t.Run(str+"/PK", func(t *testing.T) {
-			assert.Equal(t, str, key.PK())
+			assert.Equal(t, str, tc.key.PK())
+		})
+
+		t.Run(str+"/IsDonor", func(t *testing.T) {
+			assert.Equal(t, tc.isDonor, tc.key.IsDonor())
 		})
 
 		t.Run(str+"/json", func(t *testing.T) {
-			data, err := json.Marshal(key)
+			data, err := json.Marshal(tc.key)
 			assert.Nil(t, err)
 			assert.Equal(t, `"`+str+`"`, string(data))
 
 			var v AccessKeyType
 			err = json.Unmarshal(data, &v)
 			assert.Nil(t, err)
-			assert.Equal(t, key, v)
+			assert.Equal(t, tc.key, v)
 		})
 
 		t.Run(str+"/attributevalue", func(t *testing.T) {
-			data, err := attributevalue.Marshal(key)
+			data, err := attributevalue.Marshal(tc.key)
 			assert.Nil(t, err)
 			assert.Equal(t, &types.AttributeValueMemberS{Value: str}, data)
 
 			var v AccessKeyType
 			err = attributevalue.Unmarshal(data, &v)
 			assert.Nil(t, err)
-			assert.Equal(t, key, v)
+			assert.Equal(t, tc.key, v)
 		})
 	}
 

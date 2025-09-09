@@ -12,6 +12,7 @@ type Link struct {
 	PK        dynamo.AccessKeyType
 	SK        dynamo.AccessSortKeyType
 	UpdatedAt time.Time
+	ExpiresAt time.Time
 
 	// LpaKey is the key for the LPA that will be accessed
 	LpaKey dynamo.LpaKeyType
@@ -27,8 +28,4 @@ type Link struct {
 	// IsTrustCorporation is true when the actor being given access is a trust
 	// corporation
 	IsTrustCorporation bool
-}
-
-func (l Link) HasExpired(now time.Time) bool {
-	return l.UpdatedAt.AddDate(2, 0, 0).Before(now)
 }

@@ -66,7 +66,7 @@ type MemberStore interface {
 }
 
 type DonorStore interface {
-	DeleteDonorAccess(ctx context.Context, link accesscodedata.DonorLink) error
+	DeleteDonorAccess(ctx context.Context, link supporterdata.LpaLink) error
 	Get(ctx context.Context) (*donordata.Provided, error)
 	GetByKeys(ctx context.Context, keys []dynamo.Keys) ([]donordata.Provided, error)
 	Put(ctx context.Context, donor *donordata.Provided) error
@@ -99,9 +99,9 @@ type NotifyClient interface {
 }
 
 type AccessCodeStore interface {
-	PutDonor(ctx context.Context, code accesscodedata.Hashed, link accesscodedata.DonorLink) error
-	GetDonorAccess(ctx context.Context) (accesscodedata.DonorLink, error)
-	DeleteDonor(ctx context.Context, link accesscodedata.DonorLink) error
+	PutDonorAccess(ctx context.Context, code accesscodedata.Hashed, link accesscodedata.Link, inviteSentTo string) error
+	GetDonorAccess(ctx context.Context) (supporterdata.LpaLink, error)
+	DeleteDonorAccess(ctx context.Context, link supporterdata.LpaLink) error
 }
 
 type Template func(w io.Writer, data interface{}) error

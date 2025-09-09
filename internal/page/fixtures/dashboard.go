@@ -7,6 +7,7 @@ import (
 	"github.com/ministryofjustice/opg-go-common/template"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/accesscode"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/appcontext"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor/donordata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/lpastore/lpadata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
@@ -17,7 +18,7 @@ import (
 func Dashboard(
 	tmpl template.Template,
 	sessionStore *sesh.Store,
-	donorStore page.DonorStore,
+	donorStore *donor.Store,
 	certificateProviderStore CertificateProviderStore,
 	attorneyStore AttorneyStore,
 	accessCodeStore *accesscode.Store,
