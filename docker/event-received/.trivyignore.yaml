@@ -4,9 +4,9 @@ misconfigurations:
   - id: AVD-DS-0017
     statement: Package manager update should always have install
 vulnerabilities:
-  - id: CVE-2022-49043
-    statement: Patched version of libxml2 unavailable in latest image
-    expired_at: 2025-03-30
+  - id: CVE-2025-7425
+    statement: Vulnerability not exploitable in our configuration
+    expired_at: 2025-09-30
   - id: CVE-2025-47907
     statement: Waiting for collector to be updated
     expired_at: 2025-09-15
