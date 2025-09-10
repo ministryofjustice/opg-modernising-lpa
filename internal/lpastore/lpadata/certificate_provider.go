@@ -24,8 +24,8 @@ type CertificateProvider struct {
 	IdentityCheck             *IdentityCheck `json:"identityCheck,omitempty"`
 
 	// Relationship is not stored in the lpa-store so is defaulted to
-	// Professional. We require it to determine whether to show the home address
-	// page to a certificate provider.
+	// Personally. We require it to determine whether to warn that the address
+	// should be updated if mismatched on identity check.
 	Relationship CertificateProviderRelationship `json:"-"`
 }
 

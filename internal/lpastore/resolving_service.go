@@ -101,6 +101,7 @@ func (s *ResolvingService) merge(lpa *lpadata.Lpa, donor *donordata.Provided) *l
 		lpa.Drafted = true
 		lpa.Paid = true
 		lpa.Donor.Channel = lpadata.ChannelPaper
+		lpa.CertificateProvider.Relationship = lpadata.Personally
 	} else {
 		lpa.Drafted = donor.Tasks.CheckYourLpa.IsCompleted()
 		lpa.PaymentInProgress = !donor.Tasks.PayForLpa.IsCompleted() && !donor.Tasks.PayForLpa.IsNotStarted()
