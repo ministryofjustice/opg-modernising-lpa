@@ -8,6 +8,7 @@
     <div class="govuk-grid-row">
         <div class="govuk-grid-column-two-thirds">
             {{ $match := .CertificateProvider.Tasks.ConfirmYourIdentity.IsCompleted }}
+            {{ $addressMatch := or (eq .CertificateProvider.IdentityUserData.CurrentAddress .Lpa.CertificateProvider.Address) .Lpa.CertificateProvider.Relationship.IsProfessionally }}
 
             {{ if not .CertificateProvider.IdentityUserData.Status.IsConfirmed }}
                 {{ template "notification-banner" ( notificationBanner .App "important" (trHtml .App "youHaveBeenUnableToConfirmYourIdentity") "heading" ) }}
@@ -16,17 +17,21 @@
             {{ else }}
                 {{ if $match }}
                     {{ template "notification-banner" (notificationBanner .App "success" (trFormatHtml .App "youHaveSuccessfullyConfirmedYourIdentitySuccess:certificate-provider" "DonorFullName" .Lpa.Donor.FullName) "success" "contents" ) }}
+
+                    {{ if not $addressMatch }}
+                        {{ template "notification-banner" (notificationBanner .App "important" (trFormatHtml .App "thereIsMismatchInAddress" "DonorFullName" .Lpa.Donor.FullName) "contents") }}
+                    {{ end }}
                 {{ else }}
-                    {{ template "notification-banner" (notificationBanner .App "important" (trFormatHtml .App "someOfTheDetailsOnTheLpaDoNotMatch") "heading") }}
+                    {{ template "notification-banner" (notificationBanner .App "important" (trHtml .App "someOfTheDetailsOnTheLpaDoNotMatch") "heading") }}
 
                     <h1 class="govuk-heading-m">{{ tr .App "detailsYouHaveGivenUs" }}</h1>
-                    
+
                     <dl class="govuk-summary-list">
                         {{ template "summary-row" (staticSummaryRow .App "dateOfBirth" (formatDate .App .CertificateProvider.DateOfBirth)) }}
                     </dl>
 
                     <h1 class="govuk-heading-m">{{ tr .App "detailsTheDonorHasGivenAboutYou" }}</h1>
-                    
+
                     <dl class="govuk-summary-list">
                         {{ with .Lpa.CertificateProvider }}
                             {{ template "summary-row" (staticSummaryRow $.App "firstNames" .FirstNames) }}
@@ -36,7 +41,27 @@
                     </dl>
                 {{ end }}
 
-                {{ template "identity-details" (card .App .CertificateProvider.IdentityUserData) }}
+                {{ if or $addressMatch }}
+                    {{ template "identity-details" (card .App .CertificateProvider.IdentityUserData) }}
+                {{ else }}
+                    {{ template "identity-details-with-address" (card .App .CertificateProvider.IdentityUserData) }}
+
+                    <h1 class="govuk-heading-m">{{ trFormat .App "addressInPersonsLpa" "DonorFullName" .Lpa.Donor.FullName }}</h1>
+
+                    <dl class="govuk-summary-list">
+                        <div class="govuk-summary-list__row">
+                            <dt class="govuk-summary-list__key">{{ tr .App "address" }}</dt>
+                            <dd class="govuk-summary-list__value">{{ template "address-lines" (addressLines .App .Lpa.CertificateProvider.Address) }}</dd>
+                            <dd class="govuk-summary-list__actions">
+                                <span class="moj-badge moj-badge--blue app-08rem-font-size">{{ tr .App "review" }}</span>
+                            </dd>
+                        </div>
+                    </dl>
+
+                    {{ trFormatHtml .App "theAddressDoesNotHaveToMatchHoweverShouldInform"
+                        "DonorFullName" .Lpa.Donor.FullName
+                        "ContactLink" (link .App global.Paths.ContactTheOfficeOfThePublicGuardian.Format) }}
+                {{ end }}
 
                 {{ if not $match }}
                     <h1 class="govuk-heading-m">{{ tr .App "whatHappensNext" }}</h1>
@@ -44,7 +69,7 @@
                     {{ trFormatHtml .App "yourDetailsCannotBeUpdatedAsAlreadySigned" "DonorFullName" .Lpa.Donor.FullName }}
                 {{ end }}
             {{ end }}
-                
+
             {{ template "button" (button .App "returnToTaskList" "link" (global.Paths.CertificateProvider.TaskList.Format .App.LpaID)) }}
         </div>
     </div>
