@@ -55,33 +55,54 @@
             {{ else }}
                 <h2 class="govuk-heading-m govuk-!-margin-top-8">{{ tr .App "detailsTheDonorHasGivenAboutYou" }}</h2>
                 <dl class="govuk-summary-list">
-                    {{ template "summary-row" (summaryRow .App "name"
-                        .Attorney.FullName
-                        ""
-                        $attorneyFullName false true ) }}
-                    {{ template "summary-row" (summaryRow .App "dateOfBirth"
-                        (formatDate .App .Attorney.DateOfBirth)
-                        ""
-                        $attorneyFullName false true ) }}
-                    {{ template "address-summary-row" (summaryRow .App "address"
-                        .Attorney.Address
-                        ""
-                        $attorneyFullName false true ) }}
+                    {{ template "summary-row" (staticSummaryRow .App "name"
+                        .Attorney.FullName) }}
+
+                    {{ if .Attorney.DateOfBirth.IsZero }}
+                        {{ template "summary-row" (staticSummaryRow $.App "dateOfBirth"
+                            (trFormat .App "personDidNotEnterDateOfBirth" "FullName" .Lpa.Donor.FullName)) }}
+                    {{ else }}
+                        {{ template "summary-row" (staticSummaryRow .App "dateOfBirth"
+                            (formatDate .App .Attorney.DateOfBirth)) }}
+                    {{ end }}
+
+                    {{ template "address-summary-row" (staticSummaryRow .App "address"
+                        .Attorney.Address) }}
+
                     {{ if and .DonorProvidedMobile (not .AttorneyProvidedDetails.PhoneSet) }}
                         {{ template "summary-row" (summaryRow .App "phoneNumber"
                             (formatPhone .DonorProvidedMobile)
-                            (fromLink .App global.Paths.Attorney.PhoneNumber "#f-date-of-birth")
+                            (fromLink .App global.Paths.Attorney.PhoneNumber "#f-phone")
                             $attorneyFullName true true) }}
                     {{ end }}
                 </dl>
 
-                {{ if and .DonorProvidedMobile (not .AttorneyProvidedDetails.PhoneSet) }}
-                    {{ template "details" (details . "whatToDoIfAnyDetailsAreIncorrect" (trFormat .App "whatToDoIfAnyDetailsAreIncorrectAttorneyCanPhoneContent" "DonorFullName" .Lpa.Donor.FullName) false) }}
-                {{ else }}
-                    {{ template "details" (details . "whatToDoIfAnyDetailsAreIncorrect" (trFormat .App "whatToDoIfAnyDetailsAreIncorrectAttorneyContent"
-                        "DonorFullName" .Lpa.Donor.FullName
-                        "ContactLink" (link .App global.Paths.ContactTheOfficeOfThePublicGuardian.Format)) false) }}
-                {{ end }}
+                <details class="govuk-details">
+                    <summary class="govuk-details__summary">
+                        <span class="govuk-details__summary-text">
+                            {{ tr .App "whatToDoIfAnyDetailsAreIncorrect" }}
+                        </span>
+                    </summary>
+                    <div class="govuk-details__text">
+                        <p class="govuk-body">
+                            {{ tr .App "youCanCorrectMistakeInPhone" }}
+                        </p>
+                        <p class="govuk-body">
+                            {{ trFormatHtml .App "howeverIfNameDateOfBirthOrAddressAreIncorrect"
+                                "DonorFullName" .Lpa.Donor.FullName
+                                "ContactLink" (link .App global.Paths.ContactTheOfficeOfThePublicGuardian.Format) }}
+                        </p>
+                        {{ if .Attorney.DateOfBirth.IsZero }}
+                            <p class="govuk-body">
+                            {{ trFormatHtml .App "youMustBeOver18ToActAsAttorneyProvideDateOfBirth"
+                                "ContactLink" (link .App global.Paths.ContactTheOfficeOfThePublicGuardian.Format) }}
+                            </p>
+                        {{ end }}
+                        <p class="govuk-body">
+                            {{ tr .App "youCanThenLogBackInToConfirmCorrect" }}
+                        </p>
+                    </div>
+                </details>
 
                 {{ template "warning" (content .App "anyErrorsInYourDetailsCanMakeLpaDifficultToUse") }}
             {{ end }}
