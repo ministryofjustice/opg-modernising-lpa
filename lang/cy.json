@@ -601,8 +601,6 @@
     "detailsYouHaveGivenUs": "Manylion rydych wedi eu rhoi i ni",
     "detailsTheDonorHasGivenAboutYou": "Manylion y mae’r rhoddwr wedi eu rhoi amdanoch",
     "whatToDoIfAnyDetailsAreIncorrect": "Beth i’w wneud os yw unrhyw rai o’r manylion a roddwyd amdanoch yn anghywir",
-    "whatToDoIfAnyDetailsAreIncorrectAttorneyContent": "Welsh {{.DonorFullName}} {{.ContactLink}}",
-    "whatToDoIfAnyDetailsAreIncorrectAttorneyCanPhoneContent": "<p class=\"govuk-body\">Gallwch gywiro camgymeriad yn eich rhif ffôn.</p><p class=\"govuk-body\">Fodd bynnag, os yw eich enw, eich dyddiad geni neu’ch cyfeiriad yn anghywir, peidiwch â bwrw ymlaen.</p><p class=\"govuk-body\">Gofynnwch i {{.DonorFullName}} ddiweddaru eich manylion. Yna, mae’n rhaid i chi fewngofnodi’n ôl i’r gwasanaeth i gadarnhau bod eich manylion yn gywir.</p>",
     "anyErrorsInYourDetailsCanDelay": "Gall unrhyw gamgymeriadau yn eich manylion achosi oedi cyn prosesu’r LPA.",
     "mobileNumber": "Rhif ffôn symudol",
     "anyErrorsInYourDetailsCanMakeLpaDifficultToUse": "Gall unrhyw wallau yn eich manylion wneud yr LPA yn anodd ei ddefnyddio. Mae’n bosibl na fydd sefydliadau’n derbyn yr LPA os nad yw’ch manylion yn cyfateb i’ch data adnabod.",
@@ -1948,5 +1946,12 @@
     "donorHasChosenToHaveTheirLpaRegisteredInContentCertificateProvider": "<p class=\"govuk-notification-banner__heading\">Mae {{.DonorFullName}} wedi dewis cofrestru ei LPA {{.InSelected}}.</p><p class=\"govuk-body\">I ddarparu tystysgrif {{.DonorFullName}}, mae’n rhaid i chi ei gweld a’i llofnodi {{.InSelected}}.</p><p class=\"govuk-body\">Gallwch ddewis y ddolen ‘{{.Unselected}}’ i ddarllen cyfieithiad  {{.Unselected}} o’r dystysgrif ar gyfer yr LPA hon a ddarperir gan Swyddfa’r Gwarcheidwaid Cyhoeddus.</p><p class=\"govuk-body\">Fodd bynnag, pan fyddwch chi’n llofnodi’r dystysgrif, rhaid ei gweld yn newis iaith {{.DonorFullName}}.</p>",
     "thereIsMismatchInAddress": "<p class=\"govuk-notification-banner__heading\">Welsh {{.DonorFullName}} {{.DonorFullName}}</p>",
     "addressInPersonsLpa": "Welsh {{.DonorFullName}}",
-    "theAddressDoesNotHaveToMatchHoweverShouldInform": "<p class=\"govuk-body\">Welsh {{.DonorFullName}}</p><p class=\"govuk-body\">{{.DonorFullName}} <a href=\"{{.ContactLink}}\" class=\"govuk-link\" target=\"_blank\" rel=\"noreferrer noopener\">Welsh</a></p>"
+    "theAddressDoesNotHaveToMatchHoweverShouldInform": "<p class=\"govuk-body\">Welsh {{.DonorFullName}}</p><p class=\"govuk-body\">{{.DonorFullName}} <a href=\"{{.ContactLink}}\" class=\"govuk-link\" target=\"_blank\" rel=\"noreferrer noopener\">Welsh</a></p>",
+    "personDidNotEnterDateOfBirth": "{{.FullName}} Welsh",
+    "personDidNotEnterYourDateOfBirth": "{{.FullName}} Welsh",
+    "youCanCorrectMistakeInPhone": "Welsh",
+    "howeverIfNameDateOfBirthOrAddressAreIncorrect": "Welsh {{.DonorFullName}} <a href=\"{{.ContactLink}}\" class=\"govuk-link\" target=\"_blank\" rel=\"noreferrer noopener\">Welsh</a>",
+    "youMustBeOver18ToActAsAttorneyProvideDateOfBirth": "Welsh <a href=\"{{.ContactLink}}\" class=\"govuk-link\" target=\"_blank\" rel=\"noreferrer noopener\">Welsh</a>",
+    "youCanThenLogBackInToConfirmCorrect": "Welsh",
+    "whatToDoIfAnyDetailsAreIncorrectOrMissing": "Welsh"
 }
