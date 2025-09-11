@@ -110,8 +110,7 @@ func CertificateProvider(
 			certificateProviderSessionID = base64.StdEncoding.EncodeToString([]byte(mockGOLSubPrefix + encodedSub))
 		)
 
-		err = sessionStore.SetLogin(r, w, &sesh.LoginSession{Sub: mockGOLSubPrefix + encodedSub, Email: email, HasLPAs: true})
-		if err != nil {
+		if err := sessionStore.SetLogin(r, w, &sesh.LoginSession{Sub: mockGOLSubPrefix + encodedSub, Email: email, HasLPAs: true}); err != nil {
 			return err
 		}
 
@@ -128,17 +127,13 @@ func CertificateProvider(
 		if isPaperDonor {
 			lpaID := random.UUID()
 			donorDetails = &donordata.Provided{
-				PK:                               dynamo.LpaKey(lpaID),
-				SK:                               dynamo.LpaOwnerKey(dynamo.DonorKey("PAPER")),
-				LpaID:                            lpaID,
-				LpaUID:                           makeUID(),
-				CreatedAt:                        time.Now(),
-				Version:                          1,
-				HasSentApplicationUpdatedEvent:   true,
-				SignedAt:                         time.Now(),
-				WitnessedByCertificateProviderAt: time.Now(),
-				Donor:                            makeDonor(donorEmail, "Sam", "Smith"),
-				Type:                             parsedLpaType,
+				PK:                           dynamo.LpaKey(lpaID),
+				SK:                           dynamo.LpaOwnerKey(dynamo.DonorKey("PAPER")),
+				LpaID:                        lpaID,
+				LpaUID:                       makeUID(),
+				CreatedAt:                    time.Now(),
+				Version:                      1,
+				CertificateProviderInvitedAt: time.Now(),
 			}
 
 			transaction := dynamo.NewTransaction().
@@ -308,11 +303,11 @@ func CertificateProvider(
 			if useRealUID {
 				donorDetails.LpaUID = ""
 
-				if err = donorStore.Put(donorCtx, donorDetails); err != nil {
+				if err := donorStore.Put(donorCtx, donorDetails); err != nil {
 					return err
 				}
 
-				if err = eventClient.SendUidRequested(r.Context(), event.UidRequested{
+				if err := eventClient.SendUidRequested(r.Context(), event.UidRequested{
 					LpaID:          donorDetails.LpaID,
 					DonorSessionID: donorSessionID,
 					Type:           donorDetails.Type.String(),
