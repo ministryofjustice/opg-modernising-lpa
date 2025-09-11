@@ -39,20 +39,6 @@ describe('Confirm your details', () => {
 
             cy.contains('button', 'Save and continue').click();
 
-            cy.url().should('contain', '/what-is-your-home-address');
-            cy.checkA11yApp();
-
-            cy.contains('a', 'Enter address manually').click()
-
-            cy.url().should('contain', '/what-is-your-home-address');
-            cy.checkA11yApp();
-
-            cy.get('#f-address-line-1').invoke('val', '6 RICHMOND PLACE');
-            cy.get('#f-address-town').invoke('val', 'Birmingham');
-            cy.get('#f-address-postcode').invoke('val', 'B14 7ED');
-
-            cy.contains('button', 'Save and continue').click();
-
             cy.url().should('contain', '/your-preferred-language');
 
             cy.get('[name="language-preference"]').check('cy', { force: true })
@@ -63,8 +49,6 @@ describe('Confirm your details', () => {
             cy.checkA11yApp();
 
             cy.contains('1 February 1990');
-            cy.contains('dt', 'Home address').parent().contains('6 RICHMOND PLACE')
-
             cy.contains('dt', 'Work address').parent().contains('5 RICHMOND PLACE')
             cy.contains('Charlie Cooper');
             cy.contains('5 RICHMOND PLACE');

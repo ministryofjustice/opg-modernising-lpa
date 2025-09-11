@@ -411,16 +411,6 @@ func CertificateProvider(
 			certificateProvider.DateOfBirth = date.New("1990", "1", "2")
 			certificateProvider.ContactLanguagePreference = localize.En
 			certificateProvider.Tasks.ConfirmYourDetails = task.StateCompleted
-
-			if asProfessionalCertificateProvider {
-				certificateProvider.HomeAddress = place.Address{
-					Line1:      "6 RICHMOND PLACE",
-					Line2:      "KINGS HEATH",
-					Line3:      "WEST MIDLANDS",
-					TownOrCity: "BIRMINGHAM",
-					Postcode:   "B14 7ED",
-				}
-			}
 		}
 
 		if progress >= slices.Index(progressValues, "confirmYourIdentity") {

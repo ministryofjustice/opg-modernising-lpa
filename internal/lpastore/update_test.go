@@ -127,15 +127,7 @@ func TestClientSendCertificateProvider(t *testing.T) {
 	uid, _ := actoruid.Parse("399ce2f7-f3bd-4feb-9207-699ff4d99cbf")
 
 	certificateProvider := &certificateproviderdata.Provided{
-		UID: uid,
-		HomeAddress: place.Address{
-			Line1:      "line-1",
-			Line2:      "line-2",
-			Line3:      "line-3",
-			TownOrCity: "town",
-			Postcode:   "postcode",
-			Country:    "GB",
-		},
+		UID:                       uid,
 		SignedAt:                  time.Date(2000, time.January, 2, 3, 4, 5, 6, time.UTC),
 		ContactLanguagePreference: localize.Cy,
 		Email:                     "b@example.com",
@@ -149,7 +141,7 @@ func TestClientSendCertificateProvider(t *testing.T) {
 		},
 	}
 
-	json := `{"type":"CERTIFICATE_PROVIDER_SIGN","changes":[{"key":"/certificateProvider/signedAt","old":null,"new":"2000-01-02T03:04:05.000000006Z"},{"key":"/certificateProvider/contactLanguagePreference","old":null,"new":"cy"},{"key":"/certificateProvider/address/line1","old":"","new":"line-1"},{"key":"/certificateProvider/address/line2","old":"","new":"line-2"},{"key":"/certificateProvider/address/line3","old":"","new":"line-3"},{"key":"/certificateProvider/address/town","old":"","new":"town"},{"key":"/certificateProvider/address/postcode","old":"","new":"postcode"},{"key":"/certificateProvider/address/country","old":"","new":"GB"},{"key":"/certificateProvider/email","old":"a@example.com","new":"b@example.com"}]}`
+	json := `{"type":"CERTIFICATE_PROVIDER_SIGN","changes":[{"key":"/certificateProvider/signedAt","old":null,"new":"2000-01-02T03:04:05.000000006Z"},{"key":"/certificateProvider/contactLanguagePreference","old":null,"new":"cy"},{"key":"/certificateProvider/email","old":"a@example.com","new":"b@example.com"}]}`
 
 	ctx := context.Background()
 
