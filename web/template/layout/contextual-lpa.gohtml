@@ -48,8 +48,13 @@
             </div>
             <div class="govuk-summary-card__content">
                 <dl class="govuk-summary-list">
-                    {{ template "summary-row" (staticSummaryRow $.App "dateOfBirth"
-                        (formatDate $.App .DateOfBirth)) }}
+                    {{ if .DateOfBirth.IsZero }}
+                        {{ template "summary-row" (staticSummaryRow $.App "dateOfBirth"
+                            (trFormat $.App "personDidNotEnterYourDateOfBirth" "FullName" $.Lpa.Donor.FullName)) }}
+                    {{ else }}
+                        {{ template "summary-row" (staticSummaryRow $.App "dateOfBirth"
+                            (formatDate $.App .DateOfBirth)) }}
+                    {{ end }}
 
                     {{ if .Mobile }}
                         {{ template "summary-row" (staticSummaryRow $.App "mobile"
@@ -90,8 +95,13 @@
             </div>
             <div class="govuk-summary-card__content">
                 <dl class="govuk-summary-list">
-                    {{ template "summary-row" (staticSummaryRow $.App "dateOfBirth"
-                        (formatDate $.App .DateOfBirth)) }}
+                    {{ if .DateOfBirth.IsZero }}
+                        {{ template "summary-row" (staticSummaryRow $.App "dateOfBirth"
+                            (trFormat $.App "personDidNotEnterYourDateOfBirth" "FullName" $.Lpa.Donor.FullName)) }}
+                    {{ else }}
+                        {{ template "summary-row" (staticSummaryRow $.App "dateOfBirth"
+                            (formatDate $.App .DateOfBirth)) }}
+                    {{ end }}
 
                     {{ if .Mobile }}
                         {{ template "summary-row" (staticSummaryRow $.App "mobile"
