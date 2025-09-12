@@ -46,9 +46,9 @@ describe('Confirm your details', () => {
             cy.url().should('contain', '/confirm-your-details');
             cy.checkA11yApp();
 
-            cy.contains('2 January 2000');
-            cy.contains('Jessie Jones');
-            cy.contains('2 RICHMOND PLACE');
+            cy.contains('Feed Bundlaaaa did not enter your date of birth');
+            cy.contains('Herman Seakrest');
+            cy.contains('81 NighOnTimeWeBuiltIt Street Mahhhhhhhhhh');
             cy.contains('07700 900 000');
             cy.contains('Welsh');
 
@@ -57,9 +57,9 @@ describe('Confirm your details', () => {
         });
     });
 
-    describe('paper donor gave phone number', () => {
+    describe('paper donor gave phone number and date of birth', () => {
         beforeEach(() => {
-            cy.visit('/fixtures/attorney?options=is-paper-donor&options=has-phone-number&redirect=/task-list');
+            cy.visit('/fixtures/attorney?options=is-paper-donor&options=has-phone-number&options=has-date-of-birth&redirect=/task-list');
 
             cy.contains('li', 'Confirm your details').should('contain', 'Not started').click();
 
@@ -77,9 +77,9 @@ describe('Confirm your details', () => {
             });
 
             cy.contains('h2', 'Details the donor has given about you').next().within(() => {
-                cy.contains('2 January 2000');
-                cy.contains('Jessie Jones');
-                cy.contains('2 RICHMOND PLACE');
+                cy.contains('Herman Seakrest');
+                cy.contains('24 July 1982');
+                cy.contains('81 NighOnTimeWeBuiltIt Street Mahhhhhhhhhh');
                 cy.contains('07700 900 000');
             });
 
@@ -98,9 +98,9 @@ describe('Confirm your details', () => {
             });
 
             cy.contains('h2', 'Details the donor has given about you').next().within(() => {
-                cy.contains('2 January 2000');
-                cy.contains('Jessie Jones');
-                cy.contains('2 RICHMOND PLACE');
+                cy.contains('Herman Seakrest');
+                cy.contains('24 July 1982');
+                cy.contains('81 NighOnTimeWeBuiltIt Street Mahhhhhhhhhh');
                 cy.contains('Phone number').should('not.exist');
             });
         });
@@ -117,9 +117,9 @@ describe('Confirm your details', () => {
             });
 
             cy.contains('h2', 'Details the donor has given about you').next().within(() => {
-                cy.contains('2 January 2000');
-                cy.contains('Jessie Jones');
-                cy.contains('2 RICHMOND PLACE');
+                cy.contains('Herman Seakrest');
+                cy.contains('24 July 1982');
+                cy.contains('81 NighOnTimeWeBuiltIt Street Mahhhhhhhhhh');
                 cy.contains('Phone number').should('not.exist');
             });
         });
