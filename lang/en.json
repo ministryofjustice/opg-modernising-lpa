@@ -525,7 +525,7 @@
     "optionBHint": "Your attorneys will not be able to speak to doctors as if they were you",
     "doYouWantYourAttorneysToMakeDecisionsAboutLifeSustainingTreatment": "Do you want your attorneys to make decisions about life-sustaining treatment?",
     "iGiveMyAttorneysAuthorityLifeSustainingTreatment": "I give my attorneys authority to give or refuse consent to life-sustaining treatment on my behalf",
-    "iDoNotGiveMyAttorneysAuthorityLifeSustainingTreatment": "I <span class=\"govuk-!-font-weight-bold\">do not</span> give my attorneys the authority to give or refuse consent to life-sustaining treatment on my behalf.",
+    "iDoNotGiveMyAttorneysAuthorityLifeSustainingTreatment": "I do not give my attorneys authority to give or refuse consent to life-sustaining treatment on my behalf",
     "helpAndSupport": "Help and support",
     "signOut": "Sign out",
     "menu": "Menu",

@@ -38,7 +38,7 @@
                     {{ if .Donor.LifeSustainingTreatmentOption.IsOptionA }}
                         <li>{{ tr .App "iGiveMyAttorneysAuthorityLifeSustainingTreatment" }}</li>
                     {{ else }}
-                        <li>{{ trHtml .App "iDoNotGiveMyAttorneysAuthorityLifeSustainingTreatment" }}</li>
+                        <li>{{ tr .App "iDoNotGiveMyAttorneysAuthorityLifeSustainingTreatment" }}</li>
                     {{ end }}
                 {{ end }}
                 {{ if gt (len .Donor.PeopleToNotify) 0 }}
