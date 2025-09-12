@@ -113,6 +113,7 @@ type appPaths struct {
 	CertificateProviderFixtures page.Path
 	CertificateProviderStart    page.Path
 	CookiesConsent              page.Path
+	CookiesPolicy               page.Path
 	Dashboard                   page.Path
 	DashboardFixtures           page.Path
 	EnterAccessCode             page.Path
@@ -366,6 +367,7 @@ var paths = appPaths{
 	CertificateProviderFixtures: page.PathCertificateProviderFixtures,
 	CertificateProviderStart:    page.PathCertificateProviderStart,
 	CookiesConsent:              page.PathCookiesConsent,
+	CookiesPolicy:               page.PathCookiesPolicy,
 	Dashboard:                   page.PathDashboard,
 	DashboardFixtures:           page.PathDashboardFixtures,
 	EnterAccessCode:             page.PathEnterAccessCode,
