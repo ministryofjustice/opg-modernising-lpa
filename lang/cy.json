@@ -1954,5 +1954,7 @@
     "howeverIfNameOrAddressAreIncorrect": "Welsh {{.DonorFullName}} <a href=\"{{.ContactLink}}\" class=\"govuk-link\" target=\"_blank\" rel=\"noreferrer noopener\">Welsh</a>",
     "youMustBeOver18ToActAsAttorneyProvideDateOfBirth": "Welsh <a href=\"{{.ContactLink}}\" class=\"govuk-link\" target=\"_blank\" rel=\"noreferrer noopener\">Welsh</a>",
     "youCanThenLogBackInToConfirmCorrect": "Welsh",
-    "whatToDoIfAnyDetailsAreIncorrectOrMissing": "Welsh"
+    "whatToDoIfAnyDetailsAreIncorrectOrMissing": "Welsh",
+    "cookiesPolicyTitle": "Welsh",
+    "cookiesPolicyContent": "<p class=\"govuk-body\">Welsh</p>"
 }
