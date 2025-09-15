@@ -18,7 +18,7 @@
       {{ else if eq (len .Donor.AllLayAttorneysFirstNames) 0 }}
         {{ trFormatHtml .App "whoCannotBeACertificateProviderTrustCorporation" "TrustCorporationName" .Donor.TrustCorporation.Name }}
       {{ else }}
-        {{ trFormatHtml .App "whoCannotBeACertificateProviderAttorneysAndTrustCorporation" "AttorneysNames" (concatComma .Donor.AllLayAttorneysFullNames) "TrustCorporationName" .Donor.TrustCorporation.Names }}
+        {{ trFormatHtml .App "whoCannotBeACertificateProviderAttorneysAndTrustCorporation" "AttorneysNames" (concatComma .Donor.AllLayAttorneysFullNames) "TrustCorporationName" .Donor.TrustCorporation.Name }}
       {{ end }}
       {{ trHtml .App "detailsYoullNeedAboutYourCertificateProvider" }}
 
