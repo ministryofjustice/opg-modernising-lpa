@@ -35,7 +35,7 @@
         "cypress-file-upload": "5.0.8",
         "cypress-multi-reporters": "2.0.5",
         "cypress-parallel": "0.15.0",
-        "cypress-real-events": "1.14.0",
+        "cypress-real-events": "1.15.0",
         "playwright": "1.55.0"
     },
     "engines": {
