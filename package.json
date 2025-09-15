@@ -23,8 +23,7 @@
         "aws-rum-web": "^1.11.0",
         "esbuild": "^0.25.0",
         "govuk-frontend": "5.11.2",
-        "sass": "^1.56.1",
-        "totp-generator": "^1.0.0"
+        "sass": "^1.56.1"
     },
     "devDependencies": {
         "@axe-core/playwright": "4.10.2",
@@ -36,7 +35,8 @@
         "cypress-multi-reporters": "2.0.5",
         "cypress-parallel": "0.15.0",
         "cypress-real-events": "1.15.0",
-        "playwright": "1.55.0"
+        "playwright": "1.55.0",
+        "totp-generator": "1.0.0"
     },
     "engines": {
         "node": "22.19.0"
