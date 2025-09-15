@@ -1867,7 +1867,6 @@
     "iHaveACodeInvitingMeToVerifySomeonesIdentity": "Welsh",
     "donorLastName": "Welsh",
     "yourLastName": "Welsh",
-    "iUnderstandWhetherICanConstentToLst": "Welsh",
     "changingYourCertificateProvider": "Welsh",
     "changingYourCertificateProviderContent": "<p class=\"govuk-body\">Welsh {{.Name}} {{.Name}}</p>",
     "youHaveRemovedCertificateProvider": "<p class=\"govuk-notification-banner__heading\">Welsh {{.CertificateProviderFullName}}</p><p class=\"govuk-body\">Welsh {{.CertificateProviderFullName}}.</p><p class=\"govuk-body\">Welsh</p>",
@@ -1954,5 +1953,7 @@
     "howeverIfNameOrAddressAreIncorrect": "Welsh {{.DonorFullName}} <a href=\"{{.ContactLink}}\" class=\"govuk-link\" target=\"_blank\" rel=\"noreferrer noopener\">Welsh</a>",
     "youMustBeOver18ToActAsAttorneyProvideDateOfBirth": "Welsh <a href=\"{{.ContactLink}}\" class=\"govuk-link\" target=\"_blank\" rel=\"noreferrer noopener\">Welsh</a>",
     "youCanThenLogBackInToConfirmCorrect": "Welsh",
-    "whatToDoIfAnyDetailsAreIncorrectOrMissing": "Welsh"
+    "whatToDoIfAnyDetailsAreIncorrectOrMissing": "Welsh",
+    "iUnderstandIHaveAuthorityToConsentToLst": "Welsh",
+    "iUnderstandIDoNotHaveAuthorityToConsentToLst": "Welsh"
 }

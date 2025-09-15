@@ -80,13 +80,14 @@ func Attorney(
 		acceptCookiesConsent(w)
 
 		var (
-			lpaType, _     = lpadata.ParseLpaType(r.FormValue("lpa-type"))
-			lpaLanguage, _ = localize.ParseLang(r.FormValue("lpa-language"))
-			email          = r.FormValue("email")
-			redirect       = r.FormValue("redirect")
-			attorneySub    = cmp.Or(r.FormValue("attorneySub"), random.AlphaNumeric(16))
-			accessCode     = r.FormValue("withAccessCode")
-			donorEmail     = cmp.Or(r.FormValue("donorEmail"), testEmail)
+			lpaType, _                 = lpadata.ParseLpaType(r.FormValue("lpa-type"))
+			lpaLanguage, _             = localize.ParseLang(r.FormValue("lpa-language"))
+			lifeSustainingTreatment, _ = lpadata.ParseLifeSustainingTreatment(r.FormValue("life-sustaining-treatment"))
+			email                      = r.FormValue("email")
+			redirect                   = r.FormValue("redirect")
+			attorneySub                = cmp.Or(r.FormValue("attorneySub"), random.AlphaNumeric(16))
+			accessCode                 = r.FormValue("withAccessCode")
+			donorEmail                 = cmp.Or(r.FormValue("donorEmail"), testEmail)
 
 			progress = slices.Index(progressValues, r.FormValue("progress"))
 
@@ -308,7 +309,7 @@ func Attorney(
 			if lpaType.IsPersonalWelfare() && !isTrustCorporation {
 				donorDetails.Type = lpadata.LpaTypePersonalWelfare
 				donorDetails.WhenCanTheLpaBeUsed = lpadata.CanBeUsedWhenCapacityLost
-				donorDetails.LifeSustainingTreatmentOption = lpadata.LifeSustainingTreatmentOptionA
+				donorDetails.LifeSustainingTreatmentOption = lifeSustainingTreatment
 			} else {
 				donorDetails.Type = lpadata.LpaTypePropertyAndAffairs
 				donorDetails.WhenCanTheLpaBeUsed = lpadata.CanBeUsedWhenHasCapacity

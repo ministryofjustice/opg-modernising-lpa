@@ -1783,7 +1783,6 @@
     "iHaveACodeInvitingMeToVerifySomeonesIdentity": "I have a code inviting me to verify someone’s identity",
     "donorLastName": "Donor’s last name",
     "yourLastName": "Your last name",
-    "iUnderstandWhetherICanConstentToLst": "I understand whether I can or cannot consent to life-sustaining treatment on behalf of the donor",
     "changingYourCertificateProvider": "Changing your certificate provider",
     "changingYourCertificateProviderContent": "<p class=\"govuk-body\">You can remove {{.Name}} and choose a new certificate provider.</p><p class=\"govuk-body\">The Office of the Public Guardian (OPG) will let {{.Name}} know. They will no longer be able to access your LPA.</p><p class=\"govuk-body\">When you’ve chosen a new certificate provider, OPG will contact them. </p><p class=\"govuk-body\">You’ll then need to check your LPA again and confirm you’re happy for OPG to send it to your new certificate provider.</p>",
     "youHaveRemovedCertificateProvider": "<p class=\"govuk-notification-banner__heading\">You have removed {{.CertificateProviderFullName}} as your certificate provider</p><p class=\"govuk-body\">The Office of the Public Guardian (OPG) has let {{.CertificateProviderFullName}} know. They will no longer be able to access your LPA.</p><p class=\"govuk-body\">You must choose another certificate provider to make and register this LPA.</p>",
@@ -1870,5 +1869,7 @@
     "howeverIfNameOrAddressAreIncorrect": "However, if your name or address are incorrect, do not continue. Inform {{.DonorFullName}} and <a href=\"{{.ContactLink}}\" class=\"govuk-link\" target=\"_blank\" rel=\"noreferrer noopener\">contact the Office of the Public Guardian (opens in a new tab)</a>. Where possible, we will amend your details.",
     "youMustBeOver18ToActAsAttorneyProvideDateOfBirth": "You must be over 18 to act as an attorney for this LPA. <a href=\"{{.ContactLink}}\" class=\"govuk-link\" target=\"_blank\" rel=\"noreferrer noopener\">Contact the Office of the Public Guardian (opens in a new tab)</a> to provide your date of birth before you continue.",
     "youCanThenLogBackInToConfirmCorrect": "You can then log back into the service to confirm your details are correct.",
-    "whatToDoIfAnyDetailsAreIncorrectOrMissing": "What to do if any of the details given about you are incorrect or missing"
+    "whatToDoIfAnyDetailsAreIncorrectOrMissing": "What to do if any of the details given about you are incorrect or missing",
+    "iUnderstandIHaveAuthorityToConsentToLst": "I understand that I have the authority to give or refuse consent to life-sustaining treatment on behalf of the donor",
+    "iUnderstandIDoNotHaveAuthorityToConsentToLst": "I understand I do not have the authority to give or refuse consent to life-sustaining treatment on behalf of the donor"
 }
