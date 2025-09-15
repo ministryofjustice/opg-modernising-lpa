@@ -41,9 +41,9 @@
                     </dl>
                 {{ end }}
 
-                {{ if or $addressMatch }}
+                {{ if $addressMatch }}
                     {{ template "identity-details" (card .App .CertificateProvider.IdentityUserData) }}
-                {{ else }}
+                {{ else if $match }}
                     {{ template "identity-details-with-address" (card .App .CertificateProvider.IdentityUserData) }}
 
                     <h1 class="govuk-heading-m">{{ trFormat .App "addressInPersonsLpa" "DonorFullName" .Lpa.Donor.FullName }}</h1>
