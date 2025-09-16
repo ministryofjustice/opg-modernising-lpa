@@ -34,6 +34,11 @@
       (item "property-and-affairs" "Property and affairs")
       (item "personal-welfare" "Personal welfare")) }}
 
+  {{ template "radios-fieldset" (fieldset . "life-sustaining-treatment" "option-a"
+      (legend "Life sustaining treatment option")
+      (item "option-a" "Option A - Yes")
+      (item "option-b" "Option B - No")) }}
+
   {{ template "radios-fieldset" (fieldset . "lpa-language" "en"
       (legend "LPA language")
       (item "en" "English")
