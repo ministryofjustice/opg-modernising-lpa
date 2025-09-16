@@ -32,6 +32,7 @@ type Lpa struct {
 	HowShouldReplacementAttorneysStepIn        ReplacementAttorneysStepIn
 	HowShouldReplacementAttorneysStepInDetails string
 	Restrictions                               string
+	RestrictionsImages                         []File
 	WhenCanTheLpaBeUsed                        CanBeUsedWhen
 	LifeSustainingTreatmentOption              LifeSustainingTreatment
 	AuthorisedSignatory                        AuthorisedSignatory

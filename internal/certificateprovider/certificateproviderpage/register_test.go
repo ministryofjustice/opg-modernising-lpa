@@ -144,7 +144,7 @@ func TestMakeCertificateProviderHandle(t *testing.T) {
 
 	lpaStoreResolvingService := newMockLpaStoreResolvingService(t)
 	lpaStoreResolvingService.EXPECT().
-		Get(mock.Anything).
+		GetWithImages(mock.Anything).
 		Return(&lpadata.Lpa{LpaID: "123"}, nil)
 
 	mux := http.NewServeMux()
@@ -193,7 +193,7 @@ func TestMakeCertificateProviderHandleWhenCannotGoToURL(t *testing.T) {
 
 	lpaStoreResolvingService := newMockLpaStoreResolvingService(t)
 	lpaStoreResolvingService.EXPECT().
-		Get(mock.Anything).
+		GetWithImages(mock.Anything).
 		Return(&lpadata.Lpa{}, nil)
 
 	mux := http.NewServeMux()
@@ -276,7 +276,7 @@ func TestMakeCertificateProviderHandleWhenLpaStoreResolvingServiceError(t *testi
 
 	lpaStoreResolvingService := newMockLpaStoreResolvingService(t)
 	lpaStoreResolvingService.EXPECT().
-		Get(mock.Anything).
+		GetWithImages(mock.Anything).
 		Return(nil, expectedError)
 
 	errorHandler := newMockErrorHandler(t)

@@ -34,6 +34,7 @@ type Handler func(data appcontext.Data, w http.ResponseWriter, r *http.Request, 
 
 type LpaStoreResolvingService interface {
 	Get(ctx context.Context) (*lpadata.Lpa, error)
+	GetWithImages(ctx context.Context) (*lpadata.Lpa, error)
 }
 
 type EventClient interface {
@@ -274,7 +275,7 @@ func makeCertificateProviderHandle(mux *http.ServeMux, sessionStore SessionStore
 				return
 			}
 
-			lpa, err := lpaStoreResolvingService.Get(ctx)
+			lpa, err := lpaStoreResolvingService.GetWithImages(ctx)
 			if err != nil {
 				errorHandler(w, r, err)
 				return
