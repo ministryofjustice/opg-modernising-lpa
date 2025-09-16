@@ -49,6 +49,21 @@ export default defineConfig({
             name: 'chromium',
             use: {...devices['Desktop Chrome']},
         },
+        {
+            name: 'setup-translation-keys',
+            testMatch: /translation-keys-setup\.js/,
+            use: {
+                baseURL: 'http://localhost:5050',
+            },
+        },
+        {
+            name: 'withTranslationKeys',
+            use: {
+                baseURL: 'http://localhost:5050',
+                storageState: 'playwright/translation-keys-state.json',
+            },
+            dependencies: ['setup-translation-keys'],
+        },
 
         // {
         //   name: 'firefox',

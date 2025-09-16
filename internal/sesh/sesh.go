@@ -217,7 +217,8 @@ func (s *Store) SetCsrf(r *http.Request, w http.ResponseWriter, csrfSession *Csr
 }
 
 type LpaDataSession struct {
-	LpaID string
+	LpaID               string
+	ShowTranslationKeys bool
 }
 
 func (s LpaDataSession) Valid() bool {
