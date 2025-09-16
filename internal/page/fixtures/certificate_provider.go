@@ -1,9 +1,13 @@
 package fixtures
 
 import (
+	"bytes"
 	"cmp"
 	"encoding/base64"
 	"errors"
+	"fmt"
+	"image"
+	"image/jpeg"
 	"net/http"
 	"slices"
 	"time"
@@ -150,6 +154,11 @@ func CertificateProvider(
 				return err
 			}
 
+			var restrictionsImage bytes.Buffer
+			if err := jpeg.Encode(&restrictionsImage, image.NewGray(image.Rect(0, 0, 100, 100)), nil); err != nil {
+				return fmt.Errorf("jpeg encode: %w", err)
+			}
+
 			createLpa := lpastore.CreateLpa{
 				LpaType:  parsedLpaType,
 				Channel:  lpadata.ChannelPaper,
@@ -240,6 +249,10 @@ func CertificateProvider(
 				},
 				SignedAt:                         time.Now(),
 				WitnessedByCertificateProviderAt: time.Now(),
+				RestrictionsImages: []lpadata.FileUpload{{
+					Filename: "restrictions-1.jpg",
+					Data:     base64.StdEncoding.EncodeToString(restrictionsImage.Bytes()),
+				}},
 			}
 
 			if channel.IsPaper() {

@@ -28,6 +28,7 @@ if (context.request.method == 'GET') {
         lpa.lifeSustainingTreatmentOptionIsDefault = true;
         lpa.whenTheLpaCanBeUsed = "when-capacity-lost";
         lpa.whenTheLpaCanBeUsedIsDefault = true;
+        lpa.restrictionsAndConditionsImages = [{ path: "/static/assets/rebrand/images/govuk-icon-512.png", hash: "0" }];
     }
     lpaStore.save(lpaUID, JSON.stringify(lpa));
     respond();
