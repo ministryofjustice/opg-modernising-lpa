@@ -248,6 +248,10 @@ func Attorney(
 				},
 				SignedAt:                         time.Now(),
 				WitnessedByCertificateProviderAt: time.Now(),
+				RestrictionsImages: []lpadata.FileUpload{{
+					Filename: "restrictions-1.png",
+					Data:     createPNG(),
+				}},
 			}
 
 			if err := lpaStoreClient.SendLpa(r.Context(), donorDetails.LpaUID, createLpa); err != nil {

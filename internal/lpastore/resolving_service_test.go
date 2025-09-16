@@ -216,6 +216,42 @@ func TestResolvingServiceGet(t *testing.T) {
 	}
 }
 
+func TestResolvingServiceGetWithImages(t *testing.T) {
+	ctx := context.Background()
+
+	donorStore := newMockDonorStore(t)
+	donorStore.EXPECT().
+		GetAny(ctx).
+		Return(&donordata.Provided{
+			SK:     dynamo.LpaOwnerKey(dynamo.OrganisationKey("S")),
+			LpaID:  "1",
+			LpaUID: "M-1111",
+		}, nil)
+
+	lpaClient := newMockLpaClient(t)
+	lpaClient.EXPECT().
+		LpaWithImages(ctx, "M-1111").
+		Return(&lpadata.Lpa{
+			Submitted: true,
+			LpaID:     "1",
+		}, nil)
+
+	service := NewResolvingService(donorStore, lpaClient)
+	lpa, err := service.GetWithImages(ctx)
+
+	assert.Nil(t, err)
+	assert.Equal(t, &lpadata.Lpa{
+		LpaOwnerKey:         dynamo.LpaOwnerKey(dynamo.OrganisationKey("S")),
+		LpaID:               "1",
+		LpaUID:              "M-1111",
+		Submitted:           true,
+		IsOrganisationDonor: true,
+		Donor: lpadata.Donor{
+			Channel: lpadata.ChannelOnline,
+		},
+	}, lpa)
+}
+
 func TestResolvingServiceGetWhenNoUID(t *testing.T) {
 	ctx := context.Background()
 
@@ -224,7 +260,7 @@ func TestResolvingServiceGetWhenNoUID(t *testing.T) {
 		GetAny(ctx).
 		Return(&donordata.Provided{LpaID: "1"}, nil)
 
-	service := NewResolvingService(donorStore, nil)
+	service := NewResolvingService(donorStore, newMockLpaClient(t))
 	lpa, err := service.Get(ctx)
 
 	assert.Equal(t, &lpadata.Lpa{
@@ -266,7 +302,7 @@ func TestResolvingServiceGetWhenDonorStoreErrors(t *testing.T) {
 		GetAny(ctx).
 		Return(nil, expectedError)
 
-	service := NewResolvingService(donorStore, nil)
+	service := NewResolvingService(donorStore, newMockLpaClient(t))
 	_, err := service.Get(ctx)
 
 	assert.Equal(t, expectedError, err)
