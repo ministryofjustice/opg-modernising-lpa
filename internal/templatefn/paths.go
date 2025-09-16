@@ -123,6 +123,7 @@ type appPaths struct {
 	LpaDeleted                  page.Path
 	LpaWithdrawn                page.Path
 	MakeOrAddAnLPA              page.Path
+	PrivacyNotice               page.Path
 	Root                        page.Path
 	SignOut                     page.Path
 	Start                       page.Path
@@ -377,6 +378,7 @@ var paths = appPaths{
 	LpaDeleted:                  page.PathLpaDeleted,
 	LpaWithdrawn:                page.PathLpaWithdrawn,
 	MakeOrAddAnLPA:              page.PathMakeOrAddAnLPA,
+	PrivacyNotice:               page.PathPrivacyNotice,
 	Root:                        page.PathRoot,
 	SignOut:                     page.PathSignOut,
 	Start:                       page.PathStart,

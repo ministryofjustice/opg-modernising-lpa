@@ -59,6 +59,7 @@ const (
 	PathLpaDeleted                  = Path("/lpa-deleted")
 	PathLpaWithdrawn                = Path("/lpa-withdrawn")
 	PathMakeOrAddAnLPA              = Path("/make-or-add-an-lpa")
+	PathPrivacyNotice               = Path("/privacy-notice")
 	PathRoot                        = Path("/")
 	PathSignOut                     = Path("/sign-out")
 	PathStart                       = Path("/start")
