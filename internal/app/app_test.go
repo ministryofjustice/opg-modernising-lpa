@@ -220,6 +220,7 @@ func TestWithAppData(t *testing.T) {
 	testcases := map[string]struct {
 		url                 string
 		cookieName          string
+		cookieValue         string
 		cookieConsentSet    bool
 		showTranslationKeys bool
 		contentType         string
@@ -227,6 +228,7 @@ func TestWithAppData(t *testing.T) {
 		"with cookie consent": {
 			url:              "/path?a=b",
 			cookieName:       "cookies-consent",
+			cookieValue:      "1",
 			cookieConsentSet: true,
 		},
 		"without cookie consent": {
@@ -240,6 +242,18 @@ func TestWithAppData(t *testing.T) {
 		"without translation keys": {
 			url: "/path?a=b",
 		},
+		"with translation keys cookie": {
+			url:                 "/path?a=b",
+			cookieName:          "show-keys",
+			cookieValue:         "1",
+			showTranslationKeys: true,
+		},
+		"disable translation keys cookie": {
+			url:                 "/path?a=b&showTranslationKeys=0",
+			cookieName:          "show-keys",
+			cookieValue:         "0",
+			showTranslationKeys: false,
+		},
 		"with translation keys and multipart form": {
 			url:                 "/path?a=b&showTranslationKeys=1",
 			showTranslationKeys: false,
@@ -251,7 +265,7 @@ func TestWithAppData(t *testing.T) {
 		t.Run(name, func(t *testing.T) {
 			w := httptest.NewRecorder()
 			r, _ := http.NewRequest(http.MethodGet, tc.url, nil)
-			r.AddCookie(&http.Cookie{Name: tc.cookieName, Value: "1"})
+			r.AddCookie(&http.Cookie{Name: tc.cookieName, Value: tc.cookieValue})
 			if tc.contentType != "" {
 				r.Header.Set("Content-Type", tc.contentType)
 			}
@@ -262,7 +276,8 @@ func TestWithAppData(t *testing.T) {
 
 			query := url.Values{"a": {"b"}}
 			if strings.Contains(tc.url, "showTranslationKeys") {
-				query.Add("showTranslationKeys", "1")
+				value := strings.SplitAfter(tc.url, "showTranslationKeys=")
+				query.Add("showTranslationKeys", value[1])
 			}
 
 			handler := http.HandlerFunc(func(hw http.ResponseWriter, hr *http.Request) {

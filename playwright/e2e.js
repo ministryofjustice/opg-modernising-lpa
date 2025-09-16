@@ -1,5 +1,5 @@
 import AxeBuilder from '@axe-core/playwright';
-import { expect } from '@playwright/test';
+import {expect} from '@playwright/test';
 
 export const
     TestEmail = 'simulate-delivered@notifications.service.gov.uk',
@@ -10,7 +10,7 @@ export function randomAccessCode() {
     const characters = 'abcdefghijklmnpqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ123456789'
     let result = [];
 
-    for (let i = 0; i < 12; i++) {
+    for (let i = 0; i < 8; i++) {
         result.push(characters.charAt(Math.floor(Math.random() * characters.length)));
     }
 

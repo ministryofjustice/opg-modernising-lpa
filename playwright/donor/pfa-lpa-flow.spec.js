@@ -11,7 +11,7 @@ test('donor property and affairs full journey', async ({page}) => {
     await page.getByRole('button', {name: /Start|Start now/}).click();
     await page.getByRole('button', {name: 'Continue'}).click();
 
-    await expect(page.locator('h1')).toContainText('Manage your LPAs');
+    await expect(page.locator('h1')).toContainText('Manage LPAs');
     await screenshot(page)
     await extractTextFromMainAndSave(page)
     await page.getByRole('button', {name: /Start|Start now/}).click();
