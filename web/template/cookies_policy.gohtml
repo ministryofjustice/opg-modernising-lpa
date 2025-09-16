@@ -7,7 +7,7 @@
         <div class="govuk-grid-column-two-thirds">
             <h1 class="govuk-heading-xl">{{ tr .App "cookiesPolicyTitle" }}</h1>
 
-            {{ trHtml .App "cookiesPolicyContent" }}
+            {{ trFormatHtml .App "cookiesPolicyContent" "PrivacyNoticeURL" (link .App (global.Paths.PrivacyNotice.Format)) }}
         </div>
     </div>
 {{ end }}
