@@ -8,14 +8,13 @@ test('voucher completes their journey', async ({page}) => {
     await page.getByRole('link', {name: 'Voucher'}).click();
     await page.getByRole('radio', {name: 'Confirm your name'}).check();
     await page.getByRole('button', {name: /Start|Start now/}).click();
-    await page.getByRole('tab', {name: 'I’m vouching for someone'}).click();
     await page.getByRole('link', {name: 'Go to task list'}).click();
     await page.getByRole('link', {name: 'Confirm your name'}).click();
 
     await expect(page.locator('h1')).toContainText('Confirm your name');
     await screenshot(page)
     await extractTextFromMainAndSave(page)
-    await page.getByRole('link', {name: 'Change   last name'}).click();
+    await page.getByRole('link', {name: /Change.*Last name/i}).click();
 
     await expect(page.locator('h1')).toContainText('Your name');
     await page.getByRole('textbox', {name: 'Last name'}).click();
@@ -53,11 +52,8 @@ test('voucher completes their journey', async ({page}) => {
     await page.getByRole('textbox', {name: 'Postcode'}).fill('LE12 6AL');
     await page.getByRole('button', {name: 'Continue'}).click();
 
-    await expect(page.locator('#main-content')).toContainText('Confirm that you are allowed to vouch');
-    await page.getByRole('radio', {name: 'Yes'}).check();
-    await screenshot(page)
-    await extractTextFromMainAndSave(page)
-    await page.getByRole('button', {name: 'Continue'}).click();
+    await page.getByRole('link', {name: 'Continue'}).click();
+
     await page.getByRole('link', {name: 'Sign the declaration'}).click();
 
     await expect(page.locator('h1')).toContainText('Your declaration');
@@ -69,7 +65,7 @@ test('voucher completes their journey', async ({page}) => {
     await screenshot(page)
     await extractTextFromMainAndSave(page)
 
-    await page.getByRole('link', {name: 'Manage your LPAs'}).click();
+    await page.getByRole('link', {name: 'Manage LPAs'}).click();
     await screenshot(page)
     await extractTextFromMainAndSave(page)
 });

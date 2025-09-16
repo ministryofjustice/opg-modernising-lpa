@@ -6,7 +6,9 @@ function browserTextExtractorLogic() {
     function parseChildrenNodes(element) {
         const isSummaryList = element.classList.contains('govuk-summary-list__row');
         const isListItem = element.tagName.toLowerCase() === 'li';
+
         let prependChar = '';
+        let textParts = [];
 
         if (isSummaryList) {
             prependChar = '|';
@@ -14,14 +16,12 @@ function browserTextExtractorLogic() {
             prependChar = '•';
         }
 
-        let textParts = [];
-
         function processNode(node) {
             if (node.nodeType === Node.ELEMENT_NODE) {
                 if (node.tagName.toLowerCase() === 'a') {
                     textParts.push(`[LINK: ${node.textContent.trim()}](${node.href})`)
                 } else if (node.tagName.toLowerCase() === 'span') {
-                    textParts.push(`${node.textContent.trim()}`)
+                    textParts.push(node.textContent.trim())
                 } else {
                     Array.from(node.childNodes).forEach(processNode)
                 }
@@ -72,6 +72,10 @@ function browserTextExtractorLogic() {
         const classList = element.classList;
         let text = '';
 
+        if (classList.contains('app-translation-key')) {
+            return `${element.textContent.trim()}\n\n`
+        }
+
         if ( ['label', 'option', 'script', 'style'].includes(tagName) ||
             ['govuk-visually-hidden', 'govuk-hint', 'govuk-!-display-none', 'app-dialog', 'govuk-warning-text__icon'].some(
                 cls => element.classList.contains(cls))
@@ -80,7 +84,8 @@ function browserTextExtractorLogic() {
         }
 
         if ( ['p', 'li', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6'].includes(tagName) ||
-            classList.contains('govuk-summary-list__row')) {
+            classList.contains('govuk-summary-list__row') ||
+            classList.contains('app-translated-text')) {
             return parseChildrenNodes(element);
         }
 
