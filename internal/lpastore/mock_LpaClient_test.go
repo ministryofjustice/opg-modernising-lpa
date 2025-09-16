@@ -81,6 +81,65 @@ func (_c *mockLpaClient_Lpa_Call) RunAndReturn(run func(context.Context, string)
 	return _c
 }
 
+// LpaWithImages provides a mock function with given fields: ctx, lpaUID
+func (_m *mockLpaClient) LpaWithImages(ctx context.Context, lpaUID string) (*lpadata.Lpa, error) {
+	ret := _m.Called(ctx, lpaUID)
+
+	if len(ret) == 0 {
+		panic("no return value specified for LpaWithImages")
+	}
+
+	var r0 *lpadata.Lpa
+	var r1 error
+	if rf, ok := ret.Get(0).(func(context.Context, string) (*lpadata.Lpa, error)); ok {
+		return rf(ctx, lpaUID)
+	}
+	if rf, ok := ret.Get(0).(func(context.Context, string) *lpadata.Lpa); ok {
+		r0 = rf(ctx, lpaUID)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).(*lpadata.Lpa)
+		}
+	}
+
+	if rf, ok := ret.Get(1).(func(context.Context, string) error); ok {
+		r1 = rf(ctx, lpaUID)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
+}
+
+// mockLpaClient_LpaWithImages_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'LpaWithImages'
+type mockLpaClient_LpaWithImages_Call struct {
+	*mock.Call
+}
+
+// LpaWithImages is a helper method to define mock.On call
+//   - ctx context.Context
+//   - lpaUID string
+func (_e *mockLpaClient_Expecter) LpaWithImages(ctx interface{}, lpaUID interface{}) *mockLpaClient_LpaWithImages_Call {
+	return &mockLpaClient_LpaWithImages_Call{Call: _e.mock.On("LpaWithImages", ctx, lpaUID)}
+}
+
+func (_c *mockLpaClient_LpaWithImages_Call) Run(run func(ctx context.Context, lpaUID string)) *mockLpaClient_LpaWithImages_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		run(args[0].(context.Context), args[1].(string))
+	})
+	return _c
+}
+
+func (_c *mockLpaClient_LpaWithImages_Call) Return(_a0 *lpadata.Lpa, _a1 error) *mockLpaClient_LpaWithImages_Call {
+	_c.Call.Return(_a0, _a1)
+	return _c
+}
+
+func (_c *mockLpaClient_LpaWithImages_Call) RunAndReturn(run func(context.Context, string) (*lpadata.Lpa, error)) *mockLpaClient_LpaWithImages_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
 // Lpas provides a mock function with given fields: ctx, lpaUIDs
 func (_m *mockLpaClient) Lpas(ctx context.Context, lpaUIDs []string) ([]*lpadata.Lpa, error) {
 	ret := _m.Called(ctx, lpaUIDs)

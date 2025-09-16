@@ -33,6 +33,7 @@ type Localizer interface {
 
 type LpaStoreResolvingService interface {
 	Get(ctx context.Context) (*lpadata.Lpa, error)
+	GetWithImages(ctx context.Context) (*lpadata.Lpa, error)
 }
 
 type Handler func(data appcontext.Data, w http.ResponseWriter, r *http.Request, details *attorneydata.Provided, lpa *lpadata.Lpa) error
@@ -152,7 +153,7 @@ func Register(
 		YourPreferredLanguage(commonTmpls.Get("your_preferred_language.gohtml"), attorneyStore))
 	handleAttorney(attorney.PathConfirmYourDetails, None,
 		ConfirmYourDetails(tmpls.Get("confirm_your_details.gohtml"), attorneyStore))
-	handleAttorney(attorney.PathReadTheLpa, None,
+	handleAttorney(attorney.PathReadTheLpa, PresignImages,
 		ReadTheLpa(tmpls.Get("read_the_lpa.gohtml"), attorneyStore, bundle))
 	handleAttorney(attorney.PathRightsAndResponsibilities, None,
 		Guidance(tmpls.Get("legal_rights_and_responsibilities.gohtml")))
@@ -177,6 +178,7 @@ const (
 	None handleOpt = 1 << iota
 	RequireSession
 	CanGoBack
+	PresignImages
 )
 
 func makeHandle(mux *http.ServeMux, store SessionStore, errorHandler page.ErrorHandler, attorneyStartURL string) func(page.Path, handleOpt, page.Handler) {
@@ -241,7 +243,12 @@ func makeAttorneyHandle(mux *http.ServeMux, store SessionStore, errorHandler pag
 				return
 			}
 
-			lpa, err := lpaStoreResolvingService.Get(ctx)
+			lpaGet := lpaStoreResolvingService.Get
+			if opt&PresignImages != 0 {
+				lpaGet = lpaStoreResolvingService.GetWithImages
+			}
+
+			lpa, err := lpaGet(ctx)
 			if err != nil {
 				errorHandler(w, r, err)
 				return
