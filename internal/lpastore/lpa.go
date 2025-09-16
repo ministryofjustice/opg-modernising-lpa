@@ -37,6 +37,7 @@ type CreateLpa struct {
 	HowReplacementAttorneysStepIn               lpadata.ReplacementAttorneysStepIn `json:"howReplacementAttorneysStepIn,omitempty"`
 	HowReplacementAttorneysStepInDetails        string                             `json:"howReplacementAttorneysStepInDetails,omitempty"`
 	Restrictions                                string                             `json:"restrictionsAndConditions"`
+	RestrictionsImages                          []lpadata.FileUpload               `json:"restrictionsAndConditionsImages,omitempty"`
 	WhenTheLpaCanBeUsed                         lpadata.CanBeUsedWhen              `json:"whenTheLpaCanBeUsed,omitempty"`
 	LifeSustainingTreatmentOption               lpadata.LifeSustainingTreatment    `json:"lifeSustainingTreatmentOption,omitempty"`
 	SignedAt                                    time.Time                          `json:"signedAt"`
@@ -265,6 +266,7 @@ type lpaResponse struct {
 	HowReplacementAttorneysStepIn                 lpadata.ReplacementAttorneysStepIn `json:"howReplacementAttorneysStepIn"`
 	HowReplacementAttorneysStepInDetails          string                             `json:"howReplacementAttorneysStepInDetails"`
 	Restrictions                                  string                             `json:"restrictionsAndConditions"`
+	RestrictionsImages                            []lpadata.File                     `json:"restrictionsAndConditionsImages,omitempty"`
 	WhenTheLpaCanBeUsed                           lpadata.CanBeUsedWhen              `json:"whenTheLpaCanBeUsed"`
 	WhenTheLpaCanBeUsedIsDefault                  bool                               `json:"whenTheLpaCanBeUsedIsDefault"`
 	LifeSustainingTreatmentOption                 lpadata.LifeSustainingTreatment    `json:"lifeSustainingTreatmentOption"`
@@ -311,6 +313,7 @@ func lpaResponseToLpa(l lpaResponse) *lpadata.Lpa {
 		HowShouldReplacementAttorneysStepIn:        l.HowReplacementAttorneysStepIn,
 		HowShouldReplacementAttorneysStepInDetails: l.HowReplacementAttorneysStepInDetails,
 		Restrictions:                                  l.Restrictions,
+		RestrictionsImages:                            l.RestrictionsImages,
 		WhenCanTheLpaBeUsed:                           l.WhenTheLpaCanBeUsed,
 		LifeSustainingTreatmentOption:                 l.LifeSustainingTreatmentOption,
 		SignedAt:                                      l.SignedAt,
@@ -552,6 +555,10 @@ func LpaFromDonorProvided(l *donordata.Provided) *lpadata.Lpa {
 	}
 
 	return data
+}
+
+func (c *Client) LpaWithImages(ctx context.Context, lpaUID string) (*lpadata.Lpa, error) {
+	return c.Lpa(ctx, lpaUID+"?presign-images")
 }
 
 func (c *Client) Lpa(ctx context.Context, lpaUID string) (*lpadata.Lpa, error) {
