@@ -45,3 +45,4 @@ scripts/sbom_exporter/tmp.*.json
 /playwright-report/*
 /test-results/*
 /playwright/screenshots/*
+/playwright/translation-keys-state.json
