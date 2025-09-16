@@ -1958,5 +1958,8 @@
     "iUnderstandIDoNotHaveAuthorityToConsentToLst": "Welsh",
     "cookiesPolicyTitle": "Welsh",
     "cookiesPolicyContent": "<p class=\"govuk-body\">Welsh</p>",
-    "scannedImageOfWrittenRestrictionsAndConditions": "Welsh"
+    "scannedImageOfWrittenRestrictionsAndConditions": "Welsh",
+    "privacyNotice": "Welsh",
+    "privacyNoticeTitle": "Welsh",
+    "privacyNoticeContent": "Welsh"
 }
