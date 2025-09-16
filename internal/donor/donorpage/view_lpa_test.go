@@ -21,7 +21,7 @@ func TestViewLpa(t *testing.T) {
 
 	lpaStoreClient := newMockLpaStoreClient(t)
 	lpaStoreClient.EXPECT().
-		Lpa(r.Context(), "M-0000").
+		LpaWithImages(r.Context(), "M-0000").
 		Return(lpa, nil)
 
 	template := newMockTemplate(t)
@@ -44,7 +44,7 @@ func TestViewLpaWhenNotFound(t *testing.T) {
 
 	lpaStoreClient := newMockLpaStoreClient(t)
 	lpaStoreClient.EXPECT().
-		Lpa(r.Context(), "M-0000").
+		LpaWithImages(r.Context(), "M-0000").
 		Return(nil, lpastore.ErrNotFound)
 
 	template := newMockTemplate(t)
@@ -65,7 +65,7 @@ func TestViewLpaWhenLpaStoreErrors(t *testing.T) {
 
 	lpaStoreClient := newMockLpaStoreClient(t)
 	lpaStoreClient.EXPECT().
-		Lpa(r.Context(), mock.Anything).
+		LpaWithImages(r.Context(), mock.Anything).
 		Return(nil, expectedError)
 
 	err := ViewLpa(nil, lpaStoreClient)(testAppData, w, r, &donordata.Provided{})
@@ -78,7 +78,7 @@ func TestViewLpaWhenTemplateErrors(t *testing.T) {
 
 	lpaStoreClient := newMockLpaStoreClient(t)
 	lpaStoreClient.EXPECT().
-		Lpa(r.Context(), mock.Anything).
+		LpaWithImages(r.Context(), mock.Anything).
 		Return(&lpadata.Lpa{}, nil)
 
 	template := newMockTemplate(t)

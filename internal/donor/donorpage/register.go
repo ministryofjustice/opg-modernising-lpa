@@ -184,6 +184,7 @@ type DashboardStore interface {
 
 type LpaStoreClient interface {
 	Lpa(ctx context.Context, lpaUID string) (*lpadata.Lpa, error)
+	LpaWithImages(ctx context.Context, lpaUID string) (*lpadata.Lpa, error)
 	SendDonorConfirmIdentity(ctx context.Context, donor *donordata.Provided) error
 	SendLpa(ctx context.Context, uid string, body lpastore.CreateLpa) error
 	SendDonorWithdrawLPA(ctx context.Context, lpaUID string) error

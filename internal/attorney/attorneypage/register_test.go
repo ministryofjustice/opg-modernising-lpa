@@ -200,6 +200,59 @@ func TestMakeAttorneyHandleExistingSession(t *testing.T) {
 	assert.Equal(t, http.StatusTeapot, resp.StatusCode)
 }
 
+func TestMakeAttorneyHandleWhenPresignImages(t *testing.T) {
+	ctx := appcontext.ContextWithSession(context.Background(), &appcontext.Session{SessionID: "ignored-session-id"})
+	uid := actoruid.New()
+	w := httptest.NewRecorder()
+	r, _ := http.NewRequestWithContext(ctx, http.MethodGet, "/attorney/lpa-id/path?a=b", nil)
+
+	expectedDetails := &attorneydata.Provided{UID: uid}
+	expectedLpa := &lpadata.Lpa{LpaID: "lpa-id"}
+
+	sessionStore := newMockSessionStore(t)
+	sessionStore.EXPECT().
+		Login(r).
+		Return(&sesh.LoginSession{Sub: "random"}, nil)
+
+	attorneyStore := newMockAttorneyStore(t)
+	attorneyStore.EXPECT().
+		Get(mock.Anything).
+		Return(expectedDetails, nil)
+
+	lpaStoreResolvingService := newMockLpaStoreResolvingService(t)
+	lpaStoreResolvingService.EXPECT().
+		GetWithImages(mock.Anything).
+		Return(expectedLpa, nil)
+
+	mux := http.NewServeMux()
+	handle := makeAttorneyHandle(mux, sessionStore, nil, attorneyStore, lpaStoreResolvingService, "")
+	handle("/path", CanGoBack|PresignImages, func(appData appcontext.Data, hw http.ResponseWriter, hr *http.Request, details *attorneydata.Provided, lpa *lpadata.Lpa) error {
+		assert.Equal(t, expectedDetails, details)
+		assert.Equal(t, expectedLpa, lpa)
+
+		assert.Equal(t, appcontext.Data{
+			Page:        "/attorney/lpa-id/path",
+			CanGoBack:   true,
+			SessionID:   "cmFuZG9t",
+			LpaID:       "lpa-id",
+			ActorType:   actor.TypeAttorney,
+			AttorneyUID: uid,
+		}, appData)
+		assert.Equal(t, w, hw)
+
+		sessionData, _ := appcontext.SessionFromContext(hr.Context())
+
+		assert.Equal(t, &appcontext.Session{SessionID: "cmFuZG9t", LpaID: "lpa-id"}, sessionData)
+		hw.WriteHeader(http.StatusTeapot)
+		return nil
+	})
+
+	mux.ServeHTTP(w, r)
+	resp := w.Result()
+
+	assert.Equal(t, http.StatusTeapot, resp.StatusCode)
+}
+
 func TestMakeAttorneyHandleExistingLpaData(t *testing.T) {
 	uid := actoruid.New()
 	testCases := map[string]struct {

@@ -796,6 +796,38 @@ func TestClientLpa(t *testing.T) {
 	}
 }
 
+func TestClientLpaWithImages(t *testing.T) {
+	lpa := &lpadata.Lpa{
+		Submitted: true,
+		LpaUID:    "M-0000-1111-2222",
+	}
+	json := `{"uid":"M-0000-1111-2222"}`
+
+	ctx := context.Background()
+
+	secretsClient := newMockSecretsClient(t)
+	secretsClient.EXPECT().
+		Secret(ctx, "secret").
+		Return("secret", nil)
+
+	doer := newMockDoer(t)
+	doer.EXPECT().
+		Do(mock.MatchedBy(func(req *http.Request) bool {
+			return assert.Equal(t, ctx, req.Context()) &&
+				assert.Equal(t, http.MethodGet, req.Method) &&
+				assert.Equal(t, "http://base/lpas/M-0000-1111-2222?presign-images", req.URL.String()) &&
+				assert.Equal(t, "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJvcGcucG9hcy5tYWtlcmVnaXN0ZXIiLCJzdWIiOiJ1cm46b3BnOnBvYXM6bWFrZXJlZ2lzdGVyOnVzZXJzOjAwMDAwMDAwLTAwMDAtNDAwMC0wMDAwLTAwMDAwMDAwMDAwMCIsImlhdCI6OTQ2NzgyMjQ1fQ.V7MxjZw7-K8ehujYn4e0gef7s23r2UDlTbyzQtpTKvo", req.Header.Get("X-Jwt-Authorization"))
+		})).
+		Return(&http.Response{StatusCode: http.StatusOK, Body: io.NopCloser(strings.NewReader(json))}, nil)
+
+	client := New("http://base", secretsClient, "secret", doer)
+	client.now = func() time.Time { return time.Date(2000, time.January, 2, 3, 4, 5, 6, time.UTC) }
+	lpa, err := client.LpaWithImages(ctx, "M-0000-1111-2222")
+
+	assert.Nil(t, err)
+	assert.Equal(t, lpa, lpa)
+}
+
 func TestClientLpaWhenNewRequestError(t *testing.T) {
 	client := New("http://base", nil, "secret", nil)
 	_, err := client.Lpa(nil, "M-0000-1111-2222")

@@ -1,10 +1,13 @@
 package fixtures
 
 import (
+	"bytes"
 	"context"
 	"crypto/sha256"
 	"encoding/base64"
 	"fmt"
+	"image"
+	"image/png"
 	"log"
 	"net/http"
 	"strings"
@@ -338,4 +341,30 @@ func waitForRealUID(waitFor int, donorStore *donor.Store, donorCtx context.Conte
 		time.Sleep(1 * time.Second)
 		waitFor--
 	}
+}
+
+func createPNG() string {
+	var (
+		height = 640
+		width  = 1000
+		angle  = float64(width) / float64(height)
+		img    = image.NewGray(image.Rect(0, 0, width, height))
+	)
+
+	for i := range img.Pix {
+		x := i % img.Rect.Dx()
+		y := i / img.Rect.Dx()
+		d := uint8(x) + uint8(float64(y)*angle)
+		e := uint8((x + y) % 42)
+
+		if d > 128 {
+			img.Pix[i] = d + 128 + e
+		} else {
+			img.Pix[i] = 128 - d + e
+		}
+	}
+
+	var buf bytes.Buffer
+	png.Encode(&buf, img)
+	return base64.StdEncoding.EncodeToString(buf.Bytes())
 }

@@ -445,7 +445,7 @@ func parseTemplates(templateDir string, layouts *html.Template) (template.Templa
 
 func withSecurityHeaders(h http.Handler) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		w.Header().Add("Content-Security-Policy", "default-src 'self'; script-src 'self' https://client.rum.us-east-1.amazonaws.com; connect-src 'self' https://dataplane.rum.eu-west-1.amazonaws.com https://dataplane.rum.eu-west-2.amazonaws.com https://cognito-identity.eu-west-1.amazonaws.com https://cognito-identity.eu-west-2.amazonaws.com https://sts.eu-west-1.amazonaws.com https://sts.eu-west-2.amazonaws.com")
+		w.Header().Add("Content-Security-Policy", "default-src 'self'; img-src 'self' https://s3.eu-west-1.amazonaws.com https://s3.eu-west-2.amazonaws.com; script-src 'self' https://client.rum.us-east-1.amazonaws.com; connect-src 'self' https://dataplane.rum.eu-west-1.amazonaws.com https://dataplane.rum.eu-west-2.amazonaws.com https://cognito-identity.eu-west-1.amazonaws.com https://cognito-identity.eu-west-2.amazonaws.com https://sts.eu-west-1.amazonaws.com https://sts.eu-west-2.amazonaws.com")
 		w.Header().Add("Referrer-Policy", "same-origin")
 		w.Header().Add("Strict-Transport-Security", "max-age=31536000; includeSubDomains; preload")
 		w.Header().Add("X-Content-Type-Options", "nosniff")

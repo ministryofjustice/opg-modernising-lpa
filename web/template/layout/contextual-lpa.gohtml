@@ -264,12 +264,19 @@
 
     <dl class="govuk-summary-list app-stacked-summary-list">
         {{ $restrictions := .Lpa.Restrictions }}
-        {{ if not $restrictions }}
+        {{ $restrictionsImages := .Lpa.RestrictionsImages }}
+        {{ if and (not $restrictions) (not $restrictionsImages) }}
             {{ $restrictions = tr .App "noRestrictionsOrConditionsAddedToLPA" }}
         {{ end }}
 
-        {{ template "text-summary-row" (staticSummaryRow .App "restrictTheDecisionsAttorneysCanMake"
-            $restrictions) }}
+        {{ if $restrictions }}
+            {{ template "text-summary-row" (staticSummaryRow .App "restrictTheDecisionsAttorneysCanMake"
+                $restrictions) }}
+        {{ else if $restrictionsImages }}
+            {{ range $restrictionsImages }}
+                <img class="app-img-100" src="{{ .Path }}" alt="{{ tr .App "scannedImageOfWrittenRestrictionsAndConditions" }}">
+            {{ end }}
+        {{ end }}
 
         {{ with .Lpa.HowShouldReplacementAttorneysStepIn }}
             {{ $value := "otherWay" }}
