@@ -14,7 +14,8 @@
         "cypress:parallel": "cypress-parallel -s cypress:run -t 6 --spec cypress/e2e/**/*.cy.js cypress/smoke/*.cy.js",
         "cypress:parallel-with-specs": "cypress-parallel -s cypress:run -t 2",
         "test": "jest",
-        "playwright": "npx playwright test --headed",
+        "playwright:run": "npx playwright test --headed",
+        "playwright:withTranslationKeys": "npx playwright test --headed --project=withTranslationKeys",
         "playwright:record": "npx playwright codegen https://demo.app.modernising.opg.service.justice.gov.uk/fixtures"
     },
     "license": "MIT",

@@ -49,6 +49,21 @@ export default defineConfig({
             name: 'chromium',
             use: {...devices['Desktop Chrome']},
         },
+        {
+            name: 'setup-translation-keys',
+            testMatch: /translation-keys-setup\.js/,
+            use: {
+                baseURL: 'https://demo.app.modernising.opg.service.justice.gov.uk',
+            },
+        },
+        {
+            name: 'withTranslationKeys',
+            use: {
+                baseURL: 'https://demo.app.modernising.opg.service.justice.gov.uk',
+                storageState: 'playwright/translation-keys-state.json',
+            },
+            dependencies: ['setup-translation-keys'],
+        },
 
         // {
         //   name: 'firefox',
