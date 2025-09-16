@@ -1955,5 +1955,7 @@
     "youCanThenLogBackInToConfirmCorrect": "Welsh",
     "whatToDoIfAnyDetailsAreIncorrectOrMissing": "Welsh",
     "iUnderstandIHaveAuthorityToConsentToLst": "Welsh",
-    "iUnderstandIDoNotHaveAuthorityToConsentToLst": "Welsh"
+    "iUnderstandIDoNotHaveAuthorityToConsentToLst": "Welsh",
+    "cookiesPolicyTitle": "Welsh",
+    "cookiesPolicyContent": "<p class=\"govuk-body\">Welsh</p>"
 }

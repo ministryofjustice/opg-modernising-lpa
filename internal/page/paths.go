@@ -49,6 +49,7 @@ const (
 	PathCertificateProviderFixtures = Path("/fixtures/certificate-provider")
 	PathCertificateProviderStart    = Path("/certificate-provider-start")
 	PathCookiesConsent              = Path("/cookies-consent")
+	PathCookiesPolicy               = Path("/cookies-policy")
 	PathDashboard                   = Path("/dashboard")
 	PathDashboardFixtures           = Path("/fixtures/dashboard")
 	PathEnterAccessCode             = Path("/enter-access-code")
