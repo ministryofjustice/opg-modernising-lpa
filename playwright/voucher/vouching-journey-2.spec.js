@@ -1,6 +1,6 @@
-import { expect, test } from '@playwright/test';
-import { randomAccessCode, screenshot, TestEmail, TestMobile } from '../e2e.js';
-import { extractTextFromMainAndSave } from "../textExtractor.js";
+import {expect, test} from '@playwright/test';
+import {randomAccessCode, screenshot, TestEmail, TestMobile} from '../e2e.js';
+import {extractTextFromMainAndSave} from "../textExtractor.js";
 
 test('voucher completes their journey', async ({ page }) => {
     const accessCode = randomAccessCode()
@@ -15,12 +15,13 @@ test('voucher completes their journey', async ({ page }) => {
     await page.getByRole('heading', { name: 'Vouch for someone' }).click();
 
     await expect(page.locator('h1')).toContainText('Vouch for someone');
-    await page.getByRole('textbox', { name: 'Enter code' }).fill(accessCode);
+    await page.getByRole('textbox', { name: 'Donor’s last name' }).fill('Smith');
+    await page.getByRole('textbox', { name: 'Access code' }).fill(accessCode);
     await screenshot(page)
     await extractTextFromMainAndSave(page)
     await page.getByRole('button', { name: 'Save and continue' }).click();
 
-    await expect(page.locator('#main-content')).toContainText('Vouch for someone’s identity Your task list');
+    await expect(page.locator('#main-content')).toContainText('Vouch for someone’s identity');
     await screenshot(page)
     await extractTextFromMainAndSave(page)
     await page.getByRole('link', { name: 'Confirm your name' }).click();
@@ -28,7 +29,7 @@ test('voucher completes their journey', async ({ page }) => {
     await expect(page.locator('h1')).toContainText('Confirm your name');
     await screenshot(page)
     await extractTextFromMainAndSave(page)
-    await page.getByRole('link', { name: 'Change   last name' }).click();
+    await page.getByRole('link', { name: /Change.*Last name/i }).click();
 
     await expect(page.locator('h1')).toContainText('Your name');
     await page.getByRole('textbox', { name: 'Last name' }).fill('Smith');
@@ -65,8 +66,7 @@ test('voucher completes their journey', async ({ page }) => {
     await page.getByRole('textbox', { name: 'Town or city' }).fill('Birmingham');
     await page.getByRole('textbox', { name: 'Postcode' }).fill('B73 6PE');
     await page.getByRole('button', { name: 'Continue' }).click();
-    await page.getByRole('radio', { name: 'Yes' }).check();
-    await page.getByRole('button', { name: 'Continue' }).click();
+    await page.getByRole('link', { name: 'Continue' }).click();
     await page.getByRole('link', { name: 'Sign the declaration' }).click();
 
     await expect(page.locator('h1')).toContainText('Your declaration');
