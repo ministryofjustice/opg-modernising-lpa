@@ -10,7 +10,7 @@
     "help": "Cymorth",
     "cookies": "Cwcis",
     "contact": "Cysylltu â ni",
-    "termsAndConditions": "Telerau ac amodau",
+    "termsOfUse": "Welsh",
     "toggleTransKeys": "Toggle translation keys",
     "serviceName": "Gwneud a chofrestru atwrneiaeth arhosol (LPA)",
     "start": "Dechrau",
@@ -1982,5 +1982,7 @@
     "howLongWeKeepYourData": "<h2 class=\"govuk-heading-m\">Welsh</h2><p class=\"govuk-body\">Welsh</p>",
     "changesToThisPolicy": "<h2 class=\"govuk-heading-m\">Welsh</h2><p class=\"govuk-body\">Welsh</p>",
     "forMoreInfoOrToMakeAComplaint": "<h2 class=\"govuk-heading-m\">Welsh</h2><p class=\"govuk-body\">Welsh</p>",
-    "lastUpdatedDatePrivacyNotice": "<h2 class=\"govuk-heading-m\">Welsh</h2><p class=\"govuk-body\">Welsh</p>"
+    "lastUpdatedDatePrivacyNotice": "<h2 class=\"govuk-heading-m\">Welsh</h2><p class=\"govuk-body\">Welsh</p>",
+    "termsOfUseTitle": "Make and register a lasting power of attorney: terms of use",
+    "termsOfUseContent": "<a href=\"{{ .LoginURL }}\" class=\"govuk-link\" target=\"_blank\" rel=\"noreferrer noopener\">Welsh</a>"
 }
