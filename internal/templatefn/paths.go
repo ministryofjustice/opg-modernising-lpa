@@ -128,6 +128,7 @@ type appPaths struct {
 	SignOut                     page.Path
 	Start                       page.Path
 	SupporterFixtures           page.Path
+	TermsOfUse                  page.Path
 	VoucherFixtures             page.Path
 	VoucherStart                page.Path
 
@@ -383,6 +384,7 @@ var paths = appPaths{
 	SignOut:                     page.PathSignOut,
 	Start:                       page.PathStart,
 	SupporterFixtures:           page.PathSupporterFixtures,
+	TermsOfUse:                  page.PathTermsOfUse,
 	VoucherFixtures:             page.PathVoucherFixtures,
 	VoucherStart:                page.PathVoucherStart,
 
