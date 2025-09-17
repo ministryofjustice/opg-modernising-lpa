@@ -1,0 +1,92 @@
+{{ template "page" . }}
+
+{{ define "pageTitle" }}{{ tr .App "termsOfUseTitle" }}{{ end }}
+
+{{ define "main" }}
+    <div class="govuk-grid-row">
+        <div class="govuk-grid-column-two-thirds">
+            <h1 class="govuk-heading-xl">{{ tr .App "termsOfUseTitle" }}</h1>
+
+{{/*            {{ trHtml .App "termsOfUseContent" }}*/}}
+
+
+            <p class="govuk-body">Make and register a lasting power of attorney is a digital service managed by the Office of the Public Guardian (OPG), which is an executive agency sponsored by the Ministry of Justice (MoJ).</p>
+
+            <p class="govuk-body">Learn more about the <a href="https://mainstreamcontent.modernising.opg.service.justice.gov.uk/register-lasting-power-of-attorney" class="govuk-link" target="_blank" rel="noreferrer noopener">Make and register a lasting power of attorney service (opens in a new tab)</a>.</p>
+
+            <p class="govuk-body">The service allows you, as the donor, to make a lasting power of attorney (LPA) and submit it to OPG for registration. It can also be used by people you appoint to fulfil certain roles on your LPA, including:</p>
+
+            <ul class="govuk-list govuk-list--bullet">
+                <li>your attorneys</li>
+                <li>your certificate provider</li>
+                <li>a person you ask to verify your identity</li>
+                <li>an independent witness</li>
+                <li>an authorised signatory</li>
+            </ul>
+
+            <p class="govuk-body">By using this digital service, you and the people fulfilling these roles agree to:</p>
+            <ul class="govuk-list govuk-list--bullet">
+                <li>the terms of use set out on this page</li>
+                <li><a href="https://www.gov.uk/help/terms-conditions" class="govuk-link" target="_blank" rel="noreferrer noopener">GOV.UK terms and conditions (opens in new tab)</a></li>
+            </ul>
+
+            <p class="govuk-body">Any information you provide will be stored securely and used in line with our <a href="#" class="govuk-link" target="_blank" rel="noreferrer noopener">privacy notice (opens in a new tab).</a></p>
+
+            <h2 class="govuk-heading-m">Guidance provided by this service</h2>
+
+            <p class="govuk-body">OPG provides information and guidance to support you in making and applying to register an LPA. However, this guidance should not be considered legal advice, and we cannot give legal advice on individual cases.</p>
+
+            <p class="govuk-body">You, as the donor, will need to make certain important decisions relating to your specific circumstances as you complete your LPA. You should consider seeking legal advice to help you reach the right decision for you.</p>
+
+            <h2 class="govuk-heading-m">Your account security</h2>
+
+            <p class="govuk-body">You will need to create a <a href="https://signin.account.gov.uk/sign-in-or-create" class="govuk-link" target="_blank" rel="noreferrer noopener">GOV.UK One Login account (opens in a new tab)</a> to access this service. Use a valid email address and choose a strong password that others will not be able to guess easily.</p>
+
+            <p class="govuk-body">It’s your responsibility to keep your sign-in details safe. Do not share your password with anyone or write it down.</p>
+
+            <p class="govuk-body">You are responsible for all activity related to your LPA on the Make and register a lasting power of attorney service.</p>
+
+            <p class="govuk-body">We recommend that you sign out of your account when you’re not using the service. We’ll automatically sign you out if you have not used the service for an hour.</p>
+
+            <h2 class="govuk-heading-m">Accessing the service securely</h2>
+
+            <p class="govuk-body">You’re responsible for accessing the service securely. You should not access it using a computer or network that may leave personal information accessible to others. You should not:</p>
+            <ul class="govuk-list govuk-list--bullet">
+                <li>leave a computer unprotected while you’re signed in to the service</li>
+                <li>sign into the service using a shared or public computer, for example in a library or internet cafe</li>
+                <li>sign into the service using an ‘open’ Wi-Fi network you do not need a password to access, for example in an airport or train station</li>
+            </ul>
+
+            <h2 class="govuk-heading-m">Online payment</h2>
+
+            <p class="govuk-body">When you pay your application fee online, you’re paying for your application to register an LPA to be processed by OPG.</p>
+
+            <p class="govuk-body">If you choose to pay online, you’ll be directed to our payment partner, GOV.UK Pay, for the payment to be processed.</p>
+
+            <p class="govuk-body">The details you give them will be encrypted in line with the Payment Card Industry Data Security Standard (PCI-DSS). OPG will not store your payment card details.</p>
+
+            <p class="govuk-body">OPG is not liable for any information you enter into GOV.UK Pay’s pages, or for the availability of the GOV.UK Pay site.</p>
+
+            <p class="govuk-body">To pay online you must abide by <a href="https://www.payments.service.gov.uk/privacy/" class="govuk-link" target="_blank" rel="noreferrer noopener">GOV.UK Pay’s terms and conditions and privacy notice (opens in new tab)</a>.</p>
+
+            <h2 class="govuk-heading-m">Governing law</h2>
+
+            <p class="govuk-body">These terms of use are governed by and construed in accordance with the laws of England and Wales, including:</p>
+            <ul class="govuk-list govuk-list--bullet">
+                <li><a href="https://www.legislation.gov.uk/ukpga/1990/18/contents" class="govuk-link" target="_blank" rel="noreferrer noopener">Computer Misuse Act 1990 (opens in a new tab)</a></li>
+                <li><a href="https://www.legislation.gov.uk/eur/2016/679/contents" class="govuk-link" target="_blank" rel="noreferrer noopener">General Data Protection Regulation 2018 (GDPR) (opens in a new tab)</a></li>
+                <li><a href="https://www.legislation.gov.uk/ukpga/2018/12/contents/enacted" class="govuk-link" target="_blank" rel="noreferrer noopener">Data Protection Act 2018 (opens in a new tab)</a></li>
+                <li><a href="https://www.legislation.gov.uk/ukpga/2005/9/contents" class="govuk-link" target="_blank" rel="noreferrer noopener">Mental Capacity Act 2005 (opens in a new tab)</a></li>
+                <li><a href="https://www.legislation.gov.uk/ukpga/2023/42" class="govuk-link" target="_blank" rel="noreferrer noopener">Powers of Attorney Act 2023 (opens in a new tab)</a></li>
+            </ul>
+
+            <p class="govuk-body">Any dispute you have which relates to these terms of use, or your use of GOV.UK (whether it be contractual or non-contractual), will be subject to the exclusive jurisdiction of the courts of England and Wales.</p>
+
+            <h2 class="govuk-heading-m">About these terms of use</h2>
+
+            <p class="govuk-body">These terms of use affect your rights and liabilities under the law. They govern your use of, and relationship with, the Make and register a lasting power of attorney service. They do not apply to other OPG services, or to any other department or service that links to this service.</p>
+
+            <p class="govuk-body">Please check these terms of use regularly. We may update them at any time without notice. This might happen if there’s a change in the law or to the way the service works. You’ll agree to any changes if you continue to use the service after the terms of use have been updated.</p>
+        </div>
+    </div>
+{{ end }}
