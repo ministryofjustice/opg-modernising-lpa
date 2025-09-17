@@ -10,7 +10,7 @@
     "help": "Help",
     "cookies": "Cookies",
     "contact": "Contact",
-    "termsAndConditions": "Terms and conditions",
+    "termsOfUse": "Terms of use",
     "toggleTransKeys": "Toggle translation keys",
     "serviceName": "Make and register a lasting power of attorney (LPA)",
     "start": "Start",
@@ -1898,5 +1898,7 @@
     "howLongWeKeepYourData": "<h2 class=\"govuk-heading-m\">How long we keep your personal data</h2><p class=\"govuk-body\">To learn more about how long we keep your personal data, please refer to <a href=\"https://www.gov.uk/government/publications/record-retention-and-disposition-schedules\" class=\"govuk-link\" target=\"_blank\" rel=\"noreferrer noopener\">OPG’s Records Retention and Disposition Schedule (opens in a new tab)</a>.</p>",
     "changesToThisPolicy": "<h2 class=\"govuk-heading-m\">Changes to this policy</h2><p class=\"govuk-body\">We may change this privacy policy from time to time. When we do, we’ll update the ‘last updated’ date at the bottom of this page.</p><p class=\"govuk-body\">If these changes affect how your personal data is processed, OPG will take reasonable steps to let you know.</p><p class=\"govuk-body\">Any changes to this privacy policy will apply to you and your data immediately.</p>",
     "forMoreInfoOrToMakeAComplaint": "<h2 class=\"govuk-heading-m\">For more information or to make a complaint</h2><p class=\"govuk-body\">For more information about any aspect of this privacy policy, or to make a complaint, contact the MoJ Data Protection Officer.</p><p class=\"govuk-body\">Email us at:</p><p class=\"govuk-body\"><a class=\"govuk-link\" href=\"mailto:DPO@justice.gov.uk\">DPO@justice.gov.uk</a></p><p class=\"govuk-body\">Write to us at:</p><p class=\"govuk-body\">Data Protection Officer<br/>Ministry of Justice<br/>5th Floor, Post Point 5.12<br/>102 Petty France<br/>London<br/>SW1H 9AJ</p><p class=\"govuk-body\">You can also contact the Information Commissioner for independent advice about data protection at the address below:</p><p class=\"govuk-body\">Information Commissioner’s Office<br/>Wycliffe House<br/>Water Lane<br/>Wilmslow<br/>Cheshire<br/>SK9 5AF</p><p class=\"govuk-body\">Phone: <a class=\"govuk-link\" href=\"tel:0303 123 1113\">0303 123 1113</a><br/>Textphone: <a class=\"govuk-link\" href=\"tel:01625 545860\">01625 545860</a><br/>Monday to Friday, 9am to 4:30pm</p><p class=\"govuk-body\"><a href=\"http://www.ico.org.uk/\" class=\"govuk-link\" target=\"_blank\" rel=\"noreferrer noopener\">www.ico.org.uk (opens in a new tab)</a></p>",
-    "lastUpdatedDatePrivacyNotice": "<h2 class=\"govuk-heading-s\">Last updated:</h2><p class=\"govuk-body\">2 August 2025</p>"
+    "lastUpdatedDatePrivacyNotice": "<h2 class=\"govuk-heading-s\">Last updated:</h2><p class=\"govuk-body\">2 August 2025</p>",
+    "termsOfUseTitle": "Make and register a lasting power of attorney: terms of use",
+    "termsOfUseContent": "a"
 }
