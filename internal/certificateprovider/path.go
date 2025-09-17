@@ -26,7 +26,6 @@ const (
 	PathReadTheDraftLpa                        = Path("/read-the-draft-lpa")
 	PathTaskList                               = Path("/task-list")
 	PathWhatHappensNext                        = Path("/what-happens-next")
-	PathWhatIsYourHomeAddress                  = Path("/what-is-your-home-address")
 	PathWhoIsEligible                          = Path("/certificate-provider-who-is-eligible")
 	PathYourPreferredLanguage                  = Path("/your-preferred-language")
 	PathYourRole                               = Path("/your-role")

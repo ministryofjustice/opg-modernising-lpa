@@ -9,7 +9,6 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/certificateprovider"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/certificateprovider/certificateproviderdata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/lpastore/lpadata"
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/place"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/task"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
@@ -23,9 +22,7 @@ func TestGetConfirmYourDetails(t *testing.T) {
 		AddressLabel                    string
 		DetailsComponentContent         string
 		ShowPhone                       bool
-		ShowHomeAddress                 bool
 		PhoneNumber                     string
-		HomeAddress                     place.Address
 		SignedAt                        time.Time
 	}{
 		"online donor": {
@@ -68,8 +65,6 @@ func TestGetConfirmYourDetails(t *testing.T) {
 			PhoneNumberLabel:                "mobileNumber",
 			PhoneNumber:                     "123",
 			ShowPhone:                       true,
-			ShowHomeAddress:                 true,
-			HomeAddress:                     testAddress,
 		},
 		"missing phone": {
 			CertificateProviderRelationship: lpadata.Personally,
@@ -105,9 +100,7 @@ func TestGetConfirmYourDetails(t *testing.T) {
 				},
 				SignedAt: tc.SignedAt,
 			}
-			certificateProvider := &certificateproviderdata.Provided{
-				HomeAddress: tc.HomeAddress,
-			}
+			certificateProvider := &certificateproviderdata.Provided{}
 
 			template := newMockTemplate(t)
 			template.EXPECT().
@@ -119,7 +112,6 @@ func TestGetConfirmYourDetails(t *testing.T) {
 					AddressLabel:           tc.AddressLabel,
 					DetailComponentContent: tc.DetailsComponentContent,
 					ShowPhone:              tc.ShowPhone,
-					ShowHomeAddress:        tc.ShowHomeAddress,
 				}).
 				Return(nil)
 

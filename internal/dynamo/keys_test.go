@@ -91,6 +91,7 @@ func TestSK(t *testing.T) {
 		"ScheduledKey":           {ScheduledKey(time.Date(2024, time.January, 2, 12, 13, 14, 15, time.UTC), "some-string"), "SCHEDULED#2024-01-02T12:13:14Z#some-string"},
 		"ReservedKey":            {ReservedKey(VoucherKey), "RESERVED#VOUCHER#"},
 		"PartialScheduledKey":    {PartialScheduledKey(), "SCHEDULED#"},
+		"OrganisationLinkKey":    {OrganisationLinkKey("S"), "ORGANISATIONLINK#S"},
 	}
 
 	for name, tc := range testcases {
@@ -156,4 +157,8 @@ func TestScheduledDayKeyTypeHandled(t *testing.T) {
 
 func TestCertificateProviderKeyTypeSub(t *testing.T) {
 	assert.Equal(t, "xyz", CertificateProviderKey("xyz").Sub())
+}
+
+func TestOrganisationLinkKeyID(t *testing.T) {
+	assert.Equal(t, "some-id", OrganisationLinkKey("some-id").ID())
 }

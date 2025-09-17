@@ -6,7 +6,11 @@
         {{ end }}
         {{ trFormatHtml .App "signAsAttorneyBullets" "DonorFullName" .Lpa.Donor.FullName }}
         {{ if .Lpa.Type.IsPersonalWelfare }}
-            <li>{{ tr .App "iUnderstandWhetherICanConstentToLst" }}</li>
+            {{ if .Lpa.LifeSustainingTreatmentOption.IsOptionA }}
+                <li>{{ tr .App "iUnderstandIHaveAuthorityToConsentToLst" }}</li>
+            {{ else }}
+                <li>{{ tr .App "iUnderstandIDoNotHaveAuthorityToConsentToLst" }}</li>
+            {{ end }}
         {{ end }}
         <li>
             {{ if .Lpa.WhenCanTheLpaBeUsed.IsHasCapacity }}

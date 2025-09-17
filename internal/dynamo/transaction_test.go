@@ -221,3 +221,36 @@ func TestTransactionUpdateValue(t *testing.T) {
 		}},
 	}, transaction)
 }
+
+func TestTransactionSetValues(t *testing.T) {
+	transaction := NewTransaction().
+		SetValues(testPK("A"), testSK("b"), map[string]any{
+			"x": 1,
+			"y": "hey",
+		})
+
+	assert.Equal(t, &Transaction{
+		Updates: []*types.Update{{
+			Key: map[string]types.AttributeValue{
+				"PK": &types.AttributeValueMemberS{Value: "A"},
+				"SK": &types.AttributeValueMemberS{Value: "b"},
+			},
+			UpdateExpression: aws.String("SET #Field0 = :Value0, #Field1 = :Value1"),
+			ExpressionAttributeValues: map[string]types.AttributeValue{
+				":Value0": &types.AttributeValueMemberN{Value: "1"},
+				":Value1": &types.AttributeValueMemberS{Value: "hey"},
+			},
+			ExpressionAttributeNames: map[string]string{
+				"#Field0": "x",
+				"#Field1": "y",
+			},
+		}},
+	}, transaction)
+}
+
+func TestTransactionSetValuesWhenNoFields(t *testing.T) {
+	transaction := NewTransaction().
+		SetValues(testPK("A"), testSK("b"), map[string]any{})
+
+	assert.Equal(t, &Transaction{}, transaction)
+}

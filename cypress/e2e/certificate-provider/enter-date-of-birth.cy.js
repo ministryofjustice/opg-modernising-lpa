@@ -1,34 +1,18 @@
 import { DateOfBirthAssertions } from "../../support/e2e";
 
 describe('Enter date of birth', () => {
-    describe('can be completed by a', () => {
-        it('lay certificate provider', () => {
-            cy.visit('/fixtures/certificate-provider?redirect=/enter-date-of-birth');
-            cy.checkA11yApp();
+    it('can be completed', () => {
+        cy.visit('/fixtures/certificate-provider?redirect=/enter-date-of-birth');
+        cy.checkA11yApp();
 
-            cy.get('#f-date-of-birth').invoke('val', '1');
-            cy.get('#f-date-of-birth-month').invoke('val', '2');
-            cy.get('#f-date-of-birth-year').invoke('val', '1990');
+        cy.get('#f-date-of-birth').invoke('val', '1');
+        cy.get('#f-date-of-birth-month').invoke('val', '2');
+        cy.get('#f-date-of-birth-year').invoke('val', '1990');
 
-            cy.contains('button', 'Save and continue').click();
+        cy.contains('button', 'Save and continue').click();
 
-            cy.url().should('contain', '/your-preferred-language');
-        });
-
-
-        it('professional certificate provider', () => {
-            cy.visit('/fixtures/certificate-provider?redirect=/enter-date-of-birth&options=is-professional');
-            cy.checkA11yApp();
-
-            cy.get('#f-date-of-birth').invoke('val', '1');
-            cy.get('#f-date-of-birth-month').invoke('val', '2');
-            cy.get('#f-date-of-birth-year').invoke('val', '1990');
-
-            cy.contains('button', 'Save and continue').click();
-
-            cy.url().should('contain', '/what-is-your-home-address');
-        });
-    })
+        cy.url().should('contain', '/your-preferred-language');
+    });
 
     describe('errors and warnings', () => {
         beforeEach(() => {

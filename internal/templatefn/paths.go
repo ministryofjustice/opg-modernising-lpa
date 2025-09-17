@@ -53,7 +53,6 @@ type certificateProviderPaths struct {
 	ReadTheLpa                             certificateprovider.Path
 	TaskList                               certificateprovider.Path
 	WhatHappensNext                        certificateprovider.Path
-	WhatIsYourHomeAddress                  certificateprovider.Path
 	WhoIsEligible                          certificateprovider.Path
 	YourPreferredLanguage                  certificateprovider.Path
 	YourRole                               certificateprovider.Path
@@ -114,6 +113,7 @@ type appPaths struct {
 	CertificateProviderFixtures page.Path
 	CertificateProviderStart    page.Path
 	CookiesConsent              page.Path
+	CookiesPolicy               page.Path
 	Dashboard                   page.Path
 	DashboardFixtures           page.Path
 	EnterAccessCode             page.Path
@@ -292,7 +292,6 @@ var paths = appPaths{
 		ReadTheDraftLpa:                        certificateprovider.PathReadTheDraftLpa,
 		TaskList:                               certificateprovider.PathTaskList,
 		WhatHappensNext:                        certificateprovider.PathWhatHappensNext,
-		WhatIsYourHomeAddress:                  certificateprovider.PathWhatIsYourHomeAddress,
 		WhoIsEligible:                          certificateprovider.PathWhoIsEligible,
 		YourPreferredLanguage:                  certificateprovider.PathYourPreferredLanguage,
 		YourRole:                               certificateprovider.PathYourRole,
@@ -368,6 +367,7 @@ var paths = appPaths{
 	CertificateProviderFixtures: page.PathCertificateProviderFixtures,
 	CertificateProviderStart:    page.PathCertificateProviderStart,
 	CookiesConsent:              page.PathCookiesConsent,
+	CookiesPolicy:               page.PathCookiesPolicy,
 	Dashboard:                   page.PathDashboard,
 	DashboardFixtures:           page.PathDashboardFixtures,
 	EnterAccessCode:             page.PathEnterAccessCode,
