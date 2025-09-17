@@ -177,6 +177,8 @@ func App(
 		page.Guidance(tmpls.Get("accessibility_statement.gohtml")))
 	handleRoot(page.PathCookiesPolicy, None,
 		page.Guidance(tmpls.Get("cookies_policy.gohtml")))
+	handleRoot(page.PathTermsOfUse, None,
+		page.Guidance(tmpls.Get("terms_of_use.gohtml")))
 
 	handleRoot(page.PathAddingRestrictionsAndConditions, RequireSession|HideNav,
 		page.Guidance(guidanceTmpls.Get("adding_restrictions_and_conditions.gohtml")))

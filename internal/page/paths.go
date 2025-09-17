@@ -63,6 +63,7 @@ const (
 	PathSignOut                     = Path("/sign-out")
 	PathStart                       = Path("/start")
 	PathSupporterFixtures           = Path("/fixtures/supporter")
+	PathTermsOfUse                  = Path("/terms-of-use")
 	PathVoucherFixtures             = Path("/fixtures/voucher")
 
 	PathAddingRestrictionsAndConditions          = Path("/help-and-support/adding-restrictions-and-conditions")
