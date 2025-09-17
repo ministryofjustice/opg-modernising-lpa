@@ -59,7 +59,7 @@ jobs:
           role-to-assume: arn:aws:iam::653761790766:role/modernising-lpa-github-actions-pr-env-cleanup
           aws-region: eu-west-1
           role-duration-seconds: 900
-          role-session-name: OPGModernisingLPALogGroupDeleteGithubAction
+          role-session-name: MRLPAPREnvCleanupGithubAction
 
       - uses: webfactory/ssh-agent@a6f90b1f127823b31d4d4a8d96047790581349bd # v0.9.1
         with:
