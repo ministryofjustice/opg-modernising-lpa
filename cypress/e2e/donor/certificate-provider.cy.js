@@ -1,4 +1,4 @@
-import {AddressFormAssertions, TestEmail, TestMobile} from "../../support/e2e";
+import { AddressFormAssertions, TestEmail, TestMobile } from "../../support/e2e";
 
 describe('Certificate provider task', () => {
     beforeEach(() => {
@@ -240,11 +240,11 @@ describe('Certificate provider task', () => {
         cy.contains('.govuk-fieldset .govuk-error-message', 'Select how long you have known your certificate provider');
     });
 
-    it('warns when name shared with other actor', () => {
+    it('warns when last name and address shared with other actor', () => {
         cy.visitLpa('/certificate-provider-details');
         cy.contains('button', 'Save and continue').click();
 
-        cy.get('#f-first-names').invoke('val', 'Sam');
+        cy.get('#f-first-names').invoke('val', 'Charlie');
         cy.get('#f-last-name').invoke('val', 'Smith');
         cy.get('#f-mobile').invoke('val', TestMobile);
         cy.contains('button', 'Save and continue').click();
@@ -277,7 +277,7 @@ describe('Certificate provider task', () => {
 
         cy.contains('dt', 'First names').parent().contains('a', 'Change').click();
 
-        cy.get('#f-first-names').invoke('val', 'Jessie');
+        cy.get('#f-first-names').invoke('val', 'Charlie');
         cy.get('#f-last-name').invoke('val', 'Jones');
         cy.contains('button', 'Save and continue').click();
 
@@ -290,10 +290,24 @@ describe('Certificate provider task', () => {
 
         cy.url().should('contain', '/warning');
 
-        cy.contains('Jessie Jones has the same name or address as another person you’ve chosen to act in this LPA.');
+        cy.contains('Charlie Jones has the same name or address as another person you’ve chosen to act in this LPA.');
 
         cy.contains('a', 'Continue').click();
 
         cy.url().should('contain', '/certificate-provider-summary');
+    });
+
+    it('warns when full name shared with other actor', () => {
+        cy.visitLpa('/certificate-provider-details');
+        cy.contains('button', 'Save and continue').click();
+
+        cy.get('#f-first-names').invoke('val', 'Sam');
+        cy.get('#f-last-name').invoke('val', 'Smith');
+        cy.get('#f-mobile').invoke('val', TestMobile);
+        cy.contains('button', 'Save and continue').click();
+
+        cy.url().should('contain', '/warning');
+
+        cy.contains('You and your certificate provider have the same name or address. As the donor, you cannot act as the certificate provider for your LPA.');
     });
 });

@@ -301,21 +301,16 @@ func certificateProviderMatches(donor *donordata.Provided, firstNames, lastName 
 			continue
 		}
 
-		if !strings.EqualFold(person.LastName, lastName) {
-			continue
+		if strings.EqualFold(person.LastName, lastName) && strings.EqualFold(person.FirstNames, firstNames) {
+			return person.Type
 		}
 
 		if person.Type.IsAttorney() || person.Type.IsReplacementAttorney() || person.Type.IsDonor() {
-			if (person.Address.Line1 != "" && person.Address.Line1 == donor.CertificateProvider.Address.Line1) &&
+			if strings.EqualFold(person.LastName, lastName) &&
+				(person.Address.Line1 != "" && person.Address.Line1 == donor.CertificateProvider.Address.Line1) &&
 				(person.Address.Postcode != "" && person.Address.Postcode == donor.CertificateProvider.Address.Postcode) {
 				return person.Type
 			}
-
-			continue
-		}
-
-		if strings.EqualFold(person.FirstNames, firstNames) {
-			return person.Type
 		}
 	}
 
