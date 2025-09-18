@@ -58,6 +58,7 @@ on:
 permissions:
   pull-requests: write
   issues: write
+  id-token: write
 
 env:
   TFLINT_VERSION: 0.50.1
