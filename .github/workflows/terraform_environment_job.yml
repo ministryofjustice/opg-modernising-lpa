@@ -21,6 +21,10 @@ on:
         default: false
         required: false
         type: boolean
+      oidc_role_arn:
+        description: 'ARN for OIDC role to assume for terraform tasks'
+        required: false
+        type: string
     outputs:
       terraform_workspace_name:
         description: "Name of Terraform workspace"
@@ -92,11 +96,12 @@ jobs:
       - name: Configure AWS Credentials For Terraform
         uses: aws-actions/configure-aws-credentials@7474bc4690e29a8392af63c5b98e7449536d5c3a # v4.3.1
         with:
-          aws-access-key-id: ${{ secrets.aws_access_key_id }}
-          aws-secret-access-key: ${{ secrets.aws_secret_access_key }}
+          # aws-access-key-id: ${{ secrets.aws_access_key_id }}
+          # aws-secret-access-key: ${{ secrets.aws_secret_access_key }}
           aws-region: eu-west-1
           role-duration-seconds: 3600
           role-session-name: OPGModernisingLPATerraformGithubAction
+          role-to-assume: ${{ inputs.oidc_role_arn }}
       - uses: webfactory/ssh-agent@a6f90b1f127823b31d4d4a8d96047790581349bd # v0.9.1
         with:
           ssh-private-key: ${{ secrets.ssh_deploy_key }}
