@@ -21,10 +21,7 @@ on:
         default: false
         required: false
         type: boolean
-      oidc_role_arn:
-        description: 'ARN for OIDC role to assume for terraform tasks'
-        required: false
-        type: string
+
     outputs:
       terraform_workspace_name:
         description: "Name of Terraform workspace"
@@ -41,10 +38,10 @@ on:
     secrets:
       aws_access_key_id:
         description: 'AWS Access Key ID'
-        required: true
+        required: false
       aws_secret_access_key:
         description: 'AWS Secret Access Key'
-        required: true
+        required: false
       ssh_deploy_key:
         description: 'SSH Deploy Key'
         required: true
@@ -54,6 +51,9 @@ on:
       pagerduty_api_key:
         description: 'Pagerduty API Key'
         required: true
+      oidc_role_arn:
+        description: 'ARN for OIDC role to assume for terraform tasks'
+        required: false
 
 permissions:
   pull-requests: write
@@ -101,7 +101,7 @@ jobs:
           aws-region: eu-west-1
           role-duration-seconds: 3600
           role-session-name: OPGModernisingLPATerraformGithubAction
-          role-to-assume: ${{ inputs.oidc_role_arn }}
+          role-to-assume: ${{ secrets.oidc_role_arn }}
       - uses: webfactory/ssh-agent@a6f90b1f127823b31d4d4a8d96047790581349bd # v0.9.1
         with:
           ssh-private-key: ${{ secrets.ssh_deploy_key }}
