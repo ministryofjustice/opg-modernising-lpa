@@ -71,7 +71,11 @@ func (l *defaultLocalizer) FormatCount(messageID string, count int, data map[str
 
 func (l *defaultLocalizer) translate(translation, messageID string) string {
 	if l.showTranslationKeys {
-		return fmt.Sprintf("{%s} [%s]", translation, messageID)
+		if strings.HasPrefix(translation, "<") {
+			return fmt.Sprintf("<div class=\"app-translated-text\">{%s}</div> <div class=\"app-translation-key\">[%s]</div>", translation, messageID)
+		} else {
+			return fmt.Sprintf("{%s} [%s]", translation, messageID)
+		}
 	} else {
 		return translation
 	}

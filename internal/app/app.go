@@ -319,7 +319,33 @@ func withAppData(next http.Handler, localizer localize.Localizer, lang localize.
 	return func(w http.ResponseWriter, r *http.Request) {
 		ctx := r.Context()
 		if contentType, _, _ := strings.Cut(r.Header.Get("Content-Type"), ";"); contentType != "multipart/form-data" {
-			localizer.SetShowTranslationKeys(r.FormValue("showTranslationKeys") == "1")
+			showKeys := false
+
+			if formValue := r.FormValue("showTranslationKeys"); formValue != "" {
+				showKeys = formValue == "1"
+
+				cookie := &http.Cookie{
+					Name:     "show-keys",
+					Path:     "/",
+					HttpOnly: true,
+					SameSite: http.SameSiteLaxMode,
+				}
+
+				if showKeys {
+					cookie.Value = "1"
+					cookie.MaxAge = 60 * 10
+				} else {
+					cookie.MaxAge = -1
+				}
+
+				http.SetCookie(w, cookie)
+			} else {
+				if keysCookie, err := r.Cookie("show-keys"); err == nil {
+					showKeys = keysCookie.Value == "1"
+				}
+			}
+
+			localizer.SetShowTranslationKeys(showKeys)
 		}
 
 		appData := appcontext.DataFromContext(ctx)

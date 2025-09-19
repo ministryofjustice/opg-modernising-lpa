@@ -7,7 +7,6 @@ test('voucher cannot confirm their identity', async ({page}) => {
     await page.getByRole('link', {name: 'Voucher'}).click();
     await page.getByRole('radio', {name: 'Verify donor details'}).check();
     await page.getByRole('button', {name: /Start|Start now/}).click();
-    await page.getByRole('tab', {name: 'I’m vouching for someone'}).click();
     await page.getByRole('link', {name: 'Go to task list'}).click();
     await page.getByRole('link', {name: 'Confirm your identity'}).click();
     await page.getByRole('button', {name: 'Continue'}).click();

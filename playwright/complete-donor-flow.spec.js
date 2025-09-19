@@ -480,7 +480,7 @@ test('donor happy path', async ({ page }) => {
     await expect(page).toHaveURL(/\/view-lpa/);
     await screenshot(page)
     await extractTextFromMainAndSave(page)
-    await page.getByRole('link', { name: 'Manage your LPAs' }).click();
+    await page.getByRole('link', { name: 'Manage LPAs' }).click();
 
     await expect(page).toHaveURL(/\/dashboard/);
     await page.getByRole('button', { name: 'Actions' }).click();
