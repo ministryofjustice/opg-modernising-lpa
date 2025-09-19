@@ -373,11 +373,11 @@ func TestLpaCost(t *testing.T) {
 	}{
 		"denied": {
 			donor:    &Provided{FeeType: pay.HalfFee, Tasks: Tasks{PayForLpa: task.PaymentStateDenied}},
-			expected: 8200,
+			expected: pay.FeeFull,
 		},
 		"half": {
 			donor:    &Provided{FeeType: pay.HalfFee},
-			expected: 4100,
+			expected: pay.FeeHalf,
 		},
 	}
 
@@ -395,18 +395,18 @@ func TestFeeAmount(t *testing.T) {
 	}{
 		"not paid": {
 			Donor:        &Provided{FeeType: pay.HalfFee},
-			ExpectedCost: pay.AmountPence(4100),
+			ExpectedCost: pay.AmountPence(pay.FeeHalf),
 		},
 		"fully paid": {
-			Donor:        &Provided{FeeType: pay.HalfFee, PaymentDetails: []Payment{{Amount: 4100}}},
+			Donor:        &Provided{FeeType: pay.HalfFee, PaymentDetails: []Payment{{Amount: pay.FeeHalf}}},
 			ExpectedCost: pay.AmountPence(0),
 		},
 		"denied partially paid": {
-			Donor:        &Provided{FeeType: pay.HalfFee, PaymentDetails: []Payment{{Amount: 4100}}, Tasks: Tasks{PayForLpa: task.PaymentStateDenied}},
-			ExpectedCost: pay.AmountPence(4100),
+			Donor:        &Provided{FeeType: pay.HalfFee, PaymentDetails: []Payment{{Amount: pay.FeeHalf}}, Tasks: Tasks{PayForLpa: task.PaymentStateDenied}},
+			ExpectedCost: pay.AmountPence(pay.FeeHalf),
 		},
 		"denied fully paid": {
-			Donor:        &Provided{FeeType: pay.HalfFee, PaymentDetails: []Payment{{Amount: 4100}, {Amount: 4100}}, Tasks: Tasks{PayForLpa: task.PaymentStateDenied}},
+			Donor:        &Provided{FeeType: pay.HalfFee, PaymentDetails: []Payment{{Amount: pay.FeeHalf}, {Amount: pay.FeeHalf}}, Tasks: Tasks{PayForLpa: task.PaymentStateDenied}},
 			ExpectedCost: pay.AmountPence(0),
 		},
 	}

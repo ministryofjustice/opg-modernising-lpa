@@ -30,7 +30,7 @@ describe('Pay for LPA', { pageLoadTimeout: 8000 }, () => {
             .then((uid) => {
                 cy.origin('http://localhost:9001', { args: { uid } }, ({ uid }) => {
                     cy.visit(`/?detail-type=payment-received&detail=${uid}`);
-                    cy.contains('"amount":8200');
+                    cy.contains('"amount":9200');
                     cy.contains('"paymentId":"hu20sqlact5260q2nanm0q8u93"');
                 });
             });
@@ -401,7 +401,7 @@ describe('Pay for LPA', { pageLoadTimeout: 8000 }, () => {
             .then((uid) => {
                 cy.origin('http://localhost:9001', { args: { uid } }, ({ uid }) => {
                     cy.visit(`/?detail-type=payment-received&detail=${uid}`);
-                    cy.contains('"amount":4100');
+                    cy.contains('"amount":4600');
                     cy.contains('"paymentId":"hu20sqlact5260q2nanm0q8u93"');
                 });
             });
@@ -427,7 +427,7 @@ describe('Pay for LPA', { pageLoadTimeout: 8000 }, () => {
             .then((uid) => {
                 cy.origin('http://localhost:9001', { args: { uid } }, ({ uid }) => {
                     cy.visit(`/?detail-type=payment-received&detail=${uid}`);
-                    cy.contains('"amount":8200');
+                    cy.contains('"amount":9200');
                     cy.contains('"paymentId":"hu20sqlact5260q2nanm0q8u93"');
                 });
             });
