@@ -20,7 +20,7 @@ type viewLpaData struct {
 
 func ViewLpa(tmpl template.Template, lpaStoreClient LpaStoreClient) Handler {
 	return func(appData appcontext.Data, w http.ResponseWriter, r *http.Request, donor *donordata.Provided) error {
-		lpa, err := lpaStoreClient.Lpa(r.Context(), donor.LpaUID)
+		lpa, err := lpaStoreClient.LpaWithImages(r.Context(), donor.LpaUID)
 		if err != nil {
 			if !errors.Is(err, lpastore.ErrNotFound) {
 				return err

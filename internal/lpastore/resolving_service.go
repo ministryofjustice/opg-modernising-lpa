@@ -15,6 +15,7 @@ type DonorStore interface {
 
 type LpaClient interface {
 	Lpa(ctx context.Context, lpaUID string) (*lpadata.Lpa, error)
+	LpaWithImages(ctx context.Context, lpaUID string) (*lpadata.Lpa, error)
 	Lpas(ctx context.Context, lpaUIDs []string) ([]*lpadata.Lpa, error)
 }
 
@@ -30,6 +31,14 @@ func NewResolvingService(donorStore DonorStore, client LpaClient) *ResolvingServ
 }
 
 func (s *ResolvingService) Get(ctx context.Context) (*lpadata.Lpa, error) {
+	return s.getWithFunc(ctx, s.client.Lpa)
+}
+
+func (s *ResolvingService) GetWithImages(ctx context.Context) (*lpadata.Lpa, error) {
+	return s.getWithFunc(ctx, s.client.LpaWithImages)
+}
+
+func (s *ResolvingService) getWithFunc(ctx context.Context, fn func(context.Context, string) (*lpadata.Lpa, error)) (*lpadata.Lpa, error) {
 	donor, err := s.donorStore.GetAny(ctx)
 	if err != nil {
 		return nil, err
@@ -39,7 +48,7 @@ func (s *ResolvingService) Get(ctx context.Context) (*lpadata.Lpa, error) {
 		return s.merge(LpaFromDonorProvided(donor), donor), nil
 	}
 
-	lpa, err := s.client.Lpa(ctx, donor.LpaUID)
+	lpa, err := fn(ctx, donor.LpaUID)
 	if errors.Is(err, ErrNotFound) {
 		lpa = LpaFromDonorProvided(donor)
 	} else if err != nil {
