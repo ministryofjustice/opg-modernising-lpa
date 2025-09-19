@@ -508,7 +508,7 @@ func TestGetProgress(t *testing.T) {
 					PayForLpa: task.PaymentStatePending,
 				},
 				FeeType:        pay.HalfFee,
-				PaymentDetails: []donordata.Payment{{Amount: 4100}},
+				PaymentDetails: []donordata.Payment{{Amount: pay.FeeHalf}},
 			},
 			lpa:                           &lpadata.Lpa{},
 			setupCertificateProviderStore: certificateProviderStoreNotFound,

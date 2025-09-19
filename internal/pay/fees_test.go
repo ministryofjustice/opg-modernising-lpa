@@ -15,15 +15,15 @@ func TestCost(t *testing.T) {
 	}{
 		"full": {
 			feeType:  FullFee,
-			expected: 8200,
+			expected: FeeFull,
 		},
 		"half": {
 			feeType:  HalfFee,
-			expected: 4100,
+			expected: FeeHalf,
 		},
 		"quarter": {
 			feeType:  QuarterFee,
-			expected: 2050,
+			expected: FeeQuarter,
 		},
 		"no fee": {
 			feeType:  NoFee,
@@ -36,12 +36,12 @@ func TestCost(t *testing.T) {
 		"previous full": {
 			feeType:     RepeatApplicationFee,
 			previousFee: PreviousFeeFull,
-			expected:    4100,
+			expected:    FeeHalf,
 		},
 		"previous half": {
 			feeType:     RepeatApplicationFee,
 			previousFee: PreviousFeeHalf,
-			expected:    2050,
+			expected:    FeeQuarter,
 		},
 		"previous exemption": {
 			feeType:     RepeatApplicationFee,
@@ -57,7 +57,7 @@ func TestCost(t *testing.T) {
 			feeType:                 RepeatApplicationFee,
 			costOfRepeatApplication: CostOfRepeatApplicationHalfFee,
 			previousFee:             PreviousFeeFull,
-			expected:                4100,
+			expected:                FeeHalf,
 		},
 		"repeat entitled to no": {
 			feeType:                 RepeatApplicationFee,

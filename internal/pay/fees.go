@@ -1,9 +1,9 @@
 package pay
 
 const (
-	feeFull    = 8200
-	feeHalf    = 4100
-	feeQuarter = 2050
+	FeeFull    = 9200
+	FeeHalf    = 4600
+	FeeQuarter = 2300
 )
 
 //go:generate go tool enumerator -type FeeType
@@ -39,11 +39,11 @@ const (
 func Cost(feeType FeeType, previousFee PreviousFee, costOfRepeatApplication CostOfRepeatApplication) int {
 	switch feeType {
 	case FullFee:
-		return feeFull
+		return FeeFull
 	case HalfFee:
-		return feeHalf
+		return FeeHalf
 	case QuarterFee:
-		return feeQuarter
+		return FeeQuarter
 	case RepeatApplicationFee:
 		if costOfRepeatApplication.IsNoFee() {
 			return 0
@@ -51,9 +51,9 @@ func Cost(feeType FeeType, previousFee PreviousFee, costOfRepeatApplication Cost
 
 		switch previousFee {
 		case PreviousFeeFull:
-			return feeHalf
+			return FeeHalf
 		case PreviousFeeHalf:
-			return feeQuarter
+			return FeeQuarter
 		default:
 			return 0
 		}

@@ -525,7 +525,7 @@ func (p *Provided) TrustCorporation() TrustCorporation {
 
 func (p *Provided) Cost() int {
 	if p.Tasks.PayForLpa.IsDenied() {
-		return 8200
+		return pay.FeeFull
 	}
 
 	return pay.Cost(p.FeeType, p.PreviousFee, p.CostOfRepeatApplication)
