@@ -880,7 +880,7 @@ func TestCertificateProviderMatches(t *testing.T) {
 	address := place.Address{Line1: "a", Postcode: "b"}
 
 	donor := &donordata.Provided{
-		Donor: donordata.Donor{FirstNames: "a", LastName: "b", Address: address},
+		Donor: donordata.Donor{FirstNames: "a", LastName: "b", Address: place.Address{Line1: "c", Postcode: "d"}},
 		Attorneys: donordata.Attorneys{Attorneys: []donordata.Attorney{
 			{FirstNames: "c", LastName: "d", Address: address},
 			{FirstNames: "e", LastName: "f", Address: address},
