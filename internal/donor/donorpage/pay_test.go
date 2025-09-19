@@ -46,7 +46,7 @@ func TestPay(t *testing.T) {
 			payClient := newMockPayClient(t)
 			payClient.EXPECT().
 				CreatePayment(r.Context(), "lpa-uid", pay.CreatePaymentBody{
-					Amount:      8200,
+					Amount:      pay.FeeFull,
 					Reference:   "lpa-uid",
 					Description: "an-lpa-type",
 					ReturnURL:   "http://example.org/lpa/lpa-id/payment-confirmation",
@@ -237,7 +237,7 @@ func TestPayWhenFeeDenied(t *testing.T) {
 	payClient := newMockPayClient(t)
 	payClient.EXPECT().
 		CreatePayment(r.Context(), "lpa-uid", pay.CreatePaymentBody{
-			Amount:      4100,
+			Amount:      pay.FeeHalf,
 			Reference:   "lpa-uid",
 			Description: "an-lpa-type",
 			ReturnURL:   "http://example.org/lpa/lpa-id/payment-confirmation",
@@ -277,7 +277,7 @@ func TestPayWhenFeeDenied(t *testing.T) {
 		Donor:          donordata.Donor{Email: "a@b.com"},
 		FeeType:        pay.HalfFee,
 		Tasks:          donordata.Tasks{PayForLpa: task.PaymentStateDenied},
-		PaymentDetails: []donordata.Payment{{Amount: 4100}},
+		PaymentDetails: []donordata.Payment{{Amount: pay.FeeHalf}},
 	})
 	resp := w.Result()
 

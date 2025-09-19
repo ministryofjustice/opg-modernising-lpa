@@ -5,7 +5,7 @@ const paymentsStore = stores.open('payments');
 switch (context.request.method) {
     case 'GET':
         const getPaymentResponseBody = `{
-    "amount": 8200,
+    "amount": 9200,
     "description": "Property and Finance LPA",
     "reference": "Hxzqvk78fBdl",
     "language": "en",
@@ -19,7 +19,7 @@ switch (context.request.method) {
     "created_date": "2024-07-17T14:35:35.085Z",
     "refund_summary": {
         "status": "available",
-        "amount_available": 8200,
+        "amount_available": 9200,
         "amount_submitted": 0
     },
     "settlement_summary": {
