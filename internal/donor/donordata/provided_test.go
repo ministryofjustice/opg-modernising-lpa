@@ -680,10 +680,10 @@ func TestTrustCorporation(t *testing.T) {
 
 func TestProvidedCost(t *testing.T) {
 	denied := &Provided{Tasks: Tasks{PayForLpa: task.PaymentStateDenied}}
-	assert.Equal(t, 8200, denied.Cost())
+	assert.Equal(t, pay.FeeFull, denied.Cost())
 
 	halfFee := &Provided{FeeType: pay.HalfFee}
-	assert.Equal(t, 4100, halfFee.Cost())
+	assert.Equal(t, pay.FeeHalf, halfFee.Cost())
 }
 
 func TestProvidedPaid(t *testing.T) {
@@ -698,9 +698,9 @@ func TestProvidedPaid(t *testing.T) {
 
 func TestProvidedFeeAmount(t *testing.T) {
 	notPaid := &Provided{}
-	assert.Equal(t, pay.AmountPence(8200), notPaid.FeeAmount())
+	assert.Equal(t, pay.AmountPence(pay.FeeFull), notPaid.FeeAmount())
 
-	halfFeePaid := &Provided{FeeType: pay.HalfFee, PaymentDetails: []Payment{{Amount: 4100}}}
+	halfFeePaid := &Provided{FeeType: pay.HalfFee, PaymentDetails: []Payment{{Amount: pay.FeeHalf}}}
 	assert.Equal(t, pay.AmountPence(0), halfFeePaid.FeeAmount())
 }
 
