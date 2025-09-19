@@ -10,3 +10,6 @@ vulnerabilities:
   - id: CVE-2025-47907
     statement: Waiting for collector to be updated
     expired_at: 2025-10-15
+  - id: CVE-2025-47906
+    statement: Waiting for collector to be updated
+    expired_at: 2025-10-19

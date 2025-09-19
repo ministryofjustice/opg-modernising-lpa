@@ -7,6 +7,7 @@ import (
 	"fmt"
 	"net/http"
 	"slices"
+	"strings"
 	"time"
 
 	"github.com/ministryofjustice/opg-go-common/template"
@@ -82,7 +83,9 @@ func Attorney(
 		var (
 			lpaType, _                 = lpadata.ParseLpaType(r.FormValue("lpa-type"))
 			lpaLanguage, _             = localize.ParseLang(r.FormValue("lpa-language"))
-			lifeSustainingTreatment, _ = lpadata.ParseLifeSustainingTreatment(r.FormValue("life-sustaining-treatment"))
+			useWhen, lstOption, _      = strings.Cut(r.FormValue("can-be-used-when/life-sustaining-treatment"), "/")
+			lifeSustainingTreatment, _ = lpadata.ParseLifeSustainingTreatment(lstOption)
+			canBeUsedWhen, _           = lpadata.ParseCanBeUsedWhen(useWhen)
 			email                      = r.FormValue("email")
 			redirect                   = r.FormValue("redirect")
 			attorneySub                = cmp.Or(r.FormValue("attorneySub"), random.AlphaNumeric(16))
@@ -316,7 +319,7 @@ func Attorney(
 				donorDetails.LifeSustainingTreatmentOption = lifeSustainingTreatment
 			} else {
 				donorDetails.Type = lpadata.LpaTypePropertyAndAffairs
-				donorDetails.WhenCanTheLpaBeUsed = lpadata.CanBeUsedWhenHasCapacity
+				donorDetails.WhenCanTheLpaBeUsed = canBeUsedWhen
 			}
 
 			donorDetails.Restrictions = makeRestriction(donorDetails)
