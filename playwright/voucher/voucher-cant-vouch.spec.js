@@ -7,7 +7,6 @@ test('voucher confirms donors details do not match their identity', async ({page
     await page.getByRole('link', {name: 'Voucher'}).click();
     await page.getByRole('radio', {name: 'Confirm your name'}).check();
     await page.getByRole('button', {name: /Start|Start now/}).click();
-    await page.getByRole('tab', {name: 'I’m vouching for someone'}).click();
     await page.getByRole('link', {name: 'Go to task list'}).click();
     await page.getByRole('link', {name: 'Verify Sam Smith’s identity'}).click();
     await page.getByRole('radio', {name: 'No'}).check();
