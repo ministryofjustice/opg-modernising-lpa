@@ -153,7 +153,7 @@ module "mainstream_content" {
   mrlpa_service_url                  = data.aws_default_tags.current.tags.environment-name != "production" ? "https://${data.aws_default_tags.current.tags.environment-name}.app.modernising.opg.service.justice.gov.uk" : "https://app.modernising.opg.service.justice.gov.uk"
   container_port                     = 3000
   ecs_application_log_group_name     = module.application_logs.cloudwatch_log_group.name
-  ecs_capacity_provider              = "FARGATE"
+  ecs_capacity_provider              = var.ecs_capacity_provider
   ecs_cluster                        = aws_ecs_cluster.main.arn
   ecs_cpu_architecture               = "ARM64"
   ecs_execution_role                 = var.iam_roles.ecs_execution_role
