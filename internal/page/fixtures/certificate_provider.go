@@ -3,7 +3,7 @@ package fixtures
 import (
 	"cmp"
 	"encoding/base64"
-	"errors"
+	"fmt"
 	"net/http"
 	"slices"
 	"time"
@@ -72,14 +72,18 @@ func CertificateProvider(
 
 			progress = slices.Index(progressValues, r.FormValue("progress"))
 
-			redirect                   = r.FormValue("redirect")
-			accessCode                 = r.FormValue("withAccessCode")
-			idStatus                   = r.FormValue("idStatus")
-			certificateProviderChannel = r.FormValue("certificateProviderChannel")
+			redirect                      = r.FormValue("redirect")
+			accessCode                    = r.FormValue("withAccessCode")
+			idStatus                      = r.FormValue("idStatus")
+			certificateProviderChannel, _ = lpadata.ParseChannel(r.FormValue("certificateProviderChannel"))
 		)
 
 		if lpaLanguage.Empty() {
 			lpaLanguage = localize.En
+		}
+
+		if certificateProviderChannel.Empty() {
+			certificateProviderChannel = lpadata.ChannelOnline
 		}
 
 		if fromStartPage {
@@ -113,14 +117,6 @@ func CertificateProvider(
 		err = sessionStore.SetLogin(r, w, &sesh.LoginSession{Sub: mockGOLSubPrefix + encodedSub, Email: email, HasLPAs: true})
 		if err != nil {
 			return err
-		}
-
-		channel := lpadata.ChannelOnline
-		if certificateProviderChannel != "" {
-			channel, err = lpadata.ParseChannel(certificateProviderChannel)
-			if err != nil {
-				return errors.New("invalid format for certificateProviderChannel")
-			}
 		}
 
 		var donorDetails *donordata.Provided
@@ -234,7 +230,7 @@ func CertificateProvider(
 						TownOrCity: "Mahhhhhhhhhh",
 						Country:    "GB",
 					},
-					Channel: channel,
+					Channel: certificateProviderChannel,
 					Email:   email,
 					Phone:   phone,
 				},
@@ -246,7 +242,7 @@ func CertificateProvider(
 				}},
 			}
 
-			if channel.IsPaper() {
+			if certificateProviderChannel.IsPaper() {
 				now := time.Now()
 				createLpa.CertificateProvider.SignedAt = &now
 			}
@@ -255,6 +251,16 @@ func CertificateProvider(
 				return err
 			}
 
+			if createLpa.CertificateProvider.Channel.IsOnline() {
+				if err := accessCodeSender.SendLpaCertificateProviderPrompt(r.Context(), appData, donorDetails.PK, donorDetails.SK, &lpadata.Lpa{
+					LpaUID:              donorDetails.LpaUID,
+					Type:                createLpa.LpaType,
+					Donor:               createLpa.Donor,
+					CertificateProvider: createLpa.CertificateProvider,
+				}); err != nil {
+					return fmt.Errorf("failed to send access code to certificate provider: %w", err)
+				}
+			}
 		} else if isSupported {
 			supporterCtx := appcontext.ContextWithSession(r.Context(), &appcontext.Session{SessionID: donorSessionID, Email: testEmail})
 
@@ -384,7 +390,7 @@ func CertificateProvider(
 			accessCodeSender.UseTestCode(accessCode)
 		}
 
-		if email != testEmail || accessCode != "" {
+		if !(isPaperDonor && certificateProviderChannel.IsOnline()) && (email != testEmail || accessCode != "") {
 			accessCodeSender.SendCertificateProviderInvite(donorCtx, appcontext.Data{
 				SessionID: donorSessionID,
 				LpaID:     donorDetails.LpaID,
