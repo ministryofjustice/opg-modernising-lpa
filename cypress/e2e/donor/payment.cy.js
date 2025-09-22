@@ -78,13 +78,11 @@ describe('Pay for LPA', { pageLoadTimeout: 8000 }, () => {
 
         cy.checkA11yApp();
 
-        cy.get('#dialog').should('not.have.class', 'govuk-!-display-none');
-        cy.get('#dialog-overlay').should('not.have.class', 'govuk-!-display-none');
+        cy.get('#file-upload-dialog').should('be.visible')
         cy.get('#file-count').should('contain', '0 of 2 files uploaded');
 
         cy.contains('button', 'Cancel upload').click()
-        cy.get('#dialog').should('have.class', 'govuk-!-display-none');
-        cy.get('#dialog-overlay').should('have.class', 'govuk-!-display-none');
+        cy.get('#file-upload-dialog').should('not.be.visible')
 
         cy.get('#uploaded .govuk-summary-list').should('not.exist');
 
@@ -167,13 +165,11 @@ describe('Pay for LPA', { pageLoadTimeout: 8000 }, () => {
         cy.url().should('contain', '/upload-evidence');
         cy.checkA11yApp();
 
-        cy.get('#dialog').should('not.have.class', 'govuk-!-display-none');
-        cy.get('#dialog-overlay').should('not.have.class', 'govuk-!-display-none');
+        cy.get('#file-upload-dialog').should('be.visible')
         cy.get('#file-count').should('contain', '0 of 1 files uploaded');
 
         cy.contains('button', 'Cancel upload').click()
-        cy.get('#dialog').should('have.class', 'govuk-!-display-none');
-        cy.get('#dialog-overlay').should('have.class', 'govuk-!-display-none');
+        cy.get('#file-upload-dialog').should('not.be.visible')
 
         // spoofing virus scan completing
         cy.visit('/fixtures?redirect=/upload-evidence&progress=payForTheLpa&paymentTaskProgress=InProgress&feeType=NoFee');
@@ -252,13 +248,11 @@ describe('Pay for LPA', { pageLoadTimeout: 8000 }, () => {
         cy.url().should('contain', '/upload-evidence');
         cy.checkA11yApp();
 
-        cy.get('#dialog').should('not.have.class', 'govuk-!-display-none');
-        cy.get('#dialog-overlay').should('not.have.class', 'govuk-!-display-none');
+        cy.get('#file-upload-dialog').should('be.visible')
         cy.get('#file-count').should('contain', '0 of 1 files uploaded');
 
         cy.contains('button', 'Cancel upload').click()
-        cy.get('#dialog').should('have.class', 'govuk-!-display-none');
-        cy.get('#dialog-overlay').should('have.class', 'govuk-!-display-none');
+        cy.get('#file-upload-dialog').should('not.be.visible')
 
         // spoofing virus scan completing
         cy.visit('/fixtures?redirect=/upload-evidence&progress=payForTheLpa&paymentTaskProgress=InProgress&feeType=HardshipFee');

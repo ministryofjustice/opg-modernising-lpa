@@ -54,10 +54,10 @@ down: ##@build Takes all containers down
 	COMPOSE_DOCKER_CLI_BUILD=1 DOCKER_BUILDKIT=1 DOCKER_DEFAULT_PLATFORM=linux/$(shell go env GOARCH) docker compose -f docker/docker-compose.yml -f docker/docker-compose.dev.yml down
 
 up: ##@build Builds and brings the app up
-	COMPOSE_DOCKER_CLI_BUILD=1 DOCKER_BUILDKIT=1 DOCKER_DEFAULT_PLATFORM=linux/$(shell go env GOARCH) docker compose -f docker/docker-compose.yml up -d --build --remove-orphans app
+	COMPOSE_DOCKER_CLI_BUILD=1 DOCKER_BUILDKIT=1 DOCKER_DEFAULT_PLATFORM=linux/$(shell go env GOARCH) COMPOSE_BAKE=true docker compose -f docker/docker-compose.yml up -d --build --remove-orphans app
 
 up-dev: ##@build Builds the app and brings up via Air hot reload with Delve debugging enabled using amd binaries
-	COMPOSE_DOCKER_CLI_BUILD=1 DOCKER_BUILDKIT=1 DOCKER_DEFAULT_PLATFORM=linux/$(shell go env GOARCH) docker compose -f docker/docker-compose.yml -f docker/docker-compose.dev.yml up -d --build --force-recreate --remove-orphans app
+	COMPOSE_DOCKER_CLI_BUILD=1 DOCKER_BUILDKIT=1 DOCKER_DEFAULT_PLATFORM=linux/$(shell go env GOARCH) COMPOSE_BAKE=true docker compose -f docker/docker-compose.yml -f docker/docker-compose.dev.yml up -d --build --force-recreate --remove-orphans app
 
 pull-latest-mock-onelogin: ## @build logs in to management AWS account and pulls the latest mock-onelogin image (assumes ~/.aws/config contains a profile called management)
 	aws-vault exec management -- aws ecr get-login-password --region eu-west-1 | docker login --username AWS --password-stdin 311462405659.dkr.ecr.eu-west-1.amazonaws.com
