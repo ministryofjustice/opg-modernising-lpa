@@ -4,6 +4,7 @@ import (
 	"cmp"
 	"encoding/base64"
 	"errors"
+	"fmt"
 	"net/http"
 	"slices"
 	"time"
@@ -255,6 +256,15 @@ func CertificateProvider(
 				return err
 			}
 
+			if err := accessCodeSender.SendLpaCertificateProviderPrompt(r.Context(), appData, donorDetails.PK, donorDetails.SK, &lpadata.Lpa{
+				LpaUID:              donorDetails.LpaUID,
+				Type:                createLpa.LpaType,
+				Donor:               createLpa.Donor,
+				CertificateProvider: createLpa.CertificateProvider,
+			}); err != nil {
+				return fmt.Errorf("failed to send access code to certificate provider: %w", err)
+			}
+
 		} else if isSupported {
 			supporterCtx := appcontext.ContextWithSession(r.Context(), &appcontext.Session{SessionID: donorSessionID, Email: testEmail})
 
@@ -384,7 +394,7 @@ func CertificateProvider(
 			accessCodeSender.UseTestCode(accessCode)
 		}
 
-		if email != testEmail || accessCode != "" {
+		if !isPaperDonor && (email != testEmail || accessCode != "") {
 			accessCodeSender.SendCertificateProviderInvite(donorCtx, appcontext.Data{
 				SessionID: donorSessionID,
 				LpaID:     donorDetails.LpaID,
