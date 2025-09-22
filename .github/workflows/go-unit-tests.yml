@@ -45,7 +45,7 @@ jobs:
       - name: Run tests and generate coverage report
         run: |
           sudo mv ~/pact-lib/libpact_ffi.so /usr/local/lib
-          make go-test
+          go test -count=1 -short ./... -race -covermode=atomic -coverprofile=coverage.out
 
       - name: Publish pacts
         run: |

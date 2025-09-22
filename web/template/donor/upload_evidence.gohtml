@@ -90,7 +90,7 @@
                 </div>
 
                 <div class="govuk-form-group">
-                    <button type="submit" class="govuk-button" data-module="govuk-button">{{ tr .App "uploadFiles" }}</button>
+                    <button type="submit" class="govuk-button" data-module="govuk-button" id="upload-evidence-btn">{{ tr .App "uploadFiles" }}</button>
                 </div>
             </form>
 
@@ -145,32 +145,30 @@
                 </div>
             </form>
 
-            <div id="dialog-overlay" class="app-dialog-overlay govuk-!-display-none" tabindex="-1"></div>
-
-            <div id="dialog"
-                class="app-dialog govuk-!-display-none"
+            <dialog id="file-upload-dialog"
                 class="app-dialog"
-                role="dialog"
                 aria-labelledby="dialog-title"
                 aria-describedby="dialog-description"
                 aria-modal="true"
                 data-start-scan="{{ .StartScan }}">
 
-                <h2 id="dialog-title" class="govuk-heading-l" tabindex="0">{{ tr .App "yourFilesAreUploading" }}</h2>
+                <h2 id="dialog-title" class="govuk-heading-l">{{ tr .App "yourFilesAreUploading" }}</h2>
 
                 <div class="app-loading-spinner" data-sse-url="{{ link .App (global.Paths.UploadEvidenceSSE.Format .App.LpaID) }}">
                     <div class="app-loading-spinner__spinner" aria-live="polite" role="status"></div>
                     <div class="app-loading-spinner__content">
-                        <h3 id="file-count" class="govuk-heading-s" tabindex="0">{{ trFormat .App "0OfNFilesUploaded" "DocumentsToScanCount" $totalDocumentsCount }}</h3>
+                        <h3 id="file-count" class="govuk-heading-s">{{ trFormat .App "0OfNFilesUploaded" "DocumentsToScanCount" $totalDocumentsCount }}</h3>
                     </div>
                 </div>
 
-                <p id="dialog-description" class="govuk-body" tabindex="0">{{ trHtml .App "yourFilesAreUploadingContent" }}</p>
+                <p id="dialog-description" class="govuk-body">{{ trHtml .App "yourFilesAreUploadingContent" }}</p>
 
-                <div class="govuk-button-group">
-                    <button type="button" id='cancel-upload-button' class="govuk-button govuk-button--secondary" data-module="govuk-button" aria-label="{{ tr .App "cancelUpload" }}">{{ tr .App "cancelUpload" }}</button>
-                </div>
-            </div>
+                <form>
+                    <div class="govuk-button-group">
+                        <button autofocus type="button" id="cancel-upload-button" value="cancel" formmethod="dialog" class="govuk-button govuk-button--secondary" data-module="govuk-button" aria-label="{{ tr .App "cancelUpload" }}">{{ tr .App "cancelUpload" }}</button>
+                    </div>
+                </form>
+            </dialog>
 
             <form novalidate method="post" enctype="multipart/form-data" id="close-connection-form">
                 {{ template "csrf-field" . }}
