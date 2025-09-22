@@ -1,0 +1,14 @@
+.app-dialog {
+  background-color: govuk-colour('white');
+  padding: govuk-spacing(6);
+  text-align: left;
+  width: 90%;
+  max-width: 400px;
+  position: fixed;
+  border: 10px solid govuk-colour('black');
+}
+
+.app-dialog::backdrop {
+  opacity: 0.8;
+  background-color: govuk-colour('black');
+}

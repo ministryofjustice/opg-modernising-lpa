@@ -30,10 +30,10 @@ function init() {
         })
     })
 
-    new DataLossWarning(document.getElementById('return-to-tasklist-btn'), document.getElementById('dialog')).init()
+    new DataLossWarning(document.getElementById('return-to-tasklist-btn'), document.getElementById('data-loss-dialog')).init()
     new DataLossWarning(document.querySelector('.trans-switch a'), document.getElementById('language-dialog')).init()
 
-    new FileUploadModal().init()
+    new FileUploadModal(document.getElementById('file-upload-dialog')).init()
 
     const backLink = document.querySelector('.govuk-back-link');
     if (backLink) {
