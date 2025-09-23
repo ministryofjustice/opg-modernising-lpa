@@ -165,10 +165,9 @@ func (c *didClient) backgroundRefresh() {
 }
 
 func parseCacheControl(s string) time.Duration {
-	for _, directive := range strings.Split(s, ",") {
+	for directive := range strings.SplitSeq(s, ",") {
 		key, val, _ := strings.Cut(strings.TrimSpace(directive), "=")
-		switch key {
-		case "max-age":
+		if key == "max-age" {
 			i, err := strconv.Atoi(val)
 			if err != nil {
 				continue

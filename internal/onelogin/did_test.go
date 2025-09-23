@@ -10,6 +10,7 @@ import (
 	"net/http"
 	"strings"
 	"testing"
+	"testing/synctest"
 	"time"
 
 	"github.com/stretchr/testify/assert"
@@ -45,185 +46,168 @@ var (
 )
 
 func TestGetDIDWhenRefreshAfterCacheControlDuration(t *testing.T) {
-	ctx, cancel := context.WithCancel(context.Background())
-	defer cancel()
+	synctest.Test(t, func(t *testing.T) {
+		startTime := time.Now()
 
-	doer := newMockDoer(t)
-	doer.EXPECT().
-		Do(mock.Anything).
-		Return(&http.Response{
-			StatusCode: http.StatusOK,
-			Header: http.Header{
-				"Cache-Control": {"max-age=1"},
-			},
-			Body: io.NopCloser(strings.NewReader(validDIDDocument)),
-		}, nil).
-		Once()
-	doer.EXPECT().
-		Do(mock.Anything).
-		Return(&http.Response{
-			StatusCode: http.StatusOK,
-			Body:       io.NopCloser(strings.NewReader(validDIDDocument)),
-		}, nil).
-		Run(func(req *http.Request) {
-			// this needs to run after the doer call is finished, hence this go routine to cancel() later
-			go func() {
-				time.Sleep(time.Millisecond)
-				cancel()
-			}()
-		}).
-		Once()
+		ctx, cancel := context.WithCancel(context.Background())
+		defer cancel()
 
-	logger := newMockLogger(t)
+		doer := newMockDoer(t)
+		doer.EXPECT().
+			Do(mock.Anything).
+			Return(&http.Response{
+				StatusCode: http.StatusOK,
+				Header: http.Header{
+					"Cache-Control": {"max-age=100"},
+				},
+				Body: io.NopCloser(strings.NewReader(validDIDDocument)),
+			}, nil).
+			Once()
+		doer.EXPECT().
+			Do(mock.Anything).
+			Return(&http.Response{
+				StatusCode: http.StatusOK,
+				Body:       io.NopCloser(strings.NewReader(validDIDDocument)),
+			}, nil).
+			Run(func(req *http.Request) {
+				// this needs to run after the doer call is finished, hence this go routine to cancel() later
+				go func() {
+					time.Sleep(time.Second)
+					cancel()
+				}()
+			}).
+			Once()
 
-	// create and start client to prevent data race on refreshRateLimit
-	client := &didClient{
-		ctx:         ctx,
-		identityURL: "identity-url",
-		http:        doer,
-		logger:      logger,
-		now:         time.Now,
-		// only allow a single request to be waiting
-		refreshRequest: make(chan struct{}, 1),
-		// set to 0 for this test
-		refreshRateLimit: 0,
-	}
+		logger := newMockLogger(t)
 
-	go client.backgroundRefresh()
+		client := getDID(ctx, logger, doer, "identity-url")
+		<-ctx.Done()
 
-	select {
-	case <-ctx.Done():
+		assert.Equal(t, startTime.Add(101*time.Second), time.Now())
+
 		key, err := client.ForKID(validKID)
 		assert.Nil(t, err)
 		assert.NotNil(t, key)
-	case <-time.After(5 * time.Second):
-		t.Log("test timed out")
-		t.Fail()
-	}
+	})
 }
 
 func TestGetDIDWhenRefreshAfterError(t *testing.T) {
-	ctx, cancel := context.WithCancel(context.Background())
-	defer cancel()
+	synctest.Test(t, func(t *testing.T) {
+		ctx, cancel := context.WithCancel(context.Background())
+		defer cancel()
 
-	doer := newMockDoer(t)
-	doer.EXPECT().
-		Do(mock.Anything).
-		Return(&http.Response{
-			StatusCode: http.StatusBadRequest,
-			Body:       io.NopCloser(strings.NewReader("")),
-		}, nil).
-		Run(func(req *http.Request) {
-			// this needs to run after the doer call is finished, hence this go routine to cancel() later
-			go func() {
-				time.Sleep(time.Millisecond)
-				cancel()
-			}()
-		}).
-		Once()
+		doer := newMockDoer(t)
+		doer.EXPECT().
+			Do(mock.Anything).
+			Return(&http.Response{
+				StatusCode: http.StatusBadRequest,
+				Body:       io.NopCloser(strings.NewReader("")),
+			}, nil).
+			Run(func(req *http.Request) {
+				// this needs to run after the doer call is finished, hence this go routine to cancel() later
+				go func() {
+					time.Sleep(time.Second)
+					cancel()
+				}()
+			}).
+			Once()
 
-	logger := newMockLogger(t)
-	logger.EXPECT().
-		WarnContext(ctx, "problem refreshing did document", mock.Anything)
+		logger := newMockLogger(t)
+		logger.EXPECT().
+			WarnContext(ctx, "problem refreshing did document", mock.Anything)
 
-	client := getDID(ctx, logger, doer, "identity-url")
-	client.refreshRateLimit = time.Duration(0)
+		client := getDID(ctx, logger, doer, "identity-url")
+		<-ctx.Done()
 
-	select {
-	case <-ctx.Done():
 		_, err := client.ForKID(validKID)
 		assert.Equal(t, ErrConfigurationMissing, err)
-	case <-time.After(5 * time.Second):
-		t.Log("test timed out")
-		t.Fail()
-	}
+	})
 }
 
 func TestGetDIDWhenRefreshForced(t *testing.T) {
-	ctx, cancel := context.WithCancel(context.Background())
-	defer cancel()
+	synctest.Test(t, func(t *testing.T) {
+		startTime := time.Now()
 
-	var client *didClient
+		ctx, cancel := context.WithCancel(context.Background())
+		defer cancel()
 
-	doer := newMockDoer(t)
-	doer.EXPECT().
-		Do(mock.Anything).
-		Return(&http.Response{
-			StatusCode: http.StatusOK,
-			Body:       io.NopCloser(strings.NewReader(validDIDDocument)),
-		}, nil).
-		Run(func(req *http.Request) {
-			client.requestRefresh()
-		}).
-		Once()
-	doer.EXPECT().
-		Do(mock.Anything).
-		Return(&http.Response{
-			StatusCode: http.StatusOK,
-			Body:       io.NopCloser(strings.NewReader(validDIDDocument)),
-		}, nil).
-		Run(func(req *http.Request) {
-			// this needs to run after the doer call is finished, hence this go routine to cancel() later
-			go func() {
-				time.Sleep(time.Millisecond)
-				cancel()
-			}()
-		}).
-		Once()
+		var client *didClient
 
-	logger := newMockLogger(t)
+		doer := newMockDoer(t)
+		doer.EXPECT().
+			Do(mock.Anything).
+			Return(&http.Response{
+				StatusCode: http.StatusOK,
+				Body:       io.NopCloser(strings.NewReader(validDIDDocument)),
+			}, nil).
+			Run(func(req *http.Request) {
+				// need to wait at least the refresh rate limit, or the refresh will be ignored
+				go func() {
+					time.Sleep(refreshRateLimit)
+					client.requestRefresh()
+				}()
+			}).
+			Once()
+		doer.EXPECT().
+			Do(mock.Anything).
+			Return(&http.Response{
+				StatusCode: http.StatusOK,
+				Body:       io.NopCloser(strings.NewReader(validDIDDocument)),
+			}, nil).
+			Run(func(req *http.Request) {
+				// this needs to run after the doer call is finished, hence this go routine to cancel() later
+				go func() {
+					time.Sleep(time.Second)
+					cancel()
+				}()
+			}).
+			Once()
 
-	client = getDID(ctx, logger, doer, "identity-url")
-	client.refreshRateLimit = time.Duration(0)
+		logger := newMockLogger(t)
 
-	select {
-	case <-ctx.Done():
+		client = getDID(ctx, logger, doer, "identity-url")
+		<-ctx.Done()
+
+		assert.Equal(t, startTime.Add(refreshRateLimit+time.Second), time.Now())
+
 		key, err := client.ForKID(validKID)
 		assert.Nil(t, err)
 		assert.NotNil(t, key)
-	case <-time.After(5 * time.Second):
-		t.Log("test timed out")
-		t.Fail()
-	}
+	})
 }
 
 func TestGetDIDWhenRefreshRateLimited(t *testing.T) {
-	ctx, cancel := context.WithCancel(context.Background())
-	defer cancel()
+	synctest.Test(t, func(t *testing.T) {
+		ctx, cancel := context.WithCancel(context.Background())
+		defer cancel()
 
-	var client *didClient
+		doer := newMockDoer(t)
+		doer.EXPECT().
+			Do(mock.Anything).
+			Return(&http.Response{
+				StatusCode: http.StatusOK,
+				Body:       io.NopCloser(strings.NewReader(validDIDDocument)),
+			}, nil).
+			Run(func(req *http.Request) {
+				// this needs to run after the doer call is finished, hence this go routine to cancel() later
+				go func() {
+					time.Sleep(time.Second)
+					cancel()
+				}()
+			}).
+			Once()
 
-	doer := newMockDoer(t)
-	doer.EXPECT().
-		Do(mock.Anything).
-		Return(&http.Response{
-			StatusCode: http.StatusOK,
-			Body:       io.NopCloser(strings.NewReader(validDIDDocument)),
-		}, nil).
-		Run(func(req *http.Request) {
-			client.requestRefresh()
-			// this needs to run after the doer call is finished, hence this go routine to cancel() later
-			go func() {
-				time.Sleep(50 * time.Millisecond)
-				cancel()
-			}()
-		}).
-		Once()
+		logger := newMockLogger(t)
 
-	logger := newMockLogger(t)
+		client := getDID(ctx, logger, doer, "identity-url")
+		<-ctx.Done()
 
-	client = getDID(ctx, logger, doer, "identity-url")
-	client.refreshRateLimit = time.Second
+		client.requestRefresh()
 
-	select {
-	case <-ctx.Done():
 		key, err := client.ForKID(validKID)
 		assert.Nil(t, err)
 		assert.NotNil(t, key)
-	case <-time.After(5 * time.Second):
-		t.Log("test timed out")
-		t.Fail()
-	}
+	})
 }
 
 func TestDIDClientRefresh(t *testing.T) {
