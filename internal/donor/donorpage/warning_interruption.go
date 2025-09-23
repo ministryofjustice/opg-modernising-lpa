@@ -3,7 +3,6 @@ package donorpage
 import (
 	"net/http"
 	"net/url"
-	"strings"
 
 	"github.com/ministryofjustice/opg-go-common/template"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
@@ -12,6 +11,7 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/date"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor/donordata"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/names"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/validation"
 )
@@ -245,14 +245,14 @@ func donorMatches(donor *donordata.Provided, firstNames, lastName string) actor.
 
 	for person := range donor.Actors() {
 		if !person.Type.IsDonor() &&
-			strings.EqualFold(person.FirstNames, firstNames) &&
-			strings.EqualFold(person.LastName, lastName) {
+			names.Equal(person.FirstNames, firstNames) &&
+			names.Equal(person.LastName, lastName) {
 			return person.Type
 		}
 	}
 
-	if strings.EqualFold(donor.Correspondent.FirstNames, firstNames) &&
-		strings.EqualFold(donor.Correspondent.LastName, lastName) {
+	if names.Equal(donor.Correspondent.FirstNames, firstNames) &&
+		names.Equal(donor.Correspondent.LastName, lastName) {
 		return actor.TypeCorrespondent
 	}
 
@@ -266,8 +266,8 @@ func attorneyMatches(donor *donordata.Provided, uid actoruid.UID, firstNames, la
 
 	for person := range donor.Actors() {
 		if !(person.Type.IsAttorney() && person.UID == uid) &&
-			strings.EqualFold(person.FirstNames, firstNames) &&
-			strings.EqualFold(person.LastName, lastName) {
+			names.Equal(person.FirstNames, firstNames) &&
+			names.Equal(person.LastName, lastName) {
 			return person.Type
 		}
 	}
@@ -282,8 +282,8 @@ func replacementAttorneyMatches(donor *donordata.Provided, uid actoruid.UID, fir
 
 	for person := range donor.Actors() {
 		if !(person.Type.IsReplacementAttorney() && person.UID == uid) &&
-			strings.EqualFold(person.FirstNames, firstNames) &&
-			strings.EqualFold(person.LastName, lastName) {
+			names.Equal(person.FirstNames, firstNames) &&
+			names.Equal(person.LastName, lastName) {
 			return person.Type
 		}
 	}
@@ -301,14 +301,13 @@ func certificateProviderMatches(donor *donordata.Provided, firstNames, lastName 
 			continue
 		}
 
-		if strings.EqualFold(person.LastName, lastName) && strings.EqualFold(person.FirstNames, firstNames) {
+		if names.Equal(person.LastName, lastName) && names.Equal(person.FirstNames, firstNames) {
 			return person.Type
 		}
 
 		if person.Type.IsAttorney() || person.Type.IsReplacementAttorney() || person.Type.IsDonor() {
-			if strings.EqualFold(person.LastName, lastName) &&
-				(person.Address.Line1 != "" && person.Address.Line1 == donor.CertificateProvider.Address.Line1) &&
-				(person.Address.Postcode != "" && person.Address.Postcode == donor.CertificateProvider.Address.Postcode) {
+			if names.Equal(person.LastName, lastName) && person.Address.Line1 != "" &&
+				person.Address.Equal(donor.CertificateProvider.Address) {
 				return person.Type
 			}
 		}
@@ -318,7 +317,7 @@ func certificateProviderMatches(donor *donordata.Provided, firstNames, lastName 
 }
 
 func correspondentNameMatchesDonor(donor *donordata.Provided, firstNames, lastName string) bool {
-	return strings.EqualFold(donor.Donor.FirstNames, firstNames) && strings.EqualFold(donor.Donor.LastName, lastName)
+	return names.Equal(donor.Donor.FirstNames, firstNames) && names.Equal(donor.Donor.LastName, lastName)
 }
 
 func personToNotifyMatches(donor *donordata.Provided, uid actoruid.UID, firstNames, lastName string) actor.Type {
@@ -331,8 +330,8 @@ func personToNotifyMatches(donor *donordata.Provided, uid actoruid.UID, firstNam
 			!person.Type.IsCertificateProvider() &&
 			!person.Type.IsAuthorisedSignatory() &&
 			!person.Type.IsIndependentWitness() &&
-			strings.EqualFold(person.FirstNames, firstNames) &&
-			strings.EqualFold(person.LastName, lastName) {
+			names.Equal(person.FirstNames, firstNames) &&
+			names.Equal(person.LastName, lastName) {
 			return person.Type
 		}
 	}
@@ -348,8 +347,8 @@ func signatoryMatches(donor *donordata.Provided, firstNames, lastName string) ac
 	for person := range donor.Actors() {
 		if !person.Type.IsAuthorisedSignatory() &&
 			!person.Type.IsPersonToNotify() &&
-			strings.EqualFold(person.FirstNames, firstNames) &&
-			strings.EqualFold(person.LastName, lastName) {
+			names.Equal(person.FirstNames, firstNames) &&
+			names.Equal(person.LastName, lastName) {
 			return person.Type
 		}
 	}
@@ -365,8 +364,8 @@ func independentWitnessMatches(donor *donordata.Provided, firstNames, lastName s
 	for person := range donor.Actors() {
 		if !person.Type.IsIndependentWitness() &&
 			!person.Type.IsPersonToNotify() &&
-			strings.EqualFold(person.FirstNames, firstNames) &&
-			strings.EqualFold(person.LastName, lastName) {
+			names.Equal(person.FirstNames, firstNames) &&
+			names.Equal(person.LastName, lastName) {
 			return person.Type
 		}
 	}

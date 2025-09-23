@@ -1,11 +1,11 @@
 package donordata
 
 import (
-	"strings"
 	"time"
 
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor/actoruid"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/names"
 )
 
 type Voucher struct {
@@ -26,37 +26,37 @@ func (v Voucher) Matches(donor *Provided) (match []actor.Type) {
 		return nil
 	}
 
-	if strings.EqualFold(donor.Donor.FirstNames, v.FirstNames) && strings.EqualFold(donor.Donor.LastName, v.LastName) {
+	if names.EqualFull(donor.Donor, v) {
 		match = append(match, actor.TypeDonor)
 	}
 
 	for _, attorney := range donor.Attorneys.Attorneys {
-		if strings.EqualFold(attorney.FirstNames, v.FirstNames) && strings.EqualFold(attorney.LastName, v.LastName) {
+		if names.EqualFull(attorney, v) {
 			match = append(match, actor.TypeAttorney)
 		}
 	}
 
 	for _, attorney := range donor.ReplacementAttorneys.Attorneys {
-		if strings.EqualFold(attorney.FirstNames, v.FirstNames) && strings.EqualFold(attorney.LastName, v.LastName) {
+		if names.EqualFull(attorney, v) {
 			match = append(match, actor.TypeReplacementAttorney)
 		}
 	}
 
-	if strings.EqualFold(donor.CertificateProvider.FirstNames, v.FirstNames) && strings.EqualFold(donor.CertificateProvider.LastName, v.LastName) {
+	if names.EqualFull(donor.CertificateProvider, v) {
 		match = append(match, actor.TypeCertificateProvider)
 	}
 
 	for _, person := range donor.PeopleToNotify {
-		if strings.EqualFold(person.FirstNames, v.FirstNames) && strings.EqualFold(person.LastName, v.LastName) {
+		if names.EqualFull(person, v) {
 			match = append(match, actor.TypePersonToNotify)
 		}
 	}
 
-	if strings.EqualFold(donor.AuthorisedSignatory.FirstNames, v.FirstNames) && strings.EqualFold(donor.AuthorisedSignatory.LastName, v.LastName) {
+	if names.EqualFull(donor.AuthorisedSignatory, v) {
 		match = append(match, actor.TypeAuthorisedSignatory)
 	}
 
-	if strings.EqualFold(donor.IndependentWitness.FirstNames, v.FirstNames) && strings.EqualFold(donor.IndependentWitness.LastName, v.LastName) {
+	if names.EqualFull(donor.IndependentWitness, v) {
 		match = append(match, actor.TypeIndependentWitness)
 	}
 

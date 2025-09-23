@@ -5,7 +5,6 @@ import (
 	"errors"
 	"iter"
 	"slices"
-	"strings"
 	"time"
 
 	"github.com/gohugoio/hashstructure"
@@ -17,6 +16,7 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/identity"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/localize"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/lpastore/lpadata"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/names"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/pay"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/place"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/rate"
@@ -564,22 +564,13 @@ func (p *Provided) CertificateProviderSharesLastName() bool {
 		return false
 	}
 
-	certificateProviderParts := strings.Split(p.CertificateProvider.LastName, "-")
-
-	donorParts := strings.Split(p.Donor.LastName, "-")
-	for _, certificateProviderPart := range certificateProviderParts {
-		if slices.Contains(donorParts, certificateProviderPart) {
-			return true
-		}
+	if names.EqualDoubleBarrel(p.Donor.LastName, p.CertificateProvider.LastName) {
+		return true
 	}
 
 	for _, attorney := range append(p.Attorneys.Attorneys, p.ReplacementAttorneys.Attorneys...) {
-		attorneyParts := strings.Split(attorney.LastName, "-")
-
-		for _, certificateProviderPart := range certificateProviderParts {
-			if slices.Contains(attorneyParts, certificateProviderPart) {
-				return true
-			}
+		if names.EqualDoubleBarrel(attorney.LastName, p.CertificateProvider.LastName) {
+			return true
 		}
 	}
 
@@ -594,14 +585,12 @@ func (p *Provided) CertificateProviderSharesAddress() bool {
 		return false
 	}
 
-	if p.CertificateProvider.Address.Line1 == p.Donor.Address.Line1 &&
-		p.CertificateProvider.Address.Postcode == p.Donor.Address.Postcode {
+	if p.CertificateProvider.Address.Equal(p.Donor.Address) {
 		return true
 	}
 
 	for _, attorney := range append(p.Attorneys.Attorneys, p.ReplacementAttorneys.Attorneys...) {
-		if p.CertificateProvider.Address.Line1 == attorney.Address.Line1 &&
-			p.CertificateProvider.Address.Postcode == attorney.Address.Postcode {
+		if p.CertificateProvider.Address.Equal(attorney.Address) {
 			return true
 		}
 	}
