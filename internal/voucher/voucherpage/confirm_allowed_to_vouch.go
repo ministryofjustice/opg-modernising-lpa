@@ -3,12 +3,12 @@ package voucherpage
 import (
 	"net/http"
 	"net/url"
-	"strings"
 
 	"github.com/ministryofjustice/opg-go-common/template"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/appcontext"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/form"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/lpastore/lpadata"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/names"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/task"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/validation"
@@ -36,7 +36,7 @@ func ConfirmAllowedToVouch(tmpl template.Template, lpaStoreResolvingService LpaS
 			App:                 appData,
 			Form:                form.NewYesNoForm(form.YesNoUnknown),
 			Lpa:                 lpa,
-			SurnameMatchesDonor: strings.EqualFold(provided.LastName, lpa.Donor.LastName),
+			SurnameMatchesDonor: names.Equal(provided.LastName, lpa.Donor.LastName),
 			MatchIdentity:       provided.Tasks.ConfirmYourIdentity.IsInProgress(),
 		}
 

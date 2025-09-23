@@ -2,13 +2,13 @@ package donorpage
 
 import (
 	"net/http"
-	"strings"
 
 	"github.com/ministryofjustice/opg-go-common/template"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor/actoruid"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/appcontext"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor/donordata"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/names"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/validation"
 )
@@ -42,7 +42,7 @@ func EnterVoucher(tmpl template.Template, donorStore DonorStore, newUID func() a
 				if provided.Voucher.FirstNames != data.Form.FirstNames || provided.Voucher.LastName != data.Form.LastName {
 					provided.Voucher.FirstNames = data.Form.FirstNames
 					provided.Voucher.LastName = data.Form.LastName
-					provided.Voucher.Allowed = len(provided.Voucher.Matches(provided)) == 0 && !strings.EqualFold(provided.Voucher.LastName, provided.Donor.LastName)
+					provided.Voucher.Allowed = len(provided.Voucher.Matches(provided)) == 0 && !names.Equal(provided.Voucher.LastName, provided.Donor.LastName)
 				}
 
 				provided.Voucher.Email = data.Form.Email
