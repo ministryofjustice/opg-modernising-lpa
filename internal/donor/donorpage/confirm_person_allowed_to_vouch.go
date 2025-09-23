@@ -3,7 +3,6 @@ package donorpage
 import (
 	"net/http"
 	"slices"
-	"strings"
 
 	"github.com/ministryofjustice/opg-go-common/template"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
@@ -11,6 +10,7 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor/donordata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/form"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/names"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/validation"
 )
 
@@ -40,7 +40,7 @@ func ConfirmPersonAllowedToVouch(tmpl template.Template, donorStore DonorStore) 
 			App:          appData,
 			Form:         form.NewYesNoForm(form.YesNoUnknown),
 			Matches:      matches,
-			MatchSurname: strings.EqualFold(provided.Voucher.LastName, provided.Donor.LastName) && !slices.Contains(matches, actor.TypeDonor),
+			MatchSurname: names.Equal(provided.Voucher.LastName, provided.Donor.LastName) && !slices.Contains(matches, actor.TypeDonor),
 			FullName:     provided.Voucher.FullName(),
 		}
 

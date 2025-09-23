@@ -3,7 +3,6 @@ package donorpage
 import (
 	"net/http"
 	"net/url"
-	"strings"
 
 	"github.com/ministryofjustice/opg-go-common/template"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/appcontext"
@@ -11,6 +10,7 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor/donordata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/event"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/form"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/names"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/task"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/validation"
 )
@@ -58,8 +58,8 @@ func IdentityDetails(tmpl template.Template, donorStore DonorStore, eventClient 
 			Form:             form.NewYesNoForm(form.YesNoUnknown),
 			Provided:         provided,
 			CanUpdateAddress: r.FormValue("canUpdateAddress") == "1",
-			FirstNamesMatch:  strings.EqualFold(provided.Donor.FirstNames, provided.IdentityUserData.FirstNames),
-			LastNameMatch:    strings.EqualFold(provided.Donor.LastName, provided.IdentityUserData.LastName),
+			FirstNamesMatch:  names.Equal(provided.Donor.FirstNames, provided.IdentityUserData.FirstNames),
+			LastNameMatch:    names.Equal(provided.Donor.LastName, provided.IdentityUserData.LastName),
 			DateOfBirthMatch: provided.Donor.DateOfBirth == provided.IdentityUserData.DateOfBirth,
 			AddressMatch:     provided.Donor.Address == provided.IdentityUserData.CurrentAddress,
 		}
