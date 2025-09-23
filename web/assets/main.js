@@ -13,6 +13,18 @@ if (document.readyState !== "loading") {
     document.addEventListener('DOMContentLoaded', init)
 }
 
+function metaContent(name) {
+    return document.querySelector(`meta[name=${name}]`).content;
+}
+
+function consentToCookies() {
+    if ('cookieStore' in window) {
+        return cookieStore.get('cookies-consent').then(c => c && c.value === 'accept');
+    } else {
+        return Promise.resolve(document.cookie.split(';').includes('cookies-consent=accept'));
+    }
+}
+
 function init() {
     document.body.className += ' js-enabled' + ('noModule' in HTMLScriptElement.prototype ? ' govuk-frontend-supported' : '');
 
@@ -53,31 +65,29 @@ function init() {
 
     new GuidanceNav().init()
 
-    function metaContent(name) {
-        return document.querySelector(`meta[name=${name}]`).content;
-    }
+    consentToCookies().then(allowCookies => {
+        try {
+            const config = {
+                sessionSampleRate: 1,
+                guestRoleArn: metaContent('rum-guest-role-arn'),
+                identityPoolId: metaContent('rum-identity-pool-id'),
+                endpoint: metaContent('rum-endpoint'),
+                telemetries: ["http", "errors", "performance"],
+                allowCookies,
+            };
 
-    try {
-        const config = {
-            sessionSampleRate: 1,
-            guestRoleArn: metaContent('rum-guest-role-arn'),
-            identityPoolId: metaContent('rum-identity-pool-id'),
-            endpoint: metaContent('rum-endpoint'),
-            telemetries: ["http", "errors", "performance"],
-            allowCookies: true,
-        };
+            const APPLICATION_ID = metaContent('rum-application-id');
+            const APPLICATION_VERSION = '1.0.0';
+            const APPLICATION_REGION = metaContent('rum-application-region');
 
-        const APPLICATION_ID = metaContent('rum-application-id');
-        const APPLICATION_VERSION = '1.0.0';
-        const APPLICATION_REGION = metaContent('rum-application-region');
-
-        const awsRum = new AwsRum(
-            APPLICATION_ID,
-            APPLICATION_VERSION,
-            APPLICATION_REGION,
-            config
-        );
-    } catch (error) {
-        // Ignore errors thrown during CloudWatch RUM web client initialization
-    }
+            const awsRum = new AwsRum(
+                APPLICATION_ID,
+                APPLICATION_VERSION,
+                APPLICATION_REGION,
+                config
+            );
+        } catch (error) {
+            // Ignore errors thrown during CloudWatch RUM web client initialization
+        }
+    });
 }
