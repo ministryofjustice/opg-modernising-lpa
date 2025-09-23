@@ -124,6 +124,11 @@ type UserData struct {
 	CheckedAt time.Time
 }
 
+// MatchName returns true if the names should be considered equal to those
+// returned by an identity check. This uses common subsitutions found in
+// passports and ignores the ordering of first names. Though, for rare
+// situations it may still not provide the expected result as it does not
+// account for longer names being abbreviated on passports.
 func (u UserData) MatchName(firstNames, lastName string) bool {
 	expectedFirstNames := strings.ToUpper(u.FirstNames)
 	expectedLastName := strings.ToUpper(u.LastName)

@@ -44,3 +44,9 @@ func (a Address) Lines() []string {
 func (a Address) String() string {
 	return strings.Join(a.Lines(), ", ")
 }
+
+// Equal provides a looser definition of equality that we use for various
+// checks which need to not be strict.
+func (a Address) Equal(b Address) bool {
+	return strings.EqualFold(a.Line1, b.Line1) && strings.EqualFold(a.Postcode, b.Postcode)
+}

@@ -1,7 +1,6 @@
 package voucherdata
 
 import (
-	"strings"
 	"time"
 
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
@@ -9,6 +8,7 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/form"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/identity"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/lpastore/lpadata"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/names"
 )
 
 // Provided contains the information a voucher has given
@@ -61,13 +61,11 @@ func (p *Provided) NameMatches(lpa *lpadata.Lpa) actor.Type {
 	}
 
 	for person := range lpa.Actors() {
-		if person.Type.IsDonor() &&
-			strings.EqualFold(person.LastName, p.LastName) {
+		if person.Type.IsDonor() && names.Equal(person.LastName, p.LastName) {
 			return person.Type
 		}
 
-		if strings.EqualFold(person.FirstNames, p.FirstNames) &&
-			strings.EqualFold(person.LastName, p.LastName) {
+		if names.EqualFull(person, p) {
 			return person.Type
 		}
 	}
