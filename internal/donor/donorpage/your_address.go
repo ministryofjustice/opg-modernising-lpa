@@ -53,8 +53,7 @@ func YourAddress(logger Logger, tmpl template.Template, addressClient AddressCli
 
 					next := determineNext(appData, provided, addressChangesMade, data)
 
-					if addressChangesMade && provided.CertificateProvider.Address.Line1 == provided.Donor.Address.Line1 &&
-						provided.CertificateProvider.Address.Postcode == provided.Donor.Address.Postcode {
+					if addressChangesMade && provided.CertificateProvider.Address.Equal(provided.Donor.Address) {
 						return donor.PathWarningInterruption.RedirectQuery(w, r, appData, provided, url.Values{
 							"warningFrom": {appData.Page},
 							"next":        {next.Path},
