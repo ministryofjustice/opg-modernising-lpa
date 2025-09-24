@@ -50,8 +50,6 @@ on:
         required: false
 
 permissions:
-  pull-requests: write
-  issues: write
   id-token: write
 
 env:
