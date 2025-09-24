@@ -44,8 +44,7 @@ jobs:
       checkout_tag: ${{ inputs.tag_to_deploy}}
       specs: 'cypress/e2e/**/*.cy.js'
     secrets:
-      aws_access_key_id: ${{ secrets.AWS_ACCESS_KEY_ID_ACTIONS }}
-      aws_secret_access_key: ${{ secrets.AWS_SECRET_ACCESS_KEY_ACTIONS }}
+      ingress_management_oidc_role_arn: ${{ secrets.TERRAFORM_OIDC_ROLE_PREPRODUCTION }}
       cypress_record_key: ${{ secrets.CYPRESS_RECORD_KEY }}
       github_access_token: ${{ secrets.GITHUB_TOKEN }}
 
@@ -71,8 +70,7 @@ jobs:
       base_url: "https://${{ needs.deploy.outputs.url }}"
       environment_config_json: ${{ needs.deploy.outputs.environment_config_json }}
     secrets:
-      aws_access_key_id: ${{ secrets.AWS_ACCESS_KEY_ID_ACTIONS }}
-      aws_secret_access_key: ${{ secrets.AWS_SECRET_ACCESS_KEY_ACTIONS }}
+      ingress_management_oidc_role_arn: ${{ secrets.TERRAFORM_OIDC_ROLE_DEVELOPMENT }}
       github_access_token: ${{ secrets.GITHUB_TOKEN }}
 
   always_remove_ingress:
@@ -83,8 +81,7 @@ jobs:
     with:
       environment_config_json: ${{ needs.deploy.outputs.environment_config_json }}
     secrets:
-      aws_access_key_id: ${{ secrets.AWS_ACCESS_KEY_ID_ACTIONS }}
-      aws_secret_access_key: ${{ secrets.AWS_SECRET_ACCESS_KEY_ACTIONS }}
+      ingress_management_oidc_role_arn: ${{ secrets.TERRAFORM_OIDC_ROLE_DEVELOPMENT }}
 
   end_of_deployment_workflow:
     name: End of ur Deployment Workflow
