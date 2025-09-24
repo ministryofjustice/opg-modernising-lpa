@@ -47,7 +47,7 @@ on:
         required: true
       oidc_role_arn:
         description: 'ARN for OIDC role to assume for terraform tasks'
-        required: false
+        required: true
 
 permissions:
   id-token: write
