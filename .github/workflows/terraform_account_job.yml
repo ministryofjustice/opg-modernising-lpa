@@ -17,6 +17,9 @@ on:
       pagerduty_api_key:
         description: 'Pagerduty API Key'
         required: true
+      oidc_role_arn:
+        description: 'ARN for OIDC role to assume for terraform tasks'
+        required: false
 
 env:
   TFLINT_VERSION: 0.50.1
