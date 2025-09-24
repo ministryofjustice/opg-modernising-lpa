@@ -32,7 +32,7 @@ jobs:
       - name: Setup Go
         uses: actions/setup-go@44694675825211faa026b3c33043df3e48a5fa00 # v6.0.0
         with:
-          go-version: '^1.20'
+          go-version: '^1.25'
           cache-dependency-path: '**/go.sum'
 
       - name: Download pact
@@ -45,7 +45,6 @@ jobs:
       - name: Run tests and generate coverage report
         run: |
           sudo mv ~/pact-lib/libpact_ffi.so /usr/local/lib
-          go env -w GOTOOLCHAIN=go1.25.0+auto
           make go-test
 
       - name: Publish pacts
