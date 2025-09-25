@@ -110,6 +110,7 @@ jobs:
       run_against_image: true
       tag: ${{ needs.create_tags.outputs.version_tag }}
       specs: 'cypress/e2e/**/*.cy.js'
+      dev_mode: "1"
     secrets:
       ingress_management_oidc_role_arn: ${{ secrets.TERRAFORM_OIDC_ROLE_DEVELOPMENT }}
       cypress_record_key: ${{ secrets.CYPRESS_RECORD_KEY }}
@@ -153,6 +154,7 @@ jobs:
       tag: ${{ needs.create_tags.outputs.version_tag }}
       environment_config_json: ${{ needs.pr_deploy.outputs.environment_config_json }}
       specs: 'cypress/smoke/*.cy.js'
+      dev_mode: ${{ needs.pr_deploy.outputs.dev_mode }}
     secrets:
       ingress_management_oidc_role_arn: ${{ secrets.TERRAFORM_OIDC_ROLE_DEVELOPMENT }}
       cypress_record_key: ${{ secrets.CYPRESS_RECORD_KEY }}
