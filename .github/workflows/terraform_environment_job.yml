@@ -34,6 +34,9 @@ on:
       environment_config_json:
         description: "Environment config JSON"
         value: ${{ jobs.terraform_environment_workflow.outputs.environment_config_json }}
+      dev_mode:
+        description: "The value of app env var DEV_MODE"
+        value: ${{ jobs.terraform_environment_workflow.outputs.dev_mode }}
     secrets:
       aws_access_key_id:
         description: 'AWS Access Key ID'
@@ -67,6 +70,7 @@ jobs:
       terraform_container_version: ${{ steps.terraform_outputs.outputs.container_version }}
       url: ${{ steps.terraform_outputs.outputs.url }}
       environment_config_json: ${{ steps.terraform_outputs.outputs.environment_config_json }}
+      dev_mode: ${{ steps.terraform_outputs.outputs.dev_mode }}
     steps:
       - uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
         with:
@@ -163,4 +167,5 @@ jobs:
           echo "container_version=$(terraform output -raw container_version)" >> $GITHUB_OUTPUT
           echo "url=$(terraform output -raw app_fqdn)" >> $GITHUB_OUTPUT
           echo "environment_config_json=$(terraform output environment_config_json)" >> $GITHUB_OUTPUT
+          echo "dev_mode=$(terraform output -raw dev_mode)" >> $GITHUB_OUTPUT
         working-directory: ./terraform/environment
