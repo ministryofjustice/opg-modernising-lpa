@@ -1,4 +1,4 @@
-describe('Dev features', () => {
+describe('Dev features', { tags: '@dev' }, () => {
 
     it('Show translation keys', () => {
         cy.visit('/fixtures?redirect=/when-can-the-lpa-be-used?showTranslationKeys=1&progress=chooseYourAttorneys');

@@ -1,6 +1,9 @@
 import 'cypress-axe'
 import "cypress-real-events"
 import './commands'
+import {register as registerCypressGrep} from '@cypress/grep'
+
+registerCypressGrep()
 
 export const
     TestEmail = 'simulate-delivered@notifications.service.gov.uk',

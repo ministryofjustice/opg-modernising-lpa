@@ -21,3 +21,7 @@ locals {
 output "environment_config_json" {
   value = jsonencode(local.environment_config)
 }
+
+output "dev_mode" {
+  value = local.dev_mode
+}

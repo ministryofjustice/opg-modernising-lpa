@@ -43,6 +43,7 @@ jobs:
       tag: ur-${{ inputs.tag_to_deploy}}
       checkout_tag: ${{ inputs.tag_to_deploy}}
       specs: 'cypress/e2e/**/*.cy.js'
+      dev_mode: "1"
     secrets:
       aws_access_key_id: ${{ secrets.AWS_ACCESS_KEY_ID_ACTIONS }}
       aws_secret_access_key: ${{ secrets.AWS_SECRET_ACCESS_KEY_ACTIONS }}
