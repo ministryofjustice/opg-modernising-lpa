@@ -1,4 +1,5 @@
 import {defineConfig} from 'cypress';
+import {plugin as cypressGrepPlugin} from '@cypress/grep/plugin'
 
 export default defineConfig({
   projectId: "xxbft5",
@@ -20,6 +21,10 @@ export default defineConfig({
           return null
         }
       })
+
+      cypressGrepPlugin(config)
+
+      return config
     },
     specPattern: '**/*.cy.js',
     video: false
