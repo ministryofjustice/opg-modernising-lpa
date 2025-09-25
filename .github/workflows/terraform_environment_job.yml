@@ -34,6 +34,9 @@ on:
       environment_config_json:
         description: "Environment config JSON"
         value: ${{ jobs.terraform_environment_workflow.outputs.environment_config_json }}
+      dev_mode:
+        description: "The value of app env var DEV_MODE"
+        value: ${{ jobs.terraform_environment_workflow.outputs.dev_mode }}
     secrets:
       aws_access_key_id:
         description: 'AWS Access Key ID'
