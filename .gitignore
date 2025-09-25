@@ -38,6 +38,7 @@ multi-reporter-config.json
 /logs/*
 /pacts/*
 /coverage/*
+/docker/zap/report/*
 
 scripts/sbom_exporter/exports/*
 scripts/sbom_exporter/tmp.*.json

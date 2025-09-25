@@ -272,3 +272,8 @@ test-schedule-runner: add-scheduled-tasks run-schedule-runner ##@scheduler seeds
 		--metric-data-queries file:///usr/schedule-runner-metrics-query.json \
 		--start-time "$(shell date -v-1H -u +"%Y-%m-%dT%H:%M:%SZ")" \
 		--end-time "$(shell date -v+1M -u +"%Y-%m-%dT%H:%M:%SZ")"
+
+zap: ##@security Run zap against the app locally with a report written to ./docker/zap/report
+	rm -rf docker/zap/report
+	docker compose -f docker/docker-compose.yml -f docker/docker-compose.zap.yml up -d --build --remove-orphans app
+	docker compose -f docker/docker-compose.yml -f docker/docker-compose.zap.yml run zap
