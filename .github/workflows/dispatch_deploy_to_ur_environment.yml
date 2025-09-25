@@ -43,6 +43,7 @@ jobs:
       tag: ur-${{ inputs.tag_to_deploy}}
       checkout_tag: ${{ inputs.tag_to_deploy}}
       specs: 'cypress/e2e/**/*.cy.js'
+      dev_mode: "1"
     secrets:
       ingress_management_oidc_role_arn: ${{ secrets.TERRAFORM_OIDC_ROLE_PREPRODUCTION }}
       cypress_record_key: ${{ secrets.CYPRESS_RECORD_KEY }}

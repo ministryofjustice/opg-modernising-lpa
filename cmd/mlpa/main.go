@@ -118,7 +118,7 @@ func run(ctx context.Context, logger *slog.Logger) error {
 		searchIndexingEnabled = os.Getenv("SEARCH_INDEXING_DISABLED") != "1"
 		useURL                = os.Getenv("USE_A_LASTING_POWER_OF_ATTORNEY_URL")
 		kmsKeyAlias           = os.Getenv("S3_UPLOADS_KMS_KEY_ALIAS")
-		useTestWitnessCode    = os.Getenv("USE_TEST_WITNESS_CODE") == "1"
+		useTestWitnessCode    = os.Getenv("USE_TEST_WITNESS_CODE") == "1" && devMode
 		environment           = os.Getenv("ENVIRONMENT")
 	)
 

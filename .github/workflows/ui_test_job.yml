@@ -35,6 +35,10 @@ on:
         description: 'A list of cypress specs, directories or globs containing specs to run in format "filepath filepath"'
         required: true
         type: string
+      dev_mode:
+        description: 'The value of the app environment variable DEV_MODE'
+        required: false
+        type: string
     secrets:
       cypress_record_key:
         description: 'Cypress Record Key'
@@ -130,7 +134,7 @@ jobs:
           CYPRESS_TEST_ONELOGIN_PASSWORD: ${{ secrets.test_onelogin_password }}
           GITHUB_TOKEN: ${{ secrets.github_access_token }}
         run:
-          yarn run cypress:parallel-with-specs --spec ${{ inputs.specs }}
+          yarn run cypress:parallel-with-specs --spec ${{ inputs.specs }} ${{ inputs.dev_mode != '1' && '--env grepTags=-@dev,grepFilterSpecs=true' || '' }}
 
       - name: Persist Cypress failure screenshots as artifacts
         if: failure()
