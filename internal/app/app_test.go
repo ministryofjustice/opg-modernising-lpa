@@ -218,12 +218,10 @@ func TestMakeHandleWhenError(t *testing.T) {
 
 func TestWithAppData(t *testing.T) {
 	testcases := map[string]struct {
-		url                 string
-		cookieName          string
-		cookieValue         string
-		cookieConsentSet    bool
-		showTranslationKeys bool
-		contentType         string
+		url              string
+		cookieName       string
+		cookieValue      string
+		cookieConsentSet bool
 	}{
 		"with cookie consent": {
 			url:              "/path?a=b",
@@ -235,11 +233,58 @@ func TestWithAppData(t *testing.T) {
 			url:        "/path?a=b",
 			cookieName: "not-cookies-consent",
 		},
+	}
+
+	for name, tc := range testcases {
+		t.Run(name, func(t *testing.T) {
+			w := httptest.NewRecorder()
+			r, _ := http.NewRequest(http.MethodGet, tc.url, nil)
+			r.AddCookie(&http.Cookie{Name: tc.cookieName, Value: tc.cookieValue})
+
+			bundle, _ := localize.NewBundle("testdata/en.json")
+			localizer := bundle.For(localize.En)
+
+			query := url.Values{"a": {"b"}}
+
+			handler := http.HandlerFunc(func(hw http.ResponseWriter, hr *http.Request) {
+				assert.Equal(t, appcontext.Data{
+					Path:             "/path",
+					Query:            query,
+					Localizer:        localizer,
+					Lang:             localize.En,
+					CookieConsentSet: tc.cookieConsentSet,
+				}, appcontext.DataFromContext(hr.Context()))
+				assert.Equal(t, w, hw)
+			})
+
+			withAppData(handler, localizer, localize.En, false)(w, r)
+		})
+	}
+}
+
+func TestWithAppDataWithDevMode(t *testing.T) {
+	testcases := map[string]struct {
+		url                 string
+		cookieName          string
+		cookieValue         string
+		cookieConsentSet    bool
+		showTranslationKeys bool
+		contentType         string
+		devMode             bool
+	}{
 		"with translation keys": {
 			url:                 "/path?a=b&showTranslationKeys=1",
 			showTranslationKeys: true,
+			devMode:             true,
+		},
+		"with translation keys, dev mode off": {
+			url: "/path?a=b&showTranslationKeys=1",
 		},
 		"without translation keys": {
+			url:     "/path?a=b",
+			devMode: true,
+		},
+		"without translation keys, dev mode off": {
 			url: "/path?a=b",
 		},
 		"with translation keys cookie": {
@@ -247,17 +292,25 @@ func TestWithAppData(t *testing.T) {
 			cookieName:          "show-keys",
 			cookieValue:         "1",
 			showTranslationKeys: true,
+			devMode:             true,
+		},
+		"with translation keys cookie, dev mode off": {
+			url:         "/path?a=b",
+			cookieName:  "show-keys",
+			cookieValue: "1",
 		},
 		"disable translation keys cookie": {
 			url:                 "/path?a=b&showTranslationKeys=0",
 			cookieName:          "show-keys",
 			cookieValue:         "0",
 			showTranslationKeys: false,
+			devMode:             true,
 		},
 		"with translation keys and multipart form": {
 			url:                 "/path?a=b&showTranslationKeys=1",
 			showTranslationKeys: false,
 			contentType:         "multipart/form-data",
+			devMode:             true,
 		},
 	}
 
@@ -291,7 +344,7 @@ func TestWithAppData(t *testing.T) {
 				assert.Equal(t, w, hw)
 			})
 
-			withAppData(handler, localizer, localize.En)(w, r)
+			withAppData(handler, localizer, localize.En, true)(w, r)
 		})
 	}
 }

@@ -491,7 +491,7 @@ locals {
         },
         {
           name  = "DEV_MODE",
-          value = var.app_env_vars.dev_mode
+          value = data.aws_default_tags.current.tags.environment-name == "production" ? "" : var.app_env_vars.dev_mode
         },
         {
           name  = "SEARCH_INDEXING_DISABLED",

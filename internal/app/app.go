@@ -316,16 +316,16 @@ func App(
 		attorneyStartURL,
 	)
 
-	return withAppData(page.ValidateCsrf(rootMux, sessionStore, random.AlphaNumeric, errorHandler), localizer, lang)
+	return withAppData(page.ValidateCsrf(rootMux, sessionStore, random.AlphaNumeric, errorHandler), localizer, lang, devMode)
 }
 
-func withAppData(next http.Handler, localizer localize.Localizer, lang localize.Lang) http.HandlerFunc {
+func withAppData(next http.Handler, localizer localize.Localizer, lang localize.Lang, devMode bool) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		ctx := r.Context()
 		if contentType, _, _ := strings.Cut(r.Header.Get("Content-Type"), ";"); contentType != "multipart/form-data" {
 			showKeys := false
 
-			if formValue := r.FormValue("showTranslationKeys"); formValue != "" {
+			if formValue := r.FormValue("showTranslationKeys"); formValue != "" && devMode {
 				showKeys = formValue == "1"
 
 				cookie := &http.Cookie{
@@ -343,7 +343,7 @@ func withAppData(next http.Handler, localizer localize.Localizer, lang localize.
 				}
 
 				http.SetCookie(w, cookie)
-			} else {
+			} else if devMode {
 				if keysCookie, err := r.Cookie("show-keys"); err == nil {
 					showKeys = keysCookie.Value == "1"
 				}
