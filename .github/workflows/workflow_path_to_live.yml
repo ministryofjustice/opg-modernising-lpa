@@ -60,9 +60,8 @@ jobs:
     with:
       workspace_name: development
     secrets:
-      aws_access_key_id: ${{ secrets.AWS_ACCESS_KEY_ID_ACTIONS }}
-      aws_secret_access_key: ${{ secrets.AWS_SECRET_ACCESS_KEY_ACTIONS }}
       pagerduty_api_key: ${{ secrets.PAGERDUTY_API_KEY }}
+      oidc_role_arn: ${{ secrets.TERRAFORM_OIDC_ROLE_DEVELOPMENT }}
 
   terraform_account_workflow_preproduction:
     name: TF Apply Preprod Account
@@ -71,9 +70,8 @@ jobs:
     with:
       workspace_name: preproduction
     secrets:
-      aws_access_key_id: ${{ secrets.AWS_ACCESS_KEY_ID_ACTIONS }}
-      aws_secret_access_key: ${{ secrets.AWS_SECRET_ACCESS_KEY_ACTIONS }}
       pagerduty_api_key: ${{ secrets.PAGERDUTY_API_KEY }}
+      oidc_role_arn: ${{ secrets.TERRAFORM_OIDC_ROLE_PREPRODUCTION }}
 
   preproduction_deploy:
     name: Preproduction Deploy
@@ -83,11 +81,10 @@ jobs:
       workspace_name: preproduction
       version_tag: ${{ needs.create_tags.outputs.version_tag }}
     secrets:
-      aws_access_key_id: ${{ secrets.AWS_ACCESS_KEY_ID_ACTIONS }}
-      aws_secret_access_key: ${{ secrets.AWS_SECRET_ACCESS_KEY_ACTIONS }}
       ssh_deploy_key: ${{ secrets.OPG_MODERNISING_LPA_DEPLOY_KEY_PRIVATE_KEY }}
       github_access_token: ${{ secrets.GITHUB_TOKEN }}
       pagerduty_api_key: ${{ secrets.PAGERDUTY_API_KEY }}
+      oidc_role_arn: ${{ secrets.TERRAFORM_OIDC_ROLE_PREPRODUCTION }}
 
   ui_tests_preproduction_env:
     name: Run Cypress UI Tests On Preproduction Environment
@@ -100,8 +97,7 @@ jobs:
       environment_config_json: ${{ needs.preproduction_deploy.outputs.environment_config_json }}
       specs: 'cypress/smoke/*.cy.js'
     secrets:
-      aws_access_key_id: ${{ secrets.AWS_ACCESS_KEY_ID_ACTIONS }}
-      aws_secret_access_key: ${{ secrets.AWS_SECRET_ACCESS_KEY_ACTIONS }}
+      ingress_management_oidc_role_arn: ${{ secrets.TERRAFORM_OIDC_ROLE_PREPRODUCTION }}
       cypress_record_key: ${{ secrets.CYPRESS_RECORD_KEY }}
       github_access_token: ${{ secrets.GITHUB_TOKEN }}
       test_onelogin_basic_auth: ${{ secrets.TEST_ONELOGIN_BASIC_AUTH }}
@@ -127,8 +123,7 @@ jobs:
     with:
       environment_config_json: ${{ needs.preproduction_deploy.outputs.environment_config_json }}
     secrets:
-      aws_access_key_id: ${{ secrets.AWS_ACCESS_KEY_ID_ACTIONS }}
-      aws_secret_access_key: ${{ secrets.AWS_SECRET_ACCESS_KEY_ACTIONS }}
+      ingress_management_oidc_role_arn: ${{ secrets.TERRAFORM_OIDC_ROLE_PREPRODUCTION }}
 
   terraform_account_workflow_production:
     name: TF Apply Prod Account
@@ -137,9 +132,8 @@ jobs:
     with:
       workspace_name: production
     secrets:
-      aws_access_key_id: ${{ secrets.AWS_ACCESS_KEY_ID_ACTIONS }}
-      aws_secret_access_key: ${{ secrets.AWS_SECRET_ACCESS_KEY_ACTIONS }}
       pagerduty_api_key: ${{ secrets.PAGERDUTY_API_KEY }}
+      oidc_role_arn: ${{ secrets.TERRAFORM_OIDC_ROLE_PRODUCTION }}
 
   production_deploy:
     name: Production Deploy
@@ -150,11 +144,10 @@ jobs:
       version_tag: ${{ needs.create_tags.outputs.version_tag }}
       public_access_enabled: false
     secrets:
-      aws_access_key_id: ${{ secrets.AWS_ACCESS_KEY_ID_ACTIONS }}
-      aws_secret_access_key: ${{ secrets.AWS_SECRET_ACCESS_KEY_ACTIONS }}
       ssh_deploy_key: ${{ secrets.OPG_MODERNISING_LPA_DEPLOY_KEY_PRIVATE_KEY }}
       github_access_token: ${{ secrets.GITHUB_TOKEN }}
       pagerduty_api_key: ${{ secrets.PAGERDUTY_API_KEY }}
+      oidc_role_arn: ${{ secrets.TERRAFORM_OIDC_ROLE_PRODUCTION }}
 
   demo_deploy:
     name: Production Deploy
@@ -165,11 +158,10 @@ jobs:
       version_tag: ${{ needs.create_tags.outputs.version_tag }}
       public_access_enabled: false
     secrets:
-      aws_access_key_id: ${{ secrets.AWS_ACCESS_KEY_ID_ACTIONS }}
-      aws_secret_access_key: ${{ secrets.AWS_SECRET_ACCESS_KEY_ACTIONS }}
       ssh_deploy_key: ${{ secrets.OPG_MODERNISING_LPA_DEPLOY_KEY_PRIVATE_KEY }}
       github_access_token: ${{ secrets.GITHUB_TOKEN }}
       pagerduty_api_key: ${{ secrets.PAGERDUTY_API_KEY }}
+      oidc_role_arn: ${{ secrets.TERRAFORM_OIDC_ROLE_DEVELOPMENT }}
 
   end_of_main_workflow:
     name: End of Main Workflow

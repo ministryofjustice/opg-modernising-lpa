@@ -21,6 +21,7 @@ on:
         default: false
         required: false
         type: boolean
+
     outputs:
       terraform_workspace_name:
         description: "Name of Terraform workspace"
@@ -35,12 +36,6 @@ on:
         description: "Environment config JSON"
         value: ${{ jobs.terraform_environment_workflow.outputs.environment_config_json }}
     secrets:
-      aws_access_key_id:
-        description: 'AWS Access Key ID'
-        required: true
-      aws_secret_access_key:
-        description: 'AWS Secret Access Key'
-        required: true
       ssh_deploy_key:
         description: 'SSH Deploy Key'
         required: true
@@ -50,10 +45,12 @@ on:
       pagerduty_api_key:
         description: 'Pagerduty API Key'
         required: true
+      oidc_role_arn:
+        description: 'ARN for OIDC role to assume for terraform tasks'
+        required: true
 
 permissions:
-  pull-requests: write
-  issues: write
+  id-token: write
 
 env:
   TFLINT_VERSION: 0.50.1
@@ -92,8 +89,7 @@ jobs:
       - name: Configure AWS Credentials For Terraform
         uses: aws-actions/configure-aws-credentials@7474bc4690e29a8392af63c5b98e7449536d5c3a # v4.3.1
         with:
-          aws-access-key-id: ${{ secrets.aws_access_key_id }}
-          aws-secret-access-key: ${{ secrets.aws_secret_access_key }}
+          role-to-assume: ${{ secrets.oidc_role_arn }}
           aws-region: eu-west-1
           role-duration-seconds: 3600
           role-session-name: OPGModernisingLPATerraformGithubAction
