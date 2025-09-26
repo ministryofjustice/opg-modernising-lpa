@@ -1,0 +1,102 @@
+---
+env:
+  contexts:
+    - name: "MRLPA"
+      urls:
+        - "http://app:8080/"
+      includePaths:
+        - "http://app:8080/.*"
+      excludePaths: []
+      technology:
+        exclude:
+          - "Db.CouchDB"
+          - "Db.Firebird"
+          - "Db.IBM DB2"
+          - "Db.Microsoft Access"
+          - "Db.Microsoft SQL Server"
+          - "Db.MongoDB"
+          - "Db.Oracle"
+          - "Db.SAP MaxDB"
+          - "Db.SQLite"
+          - "Db.Sybase"
+          - "Language.ASP"
+          - "Language.Java"
+          - "Language.Java.Spring"
+          - "Language.Ruby"
+          - "OS.MacOS"
+          - "OS.Windows"
+          - "SCM.SVN"
+          - "WS.Apache"
+          - "WS.IIS"
+          - "WS.Tomcat"
+  parameters:
+    failOnError: false
+    failOnWarning: false
+    progressToStdout: true
+  vars: {}
+
+jobs:
+  - name: "spider"
+    type: "spider"
+    parameters:
+      context: "MRLPA"
+      url: "http://app:8080/"
+      maxDepth: 10
+      maxParseSizeBytes: 26214400
+
+  - name: "passiveScan-wait"
+    type: "passiveScan-wait"
+    parameters:
+      maxDuration: 10
+
+  - name: "activeScan"
+    type: "activeScan"
+    parameters:
+      context: "MRLPA"
+      threadPerHost: 5
+    policyDefinition:
+      defaultStrength: "High"
+      defaultThreshold: "Low"
+
+  - name: "passiveScan-wait"
+    type: "passiveScan-wait"
+    parameters:
+      maxDuration: 10
+
+  - name: "ZAP Risk Report"
+    type: "report"
+    parameters:
+      template: "risk-confidence-html"
+      theme: "original"
+      reportDir: "/zap/wrk/report"
+      reportFile: "ZapRiskReport.html"
+      reportTitle: "ZAP Risk Report"
+      reportDescription: ""
+      displayReport: false
+    risks:
+      - "info"
+      - "low"
+      - "medium"
+      - "high"
+    confidences:
+      - "falsepositive"
+      - "low"
+      - "medium"
+      - "high"
+      - "confirmed"
+    sections:
+      - "siteRiskCounts"
+      - "responseBody"
+      - "appendix"
+      - "alertTypes"
+      - "responseHeader"
+      - "alertTypeCounts"
+      - "riskConfidenceCounts"
+      - "alerts"
+      - "aboutThisReport"
+      - "contents"
+      - "requestBody"
+      - "reportDescription"
+      - "reportParameters"
+      - "requestHeader"
+      - "summaries"
