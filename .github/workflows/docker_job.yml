@@ -66,7 +66,7 @@ jobs:
         with:
           ref: ${{ inputs.checkout_tag }}
 
-      - uses: hadolint/hadolint-action@3fc49fb50d59c6ab7917a2e4195dba633e515b29 # v3.2.0
+      - uses: hadolint/hadolint-action@2332a7b74a6de0dda2e2221d575162eba76ba5e5 # v3.3.0
         id: hadolint
         with:
           dockerfile: ${{ matrix.path }}
@@ -165,7 +165,7 @@ jobs:
 
       - name: Upload Trivy scan results to GitHub Security tab for ${{ matrix.ecr_repository }}
         id: trivy_upload_sarif
-        uses: github/codeql-action/upload-sarif@192325c86100d080feab897ff886c34abd4c83a3 # v3.30.3
+        uses: github/codeql-action/upload-sarif@303c0aef88fc2fe5ff6d63d3b1596bfd83dfa1f9 # v3.30.4
         if: always()
         with:
           sarif_file: './test-results/trivy.sarif'
