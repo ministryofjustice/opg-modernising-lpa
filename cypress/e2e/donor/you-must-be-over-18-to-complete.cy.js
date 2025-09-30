@@ -1,4 +1,10 @@
+const { oneLoginUrl } = require("../../support/e2e");
+
 describe('You must be over 18 to complete', () => {
+    beforeEach(() => {
+        cy.rewriteHeaders();
+    });
+
     it('shows your deadline when not near 18', () => {
         const dateOfBirth = new Date()
         dateOfBirth.setFullYear(dateOfBirth.getFullYear() - 17);
@@ -13,7 +19,7 @@ describe('You must be over 18 to complete', () => {
         cy.url().should('contain', '/confirm-your-identity');
         cy.contains('button', 'Continue').click();
 
-        cy.origin('http://localhost:7012', { args: { dateOfBirth } }, ({ dateOfBirth }) => {
+        cy.origin(oneLoginUrl(), { args: { dateOfBirth } }, ({ dateOfBirth }) => {
             cy.contains('label', 'Custom').click();
             cy.get('[name=first-names]').invoke('val', 'John');
             cy.get('[name=last-name]').invoke('val', 'Johnson');
@@ -60,7 +66,7 @@ describe('You must be over 18 to complete', () => {
         cy.url().should('contain', '/confirm-your-identity');
         cy.contains('button', 'Continue').click();
 
-        cy.origin('http://localhost:7012', { args: { dateOfBirth } }, ({ dateOfBirth }) => {
+        cy.origin(oneLoginUrl(), { args: { dateOfBirth } }, ({ dateOfBirth }) => {
             cy.contains('label', 'Custom').click();
             cy.get('[name=first-names]').invoke('val', 'John');
             cy.get('[name=last-name]').invoke('val', 'Johnson');
