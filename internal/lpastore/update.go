@@ -56,10 +56,7 @@ func (c *Client) sendUpdate(ctx context.Context, lpaUID string, actorUID actorui
 	default:
 		body, _ := io.ReadAll(resp.Body)
 
-		return responseError{
-			name: fmt.Sprintf("expected 201 response but got %d", resp.StatusCode),
-			body: string(body),
-		}
+		return fmt.Errorf("expected 201 response but got %d: %s", resp.StatusCode, body)
 	}
 }
 
