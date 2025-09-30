@@ -1,4 +1,4 @@
-const { TestEmail, randomAccessCode } = require("../../support/e2e");
+const { TestEmail, randomAccessCode, oneLoginUrl } = require("../../support/e2e");
 
 describe('Enter access code', () => {
     context('online certificate provider', () => {
@@ -9,7 +9,7 @@ describe('Enter access code', () => {
             cy.visit(`/fixtures/certificate-provider?redirect=/certificate-provider-start&withAccessCode=${accessCode}&email=${TestEmail}`);
 
             cy.contains('a', 'Start').click()
-            cy.origin('http://localhost:7012', () => {
+            cy.origin(oneLoginUrl(), () => {
                 cy.contains('button', 'Continue').click();
             });
             cy.url().should('contain', '/certificate-provider-enter-access-code')
@@ -73,7 +73,7 @@ describe('Enter access code', () => {
             cy.visit(`/fixtures/certificate-provider?options=is-paper-donor&redirect=/certificate-provider-start&certificateProviderChannel=paper&withAccessCode=${accessCode}&email=${TestEmail}`);
 
             cy.contains('a', 'Start').click()
-            cy.origin('http://localhost:7012', () => {
+            cy.origin(oneLoginUrl(), () => {
                 cy.contains('label', 'Random').click();
                 cy.contains('button', 'Continue').click();
             });

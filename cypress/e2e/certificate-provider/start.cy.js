@@ -1,3 +1,5 @@
+const { oneLoginUrl, isLocal } = require("../../support/e2e");
+
 describe('Start', () => {
     beforeEach(() => {
         cy.visit('/certificate-provider-start');
@@ -6,8 +8,8 @@ describe('Start', () => {
     it('can be completed', () => {
         cy.contains('a', 'Start').click();
 
-        if (Cypress.config().baseUrl.includes('localhost')) {
-            cy.origin('http://localhost:7012', () => {
+        if (isLocal()) {
+            cy.origin(oneLoginUrl(), () => {
                 cy.url().should('contain', '/authorize')
             });
         } else {
