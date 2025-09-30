@@ -8,6 +8,7 @@ coverage:
     - "./cmd/create-s3-replication-job/main.go"
     - "./cmd/event-logger/*"
     - "./cmd/event-received/main.go"
+    - "./cmd/https-proxy/main.go"
     - "./cmd/mlpa/main.go"
     - "./cmd/mock-notify/main.go"
     - "./cmd/mock-onelogin/main.go"

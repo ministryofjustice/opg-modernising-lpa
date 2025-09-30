@@ -9,14 +9,22 @@ services:
         - linux/arm64
     container_name: app
     depends_on:
-      - event-logger
-      - localstack
-      - mock-lpa-store
-      - mock-onelogin
-      - mock-pay
-      - mock-os-api
-      - mock-notify
-      - mock-uid
+      event-logger:
+        condition: service_started
+      localstack:
+        condition: service_healthy
+      mock-lpa-store:
+        condition: service_started
+      mock-onelogin:
+        condition: service_started
+      mock-pay:
+        condition: service_started
+      mock-os-api:
+        condition: service_started
+      mock-notify:
+        condition: service_started
+      mock-uid:
+        condition: service_started
     restart: on-failure
     ports:
       - "5050:8080"
@@ -191,8 +199,8 @@ services:
     volumes:
       - ./mock-uid/:/opt/imposter/config/
     container_name: mock-uid
-    ports:
-      - "8080:8080"
+    # ports:
+    #   - "8080:8080"
 
 volumes:
   data01:

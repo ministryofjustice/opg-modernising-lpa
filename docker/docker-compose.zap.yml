@@ -1,0 +1,24 @@
+---
+services:
+  zap-proxy:
+    image: zaproxy/zap-bare
+    environment:
+      ACTIVE_SCAN: true
+      ACTIVE_SCAN_TIMEOUT: 600
+      SCAN_URL: https://secure-app:8443
+      SERVICE_NAME: MRLPA
+      ZAP_PORT: 8090
+    volumes:
+      - "./zap/:/zap/wrk/"
+    ports:
+      - 8090:8090
+    command: zap.sh -daemon -host 0.0.0.0 -port 8090 -config api.disablekey=true -config 'api.addrs.addr.name=.*' -config 'api.addrs.addr.regex=true'
+
+  cypress:
+    depends_on:
+      zap-proxy:
+        condition: service_healthy
+    environment:
+      - HTTP_PROXY=http://zap-proxy:8090
+      - HTTPS_PROXY=http://zap-proxy:8090
+      - NO_PROXY=secure-event-logger,secure-mock-onelogin
