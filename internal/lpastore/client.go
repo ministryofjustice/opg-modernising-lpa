@@ -5,6 +5,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"log/slog"
 	"net/http"
 	"time"
 
@@ -26,6 +27,9 @@ type responseError struct {
 func (e responseError) Error() string { return e.name }
 func (e responseError) Title() string { return e.name }
 func (e responseError) Data() any     { return e.body }
+func (e responseError) LogValue() slog.Value {
+	return slog.GroupValue(slog.String("name", e.name), slog.Any("body", e.body))
+}
 
 type Doer interface {
 	Do(*http.Request) (*http.Response, error)
