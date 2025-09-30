@@ -26,7 +26,7 @@ COPY --from=asset-env /app/web/static web/static
 
 ARG TARGETOS TARGETARCH
 
-RUN CGO_ENABLED=0 GOOS=${TARGETOS} GOARCH=${TARGETARCH} go install github.com/air-verse/air@latest && go install github.com/go-delve/delve/cmd/dlv@latest
+RUN CGO_ENABLED=0 GOOS=${TARGETOS} GOARCH=${TARGETARCH} go install github.com/air-verse/air@v1.63.0 && go install github.com/go-delve/delve/cmd/dlv@v1.25.2
 
 ENTRYPOINT ["air"]
 
