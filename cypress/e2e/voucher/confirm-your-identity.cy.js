@@ -1,5 +1,8 @@
+const { oneLoginUrl } = require("../../support/e2e");
+
 describe('Confirm your identity', () => {
     beforeEach(() => {
+        cy.rewriteHeaders();
         cy.visit('/fixtures/voucher?redirect=/task-list&progress=verifyDonorDetails');
 
         cy.contains('li', "Confirm your identity")
@@ -11,7 +14,7 @@ describe('Confirm your identity', () => {
     it('can be confirmed', () => {
         cy.checkA11yApp();
         cy.contains('button', 'Continue').click();
-        cy.origin('http://localhost:7012', () => {
+        cy.origin(oneLoginUrl(), () => {
             cy.contains('label', 'Vivian Vaughn').click();
             cy.contains('button', 'Continue').click();
         });
@@ -45,7 +48,7 @@ describe('Confirm your identity', () => {
 
         cy.checkA11yApp();
         cy.contains('button', 'Continue').click();
-        cy.origin('http://localhost:7012', () => {
+        cy.origin(oneLoginUrl(), () => {
             cy.contains('label', 'Charlie Cooper').click();
             cy.contains('button', 'Continue').click();
         });
@@ -60,7 +63,7 @@ describe('Confirm your identity', () => {
 
     it('can update name', () => {
         cy.contains('button', 'Continue').click();
-        cy.origin('http://localhost:7012', () => {
+        cy.origin(oneLoginUrl(), () => {
             cy.contains('label', 'Custom').click();
             cy.get('[name=first-names]').invoke('val', 'John');
             cy.get('[name=last-name]').invoke('val', 'Johnson');
@@ -76,7 +79,7 @@ describe('Confirm your identity', () => {
 
     it('can update name to related', () => {
         cy.contains('button', 'Continue').click();
-        cy.origin('http://localhost:7012', () => {
+        cy.origin(oneLoginUrl(), () => {
             cy.contains('label', 'Sam Smith').click();
             cy.contains('button', 'Continue').click();
         });
@@ -92,7 +95,7 @@ describe('Confirm your identity', () => {
 
     it('fails when fail one login', () => {
         cy.contains('button', 'Continue').click();
-        cy.origin('http://localhost:7012', () => {
+        cy.origin(oneLoginUrl(), () => {
             cy.contains('label', 'Failed identity check').click();
             cy.contains('button', 'Continue').click();
         });
@@ -104,7 +107,7 @@ describe('Confirm your identity', () => {
 
     it('fails when related', () => {
         cy.contains('button', 'Continue').click();
-        cy.origin('http://localhost:7012', () => {
+        cy.origin(oneLoginUrl(), () => {
             cy.contains('label', 'Sam Smith').click();
             cy.contains('button', 'Continue').click();
         });

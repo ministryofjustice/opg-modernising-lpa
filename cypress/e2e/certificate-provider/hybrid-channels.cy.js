@@ -1,4 +1,4 @@
-const { randomAccessCode } = require("../../support/e2e");
+const { randomAccessCode, oneLoginUrl, eventLoggerUrl } = require("../../support/e2e");
 
 describe('Hybrid certificate provider', () => {
     context('starts online, submits on paper, tries to access online again', () => {
@@ -10,7 +10,7 @@ describe('Hybrid certificate provider', () => {
             cy.visit('/certificate-provider-start')
             cy.contains('a', 'Start').click()
 
-            cy.origin('http://localhost:7012', { args: { sub } }, ({ sub }) => {
+            cy.origin(oneLoginUrl(), { args: { sub } }, ({ sub }) => {
                 cy.get('input[name="subject"]').check('email', { force: true });
                 cy.get('input[name="email"]').invoke('val', sub);
                 cy.contains('button', 'Continue').click();
@@ -29,7 +29,7 @@ describe('Hybrid certificate provider', () => {
                 .then((uid) => {
                     cy.request({
                         method: 'POST',
-                        url: 'http://localhost:9001/emit/opg.poas.sirius/certificate-provider-submission-completed',
+                        url: `${eventLoggerUrl()}/emit/opg.poas.sirius/certificate-provider-submission-completed`,
                         body: {
                             uid: uid.trim(),
                         },

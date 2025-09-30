@@ -46,3 +46,5 @@ scripts/sbom_exporter/tmp.*.json
 /test-results/*
 /playwright/screenshots/*
 /playwright/translation-keys-state.json
+
+docker/zap/MRLPAReport*
