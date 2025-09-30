@@ -1,4 +1,4 @@
-import {AddressFormAssertions} from "../../support/e2e";
+import { AddressFormAssertions, eventLoggerUrl } from "../../support/e2e";
 
 describe('LPA type', () => {
     it('can be submitted', () => {
@@ -41,7 +41,7 @@ describe('LPA type', () => {
         cy.waitForTextVisibilityByReloading('.govuk-summary-list__value', 'M-');
 
         cy.url().then((url) => {
-            cy.origin('http://localhost:9001', { args: { url } }, ({ url }) => {
+            cy.origin(eventLoggerUrl(), { args: { url } }, ({ url }) => {
                 cy.visit(`/?detail-type=uid-requested&detail=${url.split('/')[4]}`);
                 cy.contains(`"lpaID":"${url.split('/')[4]}"`);
             });
@@ -54,7 +54,7 @@ describe('LPA type', () => {
             .then((text) => {
                 const uid = text.split(':')[1].trim();
 
-                cy.origin('http://localhost:9001', { args: { uid } }, ({ uid }) => {
+                cy.origin(eventLoggerUrl(), { args: { uid } }, ({ uid }) => {
                     cy.visit(`/?detail-type=application-updated&detail=${uid}`);
                     cy.contains(`"uid":"${uid}"`);
                     cy.contains('"type":"property-and-affairs"');

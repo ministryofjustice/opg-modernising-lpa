@@ -51,7 +51,7 @@ endif
 	go test -short -coverprofile=$(t) $(path) && go tool cover -html=$(t) && unlink $(t)
 
 down: ##@build Takes all containers down
-	COMPOSE_DOCKER_CLI_BUILD=1 DOCKER_BUILDKIT=1 DOCKER_DEFAULT_PLATFORM=linux/$(shell go env GOARCH) docker compose -f docker/docker-compose.yml -f docker/docker-compose.dev.yml down
+	COMPOSE_DOCKER_CLI_BUILD=1 DOCKER_BUILDKIT=1 DOCKER_DEFAULT_PLATFORM=linux/$(shell go env GOARCH) docker compose -f docker/docker-compose.yml -f docker/docker-compose.dev.yml -f docker/docker-compose.cypress.yml down
 
 up: ##@build Builds and brings the app up
 	COMPOSE_DOCKER_CLI_BUILD=1 DOCKER_BUILDKIT=1 DOCKER_DEFAULT_PLATFORM=linux/$(shell go env GOARCH) COMPOSE_BAKE=true docker compose -f docker/docker-compose.yml up -d --build --remove-orphans app
@@ -272,3 +272,13 @@ test-schedule-runner: add-scheduled-tasks run-schedule-runner ##@scheduler seeds
 		--metric-data-queries file:///usr/schedule-runner-metrics-query.json \
 		--start-time "$(shell date -v-1H -u +"%Y-%m-%dT%H:%M:%SZ")" \
 		--end-time "$(shell date -v+1M -u +"%Y-%m-%dT%H:%M:%SZ")"
+
+.PHONY: cypress
+cypress:
+	COMPOSE_DOCKER_CLI_BUILD=1 DOCKER_BUILDKIT=1 docker compose -f docker/docker-compose.yml -f docker/docker-compose.cypress.yml up --build --remove-orphans cypress
+
+cypress-zap:
+	COMPOSE_DOCKER_CLI_BUILD=1 DOCKER_BUILDKIT=1 docker compose -f docker/docker-compose.yml -f docker/docker-compose.cypress.yml -f docker/docker-compose.zap.yml up --build --remove-orphans cypress
+	docker compose -f docker/docker-compose.yml -f docker/docker-compose.cypress.yml -f docker/docker-compose.zap.yml exec -u root zap-proxy bash -c "apk add jq"
+	docker compose -f docker/docker-compose.yml -f docker/docker-compose.cypress.yml -f docker/docker-compose.zap.yml exec zap-proxy bash /zap/wrk/scan.sh
+	docker compose -f docker/docker-compose.yml -f docker/docker-compose.cypress.yml -f docker/docker-compose.zap.yml down

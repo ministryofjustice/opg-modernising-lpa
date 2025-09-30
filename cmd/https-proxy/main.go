@@ -13,11 +13,12 @@
 // To generate the required files run something like:
 //
 //	openssl req -x509 -newkey rsa:4096 -keyout key.pem -out cert.pem -sha256 -days 3650 \
-//	  -nodes -subj "/C=XX/ST=StateName/L=CityName/O=CompanyName/OU=CompanySectionName/CN=CommonNameOrHostname"
+//		-nodes -subj "/C=XX/ST=StateName/L=CityName/O=CompanyName/OU=CompanySectionName/CN=CommonNameOrHostname"
 package main
 
 import (
 	"cmp"
+	"crypto/tls"
 	"log"
 	"net/http"
 	"net/http/httputil"
@@ -34,6 +35,23 @@ func main() {
 		targetURL, _ = url.Parse(target)
 		handler      = httputil.NewSingleHostReverseProxy(targetURL)
 	)
+
+	if len(os.Args) == 3 && os.Args[1] == "--healthy" {
+		customTransport := http.DefaultTransport.(*http.Transport).Clone()
+		customTransport.TLSClientConfig = &tls.Config{InsecureSkipVerify: true}
+		client := &http.Client{Transport: customTransport}
+
+		resp, err := client.Get(os.Args[2])
+		if err != nil {
+			log.Println(err)
+			os.Exit(1)
+		} else if resp.StatusCode < 200 || resp.StatusCode >= 400 {
+			log.Println(resp.StatusCode)
+			os.Exit(1)
+		}
+
+		os.Exit(0)
+	}
 
 	log.Printf("Listening on %s", port)
 	if err := http.ListenAndServeTLS(port, filepath.Join(dir, "cert.pem"), filepath.Join(dir, "key.pem"), handler); err != nil {

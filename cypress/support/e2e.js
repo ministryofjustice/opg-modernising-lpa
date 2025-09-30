@@ -236,3 +236,15 @@ export const DateOfBirthAssertions = {
         cy.contains('#date-of-birth-hint + .govuk-error-message', 'Date of birth must be a real date');
     }
 }
+
+export function oneLoginUrl() {
+    return Cypress.env('ONELOGIN_URL') || 'http://localhost:7012';
+}
+
+export function eventLoggerUrl() {
+    return Cypress.env('EVENT_LOGGER_URL') || 'http://localhost:9001';
+}
+
+export function isLocal() {
+    return Cypress.config().baseUrl.includes('localhost') || Cypress.config().baseUrl.includes('secure-app');
+}

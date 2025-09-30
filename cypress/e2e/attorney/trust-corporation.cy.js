@@ -1,4 +1,4 @@
-const { TestMobile, TestEmail, randomAccessCode } = require("../../support/e2e");
+const { TestMobile, TestEmail, randomAccessCode, oneLoginUrl } = require("../../support/e2e");
 
 describe('As a trust corporation', () => {
     beforeEach(() => {
@@ -7,7 +7,7 @@ describe('As a trust corporation', () => {
 
         // start
         cy.contains('a', 'Start').click();
-        cy.origin('http://localhost:7012', () => {
+        cy.origin(oneLoginUrl(), () => {
             cy.get('form').submit();
         });
 

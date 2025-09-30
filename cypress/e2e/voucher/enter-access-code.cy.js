@@ -1,4 +1,4 @@
-const { randomAccessCode } = require("../../support/e2e");
+const { randomAccessCode, oneLoginUrl } = require("../../support/e2e");
 
 describe('Enter access code', () => {
     let accessCode = ''
@@ -8,7 +8,7 @@ describe('Enter access code', () => {
         cy.visit(`/fixtures/voucher?redirect=&withAccessCode=${accessCode}`);
 
         cy.contains('a', 'Start').click()
-        cy.origin('http://localhost:7012', () => {
+        cy.origin(oneLoginUrl(), () => {
             cy.contains('button', 'Continue').click();
         });
         cy.url().should('contain', '/voucher-enter-access-code')

@@ -1,3 +1,5 @@
+const { eventLoggerUrl } = require("../../support/e2e");
+
 describe('Sign the LPA', () => {
     describe('when certificate provider is acting online', () => {
         beforeEach(() => {
@@ -164,7 +166,7 @@ describe('Sign the LPA', () => {
                 .then((text) => {
                     const uid = text.split(':')[1].trim();
 
-                    cy.origin('http://localhost:9001', { args: { uid } }, ({ uid }) => {
+                    cy.origin(eventLoggerUrl(), { args: { uid } }, ({ uid }) => {
                         cy.visit(`/?detail-type=paper-form-requested&detail=${uid}`);
                         cy.contains(`"uid":"${uid}"`)
                         cy.contains(`"actorType":"certificateProvider"`)

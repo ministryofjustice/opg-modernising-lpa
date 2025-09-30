@@ -2,6 +2,7 @@ import {defineConfig} from 'cypress';
 
 export default defineConfig({
   projectId: "xxbft5",
+  chromeWebSecurity: false,
   retries: {
     runMode: 1,
   },
