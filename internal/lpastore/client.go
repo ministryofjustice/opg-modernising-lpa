@@ -5,7 +5,6 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"log/slog"
 	"net/http"
 	"time"
 
@@ -18,18 +17,6 @@ const (
 )
 
 var ErrNotFound = errors.New("lpa not found in lpa-store")
-
-type responseError struct {
-	name string
-	body any
-}
-
-func (e responseError) Error() string { return e.name }
-func (e responseError) Title() string { return e.name }
-func (e responseError) Data() any     { return e.body }
-func (e responseError) LogValue() slog.Value {
-	return slog.GroupValue(slog.String("name", e.name), slog.Any("body", e.body))
-}
 
 type Doer interface {
 	Do(*http.Request) (*http.Response, error)
@@ -97,7 +84,7 @@ func (c *Client) CheckHealth(ctx context.Context) error {
 	}
 
 	if resp.StatusCode != http.StatusOK {
-		return responseError{name: fmt.Sprintf("expected 200 response but got %d", resp.StatusCode)}
+		return fmt.Errorf("expected 200 response but got %d", resp.StatusCode)
 	}
 
 	return nil
