@@ -20,15 +20,15 @@
     },
     "license": "MIT",
     "dependencies": {
-        "@ministryofjustice/frontend": "5.1.5",
+        "@ministryofjustice/frontend": "5.2.1",
         "aws-rum-web": "^1.11.0",
         "esbuild": "^0.25.0",
-        "govuk-frontend": "5.11.2",
+        "govuk-frontend": "5.12.0",
         "sass": "^1.56.1"
     },
     "devDependencies": {
         "@axe-core/playwright": "4.10.2",
-        "@playwright/test": "1.55.0",
+        "@playwright/test": "1.55.1",
         "axe-core": "4.10.3",
         "cypress": "14.5.4",
         "cypress-axe": "1.7.0",
@@ -36,11 +36,11 @@
         "cypress-multi-reporters": "2.0.5",
         "cypress-parallel": "0.15.0",
         "cypress-real-events": "1.15.0",
-        "playwright": "1.55.0",
+        "playwright": "1.55.1",
         "totp-generator": "1.0.0"
     },
     "engines": {
-        "node": "22.19.0"
+        "node": "22.20.0"
     },
     "packageManager": "yarn@1.22.22+sha512.a6b2f7906b721bba3d67d4aff083df04dad64c399707841b7acf00f6b133b7ac24255f2652fa22ae3534329dc6180534e98d17432037ff6fd140556e2bb3137e"
 }
