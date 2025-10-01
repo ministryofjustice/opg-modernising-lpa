@@ -231,18 +231,12 @@ func (c *Client) SendLpa(ctx context.Context, uid string, body CreateLpa) error 
 			return nil
 		}
 
-		return responseError{
-			name: fmt.Sprintf("expected 201 response but got %d", resp.StatusCode),
-			body: string(body),
-		}
+		return fmt.Errorf("expected 201 response but got %d: %s", resp.StatusCode, body)
 
 	default:
 		body, _ := io.ReadAll(resp.Body)
 
-		return responseError{
-			name: fmt.Sprintf("expected 201 response but got %d", resp.StatusCode),
-			body: string(body),
-		}
+		return fmt.Errorf("expected 201 response but got %d: %s", resp.StatusCode, body)
 	}
 }
 
@@ -587,10 +581,7 @@ func (c *Client) Lpa(ctx context.Context, lpaUID string) (*lpadata.Lpa, error) {
 	default:
 		body, _ := io.ReadAll(resp.Body)
 
-		return nil, responseError{
-			name: fmt.Sprintf("expected 200 response but got %d", resp.StatusCode),
-			body: string(body),
-		}
+		return nil, fmt.Errorf("expected 200 response but got %d: %s", resp.StatusCode, body)
 	}
 }
 
@@ -622,10 +613,7 @@ func (c *Client) Lpas(ctx context.Context, lpaUIDs []string) ([]*lpadata.Lpa, er
 	if resp.StatusCode != http.StatusOK {
 		body, _ := io.ReadAll(resp.Body)
 
-		return nil, responseError{
-			name: fmt.Sprintf("expected 200 response but got %d", resp.StatusCode),
-			body: string(body),
-		}
+		return nil, fmt.Errorf("expected 200 response but got %d: %s", resp.StatusCode, body)
 	}
 
 	var v lpasResponse

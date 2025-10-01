@@ -542,6 +542,7 @@ func Attorney(
 						ProfessionalTitle: "Assistant to the signer",
 						SignedAt:          donorDetails.SignedAt.Add(2 * time.Hour),
 					}}
+					attorney.CompanyNumber = "567823672"
 
 					if err := attorneyStore.Put(ctx, attorney); err != nil {
 						return err

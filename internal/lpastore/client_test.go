@@ -45,13 +45,6 @@ func (m *mockCredentialsProvider) IsExpired() bool {
 	return false
 }
 
-func TestResponseError(t *testing.T) {
-	err := responseError{name: "name", body: 5}
-	assert.Equal(t, "name", err.Error())
-	assert.Equal(t, "name", err.Title())
-	assert.Equal(t, 5, err.Data())
-}
-
 func TestClientServiceContract(t *testing.T) {
 	now := func() time.Time { return time.Date(2000, 1, 2, 0, 0, 0, 0, time.UTC) }
 
@@ -501,13 +494,17 @@ func TestClientServiceContract(t *testing.T) {
 					JSONBody(matchers.Map{
 						"type": matchers.Like("TRUST_CORPORATION_SIGN"),
 						"changes": matchers.Like([]map[string]any{{
-							"key": matchers.Like("/trustCorporations/0/mobile"),
+							"key": matchers.Like("/trustCorporations/0/contactLanguagePreference"),
 							"old": matchers.Like(nil),
+							"new": matchers.Like("cy"),
+						}, {
+							"key": matchers.Like("/trustCorporations/0/mobile"),
+							"old": matchers.Like(""),
 							"new": matchers.Like("07777777"),
 						}, {
-							"key": matchers.Like("/trustCorporations/0/contactLanguagePreference"),
-							"old": matchers.Like(""),
-							"new": matchers.Like("cy"),
+							"key": matchers.Like("/trustCorporations/0/companyNumber"),
+							"old": matchers.Like(nil),
+							"new": matchers.Like("58953489"),
 						}, {
 							"key": matchers.Like("/trustCorporations/0/email"),
 							"old": matchers.Like(""),
@@ -516,10 +513,6 @@ func TestClientServiceContract(t *testing.T) {
 							"key": matchers.Like("/trustCorporations/0/channel"),
 							"old": matchers.Like("paper"),
 							"new": matchers.Like("online"),
-						}, {
-							"key": matchers.Like("/trustCorporations/0/companyNumber"),
-							"old": matchers.Like(nil),
-							"new": matchers.Like("ABCD1234"),
 						}, {
 							"key": matchers.Like("/trustCorporations/0/signatories/0/firstNames"),
 							"old": matchers.Like(nil),
@@ -574,6 +567,7 @@ func TestClientServiceContract(t *testing.T) {
 					UID:                       uid,
 					Phone:                     "07777777",
 					ContactLanguagePreference: localize.Cy,
+					CompanyNumber:             "58953489",
 					AuthorisedSignatories: [2]attorneydata.TrustCorporationSignatory{
 						{
 							FirstNames:        "John",
@@ -787,7 +781,7 @@ func TestClientServiceContract(t *testing.T) {
 			})
 		})
 
-		assert.Equal(t, responseError{name: "expected 201 response but got 400", body: `{"code":"INVALID_REQUEST","detail":"Invalid request"}`}, err)
+		assert.ErrorContains(t, err, `expected 201 response but got 400: {"code":"INVALID_REQUEST","detail":"Invalid request"}`)
 	})
 
 	t.Run("Lpa", func(t *testing.T) {
@@ -1134,10 +1128,10 @@ func TestCheckHealthWhenNotOK(t *testing.T) {
 }
 
 func TestClientSendUpdateWhenStatusCodeIsNotOK(t *testing.T) {
-	testcases := map[int]error{
-		http.StatusBadRequest:          responseError{name: "expected 201 response but got 400", body: "hey"},
-		http.StatusNotFound:            ErrNotFound,
-		http.StatusInternalServerError: responseError{name: "expected 201 response but got 500", body: "hey"},
+	testcases := map[int]string{
+		http.StatusBadRequest:          "expected 201 response but got 400: hey",
+		http.StatusNotFound:            ErrNotFound.Error(),
+		http.StatusInternalServerError: "expected 201 response but got 500: hey",
 	}
 
 	for code, expectedErr := range testcases {
@@ -1157,7 +1151,7 @@ func TestClientSendUpdateWhenStatusCodeIsNotOK(t *testing.T) {
 			client := New("http://base", secretsClient, "secret", doer)
 			err := client.sendUpdate(ctx, "", actoruid.New(), updateRequest{})
 
-			assert.Equal(t, expectedErr, err)
+			assert.ErrorContains(t, err, expectedErr)
 		})
 	}
 }

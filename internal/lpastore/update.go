@@ -56,10 +56,7 @@ func (c *Client) sendUpdate(ctx context.Context, lpaUID string, actorUID actorui
 	default:
 		body, _ := io.ReadAll(resp.Body)
 
-		return responseError{
-			name: fmt.Sprintf("expected 201 response but got %d", resp.StatusCode),
-			body: string(body),
-		}
+		return fmt.Errorf("expected 201 response but got %d: %s", resp.StatusCode, body)
 	}
 }
 
@@ -166,7 +163,10 @@ func (c *Client) SendAttorney(ctx context.Context, lpa *lpadata.Lpa, attorney *a
 
 	if attorney.IsTrustCorporation {
 		body.Type = "TRUST_CORPORATION_SIGN"
-		body.Changes = append(body.Changes, updateRequestChange{Key: attorneyKey + "/mobile", New: attorney.Phone, Old: lpaTrustCorp.Mobile})
+		body.Changes = append(body.Changes,
+			updateRequestChange{Key: attorneyKey + "/mobile", New: attorney.Phone, Old: lpaTrustCorp.Mobile},
+			updateRequestChange{Key: attorneyKey + "/companyNumber", New: attorney.CompanyNumber},
+		)
 
 		if lpaTrustCorp.Email != attorney.Email {
 			body.Changes = append(body.Changes, updateRequestChange{Key: attorneyKey + "/email", New: attorney.Email, Old: lpaTrustCorp.Email})
