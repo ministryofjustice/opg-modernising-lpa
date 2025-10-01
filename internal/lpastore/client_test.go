@@ -494,13 +494,17 @@ func TestClientServiceContract(t *testing.T) {
 					JSONBody(matchers.Map{
 						"type": matchers.Like("TRUST_CORPORATION_SIGN"),
 						"changes": matchers.Like([]map[string]any{{
-							"key": matchers.Like("/trustCorporations/0/mobile"),
+							"key": matchers.Like("/trustCorporations/0/contactLanguagePreference"),
 							"old": matchers.Like(nil),
+							"new": matchers.Like("cy"),
+						}, {
+							"key": matchers.Like("/trustCorporations/0/mobile"),
+							"old": matchers.Like(""),
 							"new": matchers.Like("07777777"),
 						}, {
-							"key": matchers.Like("/trustCorporations/0/contactLanguagePreference"),
-							"old": matchers.Like(""),
-							"new": matchers.Like("cy"),
+							"key": matchers.Like("/trustCorporations/0/companyNumber"),
+							"old": matchers.Like(nil),
+							"new": matchers.Like("58953489"),
 						}, {
 							"key": matchers.Like("/trustCorporations/0/email"),
 							"old": matchers.Like(""),
@@ -509,10 +513,6 @@ func TestClientServiceContract(t *testing.T) {
 							"key": matchers.Like("/trustCorporations/0/channel"),
 							"old": matchers.Like("paper"),
 							"new": matchers.Like("online"),
-						}, {
-							"key": matchers.Like("/trustCorporations/0/companyNumber"),
-							"old": matchers.Like(nil),
-							"new": matchers.Like("ABCD1234"),
 						}, {
 							"key": matchers.Like("/trustCorporations/0/signatories/0/firstNames"),
 							"old": matchers.Like(nil),
@@ -567,6 +567,7 @@ func TestClientServiceContract(t *testing.T) {
 					UID:                       uid,
 					Phone:                     "07777777",
 					ContactLanguagePreference: localize.Cy,
+					CompanyNumber:             "58953489",
 					AuthorisedSignatories: [2]attorneydata.TrustCorporationSignatory{
 						{
 							FirstNames:        "John",

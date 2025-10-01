@@ -163,7 +163,10 @@ func (c *Client) SendAttorney(ctx context.Context, lpa *lpadata.Lpa, attorney *a
 
 	if attorney.IsTrustCorporation {
 		body.Type = "TRUST_CORPORATION_SIGN"
-		body.Changes = append(body.Changes, updateRequestChange{Key: attorneyKey + "/mobile", New: attorney.Phone, Old: lpaTrustCorp.Mobile})
+		body.Changes = append(body.Changes,
+			updateRequestChange{Key: attorneyKey + "/mobile", New: attorney.Phone, Old: lpaTrustCorp.Mobile},
+			updateRequestChange{Key: attorneyKey + "/companyNumber", New: attorney.CompanyNumber},
+		)
 
 		if lpaTrustCorp.Email != attorney.Email {
 			body.Changes = append(body.Changes, updateRequestChange{Key: attorneyKey + "/email", New: attorney.Email, Old: lpaTrustCorp.Email})
