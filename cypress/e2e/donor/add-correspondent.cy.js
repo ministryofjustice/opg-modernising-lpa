@@ -1,4 +1,4 @@
-import {AddressFormAssertions, DonorName} from "../../support/e2e";
+import { AddressFormAssertions, DonorName, eventLoggerUrl } from "../../support/e2e";
 
 describe('Add correspondent', () => {
     beforeEach(() => {
@@ -41,7 +41,7 @@ describe('Add correspondent', () => {
         cy.contains('.govuk-summary-list__row', 'Reference number').find('.govuk-summary-list__value')
             .invoke('text')
             .then((uid) => {
-                cy.origin('http://localhost:9001', { args: { uid } }, ({ uid }) => {
+                cy.origin(eventLoggerUrl(), { args: { uid } }, ({ uid }) => {
                     cy.visit(`/?detail-type=correspondent-updated&detail=${uid}`);
                     cy.contains(`{"uid":"${uid}",`);
                     cy.contains(`"firstNames":"John","lastName":"Smith","email":"email@example.com"}`);
@@ -77,7 +77,7 @@ describe('Add correspondent', () => {
         cy.contains('.govuk-summary-list__row', 'Reference number').find('.govuk-summary-list__value')
             .invoke('text')
             .then((uid) => {
-                cy.origin('http://localhost:9001', { args: { uid } }, ({ uid }) => {
+                cy.origin(eventLoggerUrl(), { args: { uid } }, ({ uid }) => {
                     cy.visit(`/?detail-type=correspondent-updated&detail=${uid}`)
                     cy.contains(`{"uid":"${uid}",`);
                     cy.contains(`"firstNames":"John","lastName":"Smith","email":"email@example.com","address":{"line1":"2 RICHMOND PLACE","line2":"","line3":"","town":"BIRMINGHAM","postcode":"B14 7ED","country":"GB"}}`);

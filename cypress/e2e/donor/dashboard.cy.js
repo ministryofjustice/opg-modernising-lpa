@@ -1,4 +1,4 @@
-import {randomAccessCode} from "../../support/e2e.js";
+import { oneLoginUrl, randomAccessCode } from "../../support/e2e.js";
 
 describe('Dashboard', () => {
     context('with incomplete LPA', () => {
@@ -188,7 +188,7 @@ describe('Dashboard', () => {
 
             cy.visit('/start')
             cy.contains('a', 'Start').click();
-            cy.origin('http://localhost:7012', () => {
+            cy.origin(oneLoginUrl(), () => {
                 cy.contains('button', 'Continue').click();
             });
             cy.url().should('contain', '/make-or-add-an-lpa');

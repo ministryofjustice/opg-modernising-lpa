@@ -1,5 +1,8 @@
+const { oneLoginUrl } = require("../../support/e2e");
+
 describe('confirm your identity', () => {
     beforeEach(() => {
+        cy.rewriteHeaders();
         cy.visit('/fixtures/certificate-provider?redirect=/task-list&progress=confirmYourDetails');
 
         cy.contains('li', "Confirm your identity")
@@ -10,7 +13,7 @@ describe('confirm your identity', () => {
 
     it('can see details when successful', () => {
         cy.contains('button', 'Continue').click()
-        cy.origin('http://localhost:7012', () => {
+        cy.origin(oneLoginUrl(), () => {
             cy.get('[name="user"]').check('certificate-provider', { force: true })
             cy.contains('button', 'Continue').click()
         });
@@ -33,7 +36,7 @@ describe('confirm your identity', () => {
 
     it('can see details when not matched', () => {
         cy.contains('button', 'Continue').click()
-        cy.origin('http://localhost:7012', () => {
+        cy.origin(oneLoginUrl(), () => {
             cy.get('[name="user"]').check('donor', { force: true })
             cy.contains('button', 'Continue').click()
         });
@@ -56,7 +59,7 @@ describe('confirm your identity', () => {
 
     it('can see next steps when failing', () => {
         cy.contains('button', 'Continue').click()
-        cy.origin('http://localhost:7012', () => {
+        cy.origin(oneLoginUrl(), () => {
             cy.contains('(T)').click({ force: true })
             cy.contains('button', 'Continue').click()
         });
@@ -75,7 +78,7 @@ describe('confirm your identity', () => {
 
     it('can see next steps when has insufficient evidence', () => {
         cy.contains('button', 'Continue').click()
-        cy.origin('http://localhost:7012', () => {
+        cy.origin(oneLoginUrl(), () => {
             cy.contains('(X)').click({ force: true })
             cy.contains('button', 'Continue').click()
         })

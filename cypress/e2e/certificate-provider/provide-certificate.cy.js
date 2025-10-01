@@ -1,3 +1,5 @@
+const { eventLoggerUrl } = require("../../support/e2e");
+
 describe('Provide the certificate', () => {
     beforeEach(() => {
         cy.visit('/fixtures/certificate-provider?redirect=/provide-certificate&progress=confirmYourIdentity');
@@ -26,7 +28,7 @@ describe('Provide the certificate', () => {
                 const uid = text.split(':')[1].trim();
 
                 cy.request({
-                    url: `http://localhost:9001/?detail-type=letter-requested&detail=${uid}`,
+                    url: `${eventLoggerUrl()}/?detail-type=letter-requested&detail=${uid}`,
                     timeout: 10000
                 }).then((response) => {
                     expect(response.body).to.include(`"uid":"${uid}"`);
