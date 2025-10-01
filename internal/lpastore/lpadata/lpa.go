@@ -249,6 +249,17 @@ func (l *Lpa) ExpiresAt() time.Time {
 		return l.SignedAt.AddDate(2, 0, 0)
 	}
 
+	if l.CertificateProvider.SignedAt != nil && !l.CertificateProvider.SignedAt.IsZero() {
+		a := l.CertificateProvider.SignedAt.AddDate(0, 6, 0)
+		b := l.SignedAt.AddDate(2, 0, -1)
+
+		if a.Before(b) {
+			return a
+		}
+
+		return b
+	}
+
 	if !l.SignedAt.IsZero() {
 		return l.SignedAt.AddDate(0, 6, 0)
 	}
