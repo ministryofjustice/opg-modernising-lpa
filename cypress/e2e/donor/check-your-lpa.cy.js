@@ -1,3 +1,5 @@
+const { eventLoggerUrl } = require("../../support/e2e");
+
 describe('Check the LPA', () => {
     it('cannot change when personal welfare LPA can be used', () => {
         cy.visit('/fixtures?redirect=/check-your-lpa&progress=addCorrespondent&lpa-type=personal-welfare');
@@ -38,7 +40,7 @@ describe('Check the LPA', () => {
             .then((text) => {
                 const uid = text.split(':')[1].trim();
 
-                cy.origin('http://localhost:9001', { args: { uid } }, ({ uid }) => {
+                cy.origin(eventLoggerUrl(), { args: { uid } }, ({ uid }) => {
                     cy.visit(`/?detail-type=notification-sent&detail=${uid}`);
                     cy.contains(`"uid":"${uid}"`)
                     cy.contains('"notificationId":"an-email-id"');

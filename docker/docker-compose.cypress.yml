@@ -1,0 +1,64 @@
+---
+services:
+  app:
+    environment:
+      - APP_PUBLIC_URL=https://secure-app:8443
+      - ATTORNEY_START_URL=https://secure-app:8443/attorney-start
+      - AUTH_REDIRECT_BASE_URL=https://secure-app:8443
+      - CERTIFICATE_PROVIDER_START_URL=https://secure-app:8443/certificate-provider-start
+      - DONOR_START_URL=https://secure-app:8443/start
+
+  mock-onelogin:
+    environment:
+      - PUBLIC_URL=https://secure-mock-onelogin:8443
+      - REDIRECT_URL=https://secure-app:8443/auth/redirect
+
+  secure-app:
+    build:
+      context: ..
+      dockerfile: docker/https-proxy/Dockerfile
+    depends_on:
+      - app
+    environment:
+      TARGET: http://app:8080
+    healthcheck:
+      test: ["CMD", "./https-proxy", "--healthy", "https://secure-app:8443"]
+
+  secure-mock-onelogin:
+    build:
+      context: ..
+      dockerfile: docker/https-proxy/Dockerfile
+    depends_on:
+      - mock-onelogin
+    environment:
+      TARGET: http://mock-onelogin:8080
+    healthcheck:
+      test: ["CMD", "./https-proxy", "--healthy", "https://secure-mock-onelogin:8443/.well-known/openid-configuration"]
+
+  secure-event-logger:
+    build:
+      context: ..
+      dockerfile: docker/https-proxy/Dockerfile
+    depends_on:
+      - event-logger
+    environment:
+      TARGET: http://event-logger:8080
+    healthcheck:
+      test: ["CMD", "./https-proxy", "--healthy", "https://secure-event-logger:8443"]
+
+  cypress:
+    image: cypress/included:14.5.4
+    depends_on:
+      secure-app:
+        condition: service_healthy
+      secure-mock-onelogin:
+        condition: service_healthy
+      secure-event-logger:
+        condition: service_healthy
+    environment:
+      - CYPRESS_baseUrl=https://secure-app:8443
+      - CYPRESS_ONELOGIN_URL=https://secure-mock-onelogin:8443
+      - CYPRESS_EVENT_LOGGER_URL=https://secure-event-logger:8443
+    working_dir: /e2e
+    volumes:
+      - ../:/e2e

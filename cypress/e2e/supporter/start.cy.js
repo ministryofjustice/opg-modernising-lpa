@@ -1,3 +1,5 @@
+const { oneLoginUrl, isLocal } = require("../../support/e2e");
+
 describe('Start', () => {
     beforeEach(() => {
         cy.visit('/supporter-start');
@@ -12,8 +14,8 @@ describe('Start', () => {
         cy.contains("Signing in with GOV.UK One Login");
         cy.contains('a', 'Continue to GOV.UK One Login').click();
 
-        if (Cypress.config().baseUrl.includes('localhost')) {
-            cy.origin('http://localhost:7012', () => {
+        if (isLocal()) {
+            cy.origin(oneLoginUrl(), () => {
                 cy.url().should('contain', '/authorize')
 
                 cy.get('#f-email').invoke('val', Math.random() + '@example.org')

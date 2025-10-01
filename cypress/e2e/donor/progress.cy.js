@@ -1,4 +1,10 @@
+const { oneLoginUrl } = require("../../support/e2e");
+
 describe('Progress', () => {
+    beforeEach(() => {
+        cy.rewriteHeaders();
+    });
+
     it('when nothing completed', () => {
         cy.visit('/fixtures?redirect=/progress');
         cy.checkA11yApp();
@@ -64,7 +70,7 @@ describe('Progress', () => {
             cy.contains('a', 'Confirm your identity').click();
             cy.contains('label', 'to complete my Post Office identity confirmation').click();
             cy.contains('button', 'Continue').click();
-            cy.origin('http://localhost:7012', () => {
+            cy.origin(oneLoginUrl(), () => {
                 cy.contains('button', 'Continue').click();
             });
 
