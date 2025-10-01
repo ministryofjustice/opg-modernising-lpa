@@ -125,6 +125,7 @@ jobs:
             ${{ matrix.ecr_repository }}:${{ inputs.tag }}
           build-args: |
             TAG=${{inputs.tag}}
+          target: production
         env:
           SOURCE_DATE_EPOCH: 0
           DOCKER_CONTENT_TRUST: 1
@@ -208,6 +209,7 @@ jobs:
             TAG=${{inputs.tag}}
           sbom: false
           provenance: false
+          target: production
         env:
           SOURCE_DATE_EPOCH: 0
           DOCKER_CONTENT_TRUST: 1
@@ -230,6 +232,7 @@ jobs:
             TAG=${{inputs.tag}}
           sbom: false
           provenance: false
+          target: production
         env:
           SOURCE_DATE_EPOCH: 0
           DOCKER_CONTENT_TRUST: 1
