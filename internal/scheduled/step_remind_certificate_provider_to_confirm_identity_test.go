@@ -32,6 +32,7 @@ func TestRunnerRemindCertificateProviderToConfirmIdentity(t *testing.T) {
 	nilEventClient := func(*testing.T, context.Context, *lpadata.Lpa) *mockEventClient { return nil }
 
 	signedAt := testNow.AddDate(0, -3, 0).Add(-time.Second)
+	certificateProvidedAt := testNow.AddDate(0, -3, -1)
 	invitedAt := testNow.AddDate(0, -3, 0)
 
 	testcases := map[string]struct {
@@ -179,7 +180,7 @@ func TestRunnerRemindCertificateProviderToConfirmIdentity(t *testing.T) {
 				CertificateProvider: lpadata.CertificateProvider{
 					FirstNames:                "c",
 					LastName:                  "d",
-					SignedAt:                  pt(testNow.AddDate(0, -3, -1)),
+					SignedAt:                  &certificateProvidedAt,
 					ContactLanguagePreference: localize.En,
 				},
 				SignedAt:                     signedAt,
@@ -221,7 +222,7 @@ func TestRunnerRemindCertificateProviderToConfirmIdentity(t *testing.T) {
 					T("personal-welfare").
 					Return("Personal welfare")
 				l.EXPECT().
-					FormatDate(signedAt.AddDate(0, 6, 0)).
+					FormatDate(certificateProvidedAt.AddDate(0, 6, 0)).
 					Return("1 April 2000")
 				return l
 			},
@@ -400,9 +401,9 @@ func TestRunnerRemindCertificateProviderToConfirmIdentityWhenNotValidTime(t *tes
 		},
 		"expiry almost in 3 months": {
 			CertificateProvider: lpadata.CertificateProvider{
-				SignedAt: pt(testNow.AddDate(0, -3, 0)),
+				SignedAt: pt(testNow.AddDate(0, -3, 1)),
 			},
-			SignedAt: testNow.AddDate(0, -3, 1),
+			SignedAt: testNow.AddDate(-2, 3, 0),
 		},
 		"submitted expiry almost in 3 months": {
 			Donor: lpadata.Donor{
