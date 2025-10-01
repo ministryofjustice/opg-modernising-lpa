@@ -49,7 +49,6 @@ do
       aws logs delete-log-group --region eu-west-1 --log-group-name /aws/ecs/containerinsights/"$workspace"/performance
       terraform workspace select default
       terraform workspace delete "$workspace"
-      export AWS_ROLE_ARN=""
       ;;
   esac
 done
