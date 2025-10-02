@@ -316,13 +316,13 @@ func App(
 		attorneyStartURL,
 	)
 
-	return withAppData(page.ValidateCsrf(rootMux, sessionStore, random.AlphaNumeric, errorHandler), localizer, lang)
+	return withAppData(page.ValidateCsrf(rootMux, sessionStore, random.AlphaNumeric, errorHandler), localizer, lang, devMode)
 }
 
-func withAppData(next http.Handler, localizer localize.Localizer, lang localize.Lang) http.HandlerFunc {
+func withAppData(next http.Handler, localizer localize.Localizer, lang localize.Lang, devMode bool) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		ctx := r.Context()
-		if contentType, _, _ := strings.Cut(r.Header.Get("Content-Type"), ";"); contentType != "multipart/form-data" {
+		if contentType, _, _ := strings.Cut(r.Header.Get("Content-Type"), ";"); contentType != "multipart/form-data" && devMode {
 			showKeys := false
 
 			if formValue := r.FormValue("showTranslationKeys"); formValue != "" {
