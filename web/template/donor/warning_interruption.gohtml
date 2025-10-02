@@ -9,7 +9,7 @@
 
             <h1 class="govuk-heading-xl">{{ tr .App .PageTitle }}</h1>
 
-            {{ if or .Attorney .ReplacementAttorney}}
+            {{ if or .Attorney .ReplacementAttorney }}
                 {{ $changePath := global.Paths.EnterReplacementAttorney }}
                 {{ $attorney := .ReplacementAttorney }}
 
@@ -27,36 +27,39 @@
             {{ else if .Donor }}
                 <dl class="govuk-summary-list">
                     {{ template "summary-row" (summaryRow $.App "firstNames" .Donor.FirstNames (printf "%s#f-first-names" (link .App .From)) .Provided.Donor.FullName true false) }}
-                    {{ template "summary-row" (summaryRow $.App "lastName" .Donor.LastName (printf "%s#f-last-names" (link .App .From)) .Provided.Donor.FullName true false) }}
+                    {{ template "summary-row" (summaryRow $.App "lastName" .Donor.LastName (printf "%s#f-last-name" (link .App .From)) .Provided.Donor.FullName true false) }}
                     {{ template "summary-row" (summaryRow $.App "dateOfBirth" (formatDate .App .Donor.DateOfBirth) (printf "%s#f-date-of-birth" (link .App .From)) .Provided.Donor.FullName true false) }}
                     {{ template "summary-row" (summaryRow $.App "email" .Donor.Email (printf "%s#f-email" (link .App .From)) .Provided.Donor.FullName true false) }}
                 </dl>
             {{ else if .CertificateProvider }}
                 <dl class="govuk-summary-list">
-                    {{ template "summary-row" (summaryRow $.App "firstNames" .CertificateProvider.FirstNames (printf "%s#f-first-names" (link .App .From)) .Provided.Donor.FullName true false) }}
-                    {{ template "summary-row" (summaryRow $.App "lastName" .CertificateProvider.LastName (printf "%s#f-last-names" (link .App .From)) .Provided.Donor.FullName true false) }}
-                    {{ template "summary-row" (summaryRow $.App "email" .CertificateProvider.Email (printf "%s#f-email" (link .App .From)) .Provided.Donor.FullName true false) }}
+                    {{ template "summary-row" (summaryRow $.App "firstNames" .CertificateProvider.FirstNames (fromLink .App global.Paths.CertificateProviderDetails "#f-first-names") .Provided.Donor.FullName true false) }}
+                    {{ template "summary-row" (summaryRow $.App "lastName" .CertificateProvider.LastName (fromLink .App global.Paths.CertificateProviderDetails "#f-last-name") .Provided.Donor.FullName true false) }}
+                    {{ template "summary-row" (summaryRow $.App "email" .CertificateProvider.Email (fromLink .App global.Paths.CertificateProviderDetails "#f-email") .Provided.Donor.FullName true false) }}
+                    {{ if .CertificateProvider.Address.Line1 }}
+                        {{ template "address-summary-row" (summaryRow $.App "address" .CertificateProvider.Address (fromLink .App global.Paths.CertificateProviderAddress "#f-line1") .Provided.Donor.FullName true false) }}
+                    {{ end }}
                 </dl>
             {{ else if .Correspondent }}
                 <dl class="govuk-summary-list">
                     {{ template "summary-row" (summaryRow $.App "firstNames" .Correspondent.FirstNames (printf "%s#f-first-names" (link .App .From)) .Provided.Donor.FullName true false) }}
-                    {{ template "summary-row" (summaryRow $.App "lastName" .Correspondent.LastName (printf "%s#f-last-names" (link .App .From)) .Provided.Donor.FullName true false) }}
+                    {{ template "summary-row" (summaryRow $.App "lastName" .Correspondent.LastName (printf "%s#f-last-name" (link .App .From)) .Provided.Donor.FullName true false) }}
                     {{ template "summary-row" (summaryRow $.App "email" .Correspondent.Email (printf "%s#f-email" (link .App .From)) .Provided.Donor.FullName true false) }}
                 </dl>
             {{ else if .PersonToNotify }}
                 <dl class="govuk-summary-list">
                     {{ template "summary-row" (summaryRow $.App "firstNames" .PersonToNotify.FirstNames (printf "%s#f-first-names" (link .App .From)) .Provided.Donor.FullName true false) }}
-                    {{ template "summary-row" (summaryRow $.App "lastName" .PersonToNotify.LastName (printf "%s#f-last-names" (link .App .From)) .Provided.Donor.FullName true false) }}
+                    {{ template "summary-row" (summaryRow $.App "lastName" .PersonToNotify.LastName (printf "%s#f-last-name" (link .App .From)) .Provided.Donor.FullName true false) }}
                 </dl>
             {{ else if .AuthorisedSignatory }}
                 <dl class="govuk-summary-list">
                     {{ template "summary-row" (summaryRow $.App "firstNames" .AuthorisedSignatory.FirstNames (printf "%s#f-first-names" (link .App .From)) .Provided.Donor.FullName true false) }}
-                    {{ template "summary-row" (summaryRow $.App "lastName" .AuthorisedSignatory.LastName (printf "%s#f-last-names" (link .App .From)) .Provided.Donor.FullName true false) }}
+                    {{ template "summary-row" (summaryRow $.App "lastName" .AuthorisedSignatory.LastName (printf "%s#f-last-name" (link .App .From)) .Provided.Donor.FullName true false) }}
                 </dl>
             {{ else if .IndependentWitness }}
                 <dl class="govuk-summary-list">
                     {{ template "summary-row" (summaryRow $.App "firstNames" .IndependentWitness.FirstNames (printf "%s#f-first-names" (link .App .From)) .Provided.Donor.FullName true false) }}
-                    {{ template "summary-row" (summaryRow $.App "lastName" .IndependentWitness.LastName (printf "%s#f-last-names" (link .App .From)) .Provided.Donor.FullName true false) }}
+                    {{ template "summary-row" (summaryRow $.App "lastName" .IndependentWitness.LastName (printf "%s#f-last-name" (link .App .From)) .Provided.Donor.FullName true false) }}
                 </dl>
             {{ end }}
 
