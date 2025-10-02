@@ -15,8 +15,10 @@ import (
 
 // Provided contains details about the certificate provider, provided by the certificate provider
 type Provided struct {
-	PK dynamo.LpaKeyType
-	SK dynamo.CertificateProviderKeyType
+	PK      dynamo.LpaKeyType
+	SK      dynamo.CertificateProviderKeyType
+	Version int
+
 	// UID of the actor
 	UID actoruid.UID
 	// The identifier of the LPA the certificate provider is providing a certificate for

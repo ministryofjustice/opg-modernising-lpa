@@ -20,7 +20,15 @@ import (
 func TestStoreCreate(t *testing.T) {
 	ctx := appcontext.ContextWithSession(context.Background(), &appcontext.Session{LpaID: "lpa-id", SessionID: "session-id"})
 	uid := actoruid.New()
-	details := &certificateproviderdata.Provided{PK: dynamo.LpaKey("lpa-id"), SK: dynamo.CertificateProviderKey("session-id"), LpaID: "lpa-id", UpdatedAt: testNow, UID: uid, Email: "a@b.com"}
+	details := &certificateproviderdata.Provided{
+		PK:        dynamo.LpaKey("lpa-id"),
+		SK:        dynamo.CertificateProviderKey("session-id"),
+		Version:   1,
+		LpaID:     "lpa-id",
+		UpdatedAt: testNow,
+		UID:       uid,
+		Email:     "a@b.com",
+	}
 
 	link := accesscodedata.Link{
 		PK:          dynamo.AccessKey(dynamo.CertificateProviderAccessKey("share-key")),
