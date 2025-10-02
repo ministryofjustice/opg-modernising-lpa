@@ -181,7 +181,6 @@ func TestPostYourAddressManual(t *testing.T) {
 					Donor: donordata.Donor{
 						Address: testAddress,
 					},
-					HasSentApplicationUpdatedEvent: false,
 				}).
 				Return(nil)
 
@@ -190,7 +189,6 @@ func TestPostYourAddressManual(t *testing.T) {
 				Donor: donordata.Donor{
 					Address: place.Address{Line1: "a", Line2: "b", Line3: "c", TownOrCity: "d"},
 				},
-				HasSentApplicationUpdatedEvent: true,
 			})
 			resp := w.Result()
 
@@ -242,7 +240,6 @@ func TestPostYourAddressManualWhenAddressNotChanged(t *testing.T) {
 						Postcode:   "E",
 					},
 				},
-				HasSentApplicationUpdatedEvent: true,
 			})
 			resp := w.Result()
 

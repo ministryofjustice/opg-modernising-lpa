@@ -68,7 +68,6 @@ func YourNonUKAddress(tmpl template.Template, donorStore DonorStore) Handler {
 				addressChangesMade := provided.Donor.InternationalAddress != data.Form.Address
 
 				if addressChangesMade {
-					provided.HasSentApplicationUpdatedEvent = false
 					provided.Donor.InternationalAddress = data.Form.Address
 					provided.Donor.Address = data.Form.Address.ToAddress()
 

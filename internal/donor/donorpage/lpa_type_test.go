@@ -159,7 +159,6 @@ func TestPostLpaType(t *testing.T) {
 					DateOfBirth: date.New("2000", "01", "01"),
 					Address:     place.Address{Postcode: "F1 1FF"},
 				},
-				HasSentApplicationUpdatedEvent: true,
 			})
 			resp := w.Result()
 
@@ -195,7 +194,6 @@ func TestPostLpaTypeWhenLpaUIDExists(t *testing.T) {
 			DateOfBirth: date.New("2000", "01", "01"),
 			Address:     place.Address{Postcode: "F1 1FF"},
 		},
-		HasSentApplicationUpdatedEvent: true,
 	})
 	resp := w.Result()
 
@@ -232,7 +230,6 @@ func TestPostLpaTypeWhenTrustCorporation(t *testing.T) {
 		Attorneys: donordata.Attorneys{
 			TrustCorporation: donordata.TrustCorporation{Name: "a"},
 		},
-		HasSentApplicationUpdatedEvent: true,
 	})
 
 	assert.Nil(t, err)
