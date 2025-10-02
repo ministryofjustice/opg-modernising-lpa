@@ -164,10 +164,9 @@ func TestPostYourName(t *testing.T) {
 
 			appData := appcontext.Data{Page: "/abc"}
 			err := YourName(nil, donorStore, sessionStore)(appData, w, r, &donordata.Provided{
-				LpaID:                          "lpa-id",
-				Donor:                          donordata.Donor{FirstNames: "John"},
-				CertificateProvider:            donordata.CertificateProvider{FirstNames: "Jane", LastName: "Bloggs"},
-				HasSentApplicationUpdatedEvent: true,
+				LpaID:               "lpa-id",
+				Donor:               donordata.Donor{FirstNames: "John"},
+				CertificateProvider: donordata.CertificateProvider{FirstNames: "Jane", LastName: "Bloggs"},
 			})
 			resp := w.Result()
 
@@ -213,7 +212,6 @@ func TestPostYourNameWhenDetailsNotChanged(t *testing.T) {
 					LastName:   "Doe",
 					OtherNames: "Fawn",
 				},
-				HasSentApplicationUpdatedEvent: true,
 			})
 			resp := w.Result()
 

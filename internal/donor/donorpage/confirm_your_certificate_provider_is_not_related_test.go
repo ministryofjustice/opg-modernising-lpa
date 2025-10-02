@@ -87,9 +87,8 @@ func TestPostConfirmYourCertificateProviderIsNotRelated(t *testing.T) {
 	r.Header.Add("Content-Type", page.FormUrlEncoded)
 
 	updated := &donordata.Provided{
-		LpaID:                          "lpa-id",
-		Donor:                          donordata.Donor{CanSign: form.Yes},
-		HasSentApplicationUpdatedEvent: true,
+		LpaID: "lpa-id",
+		Donor: donordata.Donor{CanSign: form.Yes},
 		Tasks: donordata.Tasks{
 			YourDetails:                task.StateCompleted,
 			ChooseAttorneys:            task.StateCompleted,
@@ -111,9 +110,8 @@ func TestPostConfirmYourCertificateProviderIsNotRelated(t *testing.T) {
 		Return(nil)
 
 	err := ConfirmYourCertificateProviderIsNotRelated(nil, donorStore, testNowFn)(testAppData, w, r, &donordata.Provided{
-		LpaID:                          "lpa-id",
-		Donor:                          donordata.Donor{CanSign: form.Yes},
-		HasSentApplicationUpdatedEvent: true,
+		LpaID: "lpa-id",
+		Donor: donordata.Donor{CanSign: form.Yes},
 		Tasks: donordata.Tasks{
 			YourDetails:                task.StateCompleted,
 			ChooseAttorneys:            task.StateCompleted,

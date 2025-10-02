@@ -48,7 +48,6 @@ func YourDateOfBirth(tmpl template.Template, donorStore DonorStore) Handler {
 				}
 
 				provided.Donor.DateOfBirth = data.Form.Dob
-				provided.HasSentApplicationUpdatedEvent = false
 
 				if err := donorStore.Put(r.Context(), provided); err != nil {
 					return err

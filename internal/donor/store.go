@@ -376,7 +376,7 @@ func (s *Store) Put(ctx context.Context, donor *donordata.Provided) error {
 		}
 	}
 
-	if donor.LpaUID != "" && !donor.HasSentApplicationUpdatedEvent && donor.Donor.Channel.IsOnline() {
+	if donor.LpaUID != "" && donor.LpaStubHashChanged() && donor.Donor.Channel.IsOnline() {
 		if err := s.eventClient.SendApplicationUpdated(ctx, event.ApplicationUpdated{
 			UID:       donor.LpaUID,
 			Type:      donor.Type.String(),
@@ -391,7 +391,10 @@ func (s *Store) Put(ctx context.Context, donor *donordata.Provided) error {
 			return err
 		}
 
-		donor.HasSentApplicationUpdatedEvent = true
+		err := donor.UpdateLpaStubHash()
+		if err != nil {
+			return err
+		}
 	}
 
 	return s.dynamoClient.Put(ctx, donor)
