@@ -66,7 +66,6 @@ func YourName(tmpl template.Template, donorStore DonorStore, sessionStore Sessio
 				provided.Donor.FirstNames = data.Form.FirstNames
 				provided.Donor.LastName = data.Form.LastName
 				provided.Donor.OtherNames = data.Form.OtherNames
-				provided.HasSentApplicationUpdatedEvent = false
 
 				if err := donorStore.Put(r.Context(), provided); err != nil {
 					return err
