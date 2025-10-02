@@ -194,7 +194,6 @@ func TestPostYourDateOfBirth(t *testing.T) {
 				Donor: donordata.Donor{
 					DateOfBirth: date.New("2000", "1", "2"),
 				},
-				HasSentApplicationUpdatedEvent: true,
 			})
 			resp := w.Result()
 
@@ -240,7 +239,6 @@ func TestPostYourDateOfBirthWhenDetailsNotChanged(t *testing.T) {
 				Donor: donordata.Donor{
 					DateOfBirth: date.New(validBirthYear, "1", "2"),
 				},
-				HasSentApplicationUpdatedEvent: true,
 			})
 			resp := w.Result()
 

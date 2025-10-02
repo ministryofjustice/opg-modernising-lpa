@@ -44,7 +44,6 @@ func YourAddress(logger Logger, tmpl template.Template, addressClient AddressCli
 						provided.Donor.Address.Postcode != data.Form.Address.Postcode
 
 					if addressChangesMade {
-						provided.HasSentApplicationUpdatedEvent = false
 						provided.Donor.Address = *data.Form.Address
 						if err := donorStore.Put(r.Context(), provided); err != nil {
 							return err
