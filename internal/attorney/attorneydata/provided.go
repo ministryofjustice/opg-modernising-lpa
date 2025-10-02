@@ -15,8 +15,10 @@ import (
 // Provided contains details about an attorney or replacement
 // attorney, provided by the attorney or replacement attorney
 type Provided struct {
-	PK dynamo.LpaKeyType
-	SK dynamo.AttorneyKeyType
+	PK      dynamo.LpaKeyType
+	SK      dynamo.AttorneyKeyType
+	Version int
+
 	// The identifier of the attorney or replacement attorney being edited
 	UID actoruid.UID
 	// The identifier of the LPA the attorney or replacement attorney is named in

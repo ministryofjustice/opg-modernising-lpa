@@ -13,8 +13,10 @@ import (
 
 // Provided contains the information a voucher has given
 type Provided struct {
-	PK dynamo.LpaKeyType
-	SK dynamo.VoucherKeyType
+	PK      dynamo.LpaKeyType
+	SK      dynamo.VoucherKeyType
+	Version int
+
 	// LpaID is for the LPA the voucher is provided a vouch for
 	LpaID string
 	// UpdatedAt is the time that this data was last updated

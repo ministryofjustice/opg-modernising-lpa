@@ -37,6 +37,7 @@ func TestAttorneyStoreCreate(t *testing.T) {
 			details := &attorneydata.Provided{
 				PK:                 dynamo.LpaKey("123"),
 				SK:                 dynamo.AttorneyKey("456"),
+				Version:            1,
 				UID:                uid,
 				LpaID:              "123",
 				UpdatedAt:          now,
