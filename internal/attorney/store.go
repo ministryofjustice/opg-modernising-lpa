@@ -57,6 +57,7 @@ func (s *Store) Create(ctx context.Context, link accesscodedata.Link, email stri
 	attorney := &attorneydata.Provided{
 		PK:                 dynamo.LpaKey(data.LpaID),
 		SK:                 dynamo.AttorneyKey(data.SessionID),
+		Version:            1,
 		UID:                link.ActorUID,
 		LpaID:              data.LpaID,
 		UpdatedAt:          s.now(),
