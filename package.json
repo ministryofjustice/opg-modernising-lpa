@@ -29,6 +29,7 @@
     "devDependencies": {
         "@axe-core/playwright": "4.10.2",
         "@playwright/test": "1.55.1",
+        "@cypress/grep": "^5.0.0",
         "axe-core": "4.10.3",
         "cypress": "14.5.4",
         "cypress-axe": "1.7.0",

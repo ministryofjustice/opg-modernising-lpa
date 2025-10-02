@@ -56,6 +56,7 @@ func (s *Store) Create(ctx context.Context, link accesscodedata.Link, email stri
 	certificateProvider := &certificateproviderdata.Provided{
 		PK:        dynamo.LpaKey(data.LpaID),
 		SK:        dynamo.CertificateProviderKey(data.SessionID),
+		Version:   1,
 		UID:       link.ActorUID,
 		LpaID:     data.LpaID,
 		UpdatedAt: s.now(),

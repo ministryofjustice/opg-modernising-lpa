@@ -42,6 +42,7 @@ func (s *Store) Create(ctx context.Context, link accesscodedata.Link, email stri
 	provided := &voucherdata.Provided{
 		PK:        dynamo.LpaKey(data.LpaID),
 		SK:        dynamo.VoucherKey(data.SessionID),
+		Version:   1,
 		LpaID:     data.LpaID,
 		UpdatedAt: s.now(),
 		Email:     email,

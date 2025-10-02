@@ -56,6 +56,7 @@ func TestVoucherStoreCreate(t *testing.T) {
 	details := &voucherdata.Provided{
 		PK:        dynamo.LpaKey("123"),
 		SK:        dynamo.VoucherKey("456"),
+		Version:   1,
 		LpaID:     "123",
 		UpdatedAt: now,
 		Email:     "a@example.com",
