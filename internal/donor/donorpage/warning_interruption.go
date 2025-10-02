@@ -55,7 +55,7 @@ func WarningInterruption(tmpl template.Template) Handler {
 
 			matches := donorMatches(provided, provided.Donor.FirstNames, provided.Donor.LastName)
 
-			if provided.CertificateProvider.Address.Line1 != "" && (provided.Donor.Address == provided.CertificateProvider.Address) {
+			if provided.CertificateProvider.Address.Line1 != "" && provided.Donor.Address == provided.CertificateProvider.Address {
 				matches = actor.TypeCertificateProvider
 			}
 
@@ -140,16 +140,17 @@ func WarningInterruption(tmpl template.Template) Handler {
 				matches,
 				provided.CertificateProvider.FullName(),
 			)
-
 			if nameWarning != nil {
 				data.Notifications = append(data.Notifications, page.Notification{
 					Heading:  "pleaseReviewTheInformationYouHaveEntered",
 					BodyHTML: nameWarning.Format(appData.Localizer),
 				})
-
-				// Warning can be triggered from name or address but we only give an option to change name in template
-				data.From = donor.PathCertificateProviderDetails.FormatQuery(provided.LpaID, url.Values{"from": {data.Next}})
 			}
+
+			// pretend this page doesn't exist, then can use fromLink in the templates
+			data.App.Page = data.Next
+			data.From = ""
+
 		case actor.TypeCorrespondent:
 			data.Correspondent = &provided.Correspondent
 			data.PageTitle = "checkYourCorrespondentsDetails"
