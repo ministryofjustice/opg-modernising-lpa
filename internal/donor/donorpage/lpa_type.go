@@ -51,7 +51,6 @@ func LpaType(tmpl template.Template, donorStore DonorStore, eventClient EventCli
 					provided.WhenCanTheLpaBeUsed = lpadata.CanBeUsedWhenCapacityLost
 				}
 				provided.Tasks.YourDetails = task.StateCompleted
-				provided.HasSentApplicationUpdatedEvent = false
 
 				if err := donorStore.Put(r.Context(), provided); err != nil {
 					return err

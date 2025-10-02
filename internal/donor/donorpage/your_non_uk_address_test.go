@@ -167,7 +167,6 @@ func TestPostYourNonUKAddress(t *testing.T) {
 							Country:         "FR",
 						},
 					},
-					HasSentApplicationUpdatedEvent: false,
 				}).
 				Return(nil)
 
@@ -176,7 +175,6 @@ func TestPostYourNonUKAddress(t *testing.T) {
 				Donor: donordata.Donor{
 					InternationalAddress: place.InternationalAddress{Country: "FR"},
 				},
-				HasSentApplicationUpdatedEvent: true,
 			})
 			resp := w.Result()
 
@@ -295,7 +293,6 @@ func TestPostYourNonUKAddressWhenAddressNotChanged(t *testing.T) {
 						Country:         "FR",
 					},
 				},
-				HasSentApplicationUpdatedEvent: true,
 			})
 			resp := w.Result()
 

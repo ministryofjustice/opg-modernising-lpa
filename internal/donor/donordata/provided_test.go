@@ -369,6 +369,73 @@ func TestGenerateCertificateProviderNotRelatedConfirmedHashVersionTooHigh(t *tes
 	assert.Error(t, err)
 }
 
+func TestGenerateLpaStubHash(t *testing.T) {
+	makeDonor := func(version uint8, hash uint64) *Provided {
+		return &Provided{
+			LpaStubHashVersion: version,
+			LpaStubHash:        hash,
+			Donor:              Donor{LastName: "A"},
+			Type:               lpadata.LpaTypePropertyAndAffairs,
+		}
+	}
+
+	// DO change this value to match the updates
+	const modified uint64 = 0x41eedeed8bf7e310
+
+	// DO NOT change these initial hash values. If a field has been added/removed
+	// you will need to handle the version gracefully by modifying
+	// lpaStubData.HashInclude and adding another testcase for the new version.
+	testcases := map[uint8]uint64{
+		0: 0x3672b7fefc15df4c,
+	}
+
+	for version, initial := range testcases {
+		t.Run(fmt.Sprintf("Version%d", version), func(t *testing.T) {
+			donor := makeDonor(version, initial)
+			hash, _ := donor.generateLpaStubHash()
+
+			assert.Equal(t, donor.LpaStubHash, hash)
+			assert.False(t, donor.LpaStubHashChanged())
+
+			donor.Donor.Mobile = "123"
+			assert.Equal(t, donor.LpaStubHash, hash)
+			assert.False(t, donor.LpaStubHashChanged())
+
+			donor.Donor.LastName = "X"
+			assert.True(t, donor.LpaStubHashChanged())
+
+			donor.Type = lpadata.LpaTypePersonalWelfare
+			assert.True(t, donor.LpaStubHashChanged())
+
+			err := donor.UpdateLpaStubHash()
+			assert.Nil(t, err)
+			assert.Equal(t, modified, donor.LpaStubHash)
+			assert.Equal(t, currentLpaStubHashVersion, donor.LpaStubHashVersion)
+		})
+	}
+}
+
+func TestGenerateLpaStubHashVersionTooHigh(t *testing.T) {
+	donor := &Provided{
+		LpaStubHashVersion: currentLpaStubHashVersion + 1,
+		Type:               lpadata.LpaTypePropertyAndAffairs,
+	}
+
+	_, err := donor.generateLpaStubHash()
+	assert.Error(t, err)
+}
+
+func TestLpaStubDataHashInclude(t *testing.T) {
+	includesDonor, _ := lpaStubData{}.HashInclude("Donor", "")
+	assert.True(t, includesDonor)
+
+	includesType, _ := lpaStubData{}.HashInclude("Type", "")
+	assert.True(t, includesType)
+
+	doesNotIncludeOtherField, _ := lpaStubData{}.HashInclude("PK", "")
+	assert.False(t, doesNotIncludeOtherField)
+}
+
 func TestIdentityConfirmed(t *testing.T) {
 	testCases := map[string]struct {
 		donor    *Provided

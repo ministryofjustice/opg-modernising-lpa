@@ -16,13 +16,13 @@ import (
 // Donor contains details about the donor, provided by the applicant
 type Donor struct {
 	// UID for the actor
-	UID actoruid.UID
+	UID actoruid.UID `stubhash:"-"`
 	// First names of the donor
 	FirstNames string `relatedhash:"-"`
 	// Last name of the donor
 	LastName string
 	// Email of the donor
-	Email string `checkhash:"-" relatedhash:"-"`
+	Email string `checkhash:"-" relatedhash:"-" stubhash:"-"`
 	// Other names the donor is known by
 	OtherNames string `relatedhash:"-"`
 	// Date of birth of the donor
@@ -30,19 +30,19 @@ type Donor struct {
 	// Address of the donor
 	Address place.Address
 	// International address of the donor
-	InternationalAddress place.InternationalAddress `relatedhash:"-"`
+	InternationalAddress place.InternationalAddress `relatedhash:"-" stubhash:"-"`
 	// Mobile phone number to contact the donor
-	Mobile string `checkhash:"-" relatedhash:"-"`
+	Mobile string `checkhash:"-" relatedhash:"-" stubhash:"-"`
 	// ThinksCanSign is what the donor thinks about their ability to sign online
-	ThinksCanSign YesNoMaybe `relatedhash:"-"`
+	ThinksCanSign YesNoMaybe `relatedhash:"-" stubhash:"-"`
 	// CanSign is Yes if the donor has said they will sign online
-	CanSign form.YesNo `relatedhash:"-"`
+	CanSign form.YesNo `relatedhash:"-" stubhash:"-"`
 	// Channel is how the Donor is applying for their LPA (paper or online)
-	Channel lpadata.Channel `relatedhash:"-"`
+	Channel lpadata.Channel `relatedhash:"-" stubhash:"-"`
 	// ContactLanguagePreference is the language the donor prefers to receive notifications in
-	ContactLanguagePreference localize.Lang `relatedhash:"-"`
+	ContactLanguagePreference localize.Lang `relatedhash:"-" stubhash:"-"`
 	// LpaLanguagePreference is the language the donor prefers to receive the registered LPA in
-	LpaLanguagePreference localize.Lang `checkhash:"-" relatedhash:"-"`
+	LpaLanguagePreference localize.Lang `checkhash:"-" relatedhash:"-" stubhash:"-"`
 }
 
 func (d Donor) FullName() string {
