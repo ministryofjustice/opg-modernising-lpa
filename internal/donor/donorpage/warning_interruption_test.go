@@ -351,18 +351,19 @@ func TestGetWarningInterruptionCertificateProvider(t *testing.T) {
 				Once()
 
 			appData := appcontext.Data{LpaID: "lpa-id", Localizer: localizer}
+			nextAppData := appData
+			nextAppData.Page = "/next-page"
 
 			template := newMockTemplate(t)
 			template.EXPECT().
 				Execute(w, WarningInterruptionData{
-					App:                 appData,
+					App:                 nextAppData,
 					Provided:            tc.donorProvided,
 					CertificateProvider: &tc.donorProvided.CertificateProvider,
 					Notifications: []page.Notification{
 						{Heading: "pleaseReviewTheInformationYouHaveEntered", BodyHTML: "translatedWarning"},
 					},
 					PageTitle: "checkYourCertificateProvidersDetails",
-					From:      donor.PathCertificateProviderDetails.FormatQuery("lpa-id", url.Values{"from": {"/next-page"}}),
 					Next:      "/next-page",
 				}).
 				Return(nil)
