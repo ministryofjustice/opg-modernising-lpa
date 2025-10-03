@@ -146,10 +146,6 @@ func (s *ResolvingService) merge(lpa *lpadata.Lpa, donor *donordata.Provided) *l
 
 		// copy the relationship as it isn't stored in the lpastore.
 		lpa.CertificateProvider.Relationship = donor.CertificateProvider.Relationship
-
-		if lpa.WithdrawnAt.IsZero() {
-			lpa.WithdrawnAt = donor.WithdrawnAt
-		}
 	}
 
 	return lpa
