@@ -1024,45 +1024,58 @@ func TestHandleCannotRegisterWhenStoreErrors(t *testing.T) {
 }
 
 func TestLpaStoreEventHandlerHandleLpaUpdatedOpgStatusChange(t *testing.T) {
-	event := &events.CloudWatchEvent{
-		DetailType: "lpa-updated",
-		Detail:     json.RawMessage(`{"uid":"M-1111-2222-3333","changeType":"OPG_STATUS_CHANGE"}`),
+	testcases := map[lpadata.Status]*donordata.Provided{
+		lpadata.StatusDoNotRegister: {
+			PK:              dynamo.LpaKey("123"),
+			SK:              dynamo.LpaOwnerKey(dynamo.DonorKey("456")),
+			DoNotRegisterAt: testNow,
+			UpdatedAt:       testNow,
+		},
+		lpadata.StatusWithdrawn: {
+			PK:          dynamo.LpaKey("123"),
+			SK:          dynamo.LpaOwnerKey(dynamo.DonorKey("456")),
+			WithdrawnAt: testNow,
+			UpdatedAt:   testNow,
+		},
 	}
 
-	updated := &donordata.Provided{
-		PK:              dynamo.LpaKey("123"),
-		SK:              dynamo.LpaOwnerKey(dynamo.DonorKey("456")),
-		DoNotRegisterAt: testNow,
-		UpdatedAt:       testNow,
+	for status, updated := range testcases {
+		t.Run(status.String(), func(t *testing.T) {
+			event := &events.CloudWatchEvent{
+				DetailType: "lpa-updated",
+				Detail:     json.RawMessage(`{"uid":"M-1111-2222-3333","changeType":"OPG_STATUS_CHANGE"}`),
+			}
+
+			updated.UpdateHash()
+
+			client := newMockDynamodbClient(t)
+			client.EXPECT().
+				OneByUID(ctx, "M-1111-2222-3333").
+				Return(dynamo.Keys{PK: dynamo.LpaKey("123"), SK: dynamo.DonorKey("456")}, nil)
+			client.EXPECT().
+				One(ctx, dynamo.LpaKey("123"), dynamo.DonorKey("456"), mock.Anything).
+				Return(nil).
+				SetData(donordata.Provided{PK: dynamo.LpaKey("123"), SK: dynamo.LpaOwnerKey(dynamo.DonorKey("456"))})
+			client.EXPECT().
+				Put(ctx, updated).
+				Return(nil)
+
+			lpaStoreClient := newMockLpaStoreClient(t)
+			lpaStoreClient.EXPECT().
+				Lpa(ctx, "M-1111-2222-3333").
+				Return(&lpadata.Lpa{Status: status}, nil)
+
+			factory := newMockFactory(t)
+			factory.EXPECT().DynamoClient().Return(client)
+			factory.EXPECT().LpaStoreClient().Return(lpaStoreClient, nil)
+			factory.EXPECT().Now().Return(testNowFn)
+
+			handler := &lpastoreEventHandler{}
+
+			err := handler.Handle(ctx, factory, event)
+			assert.Nil(t, err)
+		})
 	}
-	updated.UpdateHash()
-
-	client := newMockDynamodbClient(t)
-	client.EXPECT().
-		OneByUID(ctx, "M-1111-2222-3333").
-		Return(dynamo.Keys{PK: dynamo.LpaKey("123"), SK: dynamo.DonorKey("456")}, nil)
-	client.EXPECT().
-		One(ctx, dynamo.LpaKey("123"), dynamo.DonorKey("456"), mock.Anything).
-		Return(nil).
-		SetData(donordata.Provided{PK: dynamo.LpaKey("123"), SK: dynamo.LpaOwnerKey(dynamo.DonorKey("456"))})
-	client.EXPECT().
-		Put(ctx, updated).
-		Return(nil)
-
-	lpaStoreClient := newMockLpaStoreClient(t)
-	lpaStoreClient.EXPECT().
-		Lpa(ctx, "M-1111-2222-3333").
-		Return(&lpadata.Lpa{Status: lpadata.StatusDoNotRegister}, nil)
-
-	factory := newMockFactory(t)
-	factory.EXPECT().DynamoClient().Return(client)
-	factory.EXPECT().LpaStoreClient().Return(lpaStoreClient, nil)
-	factory.EXPECT().Now().Return(testNowFn)
-
-	handler := &lpastoreEventHandler{}
-
-	err := handler.Handle(ctx, factory, event)
-	assert.Nil(t, err)
 }
 
 func TestLpaStoreEventHandlerHandleLpaUpdatedOpgStatusChangeWhenFactoryErrors(t *testing.T) {

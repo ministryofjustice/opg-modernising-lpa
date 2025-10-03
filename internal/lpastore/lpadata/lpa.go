@@ -18,7 +18,6 @@ type Lpa struct {
 	Status                                     Status
 	Language                                   localize.Lang
 	RegisteredAt                               time.Time
-	WithdrawnAt                                time.Time
 	StatutoryWaitingPeriodAt                   time.Time
 	UpdatedAt                                  time.Time
 	Type                                       LpaType

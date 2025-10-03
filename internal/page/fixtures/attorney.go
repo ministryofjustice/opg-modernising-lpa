@@ -479,6 +479,8 @@ func Attorney(
 			}
 		}
 
+		var fns []func(context.Context, *lpastore.Client, *lpadata.Lpa) error
+
 		var signings []*attorneydata.Provided
 		if progress >= slices.Index(progressValues, "signedByAllAttorneys") {
 			for isReplacement, list := range map[bool]donordata.Attorneys{false: donorDetails.Attorneys, true: donorDetails.ReplacementAttorneys} {
@@ -551,15 +553,23 @@ func Attorney(
 					signings = append(signings, attorney)
 				}
 			}
+
+			fns = append(fns, func(ctx context.Context, client *lpastore.Client, _ *lpadata.Lpa) error {
+				return client.SendStatutoryWaitingPeriod(donorCtx, donorDetails.LpaUID)
+			})
 		}
 
 		if progress == slices.Index(progressValues, "withdrawn") {
+			fns = append(fns, func(ctx context.Context, client *lpastore.Client, _ *lpadata.Lpa) error {
+				return client.SendDonorWithdrawLPA(donorCtx, donorDetails.LpaUID)
+			})
 			donorDetails.WithdrawnAt = time.Now()
 		}
 
-		registered := false
 		if progress >= slices.Index(progressValues, "registered") {
-			registered = true
+			fns = append(fns, func(ctx context.Context, client *lpastore.Client, _ *lpadata.Lpa) error {
+				return client.SendRegister(donorCtx, donorDetails.LpaUID)
+			})
 		}
 
 		if !isPaperDonor {
@@ -588,15 +598,9 @@ func Attorney(
 				}
 			}
 
-			if progress >= slices.Index(progressValues, "signedByAllAttorneys") {
-				if err := lpaStoreClient.SendStatutoryWaitingPeriod(donorCtx, donorDetails.LpaUID); err != nil {
-					return fmt.Errorf("problem sending statutory waiting period: %w", err)
-				}
-			}
-
-			if registered {
-				if err := lpaStoreClient.SendRegister(donorCtx, donorDetails.LpaUID); err != nil {
-					return fmt.Errorf("problem sending register: %w", err)
+			for _, fn := range fns {
+				if err := fn(donorCtx, lpaStoreClient, lpa); err != nil {
+					return err
 				}
 			}
 		}
