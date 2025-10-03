@@ -130,7 +130,6 @@ func CertificateProvider(
 				LpaUID:                           makeUID(),
 				CreatedAt:                        time.Now(),
 				Version:                          1,
-				HasSentApplicationUpdatedEvent:   true,
 				SignedAt:                         time.Now(),
 				WitnessedByCertificateProviderAt: time.Now(),
 				Donor:                            makeDonor(donorEmail, "Sam", "Smith"),

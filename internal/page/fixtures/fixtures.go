@@ -155,6 +155,7 @@ func makeDonor(email, firstNames, lastname string) donordata.Donor {
 		CanSign:                   form.Yes,
 		ContactLanguagePreference: localize.En,
 		LpaLanguagePreference:     localize.En,
+		Channel:                   lpadata.ChannelOnline,
 	}
 }
 

@@ -31,6 +31,7 @@ const (
 	currentHashVersion                                       uint8 = 0
 	currentCheckedHashVersion                                uint8 = 0
 	currentCertificateProviderNotRelatedConfirmedHashVersion uint8 = 0
+	currentLpaStubHashVersion                                uint8 = 0
 )
 
 type Tasks struct {
@@ -238,7 +239,10 @@ type Provided struct {
 	// using details that do not match those returned by the identity check.
 	ContinueWithMismatchedDetails bool `checkhash:"-"`
 
-	HasSentApplicationUpdatedEvent bool `hash:"-" checkhash:"-"`
+	// LpaStubHash is the hash of data required to generate an LPA UID
+	LpaStubHash uint64 `hash:"-" checkhash:"-"`
+	// LpaStubHashVersion is used to determine the fields used to calculate LpaStubHash
+	LpaStubHashVersion uint8 `hash:"-" checkhash:"-"`
 }
 
 func (p *Provided) CompletedAllTasks() bool {
@@ -355,6 +359,38 @@ func (p *Provided) UpdateCertificateProviderNotRelatedConfirmedHash() (err error
 
 func (p *Provided) generateCertificateProviderNotRelatedConfirmedHash() (uint64, error) {
 	return hashstructure.Hash(toConfirmCertificateProviderNotRelated(*p), &hashstructure.HashOptions{TagName: "relatedhash"})
+}
+
+// lpaStubData filters the fields used for hashing to only those
+// that make up LPA stub data
+type lpaStubData Provided
+
+func (c lpaStubData) HashInclude(field string, _ any) (bool, error) {
+	if c.LpaStubHashVersion > currentLpaStubHashVersion {
+		return false, errors.New("LpaStubHashVersion too high")
+	}
+
+	return field == "Donor" || field == "Type", nil
+}
+
+// UpdateLpaStubHash will generate a value that can be compared to check if
+// any fields containing LPA stub data have changed. Fields that do not contain
+// LPA stub data, so should be ignored for this calculation, are tagged with
+// `stubhash:"-"`.
+func (p *Provided) UpdateLpaStubHash() (err error) {
+	p.LpaStubHashVersion = currentLpaStubHashVersion
+	p.LpaStubHash, err = p.generateLpaStubHash()
+	return err
+}
+
+func (p *Provided) generateLpaStubHash() (uint64, error) {
+	return hashstructure.Hash(lpaStubData(*p), &hashstructure.HashOptions{TagName: "stubhash"})
+}
+
+func (p *Provided) LpaStubHashChanged() bool {
+	hash, _ := p.generateLpaStubHash()
+
+	return hash != p.LpaStubHash
 }
 
 func (p *Provided) DonorIdentityConfirmed() bool {

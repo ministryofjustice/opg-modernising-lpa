@@ -6,12 +6,12 @@ import (
 )
 
 type Address struct {
-	Line1      string `json:"line1"`
-	Line2      string `json:"line2" relatedhash:"-"`
-	Line3      string `json:"line3" relatedhash:"-"`
-	TownOrCity string `json:"town" relatedhash:"-"`
+	Line1      string `json:"line1" stubhash:"-"`
+	Line2      string `json:"line2" relatedhash:"-" stubhash:"-"`
+	Line3      string `json:"line3" relatedhash:"-" stubhash:"-"`
+	TownOrCity string `json:"town" relatedhash:"-" stubhash:"-"`
 	Postcode   string `json:"postcode"`
-	Country    string `json:"country" relatedhash:"-"`
+	Country    string `json:"country" relatedhash:"-" stubhash:"-"`
 }
 
 func (a Address) Encode() string {
