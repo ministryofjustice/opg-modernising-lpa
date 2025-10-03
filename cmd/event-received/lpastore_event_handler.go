@@ -13,6 +13,7 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/dynamo"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/event"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/localize"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/lpastore/lpadata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/notify"
 )
 
@@ -247,12 +248,17 @@ func handleOpgStatusChange(ctx context.Context, client dynamodbClient, lpaStoreC
 		return fmt.Errorf("error getting lpa: %w", err)
 	}
 
-	if lpa.Status.IsDoNotRegister() {
+	switch lpa.Status {
+	case lpadata.StatusDoNotRegister:
 		donor.DoNotRegisterAt = now()
+	case lpadata.StatusWithdrawn:
+		donor.WithdrawnAt = now()
+	default:
+		return nil
+	}
 
-		if err := putDonor(ctx, donor, now, client); err != nil {
-			return fmt.Errorf("failed to update donor details: %w", err)
-		}
+	if err := putDonor(ctx, donor, now, client); err != nil {
+		return fmt.Errorf("failed to update donor details: %w", err)
 	}
 
 	return nil

@@ -33,7 +33,7 @@
                 {{ .Item.Lpa.LpaUID }}
             </p>
             {{ if .Item.Lpa.Status.IsWithdrawn }}
-                <p class="govuk-body-s"><strong>{{ tr .App "withdrawn" }}:</strong> {{ formatDateTime .App .Item.Lpa.WithdrawnAt }}</p>
+                <p class="govuk-body-s"><strong>{{ tr .App "withdrawn" }}:</strong> {{ formatDateTime .App .Item.Lpa.Status.IsWithdrawn }}</p>
             {{ else if .Item.Lpa.Status.IsRegistered }}
                 <p class="govuk-body-s"><strong>{{ tr .App "registered" }}:</strong> {{ formatDateTime .App .Item.Lpa.RegisteredAt }}</p>
             {{ else }}
@@ -133,7 +133,7 @@
                 {{ .Item.Lpa.LpaUID }}
             </p>
             {{ if .Item.Lpa.Status.IsWithdrawn }}
-                <p class="govuk-body-s"><strong>{{ tr .App "withdrawn" }}:</strong> {{ formatDateTime .App .Item.Lpa.WithdrawnAt }}</p>
+                <p class="govuk-body-s"><strong>{{ tr .App "withdrawn" }}:</strong> {{ formatDateTime .App .Item.Lpa.Status.IsWithdrawn }}</p>
             {{ else if .Item.Lpa.Status.IsRegistered }}
                 <p class="govuk-body-s"><strong>{{ tr .App "registered" }}:</strong> {{ formatDateTime .App .Item.Lpa.RegisteredAt }}</p>
             {{ else }}
