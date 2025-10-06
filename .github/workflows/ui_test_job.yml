@@ -122,7 +122,7 @@ jobs:
 
       - name: Install dependencies
         if: inputs.skip != true
-        run: yarn install --frozen-lockfile --ignore-optional
+        run: pnpm install --frozen-lockfile --ignore-optional
 
       - name: Cypress run
         if: inputs.skip != true
@@ -134,7 +134,7 @@ jobs:
           CYPRESS_TEST_ONELOGIN_PASSWORD: ${{ secrets.test_onelogin_password }}
           GITHUB_TOKEN: ${{ secrets.github_access_token }}
         run:
-          yarn run cypress:parallel-with-specs --spec ${{ inputs.specs }} ${{ inputs.dev_mode != '1' && '--env grepTags=-@dev,grepFilterSpecs=true' || '' }}
+          pnpm run cypress:parallel-with-specs --spec ${{ inputs.specs }} ${{ inputs.dev_mode != '1' && '--env grepTags=-@dev,grepFilterSpecs=true' || '' }}
 
       - name: Persist Cypress failure screenshots as artifacts
         if: failure()
