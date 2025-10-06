@@ -42,7 +42,7 @@ do
           echo "Request successful but index not found."
         else
           echo "$response"
-          exit 1
+          # exit 1
         fi
       echo "deleting containter insights log group..."
       aws logs delete-log-group --region eu-west-1 --log-group-name /aws/ecs/containerinsights/"$workspace"/performance
