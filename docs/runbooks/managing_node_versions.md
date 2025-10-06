@@ -12,10 +12,10 @@ asdf install nodejs 18.7.0
 asdf local nodejs 18.7.0
 ```
 
-From here you can install Node dependencies with Yarn.
+From here you can install Node dependencies with pnpm.
 
 ```shell
-brew install yarn
+curl -fsSL https://get.pnpm.io/install.sh | sh -
 ```
 
 If you encounter unrecognised versions of node after adding them to asdf you may need reinstall yarn for node re-shims to be recognised:
