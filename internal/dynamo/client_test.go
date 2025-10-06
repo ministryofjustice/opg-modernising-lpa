@@ -764,8 +764,7 @@ func TestOneBySKWhenNotOneResult(t *testing.T) {
 			expectedError: NotFoundError{},
 		},
 		"multiple results": {
-			items:         []map[string]types.AttributeValue{data, data},
-			expectedError: errors.New("expected to resolve SK but got 2 items"),
+			items: []map[string]types.AttributeValue{data, data},
 		},
 	}
 

@@ -17,18 +17,20 @@ func TestMemberStoreCreateMemberInvite(t *testing.T) {
 
 	dynamoClient := newMockDynamoClient(t)
 	dynamoClient.EXPECT().
-		Create(ctx, &supporterdata.MemberInvite{
-			PK:               dynamo.OrganisationKey("an-id"),
-			SK:               dynamo.MemberInviteKey("email@example.com"),
-			CreatedAt:        testNow,
-			OrganisationID:   "a-uuid",
-			OrganisationName: "org name",
-			Email:            "email@example.com",
-			FirstNames:       "a",
-			LastName:         "b",
-			Permission:       supporterdata.PermissionNone,
-			InviteCode:       invitecode.HashedFromString("abcde"),
-		}).
+		WriteTransaction(ctx, dynamo.NewTransaction().
+			Create(&supporterdata.MemberInvite{
+				PK:               dynamo.OrganisationKey("an-id"),
+				SK:               dynamo.MemberInviteKey("email@example.com"),
+				CreatedAt:        testNow,
+				OrganisationID:   "a-uuid",
+				OrganisationName: "org name",
+				Email:            "email@example.com",
+				FirstNames:       "a",
+				LastName:         "b",
+				Permission:       supporterdata.PermissionNone,
+				InviteCode:       invitecode.HashedFromString("abcde"),
+			}).
+			Create(dynamo.ReservedSK(dynamo.MemberInviteKey("email@example.com")))).
 		Return(nil)
 
 	memberStore := &MemberStore{dynamoClient: dynamoClient, now: testNowFn}
@@ -104,7 +106,7 @@ func TestMemberStoreCreateMemberInviteWhenErrors(t *testing.T) {
 
 	dynamoClient := newMockDynamoClient(t)
 	dynamoClient.EXPECT().
-		Create(ctx, mock.Anything).
+		WriteTransaction(ctx, mock.Anything).
 		Return(expectedError)
 
 	memberStore := &MemberStore{dynamoClient: dynamoClient, now: testNowFn}
@@ -357,17 +359,15 @@ func TestMemberStoreCreate(t *testing.T) {
 
 	dynamoClient := newMockDynamoClient(t)
 	dynamoClient.EXPECT().
-		Create(ctx, expectedMember).
-		Return(nil).
-		Once()
-	dynamoClient.EXPECT().
-		Create(ctx, &organisationLink{
-			PK:       dynamo.OrganisationKey("a-uuid"),
-			SK:       dynamo.MemberIDKey("a-uuid"),
-			MemberSK: dynamo.MemberKey("session-id"),
-		}).
-		Return(nil).
-		Once()
+		WriteTransaction(ctx, dynamo.NewTransaction().
+			Create(expectedMember).
+			Create(&organisationLink{
+				PK:       dynamo.OrganisationKey("a-uuid"),
+				SK:       dynamo.MemberIDKey("a-uuid"),
+				MemberSK: dynamo.MemberKey("session-id"),
+			}).
+			Create(dynamo.ReservedSK(expectedMember.SK))).
+		Return(nil)
 
 	memberStore := &MemberStore{dynamoClient: dynamoClient, now: testNowFn, uuidString: func() string { return "a-uuid" }}
 
@@ -396,42 +396,15 @@ func TestMemberStoreCreateWhenSessionMissing(t *testing.T) {
 func TestMemberStoreCreateWhenDynamoErrors(t *testing.T) {
 	ctx := appcontext.ContextWithSession(context.Background(), &appcontext.Session{SessionID: "session-id", Email: "a"})
 
-	testcases := map[string]struct {
-		dynamoClientSetup func(*mockDynamoClient)
-	}{
-		"member": {
-			dynamoClientSetup: func(dynamoClient *mockDynamoClient) {
-				dynamoClient.EXPECT().
-					Create(ctx, mock.Anything).
-					Return(expectedError).
-					Once()
-			},
-		},
-		"link": {
-			dynamoClientSetup: func(dynamoClient *mockDynamoClient) {
-				dynamoClient.EXPECT().
-					Create(ctx, mock.Anything).
-					Return(nil).
-					Once()
-				dynamoClient.EXPECT().
-					Create(ctx, mock.Anything).
-					Return(expectedError).
-					Once()
-			},
-		},
-	}
+	dynamoClient := newMockDynamoClient(t)
+	dynamoClient.EXPECT().
+		WriteTransaction(mock.Anything, mock.Anything).
+		Return(expectedError)
 
-	for name, tc := range testcases {
-		t.Run(name, func(t *testing.T) {
-			dynamoClient := newMockDynamoClient(t)
-			tc.dynamoClientSetup(dynamoClient)
+	memberStore := &MemberStore{dynamoClient: dynamoClient, now: testNowFn, uuidString: func() string { return "a-uuid" }}
 
-			memberStore := &MemberStore{dynamoClient: dynamoClient, now: testNowFn, uuidString: func() string { return "a-uuid" }}
-
-			_, err := memberStore.Create(ctx, "a", "b")
-			assert.ErrorIs(t, err, expectedError)
-		})
-	}
+	_, err := memberStore.Create(ctx, "a", "b")
+	assert.ErrorIs(t, err, expectedError)
 }
 
 func TestMemberStoreCreateFromInvite(t *testing.T) {
@@ -449,32 +422,29 @@ func TestMemberStoreCreateFromInvite(t *testing.T) {
 
 	dynamoClient := newMockDynamoClient(t)
 	dynamoClient.EXPECT().
-		Create(ctx, &supporterdata.Member{
-			PK:             dynamo.OrganisationKey("org-id"),
-			SK:             dynamo.MemberKey("session-id"),
-			CreatedAt:      testNow,
-			UpdatedAt:      testNow,
-			ID:             "a-uuid",
-			OrganisationID: "org-id",
-			Email:          invite.Email,
-			FirstNames:     invite.FirstNames,
-			LastName:       invite.LastName,
-			Permission:     invite.Permission,
-			Status:         supporterdata.StatusActive,
-			LastLoggedInAt: testNow,
-		}).
-		Return(nil)
-
-	dynamoClient.EXPECT().
-		DeleteOne(ctx, dynamo.OrganisationKey("org-id"), dynamo.MemberInviteKey(invite.Email)).
-		Return(nil)
-
-	dynamoClient.EXPECT().
-		Create(ctx, &organisationLink{
-			PK:       dynamo.OrganisationKey("org-id"),
-			SK:       dynamo.MemberIDKey("a-uuid"),
-			MemberSK: dynamo.MemberKey("session-id"),
-		}).
+		WriteTransaction(ctx, dynamo.NewTransaction().
+			Create(&supporterdata.Member{
+				PK:             dynamo.OrganisationKey("org-id"),
+				SK:             dynamo.MemberKey("session-id"),
+				CreatedAt:      testNow,
+				UpdatedAt:      testNow,
+				ID:             "a-uuid",
+				OrganisationID: "org-id",
+				Email:          invite.Email,
+				FirstNames:     invite.FirstNames,
+				LastName:       invite.LastName,
+				Permission:     invite.Permission,
+				Status:         supporterdata.StatusActive,
+				LastLoggedInAt: testNow,
+			}).
+			Create(&organisationLink{
+				PK:       dynamo.OrganisationKey("org-id"),
+				SK:       dynamo.MemberIDKey("a-uuid"),
+				MemberSK: dynamo.MemberKey("session-id"),
+			}).
+			Delete(dynamo.Keys{PK: dynamo.OrganisationKey("org-id"), SK: dynamo.MemberInviteKey(invite.Email)}).
+			Delete(dynamo.ReservedSK(dynamo.MemberInviteKey(invite.Email))).
+			Create(dynamo.ReservedSK(dynamo.MemberKey("session-id")))).
 		Return(nil)
 
 	memberStore := &MemberStore{dynamoClient: dynamoClient, now: testNowFn, uuidString: func() string { return "a-uuid" }}
@@ -500,50 +470,17 @@ func TestMemberStoreCreateFromInviteWhenSessionMissing(t *testing.T) {
 }
 
 func TestMemberStoreCreateFromInviteWhenDynamoErrors(t *testing.T) {
-	testcases := map[string]struct {
-		createMemberError error
-		deleteOneError    error
-		createLinkError   error
-	}{
-		"Create member error": {
-			createMemberError: expectedError,
-		},
-		"DeleteOne error": {
-			deleteOneError: expectedError,
-		},
-		"Create link error": {
-			createLinkError: expectedError,
-		},
-	}
+	ctx := appcontext.ContextWithSession(context.Background(), &appcontext.Session{SessionID: "session-id"})
 
-	for name, tc := range testcases {
-		t.Run(name, func(t *testing.T) {
-			ctx := appcontext.ContextWithSession(context.Background(), &appcontext.Session{SessionID: "session-id"})
+	dynamoClient := newMockDynamoClient(t)
+	dynamoClient.EXPECT().
+		WriteTransaction(ctx, mock.Anything).
+		Return(expectedError)
 
-			dynamoClient := newMockDynamoClient(t)
-			dynamoClient.EXPECT().
-				Create(ctx, mock.Anything).
-				Return(tc.createMemberError).
-				Once()
+	memberStore := &MemberStore{dynamoClient: dynamoClient, now: testNowFn, uuidString: func() string { return "a-uuid" }}
 
-			if tc.deleteOneError != nil || tc.createLinkError != nil {
-				dynamoClient.EXPECT().
-					DeleteOne(ctx, mock.Anything, mock.Anything).
-					Return(tc.deleteOneError)
-			}
-
-			if tc.createLinkError != nil {
-				dynamoClient.EXPECT().
-					Create(mock.Anything, mock.Anything).
-					Return(tc.createLinkError).
-					Once()
-			}
-			memberStore := &MemberStore{dynamoClient: dynamoClient, now: testNowFn, uuidString: func() string { return "a-uuid" }}
-
-			err := memberStore.CreateFromInvite(ctx, &supporterdata.MemberInvite{})
-			assert.Error(t, err)
-		})
-	}
+	err := memberStore.CreateFromInvite(ctx, &supporterdata.MemberInvite{})
+	assert.ErrorIs(t, err, expectedError)
 }
 
 func TestMemberStoreGetByID(t *testing.T) {
