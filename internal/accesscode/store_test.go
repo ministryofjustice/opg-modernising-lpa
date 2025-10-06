@@ -538,6 +538,7 @@ func TestAccessCodeStorePutDonorAccess(t *testing.T) {
 			InviteSentTo: "john@example.com",
 			InviteSentAt: testNow,
 		}).
+		Create(dynamo.ReservedSK(accessCode.SK)).
 		Create(accesscodedata.ActorAccess{
 			PK:           dynamo.ActorAccessKey(actorUID.String()),
 			SK:           dynamo.MetadataKey(actorUID.String()),
@@ -618,7 +619,8 @@ func TestAccessCodeStoreDeleteDonorAccess(t *testing.T) {
 	transaction := dynamo.NewTransaction().
 		Delete(dynamo.Keys{PK: supporterLink.PK, SK: supporterLink.SK}).
 		Delete(dynamo.Keys{PK: accessCode.PK, SK: accessCode.SK}).
-		Delete(dynamo.Keys{PK: dynamo.ActorAccessKey(accessCode.ActorUID.String()), SK: dynamo.MetadataKey(accessCode.ActorUID.String())})
+		Delete(dynamo.Keys{PK: dynamo.ActorAccessKey(accessCode.ActorUID.String()), SK: dynamo.MetadataKey(accessCode.ActorUID.String())}).
+		Delete(dynamo.ReservedSK(accessCode.SK))
 
 	dynamoClient := newMockDynamoClient(t)
 	dynamoClient.EXPECT().
