@@ -27,28 +27,27 @@ do
     *)
       echo "cleaning up workspace $workspace..."
       terraform workspace select "$workspace"
-      # terraform destroy -auto-approve
       if ! terraform destroy -auto-approve; then
         TF_EXIT_CODE=1
       fi
       echo "deleting opensearch index..."
-      # response=$(awscurl \
-      #   "${DEVELOPMENT_OPENSEARCH_COLLECTION_ENDPOINT}/lpas_v2_$workspace" \
-      #   --request DELETE \
-      #   --region eu-west-1 \
-      #   --service aoss)
-      #   if [[ $response == *'"acknowledged":true'* ]]; then
-      #     echo "Request successful."
-      #   elif [[ $response == *'"status":404'* ]]; then
-      #     echo "Request successful but index not found."
-      #   else
-      #     echo "$response"
-      #     exit 1
-      #   fi
+      response=$(awscurl \
+        "${DEVELOPMENT_OPENSEARCH_COLLECTION_ENDPOINT}/lpas_v2_$workspace" \
+        --request DELETE \
+        --region eu-west-1 \
+        --service aoss)
+        if [[ $response == *'"acknowledged":true'* ]]; then
+          echo "Request successful."
+        elif [[ $response == *'"status":404'* ]]; then
+          echo "Request successful but index not found."
+        else
+          echo "$response"
+          exit 1
+        fi
       echo "deleting containter insights log group..."
       aws logs delete-log-group --region eu-west-1 --log-group-name /aws/ecs/containerinsights/"$workspace"/performance
       terraform workspace select default
-      # terraform workspace delete "$workspace"
+      terraform workspace delete "$workspace"
       ;;
   esac
 done
