@@ -153,15 +153,18 @@ func (s *Store) PutDonorAccess(ctx context.Context, accessCode accesscodedata.Ha
 		ShareSortKey: data.SK,
 	}
 
+	link := supporterdata.LpaLink{
+		PK:           data.LpaKey,
+		SK:           dynamo.OrganisationLinkKey(organisationKey.ID()),
+		InviteKey:    dynamo.DonorInviteKey(organisationKey, data.LpaKey),
+		InviteSentTo: inviteSentTo,
+		InviteSentAt: s.now(),
+	}
+
 	transaction := dynamo.NewTransaction().
 		Create(data).
-		Create(supporterdata.LpaLink{
-			PK:           data.LpaKey,
-			SK:           dynamo.OrganisationLinkKey(organisationKey.ID()),
-			InviteKey:    dynamo.DonorInviteKey(organisationKey, data.LpaKey),
-			InviteSentTo: inviteSentTo,
-			InviteSentAt: s.now(),
-		})
+		Create(link).
+		Create(dynamo.ReservedSK(data.SK))
 
 	s.withActorAccess(ctx, transaction, data.ActorUID, newActorAccess)
 
@@ -181,7 +184,8 @@ func (s *Store) DeleteDonorAccess(ctx context.Context, supporterLink supporterda
 			Delete(dynamo.Keys{
 				PK: dynamo.ActorAccessKey(accessLink.ActorUID.String()),
 				SK: dynamo.MetadataKey(accessLink.ActorUID.String()),
-			})
+			}).
+			Delete(dynamo.ReservedSK(accessLink.SK))
 	}
 
 	return s.dynamoClient.WriteTransaction(ctx, transaction)

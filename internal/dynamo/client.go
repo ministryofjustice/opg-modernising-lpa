@@ -166,10 +166,6 @@ func (c *Client) OneBySK(ctx context.Context, sk SK, v interface{}) error {
 		return NotFoundError{}
 	}
 
-	if len(response.Items) > 1 {
-		return fmt.Errorf("expected to resolve SK but got %d items", len(response.Items))
-	}
-
 	return attributevalue.UnmarshalMap(response.Items[0], v)
 }
 
