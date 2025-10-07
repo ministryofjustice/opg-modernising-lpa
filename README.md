@@ -15,14 +15,14 @@ Documentation for the service can be found [in the /docs/ folder](./docs/README.
 ### Prerequisites
 
 * Docker and docker-compose
-* Nodejs and pnpm
+* Nodejs and npm
 
 ### Installation
 
 Install dependencies for development
 
 ```shell
-pnpm install
+npm install
 ```
 
 Bring the service up
