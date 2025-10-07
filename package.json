@@ -3,7 +3,7 @@
     "version": "0.0.1",
     "type": "module",
     "scripts": {
-        "build": "pnpm run --parallel \"/build:.*/\"",
+        "build": "npm run build:js && npm run build:fixtures-js && npm run build:css && npm run build:images && npm run build:fonts",
         "build:js": "node_modules/.bin/esbuild --bundle web/assets/main.js --minify --outdir=web/static/javascript --sourcemap --resolve-extensions=.mjs,.js",
         "build:fixtures-js": "node_modules/.bin/esbuild --bundle web/assets/fixtures.js --minify --outdir=web/static/javascript --sourcemap --resolve-extensions=.mjs,.js",
         "build:css": "node_modules/.bin/sass --load-path . --style compressed web/assets/main.scss web/static/stylesheets/all.css",
@@ -43,5 +43,5 @@
     "engines": {
         "node": "22.20.0"
     },
-    "packageManager": "pnpm@10.18.0+sha512.e804f889f1cecc40d572db084eec3e4881739f8dec69c0ff10d2d1beff9a4e309383ba27b5b750059d7f4c149535b6cd0d2cb1ed3aeb739239a4284a68f40cfa"
+    "packageManager": "npm@11.6.1+sha512.ee20d21c3a2ea7ab8c409dfbc96ae17ea71b3211745047c645aa7a36ff9a29072b2095e50a2d9c29b8fbe5606688795cc2c402cbf534cc4c0365d031e87fd56b"
 }

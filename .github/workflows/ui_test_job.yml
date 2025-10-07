@@ -114,21 +114,15 @@ jobs:
         if: inputs.run_against_image != true
         run: python ./scripts/ci_ingress/ci_ingress.py ${{ inputs.environment_config_json}} --add
 
-      - uses: pnpm/action-setup@v4
-        name: Install pnpm
-        with:
-          run_install: false
-
       - name: Setup node
         uses: actions/setup-node@a0853c24544627f65ddf259abe73b1d18a591444 # v5.0.0
         if: inputs.skip != true
         with:
           node-version-file: "package.json"
-          cache: 'pnpm'
 
       - name: Install dependencies
         if: inputs.skip != true
-        run: pnpm install --frozen-lockfile
+        run: npm install --frozen-lockfile
 
       - name: Cypress run
         if: inputs.skip != true
@@ -140,7 +134,7 @@ jobs:
           CYPRESS_TEST_ONELOGIN_PASSWORD: ${{ secrets.test_onelogin_password }}
           GITHUB_TOKEN: ${{ secrets.github_access_token }}
         run:
-          pnpm run cypress:parallel-with-specs --spec ${{ inputs.specs }} ${{ inputs.dev_mode != '1' && '--env grepTags=-@dev,grepFilterSpecs=true' || '' }}
+          npm run cypress:parallel-with-specs -- --spec ${{ inputs.specs }} ${{ inputs.dev_mode != '1' && '--env grepTags=-@dev,grepFilterSpecs=true' || '' }}
 
       - name: Persist Cypress failure screenshots as artifacts
         if: failure()
