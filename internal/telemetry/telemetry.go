@@ -5,6 +5,7 @@ package telemetry
 import (
 	"context"
 	"fmt"
+	"log/slog"
 	"net/http"
 	"strings"
 
@@ -66,7 +67,7 @@ func SetupLambda(ctx context.Context, apiOptions *[]func(*middleware.Stack) erro
 	return tp, nil
 }
 
-func WrapHandler(handler http.Handler) http.HandlerFunc {
+func WrapHandler(logger *slog.Logger, handler http.Handler) http.HandlerFunc {
 	tracer := otel.GetTracerProvider().Tracer("mlpab")
 
 	return func(w http.ResponseWriter, r *http.Request) {
@@ -97,5 +98,11 @@ func WrapHandler(handler http.Handler) http.HandlerFunc {
 		span.SetAttributes(semconv.HTTPAttributesFromHTTPStatusCode(m.Code)...)
 		span.SetStatus(semconv.SpanStatusFromHTTPStatusCodeAndSpanKind(m.Code, trace.SpanKindServer))
 		span.SetAttributes(semconv.HTTPResponseContentLengthKey.Int64(m.Written))
+
+		logger.InfoContext(ctx, "http request handled", slog.Any("req", r), slog.Group("resp",
+			slog.Int("code", m.Code),
+			slog.Any("ms", m.Duration.Milliseconds()),
+			slog.Any("bytes", m.Written),
+		))
 	}
 }
