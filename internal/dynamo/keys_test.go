@@ -42,6 +42,7 @@ func TestPK(t *testing.T) {
 		"ReuseKey":                     {ReuseKey("S", "T"), "REUSE#S#T"},
 		"ActorAccessKey":               {ActorAccessKey("S"), "ACTORACCESS#S"},
 		"AccessLimiterKey":             {AccessLimiterKey("S"), "ACCESSLIMITER#S"},
+		"skAsPK":                       {skAsPK(SubKey("S")), "SKASPK#SUB#S"},
 	}
 
 	for name, tc := range testcases {
@@ -161,4 +162,12 @@ func TestCertificateProviderKeyTypeSub(t *testing.T) {
 
 func TestOrganisationLinkKeyID(t *testing.T) {
 	assert.Equal(t, "some-id", OrganisationLinkKey("some-id").ID())
+}
+
+func TestReservedSK(t *testing.T) {
+	key := MemberInviteKey("what")
+	assert.Equal(t, Keys{PK: skAsPK(key), SK: MetadataKey("MEMBERINVITE#d2hhdA==")}, ReservedSK(key))
+
+	nestedKey := AccessSortKey(DonorInviteKey(OrganisationKey("org-id"), LpaKey("lpa-id")))
+	assert.Equal(t, Keys{PK: skAsPK(nestedKey), SK: MetadataKey("DONORINVITE#org-id#lpa-id")}, ReservedSK(nestedKey))
 }

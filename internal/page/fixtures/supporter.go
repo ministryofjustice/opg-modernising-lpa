@@ -107,6 +107,21 @@ func Supporter(
 			})
 		}
 
+		if email := r.FormValue("clearInvites"); email != "" {
+			emailCtx := appcontext.ContextWithSession(context.Background(), &appcontext.Session{Email: email})
+
+			invites, err := memberStore.InvitedMembersByEmail(emailCtx)
+			if err != nil {
+				return fmt.Errorf("clearInvites retrieve invited members: %w", err)
+			}
+
+			for _, invite := range invites {
+				if err := memberStore.DeleteMemberInvite(context.Background(), invite.OrganisationID, invite.Email); err != nil {
+					return fmt.Errorf("clearInvites delete invite: %w", err)
+				}
+			}
+		}
+
 		if organisation == "1" {
 			member, err := memberStore.Create(supporterCtx, random.AlphaNumeric(12), random.AlphaNumeric(12))
 			if err != nil {
