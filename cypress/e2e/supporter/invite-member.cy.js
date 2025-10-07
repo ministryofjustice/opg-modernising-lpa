@@ -2,7 +2,7 @@ const { TestEmail } = require("../../support/e2e");
 
 describe('Invite member', () => {
     beforeEach(() => {
-        cy.visit('/fixtures/supporter?organisation=1&redirect=/invite-member');
+        cy.visit(`/fixtures/supporter?organisation=1&redirect=/invite-member&clearInvites=${TestEmail}`);
     });
 
     it('can invite a member', () => {

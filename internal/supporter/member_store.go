@@ -63,7 +63,11 @@ func (s *MemberStore) CreateMemberInvite(ctx context.Context, organisation *supp
 		InviteCode:       inviteCode,
 	}
 
-	if err := s.dynamoClient.Create(ctx, invite); err != nil {
+	transaction := dynamo.NewTransaction().
+		Create(invite).
+		Create(dynamo.ReservedSK(invite.SK))
+
+	if err := s.dynamoClient.WriteTransaction(ctx, transaction); err != nil {
 		return fmt.Errorf("error creating member invite: %w", err)
 	}
 
@@ -71,7 +75,13 @@ func (s *MemberStore) CreateMemberInvite(ctx context.Context, organisation *supp
 }
 
 func (s *MemberStore) DeleteMemberInvite(ctx context.Context, organisationID, email string) error {
-	if err := s.dynamoClient.DeleteOne(ctx, dynamo.OrganisationKey(organisationID), dynamo.MemberInviteKey(email)); err != nil {
+	invite := dynamo.Keys{PK: dynamo.OrganisationKey(organisationID), SK: dynamo.MemberInviteKey(email)}
+
+	transaction := dynamo.NewTransaction().
+		Delete(invite).
+		Delete(dynamo.ReservedSK(invite.SK))
+
+	if err := s.dynamoClient.WriteTransaction(ctx, transaction); err != nil {
 		return fmt.Errorf("error deleting member invite: %w", err)
 	}
 
@@ -109,18 +119,21 @@ func (s *MemberStore) Create(ctx context.Context, firstNames, lastName string) (
 		LastLoggedInAt: s.now(),
 	}
 
-	if err := s.dynamoClient.Create(ctx, member); err != nil {
-		return nil, fmt.Errorf("error creating member: %w", err)
-	}
-
 	link := &organisationLink{
 		PK:       member.PK,
 		SK:       dynamo.MemberIDKey(member.ID),
 		MemberSK: member.SK,
 	}
 
-	if err := s.dynamoClient.Create(ctx, link); err != nil {
-		return nil, fmt.Errorf("error creating organisation link: %w", err)
+	transaction := dynamo.NewTransaction().
+		Create(member).
+		Create(link).
+		// In GetAny and OrganisationStore.Get we rely on there being only one
+		// member per session ID. This assumption may need to change in the future.
+		Create(dynamo.ReservedSK(member.SK))
+
+	if err := s.dynamoClient.WriteTransaction(ctx, transaction); err != nil {
+		return nil, fmt.Errorf("error creating member: %w", err)
 	}
 
 	return member, nil
@@ -150,22 +163,23 @@ func (s *MemberStore) CreateFromInvite(ctx context.Context, invite *supporterdat
 		LastLoggedInAt: s.now(),
 	}
 
-	if err := s.dynamoClient.Create(ctx, member); err != nil {
-		return fmt.Errorf("error creating organisation member: %w", err)
-	}
-
-	if err := s.DeleteMemberInvite(ctx, invite.OrganisationID, invite.Email); err != nil {
-		return err
-	}
-
 	link := &organisationLink{
 		PK:       member.PK,
 		SK:       dynamo.MemberIDKey(member.ID),
 		MemberSK: member.SK,
 	}
 
-	if err := s.dynamoClient.Create(ctx, link); err != nil {
-		return fmt.Errorf("error creating organisation link: %w", err)
+	transaction := dynamo.NewTransaction().
+		Create(member).
+		Create(link).
+		Delete(dynamo.Keys{PK: dynamo.OrganisationKey(invite.OrganisationID), SK: dynamo.MemberInviteKey(invite.Email)}).
+		Delete(dynamo.ReservedSK(invite.SK)).
+		// In GetAny and OrganisationStore.Get we rely on there being only one
+		// member per session ID. This assumption may need to change in the future.
+		Create(dynamo.ReservedSK(member.SK))
+
+	if err := s.dynamoClient.WriteTransaction(ctx, transaction); err != nil {
+		return fmt.Errorf("error creating member from invite: %w", err)
 	}
 
 	return nil

@@ -37,6 +37,7 @@ const (
 	actorAccessPrefix               = "ACTORACCESS"
 	accessLimiterPrefix             = "ACCESSLIMITER"
 	organisationLinkPrefix          = "ORGANISATIONLINK"
+	skAsPKPrefix                    = "SKASPK"
 )
 
 func readKey(s string) (any, error) {
@@ -102,6 +103,8 @@ func readKey(s string) (any, error) {
 		return AccessLimiterKeyType(s), nil
 	case organisationLinkPrefix:
 		return OrganisationLinkKeyType(s), nil
+	case skAsPKPrefix:
+		return skAsPKType(s), nil
 	default:
 		return nil, errors.New("unknown key prefix")
 	}
@@ -414,4 +417,19 @@ func (t OrganisationLinkKeyType) ID() string { return t.SK()[len(organisationLin
 // on the donor who accessed a supported LPA.
 func OrganisationLinkKey(id string) OrganisationLinkKeyType {
 	return OrganisationLinkKeyType(organisationLinkPrefix + "#" + id)
+}
+
+type skAsPKType string
+
+func (t skAsPKType) PK() string { return string(t) }
+
+// skAsPK is a utility to allow an SK to be used as a PK. It is prefixed so that
+// if in the future the key is needed for both, we don't get mixed up.
+func skAsPK(sk SK) skAsPKType {
+	return skAsPKType(skAsPKPrefix + "#" + sk.SK())
+}
+
+// ReservedSK returns Keys that can be used to prevent re-use of a specific SK.
+func ReservedSK(sk SK) Keys {
+	return Keys{PK: skAsPK(sk), SK: MetadataKey(sk.SK())}
 }
