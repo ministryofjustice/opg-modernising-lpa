@@ -230,7 +230,7 @@ func TestLpaStoreEventHandlerHandleLpaUpdatedCreateWhenPaperDonorWithNoMobile(t 
 	assert.Nil(t, err)
 }
 
-func TestLpaStoreEventHandlerHandleLpaUpdatedCreateWhenPaperDonorAndNotifyErrors(t *testing.T) {
+func TestHandleCreateWhenPaperDonorAndNotifyErrors(t *testing.T) {
 	lpa := &lpadata.Lpa{
 		Type: lpadata.LpaTypePersonalWelfare,
 		Donor: lpadata.Donor{
@@ -264,7 +264,7 @@ func TestLpaStoreEventHandlerHandleLpaUpdatedCreateWhenPaperDonorAndNotifyErrors
 	assert.ErrorIs(t, err, expectedError)
 }
 
-func TestLpaStoreEventHandlerHandleLpaUpdatedCreateWhenLpaStoreErrors(t *testing.T) {
+func TestHandleCreateWhenLpaStoreErrors(t *testing.T) {
 	lpaStoreClient := newMockLpaStoreClient(t)
 	lpaStoreClient.EXPECT().
 		Lpa(mock.Anything, mock.Anything).
@@ -274,7 +274,7 @@ func TestLpaStoreEventHandlerHandleLpaUpdatedCreateWhenLpaStoreErrors(t *testing
 	assert.ErrorIs(t, err, expectedError)
 }
 
-func TestLpaStoreEventHandlerHandleLpaUpdatedCreateWhenDonorStoreErrors(t *testing.T) {
+func TestHandleCreateWhenDonorStoreErrors(t *testing.T) {
 	testcases := map[string]func(*mockDynamodbClient){
 		"first": func(client *mockDynamodbClient) {
 			client.EXPECT().
@@ -323,7 +323,7 @@ func TestLpaStoreEventHandlerHandleLpaUpdatedCreateWhenDonorStoreErrors(t *testi
 	}
 }
 
-func TestLpaStoreEventHandlerHandleLpaUpdatedCreateWhenNotifyErrors(t *testing.T) {
+func TestHandleCreateWhenNotifyErrors(t *testing.T) {
 	lpa := &lpadata.Lpa{
 		Type: lpadata.LpaTypePersonalWelfare,
 		Donor: lpadata.Donor{
@@ -580,7 +580,7 @@ func TestLpaStoreEventHandlerHandleLpaUpdatedCertificateProviderSignWhenPaperDon
 	assert.Nil(t, err)
 }
 
-func TestLpaStoreEventHandlerHandleLpaUpdatedCertificateProviderSignWhenPaperDonorAndNotifyErrors(t *testing.T) {
+func TestHandleCertificateProviderSignWhenPaperDonorAndNotifyErrors(t *testing.T) {
 	lpa := &lpadata.Lpa{
 		Type: lpadata.LpaTypePersonalWelfare,
 		Donor: lpadata.Donor{
@@ -614,7 +614,7 @@ func TestLpaStoreEventHandlerHandleLpaUpdatedCertificateProviderSignWhenPaperDon
 	assert.ErrorIs(t, err, expectedError)
 }
 
-func TestLpaStoreEventHandlerHandleLpaUpdatedCertificateProviderSignWhenLpaStoreErrors(t *testing.T) {
+func TestHandleCertificateProviderSignWhenLpaStoreErrors(t *testing.T) {
 	lpaStoreClient := newMockLpaStoreClient(t)
 	lpaStoreClient.EXPECT().
 		Lpa(mock.Anything, mock.Anything).
@@ -624,7 +624,7 @@ func TestLpaStoreEventHandlerHandleLpaUpdatedCertificateProviderSignWhenLpaStore
 	assert.ErrorIs(t, err, expectedError)
 }
 
-func TestLpaStoreEventHandlerHandleLpaUpdatedCertificateProviderSignWhenDonorStoreErrors(t *testing.T) {
+func TestHandleCertificateProviderSignWhenDonorStoreErrors(t *testing.T) {
 	testcases := map[string]func(*mockDynamodbClient){
 		"first": func(client *mockDynamodbClient) {
 			client.EXPECT().
@@ -673,7 +673,7 @@ func TestLpaStoreEventHandlerHandleLpaUpdatedCertificateProviderSignWhenDonorSto
 	}
 }
 
-func TestLpaStoreEventHandlerHandleLpaUpdatedCertificateProviderSignWhenNotifyErrors(t *testing.T) {
+func TestHandleCertificateProviderSignWhenNotifyErrors(t *testing.T) {
 	lpa := &lpadata.Lpa{
 		Type: lpadata.LpaTypePersonalWelfare,
 		Donor: lpadata.Donor{
@@ -815,7 +815,7 @@ func TestLpaStoreEventHandlerHandleLpaUpdatedRegisterWhenErrorCreatingLpaStore(t
 	assert.ErrorIs(t, err, expectedError)
 }
 
-func TestLpaStoreEventHandlerHandleLpaUpdatedRegisterWhenLpaStoreErrors(t *testing.T) {
+func TestHandleRegisterWhenLpaStoreErrors(t *testing.T) {
 	lpaStoreClient := newMockLpaStoreClient(t)
 	lpaStoreClient.EXPECT().
 		Lpa(mock.Anything, mock.Anything).
@@ -825,7 +825,7 @@ func TestLpaStoreEventHandlerHandleLpaUpdatedRegisterWhenLpaStoreErrors(t *testi
 	assert.ErrorIs(t, err, expectedError)
 }
 
-func TestLpaStoreEventHandlerHandleLpaUpdatedRegisterWhenDynamoErrors(t *testing.T) {
+func TestHandleRegisterWhenDynamoErrors(t *testing.T) {
 	lpaStoreClient := newMockLpaStoreClient(t)
 	lpaStoreClient.EXPECT().
 		Lpa(mock.Anything, mock.Anything).
@@ -840,7 +840,7 @@ func TestLpaStoreEventHandlerHandleLpaUpdatedRegisterWhenDynamoErrors(t *testing
 	assert.ErrorIs(t, err, expectedError)
 }
 
-func TestLpaStoreEventHandlerHandleLpaUpdatedRegisterWhenAllByKeysErrors(t *testing.T) {
+func TestHandleRegisterWhenAllByKeysErrors(t *testing.T) {
 	lpaStoreClient := newMockLpaStoreClient(t)
 	lpaStoreClient.EXPECT().
 		Lpa(mock.Anything, mock.Anything).
@@ -858,7 +858,7 @@ func TestLpaStoreEventHandlerHandleLpaUpdatedRegisterWhenAllByKeysErrors(t *test
 	assert.ErrorIs(t, err, expectedError)
 }
 
-func TestLpaStoreEventHandlerHandleLpaUpdatedRegisterWhenEventClientErrors(t *testing.T) {
+func TestHandleRegisterWhenEventClientErrors(t *testing.T) {
 	lpaStoreClient := newMockLpaStoreClient(t)
 	lpaStoreClient.EXPECT().
 		Lpa(mock.Anything, mock.Anything).
@@ -917,14 +917,33 @@ func TestLpaStoreEventHandlerHandleLpaUpdatedStatutoryWaitingPeriod(t *testing.T
 	assert.Nil(t, err)
 }
 
-func TestHandleStatutoryWaitingPeriodWhenDynamoErrors(t *testing.T) {
-	updated := &donordata.Provided{
-		PK:                       dynamo.LpaKey("123"),
-		SK:                       dynamo.LpaOwnerKey(dynamo.DonorKey("456")),
-		StatutoryWaitingPeriodAt: testNow,
-		UpdatedAt:                testNow,
+func TestHandleStatutoryWaitingPeriodWhenAlreadySet(t *testing.T) {
+	event := lpaUpdatedEvent{
+		UID:        "M-1111-2222-3333",
+		ChangeType: "STATUTORY_WAITING_PERIOD",
 	}
-	updated.UpdateHash()
+
+	dynamoClient := newMockDynamodbClient(t)
+	dynamoClient.EXPECT().
+		OneByUID(mock.Anything, mock.Anything).
+		Return(dynamo.Keys{PK: dynamo.LpaKey("pk"), SK: dynamo.DonorKey("sk")}, nil)
+	dynamoClient.EXPECT().
+		One(mock.Anything, mock.Anything, mock.Anything, mock.Anything).
+		Return(nil).
+		SetData(&donordata.Provided{
+			StatutoryWaitingPeriodAt: testNow,
+		})
+
+	err := handleStatutoryWaitingPeriod(ctx, dynamoClient, testNowFn, event)
+	assert.Nil(t, err)
+}
+
+func TestHandleStatutoryWaitingPeriodWhenDynamoErrors(t *testing.T) {
+	provided := &donordata.Provided{
+		PK:        dynamo.LpaKey("123"),
+		SK:        dynamo.LpaOwnerKey(dynamo.DonorKey("456")),
+		UpdatedAt: testNow,
+	}
 
 	testcases := map[string]struct {
 		dynamoClient  func() *mockDynamodbClient
@@ -964,9 +983,9 @@ func TestHandleStatutoryWaitingPeriodWhenDynamoErrors(t *testing.T) {
 				client.EXPECT().
 					One(mock.Anything, mock.Anything, mock.Anything, mock.Anything).
 					Return(nil).
-					SetData(updated)
+					SetData(provided)
 				client.EXPECT().
-					Put(mock.Anything, updated).
+					Put(mock.Anything, mock.Anything).
 					Return(expectedError)
 
 				return client
@@ -1093,7 +1112,50 @@ func TestLpaStoreEventHandlerHandleLpaUpdatedOpgStatusChangeWhenFactoryErrors(t 
 	assert.ErrorIs(t, err, expectedError)
 }
 
-func TestOpgStatusChangeWhenNotDoNotRegister(t *testing.T) {
+func TestHandleOpgStatusChangeWhenAlreadySet(t *testing.T) {
+	testcases := map[lpadata.Status]*donordata.Provided{
+		lpadata.StatusDoNotRegister: {
+			PK:              dynamo.LpaKey("123"),
+			SK:              dynamo.LpaOwnerKey(dynamo.DonorKey("456")),
+			DoNotRegisterAt: testNow,
+			UpdatedAt:       testNow,
+		},
+		lpadata.StatusWithdrawn: {
+			PK:          dynamo.LpaKey("123"),
+			SK:          dynamo.LpaOwnerKey(dynamo.DonorKey("456")),
+			WithdrawnAt: testNow,
+			UpdatedAt:   testNow,
+		},
+	}
+
+	for status, provided := range testcases {
+		t.Run(status.String(), func(t *testing.T) {
+			dynamodbClient := newMockDynamodbClient(t)
+			dynamodbClient.EXPECT().
+				OneByUID(mock.Anything, mock.Anything).
+				Return(dynamo.Keys{PK: dynamo.LpaKey("pk"), SK: dynamo.DonorKey("sk")}, nil)
+			dynamodbClient.EXPECT().
+				One(mock.Anything, mock.Anything, mock.Anything, mock.Anything).
+				Return(nil).
+				SetData(provided)
+
+			lpaStoreClient := newMockLpaStoreClient(t)
+			lpaStoreClient.EXPECT().
+				Lpa(mock.Anything, mock.Anything).
+				Return(&lpadata.Lpa{Status: status}, nil)
+
+			event := lpaUpdatedEvent{
+				UID:        "M-1111-2222-3333",
+				ChangeType: "OPG_STATUS_CHANGE",
+			}
+
+			err := handleOpgStatusChange(ctx, dynamodbClient, lpaStoreClient, testNowFn, event)
+			assert.Nil(t, err)
+		})
+	}
+}
+
+func TestHandleOpgStatusChangeWhenNotDoNotRegister(t *testing.T) {
 	dynamodbClient := newMockDynamodbClient(t)
 	dynamodbClient.EXPECT().
 		OneByUID(mock.Anything, mock.Anything).
@@ -1116,7 +1178,7 @@ func TestOpgStatusChangeWhenNotDoNotRegister(t *testing.T) {
 	assert.Nil(t, err)
 }
 
-func TestOpgStatusChangeWhenErrors(t *testing.T) {
+func TestHandleOpgStatusChangeWhenErrors(t *testing.T) {
 	testcases := map[string]struct {
 		dynamoClient   func(*testing.T) *mockDynamodbClient
 		lpaStoreClient func(*testing.T) *mockLpaStoreClient

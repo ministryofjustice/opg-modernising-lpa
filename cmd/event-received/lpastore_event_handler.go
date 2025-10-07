@@ -224,6 +224,10 @@ func handleStatutoryWaitingPeriod(ctx context.Context, client dynamodbClient, no
 		return err
 	}
 
+	if !donor.StatutoryWaitingPeriodAt.IsZero() {
+		return nil
+	}
+
 	donor.StatutoryWaitingPeriodAt = now()
 
 	if err := putDonor(ctx, donor, now, client); err != nil {
@@ -250,8 +254,16 @@ func handleOpgStatusChange(ctx context.Context, client dynamodbClient, lpaStoreC
 
 	switch lpa.Status {
 	case lpadata.StatusDoNotRegister:
+		if !donor.DoNotRegisterAt.IsZero() {
+			return nil
+		}
+
 		donor.DoNotRegisterAt = now()
 	case lpadata.StatusWithdrawn:
+		if !donor.WithdrawnAt.IsZero() {
+			return nil
+		}
+
 		donor.WithdrawnAt = now()
 	default:
 		return nil
