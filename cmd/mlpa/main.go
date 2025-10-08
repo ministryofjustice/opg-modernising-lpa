@@ -364,7 +364,7 @@ func run(ctx context.Context, logger *slog.Logger) error {
 
 	var handler http.Handler = mux
 	if xrayEnabled {
-		handler = telemetry.WrapHandler(mux)
+		handler = telemetry.WrapHandler(logger, mux)
 	}
 	handler = withSecurityHeaders(handler)
 

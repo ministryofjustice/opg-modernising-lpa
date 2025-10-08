@@ -28,7 +28,7 @@ resource "aws_cloudwatch_query_definition" "app_container_messages" {
   query_string = <<EOF
 fields @timestamp, level, msg, err, concat(req.method, " ", req.uri) as request
 | filter @message not like "ELB-HealthChecker"
-| filter @logStream not like /(?i)(mock_onelogin|aws-otel-collector)/
+| filter @logStream not like /(?i)(mock_|aws-otel-collector)/
 | sort @timestamp desc
 EOF
   provider     = aws.region
