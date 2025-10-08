@@ -15,14 +15,14 @@ Documentation for the service can be found [in the /docs/ folder](./docs/README.
 ### Prerequisites
 
 * Docker and docker-compose
-* Nodejs and Yarn
+* Nodejs and npm
 
 ### Installation
 
 Install dependencies for development
 
 ```shell
-yarn install
+npm install
 ```
 
 Bring the service up

@@ -65,16 +65,16 @@ pull-latest-mock-onelogin: ## @build logs in to management AWS account and pulls
 
 run-cypress: ##@testing Runs cypress e2e tests. To run a specific spec file pass in spec e.g. make run-cypress spec=start
 ifdef spec
-	yarn run cypress:run --spec "cypress/e2e/$(spec).cy.js"
+	npm run cypress:run -- --spec "cypress/e2e/$(spec).cy.js"
 else
-	yarn run cypress:run
+	npm run cypress:run
 endif
 
 run-cypress-headed: ##@testing Runs cypress e2e tests in a browser. To run a specific spec file pass in spec e.g. make run-cypress spec=start
 ifdef spec
-	yarn run cypress:run --spec "cypress/e2e/$(spec).cy.js" --headed --no-exit
+	npm run cypress:run -- --spec "cypress/e2e/$(spec).cy.js" --headed --no-exit
 else
-	yarn run cypress:run --headed --no-exit
+	npm run cypress:run --headed --no-exit
 endif
 
 update-secrets-baseline: ##@security Updates detect-secrets baseline file for false possible and dummy secrets added to version control (requires yelp/detect-secrets local installation)

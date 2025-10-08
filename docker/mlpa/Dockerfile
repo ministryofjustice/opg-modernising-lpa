@@ -6,11 +6,12 @@ FROM node:22.20.0-alpine3.21@sha256:b1ab5252ffe4191d7b8728606c5b943fc78d6e306950
 
 WORKDIR /app
 
-COPY --link package.json yarn.lock ./
-RUN yarn --prod
+COPY --link package.json package-lock.json ./
+
+RUN npm install --omit=optional --omit=dev --frozen-lockfile
 
 COPY --link web/assets web/assets
-RUN mkdir -p web/static && yarn build
+RUN mkdir -p web/static && npm run build
 
 FROM base AS dev
 
