@@ -5,7 +5,7 @@
 {{ define "languageSwitch" }}<!-- hide -->{{ end }}
 
 {{ define "fixtures-main" }}
-    <p class="govuk-body">Starting this flow will send an email with reference code to the email entered below. If you don't care about seeing the email then leave the field blank.</p>
+    <p class="govuk-body">Provide a certificate provider email address to send an access code and redirect to make or add an LPA page. If you don't care about seeing the email then leave the field blank.</p>
 
     {{ template "input" (input . "email" "Certificate provider email" "" "classes" "govuk-input--width-20" "type" "email" "spellcheck" "false" "autocomplete" "email") }}
 
