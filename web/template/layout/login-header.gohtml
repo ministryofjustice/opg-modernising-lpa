@@ -103,11 +103,13 @@
                                 {{ end }}
                             {{ else }}
                                 {{ if .App.HasLpas }}
-                                    <li class="govuk-service-navigation__item">
+                                    <li class="govuk-service-navigation__item {{ if eq .App.Page global.Paths.Dashboard.Format }}govuk-service-navigation__item--active{{ end }}">
                                         <a class="govuk-service-navigation__link" href="{{ link .App global.Paths.Dashboard.Format }}">{{ tr .App "manageLPAs" }}</a>
                                     </li>
                                 {{ end}}
-                                <li class="govuk-service-navigation__item">
+
+                                {{ $makeOrAddActive := or (eq .App.Page global.Paths.MakeOrAddAnLPA.Format) (eq .App.Page global.Paths.AddAnLPA.Format) (eq .App.Page global.Paths.EnterAccessCode.Format) (eq .App.Page global.Paths.Attorney.EnterAccessCode.Format) (eq .App.Page global.Paths.CertificateProvider.EnterAccessCode.Format) (eq .App.Page global.Paths.Voucher.EnterAccessCode.Format) }}
+                                <li class="govuk-service-navigation__item {{ if $makeOrAddActive }}govuk-service-navigation__item--active{{ end }}">
                                     <a class="govuk-service-navigation__link" href="{{ link .App global.Paths.MakeOrAddAnLPA.Format }}">{{ tr .App "makeOrAddLPAs" }}</a>
                                 </li>
                                 <li class="govuk-service-navigation__item">

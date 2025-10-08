@@ -5,7 +5,7 @@
 {{ define "languageSwitch" }}<!-- hide -->{{ end }}
 
 {{ define "fixtures-main" }}
-  <p class="govuk-body">Entering an email will cause a reference code to be sent and redirect you to the start page. Leave it blank to be signed in and taken to the dashboard instead.</p>
+  <p class="govuk-body">Provide an attorney email address to send an access code and redirect to the service start page. Leave it blank to be signed in and taken to the dashboard instead.</p>
   {{ template "input" (input . "email" "Attorney email" "" "classes" "govuk-input--width-20" "type" "email" "spellcheck" "false" "autocomplete" "email") }}
 
   {{ template "input" (input . "attorneySub" "Attorney OneLogin sub" .Sub "classes" "govuk-input--width-20") }}
