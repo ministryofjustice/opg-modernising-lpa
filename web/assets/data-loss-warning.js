@@ -43,6 +43,7 @@ export class DataLossWarning {
         this.trigger.addEventListener('click', (e) => {
             if (this.changesMade() && !this.formEmpty()) {
                 e.preventDefault()
+                this.modal.toggleVisibility()
             }
         })
 
@@ -51,7 +52,6 @@ export class DataLossWarning {
         });
 
         this.dialog.addEventListener("keydown", this.modal.trapFocus.bind(this));
-        this.trigger.addEventListener('click', this.modal.toggleVisibility.bind(this))
         this.backToPage.addEventListener('click', this.modal.toggleVisibility.bind(this))
         this.continueWithoutSaving.addEventListener('click', this.modal.toggleVisibility.bind(this))
         this.submitButton.addEventListener('click', this.addFormValuesToCookie.bind(this))
