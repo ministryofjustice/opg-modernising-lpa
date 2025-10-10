@@ -11,6 +11,7 @@ import (
 
 type attorneyPaths struct {
 	ConfirmDontWantToBeAttorneyLoggedOut page.Path
+	EnterAccessCode                      page.Path
 	Login                                page.Path
 	LoginCallback                        page.Path
 	Start                                page.Path
@@ -33,9 +34,10 @@ type attorneyPaths struct {
 }
 
 type certificateProviderPaths struct {
+	ConfirmDontWantToBeCertificateProviderLoggedOut page.Path
+	EnterAccessCode                                 page.Path
 	Login                                           page.Path
 	LoginCallback                                   page.Path
-	ConfirmDontWantToBeCertificateProviderLoggedOut page.Path
 	YouHaveAlreadyProvidedACertificate              page.Path
 	YouHaveAlreadyProvidedACertificateLoggedIn      page.Path
 	YouHaveDecidedNotToBeCertificateProvider        page.Path
@@ -90,8 +92,9 @@ type supporterPaths struct {
 }
 
 type voucherPaths struct {
-	Login page.Path
-	Start page.Path
+	EnterAccessCode page.Path
+	Login           page.Path
+	Start           page.Path
 
 	TaskList              voucher.Path
 	YourName              voucher.Path
@@ -275,6 +278,7 @@ type appPaths struct {
 var paths = appPaths{
 	CertificateProvider: certificateProviderPaths{
 		ConfirmDontWantToBeCertificateProviderLoggedOut: page.PathCertificateProviderConfirmDontWantToBeCertificateProviderLoggedOut,
+		EnterAccessCode:                    page.PathCertificateProviderEnterAccessCode,
 		Login:                              page.PathCertificateProviderLogin,
 		LoginCallback:                      page.PathCertificateProviderLoginCallback,
 		YouHaveAlreadyProvidedACertificate: page.PathCertificateProviderYouHaveAlreadyProvidedACertificate,
@@ -301,6 +305,7 @@ var paths = appPaths{
 
 	Attorney: attorneyPaths{
 		ConfirmDontWantToBeAttorneyLoggedOut: page.PathAttorneyConfirmDontWantToBeAttorneyLoggedOut,
+		EnterAccessCode:                      page.PathAttorneyEnterAccessCode,
 		Login:                                page.PathAttorneyLogin,
 		LoginCallback:                        page.PathAttorneyLoginCallback,
 		Start:                                page.PathAttorneyStart,
@@ -348,8 +353,9 @@ var paths = appPaths{
 	},
 
 	Voucher: voucherPaths{
-		Login: page.PathVoucherLogin,
-		Start: page.PathVoucherStart,
+		EnterAccessCode: page.PathVoucherEnterAccessCode,
+		Login:           page.PathVoucherLogin,
+		Start:           page.PathVoucherStart,
 
 		TaskList:              voucher.PathTaskList,
 		YourName:              voucher.PathYourName,
