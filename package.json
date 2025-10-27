@@ -23,12 +23,12 @@
         "@ministryofjustice/frontend": "5.2.1",
         "aws-rum-web": "^1.11.0",
         "esbuild": "^0.25.0",
-        "govuk-frontend": "5.12.0",
+        "govuk-frontend": "5.13.0",
         "sass": "^1.56.1"
     },
     "devDependencies": {
-        "@axe-core/playwright": "4.10.2",
-        "@playwright/test": "1.56.0",
+        "@axe-core/playwright": "4.11.0",
+        "@playwright/test": "1.56.1",
         "@cypress/grep": "5.0.0",
         "axe-core": "4.11.0",
         "cypress": "14.5.4",
@@ -37,11 +37,11 @@
         "cypress-multi-reporters": "2.0.5",
         "cypress-parallel": "0.15.0",
         "cypress-real-events": "1.15.0",
-        "playwright": "1.56.0",
+        "playwright": "1.56.1",
         "totp-generator": "1.0.0"
     },
     "engines": {
-        "node": "22.20.0"
+        "node": "22.21.0"
     },
     "packageManager": "npm@11.6.2+sha512.ee22b335fcbc95662cdf3ab8a053daf045d9cf9c6df6040d28965abb707512b2c16fa6c5eec049d34c74f78f390cebd14f697919eadb97756564d4f9eccc4954"
 }
