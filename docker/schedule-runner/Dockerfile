@@ -10,7 +10,7 @@ COPY --link internal ./internal
 
 RUN GOOS=${TARGETOS} GOARCH=${TARGETARCH} CGO_ENABLED=0 go build -ldflags="-X main.Tag=${TAG}" -o schedule-runner ./cmd/schedule-runner
 
-FROM public.ecr.aws/lambda/provided:al2023.2025.08.26.15@sha256:e4f62f62c02c71ee669c7c5feeb2ee8e867aa8b22ef277a6c071ae95d613db4f AS production
+FROM public.ecr.aws/lambda/provided:al2023.2025.10.26.10@sha256:731a6cc3ee3f1a6af28f4efe50bba24f0bd7c0d8dcedabd0bcfcbd28e6c2dd0c AS production
 
 WORKDIR /app
 
