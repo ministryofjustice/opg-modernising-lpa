@@ -8,7 +8,7 @@ ARG USER_GID=1000
 RUN addgroup -g $USER_GID $USERNAME \
     && adduser -D -u $USER_UID -G $USERNAME $USERNAME
 
-FROM outofcoffee/imposter:5-beta@sha256:12a868f533015911f6491ab9ace9776582ccf49c1e1ad5aa0e8b6d115d08ae5c AS production
+FROM outofcoffee/imposter:5-beta@sha256:c85f7e7c3434cda5fdf8b7100a98b91ec073e8cb6500367560b24c58c6faa264 AS production
 COPY ./docker/mock-pay /opt/imposter/config/
 
 COPY --from=base /tmp/publicapi_spec.json /opt/imposter/config/
