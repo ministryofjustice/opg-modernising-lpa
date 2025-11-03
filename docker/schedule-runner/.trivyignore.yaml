@@ -13,3 +13,21 @@ vulnerabilities:
   - id: CVE-2025-47906
     statement: Waiting for collector to be updated
     expired_at: 2025-10-19
+  - id: CVE-2025-47912
+    statement: Waiting for team to return
+    expired_at: 2026-01-05
+  - id: CVE-2025-58183
+    statement: Waiting for team to return
+    expired_at: 2026-01-05
+  - id: CVE-2025-58186
+    statement: Waiting for team to return
+    expired_at: 2026-01-05
+  - id: CVE-2025-58187
+    statement: Waiting for team to return
+    expired_at: 2026-01-05
+  - id: CVE-2025-58188
+    statement: Waiting for team to return
+    expired_at: 2026-01-05
+  - id: CVE-2025-61724
+    statement: Waiting for team to return
+    expired_at: 2026-01-05
