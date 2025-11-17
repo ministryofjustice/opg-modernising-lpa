@@ -8,8 +8,8 @@ vulnerabilities:
     statement: Vulnerability not exploitable in our configuration
     expired_at: 2025-10-30
   - id: CVE-2025-47907
-    statement: Waiting for collector to be updated
-    expired_at: 2025-11-15
+    statement: Waiting for team to return
+    expired_at: 2026-01-05
   - id: CVE-2025-47906
     statement: Waiting for collector to be updated
     expired_at: 2025-10-19
@@ -29,5 +29,14 @@ vulnerabilities:
     statement: Waiting for team to return
     expired_at: 2026-01-05
   - id: CVE-2025-61724
+    statement: Waiting for team to return
+    expired_at: 2026-01-05
+  - id: CVE-2025-58185
+    statement: Waiting for team to return
+    expired_at: 2026-01-05
+  - id: CVE-2025-61723
+    statement: Waiting for team to return
+    expired_at: 2026-01-05
+  - id: CVE-2025-61725
     statement: Waiting for team to return
     expired_at: 2026-01-05
