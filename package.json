@@ -22,7 +22,7 @@
     "dependencies": {
         "@ministryofjustice/frontend": "5.2.1",
         "aws-rum-web": "^1.11.0",
-        "esbuild": "^0.25.0",
+        "esbuild": "^0.27.0",
         "govuk-frontend": "5.13.0",
         "sass": "^1.56.1"
     },
