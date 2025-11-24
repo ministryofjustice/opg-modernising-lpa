@@ -128,7 +128,7 @@ services:
 
   opensearch:
     container_name: opensearch
-    image: opensearchproject/opensearch:2.19.3@sha256:e96cc6ae1500a073d973c0906f30f7cf4d9c461f32f855f9242a2da933660cdd
+    image: opensearchproject/opensearch:2.19.4@sha256:edd6f6c39d48e4772364cefc2e5cdb45d1e4099ab143be1b3b7f178503bf6e71
     environment:
       - node.name=opensearch
       - cluster.name=opensearch-docker-cluster
