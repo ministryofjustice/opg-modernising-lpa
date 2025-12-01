@@ -28,7 +28,7 @@
     },
     "devDependencies": {
         "@axe-core/playwright": "4.11.0",
-        "@playwright/test": "1.56.1",
+        "@playwright/test": "1.57.0",
         "@cypress/grep": "5.0.0",
         "axe-core": "4.11.0",
         "cypress": "14.5.4",
@@ -37,11 +37,11 @@
         "cypress-multi-reporters": "2.0.5",
         "cypress-parallel": "0.15.0",
         "cypress-real-events": "1.15.0",
-        "playwright": "1.56.1",
+        "playwright": "1.57.0",
         "totp-generator": "1.0.0"
     },
     "engines": {
         "node": "22.21.1"
     },
-    "packageManager": "npm@11.6.3+sha512.4085a763162e0e3acd19a4e9d23ad3aa0978e501ccf947dd7233c12a689ae0bb0190763c4ef12366990056b34eec438903ffed38fde4fbd722a17c2a7407ee92"
+    "packageManager": "npm@11.6.4+sha512.1118cab46a05a50aee6bff5b1b4fa1df18afff89d57465620a3518035026955db87c5bdf9d207b07b7487d99f2490d450cb774655ad63ec2cba7bf1d0ad25d45"
 }
