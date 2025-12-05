@@ -2,7 +2,7 @@ module github.com/ministryofjustice/opg-modernising-lpa
 
 go 1.24.3
 
-toolchain go1.25.4
+toolchain go1.25.5
 
 require (
 	github.com/MicahParks/jwkset v0.11.0
@@ -20,7 +20,7 @@ require (
 	github.com/aws/aws-sdk-go-v2/service/secretsmanager v1.40.2
 	github.com/aws/aws-sdk-go-v2/service/sqs v1.42.17
 	github.com/aws/aws-sdk-go-v2/service/ssm v1.67.4
-	github.com/aws/smithy-go v1.23.2
+	github.com/aws/smithy-go v1.24.0
 	github.com/felixge/httpsnoop v1.0.4
 	github.com/gabriel-vasile/mimetype v1.4.11
 	github.com/gohugoio/hashstructure v0.6.0
@@ -29,7 +29,7 @@ require (
 	github.com/gorilla/handlers v1.5.2
 	github.com/gorilla/securecookie v1.1.2
 	github.com/gorilla/sessions v1.4.0
-	github.com/ministryofjustice/opg-go-common v1.140.0
+	github.com/ministryofjustice/opg-go-common v1.142.0
 	github.com/opensearch-project/opensearch-go/v4 v4.5.0
 	github.com/pact-foundation/pact-go/v2 v2.4.2
 	github.com/stretchr/testify v1.11.1
