@@ -13,6 +13,8 @@ RUN addgroup -g 1017 -S appgroup \
 
 WORKDIR /app
 
+COPY --link docker/mainstream-content/alpine_image_hardening.sh /harden.sh
+
 COPY --from=fetched-repo app/register-lpa-prototype/package*.json ./
 
 RUN npm install
@@ -21,8 +23,8 @@ COPY --from=fetched-repo app/register-lpa-prototype/app ./app
 COPY --link docker/mainstream-content/start.sh ./app/start.sh
 RUN chown -R appuser:appgroup /app
 
-COPY --link docker/mainstream-content/alpine_image_hardening.sh ./app/harden.sh
-RUN ./app/harden.sh && rm ./app/harden.sh
+
+RUN /harden.sh && rm /harden.sh
 
 USER 1017
 
