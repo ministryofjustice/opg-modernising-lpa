@@ -11,8 +11,6 @@ FROM node:20-alpine@sha256:d3507a213936fe4ef54760a186e113db5188472d9efdf491686bd
 RUN addgroup -g 1017 -S appgroup \
   && adduser -u 1017 -S appuser -G appgroup
 
-COPY scripts/docker_hardening/alpine_image_hardening.sh /harden.sh
-
 WORKDIR /app
 
 COPY --from=fetched-repo app/register-lpa-prototype/package*.json ./
@@ -23,8 +21,8 @@ COPY --from=fetched-repo app/register-lpa-prototype/app ./app
 COPY --link ./start.sh ./app/start.sh
 RUN chown -R appuser:appgroup /app
 
-
-RUN /harden.sh && rm /harden.sh
+COPY --link ./alpine_image_hardening.sh ./app/harden.sh
+RUN ./app/harden.sh && rm ./app/harden.sh
 
 
 USER 1017
