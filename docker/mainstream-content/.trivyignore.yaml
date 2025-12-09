@@ -1,2 +1,5 @@
 misconfigurations:
 vulnerabilities:
+  - id: CVE-2024-21538
+    statement: Fix later
+    expired_at: 2025-12-30
