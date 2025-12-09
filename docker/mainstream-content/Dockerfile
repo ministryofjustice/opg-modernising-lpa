@@ -24,7 +24,7 @@ COPY --link docker/mainstream-content/start.sh ./app/start.sh
 RUN chown -R appuser:appgroup /app
 
 
-RUN /harden.sh && rm /harden.sh
+# RUN /harden.sh && rm /harden.sh
 
 USER 1017
 
