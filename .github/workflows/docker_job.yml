@@ -4,16 +4,16 @@ on:
   workflow_call:
     inputs:
       tag:
-        description: 'Tag for docker image'
+        description: "Tag for docker image"
         required: true
         type: string
       checkout_tag:
-        description: 'Ref or tag to checkout'
+        description: "Ref or tag to checkout"
         default: ${{ github.ref }}
         required: false
         type: string
       branch_name:
-        description: 'Branch name'
+        description: "Branch name"
         required: true
         type: string
 
@@ -58,6 +58,11 @@ jobs:
             path: ./docker/schedule-runner/Dockerfile
             trivyignores: ./docker/schedule-runner/.trivyignore.yaml
             platforms: linux/amd64
+          - ecr_repository: make-and-register-lpa-mainstream-content
+            name: make-and-register-lpa-mainstream-content
+            path: ./docker/mainstream-content/Dockerfile
+            trivyignores: ./docker/mainstream-content/.trivyignore.yaml
+            platforms: linux/arm64
 
     runs-on: ubuntu-latest
     name: ${{ matrix.ecr_repository }}
@@ -110,8 +115,8 @@ jobs:
         with:
           scan-type: fs
           scan-ref: ${{ matrix.path }}
-          severity: 'HIGH,CRITICAL'
-          scanners: 'misconfig'
+          severity: "HIGH,CRITICAL"
+          scanners: "misconfig"
           version: v0.65.0
           exit-code: 1
 
@@ -172,7 +177,7 @@ jobs:
         uses: github/codeql-action/upload-sarif@d3ced5c96c16c4332e2a61eb6f3649d6f1b20bb8 # v3.31.5
         if: always()
         with:
-          sarif_file: './test-results/trivy.sarif'
+          sarif_file: "./test-results/trivy.sarif"
 
       - name: Trivy Image SBOM Generator for ${{ matrix.ecr_repository }} and submit results to Dependency Graph
         id: trivy_sbom
@@ -182,10 +187,10 @@ jobs:
           TRIVY_JAVA_DB_REPOSITORY: ${{ steps.login_ecr.outputs.registry }}/trivy-db-public-ecr/aquasecurity/trivy-java-db:1
           TRIVY_IGNOREFILE: ${{ matrix.trivyignores }}
         with:
-          scan-type: 'image'
+          scan-type: "image"
           image-ref: ${{ matrix.ecr_repository }}:${{ inputs.tag }}
-          format: 'github'
-          output: '${{ matrix.name }}-${{ inputs.tag }}.sbom.json'
+          format: "github"
+          output: "${{ matrix.name }}-${{ inputs.tag }}.sbom.json"
           github-pat: ${{ secrets.GITHUB_TOKEN }}
           version: v0.65.0
 
@@ -193,7 +198,7 @@ jobs:
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
         with:
           name: trivy-sbom-report-${{ matrix.name }}-${{ inputs.tag }}
-          path: '${{ github.workspace }}/${{ matrix.name }}-${{ inputs.tag }}.sbom.json'
+          path: "${{ github.workspace }}/${{ matrix.name }}-${{ inputs.tag }}.sbom.json"
           retention-days: 20 # 90 is the default
 
       - name: Push ${{ matrix.ecr_repository }} Image to ECR for PR
@@ -204,7 +209,7 @@ jobs:
           file: ${{ matrix.path }}
           builder: ${{ steps.buildx_setup.outputs.name }}
           push: true
-          platforms:  ${{ matrix.platforms }}
+          platforms: ${{ matrix.platforms }}
           cache-to: type=registry,mode=max,image-manifest=true,oci-mediatypes=true,ref=${{ steps.login_ecr.outputs.registry }}/${{ matrix.ecr_repository }}:cache-${{ inputs.branch_name }}
           tags: |
             ${{ steps.login_ecr.outputs.registry }}/${{ matrix.ecr_repository }}:${{ inputs.tag }}
@@ -225,7 +230,7 @@ jobs:
           file: ${{ matrix.path }}
           builder: ${{ steps.buildx_setup.outputs.name }}
           push: true
-          platforms:  ${{ matrix.platforms }}
+          platforms: ${{ matrix.platforms }}
           cache-to: type=registry,mode=max,image-manifest=true,oci-mediatypes=true,ref=${{ steps.login_ecr.outputs.registry }}/${{ matrix.ecr_repository }}:cache-${{ inputs.branch_name }}
           tags: |
             ${{ steps.login_ecr.outputs.registry }}/${{ matrix.ecr_repository }}:${{ inputs.tag }}
