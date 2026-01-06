@@ -26,7 +26,7 @@ data "aws_ecr_repository" "make_and_register_lpa_mainstream_content" {
 
 data "aws_ecr_image" "make_and_register_lpa_mainstream_content" {
   repository_name = data.aws_ecr_repository.make_and_register_lpa_mainstream_content.name
-  image_tag       = "latest"
+  image_tag       = var.container_version
   provider        = aws.management_eu_west_1
 }
 
