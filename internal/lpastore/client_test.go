@@ -829,14 +829,13 @@ func TestClientServiceContract(t *testing.T) {
 					"certificateProvider": matchers.Like(map[string]any{
 						"firstNames": matchers.String("Some"),
 						"lastName":   matchers.String("Provider"),
-						"email":      matchers.String("some@example.com"),
 						"phone":      matchers.String("0700009000"),
 						"address": matchers.Like(map[string]any{
 							"line1":   matchers.String("71 South Western Terrace"),
 							"town":    matchers.String("Milton"),
 							"country": matchers.String("AU"),
 						}),
-						"channel": matchers.String("online"),
+						"channel": matchers.String("paper"),
 					}),
 					"lifeSustainingTreatmentOption": matchers.String("option-a"),
 					"signedAt":                      matchers.String("2000-01-02T12:13:14Z"),
@@ -963,14 +962,13 @@ func TestClientServiceContract(t *testing.T) {
 						"certificateProvider": matchers.Like(map[string]any{
 							"firstNames": matchers.String("Some"),
 							"lastName":   matchers.String("Provider"),
-							"email":      matchers.String("some@example.com"),
 							"phone":      matchers.String("0700009000"),
 							"address": matchers.Like(map[string]any{
 								"line1":   matchers.String("71 South Western Terrace"),
 								"town":    matchers.String("Milton"),
 								"country": matchers.String("AU"),
 							}),
-							"channel": matchers.String("online"),
+							"channel": matchers.String("paper"),
 						}),
 						"lifeSustainingTreatmentOption": matchers.String("option-a"),
 						"signedAt":                      matchers.String("2000-01-02T12:13:14Z"),
