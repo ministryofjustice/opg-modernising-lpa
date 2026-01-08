@@ -4,15 +4,9 @@ misconfigurations:
   - id: AVD-DS-0017
     statement: Package manager update should always have install
 vulnerabilities:
-  - id: CVE-2025-7425
-    statement: Vulnerability not exploitable in our configuration
-    expired_at: 2025-10-30
   - id: CVE-2025-47907
     statement: Waiting for team to return
     expired_at: 2026-01-20
-  - id: CVE-2025-47906
-    statement: Waiting for collector to be updated
-    expired_at: 2025-10-19
   - id: CVE-2025-47912
     statement: Waiting for team to return
     expired_at: 2026-01-20
@@ -47,5 +41,11 @@ vulnerabilities:
     statement: Waiting for team to return
     expired_at: 2026-01-20
   - id: CVE-2025-13601
+    statement: Waiting for team to return
+    expired_at: 2026-01-20
+  - id: CVE-2025-14087
+    statement: Waiting for team to return
+    expired_at: 2026-01-20
+  - id: CVE-2025-61727
     statement: Waiting for team to return
     expired_at: 2026-01-20
