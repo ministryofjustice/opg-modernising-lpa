@@ -125,7 +125,11 @@ func (c *Client) SendCertificateProvider(ctx context.Context, certificateProvide
 	}
 
 	if certificateProvider.Email != "" {
-		body.Changes = append(body.Changes, updateRequestChange{Key: "/certificateProvider/email", New: certificateProvider.Email, Old: lpa.CertificateProvider.Email})
+		if lpa.CertificateProvider.Email == "" {
+			body.Changes = append(body.Changes, updateRequestChange{Key: "/certificateProvider/email", New: certificateProvider.Email})
+		} else {
+			body.Changes = append(body.Changes, updateRequestChange{Key: "/certificateProvider/email", New: certificateProvider.Email, Old: lpa.CertificateProvider.Email})
+		}
 	}
 
 	if lpa.CertificateProvider.Channel == lpadata.ChannelPaper {

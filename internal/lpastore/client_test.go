@@ -607,7 +607,7 @@ func TestClientServiceContract(t *testing.T) {
 							"new": matchers.Like("2020-01-01T12:13:14Z"),
 						}, {
 							"key": matchers.Like("/certificateProvider/email"),
-							"old": matchers.Like(""),
+							"old": matchers.Like(nil),
 							"new": matchers.Like("a@example.com"),
 						}, {
 							"key": matchers.Like("/certificateProvider/channel"),
@@ -682,7 +682,7 @@ func TestClientServiceContract(t *testing.T) {
 							"new": matchers.Like("GB"),
 						}, {
 							"key": matchers.Like("/certificateProvider/email"),
-							"old": matchers.Like(""),
+							"old": matchers.Like(nil),
 							"new": matchers.Like("a@example.com"),
 						}, {
 							"key": matchers.Like("/certificateProvider/channel"),
