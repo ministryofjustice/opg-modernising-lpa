@@ -882,14 +882,13 @@ func TestClientServiceContract(t *testing.T) {
 				CertificateProvider: lpadata.CertificateProvider{
 					FirstNames: "Some",
 					LastName:   "Provider",
-					Email:      "some@example.com",
 					Phone:      "0700009000",
 					Address: place.Address{
 						Line1:      "71 South Western Terrace",
 						TownOrCity: "Milton",
 						Country:    "AU",
 					},
-					Channel: lpadata.ChannelOnline,
+					Channel: lpadata.ChannelPaper,
 				},
 				WhenCanTheLpaBeUsed:           lpadata.CanBeUsedWhenCapacityLost,
 				LifeSustainingTreatmentOption: lpadata.LifeSustainingTreatmentOptionA,
