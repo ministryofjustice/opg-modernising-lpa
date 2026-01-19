@@ -23,7 +23,7 @@
         "@ministryofjustice/frontend": "7.1.1",
         "aws-rum-web": "^1.11.0",
         "esbuild": "^0.27.0",
-        "govuk-frontend": "5.13.0",
+        "govuk-frontend": "5.14.0",
         "sass": "^1.56.1"
     },
     "devDependencies": {
@@ -41,7 +41,7 @@
         "totp-generator": "1.0.0"
     },
     "engines": {
-        "node": "22.21.1"
+        "node": "22.22.0"
     },
     "packageManager": "npm@11.7.0+sha512.c22099a6fff8d5b2286c2a09df5352b4858a7c0c716320f58989d60ad8b29ecf2ce6fdfe97ccb41c23ffb1272e1fa079f868487dd6b81d02a2a9e199c095a117"
 }
