@@ -27,7 +27,6 @@ do
     *)
       echo "cleaning up workspace $workspace..."
       terraform workspace select "$workspace"
-      terraform destroy -auto-approve
       if ! terraform destroy -auto-approve; then
         TF_EXIT_CODE=1
       fi
@@ -43,7 +42,7 @@ do
           echo "Request successful but index not found."
         else
           echo "$response"
-          exit 1
+          # exit 1
         fi
       echo "deleting containter insights log group..."
       aws logs delete-log-group --region eu-west-1 --log-group-name /aws/ecs/containerinsights/"$workspace"/performance

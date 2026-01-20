@@ -1,9 +1,9 @@
 name: "[Workflow] Cleanup PR Workspaces"
 
 on:
-  # schedule:
-  #   # every hour
-  #   - cron: "0 * * * *"
+  schedule:
+    # every hour
+    - cron: "0 * * * *"
   workflow_dispatch:
 
 permissions:
@@ -82,4 +82,4 @@ jobs:
           TF_VAR_pagerduty_api_key: ${{ secrets.PAGERDUTY_API_KEY }}
           DEVELOPMENT_OPENSEARCH_COLLECTION_ENDPOINT: ${{ secrets.DEVELOPMENT_OPENSEARCH_COLLECTION_ENDPOINT }}
         run: |
-          ../../scripts/workspace_cleanup.sh $(terraform-workspace-manager -protected-workspaces=true -aws-account-id=653761790766)
+          ../../scripts/workspace_cleanup.sh $(terraform-workspace-manager -protected-workspaces=true -aws-account-id=653761790766 -aws-iam-role=modernising-lpa-ci)
