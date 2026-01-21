@@ -6,73 +6,73 @@ misconfigurations:
 vulnerabilities:
   - id: CVE-2025-47907
     statement: Waiting for team to return
-    expired_at: 2026-01-20
+    expired_at: 2026-02-20
   - id: CVE-2025-47912
     statement: Waiting for team to return
-    expired_at: 2026-01-20
+    expired_at: 2026-02-20
   - id: CVE-2025-58183
     statement: Waiting for team to return
-    expired_at: 2026-01-20
+    expired_at: 2026-02-20
   - id: CVE-2025-58186
     statement: Waiting for team to return
-    expired_at: 2026-01-20
+    expired_at: 2026-02-20
   - id: CVE-2025-58187
     statement: Waiting for team to return
-    expired_at: 2026-01-20
+    expired_at: 2026-02-20
   - id: CVE-2025-58188
     statement: Waiting for team to return
-    expired_at: 2026-01-20
+    expired_at: 2026-02-20
   - id: CVE-2025-61724
     statement: Waiting for team to return
-    expired_at: 2026-01-20
+    expired_at: 2026-02-20
   - id: CVE-2025-58185
     statement: Waiting for team to return
-    expired_at: 2026-01-20
+    expired_at: 2026-02-20
   - id: CVE-2025-61723
     statement: Waiting for team to return
-    expired_at: 2026-01-20
+    expired_at: 2026-02-20
   - id: CVE-2025-61725
     statement: Waiting for team to return
-    expired_at: 2026-01-20
+    expired_at: 2026-02-20
   - id: CVE-2025-61729
     statement: Waiting for team to return
-    expired_at: 2026-01-20
+    expired_at: 2026-02-20
   - id: CVE-2025-58189
     statement: Waiting for team to return
-    expired_at: 2026-01-20
+    expired_at: 2026-02-20
   - id: CVE-2025-13601
     statement: Waiting for team to return
-    expired_at: 2026-01-20
+    expired_at: 2026-02-20
   - id: CVE-2025-61727
     statement: Waiting for team to return
-    expired_at: 2026-01-20
+    expired_at: 2026-02-20
   - id: CVE-2025-11563
     statement: Waiting for team to return
-    expired_at: 2026-01-20
+    expired_at: 2026-02-20
   - id: CVE-2025-22870
     statement: Waiting for team to return
-    expired_at: 2026-01-20
+    expired_at: 2026-02-20
   - id: CVE-2025-22872
     statement: Waiting for team to return
-    expired_at: 2026-01-20
+    expired_at: 2026-02-20
   - id: CVE-2025-0913
     statement: Waiting for team to return
-    expired_at: 2026-01-20
+    expired_at: 2026-02-20
   - id: CVE-2025-22871
     statement: Waiting for team to return
-    expired_at: 2026-01-20
+    expired_at: 2026-02-20
   - id: CVE-2025-4673
     statement: Waiting for team to return
-    expired_at: 2026-01-20
+    expired_at: 2026-02-20
   - id: CVE-2025-47906
     statement: Waiting for team to return
-    expired_at: 2026-01-20
+    expired_at: 2026-02-20
   - id: GHSA-2464-8j7c-4cjm
     statement: Waiting for team to return
-    expired_at: 2026-01-20
+    expired_at: 2026-02-20
   - id: GHSA-fv92-fjc5-jj9h
     statement: Waiting for team to return
-    expired_at: 2026-01-20
+    expired_at: 2026-02-20
   - id: CVE-2025-14087
     statement: Waiting for team to return
-    expired_at: 2026-01-20
+    expired_at: 2026-02-20
