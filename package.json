@@ -29,7 +29,7 @@
     "devDependencies": {
         "@axe-core/playwright": "4.11.0",
         "@playwright/test": "1.57.0",
-        "@cypress/grep": "5.0.1",
+        "@cypress/grep": "5.1.0",
         "axe-core": "4.11.1",
         "cypress": "14.5.4",
         "cypress-axe": "1.7.0",
@@ -43,5 +43,5 @@
     "engines": {
         "node": "22.22.0"
     },
-    "packageManager": "npm@11.7.0+sha512.c22099a6fff8d5b2286c2a09df5352b4858a7c0c716320f58989d60ad8b29ecf2ce6fdfe97ccb41c23ffb1272e1fa079f868487dd6b81d02a2a9e199c095a117"
+    "packageManager": "npm@11.8.0+sha512.9f5f6c25e5be44629d907a3c482739c614b090a8505057d9685cd273e12c6172e34aa215d2d97bd9a0d8415bb356f7eb6f2b06c1d690b0d2cdcb9f09d7410149"
 }
