@@ -16,7 +16,7 @@ vulnerabilities:
     expired_at: 2026-01-30
   - id: CVE-2025-15467
     statement: Fix later
-    expired_at: 2026-02-30
+    expired_at: 2026-02-28
   - id: CVE-2025-69419
     statement: Fix later
-    expired_at: 2026-02-30
+    expired_at: 2026-02-28
