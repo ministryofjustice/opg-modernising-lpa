@@ -28,7 +28,7 @@
     },
     "devDependencies": {
         "@axe-core/playwright": "4.11.0",
-        "@playwright/test": "1.57.0",
+        "@playwright/test": "1.58.1",
         "@cypress/grep": "5.1.0",
         "axe-core": "4.11.1",
         "cypress": "14.5.4",
@@ -37,7 +37,7 @@
         "cypress-multi-reporters": "2.0.5",
         "cypress-parallel": "0.15.0",
         "cypress-real-events": "1.15.0",
-        "playwright": "1.57.0",
+        "playwright": "1.58.1",
         "totp-generator": "1.0.0"
     },
     "engines": {
