@@ -91,6 +91,7 @@ type CertificateProviderProvideCertificatePromptEmailAccessCodeUsed struct {
 	LpaType                     string
 	CertificateProviderFullName string
 	CertificateProviderStartURL string
+	InvitedDate                 string
 }
 
 func (e CertificateProviderProvideCertificatePromptEmailAccessCodeUsed) emailID(_ localize.Lang) string {

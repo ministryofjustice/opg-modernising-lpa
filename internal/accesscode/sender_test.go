@@ -357,10 +357,11 @@ func TestAccessCodeSenderSendCertificateProviderPromptOnlineWhenStarted(t *testi
 			FirstNames: "Jan",
 			LastName:   "Smith",
 		},
-		Type:   lpadata.LpaTypePropertyAndAffairs,
-		LpaUID: "lpa-uid",
-		PK:     dynamo.LpaKey("lpa"),
-		SK:     dynamo.LpaOwnerKey(dynamo.DonorKey("donor")),
+		Type:                         lpadata.LpaTypePropertyAndAffairs,
+		LpaUID:                       "lpa-uid",
+		PK:                           dynamo.LpaKey("lpa"),
+		SK:                           dynamo.LpaOwnerKey(dynamo.DonorKey("donor")),
+		CertificateProviderInvitedAt: testNow,
 	}
 
 	certificateProvider := &certificateproviderdata.Provided{
@@ -377,6 +378,10 @@ func TestAccessCodeSenderSendCertificateProviderPromptOnlineWhenStarted(t *testi
 		Possessive("Jan Smith").
 		Return("possessive name").
 		Once()
+	localizer.EXPECT().
+		FormatDate(testNow).
+		Return("formatted date").
+		Once()
 	testAppData.Localizer = localizer
 
 	notifyClient := newMockNotifyClient(t)
@@ -387,6 +392,7 @@ func TestAccessCodeSenderSendCertificateProviderPromptOnlineWhenStarted(t *testi
 			DonorFullNamePossessive:     "possessive name",
 			LpaType:                     "property and affairs",
 			CertificateProviderStartURL: "http://example.com/certificate-provider",
+			InvitedDate:                 "formatted date",
 		}).
 		Return(nil)
 
