@@ -55,3 +55,24 @@ vulnerabilities:
   - id: CVE-2025-61728
     statement: Waiting for team to return
     expired_at: 2026-02-20
+  - id: CVE-2025-61730
+    statement: Waiting for team to return
+    expired_at: 2026-02-20
+  - id: CVE-2025-68121
+    statement: Waiting for team to return
+    expired_at: 2026-02-20
+  - id: CVE-2025-68973
+    statement: Waiting for team to return
+    expired_at: 2026-02-20
+  - id: CVE-2025-61731
+    statement: Waiting for team to return
+    expired_at: 2026-02-20
+  - id: CVE-2025-68119
+    statement: Waiting for team to return
+    expired_at: 2026-02-20
+  - id: CVE-2025-13151
+    statement: Waiting for team to return
+    expired_at: 2026-02-20
+  - id: CVE-2025-15467
+    statement: Waiting for team to return
+    expired_at: 2026-02-20

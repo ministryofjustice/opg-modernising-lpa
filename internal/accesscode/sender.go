@@ -123,6 +123,7 @@ func (s *Sender) SendCertificateProviderPrompt(ctx context.Context, appData appc
 			LpaType:                     localize.LowerFirst(appData.Localizer.T(provided.Type.String())),
 			CertificateProviderFullName: provided.CertificateProvider.FullName(),
 			CertificateProviderStartURL: s.certificateProviderStartURL,
+			InvitedDate:                 appData.Localizer.FormatDate(provided.CertificateProviderInvitedAt),
 		})
 	}
 
