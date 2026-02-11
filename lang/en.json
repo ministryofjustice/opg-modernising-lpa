@@ -298,7 +298,7 @@
     "onceEveryoneHasSignedOpgWill": "Once everyone has signed and OPG have received your LPA, we’ll inform any people you chose to notify. A 4-week waiting period will begin. This is required by law, to allow anyone with objections to raise them.",
     "wellRegisteredYourLpa": "If no objections are raised, OPG will register your LPA.",
     "atTheEndOfTheWaitingPeriod": "At the end of the waiting period, we’ll contact you with guidance about getting your LPA reviewed by the Court of Protection.",
-    "atTheEndOfTheWaitingPeriodOpgWill": "At the end of the waiting period, OPG will contact you with guidance about getting your LPA reviewed by the <a href=\"https://www.gov.uk/courts-tribunals/court-of-protection\" class=\"govuk-link\" rel=\"noreferrer noopener\">Court of Protection (opens in a new tab)</a>.",
+    "atTheEndOfTheWaitingPeriodOpgWill": "At the end of the waiting period, OPG will contact you with guidance about getting your LPA reviewed by the <a href=\"https://www.gov.uk/courts-tribunals/court-of-protection\" class=\"govuk-link\" target=\"_blank\" rel=\"noreferrer noopener\">Court of Protection (opens in a new tab)</a>.",
     "ifYourLpaIsSuccessfullyReviewed": "If your LPA is successfully reviewed by the Court of Protection, we’ll be able to register it, and it can then be used.",
     "ifTheCOPFindsYourLpaIsValid": "If the Court of Protection finds your LPA is valid, it will direct OPG to register it. Your LPA can then be used.",
     "weWillEmailYou": "<p class=\"govuk-body\">We’ll keep you updated about your LPA. If there are any problems, we’ll let you know.</p><p class=\"govuk-body\">You can also track the progress of your LPA by logging back into this service at any time.</p>",
