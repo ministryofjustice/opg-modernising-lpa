@@ -4,60 +4,51 @@ misconfigurations:
   - id: AVD-DS-0017
     statement: Package manager update should always have install
 vulnerabilities:
-  - id: CVE-2025-47907
+  - id: CVE-2025-13034
     statement: Waiting for team to return
     expired_at: 2026-03-20
-  - id: CVE-2025-47912
+  - id: CVE-2025-14017
     statement: Waiting for team to return
     expired_at: 2026-03-20
-  - id: CVE-2025-58183
+  - id: CVE-2025-14524
     statement: Waiting for team to return
     expired_at: 2026-03-20
-  - id: CVE-2025-58186
+  - id: CVE-2025-14819
     statement: Waiting for team to return
     expired_at: 2026-03-20
-  - id: CVE-2025-58187
+  - id: CVE-2025-15079
     statement: Waiting for team to return
     expired_at: 2026-03-20
-  - id: CVE-2025-58188
+  - id: CVE-2025-15224
     statement: Waiting for team to return
     expired_at: 2026-03-20
-  - id: CVE-2025-61724
+  - id: CVE-2025-15468
     statement: Waiting for team to return
     expired_at: 2026-03-20
-  - id: CVE-2025-58185
+  - id: CVE-2025-66199
     statement: Waiting for team to return
     expired_at: 2026-03-20
-  - id: CVE-2025-61723
+  - id: CVE-2025-68160
     statement: Waiting for team to return
     expired_at: 2026-03-20
-  - id: CVE-2025-61729
+  - id: CVE-2025-69418
     statement: Waiting for team to return
     expired_at: 2026-03-20
-  - id: CVE-2025-58189
+  - id: CVE-2025-69419
     statement: Waiting for team to return
     expired_at: 2026-03-20
-  - id: CVE-2025-61726
+  - id: CVE-2025-69420
     statement: Waiting for team to return
     expired_at: 2026-03-20
-  - id: CVE-2025-61728
+  - id: CVE-2025-69421
     statement: Waiting for team to return
     expired_at: 2026-03-20
-  - id: CVE-2025-61730
+  - id: CVE-2026-22795
     statement: Waiting for team to return
     expired_at: 2026-03-20
-  - id: CVE-2025-68121
+  - id: CVE-2026-22796
     statement: Waiting for team to return
     expired_at: 2026-03-20
-  - id: CVE-2025-61731
-    statement: Waiting for team to return
-    expired_at: 2026-03-20
-  - id: CVE-2025-68119
-    statement: Waiting for team to return
-    expired_at: 2026-03-20
-  - id: CVE-2025-13151
-    statement: Waiting for team to return
-    expired_at: 2026-03-20
-  - id: CVE-2025-15467
+  - id: CVE-2026-24882
     statement: Waiting for team to return
     expired_at: 2026-03-20

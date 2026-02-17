@@ -27,11 +27,5 @@ RUN echo "2023.10.20260202" > /etc/dnf/vars/releasever && \
 
 COPY --from=build /app/create-s3-replication-job ./create-s3-replication-job
 COPY --link lang ./lang
-COPY --link ./docker/adot-collector/ /opt
-
-RUN chmod 755 /opt/config/config.yaml
-
-ENV AWS_LAMBDA_EXEC_WRAPPER=/opt/otel-handler
-ENV OPENTELEMETRY_COLLECTOR_CONFIG_URI="/opt/config/config.yaml"
 
 ENTRYPOINT ["./create-s3-replication-job"]
