@@ -10,7 +10,7 @@ COPY --link internal ./internal
 
 RUN GOOS=${TARGETOS} GOARCH=${TARGETARCH} CGO_ENABLED=0 go build -o event-received ./cmd/event-received
 
-FROM public.ecr.aws/lambda/provided:al2023@sha256:80214c2aab027945d9375c6d6c4395217397cd703f3cf2414acf74e173448536 AS production
+FROM public.ecr.aws/lambda/provided:al2023.2026.02.11.04@sha256:80214c2aab027945d9375c6d6c4395217397cd703f3cf2414acf74e173448536 AS production
 
 WORKDIR /app
 COPY --link  docker/install_lambda_insights.sh /app/
@@ -21,9 +21,9 @@ RUN chmod +x /app/install_lambda_insights.sh \
 # Switch DNF to the latest AL2023.10 release (2023.10.20260202) and update SQLite packages
 #Add trivy ignore on this issues as we are updating not installing.
 RUN echo "2023.10.20260202" > /etc/dnf/vars/releasever && \
-dnf clean all && \
-dnf -y update sqlite-libs libxml2 && \
-dnf clean all
+    dnf clean all && \
+    dnf -y update sqlite-libs libxml2 && \
+    dnf clean all
 
 COPY --from=build /app/event-received ./event-received
 COPY --link lang ./lang
