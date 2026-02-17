@@ -1,28 +1,22 @@
 vulnerabilities:
-  - id: CVE-2024-21538
-    statement: Fix later
-    expired_at: 2026-02-28
   - id: CVE-2025-64756
-    statement: Fix later
-    expired_at: 2026-02-28
-  - id: CVE-2025-15284
-    statement: Fix later
-    expired_at: 2026-02-28
+    statement: not patched in source
+    expired_at: 2026-03-30
   - id: CVE-2026-23745
-    statement: Fix later
-    expired_at: 2026-02-28
+    statement: not patched in source
+    expired_at: 2026-03-30
+  - id: CVE-2026-23745
+    statement: not patched in source
+    expired_at: 2026-03-30
   - id: CVE-2026-23950
-    statement: Fix later
-    expired_at: 2026-02-28
-  - id: CVE-2025-15467
-    statement: Fix later
-    expired_at: 2026-02-28
-  - id: CVE-2025-69419
-    statement: Fix later
-    expired_at: 2026-02-28
+    statement: not patched in source
+    expired_at: 2026-03-30
+  - id: CVE-2026-23950
+    statement: not patched in source
+    expired_at: 2026-03-30
   - id: CVE-2026-24842
-    statement: Fix later
-    expired_at: 2026-02-28
-  - id: CVE-2025-69421
-    statement: Fix later
-    expired_at: 2026-02-28
+    statement: not patched in source
+    expired_at: 2026-03-30
+  - id: CVE-2026-24842
+    statement: not patched in source
+    expired_at: 2026-03-30
