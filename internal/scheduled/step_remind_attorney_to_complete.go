@@ -13,6 +13,7 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/localize"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/lpastore/lpadata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/notify"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
 )
 
 func (r *Runner) stepRemindAttorneyToComplete(ctx context.Context, row *Event) error {
@@ -101,11 +102,12 @@ func (r *Runner) stepRemindAttorneyToCompleteAttorney(ctx context.Context, lpa *
 			return fmt.Errorf("could not send attorney letter request: %w", err)
 		}
 	} else {
-		localizer := r.bundle.For(localize.En)
+		lang := localize.En
 		if provided != nil && !provided.ContactLanguagePreference.Empty() {
-			localizer = r.bundle.For(provided.ContactLanguagePreference)
+			lang = provided.ContactLanguagePreference
 		}
 
+		localizer := r.bundle.For(lang)
 		toAttorneyEmail := notify.ToLpaAttorney(attorney)
 
 		var email notify.Email
@@ -119,7 +121,7 @@ func (r *Runner) stepRemindAttorneyToCompleteAttorney(ctx context.Context, lpa *
 				InvitedDate:             localizer.FormatDate(lpa.AttorneysInvitedAt),
 				DeadlineDate:            localizer.FormatDate(lpa.ExpiresAt()),
 				AttorneyStartPageURL:    r.attorneyStartURL,
-				AttorneyOptOutURL:       r.attorneyOptOutURL,
+				AttorneyOptOutURL:       r.appPublicURL + lang.URL(page.PathAttorneyEnterAccessCodeOptOut.Format()),
 			}
 		} else {
 			email = notify.AdviseAttorneyToSignOrOptOutEmailAccessCodeUsed{
@@ -129,7 +131,7 @@ func (r *Runner) stepRemindAttorneyToCompleteAttorney(ctx context.Context, lpa *
 				AttorneyFullName:        attorney.FullName(),
 				DeadlineDate:            localizer.FormatDate(lpa.ExpiresAt()),
 				AttorneyStartPageURL:    r.attorneyStartURL,
-				AttorneyOptOutURL:       r.attorneyOptOutURL,
+				AttorneyOptOutURL:       r.appPublicURL + lang.URL(page.PathAttorneyEnterAccessCodeOptOut.Format()),
 			}
 		}
 
@@ -199,11 +201,12 @@ func (r *Runner) stepRemindAttorneyToCompleteTrustCorporation(ctx context.Contex
 			return fmt.Errorf("could not send certificate provider letter request: %w", err)
 		}
 	} else {
-		localizer := r.bundle.For(localize.En)
+		lang := localize.En
 		if provided != nil && !provided.ContactLanguagePreference.Empty() {
-			localizer = r.bundle.For(provided.ContactLanguagePreference)
+			lang = provided.ContactLanguagePreference
 		}
 
+		localizer := r.bundle.For(lang)
 		toAttorneyEmail := notify.ToLpaTrustCorporation(trustCorporation)
 
 		var email notify.Email
@@ -217,7 +220,7 @@ func (r *Runner) stepRemindAttorneyToCompleteTrustCorporation(ctx context.Contex
 				InvitedDate:             localizer.FormatDate(lpa.AttorneysInvitedAt),
 				DeadlineDate:            localizer.FormatDate(lpa.ExpiresAt()),
 				AttorneyStartPageURL:    r.attorneyStartURL,
-				AttorneyOptOutURL:       r.attorneyOptOutURL,
+				AttorneyOptOutURL:       r.appPublicURL + lang.URL(page.PathAttorneyEnterAccessCodeOptOut.Format()),
 			}
 		} else {
 			email = notify.AdviseAttorneyToSignOrOptOutEmailAccessCodeUsed{
@@ -227,7 +230,7 @@ func (r *Runner) stepRemindAttorneyToCompleteTrustCorporation(ctx context.Contex
 				AttorneyFullName:        trustCorporation.Name,
 				DeadlineDate:            localizer.FormatDate(lpa.ExpiresAt()),
 				AttorneyStartPageURL:    r.attorneyStartURL,
-				AttorneyOptOutURL:       r.attorneyOptOutURL,
+				AttorneyOptOutURL:       r.appPublicURL + lang.URL(page.PathAttorneyEnterAccessCodeOptOut.Format()),
 			}
 		}
 

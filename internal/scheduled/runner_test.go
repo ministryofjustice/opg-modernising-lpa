@@ -71,10 +71,10 @@ func TestNewRunner(t *testing.T) {
 	assert.Equal(t, notifyClient, runner.notifyClient)
 	assert.Equal(t, metricsClient, runner.metricsClient)
 	assert.Equal(t, true, runner.metricsEnabled)
+	assert.Equal(t, "appPublicURL", runner.appPublicURL)
 	assert.Equal(t, "certificateProviderStartURL", runner.certificateProviderStartURL)
 	assert.Equal(t, "attorneyStartURL", runner.attorneyStartURL)
 	assert.Equal(t, "appPublicURL"+page.PathCertificateProviderEnterAccessCodeOptOut.Format(), runner.certificateProviderOptOutURL)
-	assert.Equal(t, "appPublicURL"+page.PathAttorneyEnterAccessCodeOptOut.Format(), runner.attorneyOptOutURL)
 }
 
 func (m *mockMetricsClient) assertPutMetrics(processed, ignored, errored float64, err error) {
