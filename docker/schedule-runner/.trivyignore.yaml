@@ -4,81 +4,66 @@ misconfigurations:
   - id: AVD-DS-0017
     statement: Package manager update should always have install
 vulnerabilities:
-  - id: CVE-2025-13034
+  - id: CVE-2025-47907
     statement: Waiting for team to return
     expired_at: 2026-03-20
-  - id: CVE-2025-14017
+  - id: CVE-2025-47912
     statement: Waiting for team to return
     expired_at: 2026-03-20
-  - id: CVE-2025-14524
+  - id: CVE-2025-58183
     statement: Waiting for team to return
     expired_at: 2026-03-20
-  - id: CVE-2025-14819
+  - id: CVE-2025-58186
     statement: Waiting for team to return
     expired_at: 2026-03-20
-  - id: CVE-2025-15079
+  - id: CVE-2025-58187
     statement: Waiting for team to return
     expired_at: 2026-03-20
-  - id: CVE-2025-15224
+  - id: CVE-2025-58188
     statement: Waiting for team to return
     expired_at: 2026-03-20
-  - id: CVE-2025-15468
+  - id: CVE-2025-61724
     statement: Waiting for team to return
     expired_at: 2026-03-20
-  - id: CVE-2025-66199
+  - id: CVE-2025-58185
     statement: Waiting for team to return
     expired_at: 2026-03-20
-  - id: CVE-2025-68160
+  - id: CVE-2025-61723
     statement: Waiting for team to return
     expired_at: 2026-03-20
-  - id: CVE-2025-69418
+  - id: CVE-2025-61725
     statement: Waiting for team to return
     expired_at: 2026-03-20
-  - id: CVE-2025-69419
+  - id: CVE-2025-61729
     statement: Waiting for team to return
     expired_at: 2026-03-20
-  - id: CVE-2025-69420
-    statement: Waiting for team to return
-<<<<<<< HEAD
-    expired_at: 2026-03-20
-  - id: CVE-2025-69421
+  - id: CVE-2025-58189
     statement: Waiting for team to return
     expired_at: 2026-03-20
-  - id: CVE-2026-22795
-    statement: Waiting for team to return
-    expired_at: 2026-03-20
-  - id: CVE-2026-22796
-=======
-    expired_at: 2026-02-20
   - id: CVE-2025-61727
->>>>>>> edec87a45 (MLPAB-3567 removed fixed CVEs from .trivyignore files)
     statement: Waiting for team to return
     expired_at: 2026-03-20
-  - id: CVE-2026-24882
+  - id: CVE-2025-61726
     statement: Waiting for team to return
-<<<<<<< HEAD
     expired_at: 2026-03-20
-=======
-    expired_at: 2026-02-20
   - id: CVE-2025-61728
     statement: Waiting for team to return
-    expired_at: 2026-02-20
+    expired_at: 2026-03-20
   - id: CVE-2025-61730
     statement: Waiting for team to return
-    expired_at: 2026-02-20
+    expired_at: 2026-03-20
   - id: CVE-2025-68121
     statement: Waiting for team to return
-    expired_at: 2026-02-20
+    expired_at: 2026-03-20
   - id: CVE-2025-61731
     statement: Waiting for team to return
-    expired_at: 2026-02-20
+    expired_at: 2026-03-20
   - id: CVE-2025-68119
     statement: Waiting for team to return
-    expired_at: 2026-02-20
+    expired_at: 2026-03-20
   - id: CVE-2025-13151
     statement: Waiting for team to return
-    expired_at: 2026-02-20
+    expired_at: 2026-03-20
   - id: CVE-2025-15467
     statement: Waiting for team to return
-    expired_at: 2026-02-20
->>>>>>> edec87a45 (MLPAB-3567 removed fixed CVEs from .trivyignore files)
+    expired_at: 2026-03-20
