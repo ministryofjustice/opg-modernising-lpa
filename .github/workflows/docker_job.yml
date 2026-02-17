@@ -141,6 +141,7 @@ jobs:
       - name: Trivy Image Vulnerability Scanner
         id: trivy_scan
         run: |
+          sleep $((RANDOM % 12));
           mkdir -p -m 0777 .trivy-cache ./test-results/
           docker run \
             --volume /var/run/docker.sock:/var/run/docker.sock \
@@ -183,9 +184,9 @@ jobs:
         id: trivy_sbom
         uses: aquasecurity/trivy-action@b6643a29fecd7f34b3597bc6acb0a98b03d33ff8 # 0.33.1
         env:
-          TRIVY_DB_REPOSITORY: ${{ steps.login_ecr.outputs.registry }}/trivy-db-public-ecr/aquasecurity/trivy-db:2
-          TRIVY_JAVA_DB_REPOSITORY: ${{ steps.login_ecr.outputs.registry }}/trivy-db-public-ecr/aquasecurity/trivy-java-db:1
-          TRIVY_IGNOREFILE: ${{ matrix.trivyignores }}
+          TRIVY_SKIP_DB_UPDATE: true
+          TRIVY_SKIP_JAVA_DB_UPDATE: true
+          TRIVY_SKIP_CHECK_UPDATE: true
         with:
           scan-type: "image"
           image-ref: ${{ matrix.ecr_repository }}:${{ inputs.tag }}
