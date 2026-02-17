@@ -115,7 +115,7 @@ func TestRunnerRemindAttorneyToComplete(t *testing.T) {
 			AttorneyFullName:        "c d",
 			DeadlineDate:            "2 April 2000",
 			AttorneyStartPageURL:    "http://example.com/attorney",
-			AttorneyOptOutURL:       "http://example.com/attorney-opt-out",
+			AttorneyOptOutURL:       "http://app/attorney-enter-access-code-opt-out",
 		}).
 		Return(nil).
 		Once()
@@ -127,7 +127,7 @@ func TestRunnerRemindAttorneyToComplete(t *testing.T) {
 			AttorneyFullName:        "trusty",
 			DeadlineDate:            "2 April 2000",
 			AttorneyStartPageURL:    "http://example.com/attorney",
-			AttorneyOptOutURL:       "http://example.com/attorney-opt-out",
+			AttorneyOptOutURL:       "http://app/attorney-enter-access-code-opt-out",
 		}).
 		Return(nil).
 		Once()
@@ -139,7 +139,7 @@ func TestRunnerRemindAttorneyToComplete(t *testing.T) {
 			AttorneyFullName:        "e f",
 			DeadlineDate:            "2 April 2000",
 			AttorneyStartPageURL:    "http://example.com/attorney",
-			AttorneyOptOutURL:       "http://example.com/attorney-opt-out",
+			AttorneyOptOutURL:       "http://app/attorney-enter-access-code-opt-out",
 		}).
 		Return(nil).
 		Once()
@@ -151,7 +151,7 @@ func TestRunnerRemindAttorneyToComplete(t *testing.T) {
 			AttorneyFullName:        "untrusty",
 			DeadlineDate:            "2 April 2000",
 			AttorneyStartPageURL:    "http://example.com/attorney",
-			AttorneyOptOutURL:       "http://example.com/attorney-opt-out",
+			AttorneyOptOutURL:       "http://app/attorney-enter-access-code-opt-out",
 		}).
 		Return(nil).
 		Once()
@@ -224,8 +224,8 @@ func TestRunnerRemindAttorneyToComplete(t *testing.T) {
 		notifyClient:             notifyClient,
 		bundle:                   bundle,
 		now:                      testNowFn,
+		appPublicURL:             "http://app",
 		attorneyStartURL:         "http://example.com/attorney",
-		attorneyOptOutURL:        "http://example.com/attorney-opt-out",
 	}
 
 	err := runner.stepRemindAttorneyToComplete(ctx, row)
@@ -315,7 +315,7 @@ func TestRunnerRemindAttorneyToCompleteNotStarted(t *testing.T) {
 			InvitedDate:             "1 October 1999",
 			DeadlineDate:            "2 April 2000",
 			AttorneyStartPageURL:    "http://example.com/attorney",
-			AttorneyOptOutURL:       "http://example.com/attorney-opt-out",
+			AttorneyOptOutURL:       "http://app/attorney-enter-access-code-opt-out",
 		}).
 		Return(nil).
 		Once()
@@ -328,7 +328,7 @@ func TestRunnerRemindAttorneyToCompleteNotStarted(t *testing.T) {
 			InvitedDate:             "1 October 1999",
 			DeadlineDate:            "2 April 2000",
 			AttorneyStartPageURL:    "http://example.com/attorney",
-			AttorneyOptOutURL:       "http://example.com/attorney-opt-out",
+			AttorneyOptOutURL:       "http://app/attorney-enter-access-code-opt-out",
 		}).
 		Return(nil).
 		Once()
@@ -341,7 +341,7 @@ func TestRunnerRemindAttorneyToCompleteNotStarted(t *testing.T) {
 			InvitedDate:             "1 October 1999",
 			DeadlineDate:            "2 April 2000",
 			AttorneyStartPageURL:    "http://example.com/attorney",
-			AttorneyOptOutURL:       "http://example.com/attorney-opt-out",
+			AttorneyOptOutURL:       "http://app/attorney-enter-access-code-opt-out",
 		}).
 		Return(nil).
 		Once()
@@ -354,7 +354,7 @@ func TestRunnerRemindAttorneyToCompleteNotStarted(t *testing.T) {
 			InvitedDate:             "1 October 1999",
 			DeadlineDate:            "2 April 2000",
 			AttorneyStartPageURL:    "http://example.com/attorney",
-			AttorneyOptOutURL:       "http://example.com/attorney-opt-out",
+			AttorneyOptOutURL:       "http://app/attorney-enter-access-code-opt-out",
 		}).
 		Return(nil).
 		Once()
@@ -430,8 +430,8 @@ func TestRunnerRemindAttorneyToCompleteNotStarted(t *testing.T) {
 		notifyClient:             notifyClient,
 		bundle:                   bundle,
 		now:                      testNowFn,
+		appPublicURL:             "http://app",
 		attorneyStartURL:         "http://example.com/attorney",
-		attorneyOptOutURL:        "http://example.com/attorney-opt-out",
 	}
 
 	err := runner.stepRemindAttorneyToComplete(ctx, row)
