@@ -141,6 +141,7 @@ jobs:
       - name: Trivy Image Vulnerability Scanner
         id: trivy_scan
         run: |
+          sleep $((RANDOM % 12));
           mkdir -p -m 0777 .trivy-cache ./test-results/
           docker run \
             --volume /var/run/docker.sock:/var/run/docker.sock \
