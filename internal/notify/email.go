@@ -452,7 +452,11 @@ type AdviseAttorneyToSignOrOptOutEmailAccessCodeUsed struct {
 	AttorneyOptOutURL       string
 }
 
-func (e AdviseAttorneyToSignOrOptOutEmailAccessCodeUsed) emailID(_ localize.Lang) string {
+func (e AdviseAttorneyToSignOrOptOutEmailAccessCodeUsed) emailID(lang localize.Lang) string {
+	if lang.IsCy() {
+		return "4c0e65c1-e490-475c-aa8e-a4c693864b7c"
+	}
+
 	return "f81d0d29-9461-405a-b8a0-2a8cdace7ffe"
 }
 
