@@ -1,4 +1,4 @@
-FROM node:20-alpine@sha256:3960ed74dfe320a67bf8da9555b6bade25ebda2b22b6081d2f60fd7d5d430e9c AS fetched-repo
+FROM node:22.22-alpine3.23 AS fetched-repo
 
 WORKDIR /app
 
@@ -6,7 +6,7 @@ RUN apk add --no-cache git=2.52.0-r0
 ADD https://api.github.com/repos/ministryofjustice/register-lpa-prototype/git/refs/heads/main version.json
 RUN git clone -b main https://github.com/ministryofjustice/register-lpa-prototype.git
 
-FROM node:20-alpine@sha256:3960ed74dfe320a67bf8da9555b6bade25ebda2b22b6081d2f60fd7d5d430e9c AS production
+FROM node:22.22-alpine3.23 AS production
 
 RUN addgroup -g 1017 -S appgroup \
   && adduser -u 1017 -S appuser -G appgroup
