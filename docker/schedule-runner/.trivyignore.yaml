@@ -39,6 +39,7 @@ vulnerabilities:
     expired_at: 2026-03-20
   - id: CVE-2025-69420
     statement: Waiting for team to return
+<<<<<<< HEAD
     expired_at: 2026-03-20
   - id: CVE-2025-69421
     statement: Waiting for team to return
@@ -47,8 +48,37 @@ vulnerabilities:
     statement: Waiting for team to return
     expired_at: 2026-03-20
   - id: CVE-2026-22796
+=======
+    expired_at: 2026-02-20
+  - id: CVE-2025-61727
+>>>>>>> edec87a45 (MLPAB-3567 removed fixed CVEs from .trivyignore files)
     statement: Waiting for team to return
     expired_at: 2026-03-20
   - id: CVE-2026-24882
     statement: Waiting for team to return
+<<<<<<< HEAD
     expired_at: 2026-03-20
+=======
+    expired_at: 2026-02-20
+  - id: CVE-2025-61728
+    statement: Waiting for team to return
+    expired_at: 2026-02-20
+  - id: CVE-2025-61730
+    statement: Waiting for team to return
+    expired_at: 2026-02-20
+  - id: CVE-2025-68121
+    statement: Waiting for team to return
+    expired_at: 2026-02-20
+  - id: CVE-2025-61731
+    statement: Waiting for team to return
+    expired_at: 2026-02-20
+  - id: CVE-2025-68119
+    statement: Waiting for team to return
+    expired_at: 2026-02-20
+  - id: CVE-2025-13151
+    statement: Waiting for team to return
+    expired_at: 2026-02-20
+  - id: CVE-2025-15467
+    statement: Waiting for team to return
+    expired_at: 2026-02-20
+>>>>>>> edec87a45 (MLPAB-3567 removed fixed CVEs from .trivyignore files)
