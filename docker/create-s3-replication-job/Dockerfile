@@ -18,12 +18,12 @@ COPY --link  docker/install_lambda_insights.sh /app/
 RUN chmod +x "/app/install_lambda_insights.sh" \
   && /app/install_lambda_insights.sh "${TARGETPLATFORM}"
 
-# Switch DNF to the latest AL2023.7 release (2023.7.20250512) and update SQLite packages
-#Added to trivy ignore on this issues as we are updating not installing.
-RUN echo "2023.7.20250512" > /etc/dnf/vars/releasever && \
-  dnf clean all && \
-  dnf -y update sqlite-libs libxml2 && \
-  dnf clean all
+# Switch DNF to the latest AL2023.10 release (2023.10.20260202) and update SQLite packages
+#Add trivy ignore on this issues as we are updating not installing.
+RUN echo "2023.10.20260202" > /etc/dnf/vars/releasever && \
+    dnf clean all && \
+    dnf -y update sqlite-libs libxml2 && \
+    dnf clean all
 
 COPY --from=build /app/create-s3-replication-job ./create-s3-replication-job
 COPY --link lang ./lang
