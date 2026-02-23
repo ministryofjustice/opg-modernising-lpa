@@ -93,10 +93,10 @@ type Runner struct {
 	actions                      map[scheduleddata.Action]ActionFunc
 	waiter                       Waiter
 	metricsClient                MetricsClient
+	appPublicURL                 string
 	certificateProviderStartURL  string
 	certificateProviderOptOutURL string
 	attorneyStartURL             string
-	attorneyOptOutURL            string
 	// TODO remove in MLPAB-2690
 	metricsEnabled bool
 
@@ -136,10 +136,10 @@ func NewRunner(
 		waiter:                       &waiter{backoff: time.Second, sleep: time.Sleep, maxRetries: 10},
 		metricsClient:                metricsClient,
 		metricsEnabled:               metricsEnabled,
+		appPublicURL:                 appPublicURL,
 		certificateProviderStartURL:  certificateProviderStartURL,
 		certificateProviderOptOutURL: appPublicURL + page.PathCertificateProviderEnterAccessCodeOptOut.Format(),
 		attorneyStartURL:             attorneyStartURL,
-		attorneyOptOutURL:            appPublicURL + page.PathAttorneyEnterAccessCodeOptOut.Format(),
 	}
 
 	r.actions = map[scheduleddata.Action]ActionFunc{

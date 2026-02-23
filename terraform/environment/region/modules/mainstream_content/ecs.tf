@@ -135,7 +135,7 @@ locals {
           value = tostring(100)
         },
         {
-          name  = "APP_PORT",
+          name  = "PORT",
           value = tostring(var.container_port)
         },
         {
