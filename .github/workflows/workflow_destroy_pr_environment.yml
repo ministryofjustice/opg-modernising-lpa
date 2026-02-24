@@ -49,7 +49,7 @@ jobs:
       - name: Checkout
         uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
       - name: Configure AWS Credentials For Terraform
-        uses: aws-actions/configure-aws-credentials@61815dcd50bd041e203e49132bacad1fd04d2708 # v5.1.1
+        uses: aws-actions/configure-aws-credentials@8df5847569e6427dd6c4fb1cf565c83acfa8afa7 # v6.0.0
         with:
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID_ACTIONS }}
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY_ACTIONS }}
@@ -104,7 +104,7 @@ jobs:
         run: |
           terraform-workspace-manager -register-workspace=${{ needs.generate_environment_workspace_name.outputs.environment_workspace_name }} -time-to-protect=0 -aws-account-id=653761790766 -aws-iam-role=modernising-lpa-ci
       - name: Configure AWS Credentials For AWS CLI
-        uses: aws-actions/configure-aws-credentials@61815dcd50bd041e203e49132bacad1fd04d2708 # v5.1.1
+        uses: aws-actions/configure-aws-credentials@8df5847569e6427dd6c4fb1cf565c83acfa8afa7 # v6.0.0
         with:
           role-to-assume: arn:aws:iam::653761790766:role/modernising-lpa-github-actions-cloudwatch-log-group-delete
           aws-region: eu-west-1
@@ -114,7 +114,7 @@ jobs:
         run: |
           aws logs delete-log-group --log-group-name /aws/ecs/containerinsights/${{ needs.generate_environment_workspace_name.outputs.environment_workspace_name }}/performance
       - name: Configure AWS Credentials For opensearch
-        uses: aws-actions/configure-aws-credentials@61815dcd50bd041e203e49132bacad1fd04d2708 # v5.1.1
+        uses: aws-actions/configure-aws-credentials@8df5847569e6427dd6c4fb1cf565c83acfa8afa7 # v6.0.0
         with:
           role-to-assume: arn:aws:iam::653761790766:role/modernising-lpa-github-actions-opensearch-delete-index
           aws-region: eu-west-1
