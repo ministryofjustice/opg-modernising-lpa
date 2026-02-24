@@ -118,7 +118,7 @@
     "chooseYourReplacementAttorneys": "Dewis eich atwrneiod wrth gefn",
     "chooseWhenTheLpaCanBeUsed": "Dewis pryd y gellir defnyddio eich LPA",
     "lifeSustainingTreatment": "Triniaeth cynnal bywyd",
-    "addRestrictionsToTheLpa": "Ychwanegu cyfyngiadau at yr LPA (dewisol)",
+    "addRestrictionsToTheLpa": "Ychwanegu cyfyngiadau at yr LPA",
     "checkAndSendToYourCertificateProvider": "Gwirio ac anfon eich cais at eich darparwr tystysgrif",
     "payForTheLpa": "Talu am yr LPA",
     "confirmYourIdentityAndSign": "Cadarnhau eich hunaniaeth a llofnodi’r LPA",
@@ -155,7 +155,7 @@
         "other": "Mae cael atwrneiod wrth gefn yn ddewisol. Serch hynny, mae cael un neu fwy o atwrneiod wrth gefn yn helpu i sicrhau y bydd eich LPA yn parhau i weithio os na all {{.AttorneysFullNames}} (eich atwrneiod) weithredu mwyach."
     },
     "replacementAttorneyRequirements": "Welsh {{.SelectAttorneysHelpLink}}",
-    "findOutMoreAboutReplacementAttorneysContent": "<p class=\"govuk-body\"><a href=\"{{ .ReplacementAttorneysHelpLink }}\" class=\"govuk-link\">Darllenwch fwy am atwrneiod wrth gefn.</a></p>",
+    "findOutMoreAboutReplacementAttorneysContent": "<p class=\"govuk-body\"><a href=\"{{ .ReplacementAttorneysHelpLink }}\" class=\"govuk-link\" target=\"_blank\" rel=\"noreferrer noopener\">Darllenwch fwy am atwrneiod wrth gefn (yn agor mewn tab newydd).</a></p>",
     "yesReplacementAttorneys": "Ydw, rydw i eisiau atwrneiod wrth gefn",
     "noReplacementAttorneys": "Na, nid ydw i eisiau atwrneiod wrth gefn",
     "replacementAttorneys": "Atwrneiod wrth gefn",
