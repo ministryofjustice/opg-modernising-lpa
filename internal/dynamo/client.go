@@ -142,7 +142,7 @@ func (c *Client) AllBySK(ctx context.Context, sk SK, v interface{}) error {
 		KeyConditionExpression: aws.String("#SK = :SK"),
 	})
 	if err != nil {
-		return fmt.Errorf("failed to find all by SK: %w", err)
+		return err
 	}
 
 	return attributevalue.UnmarshalListOfMaps(response.Items, v)
@@ -159,7 +159,7 @@ func (c *Client) OneBySK(ctx context.Context, sk SK, v interface{}) error {
 		KeyConditionExpression: aws.String("#SK = :SK"),
 	})
 	if err != nil {
-		return fmt.Errorf("failed to find by SK: %w", err)
+		return err
 	}
 
 	if len(response.Items) == 0 {
@@ -185,7 +185,7 @@ func (c *Client) LatestForActor(ctx context.Context, sk SK, v interface{}) error
 	})
 
 	if err != nil {
-		return fmt.Errorf("failed to find latest for actor: %w", err)
+		return err
 	}
 
 	if len(response.Items) == 0 {
@@ -207,7 +207,7 @@ func (c *Client) AllKeysByPK(ctx context.Context, pk PK) ([]Keys, error) {
 	})
 
 	if err != nil {
-		return nil, fmt.Errorf("failed to get all keys by PK: %w", err)
+		return nil, err
 	}
 
 	var keys []Keys
@@ -251,7 +251,7 @@ func (c *Client) OneByPK(ctx context.Context, pk PK, v interface{}) error {
 	})
 
 	if err != nil {
-		return fmt.Errorf("failed to get by PK: %w", err)
+		return err
 	}
 
 	if len(response.Items) == 0 {
@@ -274,7 +274,7 @@ func (c *Client) OneByPartialSK(ctx context.Context, pk PK, partialSK SK, v inte
 	})
 
 	if err != nil {
-		return fmt.Errorf("failed to get by partial SK: %w", err)
+		return err
 	}
 
 	if len(response.Items) == 0 {
@@ -295,7 +295,7 @@ func (c *Client) AllByPartialSK(ctx context.Context, pk PK, partialSk SK, v inte
 		KeyConditionExpression: aws.String("#PK = :PK and begins_with(#SK, :SK)"),
 	})
 	if err != nil {
-		return fmt.Errorf("failed to get all by partial SK: %w", err)
+		return err
 	}
 
 	return attributevalue.UnmarshalListOfMaps(response.Items, v)
@@ -500,7 +500,7 @@ func (c *Client) OneActive(ctx context.Context, pk PK, sk SK, now time.Time, v i
 	})
 
 	if err != nil {
-		return fmt.Errorf("failed to get active: %w", err)
+		return err
 	}
 
 	if len(output.Items) == 0 {
