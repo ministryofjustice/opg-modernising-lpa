@@ -1,21 +1,3 @@
 misconfigurations:
 
 vulnerabilities:
-  - id: CVE-2025-58183
-    statement: Waiting for team to return
-    expired_at: 2026-03-20
-  - id: CVE-2025-61729
-    statement: Waiting for team to return
-    expired_at: 2026-03-20
-  - id: CVE-2025-61726
-    statement: Waiting for team to return
-    expired_at: 2026-03-20
-  - id: CVE-2025-61728
-    statement: Waiting for team to return
-    expired_at: 2026-03-20
-  - id: CVE-2025-61730
-    statement: Waiting for team to return
-    expired_at: 2026-03-20
-  - id: CVE-2025-68121
-    statement: Waiting for team to return
-    expired_at: 2026-03-20

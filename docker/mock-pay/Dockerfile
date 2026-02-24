@@ -1,18 +1,25 @@
 FROM golang:1.25.7-alpine@sha256:724e212d86d79b45b7ace725b44ff3b6c2684bfd3131c43d5d60441de151d98e AS base
+
+RUN addgroup -S user && \
+  adduser -S -g user user
+
+RUN go install 'github.com/imposter-project/imposter-go/cmd/imposter@v1.8.0' \
+  && mv $GOPATH/bin/imposter /tmp/imposter
+
 RUN wget -q -O /tmp/publicapi_spec.json https://raw.githubusercontent.com/alphagov/pay-publicapi/master/openapi/publicapi_spec.json
 
-ARG USERNAME=imposter
-ARG USER_UID=1000
-ARG USER_GID=1000
+FROM scratch AS production
 
-RUN addgroup -g $USER_GID $USERNAME \
-    && adduser -D -u $USER_UID -G $USERNAME $USERNAME
+ENV IMPOSTER_CONFIG_DIR=/opt/imposter/config
+ENV IMPOSTER_PLUGIN_DIR=/opt/imposter/plugins
 
-FROM outofcoffee/imposter:5-beta@sha256:c85f7e7c3434cda5fdf8b7100a98b91ec073e8cb6500367560b24c58c6faa264 AS production
-COPY ./docker/mock-pay /opt/imposter/config/
-
+COPY --from=base /etc/passwd /etc/passwd
+COPY --from=base /etc/ssl/certs/ca-certificates.crt /etc/ssl/certs/
 COPY --from=base /tmp/publicapi_spec.json /opt/imposter/config/
+COPY --from=base /tmp/imposter /imposter-go
+COPY --link ./docker/mock-pay /opt/imposter/config/
 
-USER $USERNAME
-
+USER user
 EXPOSE 8080
+
+ENTRYPOINT ["/imposter-go"]
