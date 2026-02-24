@@ -47,7 +47,7 @@ services:
       test: ["CMD", "./https-proxy", "--healthy", "https://secure-event-logger:8443"]
 
   cypress:
-    image: cypress/included:15.9.0@sha256:91111352c3adf4a0ff5bee6f3f49af56a66deb81d74a784dbb68bc98a3fbd26e
+    image: cypress/included:15.10.0@sha256:c41a891e3a1e35ce0d98cb255465a8c43394ff1584cb3c9e40ba3aec2cdaa11b
     depends_on:
       secure-app:
         condition: service_healthy
