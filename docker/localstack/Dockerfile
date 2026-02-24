@@ -1,4 +1,4 @@
-FROM golang:1.25.7-alpine@sha256:724e212d86d79b45b7ace725b44ff3b6c2684bfd3131c43d5d60441de151d98e AS build
+FROM golang:1.25.7-alpine@sha256:f6751d823c26342f9506c03797d2527668d095b0a15f1862cddb4d927a7a4ced AS build
 
 RUN apk add --no-cache zip=3.0-r13 unzip=6.0-r16
 
