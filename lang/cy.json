@@ -727,7 +727,7 @@
         "other": "Ni ellir uwchlwytho {{.Filenames}} am eu bod yn cynnwys feirws"
     },
     "referenceNumber": "Cyfeirnod",
-    "lastUpdated": "Diweddarwyd diwethaf",
+    "lastUpdated": "Diweddarwyd ddiwethaf",
     "viewLpa": "Gweld yr LPA",
     "withdrawLpa": "Tynnu’n ôl yr LPA",
     "deleteLpa": "Dileu’r LPA",
