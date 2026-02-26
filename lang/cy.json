@@ -727,7 +727,7 @@
         "other": "Ni ellir uwchlwytho {{.Filenames}} am eu bod yn cynnwys feirws"
     },
     "referenceNumber": "Cyfeirnod",
-    "lastUpdated": "Diweddarwyd diwethaf",
+    "lastUpdated": "Diweddarwyd ddiwethaf",
     "viewLpa": "Gweld yr LPA",
     "withdrawLpa": "Tynnu’n ôl yr LPA",
     "deleteLpa": "Dileu’r LPA",
@@ -1982,7 +1982,7 @@
     "howLongWeKeepYourData": "<h2 class=\"govuk-heading-m\">Welsh</h2><p class=\"govuk-body\">Welsh</p>",
     "changesToThisPolicy": "<h2 class=\"govuk-heading-m\">Welsh</h2><p class=\"govuk-body\">Welsh</p>",
     "forMoreInfoOrToMakeAComplaint": "<h2 class=\"govuk-heading-m\">Welsh</h2><p class=\"govuk-body\">Welsh</p>",
-    "lastUpdatedDatePrivacyNotice": "<h2 class=\"govuk-heading-m\">Welsh</h2><p class=\"govuk-body\">Welsh</p>",
+    "lastUpdatedDatePrivacyNotice": "<h2 class=\"govuk-heading-m\">Diweddarwyd ddiwethaf</h2><p class=\"govuk-body\">2 Awst 2025</p>",
     "termsOfUseTitle": "Welsh",
     "termsOfUseContent": "<a href=\"{{ .LoginURL }}\" class=\"govuk-link\" target=\"_blank\" rel=\"noreferrer noopener\">Welsh</a> <a href=\"{{ .PrivacyNoticeURL }}\" class=\"govuk-link\" target=\"_blank\" rel=\"noreferrer noopener\">privacy notice (opens in a new tab).</a>"
 }
