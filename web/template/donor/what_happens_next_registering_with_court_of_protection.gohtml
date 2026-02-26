@@ -15,7 +15,7 @@
 
             <h1 class="govuk-heading-xl">{{ tr .App "whatHappensNext" }}</h1>
 
-            <p class="govuk-body">{{ tr .App "itCostsMoneyToRegisterThroughCourtOfProtection" }}</p>
+            <p class="govuk-body">{{ trHtml .App "itCostsMoneyToRegisterThroughCourtOfProtection" }}</p>
 
             {{ if $isIdentityExpired }}
                 {{ trFormatHtml .App "wouldYouLikeToRevokeThisLpa" "Link" (link .App (global.Paths.WithdrawThisLpa.Format .App.LpaID)) }}
@@ -38,7 +38,7 @@
                 <li>{{ trFormat .App "opgWillContactYourCertificateProvider" "FullName" .Donor.CertificateProvider.FullName }}</li>
                 <li>{{ trFormatCount .App "opgWillContactAttorneys" .Donor.Attorneys.Len "FullNames" (concatAnd .App .Donor.Attorneys.FullNames) }}</li>
                 <li>{{ tr .App "onceEveryoneHasSignedOpgWill" }}</li>
-                <li>{{ tr .App "atTheEndOfTheWaitingPeriodOpgWill" }}</li>
+                <li>{{ trHtml .App "atTheEndOfTheWaitingPeriodOpgWill" }}</li>
                 <li>{{ tr .App "ifTheCOPFindsYourLpaIsValid" }}</li>
             </ol>
 
