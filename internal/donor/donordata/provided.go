@@ -718,7 +718,7 @@ func (p *Provided) Actors() iter.Seq[actor.Actor] {
 }
 
 func (p *Provided) CanHaveVoucher() bool {
-	return p.VouchAttempts < 2
+	return !p.IdentityUserData.Status.IsFailed() && p.VouchAttempts < 2
 }
 
 func (p *Provided) UpdateDecisions() {
