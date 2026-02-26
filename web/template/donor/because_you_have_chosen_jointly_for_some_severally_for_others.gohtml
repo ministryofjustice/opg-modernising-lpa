@@ -7,7 +7,7 @@
     <div class="govuk-grid-column-two-thirds">
         <h1 class="govuk-heading-xl">{{ template "pageTitle" . }}</h1>
 
-        {{ trHtml .App "becauseYouHaveChosenJointlyForSomeSeverallyForOthersContent" }}
+        {{ trFormatHtml .App "becauseYouHaveChosenJointlyForSomeSeverallyForOthersContent" "RestrictionsLink" (link .App (global.Paths.Restrictions.Format .App.LpaID)) }}
 
         <a href="{{ global.Paths.TaskList.Format .App.LpaID }}" class="govuk-link govuk-button">{{ tr .App "returnToTaskList" }}</a>
     </div>
