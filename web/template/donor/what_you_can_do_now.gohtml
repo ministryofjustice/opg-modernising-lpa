@@ -17,13 +17,15 @@
                 {{ if not .Donor.IdentityUserData.Status.IsFailed }}
                     {{ trHtml .App "replaceFindOrGetNewIDContent" }}
                 {{ end }}
-                {{ trHtml .App "confirmYourIdentityByAskingForVouchContent" }}
-                <div class="govuk-inset-text">
-                    <p class="govuk-body">{{ tr .App "ifYouNeedHelpWithGOLContactTheirTeam" }}</p>
-                    <a href="#" class="govuk-link">
-                        {{ tr .App "contactGOL" }}
-                    </a>
-                </div>
+                {{ if not .Donor.IdentityUserData.Status.IsFailed }}
+                    {{ trHtml .App "confirmYourIdentityByAskingForVouchContent" }}
+                    <div class="govuk-inset-text">
+                        <p class="govuk-body">{{ tr .App "ifYouNeedHelpWithGOLContactTheirTeam" }}</p>
+                        <a href="#" class="govuk-link">
+                            {{ tr .App "contactGOL" }}
+                        </a>
+                    </div>
+                {{ end }}
                 {{ if .Donor.WitnessedByCertificateProviderAt.IsZero }}
                     {{ trHtml .App "whatYouCanDoNowDeleteLpaContent" }}
                 {{ else }}
