@@ -28,7 +28,8 @@
                             {{ trHtml .App "jointlyReplacementWarningContent" }}
                         {{ else if .Donor.AttorneyDecisions.How.IsJointlyForSomeSeverallyForOthers }}
                             {{ template "warning" (content .App "mixedReplacementWarning") }}
-                            {{ trHtml .App "mixedReplacementWarningContent" }}
+                            {{ trFormatHtml .App "mixedReplacementWarningContent"
+                                "RestrictionsLink" (link .App (global.Paths.Restrictions.Format .App.LpaID)) }}
                         {{ end }}
 
                         {{ template "error-message" (errorMessage . .Form.FieldName) }}
