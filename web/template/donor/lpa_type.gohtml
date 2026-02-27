@@ -49,7 +49,7 @@
                 {{ template "details" (details . "whyCantIChangeMyLpaType" (trFormat .App "changingYourLpaTypeContent" "TypeLpa" (trFormat .App "typeLpa" "Type" (tr .App $otherType | lowerFirst))) false) }}
 
                 <p class="govuk-body">
-                    <a href="{{ link .App global.Paths.TheTwoTypesOfLPA.Format }}" class="govuk-link">{{ tr .App "findOutMoreAboutTwoTypesOfLpa" }}</a>
+                    <a href="{{ link .App global.Paths.TheTwoTypesOfLPA.Format }}" class="govuk-link">{{ tr .App "learnMoreMoreAboutTwoTypesOfLpa" }}</a>
                 </p>
 
                 {{ template "buttons" (button .App "continue" "link" (global.Paths.TaskList.Format .App.LpaID)) }}
