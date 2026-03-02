@@ -1910,7 +1910,7 @@
     "someOfTheDetailsOnYourLpaDoNotMatch": "Welsh",
     "youChoseNotToCorrectMismatch": "<p class=\"govuk-notification-banner__heading\">Welsh.</p>",
     "manageLPAsContent": "<p class=\"govuk-body app-two-thirds-fixed-desktop\">Welsh</p><p class=\"govuk-body app-two-thirds-fixed-desktop\">Welsh</p>",
-    "makeOrAddLPAsContent": "Mae'r dudalen hon yn caniatáu i chi wneud LPA newydd, neu ychwanegu LPA gan ddefnyddio’r cod mynediad a dderbynioch ar e-bost gan Swyddfa’r Gwarcheidwad Cyhoeddus (OPG).",
+    "makeOrAddLPAsContent": "Mae’r dudalen hon yn caniatáu i chi wneud LPA newydd, neu ychwanegu LPA gan ddefnyddio’r cod mynediad a dderbynioch ar e-bost gan Swyddfa’r Gwarcheidwad Cyhoeddus (OPG).",
     "youHaveSignedContactToChangeDetails": "Welsh <a href=\"{{.ContactLink}}\" class=\"govuk-link\" target=\"_blank\" rel=\"noreferrer noopener\">Welsh</a>",
     "addressInYourLpa": "Welsh",
     "enterYourCompanyNumber": "Welsh",
