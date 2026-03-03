@@ -152,7 +152,7 @@ services:
       timeout: 5s
 
   mock-lpa-store:
-    image: outofcoffee/imposter:4.8.0@sha256:7b60391a9e89d825057c87342f4c0f940af52c21992ccbdf1c163d2ee47ea271
+    image: outofcoffee/imposter:4.8.1@sha256:f2a4422d392e7be5a282186ca88df80f90ec735021876d81757b151c59ce927a
     volumes:
       - ./mock-lpa-store/:/opt/imposter/config/
     container_name: mock-lpa-store
@@ -193,7 +193,7 @@ services:
       - IMPOSTER_LOG_LEVEL=TRACE
 
   mock-uid:
-    image: outofcoffee/imposter:4.8.0@sha256:7b60391a9e89d825057c87342f4c0f940af52c21992ccbdf1c163d2ee47ea271
+    image: outofcoffee/imposter:4.8.1@sha256:f2a4422d392e7be5a282186ca88df80f90ec735021876d81757b151c59ce927a
     volumes:
       - ./mock-uid/:/opt/imposter/config/
     container_name: mock-uid
