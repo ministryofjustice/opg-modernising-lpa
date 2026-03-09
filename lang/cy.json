@@ -107,7 +107,7 @@
     "makeYourTypeLpa": "Gwneud eich LPA {{lowerFirst .Type}}",
     "yourTaskList": "Eich rhestr o dasgau",
     "taskListHelp": "Help i wneud yr LPA hon",
-    "taskListHelpContent": "<p class=\"govuk-body\">Welsh</p> <a href=\"{{ .HelpAndSupportLink }}\" class=\"govuk-link\">Welsh</a> <a href=\"https://mainstreamcontent.modernising.opg.service.justice.gov.uk/register-lasting-power-of-attorney\" class=\"govuk-link\" target=\"_blank\" rel=\"noreferrer noopener\">Welsh</a>",
+    "taskListHelpContent": "<p class=\"govuk-body\">Fe welwch ddolenni yn cynnig arweiniad ynghylch gwneud eich LPA wrth i chi fynd trwy eich rhestr o dasgau.</p> <p>Ewch i <a href=\"{{ .HelpAndSupportLink }}\" class=\"govuk-link\" target=\"_blank\" rel=\"noreferrer noopener\">Cymorth a chefnogaeth (yn agor mewn tab newydd)</a> i weld mynegai o'n holl dudalennau arweiniad, geirfa, a manylion cyswllt Swyddfa'r Gwarcheidwad Cyhoeddus.</p> <p class=\"govuk-body\">I weld trosolwg o'r holl broses, ewch i <a href=\"https://mainstreamcontent.modernising.opg.service.justice.gov.uk/register-lasting-power-of-attorney\" class=\"govuk-link\" target=\"_blank\" rel=\"noreferrer noopener\">Cofrestru atwrneiaeth arhosol (yn agor mewn tab newydd).</a></p>",
     "completed": "Wedi’i gwblhau",
     "inProgress": "Prosesu",
     "cannotStartYet": "Methu dechrau eto",
