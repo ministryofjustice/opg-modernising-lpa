@@ -1146,7 +1146,7 @@
     "yesIfWouldLikeToUpdateDetails": "hoffwn, os hoffech ddiweddaru eich manylion",
     "wouldYouLikeToUpdateDetailsToMatchIdentityDetails": "Welsh {{.Mismatched}}",
     "yourRegisteredLpaLanguageContent": "<h2 class=\"govuk-heading-m\">Eich LPA gofrestredig</h2><p class=\"govuk-body\">Gallwch gofrestru eich LPA naill ai yn Gymraeg neu’n Saesneg. Byddai orau i chi ysgrifennu eich LPA mewn un iaith yn unig, er mwyn osgoi dryswch.</p><p class=\"govuk-body\">Pan fydd eich LPA wedi’i chofrestru byddwch chi, eich atwrneiod ac unrhyw sefydliadau y mae angen iddynt weld yr LPA, yn gallu ei gweld ar-lein. Byddwch yn gallu defnyddio’r ddolen iaith o hyd i gyfieithu rhai rhannau o’r LPA i’r Saesneg neu i’r Gymraeg. Fodd bynnag, ni fydd testun a roesoch ynghylch eich penderfyniadau personol yn cael ei gyfieithu.</p>",
-    "youCanOnlyChangeLanguageWarning": "Gallwch ond newid iaith eich LPA hyd nes i chi ei chofrestru. Ar ôl i chi ei chofrestru, os bydd angen fersiwn bapur arnoch, bydd ond ar gael yn yr iaith rydych chi wedi’i dewis. ",
+    "youCanOnlyChangeLanguageWarning": "Gallwch ond newid iaith eich LPA hyd nes i chi ei chofrestru. Ar ôl i chi ei chofrestru, os bydd angen fersiwn bapur o’r LPA arnoch, bydd ond ar gael yn yr iaith rydych chi wedi’i dewis. ",
     "youCanReturnToThisPageFromProvideDetails": "Gallwch ddychwelyd at y dudalen hon o’r adran ‘Rhoi eich manylion’ ar eich rhestr o dasgau hyd nes i chi gofrestru eich LPA.",
     "inWhichLanguageWouldYouLikeYourLpaRegistered": "Ym mha iaith hoffech chi i’r LPA gael ei chofrestru?",
     "usingThisService": "Defnyddio’r gwasanaeth hwn",
