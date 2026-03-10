@@ -109,16 +109,15 @@ jobs:
         id: trivy_dockerfile_misconfiguration_scan
         uses: aquasecurity/trivy-action@e368e328979b113139d6f9068e03accaed98a518 # 0.34.1
         env:
-          TRIVY_DB_REPOSITORY: ${{ steps.login_ecr.outputs.registry }}/trivy-db-public-ecr/aquasecurity/trivy-db:2
-          TRIVY_JAVA_DB_REPOSITORY: ${{ steps.login_ecr.outputs.registry }}/trivy-db-public-ecr/aquasecurity/trivy-java-db:1
           TRIVY_IGNOREFILE: ${{ matrix.trivyignores }}
         with:
-          scan-type: fs
-          scan-ref: ${{ matrix.path }}
-          severity: "HIGH,CRITICAL"
-          scanners: "misconfig"
-          version: v0.65.0
+          cache-dir: ${{ github.workspace }}/.cache/trivy
           exit-code: 1
+          scan-ref: ${{ matrix.path }}
+          scan-type: fs
+          scanners: "misconfig"
+          severity: "HIGH,CRITICAL"
+          version: v0.65.0
 
       - name: Build ${{ matrix.ecr_repository }} Image
         uses: docker/build-push-action@10e90e3645eae34f1e60eeb005ba3a3d33f178e8 # v6.19.2
@@ -188,11 +187,12 @@ jobs:
           TRIVY_SKIP_JAVA_DB_UPDATE: true
           TRIVY_SKIP_CHECK_UPDATE: true
         with:
-          scan-type: "image"
-          image-ref: ${{ matrix.ecr_repository }}:${{ inputs.tag }}
+          cache-dir: ${{ github.workspace }}/.cache/trivy
           format: "github"
-          output: "${{ matrix.name }}-${{ inputs.tag }}.sbom.json"
           github-pat: ${{ secrets.GITHUB_TOKEN }}
+          image-ref: ${{ matrix.ecr_repository }}:${{ inputs.tag }}
+          output: "${{ matrix.name }}-${{ inputs.tag }}.sbom.json"
+          scan-type: "image"
           version: v0.65.0
 
       - name: Upload trivy report as a Github artifact
