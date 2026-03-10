@@ -7,11 +7,21 @@
         <div class="govuk-grid-column-two-thirds">
             <h1 class="govuk-heading-xl">{{ tr .App "yourLegalRightsAndResponsibilitiesIfYouMakeLpa" }}</h1>
 
-            {{ trFormatHtml .App "yourLegalRightsAndResponsibilitiesIfYouMakeLpaContent" "UnderstandingMentalCapacityHelpLink" (link .App global.Paths.UnderstandingMentalCapacity.Format)  }}
+            {{ trFormatHtml .App "yourLegalRightsAndResponsibilitiesIfYouMakeLpaContent" "UnderstandingMentalCapacityHelpLink" (link .App global.Paths.UnderstandingMentalCapacity.Format) }}
 
+            <ul class="govuk-list govuk-list--bullet">
+                {{ if not .Donor.Type.Empty }}
+                    {{ trHtml .App (printf "youAreMakingADeedFirstBullet:%s" .Donor.Type) }}
+                {{end }}
+                {{ trHtml .App "youAreMakingADeedOtherBullets" }}
+            </ul>
+
+            {{ trHtml .App "misusesOfLPAs" }}
+
+            // Need to consolidate both legal rights templates into one template, see your_legal_rights_and_responsibilities.gohtml
             {{ if .Donor.Type.Empty }}
                 {{ template "button" (button .App "continue" "link" (global.Paths.LpaType.Format .App.LpaID)) }}
-            {{ else }}
+            {{ else}}
                 {{ template "buttons" (button .App "continue" "link" (global.Paths.LpaType.Format .App.LpaID)) }}
             {{ end }}
         </div>
