@@ -141,19 +141,16 @@ jobs:
         id: trivy_scan
         run: |
           sleep $((RANDOM % 12));
-          mkdir -p -m 0777 .trivy-cache ./test-results/
           docker run \
             --volume /var/run/docker.sock:/var/run/docker.sock \
-            --volume ./.trivy-cache:/root/.cache \
             --volume ./test-results:/test-results \
             --volume ./${{ matrix.trivyignores }}:/.trivyignore.yaml \
             --env TRIVY_IGNOREFILE='.trivyignore.yaml' \
-            --env TRIVY_DB_REPOSITORY=${{ steps.login_ecr.outputs.registry }}/trivy-db-public-ecr/aquasecurity/trivy-db:2 \
-            --env TRIVY_JAVA_DB_REPOSITORY=${{ steps.login_ecr.outputs.registry }}/trivy-db-public-ecr/aquasecurity/trivy-java-db:1 \
-            --env TRIVY_USERNAME=${{ steps.login_ecr.outputs.docker_username_311462405659_dkr_ecr_eu_west_1_amazonaws_com }} \
-            --env TRIVY_PASSWORD=${{ steps.login_ecr.outputs.docker_password_311462405659_dkr_ecr_eu_west_1_amazonaws_com }} \
             aquasec/trivy:0.65.0 image \
             ${{ matrix.ecr_repository }}:${{ inputs.tag }} \
+            --db-repository aquasec/trivy-db \
+            --java-db-repository aquasec/trivy-java-db \
+            --timeout 7m \
             --format table \
             --severity HIGH,CRITICAL
 
@@ -163,12 +160,11 @@ jobs:
             --volume ./test-results:/test-results \
             --volume ./${{ matrix.trivyignores }}:/.trivyignore.yaml \
             --env TRIVY_IGNOREFILE='.trivyignore.yaml' \
-            --env TRIVY_DB_REPOSITORY=${{ steps.login_ecr.outputs.registry }}/trivy-db-public-ecr/aquasecurity/trivy-db:2 \
-            --env TRIVY_JAVA_DB_REPOSITORY=${{ steps.login_ecr.outputs.registry }}/trivy-db-public-ecr/aquasecurity/trivy-java-db:1 \
-            --env TRIVY_USERNAME=${{ steps.login_ecr.outputs.docker_username_311462405659_dkr_ecr_eu_west_1_amazonaws_com }} \
-            --env TRIVY_PASSWORD=${{ steps.login_ecr.outputs.docker_password_311462405659_dkr_ecr_eu_west_1_amazonaws_com }} \
             aquasec/trivy:0.65.0 image ${{ matrix.ecr_repository }}:${{ inputs.tag }} \
+            --java-db-repository aquasec/trivy-java-db \
+            --checks-bundle-repository aquasec/trivy-checks \
             --severity HIGH,CRITICAL \
+            --timeout 7m \
             --exit-code 1 \
             --format sarif --output ./test-results/trivy.sarif \
 
