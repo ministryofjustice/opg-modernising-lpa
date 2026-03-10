@@ -125,10 +125,10 @@
     "attorneysAdded": {
         "zero": "",
         "one": "Rydych wedi ychwanegu {{.PluralCount}} atwrnai",
-        "two": "Rydych wedi ychwanegu {{.PluralCount}} o atwrneiod",
-        "few": "Rydych wedi ychwanegu {{.PluralCount}} o atwrneiod",
-        "many": "Rydych wedi ychwanegu {{.PluralCount}} o atwrneiod",
-        "other": "Rydych wedi ychwanegu {{.PluralCount}} o atwrneiod"
+        "two": "Rydych wedi ychwanegu {{.PluralCount}} atwrnai",
+        "few": "Rydych wedi ychwanegu {{.PluralCount}} atwrnai",
+        "many": "Rydych wedi ychwanegu {{.PluralCount}} atwrnai",
+        "other": "Rydych wedi ychwanegu {{.PluralCount}} atwrnai"
     },
     "doYouWantToAddAnotherAttorney": "Ydych chi eisiau ychwanegu atwrnai arall?",
     "yesToAddAnotherAttorney": "ydw i ychwanegu atwrnai arall",
@@ -362,10 +362,10 @@
     "replacementAttorneysAdded": {
         "zero": "",
         "one": "Rydych wedi ychwanegu {{.PluralCount}} atwrnai wrth gefn",
-        "two": "Rydych wedi ychwanegu {{.PluralCount}} atwrneiod wrth gefn",
-        "few": "Rydych wedi ychwanegu {{.PluralCount}} atwrneiod wrth gefn",
-        "many": "Rydych wedi ychwanegu {{.PluralCount}} atwrneiod wrth gefn",
-        "other": "Rydych wedi ychwanegu {{.PluralCount}} atwrneiod wrth gefn"
+        "two": "Rydych wedi ychwanegu {{.PluralCount}} atwrnai wrth gefn",
+        "few": "Rydych wedi ychwanegu {{.PluralCount}} atwrnai wrth gefn",
+        "many": "Rydych wedi ychwanegu {{.PluralCount}} atwrnai wrth gefn",
+        "other": "Rydych wedi ychwanegu {{.PluralCount}} atwrnai wrth gefn"
     },
     "howShouldReplacementAttorneysMakeDecisions": "Sut dylai eich atwrneiod wrth gefn wneud penderfyniadau?",
     "howShouldReplacementAttorneysMakeDecisionsDetail": "Gan fod gennych fwy nag un atwrnai wrth gefn, mae angen i chi benderfynu a all pob atwrnai wrth gefn ddefnyddio eich LPA ar eu pen eu hunain neu a oes rhaid i bob un ohonynt gytuno ar bob penderfyniad gyda’i gilydd, neu gyfuniad.",
@@ -1797,7 +1797,7 @@
     "chooseTrustCorporation": "Dewis corfforaeth ymddiriedolaeth",
     "youCanChooseTrustCorporationUsedInPrevious": "Gallwch ddewis corfforaeth ymddiriedolaeth rydych wedi’i defnyddio gydag LPA blaenorol, neu ychwanegu corfforaeth ymddiriedolaeth newydd.",
     "selectTrustCorporation": "<span class=\"govuk-!-font-weight-bold\">Dewis {{.Name}}</span><br>Rhif y cwmni {{.CompanyNumber}}<br>Cod post {{.Postcode}}",
-    "iWantToAddNewTrustCorporation": "Welsh",
+    "iWantToAddNewTrustCorporation": "Hoffwn ychwanegu corfforaeth ymddiriedolaeth newydd",
     "aTrustCorporationOrToAddANewTrustCorporation": "Welsh",
     "chooseCertificateProvider": "Welsh",
     "chooseACertificateProviderYouHaveUsed": "Welsh",
