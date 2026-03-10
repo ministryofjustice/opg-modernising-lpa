@@ -29,6 +29,8 @@ permissions:
 
 jobs:
   docker_build_scan_push:
+    env:
+      TRIVY_VERSION: 0.69.2
     strategy:
       fail-fast: false
       matrix:
@@ -117,7 +119,7 @@ jobs:
           scan-type: fs
           scanners: "misconfig"
           severity: "HIGH,CRITICAL"
-          version: v0.65.0
+          version: "v${{env.TRIVY_VERSION}}"
 
       - name: Build ${{ matrix.ecr_repository }} Image
         uses: docker/build-push-action@10e90e3645eae34f1e60eeb005ba3a3d33f178e8 # v6.19.2
@@ -146,7 +148,7 @@ jobs:
             --volume ./test-results:/test-results \
             --volume ./${{ matrix.trivyignores }}:/.trivyignore.yaml \
             --env TRIVY_IGNOREFILE='.trivyignore.yaml' \
-            aquasec/trivy:0.65.0 image \
+            aquasec/trivy:${{ env.TRIVY_VERSION }} image \
             ${{ matrix.ecr_repository }}:${{ inputs.tag }} \
             --db-repository aquasec/trivy-db \
             --java-db-repository aquasec/trivy-java-db \
@@ -160,7 +162,7 @@ jobs:
             --volume ./test-results:/test-results \
             --volume ./${{ matrix.trivyignores }}:/.trivyignore.yaml \
             --env TRIVY_IGNOREFILE='.trivyignore.yaml' \
-            aquasec/trivy:0.65.0 image ${{ matrix.ecr_repository }}:${{ inputs.tag }} \
+            aquasec/trivy:${{ env.TRIVY_VERSION }} image ${{ matrix.ecr_repository }}:${{ inputs.tag }} \
             --java-db-repository aquasec/trivy-java-db \
             --checks-bundle-repository aquasec/trivy-checks \
             --severity HIGH,CRITICAL \
@@ -189,7 +191,7 @@ jobs:
           image-ref: ${{ matrix.ecr_repository }}:${{ inputs.tag }}
           output: "${{ matrix.name }}-${{ inputs.tag }}.sbom.json"
           scan-type: "image"
-          version: v0.65.0
+          version: "v${{env.TRIVY_VERSION}}"
 
       - name: Upload trivy report as a Github artifact
         uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6.0.0
