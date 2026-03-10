@@ -126,52 +126,122 @@ func TestClientSendDonorWithdrawLPA(t *testing.T) {
 func TestClientSendCertificateProvider(t *testing.T) {
 	uid, _ := actoruid.Parse("399ce2f7-f3bd-4feb-9207-699ff4d99cbf")
 
-	certificateProvider := &certificateproviderdata.Provided{
-		UID:                       uid,
-		SignedAt:                  time.Date(2000, time.January, 2, 3, 4, 5, 6, time.UTC),
-		ContactLanguagePreference: localize.Cy,
-		Email:                     "b@example.com",
-	}
-
-	lpa := &lpadata.Lpa{
-		LpaUID: "lpa-uid",
-		CertificateProvider: lpadata.CertificateProvider{
-			Channel: lpadata.ChannelOnline,
-			Email:   "a@example.com",
+	testcases := map[string]struct {
+		provided *certificateproviderdata.Provided
+		lpa      *lpadata.Lpa
+		expected string
+	}{
+		"no email": {
+			provided: &certificateproviderdata.Provided{
+				UID:                       uid,
+				SignedAt:                  time.Date(2000, time.January, 2, 3, 4, 5, 6, time.UTC),
+				ContactLanguagePreference: localize.Cy,
+			},
+			lpa: &lpadata.Lpa{
+				LpaUID: "lpa-uid",
+				CertificateProvider: lpadata.CertificateProvider{
+					Channel: lpadata.ChannelOnline,
+					Email:   "a@example.com",
+				},
+			},
+			expected: `{"type":"CERTIFICATE_PROVIDER_SIGN","changes":[{"key":"/certificateProvider/signedAt","old":null,"new":"2000-01-02T03:04:05.000000006Z"},{"key":"/certificateProvider/contactLanguagePreference","old":null,"new":"cy"}]}`,
+		},
+		"email not changed": {
+			provided: &certificateproviderdata.Provided{
+				UID:                       uid,
+				SignedAt:                  time.Date(2000, time.January, 2, 3, 4, 5, 6, time.UTC),
+				ContactLanguagePreference: localize.Cy,
+				Email:                     "a@example.com",
+			},
+			lpa: &lpadata.Lpa{
+				LpaUID: "lpa-uid",
+				CertificateProvider: lpadata.CertificateProvider{
+					Channel: lpadata.ChannelOnline,
+					Email:   "a@example.com",
+				},
+			},
+			expected: `{"type":"CERTIFICATE_PROVIDER_SIGN","changes":[{"key":"/certificateProvider/signedAt","old":null,"new":"2000-01-02T03:04:05.000000006Z"},{"key":"/certificateProvider/contactLanguagePreference","old":null,"new":"cy"}]}`,
+		},
+		"email set": {
+			provided: &certificateproviderdata.Provided{
+				UID:                       uid,
+				SignedAt:                  time.Date(2000, time.January, 2, 3, 4, 5, 6, time.UTC),
+				ContactLanguagePreference: localize.Cy,
+				Email:                     "b@example.com",
+			},
+			lpa: &lpadata.Lpa{
+				LpaUID: "lpa-uid",
+				CertificateProvider: lpadata.CertificateProvider{
+					Channel: lpadata.ChannelOnline,
+				},
+			},
+			expected: `{"type":"CERTIFICATE_PROVIDER_SIGN","changes":[{"key":"/certificateProvider/signedAt","old":null,"new":"2000-01-02T03:04:05.000000006Z"},{"key":"/certificateProvider/contactLanguagePreference","old":null,"new":"cy"},{"key":"/certificateProvider/email","old":null,"new":"b@example.com"}]}`,
+		},
+		"email changed": {
+			provided: &certificateproviderdata.Provided{
+				UID:                       uid,
+				SignedAt:                  time.Date(2000, time.January, 2, 3, 4, 5, 6, time.UTC),
+				ContactLanguagePreference: localize.Cy,
+				Email:                     "b@example.com",
+			},
+			lpa: &lpadata.Lpa{
+				LpaUID: "lpa-uid",
+				CertificateProvider: lpadata.CertificateProvider{
+					Channel: lpadata.ChannelOnline,
+					Email:   "a@example.com",
+				},
+			},
+			expected: `{"type":"CERTIFICATE_PROVIDER_SIGN","changes":[{"key":"/certificateProvider/signedAt","old":null,"new":"2000-01-02T03:04:05.000000006Z"},{"key":"/certificateProvider/contactLanguagePreference","old":null,"new":"cy"},{"key":"/certificateProvider/email","old":"a@example.com","new":"b@example.com"}]}`,
+		},
+		"was paper": {
+			provided: &certificateproviderdata.Provided{
+				UID:                       uid,
+				SignedAt:                  time.Date(2000, time.January, 2, 3, 4, 5, 6, time.UTC),
+				ContactLanguagePreference: localize.En,
+			},
+			lpa: &lpadata.Lpa{
+				LpaUID: "lpa-uid",
+				CertificateProvider: lpadata.CertificateProvider{
+					Channel: lpadata.ChannelPaper,
+				},
+			},
+			expected: `{"type":"CERTIFICATE_PROVIDER_SIGN","changes":[{"key":"/certificateProvider/signedAt","old":null,"new":"2000-01-02T03:04:05.000000006Z"},{"key":"/certificateProvider/contactLanguagePreference","old":null,"new":"en"},{"key":"/certificateProvider/channel","old":"paper","new":"online"}]}`,
 		},
 	}
 
-	json := `{"type":"CERTIFICATE_PROVIDER_SIGN","changes":[{"key":"/certificateProvider/signedAt","old":null,"new":"2000-01-02T03:04:05.000000006Z"},{"key":"/certificateProvider/contactLanguagePreference","old":null,"new":"cy"},{"key":"/certificateProvider/email","old":"a@example.com","new":"b@example.com"}]}`
+	for name, tc := range testcases {
+		t.Run(name, func(t *testing.T) {
+			ctx := context.Background()
 
-	ctx := context.Background()
+			secretsClient := newMockSecretsClient(t)
+			secretsClient.EXPECT().
+				Secret(ctx, "secret").
+				Return("secret", nil)
 
-	secretsClient := newMockSecretsClient(t)
-	secretsClient.EXPECT().
-		Secret(ctx, "secret").
-		Return("secret", nil)
+			var body []byte
+			doer := newMockDoer(t)
+			doer.EXPECT().
+				Do(mock.MatchedBy(func(req *http.Request) bool {
+					if body == nil {
+						body, _ = io.ReadAll(req.Body)
+					}
 
-	var body []byte
-	doer := newMockDoer(t)
-	doer.EXPECT().
-		Do(mock.MatchedBy(func(req *http.Request) bool {
-			if body == nil {
-				body, _ = io.ReadAll(req.Body)
-			}
+					return assert.Equal(t, ctx, req.Context()) &&
+						assert.Equal(t, http.MethodPost, req.Method) &&
+						assert.Equal(t, "http://base/lpas/lpa-uid/updates", req.URL.String()) &&
+						assert.Equal(t, "application/json", req.Header.Get("Content-Type")) &&
+						assert.Equal(t, "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJvcGcucG9hcy5tYWtlcmVnaXN0ZXIiLCJzdWIiOiJ1cm46b3BnOnBvYXM6bWFrZXJlZ2lzdGVyOnVzZXJzOjM5OWNlMmY3LWYzYmQtNGZlYi05MjA3LTY5OWZmNGQ5OWNiZiIsImlhdCI6OTQ2NzgyMjQ1fQ.-ZIBR-5fuznCkemcj-tbCro8VB9Li2Ieqd0sZJeooIY", req.Header.Get("X-Jwt-Authorization")) &&
+						assert.JSONEq(t, tc.expected, string(body))
+				})).
+				Return(&http.Response{StatusCode: http.StatusCreated, Body: io.NopCloser(strings.NewReader(""))}, nil)
 
-			return assert.Equal(t, ctx, req.Context()) &&
-				assert.Equal(t, http.MethodPost, req.Method) &&
-				assert.Equal(t, "http://base/lpas/lpa-uid/updates", req.URL.String()) &&
-				assert.Equal(t, "application/json", req.Header.Get("Content-Type")) &&
-				assert.Equal(t, "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJvcGcucG9hcy5tYWtlcmVnaXN0ZXIiLCJzdWIiOiJ1cm46b3BnOnBvYXM6bWFrZXJlZ2lzdGVyOnVzZXJzOjM5OWNlMmY3LWYzYmQtNGZlYi05MjA3LTY5OWZmNGQ5OWNiZiIsImlhdCI6OTQ2NzgyMjQ1fQ.-ZIBR-5fuznCkemcj-tbCro8VB9Li2Ieqd0sZJeooIY", req.Header.Get("X-Jwt-Authorization")) &&
-				assert.JSONEq(t, json, string(body))
-		})).
-		Return(&http.Response{StatusCode: http.StatusCreated, Body: io.NopCloser(strings.NewReader(""))}, nil)
+			client := New("http://base", secretsClient, "secret", doer)
+			client.now = func() time.Time { return time.Date(2000, time.January, 2, 3, 4, 5, 6, time.UTC) }
+			err := client.SendCertificateProvider(ctx, tc.provided, tc.lpa)
 
-	client := New("http://base", secretsClient, "secret", doer)
-	client.now = func() time.Time { return time.Date(2000, time.January, 2, 3, 4, 5, 6, time.UTC) }
-	err := client.SendCertificateProvider(ctx, certificateProvider, lpa)
-
-	assert.Nil(t, err)
+			assert.Nil(t, err)
+		})
+	}
 }
 
 func TestDevOnlyFuncsDoNotWorkInProd(t *testing.T) {
