@@ -47,3 +47,6 @@ vulnerabilities:
   - id: CVE-2026-29786
     statement: Fix later
     expired_at: 2026-03-20
+  - id: CVE-2026-31802
+    statement: Fix later
+    expired_at: 2026-03-20
