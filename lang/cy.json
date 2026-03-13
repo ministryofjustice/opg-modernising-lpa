@@ -1909,7 +1909,7 @@
     "theAddressInYourLpaHasBeenUpdated": "Welsh",
     "someOfTheDetailsOnYourLpaDoNotMatch": "Welsh",
     "youChoseNotToCorrectMismatch": "<p class=\"govuk-notification-banner__heading\">Welsh.</p>",
-    "manageLPAsContent": "<p class=\"govuk-body app-two-thirds-fixed-desktop\">Dyma’ch Dangosfwrdd LPAs. Os ydych yn rhoddwr, gallwch weld a chwblhau tasgau ar gyfer LPAs sydd ar waith, dileu neu ddirymu LPAs, a gweld LPAs sydd wedi’u cofrestru.</p><p class=\"govuk-body app-two-thirds-fixed-desktop\">Os ydych yn atwrnai neu’n ddarparwr tystysgrif, gallwch weld a chwblhau tasgau ar gyfer LPAs sydd ar waith.</p>",
+    "manageLPAsContent": "<p class=\"govuk-body app-two-thirds-fixed-desktop\">Dyma'ch dangosfwrdd LPAs. Os ydych yn rhoddwr, gallwch weld a chwblhau tasgau ar gyfer LPAs sydd ar waith, dileu neu ddirymu LPAs, a gweld LPAs sydd wedi’u cofrestru.</p><p class=\"govuk-body app-two-thirds-fixed-desktop\">Os ydych yn atwrnai neu’n ddarparwr tystysgrif, gallwch weld a chwblhau tasgau ar gyfer LPAs sydd ar waith.</p>",
     "makeOrAddLPAsContent": "Mae’r dudalen hon yn caniatáu i chi wneud LPA newydd, neu ychwanegu LPA gan ddefnyddio’r cod mynediad a dderbynioch ar e-bost gan Swyddfa’r Gwarcheidwad Cyhoeddus (OPG).",
     "youHaveSignedContactToChangeDetails": "Welsh <a href=\"{{.ContactLink}}\" class=\"govuk-link\" target=\"_blank\" rel=\"noreferrer noopener\">Welsh</a>",
     "addressInYourLpa": "Welsh",
