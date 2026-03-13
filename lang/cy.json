@@ -145,7 +145,7 @@
     "attorney": "Atwrnai",
     "wantReplacementAttorneys": "Ydych chi eisiau unrhyw atwrneiod wrth gefn?",
     "yesToAddReplacementAttorneys": "ydw i ychwanegu atwrneiod wrth gefn",
-    "replacementAttorneysStepIn": "Dim ond os bydd un o’ch atwrneiod yn camu i lawr neu’n methu â gweithredu mwyach y bydd atwrneiod wrth gefn yn gallu dechrau gweithredu. Er enghraifft, oherwydd eu bod yn marw neu’n colli galluedd.",
+    "replacementAttorneysStepIn": "Ni all atwrneiod wrth gefn ddechrau gweithredu oni bai bod un o’ch atwrneiod yn camu i lawr neu’n methu â gweithredu mwyach. Er enghraifft, oherwydd eu bod yn marw neu’n colli galluedd.",
     "replacementAttorneysStepInExplanation": {
         "zero": "",
         "one": "Mae cael atwrneiod wrth gefn yn ddewisol. Serch hynny, mae cael un neu fwy o atwrneiod wrth gefn yn helpu i sicrhau y bydd eich LPA yn parhau i weithio os na all {{.AttorneysFullNames}} (eich atwrnai) weithredu mwyach.",
