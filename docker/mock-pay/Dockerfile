@@ -4,7 +4,7 @@ RUN addgroup -S user && \
   adduser -S -g user user
 
 RUN go install 'github.com/imposter-project/imposter-go/cmd/imposter@v1.8.0' \
-  && mv $GOPATH/bin/imposter /tmp/imposter
+  && mv "$GOPATH/bin/imposter" /tmp/imposter
 
 RUN wget -q -O /tmp/publicapi_spec.json https://raw.githubusercontent.com/alphagov/pay-publicapi/master/openapi/publicapi_spec.json
 
