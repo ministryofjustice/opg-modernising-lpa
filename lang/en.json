@@ -353,10 +353,10 @@
     "when-capacity-lost": "Only when I do not have mental capacity to make a particular decision",
     "when-has-capacity:3rd": "As soon as the LPA registration process is complete (including when the donor still has mental capacity to make a particular decision)",
     "when-capacity-lost:3rd": "Only when the donor does not have mental capacity to make a particular decision",
-    "peopleToNotifyAboutYourLpa": "People to notify about your LPA",
+    "peopleToNotifyAboutYourLpa": "Add people you would like us to notify about your LPA (optional) ",
     "wantPeopleToNotify": "Do you want to notify anyone about your LPA?",
     "yesToNotifySomeoneAboutYourLpa": "yes to notify someone about your LPA",
-    "wantPeopleToNotifyContent": "<p class=\"govuk-body\">You can choose up to 5 people to notify that you have made an LPA and that it is ready for registration. If you choose to notify a person about your LPA, the Office of the Public Guardian (OPG) will send them information once everyone has signed and we’ve checked your LPA.</p><p class=\"govuk-body\">Most people choose family members or close friends. Having people to notify is optional but can provide extra protection for you, because these people can raise any concerns about your LPA before it is registered.</p>",
+    "wantPeopleToNotifyContent": "<p class=\"govuk-body\">Notifying people that you are applying to register your LPA is optional, but can provide extra protection for you. </p>\n<p class=\"govuk-body\">You can choose up to 5 people. Many people choose close friends or family. The Office of the Public Guardian (OPG) will contact them in writing to tell them that you are making an LPA. If they have any concerns, they can raise them with OPG. They will not be involved in your LPA in any other way. </p>\n<p class=\"govuk-body\">You cannot choose your attorneys, replacement attorneys or certificate provider. </p>",
     "weWillOnlyTellThem": "If you choose people to notify, we’ll only tell them:",
     "thatYouHaveMadeALpaType": "that you’ve made a {{lowerFirst .LpaType}} LPA",
     "thatYourAttorneysAre": {
