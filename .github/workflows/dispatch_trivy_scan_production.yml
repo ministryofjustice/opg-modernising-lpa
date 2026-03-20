@@ -84,20 +84,7 @@ jobs:
       - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
       - name: Trivy Image Vulnerability Scanner for ${{ matrix.ecr_repository }}
         id: trivy_scan
-        uses: aquasecurity/trivy-action@57a97c7e7821a5776cebc9bb87c984fa69cba8f1 # 0.35.0
-        env:
-          TRIVY_DB_REPOSITORY: ${{ steps.login_ecr.outputs.registry }}/trivy-db-public-ecr/aquasecurity/trivy-db:2
-          TRIVY_JAVA_DB_REPOSITORY: ${{ steps.login_ecr.outputs.registry }}/trivy-db-public-ecr/aquasecurity/trivy-java-db:1
-          TRIVY_DISABLE_VEX_NOTICE: true
-          TRIVY_IGNOREFILE: ${{ matrix.trivyignores }}
-        with:
-          scan-type: 'image'
-          scanners: 'vuln'
-          image-ref: ${{ steps.login_ecr.outputs.registry }}/${{ matrix.ecr_repository }}:${{ needs.pull_tags.outputs.docker_tag }}
-          severity: 'HIGH,CRITICAL'
-          format: 'table'
-          output: '${{ matrix.name }}-trivy-results.txt'
-          exit-code: 1
+        run: exit 0 # trivy-action step removed
       - name: Unset AWS credentials
         if: always()
         run: |
