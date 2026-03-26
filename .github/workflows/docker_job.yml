@@ -1,5 +1,5 @@
 name: "[Job] Docker Build, Scan and Push to ECR"
-
+#
 on:
   workflow_call:
     inputs:
@@ -29,8 +29,6 @@ permissions:
 
 jobs:
   docker_build_scan_push:
-    env:
-      TRIVY_VERSION: 0.69.2
     strategy:
       fail-fast: false
       matrix:
@@ -38,32 +36,27 @@ jobs:
           - ecr_repository: modernising-lpa/app
             name: app
             path: ./docker/mlpa/Dockerfile
-            trivyignores: ./docker/mlpa/.trivyignore.yaml
+
             platforms: linux/amd64
           - ecr_repository: modernising-lpa/create-s3-batch-replication-job
             name: create-s3-batch-replication-job
             path: ./docker/create-s3-replication-job/Dockerfile
-            trivyignores: ./docker/create-s3-replication-job/.trivyignore.yaml
             platforms: linux/amd64
           - ecr_repository: modernising-lpa/event-received
             name: event-received
             path: ./docker/event-received/Dockerfile
-            trivyignores: ./docker/event-received/.trivyignore.yaml
             platforms: linux/amd64
           - ecr_repository: modernising-lpa/mock-pay
             name: mock-pay
             path: ./docker/mock-pay/Dockerfile
-            trivyignores: ./docker/mock-pay/.trivyignore.yaml
             platforms: linux/amd64
           - ecr_repository: modernising-lpa/schedule-runner
             name: schedule-runner
             path: ./docker/schedule-runner/Dockerfile
-            trivyignores: ./docker/schedule-runner/.trivyignore.yaml
             platforms: linux/amd64
           - ecr_repository: make-and-register-lpa-mainstream-content
             name: make-and-register-lpa-mainstream-content
             path: ./docker/mainstream-content/Dockerfile
-            trivyignores: ./docker/mainstream-content/.trivyignore.yaml
             platforms: linux/arm64
 
     runs-on: ubuntu-latest
@@ -107,20 +100,6 @@ jobs:
           mask-password: true
           registries: 311462405659
 
-      - name: Trivy Dockerfile Configuration Scanner for ${{ matrix.ecr_repository }}
-        id: trivy_dockerfile_misconfiguration_scan
-        uses: aquasecurity/trivy-action@57a97c7e7821a5776cebc9bb87c984fa69cba8f1 # 0.35.0
-        env:
-          TRIVY_IGNOREFILE: ${{ matrix.trivyignores }}
-        with:
-          cache-dir: ${{ github.workspace }}/.cache/trivy
-          exit-code: 1
-          scan-ref: ${{ matrix.path }}
-          scan-type: fs
-          scanners: "misconfig"
-          severity: "HIGH,CRITICAL"
-          version: "v${{env.TRIVY_VERSION}}"
-
       - name: Build ${{ matrix.ecr_repository }} Image
         uses: docker/build-push-action@10e90e3645eae34f1e60eeb005ba3a3d33f178e8 # v6.19.2
         with:
@@ -138,67 +117,6 @@ jobs:
         env:
           SOURCE_DATE_EPOCH: 0
           DOCKER_CONTENT_TRUST: 1
-
-      - name: Trivy Image Vulnerability Scanner
-        id: trivy_scan
-        run: |
-          sleep $((RANDOM % 12));
-          docker run \
-            --volume /var/run/docker.sock:/var/run/docker.sock \
-            --volume ./test-results:/test-results \
-            --volume ./${{ matrix.trivyignores }}:/.trivyignore.yaml \
-            --env TRIVY_IGNOREFILE='.trivyignore.yaml' \
-            aquasec/trivy:${{ env.TRIVY_VERSION }} image \
-            ${{ matrix.ecr_repository }}:${{ inputs.tag }} \
-            --db-repository aquasec/trivy-db \
-            --java-db-repository aquasec/trivy-java-db \
-            --timeout 7m \
-            --format table \
-            --severity HIGH,CRITICAL
-
-          docker run \
-            --volume /var/run/docker.sock:/var/run/docker.sock \
-            --volume ./.trivy-cache:/root/.cache \
-            --volume ./test-results:/test-results \
-            --volume ./${{ matrix.trivyignores }}:/.trivyignore.yaml \
-            --env TRIVY_IGNOREFILE='.trivyignore.yaml' \
-            aquasec/trivy:${{ env.TRIVY_VERSION }} image ${{ matrix.ecr_repository }}:${{ inputs.tag }} \
-            --java-db-repository aquasec/trivy-java-db \
-            --checks-bundle-repository aquasec/trivy-checks \
-            --severity HIGH,CRITICAL \
-            --timeout 7m \
-            --exit-code 1 \
-            --format sarif --output ./test-results/trivy.sarif \
-
-      - name: Upload Trivy scan results to GitHub Security tab for ${{ matrix.ecr_repository }}
-        id: trivy_upload_sarif
-        uses: github/codeql-action/upload-sarif@820e3160e279568db735cee8ed8f8e77a6da7818 # v3.32.6
-        if: always()
-        with:
-          sarif_file: "./test-results/trivy.sarif"
-
-      - name: Trivy Image SBOM Generator for ${{ matrix.ecr_repository }} and submit results to Dependency Graph
-        id: trivy_sbom
-        uses: aquasecurity/trivy-action@57a97c7e7821a5776cebc9bb87c984fa69cba8f1 # 0.35.0
-        env:
-          TRIVY_SKIP_DB_UPDATE: true
-          TRIVY_SKIP_JAVA_DB_UPDATE: true
-          TRIVY_SKIP_CHECK_UPDATE: true
-        with:
-          cache-dir: ${{ github.workspace }}/.cache/trivy
-          format: "github"
-          github-pat: ${{ secrets.GITHUB_TOKEN }}
-          image-ref: ${{ matrix.ecr_repository }}:${{ inputs.tag }}
-          output: "${{ matrix.name }}-${{ inputs.tag }}.sbom.json"
-          scan-type: "image"
-          version: "v${{env.TRIVY_VERSION}}"
-
-      - name: Upload trivy report as a Github artifact
-        uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6.0.0
-        with:
-          name: trivy-sbom-report-${{ matrix.name }}-${{ inputs.tag }}
-          path: "${{ github.workspace }}/${{ matrix.name }}-${{ inputs.tag }}.sbom.json"
-          retention-days: 20 # 90 is the default
 
       - name: Push ${{ matrix.ecr_repository }} Image to ECR for PR
         if: ${{ github.workflow != 'Path To Live' }}

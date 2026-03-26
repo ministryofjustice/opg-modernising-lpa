@@ -149,7 +149,7 @@ resource "aws_fis_experiment_template" "ecs_app_stop_tasks" {
     log_schema_version = 2
 
     cloudwatch_logs_configuration {
-      log_group_arn = "${aws_cloudwatch_log_group.fis_app_ecs_tasks.arn}:*" # tfsec:ignore:aws-cloudwatch-log-group-wildcard
+      log_group_arn = "${aws_cloudwatch_log_group.fis_app_ecs_tasks.arn}:*"
     }
   }
 
@@ -201,7 +201,7 @@ resource "aws_fis_experiment_template" "ecs_app_cpu_stress" {
     log_schema_version = 2
 
     cloudwatch_logs_configuration {
-      log_group_arn = "${aws_cloudwatch_log_group.fis_app_ecs_tasks.arn}:*" # tfsec:ignore:aws-cloudwatch-log-group-wildcard
+      log_group_arn = "${aws_cloudwatch_log_group.fis_app_ecs_tasks.arn}:*"
     }
   }
 
@@ -252,7 +252,7 @@ resource "aws_fis_experiment_template" "ecs_app_io_stress" {
     log_schema_version = 2
 
     cloudwatch_logs_configuration {
-      log_group_arn = "${aws_cloudwatch_log_group.fis_app_ecs_tasks.arn}:*" # tfsec:ignore:aws-cloudwatch-log-group-wildcard
+      log_group_arn = "${aws_cloudwatch_log_group.fis_app_ecs_tasks.arn}:*"
     }
   }
 
