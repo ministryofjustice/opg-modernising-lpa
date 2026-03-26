@@ -22,4 +22,9 @@ ignore:
         reason: None Given
         expires: 2026-04-25T16:37:25.613Z
         created: 2026-03-26T16:37:25.616Z
+  SNYK-GOLANG-GOOGLEGOLANGORGGRPC-15691172:
+    - "*":
+        reason: None Given
+        expires: 2026-04-25T16:43:45.000Z
+        created: 2026-03-26T16:43:45.000Z
 patch: {}

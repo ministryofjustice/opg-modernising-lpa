@@ -12,3 +12,43 @@ ignore:
         reason: None Given
         expires: 2026-04-25T16:43:33.881Z
         created: 2026-03-26T16:43:33.884Z
+  SNYK-JS-CROSSSPAWN-8303230:
+    - "*":
+        reason: None Given
+        expires: 2026-04-25T16:43:35.000Z
+        created: 2026-03-26T16:43:35.000Z
+  SNYK-JS-GLOB-14040952:
+    - "*":
+        reason: None Given
+        expires: 2026-04-25T16:43:36.000Z
+        created: 2026-03-26T16:43:36.000Z
+  SNYK-JS-MINIMATCH-15309438:
+    - "*":
+        reason: None Given
+        expires: 2026-04-25T16:43:37.000Z
+        created: 2026-03-26T16:43:37.000Z
+  SNYK-JS-MINIMATCH-15353387:
+    - "*":
+        reason: None Given
+        expires: 2026-04-25T16:43:38.000Z
+        created: 2026-03-26T16:43:38.000Z
+  SNYK-JS-MINIMATCH-15353389:
+    - "*":
+        reason: None Given
+        expires: 2026-04-25T16:43:39.000Z
+        created: 2026-03-26T16:43:39.000Z
+  SNYK-JS-TAR-15307072:
+    - "*":
+        reason: None Given
+        expires: 2026-04-25T16:43:40.000Z
+        created: 2026-03-26T16:43:40.000Z
+  SNYK-JS-TAR-15416075:
+    - "*":
+        reason: None Given
+        expires: 2026-04-25T16:43:41.000Z
+        created: 2026-03-26T16:43:41.000Z
+  SNYK-JS-TAR-15456201:
+    - "*":
+        reason: None Given
+        expires: 2026-04-25T16:43:42.000Z
+        created: 2026-03-26T16:43:42.000Z
