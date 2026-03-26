@@ -95,3 +95,13 @@ ignore:
       reason: Do not resolve for now
       expires: 2026-04-23T14:57:38.314Z
       created: 2026-03-24T14:57:38.316Z
+  SNYK-AMZN2023-OPENSSLFIPSPROVIDERLATEST-15320384:
+    - "*":
+      reason: Do not resolve for now
+      expires: 2026-04-23T14:57:38.314Z
+      created: 2026-03-24T14:57:38.316Z
+  SNYK-AMZN2023-OPENSSLFIPSPROVIDERLATEST-15320384:
+    - "*":
+      reason: Do not resolve for now
+      expires: 2026-04-23T14:57:38.314Z
+      created: 2026-03-24T14:57:38.316Z
