@@ -16,6 +16,9 @@ on:
         description: "Branch name"
         required: true
         type: string
+      secrets:
+        SNYK_OPG_ORG_TOKEN:
+        required: true
 
 defaults:
   run:
@@ -36,27 +39,49 @@ jobs:
           - ecr_repository: modernising-lpa/app
             name: app
             path: ./docker/mlpa/Dockerfile
-
             platforms: linux/amd64
+            service_path: ./docker/mlpa
+            snyk_policy_path: docker/mlpa/.snyk
+            scan_id: app
+
           - ecr_repository: modernising-lpa/create-s3-batch-replication-job
             name: create-s3-batch-replication-job
             path: ./docker/create-s3-replication-job/Dockerfile
+            service_path: ./docker/create-s3-replication-job
+            snyk_policy_path: docker/create-s3-replication-job/.snyk
+            scan_id: create_s3_batch_replication_job
             platforms: linux/amd64
+
           - ecr_repository: modernising-lpa/event-received
             name: event-received
             path: ./docker/event-received/Dockerfile
+            service_path: ./docker/event-received
+            snyk_policy_path: docker/event-received/.snyk
+            scan_id: event_received
             platforms: linux/amd64
+
           - ecr_repository: modernising-lpa/mock-pay
             name: mock-pay
             path: ./docker/mock-pay/Dockerfile
+            service_path: ./docker/mock-pay
+            snyk_policy_path: docker/mock-pay/.snyk
+            scan_id: mock_pay
             platforms: linux/amd64
+
           - ecr_repository: modernising-lpa/schedule-runner
             name: schedule-runner
             path: ./docker/schedule-runner/Dockerfile
+            service_path: ./docker/schedule-runner
+            snyk_policy_path: docker/schedule-runner/.snyk
+            scan_id: schedule_runner
             platforms: linux/amd64
+
           - ecr_repository: make-and-register-lpa-mainstream-content
             name: make-and-register-lpa-mainstream-content
             path: ./docker/mainstream-content/Dockerfile
+            service_path: ./docker/mainstream-content
+            snyk_policy_path: docker/mainstream-content/.snyk
+            scan_id: make_and_register_lpa_mainstream_content
             platforms: linux/arm64
 
     runs-on: ubuntu-latest
@@ -117,6 +142,70 @@ jobs:
         env:
           SOURCE_DATE_EPOCH: 0
           DOCKER_CONTENT_TRUST: 1
+
+      #SNYK SCAN STEPS
+      - name: Run SNYK vulnerability scan for ${{ matrix.scan_id }}
+        id: snyk_scan
+        uses: ministryofjustice/opg-github-actions/actions/snyk-scan@8dea82fc8b8e7ffca431f0fb83848d523147ccd8 # v4.5.0
+        with:
+          SNYK_TEST_IMAGE: ${{ matrix.image_name }}:latest
+          SNYK_TOKEN: ${{ secrets.SNYK_OPG_ORG_TOKEN }}
+          sarif_filepath: ./test-results
+          sarif_filename: ${{ matrix.scan_id }}_snyk.sarif
+          snyk_policy_path: ${{ github.workspace }}/${{ matrix.snyk_policy_path }}
+          snyk_test_args: --severity-threshold=high
+
+      - name: Format undefined severity values
+        if: always() && hashFiles(format('./test-results/{0}_snyk.sarif', matrix.scan_id)) != ''
+        run: |
+          sed -i 's/"null"/"0"/g; s/"undefined"/"0"/g' ./test-results/${{ matrix.scan_id }}_snyk.sarif
+
+      - name: Inspect SARIF results
+        if: always()
+        run: |
+          echo "=== SNYK SCAN SUMMARY FOR ${{ matrix.scan_id }} ==="
+          echo "SARIF file: $file"
+          echo "scan outcome: ${{ steps.snyk_scan.outcome }}"
+
+          if [ -f "./test-results/${{ matrix.scan_id }}_snyk.sarif" ]; then
+            echo "SARIF file exists, counting runs"
+            runs=$(jq '.runs | length' ./test-results/${{ matrix.scan_id }}_snyk.sarif)
+            echo "SARIF file has $runs runs"
+          else
+            echo "SARIF file does not exist, skipping run count"
+          fi
+
+      # Split SARIF results if run limit exceeds 20
+      - name: Split SARIF results if run limit exceeds 20
+        if: always()
+        run: |
+          file="./test-results/${{ matrix.scan_id }}_snyk.sarif"
+          base="./test-results/${{ matrix.scan_id }}_snyk"
+          runs=$(jq '.runs | length' $file)
+          echo "runs=$runs"
+
+          if [ $runs -gt 20 ]; then
+            echo "SARIF file has $runs runs, splitting into 2 files (20 run limit)"
+            jq '.runs = .runs[0:20]' $file > ${base}_part_01.sarif
+            jq '.runs = .runs[20:]' $file > ${base}_part_02.sarif
+          else
+            echo "SARIF file has $runs runs, keeping as 1 file"
+            mv $file ${base}_part_01.sarif
+          fi
+
+      - name: Upload SARIF results part 1
+        uses: github/codeql-action/upload-sarif@0d579ffd059c29b07949a3cce3983f0780820c98 # v4.32.6
+        if: always() && hashFiles(format('./test-results/{0}_snyk_part_01.sarif', matrix.scan_id)) != ''
+        with:
+          sarif_file: ./test-results/${{ matrix.scan_id }}_snyk_part_01.sarif
+          category: ${{ matrix.scan_id }}-1
+
+      - name: Upload SARIF results part 2
+        uses: github/codeql-action/upload-sarif@0d579ffd059c29b07949a3cce3983f0780820c98 # v4.32.6
+        if: always() && hashFiles(format('./test-results/{0}_snyk_part_02.sarif', matrix.scan_id)) != ''
+        with:
+          sarif_file: ./test-results/${{ matrix.scan_id }}_snyk_part_02.sarif
+          category: ${{ matrix.scan_id }}-2
 
       - name: Push ${{ matrix.ecr_repository }} Image to ECR for PR
         if: ${{ github.workflow != 'Path To Live' }}
