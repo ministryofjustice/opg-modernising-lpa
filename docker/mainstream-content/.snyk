@@ -52,3 +52,28 @@ ignore:
         reason: None Given
         expires: 2026-04-25T16:43:42.000Z
         created: 2026-03-26T16:43:42.000Z
+  SNYK-JS-SOCKETIOPARSER-15680278:
+    - "*":
+        reason: None Given
+        expires: 2026-04-25T16:43:43.000Z
+        created: 2026-03-26T16:43:43.000Z
+  SNYK-JS-QS-15268416:
+    - "*":
+        reason: None Given
+        expires: 2026-04-25T16:43:44.000Z
+        created: 2026-03-26T16:43:44.000Z
+  SNYK-JS-QS-14724253:
+    - "*":
+        reason: None Given
+        expires: 2026-04-25T16:43:45.000Z
+        created: 2026-03-26T16:43:45.000Z
+  SNYK-JS-PICOMATCH-15765511:
+    - "*":
+        reason: None Given
+        expires: 2026-04-25T16:43:46.000Z
+        created: 2026-03-26T16:43:46.000Z
+  SNYK-JS-IMMUTABLE-15423650:
+    - "*":
+        reason: None Given
+        expires: 2026-04-25T16:43:47.000Z
+        created: 2026-03-26T16:43:47.000Z
