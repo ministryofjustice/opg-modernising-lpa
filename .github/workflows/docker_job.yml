@@ -181,6 +181,12 @@ jobs:
         run: |
           file="./test-results/${{ matrix.scan_id }}_snyk.sarif"
           base="./test-results/${{ matrix.scan_id }}_snyk"
+
+          if [ ! -f "$file" ]; then
+            echo "SARIF file does not exist, skipping split"
+            exit 0
+          fi
+
           runs=$(jq '.runs | length' $file)
           echo "runs=$runs"
 
@@ -250,4 +256,3 @@ jobs:
         env:
           SOURCE_DATE_EPOCH: 0
           DOCKER_CONTENT_TRUST: 1
-
