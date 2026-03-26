@@ -16,8 +16,8 @@ on:
         description: "Branch name"
         required: true
         type: string
-      secrets:
-        SNYK_OPG_ORG_TOKEN:
+    secrets:
+      SNYK_OPG_ORG_TOKEN:
         required: true
 
 defaults:
@@ -250,3 +250,4 @@ jobs:
         env:
           SOURCE_DATE_EPOCH: 0
           DOCKER_CONTENT_TRUST: 1
+
