@@ -4,7 +4,7 @@ on:
   workflow_dispatch:
     inputs:
       tag_to_deploy:
-        description: 'Tag to deploy to ur environment'
+        description: "Tag to deploy to ur environment"
         required: true
         type: string
 
@@ -31,8 +31,10 @@ jobs:
     uses: ./.github/workflows/docker_job.yml
     with:
       tag: ur-${{ inputs.tag_to_deploy }}
-      checkout_tag : ${{ inputs.tag_to_deploy }}
+      checkout_tag: ${{ inputs.tag_to_deploy }}
       branch_name: ${{ github.head_ref }}
+    secrets:
+      SNYK_OPG_ORG_TOKEN: ${{ secrets.SNYK_OPG_ORG_TOKEN }}
 
   ui_tests_image:
     name: Run Cypress UI Tests On ur Images
@@ -42,7 +44,7 @@ jobs:
       run_against_image: true
       tag: ur-${{ inputs.tag_to_deploy}}
       checkout_tag: ${{ inputs.tag_to_deploy}}
-      specs: 'cypress/e2e/**/*.cy.js'
+      specs: "cypress/e2e/**/*.cy.js"
       dev_mode: "1"
     secrets:
       ingress_management_oidc_role_arn: ${{ secrets.TERRAFORM_OIDC_ROLE_PREPRODUCTION }}
@@ -50,18 +52,18 @@ jobs:
       github_access_token: ${{ secrets.GITHUB_TOKEN }}
 
   deploy:
-      name: ur Environment Deploy
-      needs: [ui_tests_image]
-      uses: ./.github/workflows/terraform_environment_job.yml
-      with:
-        workspace_name: ur
-        version_tag: ur-${{ inputs.tag_to_deploy}}
-        checkout_tag: ${{ inputs.tag_to_deploy}}
-      secrets:
-        ssh_deploy_key: ${{ secrets.OPG_MODERNISING_LPA_DEPLOY_KEY_PRIVATE_KEY }}
-        github_access_token: ${{ secrets.GITHUB_TOKEN }}
-        pagerduty_api_key: ${{ secrets.PAGERDUTY_API_KEY }}
-        oidc_role_arn: ${{ secrets.TERRAFORM_OIDC_ROLE_DEVELOPMENT }}
+    name: ur Environment Deploy
+    needs: [ui_tests_image]
+    uses: ./.github/workflows/terraform_environment_job.yml
+    with:
+      workspace_name: ur
+      version_tag: ur-${{ inputs.tag_to_deploy}}
+      checkout_tag: ${{ inputs.tag_to_deploy}}
+    secrets:
+      ssh_deploy_key: ${{ secrets.OPG_MODERNISING_LPA_DEPLOY_KEY_PRIVATE_KEY }}
+      github_access_token: ${{ secrets.GITHUB_TOKEN }}
+      pagerduty_api_key: ${{ secrets.PAGERDUTY_API_KEY }}
+      oidc_role_arn: ${{ secrets.TERRAFORM_OIDC_ROLE_DEVELOPMENT }}
 
   check_health_endpoints_after_deployment:
     name: Check Health Endpoints
