@@ -1,0 +1,30 @@
+# Snyk (https://snyk.io) policy file, patches or ignores known vulnerabilities.
+version: v1.25.1
+# ignores vulnerabilities until expiry date; change duration by modifying expiry date
+ignore:
+  SNYK-GOLANG-GITHUBCOMSATORIGOUUID-72488:
+    - "*":
+        reason: None Given
+        expires: 2026-04-25T16:37:21.233Z
+        created: 2026-03-26T16:37:21.235Z
+  SNYK-GOLANG-GITHUBCOMBUGERJSONPARSER-15674455:
+    - "*":
+        reason: None Given
+        expires: 2026-04-25T16:37:22.740Z
+        created: 2026-03-26T16:37:22.744Z
+  SNYK-GOLANG-GITHUBCOMANTCHFXXPATH-15763258:
+    - "*":
+        reason: None Given
+        expires: 2026-04-25T16:37:24.219Z
+        created: 2026-03-26T16:37:24.223Z
+  SNYK-GOLANG-GOOGLEGOLANGORGGRPC-15691172A:
+    - "*":
+        reason: None Given
+        expires: 2026-04-25T16:37:25.613Z
+        created: 2026-03-26T16:37:25.616Z
+  SNYK-GOLANG-GOOGLEGOLANGORGGRPC-15691172:
+    - "*":
+        reason: None Given
+        expires: 2026-04-25T16:43:45.000Z
+        created: 2026-03-26T16:43:45.000Z
+patch: {}
