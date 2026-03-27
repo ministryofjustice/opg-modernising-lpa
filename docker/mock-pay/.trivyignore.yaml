@@ -1,9 +1,0 @@
-misconfigurations:
-
-vulnerabilities:
-  - id: GHSA-6g7g-w4f8-9c9x
-    statement: Waiting for team to return
-    expired_at: 2026-04-20
-  - id: CVE-2026-33186
-    statement: Waiting for team to return
-    expired_at: 2026-04-20

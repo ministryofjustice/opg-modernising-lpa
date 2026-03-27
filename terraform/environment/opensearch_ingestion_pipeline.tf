@@ -180,7 +180,7 @@ resource "aws_security_group" "opensearch_ingestion" {
   provider    = aws.eu_west_1
 }
 
-# tfsec:ignore:aws-cloudwatch-log-group-customer-key
+
 resource "aws_cloudwatch_log_group" "opensearch_pipeline" {
   count             = local.enable_opensearch_ingestion_pipeline ? 1 : 0
   name              = "/aws/vendedlogs/OpenSearchIngestion/lpas-${local.default_tags.environment-name}/audit-logs"
