@@ -1475,7 +1475,7 @@
     "imHavingProblemWithVouchingCode": "Welsh",
     "imHavingProblemWithVouchingCodeContent:email": "<p class=\"govuk-body\">Welsh <a class=\"govuk-link\" href=\"{{.ResendLink}}\">Welsh</a> <a class=\"govuk-link\" href=\"{{.ChangeLink}}\">Welsh</a>.</p>",
     "imHavingProblemWithVouchingCodeContent:sms": "<p class=\"govuk-body\">Welsh <a class=\"govuk-link\" href=\"{{.ResendLink}}\">Welsh</a> <a class=\"govuk-link\" href=\"{{.ChangeLink}}\">Welsh</a>.</p>",
-    "addingRestrictionsAndConditionsToTheLPA": "Welsh",
+    "addingRestrictionsAndConditionsToTheLPA": "Ychwanegu cyfyngiadau ac amodau i’r LPA",
     "addingRestrictionsAndConditionsToTheLPAContent": "{{.GlossaryLink}} {{.GlossaryLink}} <p class=\"govuk-body\"><a href=\"{{ .UnderstandingMentalCapacityLink }}\" class=\"govuk-link\">Welsh</a> </p><p class=\"govuk-body\"><a href=\"{{ .UnderstandingLifeSustainingTreatmentLink }}\" class=\"govuk-link\">Welsh</a></p><p class=\"govuk-body\"><a href=\"{{ .HowDecisionsAreMadeWithMultipleAttorneysLink }}\" class=\"govuk-link\">Welsh</a></p><p class=\"govuk-body\"><a href=\"{{ .ReplacementAttorneysLink }}\" class=\"govuk-link\">Welsh</a></p><p class=\"govuk-body\"><a href=\"{{ .HowDecisionsAreMadeWithMultipleAttorneys }}\" class=\"govuk-link\">Welsh</a></p>",
     "contactTheOPG": "Welsh",
     "contactTheOPGContent": "<p class=\"govuk-body\">Welsh</p>",
