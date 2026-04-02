@@ -91,12 +91,14 @@ jobs:
         with:
           ref: ${{ inputs.checkout_tag }}
 
-      - uses: hadolint/hadolint-action@2332a7b74a6de0dda2e2221d575162eba76ba5e5 # v3.3.0
-        id: hadolint
-        with:
-          dockerfile: ${{ matrix.path }}
-          no-fail: false
-          failure-threshold: warning
+      # removing due to central digital workflow disabling actions, re-add alternative allowed action later
+
+      # - uses: hadolint/hadolint-action@2332a7b74a6de0dda2e2221d575162eba76ba5e5 # v3.3.0
+      #   id: hadolint
+      #   with:
+      #     dockerfile: ${{ matrix.path }}
+      #     no-fail: false
+      #     failure-threshold: warning
 
       - name: Set up QEMU
         uses: docker/setup-qemu-action@c7c53464625b32c7a7e944ae62b3e17d2b600130 # v3.7.0
