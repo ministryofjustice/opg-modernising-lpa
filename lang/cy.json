@@ -574,7 +574,7 @@
     "lifeSustainingTreatmentContent": "<p class=\"govuk-body\">Rhaid i chi ddewis a all eich atwrneiod roi neu wrthod caniatâd i driniaeth cynnal bywyd ar eich rhan.</p><p class=\"govuk-body\">Mae triniaeth cynnal bywyd yn golygu gofal, llawdriniaeth, meddyginiaeth neu gymorth arall gan feddygon sydd ei angen i’ch cadw’n fyw.</p><p class=\"govuk-body\">Gall fod angen gwneud penderfyniadau am driniaeth cynnal bywyd mewn amgylchiadau annisgwyl, fel llawdriniaeth arferol na aeth yn ôl y bwriad.</p>",
     "ifYouDoGiveAttorneysAuthority": "Os byddwch yn rhoi awdurdod i’ch atwrneiod ganiatáu triniaeth cynnal bywyd, gallwch ychwanegu cyfyngiadau ac amodau i’w harwain wrth wneud eu penderfyniad.",
     "optionAHint": "Bydd eich atwrneiod yn cael siarad â meddygon fel pe baen nhw’n chi.",
-    "optionBHint": "Ni fydd yr atwrneiod yn cael siarad â meddygon fel pe baen nhw'n chi",
+    "optionBHint": "Ni fydd yr atwrneiod yn cael siarad â meddygon fel pe baen nhw’n chi",
     "doYouWantYourAttorneysToMakeDecisionsAboutLifeSustainingTreatment": "Ydych chi eisiau i’ch atwrneiod wneud penderfyniadau am driniaeth cynnal bywyd?",
     "iGiveMyAttorneysAuthorityLifeSustainingTreatment": "Rydw i’n rhoi awdurdod i fy atwrneiod roi neu wrthod caniatâd ar gyfer triniaeth cynnal bywyd ar fy rhan.",
     "iDoNotGiveMyAttorneysAuthorityLifeSustainingTreatment": "Nid wyf yn rhoi awdurdod i fy atwrneiod roi neu wrthod caniatâd ar gyfer triniaeth cynnal bywyd ar fy rhan",
