@@ -91,8 +91,9 @@ jobs:
         with:
           ref: ${{ inputs.checkout_tag }}
 
-      # hadolint action removed due to central digital workflow disablement,
-      # re-add alternative allowed action when available
+      - name: Warn missing linting action
+        run: echo "::warning title=MISSING-DOCKER-LINT::Please add the Docker lint workflow step when an allowed action is available."
+      # TODO: removed due to github actions non-compliance - add alternative allowed action when available.
 
       - name: Set up QEMU
         uses: docker/setup-qemu-action@c7c53464625b32c7a7e944ae62b3e17d2b600130 # v3.7.0
