@@ -1,11 +1,10 @@
 name: "[Job] Lint markdown files"
 
 on:
-	workflow_call:
+  workflow_call:
 
 jobs:
-	lint-markdown:
-  - name: Lint markdown files
+  lint-markdown:
     runs-on: ubuntu-latest
     steps:
       - name: Warn missing markdown lint
