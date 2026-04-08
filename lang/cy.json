@@ -571,7 +571,7 @@
     "personsWorkAddress": "Cyfeiriad gwaith {{.FullName}}",
     "personToNotify": "Person i’w hysbysu",
     "thisIsAnImportantDecision": "Meddyliwch yn ofalus am y penderfyniad pwysig hwn",
-    "lifeSustainingTreatmentContent": "<p class=\"govuk-body\">Rhaid i chi ddewis a all eich atwrneiod roi neu wrthod caniatâd i driniaeth cynnal bywyd ar eich rhan.</p><p class=\"govuk-body\">Mae triniaeth cynnal bywyd yn golygu gofal, llawdriniaeth, meddyginiaeth neu gymorth arall gan feddygon sydd ei angen i’ch cadw’n fyw.</p><p class=\"govuk-body\">Gall fod angen gwneud penderfyniadau am driniaeth cynnal bywyd mewn amgylchiadau annisgwyl, fel llawdriniaeth arferol na aeth yn ôl y bwriad.</p>",
+    "lifeSustainingTreatmentContent": "<p class=\"govuk-body\">Rhaid i chi ddewis a gaiff eich atwrneiod roi neu wrthod caniatâd i driniaeth cynnal bywyd ar eich rhan os nad ydych chi’n gallu gwneud hynny.</p><p class=\"govuk-body\">Mae triniaeth cynnal bywyd yn golygu gofal, llawdriniaeth, meddyginiaeth neu gymorth arall gan weithwyr meddygol proffesiynol sy’n angenrheidiol i’ch cadw’n fyw.<p class=\"govuk-body\">Gall fod angen gwneud penderfyniadau am driniaeth cynnal bywyd mewn amgylchiadau annisgwyl, fel llawdriniaeth arferol na aeth yn ôl y bwriad.</p>",
     "ifYouDoGiveAttorneysAuthority": "Os byddwch yn rhoi awdurdod i’ch atwrneiod ganiatáu triniaeth cynnal bywyd, gallwch ychwanegu cyfyngiadau ac amodau i’w harwain wrth wneud eu penderfyniad.",
     "optionAHint": "Bydd eich atwrneiod yn cael siarad â meddygon fel pe baen nhw’n chi.",
     "optionBHint": "Ni fydd eich atwrneiod yn cael siarad â meddygon fel pe baen nhw’n chi",
