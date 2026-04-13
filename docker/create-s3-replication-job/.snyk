@@ -100,3 +100,8 @@ ignore:
       reason: Do not resolve for now
       expires: 2026-04-23T14:57:38.314Z
       created: 2026-03-24T14:57:38.316Z
+  SNYK-GOLANG-GOOPENTELEMETRYIOOTELSDKRESOURCE-15954212:
+    - "*":
+      reason: We are not running OpenBSD or Solaris
+      expires: 2026-05-12T08:05:32.163Z
+      created: 2026-04-13T08:05:32.164Z
