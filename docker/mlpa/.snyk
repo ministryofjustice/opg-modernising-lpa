@@ -1,0 +1,6 @@
+ignore:
+  SNYK-GOLANG-GOOPENTELEMETRYIOOTELSDKRESOURCE-15954212:
+    - "*":
+      reason: We are not running OpenBSD or Solaris
+      expires: 9999-01-01T00:00:00.000Z
+      created: 2026-04-13T08:05:32.164Z
