@@ -73,7 +73,7 @@ jobs:
         if: inputs.run_against_image
       - name: Run Against Image/Configure AWS Credentials
         if: inputs.run_against_image
-        uses: aws-actions/configure-aws-credentials@8df5847569e6427dd6c4fb1cf565c83acfa8afa7 # v6.0.0
+        uses: aws-actions/configure-aws-credentials@ec61189d14ec14c8efccab744f656cffd0e33f37 # v6.1.0
         with:
           aws-region: eu-west-1
           role-to-assume: arn:aws:iam::311462405659:role/modernising-lpa-github-actions-ecr-pull
@@ -82,7 +82,7 @@ jobs:
       - name: Run Against Image/ECR Login
         if: inputs.run_against_image
         id: login_ecr
-        uses: aws-actions/amazon-ecr-login@062b18b96a7aff071d4dc91bc00c4c1a7945b076 # v2.0.1
+        uses: aws-actions/amazon-ecr-login@f2e9fc6c2b355c1890b65e6f6f0e2ac3e6e22f78 # v2.1.2
         with:
           mask-password: true
           registries: 311462405659
@@ -97,7 +97,7 @@ jobs:
 
       - name: Manage Ingress/Configure AWS Credentials
         if: inputs.run_against_image != true
-        uses: aws-actions/configure-aws-credentials@8df5847569e6427dd6c4fb1cf565c83acfa8afa7 # v6.0.0
+        uses: aws-actions/configure-aws-credentials@ec61189d14ec14c8efccab744f656cffd0e33f37 # v6.1.0
         with:
           role-to-assume: ${{ secrets.ingress_management_oidc_role_arn }}
           aws-region: eu-west-1
