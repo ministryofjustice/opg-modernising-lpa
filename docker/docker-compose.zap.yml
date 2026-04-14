@@ -1,7 +1,7 @@
 ---
 services:
   zap-proxy:
-    image: zaproxy/zap-bare:2.17.0@sha256:c22bbb3d1f3dc59c6ede3d5c66e4eae487b44eb07fd7b3c4b72cbb70a1e061ac
+    image: zaproxy/zap-bare:2.17.0@sha256:cbd53f0527391a0fd96f4a43e52508774713daca3e5bda737b4ac67bef90837d
     environment:
       ACTIVE_SCAN: true
       ACTIVE_SCAN_TIMEOUT: 600
