@@ -457,7 +457,7 @@
     "submitSignature": "Cyflwyno llofnod",
     "iCannotProvideTheCertificate": "Ni allaf ddarparu’r dystysgrif",
     "pageNotFound": "Heb ddod o hyd i’r dudalen",
-    "pageNotFoundContent": "<p class=\"govuk-body\">Os gwnaethoch deipio’r cyfeiriad gwe, gwiriwch ei fod yn gywir.</p><p class=\"govuk-body\">Os gwnaethoch ludo’r cyfeiriad gwe, gwiriwch eich bod wedi copïo’r cyfeiriad cyfan.</p><p class=\"govuk-body\">Defnyddiwch eich porwr i fynd yn ôl i’r dudalen flaenorol, neu dychwelwch i’r <a class=\"govuk-link\" href=\"{{.Start}}\">dudalen gychwyn</a>.</p>",
+    "pageNotFoundContent": "<p class=\"govuk-body\">Os gwnaethoch deipio’r cyfeiriad gwe, gwiriwch ei fod yn gywir.</p><p class=\"govuk-body\">Os gwnaethoch ludo’r cyfeiriad gwe, gwiriwch eich bod wedi copïo’r cyfeiriad cyfan.</p><p class=\"govuk-body\">Defnyddiwch eich porwr i fynd yn ôl i’r dudalen flaenorol, neu ewch yn ôl i’r <a class=\"govuk-link\" href=\"{{.Start}}\">dudalen gychwyn</a>.</p>",
     "sorryProblem": "Mae’n ddrwg gennym, mae problem gyda’r gwasanaeth",
     "tryAgainLater": "Rhowch gynnig arall arni yn hwyrach ymlaen.",
     "beACertificateProvider": "Bod yn ddarparwr tystysgrif ar atwrneiaeth arhosol (LPA)",
@@ -1364,7 +1364,7 @@
         "other": "{{.PluralCount}} Welsh"
     },
     "youHaveChosenToConfirmYourIdentityAtPostOffice": "Rydych chi wedi dewis cadarnhau eich hunaniaeth mewn Swyddfa Bost",
-    "whenYouHaveConfirmedAtPostOfficeReturnToTaskList": "<p class=\"govuk-body\">Pan fyddwch wedi cadarnhau pwy ydych chi mewn Swyddfa Bost, dychwelwch i’ch rhestr o dasgau i weld y camau y mae’n rhaid i chi eu cymryd i gwblhau’r broses hon.</p>",
+    "whenYouHaveConfirmedAtPostOfficeReturnToTaskList": "<p class=\"govuk-body\">Pan fyddwch wedi cadarnhau pwy ydych chi mewn Swyddfa Bost, ewch yn ôl i’ch rhestr o dasgau i weld y camau y mae’n rhaid i chi eu cymryd i gwblhau’r broses hon.</p>",
     "youveSubmittedYourLpaToOpg": "Rydych chi wedi cyflwyno eich LPA i Swyddfa’r Gwarcheidwad Cyhoeddus (OPG)",
     "opgIsCheckingYourLpa": "<p class=\"govuk-body\">Mae OPG yn gwirio eich LPA. Byddwn yn cysylltu â chi os bydd angen i chi wneud unrhyw beth.</p>",
     "weHaveSentAnEmailYouProvidedCertificate": "<p class=\"govuk-body\">Rydym wedi anfon e-bost i gadarnhau eich bod wedi cyflwyno eich tystysgrif ar gyfer yr LPA hon i <span class=\"govuk-!-font-weight-bold\">{{.CertificateProviderEmail}}</span>.</p><p class=\"govuk-body\">Os hoffech chi gofnod ar bapur, gallwch hefyd argraffu copi o’r dudalen hon.</p>",
