@@ -5,103 +5,63 @@ version: v1.25.1
 # ignores vulnerabilities until expiry date; change duration by modifying expiry date
 
 ignore:
-  SNYK-AMZN2023-OPENSSLSNAPSAFELIBS-15320362:
-    - "*":
-        reason: Do not resolve for now
-        expires: 2026-04-23T14:57:38.314Z
-        created: 2026-03-24T14:57:38.316Z
-  SNYK-AMZN2023-OPENSSLSNAPSAFELIBS-15320371:
-    - "*":
-        reason: Do not resolve for now
-        expires: 2026-04-23T14:57:38.314Z
-        created: 2026-03-24T14:57:38.316Z
-  SNYK-AMZN2023-OPENSSLSNAPSAFELIBS-15320423:
-    - "*":
-      reason: Do not resolve for now
-      expires: 2026-04-23T14:57:38.314Z
-      created: 2026-03-24T14:57:38.316Z
-  SNYK-AMZN2023-OPENSSLSNAPSAFELIBS-15320460:
-    - "*":
-      reason: Do not resolve for now
-      expires: 2026-04-23T14:57:38.314Z
-      created: 2026-03-24T14:57:38.316Z
-  SNYK-AMZN2023-OPENSSLSNAPSAFELIBS-15320473:
-    - "*":
-      reason: Do not resolve for now
-      expires: 2026-04-23T14:57:38.314Z
-      created: 2026-03-24T14:57:38.316Z
-  SNYK-AMZN2023-OPENSSLSNAPSAFELIBS-15320655:
-    - "*":
-      reason: Do not resolve for now
-      expires: 2026-04-23T14:57:38.314Z
-      created: 2026-03-24T14:57:38.316Z
-  SNYK-AMZN2023-OPENSSLSNAPSAFELIBS-15320673:
-    - "*":
-      reason: Do not resolve for now
-      expires: 2026-04-23T14:57:38.314Z
-      created: 2026-03-24T14:57:38.316Z
-  SNYK-AMZN2023-OPENSSLSNAPSAFELIBS-15320811:
-    - "*":
-      reason: Do not resolve for now
-      expires: 2026-04-23T14:57:38.314Z
-      created: 2026-03-24T14:57:38.316Z
-  SNYK-AMZN2023-OPENSSLSNAPSAFELIBS-15320816:
-    - "*":
-      reason: Do not resolve for now
-      expires: 2026-04-23T14:57:38.314Z
-      created: 2026-03-24T14:57:38.316Z
-  SNYK-AMZN2023-OPENSSLFIPSPROVIDERLATEST-15320353:
-    - "*":
-      reason: Do not resolve for now
-      expires: 2026-04-23T14:57:38.314Z
-      created: 2026-03-24T14:57:38.316Z
-  SNYK-AMZN2023-OPENSSLFIPSPROVIDERLATEST-15320462:
-    - "*":
-      reason: Do not resolve for now
-      expires: 2026-04-23T14:57:38.314Z
-      created: 2026-03-24T14:57:38.316Z
-  SNYK-AMZN2023-OPENSSLFIPSPROVIDERLATEST-15320514:
-    - "*":
-      reason: Do not resolve for now
-      expires: 2026-04-23T14:57:38.314Z
-      created: 2026-03-24T14:57:38.316Z
-  SNYK-AMZN2023-OPENSSLFIPSPROVIDERLATEST-15320590:
-    - "*":
-      reason: Do not resolve for now
-      expires: 2026-04-23T14:57:38.314Z
-      created: 2026-03-24T14:57:38.316Z
-  SNYK-AMZN2023-OPENSSLFIPSPROVIDERLATEST-15320689:
-    - "*":
-      reason: Do not resolve for now
-      expires: 2026-04-23T14:57:38.314Z
-      created: 2026-03-24T14:57:38.316Z
-  SNYK-AMZN2023-OPENSSLFIPSPROVIDERLATEST-15320810:
-    - "*":
-      reason: Do not resolve for now
-      expires: 2026-04-23T14:57:38.314Z
-      created: 2026-03-24T14:57:38.316Z
-  SNYK-AMZN2023-OPENSSLFIPSPROVIDERLATEST-15320835:
-    - "*":
-      reason: Do not resolve for now
-      expires: 2026-04-23T14:57:38.314Z
-      created: 2026-03-24T14:57:38.316Z
-  SNYK-AMZN2023-OPENSSLFIPSPROVIDERLATEST-15320904:
-    - "*":
-      reason: Do not resolve for now
-      expires: 2026-04-23T14:57:38.314Z
-      created: 2026-03-24T14:57:38.316Z
-  SNYK-AMZN2023-GNUPG2MINIMAL-15319477:
-    - "*":
-      reason: Do not resolve for now
-      expires: 2026-04-23T14:57:38.314Z
-      created: 2026-03-24T14:57:38.316Z
-  SNYK-AMZN2023-OPENSSLFIPSPROVIDERLATEST-15320384:
-    - "*":
-      reason: Do not resolve for now
-      expires: 2026-04-23T14:57:38.314Z
-      created: 2026-03-24T14:57:38.316Z
   SNYK-GOLANG-GOOPENTELEMETRYIOOTELSDKRESOURCE-15954212:
     - "*":
-      reason: We are not running OpenBSD or Solaris
-      expires: 9999-01-01T00:00:00.000Z
-      created: 2026-04-13T08:05:32.164Z
+        reason: We are not running OpenBSD or Solaris
+        expires: 9999-01-01T00:00:00.000Z
+        created: 2026-04-13T08:05:32.164Z
+  SNYK-AMZN2023-OPENSSLSNAPSAFELIBS-16067584:
+    - "*":
+        reason: None Given
+        expires: 2026-05-25T16:43:47.000Z
+        created: 2026-04-27T09:59:47.000Z
+  SNYK-AMZN2023-OPENSSLSNAPSAFELIBS-16067796:
+    - "*":
+        reason: None Given
+        expires: 2026-05-25T16:43:47.000Z
+        created: 2026-04-27T09:59:47.000Z
+  SNYK-AMZN2023-OPENSSLSNAPSAFELIBS-16068185:
+    - "*":
+        reason: None Given
+        expires: 2026-05-25T16:43:47.000Z
+        created: 2026-04-27T09:59:47.000Z
+  SNYK-AMZN2023-OPENSSLSNAPSAFELIBS-16068192:
+    - "*":
+        reason: None Given
+        expires: 2026-05-25T16:43:47.000Z
+        created: 2026-04-27T09:59:47.000Z
+  SNYK-AMZN2023-OPENSSLSNAPSAFELIBS-16068314:
+    - "*":
+        reason: None Given
+        expires: 2026-05-25T16:43:47.000Z
+        created: 2026-04-27T09:59:47.000Z
+  SNYK-AMZN2023-OPENSSLFIPSPROVIDERLATEST-16067611:
+    - "*":
+        reason: None Given
+        expires: 2026-05-25T16:43:47.000Z
+        created: 2026-04-27T09:59:47.000Z
+  SNYK-AMZN2023-OPENSSLFIPSPROVIDERLATEST-16067791:
+    - "*":
+        reason: None Given
+        expires: 2026-05-25T16:43:47.000Z
+        created: 2026-04-27T09:59:47.000Z
+  SNYK-AMZN2023-OPENSSLFIPSPROVIDERLATEST-16068066:
+    - "*":
+        reason: None Given
+        expires: 2026-05-25T16:43:47.000Z
+        created: 2026-04-27T09:59:47.000Z
+  SNYK-AMZN2023-OPENSSLFIPSPROVIDERLATEST-16068077:
+    - "*":
+        reason: None Given
+        expires: 2026-05-25T16:43:47.000Z
+        created: 2026-04-27T09:59:47.000Z
+  SNYK-AMZN2023-OPENSSLFIPSPROVIDERLATEST-16068187:
+    - "*":
+        reason: None Given
+        expires: 2026-05-25T16:43:47.000Z
+        created: 2026-04-27T09:59:47.000Z
+  SNYK-AMZN2023-LIBNGHTTP2-16067344:
+    - "*":
+        reason: None Given
+        expires: 2026-05-25T16:43:47.000Z
+        created: 2026-04-27T09:59:47.000Z
