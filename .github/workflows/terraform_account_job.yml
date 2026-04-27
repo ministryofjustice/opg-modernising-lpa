@@ -43,7 +43,7 @@ jobs:
       - name: "Terraform version [${{ steps.tf_version_setup.outputs.TERRAFORM_VERSION }}]"
         run: echo "terraform version [${{ steps.tf_version_setup.outputs.TERRAFORM_VERSION }}]"
         working-directory: ./terraform/account
-      - uses: hashicorp/setup-terraform@b9cd54a3c349d3f38e8881555d616ced269862dd # v3.1.2
+      - uses: hashicorp/setup-terraform@5e8dbf3c6d9deaf4193ca7a8fb23f2ac83bb6c85 # v4
         with:
           terraform_version: ${{ steps.tf_version_setup.outputs.TERRAFORM_VERSION }}
           terraform_wrapper: false
@@ -54,7 +54,7 @@ jobs:
           aws-region: eu-west-1
           role-duration-seconds: 3600
           role-session-name: OPGModernisingLPATerraformGithubAction
-      - uses: terraform-linters/setup-tflint@ae78205cfffec9e8d93fd2b3115c7e9d3166d4b6 # v5
+      - uses: terraform-linters/setup-tflint@b480b8fcdaa6f2c577f8e4fa799e89e756bb7c93 # v6
         name: Setup TFLint
         with:
           tflint_version: v${{ env.TFLINT_VERSION }}
