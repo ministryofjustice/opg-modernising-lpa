@@ -99,8 +99,63 @@ ignore:
         created: 2026-03-26T16:43:59.869Z
   SNYK-GOLANG-GOOPENTELEMETRYIOOTELSDKRESOURCE-15954212:
     - "*":
-      reason: We are not running OpenBSD or Solaris
-      expires: 9999-01-01T00:00:00.000Z
-      created: 2026-04-13T08:05:32.164Z
+        reason: We are not running OpenBSD or Solaris
+        expires: 9999-01-01T00:00:00.000Z
+        created: 2026-04-13T08:05:32.164Z
+  SNYK-AMZN2023-OPENSSLSNAPSAFELIBS-16067584:
+    - "*":
+        reason: None Given
+        expires: 2026-05-25T16:43:47.000Z
+        created: 2026-04-27T09:59:47.000Z
+  SNYK-AMZN2023-OPENSSLSNAPSAFELIBS-16067796:
+    - "*":
+        reason: None Given
+        expires: 2026-05-25T16:43:47.000Z
+        created: 2026-04-27T09:59:47.000Z
+  SNYK-AMZN2023-OPENSSLSNAPSAFELIBS-16068185:
+    - "*":
+        reason: None Given
+        expires: 2026-05-25T16:43:47.000Z
+        created: 2026-04-27T09:59:47.000Z
+  SNYK-AMZN2023-OPENSSLSNAPSAFELIBS-16068192:
+    - "*":
+        reason: None Given
+        expires: 2026-05-25T16:43:47.000Z
+        created: 2026-04-27T09:59:47.000Z
+  SNYK-AMZN2023-OPENSSLSNAPSAFELIBS-16068314:
+    - "*":
+        reason: None Given
+        expires: 2026-05-25T16:43:47.000Z
+        created: 2026-04-27T09:59:47.000Z
+  SNYK-AMZN2023-OPENSSLFIPSPROVIDERLATEST-16067611:
+    - "*":
+        reason: None Given
+        expires: 2026-05-25T16:43:47.000Z
+        created: 2026-04-27T09:59:47.000Z
+  SNYK-AMZN2023-OPENSSLFIPSPROVIDERLATEST-16067791:
+    - "*":
+        reason: None Given
+        expires: 2026-05-25T16:43:47.000Z
+        created: 2026-04-27T09:59:47.000Z
+  SNYK-AMZN2023-OPENSSLFIPSPROVIDERLATEST-16068066:
+    - "*":
+        reason: None Given
+        expires: 2026-05-25T16:43:47.000Z
+        created: 2026-04-27T09:59:47.000Z
+  SNYK-AMZN2023-OPENSSLFIPSPROVIDERLATEST-16068077:
+    - "*":
+        reason: None Given
+        expires: 2026-05-25T16:43:47.000Z
+        created: 2026-04-27T09:59:47.000Z
+  SNYK-AMZN2023-OPENSSLFIPSPROVIDERLATEST-16068187:
+    - "*":
+        reason: None Given
+        expires: 2026-05-25T16:43:47.000Z
+        created: 2026-04-27T09:59:47.000Z
+  SNYK-AMZN2023-LIBNGHTTP2-16067344:
+    - "*":
+        reason: None Given
+        expires: 2026-05-25T16:43:47.000Z
+        created: 2026-04-27T09:59:47.000Z
 
 patch: {}
