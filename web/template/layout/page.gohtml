@@ -1,6 +1,6 @@
 {{ define "page" }}
     <!DOCTYPE html>
-    <html lang="{{ .App.Lang.String }}" class="govuk-template govuk-template--rebranded app-html-class">
+    <html lang="{{ .App.Lang.String }}" class="govuk-template app-html-class">
         <head>
             <meta charset="utf-8">
             <title>{{ if .Errors }}Error: {{ end }} {{ if not (eq .App.Page global.Paths.Start global.Paths.CertificateProviderStart global.Paths.Attorney.Start global.Paths.Supporter.Start global.Paths.Voucher.Start) }}{{ block "pageTitle" . }}{{ end }} - {{ end }}{{ tr .App "serviceName" }}</title>
@@ -11,12 +11,12 @@
             <meta http-equiv="X-UA-Compatible" content="IE=edge">
 
             <meta name="theme-color" content="#1d70b8">
-            <link rel="icon" sizes="48x48" href="/static/assets/rebrand/images/favicon.ico">
-            <link rel="icon" sizes="any" href="/static/assets/rebrand/images/favicon.svg" type="image/svg+xml">
-            <link rel="mask-icon" href="/static/assets/rebrand/images/govuk-icon-mask.svg" color="#1d70b8">
-            <link rel="apple-touch-icon" href="/static/assets/rebrand/images/govuk-icon-180.png">
-            <link rel="manifest" href="/static/assets/rebrand/manifest.json">
-            <meta property="og:image" content="/static/assets/rebrand/images/govuk-opengraph-image.png">
+            <link rel="icon" sizes="48x48" href="/static/assets/images/favicon.ico">
+            <link rel="icon" sizes="any" href="/static/assets/images/favicon.svg" type="image/svg+xml">
+            <link rel="mask-icon" href="/static/assets/images/govuk-icon-mask.svg" color="#1d70b8">
+            <link rel="apple-touch-icon" href="/static/assets/images/govuk-icon-180.png">
+            <link rel="manifest" href="/static/assets/manifest.json">
+            <meta property="og:image" content="/static/assets/images/govuk-opengraph-image.png">
 
             <link href="/static/stylesheets/all.css?{{ global.StaticHash }}" rel="stylesheet">
             <script type="module" async src="/static/javascript/main.js?{{ global.StaticHash }}"></script>
@@ -63,10 +63,10 @@
             {{ if and .App.SessionID (not .App.HideLoginNav) }}
                 {{ template "login-header.gohtml" . }}
             {{ else }}
-                <header class="govuk-header" data-module="govuk-header">
+                <div class="govuk-header">
                     <div class="govuk-header__container govuk-width-container">
                         <div class="govuk-header__logo">
-                            <a href="#" class="govuk-header__link govuk-header__link--homepage">
+                            <a href="https://gov.uk/" class="govuk-header__homepage-link">
                                 <svg
                                     focusable="false"
                                     role="img"
@@ -93,7 +93,8 @@
                             </a>
                         </div>
                     </div>
-                </header>
+                </div>
+
                 <section aria-label="Service information" class="govuk-service-navigation" data-module="govuk-service-navigation">
                     <div class="govuk-width-container">
                         <div class="govuk-service-navigation__container">
