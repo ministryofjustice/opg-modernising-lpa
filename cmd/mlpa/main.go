@@ -68,7 +68,7 @@ func main() {
 
 	logger := slog.New(handler.
 		WithAttrs([]slog.Attr{
-			slog.String("service_name", "opg-modernising-lpa"),
+			slog.String("service_name", "opg-modernising-lpa2"),
 			slog.String("tag", Tag),
 		}))
 
