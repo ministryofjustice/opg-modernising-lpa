@@ -511,7 +511,7 @@
     "iAmNotSubjectToBankruptcy": "Welsh",
     "signAsAttorneyBullets": "Welsh {{ .DonorFullName }}",
     "signAsAttorneyWhenRegisteredBullet": "Welsh {{ .DonorFullName }} dim ond ar ôl cofrestru’r LPA hon y gallaf wneud penderfyniadau a gweithredu ",
-    "signAsAttorneyWhenCapacityLostBullet": "dim ond pan fydd yr LPA hon wedi’i chofrestru a dim ond pan nad oes gan y rhoddwr alluedd meddyliol y gallaf wneud penderfyniadau a gweithredu",
+    "signAsAttorneyWhenCapacityLostBullet": "Ni chaf wneud penderfyniadau a gweithredu hyd nes y bydd yr LPA hon wedi’i chofrestru a phan wyf yn credu’n rhesymol nad oes gan y rhoddwr alluedd meddyliol i wneud penderfyniad penodol",
     "iAttorneyConfirmTheseStatements": "Rydw i, {{.AttorneyFullName}}, yn cadarnhau bod y datganiadau hyn yn wir ac yn deall bod ticio’r blwch hwn yn gweithredu fel fy llofnod cyfreithiol.",
     "asReplacementAttorneyAlsoConfirmThat": "<p class=\"govuk-body govuk-!-font-weight-bold\">Fel atwrnai wrth gefn, rwyf hefyd yn cadarnhau fy mod yn deall y canlynol:</p><p class=\"govuk-body\">Dim ond ar ôl terfynu penodiad atwrnai y mae gennyf yr awdurdod i weithredu dan yr LPA hon. Rhaid i mi roi gwybod i’r Gwarcheidwad Cyhoeddus os bydd hyn yn digwydd.</p>",
     "becomeAnAttorney": "Bod yn atwrnai",
