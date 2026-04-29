@@ -31,6 +31,7 @@ jobs:
       - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
         with:
           ref: ${{ inputs.checkout_tag }}
+          persist-credentials: false
       - name: Manage Ingress/Configure AWS Credentials
         uses: aws-actions/configure-aws-credentials@8df5847569e6427dd6c4fb1cf565c83acfa8afa7 # v6.0.0
         with:
@@ -44,10 +45,14 @@ jobs:
           check-latest: true
       - run: pip install -r ./scripts/ci_ingress/requirements.txt
       - name: add_ingress
-        run: python ./scripts/ci_ingress/ci_ingress.py ${{ inputs.environment_config_json}} --add
+        run: python ./scripts/ci_ingress/ci_ingress.py ${INPUTS_ENVIRONMENT_CONFIG_JSON} --add
+        env:
+          INPUTS_ENVIRONMENT_CONFIG_JSON: ${{ inputs.environment_config_json}}
       - name: Check environment is available
         run: |
-          service_response=$(curl --write-out %{http_code} --silent --output /dev/null ${{ inputs.base_url }}/health-check/service)
+          service_response=$(curl --write-out %{http_code} --silent --output /dev/null ${INPUTS_BASE_URL}/health-check/service)
           [[ $service_response == 200 ]] || (echo "Error with service health check. HTTP status: ${service_response}" && exit 1)
-          dependency_response=$(curl --write-out %{http_code} --silent --output /dev/null ${{ inputs.base_url }}/health-check/dependency)
+          dependency_response=$(curl --write-out %{http_code} --silent --output /dev/null ${INPUTS_BASE_URL}/health-check/dependency)
           [[ $dependency_response == 200 ]] || (echo "Error with service health check. HTTP status: ${dependency_response}" && exit 1)
+        env:
+          INPUTS_BASE_URL: ${{ inputs.base_url }}

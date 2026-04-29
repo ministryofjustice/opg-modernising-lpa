@@ -15,6 +15,7 @@ jobs:
         with:
           ref: ${{ github.event.ref }}
           fetch-depth: 0 # Fetch all history for all tags and branches
+          persist-credentials: false
       - name: Detect changes in /cmd, /cypress, /internal, /web, /lang or /lambda using git diff
         id: detect_changes
         if: github.ref != 'refs/heads/main'
@@ -24,13 +25,13 @@ jobs:
           if [[ "$BEFORE_STATUS" == "success" ]]; then
             echo "Checking against ${{github.event.before}}"
             (git diff --quiet ${{github.event.before}} ${{github.event.after}} -- cmd cypress internal lang web lambda docker package.json package-lock.json go.mod .github/workflows/docker_job.yml && \
-            echo "changes=${{ false }}" || \
-            echo "changes=${{ true }}") | tee -a "${GITHUB_OUTPUT}"
+            echo "changes=false" || \
+            echo "changes=true") | tee -a "${GITHUB_OUTPUT}"
           else
             echo "Checking against origin/main"
             (git diff --quiet HEAD origin/main -- cmd cypress internal lang web lambda docker package.json package-lock.json go.mod .github/workflows/docker_job.yml && \
-            echo "changes=${{ false }}" || \
-            echo "changes=${{ true }}") | tee -a "${GITHUB_OUTPUT}"
+            echo "changes=false" || \
+            echo "changes=true") | tee -a "${GITHUB_OUTPUT}"
           fi
         env:
           GH_TOKEN: ${{ github.token }}

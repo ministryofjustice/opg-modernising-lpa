@@ -68,6 +68,7 @@ jobs:
       - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
         with:
           ref: ${{ inputs.checkout_tag }}
+          persist-credentials: false
       - uses: unfor19/install-aws-cli-action@f5b46b7f32cf5e7ebd652656c5036bf83dd1e60c # v1
         name: Run Against Image/aws-cli-action
         if: inputs.run_against_image
@@ -112,7 +113,9 @@ jobs:
         if: inputs.run_against_image != true
       - name: add_ingress
         if: inputs.run_against_image != true
-        run: python ./scripts/ci_ingress/ci_ingress.py ${{ inputs.environment_config_json}} --add
+        run: python ./scripts/ci_ingress/ci_ingress.py ${INPUTS_ENVIRONMENT_CONFIG_JSON} --add
+        env:
+          INPUTS_ENVIRONMENT_CONFIG_JSON: ${{ inputs.environment_config_json}}
 
       - name: Setup node
         uses: actions/setup-node@53b83947a5a98c8d113130e565377fae1a50d02f # v6.3.0
@@ -133,8 +136,9 @@ jobs:
           CYPRESS_TEST_ONELOGIN_TOTP_KEY: ${{ secrets.test_onelogin_totp_key }}
           CYPRESS_TEST_ONELOGIN_PASSWORD: ${{ secrets.test_onelogin_password }}
           GITHUB_TOKEN: ${{ secrets.github_access_token }}
+          INPUTS_SPECS: ${{ inputs.specs }}
         run:
-          npm run cypress:parallel-with-specs -- --spec ${{ inputs.specs }} ${{ inputs.dev_mode != '1' && '--env grepTags=-@dev,grepFilterSpecs=true' || '' }}
+          npm run cypress:parallel-with-specs -- --spec ${INPUTS_SPECS} ${{ inputs.dev_mode != '1' && '--env grepTags=-@dev,grepFilterSpecs=true' || '' }}
 
       - name: Persist Cypress failure screenshots as artifacts
         if: failure()

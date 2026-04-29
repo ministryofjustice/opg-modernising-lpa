@@ -8,3 +8,5 @@ updates:
       separator: "-"
     # so we only get security PRs
     open-pull-requests-limit: 0
+    cooldown:
+      default-days: 7

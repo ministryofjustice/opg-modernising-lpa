@@ -175,9 +175,9 @@ jobs:
     steps:
       - name: End of PR Workflow
         run: |
-          echo "${{ needs.pr_deploy.outputs.terraform_workspace_name }} PR environment tested, built and deployed"
-          echo "Tag Deployed: ${{ needs.pr_deploy.outputs.terraform_container_version }}"
-          echo "URL: https://${{ needs.pr_deploy.outputs.url }}"
+          echo "${NEEDS_PR_DEPLOY_OUTPUTS_TERRAFORM_WORKSPACE_NAME} PR environment tested, built and deployed"
+          echo "Tag Deployed: ${NEEDS_PR_DEPLOY_OUTPUTS_TERRAFORM_CONTAINER_VERSION}"
+          echo "URL: https://${NEEDS_PR_DEPLOY_OUTPUTS_URL}"
 
           if ${{ contains(needs.ui_tests_pr_env.result,'success') }}
           then
@@ -187,3 +187,7 @@ jobs:
             echo "PR environment tested, built and deployed but UI tests failed"
             exit 1
           fi
+        env:
+          NEEDS_PR_DEPLOY_OUTPUTS_TERRAFORM_WORKSPACE_NAME: ${{ needs.pr_deploy.outputs.terraform_workspace_name }}
+          NEEDS_PR_DEPLOY_OUTPUTS_TERRAFORM_CONTAINER_VERSION: ${{ needs.pr_deploy.outputs.terraform_container_version }}
+          NEEDS_PR_DEPLOY_OUTPUTS_URL: ${{ needs.pr_deploy.outputs.url }}
