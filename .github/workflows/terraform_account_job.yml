@@ -7,13 +7,15 @@ on:
         description: 'The terraform workspace to target for account actions'
         required: true
         type: string
+      oidc_role_arn:
+        description: 'ARN for OIDC role to assume for terraform tasks'
+        required: true
+        type: string
     secrets:
       pagerduty_api_key:
         description: 'Pagerduty API Key'
         required: true
-      oidc_role_arn:
-        description: 'ARN for OIDC role to assume for terraform tasks'
-        required: true
+
 permissions:
   id-token: write
 
