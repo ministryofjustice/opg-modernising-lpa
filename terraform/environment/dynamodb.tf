@@ -55,6 +55,11 @@ resource "aws_dynamodb_table" "lpas_table" {
     type = "S"
   }
 
+  ttl {
+    attribute_name = "ExpiresAt"
+    enabled        = true
+  }
+
   point_in_time_recovery {
     enabled = true
   }
