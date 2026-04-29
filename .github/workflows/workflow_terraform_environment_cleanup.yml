@@ -27,8 +27,6 @@ jobs:
         with:
           fetch-depth: "0"
 
-      - uses: unfor19/install-aws-cli-action@f5b46b7f32cf5e7ebd652656c5036bf83dd1e60c # v1
-
       - name: Parse terraform version
         id: tf_version_setup
         working-directory: ./terraform/environment
