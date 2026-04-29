@@ -68,7 +68,6 @@ jobs:
       - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
         with:
           ref: ${{ inputs.checkout_tag }}
-      - uses: unfor19/install-aws-cli-action@f5b46b7f32cf5e7ebd652656c5036bf83dd1e60c # v1
         name: Run Against Image/aws-cli-action
         if: inputs.run_against_image
       - name: Run Against Image/Configure AWS Credentials
