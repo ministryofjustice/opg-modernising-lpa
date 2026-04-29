@@ -39,6 +39,9 @@ on:
         description: 'The value of the app environment variable DEV_MODE'
         required: false
         type: string
+      ingress_management_oidc_role_arn:
+        required: true
+        type: string
     secrets:
       cypress_record_key:
         description: 'Cypress Record Key'
@@ -55,8 +58,10 @@ on:
       test_onelogin_password:
         description: 'Test OneLogin password'
         required: false
-      ingress_management_oidc_role_arn:
-        required: true
+
+permissions:
+  id-token: write
+
 defaults:
   run:
     shell: bash
@@ -98,7 +103,7 @@ jobs:
         if: inputs.run_against_image != true
         uses: aws-actions/configure-aws-credentials@8df5847569e6427dd6c4fb1cf565c83acfa8afa7 # v6.0.0
         with:
-          role-to-assume: ${{ secrets.ingress_management_oidc_role_arn }}
+          role-to-assume: ${{ inputs.ingress_management_oidc_role_arn }}
           aws-region: eu-west-1
           role-duration-seconds: 900
           role-session-name: ManageIngress

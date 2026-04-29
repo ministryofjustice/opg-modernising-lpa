@@ -21,7 +21,10 @@ on:
         default: false
         required: false
         type: boolean
-
+      oidc_role_arn:
+        description: 'ARN for OIDC role to assume for terraform tasks'
+        required: true
+        type: string
     outputs:
       terraform_workspace_name:
         description: "Name of Terraform workspace"
@@ -47,9 +50,6 @@ on:
         required: true
       pagerduty_api_key:
         description: 'Pagerduty API Key'
-        required: true
-      oidc_role_arn:
-        description: 'ARN for OIDC role to assume for terraform tasks'
         required: true
 
 permissions:
@@ -92,7 +92,7 @@ jobs:
       - name: Configure AWS Credentials For Terraform
         uses: aws-actions/configure-aws-credentials@8df5847569e6427dd6c4fb1cf565c83acfa8afa7 # v6.0.0
         with:
-          role-to-assume: ${{ secrets.oidc_role_arn }}
+          role-to-assume: ${{ inputs.oidc_role_arn }}
           aws-region: eu-west-1
           role-duration-seconds: 3600
           role-session-name: OPGModernisingLPATerraformGithubAction
