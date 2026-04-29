@@ -112,7 +112,7 @@ jobs:
         uses: aws-actions/configure-aws-credentials@8df5847569e6427dd6c4fb1cf565c83acfa8afa7 # v6.0.0
         with:
           aws-region: eu-west-1
-          role-to-assume: ${{ vars.oidc_ecr_push }}
+          role-to-assume: ${{ vars.OIDC_ECR_PUSH }}
           role-duration-seconds: 900
           role-session-name: GithubActionsECRPushMLPAB
 
