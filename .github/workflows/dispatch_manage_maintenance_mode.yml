@@ -42,20 +42,24 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        with:
+          persist-credentials: false
       - uses: unfor19/install-aws-cli-action@f5b46b7f32cf5e7ebd652656c5036bf83dd1e60c # v1
       - name: Determine role to use for maintenance mode
         id: determine_role
         run: |
-          if [[ ${{ github.event.inputs.environment }} == "production" ]]; then
+          if [[ ${GITHUB_EVENT_INPUTS_ENVIRONMENT} == "production" ]]; then
             echo "Using production account role"
             echo "role=${{ secrets.PRODUCTION_MAINTENANCE_MODE_ROLE }}" >> $GITHUB_OUTPUT
-          elif [[ ${{ github.event.inputs.environment }} == "preproduction" ]]; then
+          elif [[ ${GITHUB_EVENT_INPUTS_ENVIRONMENT} == "preproduction" ]]; then
             echo "Using preproduction account role"
             echo "role=${{ secrets.PREPRODUCTION_MAINTENANCE_MODE_ROLE }}" >> $GITHUB_OUTPUT
           else
             echo "Using dev account role"
             echo "role=${{ secrets.DEVELOPMENT_MAINTENANCE_MODE_ROLE }}" >> $GITHUB_OUTPUT
           fi
+        env:
+          GITHUB_EVENT_INPUTS_ENVIRONMENT: ${{ github.event.inputs.environment }}
       - name: Configure AWS credentials for maintenance mode
         uses: aws-actions/configure-aws-credentials@8df5847569e6427dd6c4fb1cf565c83acfa8afa7 # v6.0.0
         with:
@@ -69,13 +73,17 @@ jobs:
         if: ${{ github.event.inputs.maintenance_mode_enabled == 'true' }}
         run: |
           ./manage_maintenance.sh \
-            --environment ${{ github.event.inputs.environment }} \
+            --environment ${GITHUB_EVENT_INPUTS_ENVIRONMENT} \
             --maintenance_mode
         working-directory: ./scripts/maintenance_mode
+        env:
+          GITHUB_EVENT_INPUTS_ENVIRONMENT: ${{ github.event.inputs.environment }}
       - name: Disable maintenance mode
         if: ${{ github.event.inputs.maintenance_mode_enabled == 'false' }}
         run: |
           ./manage_maintenance.sh \
-            --environment ${{ github.event.inputs.environment }} \
+            --environment ${GITHUB_EVENT_INPUTS_ENVIRONMENT} \
             --disable_maintenance_mode
         working-directory: ./scripts/maintenance_mode
+        env:
+          GITHUB_EVENT_INPUTS_ENVIRONMENT: ${{ github.event.inputs.environment }}

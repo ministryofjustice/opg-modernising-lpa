@@ -48,6 +48,8 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        with:
+          persist-credentials: false
       - name: Configure AWS Credentials For Terraform
         uses: aws-actions/configure-aws-credentials@8df5847569e6427dd6c4fb1cf565c83acfa8afa7 # v6.0.0
         with:
@@ -66,7 +68,9 @@ jobs:
           wget https://github.com/ministryofjustice/opg-terraform-workspace-manager/releases/download/v0.3.2/opg-terraform-workspace-manager_Linux_x86_64.tar.gz -O $HOME/terraform-workspace-manager.tar.gz
           sudo tar -xvf $HOME/terraform-workspace-manager.tar.gz -C /usr/local/bin
           sudo chmod +x /usr/local/bin/terraform-workspace-manager
-          terraform-workspace-manager -register-workspace=${{ needs.generate_environment_workspace_name.outputs.environment_workspace_name }} -time-to-protect=1 -aws-account-id=653761790766 -aws-iam-role=modernising-lpa-ci
+          terraform-workspace-manager -register-workspace=${NEEDS_GENERATE_ENVIRONMENT_WORKSPACE_NAME_OUTPUTS_ENVIRONMENT_WORKSPACE_NAME} -time-to-protect=1 -aws-account-id=653761790766 -aws-iam-role=modernising-lpa-ci
+        env:
+          NEEDS_GENERATE_ENVIRONMENT_WORKSPACE_NAME_OUTPUTS_ENVIRONMENT_WORKSPACE_NAME: ${{ needs.generate_environment_workspace_name.outputs.environment_workspace_name }}
 
       - name: Parse terraform version
         id: tf_version_setup
@@ -79,8 +83,10 @@ jobs:
           fi
 
       - name: "Terraform version [${{ steps.tf_version_setup.outputs.TERRAFORM_VERSION }}]"
-        run: echo "terraform version [${{ steps.tf_version_setup.outputs.TERRAFORM_VERSION }}]"
+        run: echo "terraform version [${STEPS_TF_VERSION_SETUP_OUTPUTS_TERRAFORM_VERSION}]"
         working-directory: ./terraform/environment
+        env:
+          STEPS_TF_VERSION_SETUP_OUTPUTS_TERRAFORM_VERSION: ${{ steps.tf_version_setup.outputs.TERRAFORM_VERSION }}
       - uses: hashicorp/setup-terraform@5e8dbf3c6d9deaf4193ca7a8fb23f2ac83bb6c85 # v4
         with:
           terraform_version: ${{ steps.tf_version_setup.outputs.TERRAFORM_VERSION }}
@@ -94,15 +100,18 @@ jobs:
         working-directory: ./terraform/environment
         env:
           TF_VAR_pagerduty_api_key:  ${{ secrets.PAGERDUTY_API_KEY }}
+          NEEDS_GENERATE_ENVIRONMENT_WORKSPACE_NAME_OUTPUTS_ENVIRONMENT_WORKSPACE_NAME: ${{ needs.generate_environment_workspace_name.outputs.environment_workspace_name }}
 
         run: |
-          terraform workspace select -or-create=true ${{ needs.generate_environment_workspace_name.outputs.environment_workspace_name }}
+          terraform workspace select -or-create=true ${NEEDS_GENERATE_ENVIRONMENT_WORKSPACE_NAME_OUTPUTS_ENVIRONMENT_WORKSPACE_NAME}
           terraform destroy -auto-approve
           terraform workspace select default
-          terraform workspace delete ${{ needs.generate_environment_workspace_name.outputs.environment_workspace_name }}
+          terraform workspace delete ${NEEDS_GENERATE_ENVIRONMENT_WORKSPACE_NAME_OUTPUTS_ENVIRONMENT_WORKSPACE_NAME}
       - name: Remove protection for environment workspace
         run: |
-          terraform-workspace-manager -register-workspace=${{ needs.generate_environment_workspace_name.outputs.environment_workspace_name }} -time-to-protect=0 -aws-account-id=653761790766 -aws-iam-role=modernising-lpa-ci
+          terraform-workspace-manager -register-workspace=${NEEDS_GENERATE_ENVIRONMENT_WORKSPACE_NAME_OUTPUTS_ENVIRONMENT_WORKSPACE_NAME} -time-to-protect=0 -aws-account-id=653761790766 -aws-iam-role=modernising-lpa-ci
+        env:
+          NEEDS_GENERATE_ENVIRONMENT_WORKSPACE_NAME_OUTPUTS_ENVIRONMENT_WORKSPACE_NAME: ${{ needs.generate_environment_workspace_name.outputs.environment_workspace_name }}
       - name: Configure AWS Credentials For AWS CLI
         uses: aws-actions/configure-aws-credentials@8df5847569e6427dd6c4fb1cf565c83acfa8afa7 # v6.0.0
         with:
@@ -112,7 +121,9 @@ jobs:
           role-session-name: OPGModernisingLPALogGroupDeleteGithubAction
       - name: Remove container insights log group
         run: |
-          aws logs delete-log-group --log-group-name /aws/ecs/containerinsights/${{ needs.generate_environment_workspace_name.outputs.environment_workspace_name }}/performance
+          aws logs delete-log-group --log-group-name /aws/ecs/containerinsights/${NEEDS_GENERATE_ENVIRONMENT_WORKSPACE_NAME_OUTPUTS_ENVIRONMENT_WORKSPACE_NAME}/performance
+        env:
+          NEEDS_GENERATE_ENVIRONMENT_WORKSPACE_NAME_OUTPUTS_ENVIRONMENT_WORKSPACE_NAME: ${{ needs.generate_environment_workspace_name.outputs.environment_workspace_name }}
       - name: Configure AWS Credentials For opensearch
         uses: aws-actions/configure-aws-credentials@8df5847569e6427dd6c4fb1cf565c83acfa8afa7 # v6.0.0
         with:
@@ -124,7 +135,7 @@ jobs:
         run: |
             pip install awscurl==0.33
             response=$(awscurl \
-              "${{ secrets.DEVELOPMENT_OPENSEARCH_COLLECTION_ENDPOINT }}/lpas_v2_${{ needs.generate_environment_workspace_name.outputs.environment_workspace_name }}" \
+              "${{ secrets.DEVELOPMENT_OPENSEARCH_COLLECTION_ENDPOINT }}/lpas_v2_${NEEDS_GENERATE_ENVIRONMENT_WORKSPACE_NAME_OUTPUTS_ENVIRONMENT_WORKSPACE_NAME}" \
               --request DELETE \
               --region eu-west-1 \
               --service aoss)
@@ -135,3 +146,5 @@ jobs:
               else
                 exit 1
               fi
+        env:
+          NEEDS_GENERATE_ENVIRONMENT_WORKSPACE_NAME_OUTPUTS_ENVIRONMENT_WORKSPACE_NAME: ${{ needs.generate_environment_workspace_name.outputs.environment_workspace_name }}
