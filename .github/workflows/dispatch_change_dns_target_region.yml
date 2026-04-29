@@ -38,6 +38,8 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        with:
+          persist-credentials: false
       - uses: unfor19/install-aws-cli-action@f5b46b7f32cf5e7ebd652656c5036bf83dd1e60c # v1
       - name: Configure AWS credentials for dns target region parameter change
         uses: aws-actions/configure-aws-credentials@8df5847569e6427dd6c4fb1cf565c83acfa8afa7 # v6.0.0
@@ -50,7 +52,10 @@ jobs:
           role-to-assume: ${{ secrets.DNS_TARGET_PARAMETER_UPDATE_ROLE }}
       - name: Change DNS target region for ${{ github.event.inputs.environment }}
         run: |
-            aws ssm put-parameter --name "/modernising-lpa/dns-target-region/${{ github.event.inputs.environment }}" --type "String" --value "${{ github.event.inputs.region }}" --overwrite
+            aws ssm put-parameter --name "/modernising-lpa/dns-target-region/${GITHUB_EVENT_INPUTS_ENVIRONMENT}" --type "String" --value "${GITHUB_EVENT_INPUTS_REGION}" --overwrite
+        env:
+          GITHUB_EVENT_INPUTS_ENVIRONMENT: ${{ github.event.inputs.environment }}
+          GITHUB_EVENT_INPUTS_REGION: ${{ github.event.inputs.region }}
 
       - name: Parse terraform version
         id: tf_version_setup
@@ -62,8 +67,10 @@ jobs:
             echo "TERRAFORM_VERSION=${terraform_version}" >> $GITHUB_OUTPUT
           fi
       - name: "Terraform version [${{ steps.tf_version_setup.outputs.TERRAFORM_VERSION }}]"
-        run: echo "terraform version [${{ steps.tf_version_setup.outputs.TERRAFORM_VERSION }}]"
+        run: echo "terraform version [${STEPS_TF_VERSION_SETUP_OUTPUTS_TERRAFORM_VERSION}]"
         working-directory: ./terraform/environment
+        env:
+          STEPS_TF_VERSION_SETUP_OUTPUTS_TERRAFORM_VERSION: ${{ steps.tf_version_setup.outputs.TERRAFORM_VERSION }}
       - uses: hashicorp/setup-terraform@5e8dbf3c6d9deaf4193ca7a8fb23f2ac83bb6c85 # v4
         with:
           terraform_version: ${{ steps.tf_version_setup.outputs.TERRAFORM_VERSION }}

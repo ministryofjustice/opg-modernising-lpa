@@ -96,6 +96,10 @@ jobs:
     steps:
       - name: End of ur Deployment Workflow
         run: |
-          echo "${{ needs.deploy.outputs.terraform_workspace_name }} environment tested, built and deployed"
-          echo "Tag Deployed: ${{ needs.deploy.outputs.terraform_container_version }}"
-          echo "URL: https://${{ needs.deploy.outputs.url }}"
+          echo "${NEEDS_DEPLOY_OUTPUTS_TERRAFORM_WORKSPACE_NAME} environment tested, built and deployed"
+          echo "Tag Deployed: ${NEEDS_DEPLOY_OUTPUTS_TERRAFORM_CONTAINER_VERSION}"
+          echo "URL: https://${NEEDS_DEPLOY_OUTPUTS_URL}"
+        env:
+          NEEDS_DEPLOY_OUTPUTS_TERRAFORM_WORKSPACE_NAME: ${{ needs.deploy.outputs.terraform_workspace_name }}
+          NEEDS_DEPLOY_OUTPUTS_TERRAFORM_CONTAINER_VERSION: ${{ needs.deploy.outputs.terraform_container_version }}
+          NEEDS_DEPLOY_OUTPUTS_URL: ${{ needs.deploy.outputs.url }}

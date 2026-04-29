@@ -73,6 +73,7 @@ jobs:
         with:
           ref: ${{ inputs.checkout_tag }}
           fetch-depth: '0'
+          persist-credentials: false
       - uses: unfor19/install-aws-cli-action@f5b46b7f32cf5e7ebd652656c5036bf83dd1e60c # v1
       - name: Parse terraform version
         id: tf_version_setup
@@ -84,8 +85,10 @@ jobs:
             echo "TERRAFORM_VERSION=${terraform_version}" >> $GITHUB_OUTPUT
           fi
       - name: "Terraform version [${{ steps.tf_version_setup.outputs.TERRAFORM_VERSION }}]"
-        run: echo "terraform version [${{ steps.tf_version_setup.outputs.TERRAFORM_VERSION }}]"
+        run: echo "terraform version [${STEPS_TF_VERSION_SETUP_OUTPUTS_TERRAFORM_VERSION}]"
         working-directory: ./terraform/environment
+        env:
+          STEPS_TF_VERSION_SETUP_OUTPUTS_TERRAFORM_VERSION: ${{ steps.tf_version_setup.outputs.TERRAFORM_VERSION }}
       - uses: hashicorp/setup-terraform@5e8dbf3c6d9deaf4193ca7a8fb23f2ac83bb6c85 # v4
         with:
           terraform_version: ${{ steps.tf_version_setup.outputs.TERRAFORM_VERSION }}

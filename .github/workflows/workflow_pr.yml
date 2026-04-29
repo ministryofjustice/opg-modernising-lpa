@@ -5,18 +5,7 @@ on:
     branches:
       - main
 
-permissions:
-  actions: none
-  checks: none
-  contents: write
-  deployments: none
-  id-token: write
-  issues: write
-  packages: none
-  pull-requests: write
-  repository-projects: none
-  security-events: write
-  statuses: none
+permissions: {}
 
 defaults:
   run:
@@ -33,6 +22,9 @@ jobs:
     uses: ./.github/workflows/tags_job.yml
     with:
       changes_detected: ${{ needs.detect_changes.outputs.changes_detected }}
+    permissions:
+      contents: write
+      id-token: write
 
   go_unit_tests:
     name: Run Go unit tests
@@ -65,6 +57,11 @@ jobs:
       branch_name: ${{ github.head_ref }}
     secrets:
       SNYK_OPG_ORG_TOKEN: ${{ secrets.SNYK_OPG_ORG_TOKEN }}
+    permissions:
+      contents: write
+      pull-requests: read
+      security-events: write
+      id-token: write
 
   terraform_account_workflow_development:
     name: TF Plan Dev Account
@@ -74,6 +71,8 @@ jobs:
     secrets:
       pagerduty_api_key: ${{ secrets.PAGERDUTY_API_KEY }}
       oidc_role_arn: ${{ secrets.TERRAFORM_OIDC_ROLE_DEVELOPMENT }}
+    permissions:
+      id-token: write
 
   terraform_account_workflow_preproduction:
     name: TF Plan Preprod Account
@@ -84,6 +83,8 @@ jobs:
     secrets:
       pagerduty_api_key: ${{ secrets.PAGERDUTY_API_KEY }}
       oidc_role_arn: ${{ secrets.TERRAFORM_OIDC_ROLE_PREPRODUCTION }}
+    permissions:
+      id-token: write
 
   terraform_account_workflow_production:
     name: TF Plan Prod Account
@@ -94,6 +95,8 @@ jobs:
     secrets:
       pagerduty_api_key: ${{ secrets.PAGERDUTY_API_KEY }}
       oidc_role_arn: ${{ secrets.TERRAFORM_OIDC_ROLE_PRODUCTION }}
+    permissions:
+      id-token: write
 
   ui_tests_image:
     name: Run Cypress UI Tests On Images
@@ -110,6 +113,8 @@ jobs:
       ingress_management_oidc_role_arn: ${{ secrets.TERRAFORM_OIDC_ROLE_DEVELOPMENT }}
       cypress_record_key: ${{ secrets.CYPRESS_RECORD_KEY }}
       github_access_token: ${{ secrets.GITHUB_TOKEN }}
+    permissions:
+      id-token: write
 
   pr_deploy:
     name: PR Environment Deploy
@@ -127,6 +132,8 @@ jobs:
       github_access_token: ${{ secrets.GITHUB_TOKEN }}
       pagerduty_api_key: ${{ secrets.PAGERDUTY_API_KEY }}
       oidc_role_arn: ${{ secrets.TERRAFORM_OIDC_ROLE_DEVELOPMENT }}
+    permissions:
+      id-token: write
 
   ui_tests_pr_env:
     name: Run Cypress UI Tests On PR Environment
@@ -175,9 +182,9 @@ jobs:
     steps:
       - name: End of PR Workflow
         run: |
-          echo "${{ needs.pr_deploy.outputs.terraform_workspace_name }} PR environment tested, built and deployed"
-          echo "Tag Deployed: ${{ needs.pr_deploy.outputs.terraform_container_version }}"
-          echo "URL: https://${{ needs.pr_deploy.outputs.url }}"
+          echo "${NEEDS_PR_DEPLOY_OUTPUTS_TERRAFORM_WORKSPACE_NAME} PR environment tested, built and deployed"
+          echo "Tag Deployed: ${NEEDS_PR_DEPLOY_OUTPUTS_TERRAFORM_CONTAINER_VERSION}"
+          echo "URL: https://${NEEDS_PR_DEPLOY_OUTPUTS_URL}"
 
           if ${{ contains(needs.ui_tests_pr_env.result,'success') }}
           then
@@ -187,3 +194,7 @@ jobs:
             echo "PR environment tested, built and deployed but UI tests failed"
             exit 1
           fi
+        env:
+          NEEDS_PR_DEPLOY_OUTPUTS_TERRAFORM_WORKSPACE_NAME: ${{ needs.pr_deploy.outputs.terraform_workspace_name }}
+          NEEDS_PR_DEPLOY_OUTPUTS_TERRAFORM_CONTAINER_VERSION: ${{ needs.pr_deploy.outputs.terraform_container_version }}
+          NEEDS_PR_DEPLOY_OUTPUTS_URL: ${{ needs.pr_deploy.outputs.url }}

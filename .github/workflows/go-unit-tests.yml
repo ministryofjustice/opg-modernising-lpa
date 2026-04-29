@@ -28,6 +28,8 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        with:
+          persist-credentials: false
 
       - name: Setup Go
         uses: actions/setup-go@4b73464bb391d4059bd26b0524d20df3927bd417 # v6.3.0
@@ -52,12 +54,16 @@ jobs:
         run: |
           docker run --rm -v $(pwd)/pacts:/tmp/pacts pactfoundation/pact-cli:latest \
             pact-broker publish /tmp/pacts \
-            --consumer-app-version ${{ inputs.commit_sha }} \
-            --branch ${{ inputs.branch }} \
-            --tag ${{ inputs.tag }} \
+            --consumer-app-version ${INPUTS_COMMIT_SHA} \
+            --branch ${INPUTS_BRANCH} \
+            --tag ${INPUTS_TAG} \
             --broker-base-url https://pact-broker.api.opg.service.justice.gov.uk \
             --broker-username admin \
             --broker-password ${{ secrets.pact_broker_password }}
+        env:
+          INPUTS_COMMIT_SHA: ${{ inputs.commit_sha }}
+          INPUTS_BRANCH: ${{ inputs.branch }}
+          INPUTS_TAG: ${{ inputs.tag }}
 
       - name: Upload coverage to Codecov
         uses: codecov/codecov-action@57e3a136b779b570ffcdbf80b3bdc90e7fab3de2 # v6

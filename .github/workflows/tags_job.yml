@@ -23,6 +23,7 @@ jobs:
       - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
         with:
           fetch-depth: '0'
+          persist-credentials: false
       - name: "Generate semver tag and release"
         id: semver_tag
         uses: ministryofjustice/opg-github-actions/actions/semver@b8868247a908f74fafe1905701391580575a6d35 # v4.3.10
@@ -67,7 +68,7 @@ jobs:
       - name: Pull ${{ needs.get_environment_for_tag.outputs.environment_tag_to_pull }} tag
         id: pull_tag
         run: |
-          key="/modernising-lpa/container-version/${{ needs.generate_environment_workspace_name.outputs.environment_workspace_name }}"
+          key="/modernising-lpa/container-version/${NEEDS_GENERATE_ENVIRONMENT_WORKSPACE_NAME_OUTPUTS_ENVIRONMENT_WORKSPACE_NAME}"
           value=$(aws ssm get-parameter --name "$key" --query 'Parameter.Value' --output text 2>/dev/null || true)
           if [ -z "$value" ]; then
               key="/modernising-lpa/container-version/production"
@@ -77,6 +78,8 @@ jobs:
 
           echo "tag=${value}" >> $GITHUB_OUTPUT
           echo "env=${key}" >> $GITHUB_OUTPUT
+        env:
+          NEEDS_GENERATE_ENVIRONMENT_WORKSPACE_NAME_OUTPUTS_ENVIRONMENT_WORKSPACE_NAME: ${{ needs.generate_environment_workspace_name.outputs.environment_workspace_name }}
     outputs:
       docker_tag: ${{ steps.pull_tag.outputs.tag }}
       tag_from: ${{ steps.pull_tag.outputs.env }}
@@ -94,11 +97,15 @@ jobs:
         id: consolidate_tags
         run: |
           if ${{needs.create_tags.result == 'skipped'}}; then
-            echo "tag=${{needs.pull_tags.outputs.docker_tag}}" >> $GITHUB_OUTPUT
-            echo '### Tag for deployment ${{needs.pull_tags.outputs.docker_tag}} pulled from ${{needs.pull_tags.outputs.tag_from}}' >> $GITHUB_STEP_SUMMARY
+            echo "tag=${NEEDS_PULL_TAGS_OUTPUTS_DOCKER_TAG}" >> $GITHUB_OUTPUT
+            echo '### Tag for deployment ${NEEDS_PULL_TAGS_OUTPUTS_DOCKER_TAG} pulled from ${NEEDS_PULL_TAGS_OUTPUTS_TAG_FROM}' >> $GITHUB_STEP_SUMMARY
           else
-            echo "tag=${{needs.create_tags.outputs.docker_tag}}" >> $GITHUB_OUTPUT
-            echo '### New tag for deployment ${{needs.create_tags.outputs.docker_tag}}' >> $GITHUB_STEP_SUMMARY
+            echo "tag=${NEEDS_CREATE_TAGS_OUTPUTS_DOCKER_TAG}" >> $GITHUB_OUTPUT
+            echo '### New tag for deployment ${NEEDS_CREATE_TAGS_OUTPUTS_DOCKER_TAG}' >> $GITHUB_STEP_SUMMARY
           fi
+        env:
+          NEEDS_PULL_TAGS_OUTPUTS_DOCKER_TAG: ${{needs.pull_tags.outputs.docker_tag}}
+          NEEDS_PULL_TAGS_OUTPUTS_TAG_FROM: ${{needs.pull_tags.outputs.tag_from}}
+          NEEDS_CREATE_TAGS_OUTPUTS_DOCKER_TAG: ${{needs.create_tags.outputs.docker_tag}}
     outputs:
       docker_tag: ${{ steps.consolidate_tags.outputs.tag }}
