@@ -4,11 +4,11 @@ on:
   workflow_call:
     inputs:
       environment_config_json:
-        description: 'Environment config JSON'
+        description: "Environment config JSON"
         required: true
         type: string
-    secrets:
       ingress_management_oidc_role_arn:
+        type: string
         required: true
 
 defaults:
@@ -25,13 +25,13 @@ jobs:
       - name: Manage Ingress/Configure AWS Credentials
         uses: aws-actions/configure-aws-credentials@8df5847569e6427dd6c4fb1cf565c83acfa8afa7 # v6.0.0
         with:
-          role-to-assume: ${{ secrets.ingress_management_oidc_role_arn }}
+          role-to-assume: ${{ inputs.ingress_management_oidc_role_arn }}
           aws-region: eu-west-1
           role-duration-seconds: 900
           role-session-name: OPGModernisingLPATerraformGithubAction
       - uses: actions/setup-python@a309ff8b426b58ec0e2a45f0f869d46889d02405 # v6.2.0
         with:
-          python-version: '3.14'
+          python-version: "3.14"
           check-latest: true
       - name: remove_ingress
         run: |
