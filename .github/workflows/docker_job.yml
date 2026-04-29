@@ -92,7 +92,8 @@ jobs:
           ref: ${{ inputs.checkout_tag }}
 
       - name: Warn missing linting action
-        run: echo "::warning title=MISSING-DOCKER-LINT::Please add the Docker lint workflow step when an allowed action is available."
+        run: echo "::warning title=MISSING-DOCKER-LINT::Please add the Docker lint
+          workflow step when an allowed action is available."
       # TODO: removed due to github actions non-compliance - add alternative allowed action when available.
 
       - name: Set up QEMU
@@ -111,7 +112,7 @@ jobs:
         uses: aws-actions/configure-aws-credentials@8df5847569e6427dd6c4fb1cf565c83acfa8afa7 # v6.0.0
         with:
           aws-region: eu-west-1
-          role-to-assume: arn:aws:iam::311462405659:role/modernising-lpa-github-actions-ecr-push
+          role-to-assume: ${{ vars.oidc_ecr_push }}
           role-duration-seconds: 900
           role-session-name: GithubActionsECRPushMLPAB
 
@@ -130,7 +131,8 @@ jobs:
           platforms: linux/amd64
           push: false
           load: true
-          cache-from: type=registry,ref=${{ steps.login_ecr.outputs.registry }}/${{ matrix.ecr_repository }}:cache-${{ inputs.branch_name }}
+          cache-from: type=registry,ref=${{ steps.login_ecr.outputs.registry }}/${{
+            matrix.ecr_repository }}:cache-${{ inputs.branch_name }}
           tags: |
             ${{ matrix.ecr_repository }}:${{ inputs.tag }}
           build-args: |
@@ -153,7 +155,8 @@ jobs:
           snyk_test_args: --severity-threshold=high
 
       - name: Format undefined severity values
-        if: always() && hashFiles(format('./test-results/{0}_snyk.sarif', matrix.scan_id)) != ''
+        if: always() && hashFiles(format('./test-results/{0}_snyk.sarif',
+          matrix.scan_id)) != ''
         run: |
           sed -i 's/"null"/"0"/g; s/"undefined"/"0"/g' ./test-results/${{ matrix.scan_id }}_snyk.sarif
 
@@ -198,14 +201,16 @@ jobs:
 
       - name: Upload SARIF results part 1
         uses: github/codeql-action/upload-sarif@0d579ffd059c29b07949a3cce3983f0780820c98 # v4.32.6
-        if: always() && hashFiles(format('./test-results/{0}_snyk_part_01.sarif', matrix.scan_id)) != ''
+        if: always() && hashFiles(format('./test-results/{0}_snyk_part_01.sarif',
+          matrix.scan_id)) != ''
         with:
           sarif_file: ./test-results/${{ matrix.scan_id }}_snyk_part_01.sarif
           category: ${{ matrix.scan_id }}-1
 
       - name: Upload SARIF results part 2
         uses: github/codeql-action/upload-sarif@0d579ffd059c29b07949a3cce3983f0780820c98 # v4.32.6
-        if: always() && hashFiles(format('./test-results/{0}_snyk_part_02.sarif', matrix.scan_id)) != ''
+        if: always() && hashFiles(format('./test-results/{0}_snyk_part_02.sarif',
+          matrix.scan_id)) != ''
         with:
           sarif_file: ./test-results/${{ matrix.scan_id }}_snyk_part_02.sarif
           category: ${{ matrix.scan_id }}-2
@@ -219,7 +224,9 @@ jobs:
           builder: ${{ steps.buildx_setup.outputs.name }}
           push: true
           platforms: ${{ matrix.platforms }}
-          cache-to: type=registry,mode=max,image-manifest=true,oci-mediatypes=true,ref=${{ steps.login_ecr.outputs.registry }}/${{ matrix.ecr_repository }}:cache-${{ inputs.branch_name }}
+          cache-to: type=registry,mode=max,image-manifest=true,oci-mediatypes=true,ref=${{
+            steps.login_ecr.outputs.registry }}/${{ matrix.ecr_repository
+            }}:cache-${{ inputs.branch_name }}
           tags: |
             ${{ steps.login_ecr.outputs.registry }}/${{ matrix.ecr_repository }}:${{ inputs.tag }}
           build-args: |
@@ -240,7 +247,9 @@ jobs:
           builder: ${{ steps.buildx_setup.outputs.name }}
           push: true
           platforms: ${{ matrix.platforms }}
-          cache-to: type=registry,mode=max,image-manifest=true,oci-mediatypes=true,ref=${{ steps.login_ecr.outputs.registry }}/${{ matrix.ecr_repository }}:cache-${{ inputs.branch_name }}
+          cache-to: type=registry,mode=max,image-manifest=true,oci-mediatypes=true,ref=${{
+            steps.login_ecr.outputs.registry }}/${{ matrix.ecr_repository
+            }}:cache-${{ inputs.branch_name }}
           tags: |
             ${{ steps.login_ecr.outputs.registry }}/${{ matrix.ecr_repository }}:${{ inputs.tag }}
             ${{ steps.login_ecr.outputs.registry }}/${{ matrix.ecr_repository }}:main-${{ inputs.tag }}
