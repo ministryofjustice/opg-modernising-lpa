@@ -106,7 +106,7 @@ jobs:
           version: v0.15.1
           platforms: linux/amd64,linux/arm64
       - name: Configure AWS Credentials
-        uses: aws-actions/configure-aws-credentials@8df5847569e6427dd6c4fb1cf565c83acfa8afa7 # v6.0.0
+        uses: aws-actions/configure-aws-credentials@ec61189d14ec14c8efccab744f656cffd0e33f37 # v6.1.0
         with:
           aws-region: eu-west-1
           role-to-assume: ${{ vars.OIDC_ECR_PUSH }}
@@ -115,7 +115,7 @@ jobs:
 
       - name: ECR Login
         id: login_ecr
-        uses: aws-actions/amazon-ecr-login@062b18b96a7aff071d4dc91bc00c4c1a7945b076 # v2.0.1
+        uses: aws-actions/amazon-ecr-login@19d944daaa35f0fa1d3f7f8af1d3f2e5de25c5b7 # v2.1.4
         with:
           mask-password: true
           registries: 311462405659
@@ -142,7 +142,7 @@ jobs:
       #SNYK SCAN STEPS
       - name: Run SNYK vulnerability scan for ${{ matrix.scan_id }}
         id: snyk_scan
-        uses: ministryofjustice/opg-github-actions/actions/snyk-scan@8dea82fc8b8e7ffca431f0fb83848d523147ccd8 # v4.5.0
+        uses: ministryofjustice/opg-github-actions/actions/snyk-scan@2186f4ee10b7f2839e0c795dcd01c729e6d1d4c0 # v4.8.1
         with:
           SNYK_TEST_IMAGE: ${{ matrix.ecr_repository }}:${{ inputs.tag }}
           SNYK_TOKEN: ${{ secrets.SNYK_OPG_ORG_TOKEN }}
@@ -197,7 +197,7 @@ jobs:
           fi
 
       - name: Upload SARIF results part 1
-        uses: github/codeql-action/upload-sarif@0d579ffd059c29b07949a3cce3983f0780820c98 # v4.32.6
+        uses: github/codeql-action/upload-sarif@95e58e9a2cdfd71adc6e0353d5c52f41a045d225 # v4.35.2
         if: always() && hashFiles(format('./test-results/{0}_snyk_part_01.sarif',
           matrix.scan_id)) != ''
         with:
@@ -205,7 +205,7 @@ jobs:
           category: ${{ matrix.scan_id }}-1
 
       - name: Upload SARIF results part 2
-        uses: github/codeql-action/upload-sarif@0d579ffd059c29b07949a3cce3983f0780820c98 # v4.32.6
+        uses: github/codeql-action/upload-sarif@95e58e9a2cdfd71adc6e0353d5c52f41a045d225 # v4.35.2
         if: always() && hashFiles(format('./test-results/{0}_snyk_part_02.sarif',
           matrix.scan_id)) != ''
         with:
