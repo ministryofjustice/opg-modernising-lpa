@@ -85,15 +85,15 @@ jobs:
     secrets:
       pagerduty_api_key: ${{ secrets.PAGERDUTY_API_KEY }}
 
-  terraform_account_workflow_production:
-    name: TF Plan Prod Account
-    needs: terraform_account_workflow_development
-    uses: ./.github/workflows/terraform_account_job.yml
-    with:
-      workspace_name: production
-      oidc_role_arn: ${{ vars.OIDC_TERRAFORM_ROLE_PRODUCTION }}
-    secrets:
-      pagerduty_api_key: ${{ secrets.PAGERDUTY_API_KEY }}
+  # terraform_account_workflow_production:
+  #   name: TF Plan Prod Account
+  #   needs: terraform_account_workflow_development
+  #   uses: ./.github/workflows/terraform_account_job.yml
+  #   with:
+  #     workspace_name: production
+  #     oidc_role_arn: ${{ vars.OIDC_TERRAFORM_ROLE_PRODUCTION }}
+  #   secrets:
+  #     pagerduty_api_key: ${{ secrets.PAGERDUTY_API_KEY }}
 
   ui_tests_image:
     name: Run Cypress UI Tests On Images
