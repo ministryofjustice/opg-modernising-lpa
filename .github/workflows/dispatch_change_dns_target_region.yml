@@ -4,17 +4,17 @@ on:
   workflow_dispatch:
     inputs:
       environment:
-        description: 'Environment to update DNS target region for'
+        description: "Environment to update DNS target region for"
         required: true
         type: string
       region:
-        description: 'AWS region to target'
+        description: "AWS region to target"
         required: true
-        default: 'eu-west-1'
+        default: "eu-west-1"
         type: choice
         options:
-        - eu-west-1
-        - eu-west-2
+          - eu-west-1
+          - eu-west-2
 
 permissions:
   id-token: write
@@ -38,19 +38,16 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
-      - uses: unfor19/install-aws-cli-action@f5b46b7f32cf5e7ebd652656c5036bf83dd1e60c # v1
       - name: Configure AWS credentials for dns target region parameter change
         uses: aws-actions/configure-aws-credentials@8df5847569e6427dd6c4fb1cf565c83acfa8afa7 # v6.0.0
         with:
           aws-region: us-east-1
           role-duration-seconds: 3600
           role-session-name: MLPABChangeDNSTargetRegionParameter
-          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID_ACTIONS }}
-          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY_ACTIONS }}
-          role-to-assume: ${{ secrets.DNS_TARGET_PARAMETER_UPDATE_ROLE }}
+          role-to-assume: ${{ vars.DNS_TARGET_PARAMETER_UPDATE_ROLE }}
       - name: Change DNS target region for ${{ github.event.inputs.environment }}
         run: |
-            aws ssm put-parameter --name "/modernising-lpa/dns-target-region/${{ github.event.inputs.environment }}" --type "String" --value "${{ github.event.inputs.region }}" --overwrite
+          aws ssm put-parameter --name "/modernising-lpa/dns-target-region/${{ github.event.inputs.environment }}" --type "String" --value "${{ github.event.inputs.region }}" --overwrite
 
       - name: Parse terraform version
         id: tf_version_setup
@@ -61,8 +58,10 @@ jobs:
             echo "- Terraform version: [${terraform_version}]" >> $GITHUB_STEP_SUMMARY
             echo "TERRAFORM_VERSION=${terraform_version}" >> $GITHUB_OUTPUT
           fi
-      - name: "Terraform version [${{ steps.tf_version_setup.outputs.TERRAFORM_VERSION }}]"
-        run: echo "terraform version [${{ steps.tf_version_setup.outputs.TERRAFORM_VERSION }}]"
+      - name: "Terraform version [${{ steps.tf_version_setup.outputs.TERRAFORM_VERSION
+          }}]"
+        run: echo "terraform version [${{
+          steps.tf_version_setup.outputs.TERRAFORM_VERSION }}]"
         working-directory: ./terraform/environment
       - uses: hashicorp/setup-terraform@5e8dbf3c6d9deaf4193ca7a8fb23f2ac83bb6c85 # v4
         with:
@@ -76,13 +75,14 @@ jobs:
           aws-region: eu-west-1
           role-duration-seconds: 3600
           role-session-name: OPGModernisingLPATerraformGithubAction
-      - uses: webfactory/ssh-agent@e83874834305fe9a4a2997156cb26c5de65a8555 # v0.10.0
+      - uses: ministryofjustice/opg-github-actions/actions/github-deploy-key@ceeda9d30ec7f6705c819d0b7664b9a79df99a3b # v4.8.0
         with:
-          ssh-private-key: ${{ secrets.OPG_MODERNISING_LPA_DEPLOY_KEY_PRIVATE_KEY }}
+          deploy_key: ${{ secrets.OPG_MODERNISING_LPA_DEPLOY_KEY_PRIVATE_KEY }}
       - name: Terraform Init
         run: terraform init -input=false
         working-directory: ./terraform/environment
-      - name: Terraform Apply DNS region target change for ${{ github.event.inputs.environment }}
+      - name: Terraform Apply DNS region target change for ${{
+          github.event.inputs.environment }}
         env:
           TF_WORKSPACE: ${{ github.event.inputs.environment }}
         run: |
