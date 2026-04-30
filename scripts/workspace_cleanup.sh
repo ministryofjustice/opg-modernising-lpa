@@ -47,7 +47,7 @@ do
       echo "deleting containter insights log group..."
       aws logs delete-log-group --region eu-west-1 --log-group-name /aws/ecs/containerinsights/"$workspace"/performance
       terraform workspace select default
-      terraform workspace delete "$workspace"
+      # terraform workspace delete "$workspace"
       ;;
   esac
 done
