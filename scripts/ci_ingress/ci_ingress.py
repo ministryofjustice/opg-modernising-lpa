@@ -21,9 +21,9 @@ class IngressManager:
         self.aws_ec2_client = boto3.client(
             'ec2',
             region_name=self.aws_region,
-            aws_access_key_id=self.aws_iam_session['Credentials']['AccessKeyId'],
-            aws_secret_access_key=self.aws_iam_session['Credentials']['SecretAccessKey'],
-            aws_session_token=self.aws_iam_session['Credentials']['SessionToken'])
+            # aws_access_key_id=self.aws_iam_session['Credentials']['AccessKeyId'],
+            # aws_secret_access_key=self.aws_iam_session['Credentials']['SecretAccessKey'],
+            # aws_session_token=self.aws_iam_session['Credentials']['SessionToken'])
 
     def read_parameters_from_json(self, config_json):
         parameters = json.loads(config_json)
