@@ -4,21 +4,21 @@ on:
   workflow_call:
     inputs:
       base_url:
-        description: 'Environment URL to target for testing'
+        description: "Environment URL to target for testing"
         required: false
         type: string
         default: http://localhost:5050
       environment_config_json:
-        description: 'Environment config JSON'
         required: false
         type: string
-    secrets:
       ingress_management_oidc_role_arn:
+        description: "ARN for OIDC role to assume"
         required: true
+        type: string
+    secrets:
       github_access_token:
-        description: 'Github Token'
+        description: "Github Token"
         required: true
-
 
 defaults:
   run:
@@ -34,17 +34,18 @@ jobs:
       - name: Manage Ingress/Configure AWS Credentials
         uses: aws-actions/configure-aws-credentials@8df5847569e6427dd6c4fb1cf565c83acfa8afa7 # v6.0.0
         with:
-          role-to-assume: ${{ secrets.ingress_management_oidc_role_arn }}
+          role-to-assume: ${{ inputs.ingress_management_oidc_role_arn }}
           aws-region: eu-west-1
           role-duration-seconds: 900
           role-session-name: OPGModernisingLPATerraformGithubActionTestInfra
       - uses: actions/setup-python@a309ff8b426b58ec0e2a45f0f869d46889d02405 # v6.2.0
         with:
-          python-version: '3.14'
+          python-version: "3.14"
           check-latest: true
       - run: pip install -r ./scripts/ci_ingress/requirements.txt
       - name: add_ingress
-        run: python ./scripts/ci_ingress/ci_ingress.py ${{ inputs.environment_config_json}} --add
+        run: python ./scripts/ci_ingress/ci_ingress.py ${{
+          inputs.environment_config_json}} --add
       - name: Check environment is available
         run: |
           service_response=$(curl --write-out %{http_code} --silent --output /dev/null ${{ inputs.base_url }}/health-check/service)
