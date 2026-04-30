@@ -35,22 +35,21 @@ class IngressManager:
 
     def set_iam_role_session(self):
         if os.getenv('CI'):
-            role_arn = 'arn:aws:iam::{}:role/modernising-lpa-ci'.format(
-                self.aws_account_id)
+            self.aws_iam_session = None
         else:
             role_arn = 'arn:aws:iam::{}:role/operator'.format(
                 self.aws_account_id)
 
-        sts = boto3.client(
-            'sts',
-            region_name='eu-west-1',
-        )
-        session = sts.assume_role(
-            RoleArn=role_arn,
-            RoleSessionName='managing_environment_ingress',
-            DurationSeconds=900
-        )
-        self.aws_iam_session = session
+            sts = boto3.client(
+                'sts',
+                region_name='eu-west-1',
+            )
+            session = sts.assume_role(
+                RoleArn=role_arn,
+                RoleSessionName='managing_environment_ingress',
+                DurationSeconds=900
+            )
+            self.aws_iam_session = session
 
     def get_ip_addresses(self):
         host_public_cidr = urllib.request.urlopen(
