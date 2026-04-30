@@ -73,8 +73,6 @@ jobs:
       - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
         with:
           ref: ${{ inputs.checkout_tag }}
-        name: Run Against Image/aws-cli-action
-        if: inputs.run_against_image
       - name: Run Against Image/Configure AWS Credentials
         if: inputs.run_against_image
         uses: aws-actions/configure-aws-credentials@8df5847569e6427dd6c4fb1cf565c83acfa8afa7 # v6.0.0
