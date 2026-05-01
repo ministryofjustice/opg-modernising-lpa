@@ -41,9 +41,13 @@
         {{ end }}
       {{ end }}
 
+      {{ $howLPACanBeUsedBullet := printf "howLPACanBeUsedBullet:%s" .Lpa.WhenCanTheLpaBeUsed.String}}
+
       {{ trFormatHtml .App $content
           "DonorFullName" .Lpa.Donor.FullName
-          "DonorFirstNames" .Lpa.Donor.FirstNames }}
+          "DonorFirstNames" .Lpa.Donor.FirstNames
+          "HowLPACanBeUsedBullet" (tr .App $howLPACanBeUsedBullet)
+      }}
 
       <a class="govuk-button" href="{{ link .App (global.Paths.Attorney.TaskList.Format .App.LpaID) }}">{{ tr .App "continue" }}</a>
     </div>
