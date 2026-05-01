@@ -19,6 +19,7 @@
 
                         <div class="govuk-inset-text">
                             <p class="govuk-body">{{ trFormatHtml .App "replacementAttorneyRequirements" "SelectAttorneysHelpLink" (link .App global.Paths.HowToSelectAttorneysForAnLPA.Format) }}</p>
+                            {{ trHtml .App "replacementAttorneyRequirementsBullets" }}
                         </div>
 
                         {{ trFormatHtml .App "findOutMoreAboutReplacementAttorneysContent" "ReplacementAttorneysHelpLink" (link .App global.Paths.ReplacementAttorneys.Format) }}
