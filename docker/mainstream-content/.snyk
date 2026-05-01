@@ -1,0 +1,34 @@
+# Snyk (https://snyk.io) policy file, patches or ignores known vulnerabilities.
+version: v1.25.1
+# ignores vulnerabilities until expiry date; change duration by modifying expiry date
+ignore:
+  SNYK-JS-PICOMATCH-15765511:
+    - "*":
+        reason: None Given
+        expires: 2026-05-25T16:43:46.000Z
+        created: 2026-03-26T16:43:46.000Z
+  SNYK-JS-BRACEEXPANSION-15789759:
+    - "*":
+        reason: None Given
+        expires: 2026-05-25T16:43:47.000Z
+        created: 2026-03-26T16:43:47.000Z
+  SNYK-JS-SOCKETIOPARSER-15680278:
+    - "*":
+        reason: None Given
+        expires: 2026-05-25T16:43:47.000Z
+        created: 2026-03-26T16:43:47.000Z
+  SNYK-JS-LODASH-15869625:
+    - "*":
+        reason: None Given
+        expires: 2026-05-25T16:43:47.000Z
+        created: 2026-03-26T16:43:47.000Z
+  SNYK-JS-IMMUTABLE-15423650:
+    - "*":
+        reason: None Given
+        expires: 2026-05-25T16:43:47.000Z
+        created: 2026-03-26T16:43:47.000Z
+  SNYK-JS-FOLLOWREDIRECTS-16032162:
+    - "*":
+        reason: None Given
+        expires: 2026-05-25T16:43:47.000Z
+        created: 2026-03-26T16:43:47.000Z

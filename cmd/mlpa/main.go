@@ -100,11 +100,11 @@ func run(ctx context.Context, logger *slog.Logger) error {
 		port                        = os.Getenv("APP_PORT")
 		xrayEnabled                 = os.Getenv("XRAY_ENABLED") == "1"
 		rumConfig                   = templatefn.RumConfig{
-			GuestRoleArn:      os.Getenv("AWS_RUM_GUEST_ROLE_ARN"),
-			Endpoint:          os.Getenv("AWS_RUM_ENDPOINT"),
-			ApplicationRegion: os.Getenv("AWS_RUM_APPLICATION_REGION"),
-			IdentityPoolID:    os.Getenv("AWS_RUM_IDENTITY_POOL_ID"),
 			ApplicationID:     os.Getenv("AWS_RUM_APPLICATION_ID"),
+			ApplicationRegion: os.Getenv("AWS_RUM_APPLICATION_REGION"),
+			Endpoint:          os.Getenv("AWS_RUM_ENDPOINT"),
+			GuestRoleArn:      os.Getenv("AWS_RUM_GUEST_ROLE_ARN"),
+			IdentityPoolID:    os.Getenv("AWS_RUM_IDENTITY_POOL_ID"),
 		}
 		uidBaseURL            = os.Getenv("UID_BASE_URL")
 		lpaStoreBaseURL       = os.Getenv("LPA_STORE_BASE_URL")

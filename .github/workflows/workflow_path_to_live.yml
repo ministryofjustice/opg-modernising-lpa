@@ -53,15 +53,17 @@ jobs:
     with:
       tag: ${{ needs.create_tags.outputs.version_tag }}
       branch_name: main
+    secrets:
+      SNYK_OPG_ORG_TOKEN: ${{ secrets.SNYK_OPG_ORG_TOKEN }}
 
   terraform_account_workflow_development:
     name: TF Apply Dev Account
     uses: ./.github/workflows/terraform_account_job.yml
     with:
       workspace_name: development
+      oidc_role_arn: ${{ vars.OIDC_TERRAFORM_ROLE_DEVELOPMENT }}
     secrets:
       pagerduty_api_key: ${{ secrets.PAGERDUTY_API_KEY }}
-      oidc_role_arn: ${{ secrets.TERRAFORM_OIDC_ROLE_DEVELOPMENT }}
 
   terraform_account_workflow_preproduction:
     name: TF Apply Preprod Account
@@ -69,9 +71,9 @@ jobs:
     uses: ./.github/workflows/terraform_account_job.yml
     with:
       workspace_name: preproduction
+      oidc_role_arn: ${{ vars.OIDC_TERRAFORM_ROLE_PREPRODUCTION }}
     secrets:
       pagerduty_api_key: ${{ secrets.PAGERDUTY_API_KEY }}
-      oidc_role_arn: ${{ secrets.TERRAFORM_OIDC_ROLE_PREPRODUCTION }}
 
   preproduction_deploy:
     name: Preproduction Deploy
@@ -80,11 +82,11 @@ jobs:
     with:
       workspace_name: preproduction
       version_tag: ${{ needs.create_tags.outputs.version_tag }}
+      oidc_role_arn: ${{ vars.OIDC_TERRAFORM_ROLE_PREPRODUCTION }}
     secrets:
       ssh_deploy_key: ${{ secrets.OPG_MODERNISING_LPA_DEPLOY_KEY_PRIVATE_KEY }}
       github_access_token: ${{ secrets.GITHUB_TOKEN }}
       pagerduty_api_key: ${{ secrets.PAGERDUTY_API_KEY }}
-      oidc_role_arn: ${{ secrets.TERRAFORM_OIDC_ROLE_PREPRODUCTION }}
 
   ui_tests_preproduction_env:
     name: Run Cypress UI Tests On Preproduction Environment
@@ -97,8 +99,8 @@ jobs:
       environment_config_json: ${{ needs.preproduction_deploy.outputs.environment_config_json }}
       specs: 'cypress/smoke/*.cy.js'
       dev_mode: ${{ needs.preproduction_deploy.outputs.dev_mode }}
+      ingress_management_oidc_role_arn: ${{ vars.OIDC_INGRESS_MANAGEMENT_PREPRODUCTION }}
     secrets:
-      ingress_management_oidc_role_arn: ${{ secrets.TERRAFORM_OIDC_ROLE_PREPRODUCTION }}
       cypress_record_key: ${{ secrets.CYPRESS_RECORD_KEY }}
       github_access_token: ${{ secrets.GITHUB_TOKEN }}
       test_onelogin_basic_auth: ${{ secrets.TEST_ONELOGIN_BASIC_AUTH }}
@@ -123,8 +125,7 @@ jobs:
     needs: [ui_tests_preproduction_env, preproduction_deploy]
     with:
       environment_config_json: ${{ needs.preproduction_deploy.outputs.environment_config_json }}
-    secrets:
-      ingress_management_oidc_role_arn: ${{ secrets.TERRAFORM_OIDC_ROLE_PREPRODUCTION }}
+      ingress_management_oidc_role_arn: ${{ vars.OIDC_INGRESS_MANAGEMENT_PREPRODUCTION }}
 
   terraform_account_workflow_production:
     name: TF Apply Prod Account
@@ -132,9 +133,9 @@ jobs:
     uses: ./.github/workflows/terraform_account_job.yml
     with:
       workspace_name: production
+      oidc_role_arn: ${{ vars.OIDC_TERRAFORM_ROLE_PRODUCTION }}
     secrets:
       pagerduty_api_key: ${{ secrets.PAGERDUTY_API_KEY }}
-      oidc_role_arn: ${{ secrets.TERRAFORM_OIDC_ROLE_PRODUCTION }}
 
   production_deploy:
     name: Production Deploy
@@ -144,11 +145,11 @@ jobs:
       workspace_name: production
       version_tag: ${{ needs.create_tags.outputs.version_tag }}
       public_access_enabled: false
+      oidc_role_arn: ${{ vars.OIDC_TERRAFORM_ROLE_PRODUCTION }}
     secrets:
       ssh_deploy_key: ${{ secrets.OPG_MODERNISING_LPA_DEPLOY_KEY_PRIVATE_KEY }}
       github_access_token: ${{ secrets.GITHUB_TOKEN }}
       pagerduty_api_key: ${{ secrets.PAGERDUTY_API_KEY }}
-      oidc_role_arn: ${{ secrets.TERRAFORM_OIDC_ROLE_PRODUCTION }}
 
   demo_deploy:
     name: Production Deploy
@@ -158,11 +159,11 @@ jobs:
       workspace_name: demo
       version_tag: ${{ needs.create_tags.outputs.version_tag }}
       public_access_enabled: false
+      oidc_role_arn: ${{ vars.OIDC_TERRAFORM_ROLE_DEVELOPMENT }}
     secrets:
       ssh_deploy_key: ${{ secrets.OPG_MODERNISING_LPA_DEPLOY_KEY_PRIVATE_KEY }}
       github_access_token: ${{ secrets.GITHUB_TOKEN }}
       pagerduty_api_key: ${{ secrets.PAGERDUTY_API_KEY }}
-      oidc_role_arn: ${{ secrets.TERRAFORM_OIDC_ROLE_DEVELOPMENT }}
 
   end_of_main_workflow:
     name: End of Main Workflow
