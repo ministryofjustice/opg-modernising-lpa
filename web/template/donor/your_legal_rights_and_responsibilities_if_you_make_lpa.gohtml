@@ -7,7 +7,14 @@
         <div class="govuk-grid-column-two-thirds">
             <h1 class="govuk-heading-xl">{{ tr .App "yourLegalRightsAndResponsibilitiesIfYouMakeLpa" }}</h1>
 
-            {{ trFormatHtml .App "yourLegalRightsAndResponsibilitiesIfYouMakeLpaContent" "UnderstandingMentalCapacityHelpLink" (link .App global.Paths.UnderstandingMentalCapacity.Format)  }}
+            {{ $bulletKey := "youAreMakingADeedBullet:none" }}
+            {{ if .Donor.Type.IsPropertyAndAffairs }}
+                {{ $bulletKey = "youAreMakingADeedBullet:property-affairs" }}
+            {{ else }}
+                {{ $bulletKey = "youAreMakingADeedBullet:personal-welfare" }}
+            {{ end }}
+
+            {{ trFormatHtml .App "yourLegalRightsAndResponsibilitiesIfYouMakeLpaContent" "UnderstandingMentalCapacityHelpLink" (link .App global.Paths.UnderstandingMentalCapacity.Format) "YouAreMakingADeedLpaTypeBullet" (tr .App $bulletKey) }}
 
             {{ if .Donor.Type.Empty }}
                 {{ template "button" (button .App "continue" "link" (global.Paths.LpaType.Format .App.LpaID)) }}
