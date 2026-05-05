@@ -26,8 +26,8 @@ var (
 
 func (c *mockDynamoClient_OneByPK_Call) SetData(data any) *mockDynamoClient_OneByPK_Call {
 	return c.Run(func(_ context.Context, _ dynamo.PK, v any) {
-		b, _ := attributevalue.Marshal(data)
-		attributevalue.Unmarshal(b, v)
+		b, _ := attributevalue.MarshalMap(data)
+		attributevalue.UnmarshalMap(b, v)
 	})
 }
 
@@ -73,7 +73,7 @@ func TestAccessCodeStoreGet(t *testing.T) {
 	for name, tc := range testcases {
 		t.Run(name, func(t *testing.T) {
 			ctx := appcontext.ContextWithSession(context.Background(), &appcontext.Session{SessionID: "session-id"})
-			data := accesscodedata.Link{LpaKey: "lpa-id", ExpiresAt: testNow}
+			data := accesscodedata.Link{LpaKey: "lpa-id", ExpiresAt: testNow.Truncate(time.Second).Add(time.Hour)}
 
 			dynamoClient := newMockDynamoClient(t)
 			dynamoClient.EXPECT().
