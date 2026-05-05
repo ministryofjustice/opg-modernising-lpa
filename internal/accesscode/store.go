@@ -53,6 +53,9 @@ func (s *Store) Get(ctx context.Context, actorType actor.Type, accessCode access
 		return accesscodedata.Link{}, dynamo.NotFoundError{}
 	}
 
+	// The `dynamodbav:",unixtime"` attribute will return a local time, so UTC it here for simplicity.
+	data.ExpiresAt = data.ExpiresAt.UTC()
+
 	return data, nil
 }
 
@@ -195,7 +198,7 @@ type accessLimiter struct {
 	PK        dynamo.AccessLimiterKeyType
 	SK        dynamo.MetadataKeyType
 	Version   int
-	ExpiresAt time.Time
+	ExpiresAt time.Time `dynamodbav:",unixtime"`
 	Limiter   *rate.Limiter
 }
 
