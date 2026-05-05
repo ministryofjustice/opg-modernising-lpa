@@ -21,7 +21,10 @@ on:
         default: false
         required: false
         type: boolean
-
+      oidc_role_arn:
+        description: 'ARN for OIDC role to assume for terraform tasks'
+        required: true
+        type: string
     outputs:
       terraform_workspace_name:
         description: "Name of Terraform workspace"
@@ -48,9 +51,6 @@ on:
       pagerduty_api_key:
         description: 'Pagerduty API Key'
         required: true
-      oidc_role_arn:
-        description: 'ARN for OIDC role to assume for terraform tasks'
-        required: true
 
 permissions:
   id-token: write
@@ -73,7 +73,6 @@ jobs:
         with:
           ref: ${{ inputs.checkout_tag }}
           fetch-depth: '0'
-      - uses: unfor19/install-aws-cli-action@f5b46b7f32cf5e7ebd652656c5036bf83dd1e60c # v1
       - name: Parse terraform version
         id: tf_version_setup
         working-directory: ./terraform/environment
@@ -93,13 +92,13 @@ jobs:
       - name: Configure AWS Credentials For Terraform
         uses: aws-actions/configure-aws-credentials@8df5847569e6427dd6c4fb1cf565c83acfa8afa7 # v6.0.0
         with:
-          role-to-assume: ${{ secrets.oidc_role_arn }}
+          role-to-assume: ${{ inputs.oidc_role_arn }}
           aws-region: eu-west-1
           role-duration-seconds: 3600
           role-session-name: OPGModernisingLPATerraformGithubAction
-      - uses: webfactory/ssh-agent@e83874834305fe9a4a2997156cb26c5de65a8555 # v0.10.0
+      - uses: ministryofjustice/opg-github-actions/actions/github-deploy-key@ceeda9d30ec7f6705c819d0b7664b9a79df99a3b # v4.8.0
         with:
-          ssh-private-key: ${{ secrets.ssh_deploy_key }}
+          deploy_key: ${{ secrets.ssh_deploy_key }}
       - uses: terraform-linters/setup-tflint@b480b8fcdaa6f2c577f8e4fa799e89e756bb7c93 # v6
         name: Setup TFLint
         with:
