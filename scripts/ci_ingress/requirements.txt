@@ -17,5 +17,5 @@ s3transfer==0.17.0
     # via boto3
 six==1.17.0
     # via python-dateutil
-urllib3==2.6.3
+urllib3==2.7.0
     # via botocore
