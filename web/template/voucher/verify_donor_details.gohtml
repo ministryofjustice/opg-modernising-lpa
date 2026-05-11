@@ -11,7 +11,7 @@
             </h1>
 
             {{ trFormatHtml .App "verifyPersonIdentityContent" "DonorFullName" .Lpa.Donor.FullName }}
-            
+
             <dl class="govuk-summary-list">
                 {{ template "summary-row" (staticSummaryRow .App "firstNames"
                     .Lpa.Donor.FirstNames) }}
@@ -29,13 +29,13 @@
                 {{ $yesHint := trFormat .App "theDetailsDonorProvidedAreCorrectHint" "DonorFullName" .Lpa.Donor.FullName }}
                 {{ $noHint := trFormat .App "theDetailsDonorProvidedAreIncorrectHint" "DonorFullName" .Lpa.Donor.FullName }}
 
-                {{ template "radios-fieldset" (fieldset . .Form.FieldName .Form.YesNo.String
+                {{ template "new-radios-fieldset" (newFieldset . .Form.YesNo
                     (legend (trFormat .App "canYouVerifyDonorsIdentity" "DonorFullName" .Lpa.Donor.FullName) "govuk-fieldset__legend--s")
-                    (item .Form.Options.Yes.String "yesYdynt" "hint" $yesHint)
-                    (item .Form.Options.No.String "noNacYdynt" "hint" $noHint)) }}
+                    (item .Form.YesNo.Options.Yes.String (tr .App "yesYdynt") "hint" $yesHint)
+                    (item .Form.YesNo.Options.No.String (tr .App "noNacYdynt") "hint" $noHint)) }}
 
                 {{ template "warning" (content .App "yourVouchingRoleWillNotBeCompleteUntilConfirmIdentityAndSignWarning") }}
-                
+
                 {{ template "buttons" (button .App "continue") }}
                 {{ template "csrf-field" . }}
             </form>

@@ -18,6 +18,7 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/localize"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/lpastore"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/lpastore/lpadata"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/newforms"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/place"
 )
@@ -52,8 +53,11 @@ func All(globals *Globals) map[string]any {
 		"isEnglish":            isEnglish,
 		"isWelsh":              isWelsh,
 		"input":                input,
+		"newInput":             newInput,
+		"newDateInput":         newDateInput,
 		"button":               button,
 		"items":                items,
+		"newItems":             newItems,
 		"item":                 item,
 		"fieldID":              fieldID,
 		"errorMessage":         errorMessage,
@@ -94,10 +98,13 @@ func All(globals *Globals) map[string]any {
 		"legend":               legend,
 		"legendHeading":        legendHeading,
 		"fieldset":             fieldset,
+		"newFieldset":          newFieldset,
 		"htmlContent":          htmlContent,
 		"addressLines":         addressLines,
 		"stackedNotifications": stackedNotifications,
 		"list":                 list,
+		"hasForm":              hasForm,
+		"hasFormErrors":        hasFormErrors,
 	}
 }
 
@@ -128,6 +135,47 @@ func input(top interface{}, name, label string, value interface{}, attrs ...inte
 	return field
 }
 
+type newInputVars struct {
+	Dot   any
+	Field *newforms.String
+	Extra map[string]any
+}
+
+func newInput(dot any, field *newforms.String, args ...any) newInputVars {
+	return newInputVars{
+		Dot:   dot,
+		Field: field,
+		Extra: pair(args),
+	}
+}
+
+type newDateInputVars struct {
+	Dot   any
+	Field *newforms.Date
+	Extra map[string]any
+}
+
+func newDateInput(dot any, field *newforms.Date, args ...any) newDateInputVars {
+	return newDateInputVars{
+		Dot:   dot,
+		Field: field,
+		Extra: pair(args),
+	}
+}
+
+func pair(args []any) map[string]any {
+	if len(args)%2 != 0 {
+		panic("pair: must have even number of attrs")
+	}
+
+	res := map[string]any{}
+	for i := 0; i < len(args); i += 2 {
+		res[args[i].(string)] = args[i+1]
+	}
+
+	return res
+}
+
 func button(app appcontext.Data, label string, attrs ...any) map[string]any {
 	field := map[string]any{
 		"app":   app,
@@ -151,6 +199,20 @@ func items(top interface{}, name string, value interface{}, items ...interface{}
 		"name":  name,
 		"value": value,
 		"items": items,
+	}
+}
+
+type newItemsVars struct {
+	Dot   any
+	Field any // *newforms.Enum, probably
+	Items []map[string]any
+}
+
+func newItems(dot any, field any, items ...map[string]any) newItemsVars {
+	return newItemsVars{
+		Dot:   dot,
+		Field: field,
+		Items: items,
 	}
 }
 
@@ -605,6 +667,22 @@ func fieldset(top any, name string, value any, legend legendData, is ...any) fie
 	}
 }
 
+type newFieldsetData struct {
+	Dot    any
+	Field  any
+	Legend legendData
+	Items  []any
+}
+
+func newFieldset(dot any, field any /**newforms.Enum */, legend legendData, is ...any) newFieldsetData {
+	return newFieldsetData{
+		Dot:    dot,
+		Field:  field,
+		Legend: legend,
+		Items:  is,
+	}
+}
+
 type addressLinesData struct {
 	App     appcontext.Data
 	Address place.Address
@@ -635,4 +713,51 @@ func stackedNotifications(appData appcontext.Data, notifications []page.Notifica
 
 func list(els ...string) []string {
 	return els
+}
+
+func hasForm(dot any) bool {
+	tv := reflect.ValueOf(dot).Type()
+
+	// TODO: pass template data as non-pointer and remove the Elem, I think it was
+	// an unnecessary pre-optimisation.
+	for tv.Kind() == reflect.Pointer {
+		tv = tv.Elem()
+	}
+
+	_, ok := tv.FieldByName("Form")
+	return ok
+}
+
+func hasFormErrors(dot any) bool {
+	tv := reflect.ValueOf(dot).Type()
+	for tv.Kind() == reflect.Pointer {
+		tv = tv.Elem()
+	}
+
+	form, ok := tv.FieldByName("Form")
+	if !ok {
+		return false
+	}
+
+	tv = form.Type
+	for tv.Kind() == reflect.Pointer {
+		tv = tv.Elem()
+	}
+
+	_, ok = tv.FieldByName("Errors")
+	if !ok {
+		return false
+	}
+
+	vv := reflect.ValueOf(dot)
+	for vv.Kind() == reflect.Pointer {
+		vv = vv.Elem()
+	}
+
+	vv = vv.FieldByName("Form")
+	for vv.Kind() == reflect.Pointer {
+		vv = vv.Elem()
+	}
+
+	return vv.FieldByName("Errors").Len() > 0
 }

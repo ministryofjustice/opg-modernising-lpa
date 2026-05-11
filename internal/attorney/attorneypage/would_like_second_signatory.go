@@ -8,15 +8,15 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/appcontext"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/attorney"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/attorney/attorneydata"
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/form"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/lpastore/lpadata"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/newforms"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/validation"
 )
 
 type wouldLikeSecondSignatoryData struct {
 	App    appcontext.Data
 	Errors validation.List
-	Form   *form.YesNoForm
+	Form   *newforms.YesNoForm
 }
 
 func WouldLikeSecondSignatory(tmpl template.Template, attorneyStore AttorneyStore, lpaStoreClient LpaStoreClient) Handler {
@@ -27,17 +27,14 @@ func WouldLikeSecondSignatory(tmpl template.Template, attorneyStore AttorneyStor
 
 		data := &wouldLikeSecondSignatoryData{
 			App:  appData,
-			Form: form.NewYesNoForm(attorneyProvidedDetails.WouldLikeSecondSignatory),
+			Form: newforms.NewYesNoForm(appData.Localizer.T("yesIfWouldLikeSecondSignatory")),
 		}
 
 		if r.Method == http.MethodPost {
-			form := form.ReadYesNoForm(r, "yesIfWouldLikeSecondSignatory")
-			data.Errors = form.Validate()
+			if data.Form.Parse(r) {
+				attorneyProvidedDetails.WouldLikeSecondSignatory = data.Form.YesNo.Value
 
-			if data.Errors.None() {
-				attorneyProvidedDetails.WouldLikeSecondSignatory = form.YesNo
-
-				if form.YesNo.IsYes() {
+				if data.Form.YesNo.Value.IsYes() {
 					if err := attorneyStore.Put(r.Context(), attorneyProvidedDetails); err != nil {
 						return err
 					}

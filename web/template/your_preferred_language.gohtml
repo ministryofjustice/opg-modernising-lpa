@@ -18,10 +18,10 @@
       {{ end }}
 
       <form novalidate method="post">
-          {{ template "radios-fieldset" (fieldset . .FieldName .Form.Preference.String
-              (legend "whichLanguageWouldYouPreferWhenWeContactYou" "govuk-fieldset__legend--s")
-              (item .Options.En.String .Options.En.String)
-              (item .Options.Cy.String .Options.Cy.String)
+          {{ template "new-radios-fieldset" (newFieldset . .Form.Language
+              (legend (tr .App "whichLanguageWouldYouPreferWhenWeContactYou") "govuk-fieldset__legend--s")
+              (item .Form.Language.Options.En.String (tr .App "en"))
+              (item .Form.Language.Options.Cy.String (tr .App "cy"))
               ) }}
 
         {{ if .App.IsAttorneyType }}

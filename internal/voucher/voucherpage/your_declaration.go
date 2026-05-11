@@ -11,8 +11,8 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/identity"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/localize"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/lpastore/lpadata"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/newforms"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/notify"
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/scheduled"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/scheduled/scheduleddata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/task"
@@ -24,7 +24,7 @@ import (
 type yourDeclarationData struct {
 	App     appcontext.Data
 	Errors  validation.List
-	Form    *yourDeclarationForm
+	Form    *newforms.BoolForm
 	Lpa     *lpadata.Lpa
 	Voucher *voucherdata.Provided
 }
@@ -93,16 +93,13 @@ func YourDeclaration(
 
 		data := &yourDeclarationData{
 			App:     appData,
-			Form:    &yourDeclarationForm{},
+			Form:    newYourDeclarationForm(appData.Localizer, lpa.Donor.FullName()),
 			Lpa:     lpa,
 			Voucher: provided,
 		}
 
 		if r.Method == http.MethodPost {
-			data.Form = readYourDeclarationForm(r)
-			data.Errors = data.Form.Validate()
-
-			if data.Errors.None() {
+			if ok := data.Form.Parse(r); ok {
 				if err := sendNotification(r.Context(), lpa, provided, localizer); err != nil {
 					return fmt.Errorf("error sending notification: %w", err)
 				}
@@ -155,21 +152,9 @@ func YourDeclaration(
 	}
 }
 
-type yourDeclarationForm struct {
-	Confirm bool
-}
-
-func readYourDeclarationForm(r *http.Request) *yourDeclarationForm {
-	return &yourDeclarationForm{
-		Confirm: page.PostFormString(r, "confirm") == "1",
-	}
-}
-
-func (f *yourDeclarationForm) Validate() validation.List {
-	var errors validation.List
-
-	errors.Bool("confirm", "youMustSelectTheBoxToVouch", f.Confirm,
-		validation.Selected().CustomError())
-
-	return errors
+func newYourDeclarationForm(l Localizer, donorFullName string) *newforms.BoolForm {
+	return newforms.NewBoolForm(
+		l.Format("toTheBestOfMyKnowledgeDeclaration", map[string]any{"DonorFullName": donorFullName}),
+		l.T("youMustSelectTheBoxToVouch"),
+	)
 }

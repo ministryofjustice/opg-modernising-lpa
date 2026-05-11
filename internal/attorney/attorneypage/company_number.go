@@ -2,14 +2,13 @@ package attorneypage
 
 import (
 	"net/http"
-	"strings"
 
 	"github.com/ministryofjustice/opg-go-common/template"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/appcontext"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/attorney"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/attorney/attorneydata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/lpastore/lpadata"
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/newforms"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/task"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/validation"
 )
@@ -20,10 +19,6 @@ type companyNumberData struct {
 	Form   *companyNumberForm
 }
 
-type companyNumberForm struct {
-	CompanyNumber string
-}
-
 func CompanyNumber(tmpl template.Template, attorneyStore AttorneyStore) Handler {
 	return func(appData appcontext.Data, w http.ResponseWriter, r *http.Request, provided *attorneydata.Provided, lpa *lpadata.Lpa) error {
 		if !appData.IsTrustCorporation() {
@@ -32,16 +27,15 @@ func CompanyNumber(tmpl template.Template, attorneyStore AttorneyStore) Handler 
 
 		data := &companyNumberData{
 			App:  appData,
-			Form: &companyNumberForm{CompanyNumber: provided.CompanyNumber},
+			Form: newCompanyNumberForm(appData.Localizer),
 		}
 
-		if r.Method == http.MethodPost {
-			data.Form = readCompanyNumberForm(r)
-			data.Errors = data.Form.Validate()
+		data.Form.CompanyNumber.Input = provided.CompanyNumber
 
-			if data.Errors.None() {
+		if r.Method == http.MethodPost {
+			if data.Form.Parse(r) {
 				provided.Tasks.ConfirmYourDetails = task.StateInProgress
-				provided.CompanyNumber = data.Form.CompanyNumber
+				provided.CompanyNumber = data.Form.CompanyNumber.Value
 
 				if err := attorneyStore.Put(r.Context(), provided); err != nil {
 					return err
@@ -55,17 +49,22 @@ func CompanyNumber(tmpl template.Template, attorneyStore AttorneyStore) Handler 
 	}
 }
 
-func readCompanyNumberForm(r *http.Request) *companyNumberForm {
+type companyNumberForm struct {
+	CompanyNumber *newforms.String
+	Errors        []newforms.Field
+}
+
+func newCompanyNumberForm(l Localizer) *companyNumberForm {
 	return &companyNumberForm{
-		CompanyNumber: page.PostFormString(r, "company-number"),
+		CompanyNumber: newforms.NewString("company-number", l.T("yourCompanyNumber")).
+			NotEmpty(),
 	}
 }
 
-func (f *companyNumberForm) Validate() validation.List {
-	var errors validation.List
+func (f *companyNumberForm) Parse(r *http.Request) bool {
+	f.Errors = newforms.ParsePostForm(r,
+		f.CompanyNumber,
+	)
 
-	errors.String("company-number", "yourCompanyNumber", strings.TrimSpace(f.CompanyNumber),
-		validation.Empty())
-
-	return errors
+	return len(f.Errors) == 0
 }

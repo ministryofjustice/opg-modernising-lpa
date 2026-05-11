@@ -1,18 +1,34 @@
 {{ define "error-summary" }}
-  {{ if .Errors.Any }}
-    <div class="govuk-error-summary" aria-labelledby="error-summary-title" role="alert" data-module="govuk-error-summary">
-      <h2 class="govuk-error-summary__title" id="error-summary-title">
-        {{ tr .App "thereIsAProblem" }}
-      </h2>
-      <div class="govuk-error-summary__body">
-        <ul class="govuk-list govuk-error-summary__list">
-          {{ range .Errors }}
-            <li>
-              <a href="#f-{{ .Name }}">{{ .Error.Format $.App.Localizer }}</a>
-            </li>
-          {{ end }}
-        </ul>
-      </div>
-    </div>
-  {{ end }}
+    {{ if .Errors.Any }}
+        <div class="govuk-error-summary" aria-labelledby="error-summary-title" role="alert" data-module="govuk-error-summary">
+            <h2 class="govuk-error-summary__title" id="error-summary-title">
+                {{ tr .App "thereIsAProblem" }}
+            </h2>
+            <div class="govuk-error-summary__body">
+                <ul class="govuk-list govuk-error-summary__list">
+                    {{ range .Errors }}
+                        <li>
+                            <a href="#f-{{ .Name }}">{{ .Error.Format $.App.Localizer }}</a>
+                        </li>
+                    {{ end }}
+                </ul>
+            </div>
+        </div>
+    {{ end }}
+    {{ if hasFormErrors . }}
+        <div class="govuk-error-summary" aria-labelledby="error-summary-title" role="alert" data-module="govuk-error-summary">
+            <h2 class="govuk-error-summary__title" id="error-summary-title">
+                {{ tr .App "thereIsAProblem" }}
+            </h2>
+            <div class="govuk-error-summary__body">
+                <ul class="govuk-list govuk-error-summary__list">
+                    {{ range .Form.Errors }}
+                        <li>
+                            <a href="#f-{{ .Name }}">{{ .Error.Format $.App.Localizer }}</a>
+                        </li>
+                    {{ end }}
+                </ul>
+            </div>
+        </div>
+    {{ end }}
 {{ end }}

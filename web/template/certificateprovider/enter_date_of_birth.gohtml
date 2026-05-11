@@ -12,7 +12,8 @@
           <p class="govuk-body">{{ tr .App "thisIsRequiredToCheckAndProtect" }}</p>
         {{ end }}
 
-        {{ template "date" (input . "date-of-birth" "dateOfBirth" .Form.Dob "hint" "dateOfBirthHint") }}
+        {{ template "new-date" (newDateInput . .Form.Dob
+            "hint" (tr .App "dateOfBirthHint")) }}
 
         {{ template "dob-warning" . }}
 

@@ -7,39 +7,31 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/appcontext"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/attorney"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/attorney/attorneydata"
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/form"
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/localize"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/lpastore/lpadata"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/newforms"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/validation"
 )
 
 type yourPreferredLanguageData struct {
-	App       appcontext.Data
-	Errors    validation.List
-	Form      *form.LanguagePreferenceForm
-	Options   localize.LangOptions
-	FieldName string
-	Lpa       *lpadata.Lpa
+	App    appcontext.Data
+	Errors validation.List
+	Form   *newforms.LanguageForm
+	Lpa    *lpadata.Lpa
 }
 
 func YourPreferredLanguage(tmpl template.Template, attorneyStore AttorneyStore) Handler {
 	return func(appData appcontext.Data, w http.ResponseWriter, r *http.Request, attorneyProvidedDetails *attorneydata.Provided, lpa *lpadata.Lpa) error {
 		data := &yourPreferredLanguageData{
-			App: appData,
-			Form: &form.LanguagePreferenceForm{
-				Preference: attorneyProvidedDetails.ContactLanguagePreference,
-			},
-			Options:   localize.LangValues,
-			FieldName: form.FieldNames.LanguagePreference,
-			Lpa:       lpa,
+			App:  appData,
+			Form: newforms.NewLanguageForm(appData.Localizer.T("whichLanguageYouWouldLikeUsToUseWhenWeContactYou")),
+			Lpa:  lpa,
 		}
 
-		if r.Method == http.MethodPost {
-			data.Form = form.ReadLanguagePreferenceForm(r, "whichLanguageYouWouldLikeUsToUseWhenWeContactYou")
-			data.Errors = data.Form.Validate()
+		data.Form.Language.Input = attorneyProvidedDetails.ContactLanguagePreference.String()
 
-			if data.Errors.None() {
-				attorneyProvidedDetails.ContactLanguagePreference = data.Form.Preference
+		if r.Method == http.MethodPost {
+			if data.Form.Parse(r) {
+				attorneyProvidedDetails.ContactLanguagePreference = data.Form.Language.Value
 				if err := attorneyStore.Put(r.Context(), attorneyProvidedDetails); err != nil {
 					return err
 				}

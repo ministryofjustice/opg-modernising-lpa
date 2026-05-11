@@ -6,19 +6,19 @@
     <div class="govuk-grid-row">
         <div class="govuk-grid-column-two-thirds">
             {{ template "notification-banner" (notificationBanner .App "important" (trHtml .App "weHaveNotReceivedAnyInformationFromOneLogin") "heading") }}
-            
+
             <h1 class="govuk-heading-xl">{{ tr .App "weNeedMoreInformationAboutHowYouWillConfirmYourIdentity" }}</h1>
 
             <p class="govuk-body">{{ tr .App "youCanConfirmYourIdentityAtPostOffice" }}</p>
 
             {{ template "details" (details . "howToConfirmYourIdentityAtPostOffice" "howToConfirmYourIdentityAtPostOfficeContent" false) }}
-  
+
             <form novalidate method="post">
-                {{ template "radios-fieldset" (fieldset . .Form.FieldName .Form.Selected.String
-                    (legend "tellUsHowYouWillConfirmYourIdentity" "govuk-fieldset__legend--m")
-                    (item .Form.Options.AtPostOffice.String "iWillConfirmAtPostOffice")
-                    (item .Form.Options.PostOfficeSuccessfully.String "iHaveConfirmedAtPostOffice")
-                    (item .Form.Options.OneLogin.String "iWantToReturnToOneLogin")
+                {{ template "new-radios-fieldset" (newFieldset . .Form.Enum
+                    (legend (tr .App "tellUsHowYouWillConfirmYourIdentity") "govuk-fieldset__legend--m")
+                    (item .Form.Enum.Options.AtPostOffice.String (tr .App "iWillConfirmAtPostOffice"))
+                    (item .Form.Enum.Options.PostOfficeSuccessfully.String (tr .App "iHaveConfirmedAtPostOffice"))
+                    (item .Form.Enum.Options.OneLogin.String (tr .App "iWantToReturnToOneLogin"))
                     ) }}
 
                 {{ template "buttons" (button .App "continue") }}

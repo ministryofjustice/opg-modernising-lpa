@@ -6,7 +6,7 @@ import (
 
 	"github.com/ministryofjustice/opg-go-common/template"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/appcontext"
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/newforms"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/task"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/validation"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/voucher"
@@ -26,25 +26,19 @@ func YourName(tmpl template.Template, lpaStoreResolvingService LpaStoreResolving
 			return err
 		}
 
-		firstNames := cmp.Or(provided.FirstNames, lpa.Voucher.FirstNames)
-		lastName := cmp.Or(provided.LastName, lpa.Voucher.LastName)
-
 		data := &yourNameData{
-			App: appData,
-			Form: &yourNameForm{
-				FirstNames: firstNames,
-				LastName:   lastName,
-			},
+			App:  appData,
+			Form: newYourNameForm(appData.Localizer),
 		}
 
-		if r.Method == http.MethodPost {
-			data.Form = readYourNameForm(r)
-			data.Errors = data.Form.Validate()
+		data.Form.FirstNames.Input = cmp.Or(provided.FirstNames, lpa.Voucher.FirstNames)
+		data.Form.LastName.Input = cmp.Or(provided.LastName, lpa.Voucher.LastName)
 
-			if data.Errors.None() {
-				if provided.FirstNames != data.Form.FirstNames || provided.LastName != data.Form.LastName {
-					provided.FirstNames = data.Form.FirstNames
-					provided.LastName = data.Form.LastName
+		if r.Method == http.MethodPost {
+			if data.Form.Parse(r) {
+				if provided.FirstNames != data.Form.FirstNames.Value || provided.LastName != data.Form.LastName.Value {
+					provided.FirstNames = data.Form.FirstNames.Value
+					provided.LastName = data.Form.LastName.Value
 
 					provided.Tasks.ConfirmYourName = task.StateInProgress
 
@@ -71,27 +65,28 @@ func YourName(tmpl template.Template, lpaStoreResolvingService LpaStoreResolving
 }
 
 type yourNameForm struct {
-	FirstNames string
-	LastName   string
+	FirstNames *newforms.String
+	LastName   *newforms.String
+
+	Errors []newforms.Field
 }
 
-func readYourNameForm(r *http.Request) *yourNameForm {
+func newYourNameForm(l Localizer) *yourNameForm {
 	return &yourNameForm{
-		FirstNames: page.PostFormString(r, "first-names"),
-		LastName:   page.PostFormString(r, "last-name"),
+		FirstNames: newforms.NewString("first-names", l.T("firstNames")).
+			NotEmpty().
+			MaxLength(53),
+		LastName: newforms.NewString("last-name", l.T("lastName")).
+			NotEmpty().
+			MaxLength(61),
 	}
 }
 
-func (f *yourNameForm) Validate() validation.List {
-	var errors validation.List
+func (f *yourNameForm) Parse(r *http.Request) bool {
+	f.Errors = newforms.ParsePostForm(r,
+		f.FirstNames,
+		f.LastName,
+	)
 
-	errors.String("first-names", "firstNames", f.FirstNames,
-		validation.Empty(),
-		validation.StringTooLong(53))
-
-	errors.String("last-name", "lastName", f.LastName,
-		validation.Empty(),
-		validation.StringTooLong(61))
-
-	return errors
+	return len(f.Errors) == 0
 }

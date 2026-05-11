@@ -7,8 +7,8 @@ import (
 
 	"github.com/ministryofjustice/opg-go-common/template"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/appcontext"
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/form"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/lpastore/lpadata"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/newforms"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/task"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/validation"
@@ -19,7 +19,7 @@ import (
 type verifyDonorDetailsData struct {
 	App    appcontext.Data
 	Errors validation.List
-	Form   *form.YesNoForm
+	Form   *newforms.YesNoForm
 	Lpa    *lpadata.Lpa
 }
 
@@ -32,16 +32,13 @@ func VerifyDonorDetails(tmpl template.Template, lpaStoreResolvingService LpaStor
 
 		data := &verifyDonorDetailsData{
 			App:  appData,
-			Form: form.NewYesNoForm(form.YesNoUnknown),
+			Form: newforms.NewYesNoForm(appData.Localizer.T("yesIfTheseDetailsMatch")),
 			Lpa:  lpa,
 		}
 
 		if r.Method == http.MethodPost {
-			data.Form = form.ReadYesNoForm(r, "yesIfTheseDetailsMatch")
-			data.Errors = data.Form.Validate()
-
-			if data.Errors.None() {
-				provided.DonorDetailsMatch = data.Form.YesNo
+			if ok := data.Form.Parse(r); ok {
+				provided.DonorDetailsMatch = data.Form.YesNo.Value
 				provided.Tasks.VerifyDonorDetails = task.StateCompleted
 
 				if err := voucherStore.Put(r.Context(), provided); err != nil {
@@ -55,7 +52,7 @@ func VerifyDonorDetails(tmpl template.Template, lpaStoreResolvingService LpaStor
 
 				donor.VouchAttempts++
 
-				if data.Form.YesNo.IsYes() {
+				if data.Form.YesNo.Value.IsYes() {
 					donor.DetailsVerifiedByVoucher = true
 				}
 
@@ -63,7 +60,7 @@ func VerifyDonorDetails(tmpl template.Template, lpaStoreResolvingService LpaStor
 					return fmt.Errorf("error updating donor: %w", err)
 				}
 
-				if data.Form.YesNo.IsNo() {
+				if data.Form.YesNo.Value.IsNo() {
 					if err := fail(r.Context(), provided, lpa); err != nil {
 						return fmt.Errorf("error failing voucher: %w", err)
 					}

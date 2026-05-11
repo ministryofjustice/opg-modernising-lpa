@@ -6,7 +6,7 @@ import (
 	"github.com/ministryofjustice/opg-go-common/template"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/appcontext"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor"
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/form"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/newforms"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/supporter"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/supporter/supporterdata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/validation"
@@ -15,28 +15,25 @@ import (
 type confirmDonorCanInteractOnlineData struct {
 	App    appcontext.Data
 	Errors validation.List
-	Form   *form.YesNoForm
+	Form   *newforms.YesNoForm
 }
 
 func ConfirmDonorCanInteractOnline(tmpl template.Template, organisationStore OrganisationStore) Handler {
 	return func(appData appcontext.Data, w http.ResponseWriter, r *http.Request, organisation *supporterdata.Organisation, _ *supporterdata.Member) error {
 		data := &confirmDonorCanInteractOnlineData{
 			App:  appData,
-			Form: form.NewYesNoForm(form.YesNoUnknown),
+			Form: newforms.NewYesNoForm("ifYouWouldLikeToContinueMakingAnOnlineLPA"),
 		}
 
 		if r.Method == http.MethodPost {
-			data.Form = form.ReadYesNoForm(r, "ifYouWouldLikeToContinueMakingAnOnlineLPA")
-			data.Errors = data.Form.Validate()
-
-			if data.Form.YesNo.IsYes() {
+			if ok := data.Form.Parse(r); ok && data.Form.YesNo.Value.IsYes() {
 				donorProvided, err := organisationStore.CreateLPA(r.Context())
 				if err != nil {
 					return err
 				}
 
 				return donor.PathYourName.Redirect(w, r, appData, donorProvided)
-			} else if data.Form.YesNo.IsNo() {
+			} else if data.Form.YesNo.Value.IsNo() {
 				return supporter.PathContactOPGForPaperForms.Redirect(w, r, appData)
 			}
 		}

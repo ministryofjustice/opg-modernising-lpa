@@ -12,6 +12,7 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor/donordata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/dynamo"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/localize"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/newforms"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/notify"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/supporter"
@@ -37,8 +38,10 @@ func DonorAccess(logger Logger, tmpl template.Template, donorStore DonorStore, a
 		data := &donorAccessData{
 			App:   appData,
 			Donor: donor,
-			Form:  &donorAccessForm{Email: donor.Donor.Email},
+			Form:  newDonorAccessForm(appData.Localizer),
 		}
+
+		data.Form.Email.Input = donor.Donor.Email
 
 		supporterLink, err := accessCodeStore.GetDonorAccess(r.Context())
 		if err == nil {
@@ -78,12 +81,9 @@ func DonorAccess(logger Logger, tmpl template.Template, donorStore DonorStore, a
 		}
 
 		if r.Method == http.MethodPost {
-			data.Form = readDonorAccessForm(r)
-			data.Errors = data.Form.Validate()
-
-			if data.Errors.None() {
-				if data.Form.Email != donor.Donor.Email {
-					donor.Donor.Email = data.Form.Email
+			if data.Form.Parse(r) {
+				if data.Form.Email.Value != donor.Donor.Email {
+					donor.Donor.Email = data.Form.Email.Value
 
 					if err := donorStore.Put(r.Context(), donor); err != nil {
 						return err
@@ -98,7 +98,7 @@ func DonorAccess(logger Logger, tmpl template.Template, donorStore DonorStore, a
 					ActorUID:    donor.Donor.UID,
 				}
 
-				if err := accessCodeStore.PutDonorAccess(r.Context(), hashedCode, accessCodeData, data.Form.Email); err != nil {
+				if err := accessCodeStore.PutDonorAccess(r.Context(), hashedCode, accessCodeData, data.Form.Email.Value); err != nil {
 					return err
 				}
 
@@ -115,7 +115,7 @@ func DonorAccess(logger Logger, tmpl template.Template, donorStore DonorStore, a
 				}
 
 				return supporter.PathViewLPA.RedirectQuery(w, r, appData, appData.LpaID, url.Values{
-					"inviteSentTo": {data.Form.Email},
+					"inviteSentTo": {data.Form.Email.Value},
 				})
 			}
 		}
@@ -125,21 +125,22 @@ func DonorAccess(logger Logger, tmpl template.Template, donorStore DonorStore, a
 }
 
 type donorAccessForm struct {
-	Email string
+	Email  *newforms.String
+	Errors []newforms.Field
 }
 
-func readDonorAccessForm(r *http.Request) *donorAccessForm {
+func newDonorAccessForm(l Localizer) *donorAccessForm {
 	return &donorAccessForm{
-		Email: page.PostFormString(r, "email"),
+		Email: newforms.NewString("email", l.T("email")).
+			NotEmpty().
+			Email(),
 	}
 }
 
-func (f *donorAccessForm) Validate() validation.List {
-	var errors validation.List
+func (f *donorAccessForm) Parse(r *http.Request) bool {
+	f.Errors = newforms.ParsePostForm(r,
+		f.Email,
+	)
 
-	errors.String("email", "email", f.Email,
-		validation.Empty(),
-		validation.Email())
-
-	return errors
+	return len(f.Errors) == 0
 }

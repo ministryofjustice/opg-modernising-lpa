@@ -14,10 +14,10 @@
             {{ trHtml .App "checkTheDonorCanInteractOnlineContent" }}
 
             <form novalidate method="post">
-                {{ template "radios-fieldset" (fieldset . .Form.FieldName .Form.YesNo.String
-                    (legend "howWouldYouLikeToContinue" "govuk-fieldset__legend--m")
-                    (item .Form.Options.Yes.String "makeAnOnlineLPA" "hint" "chooseThisIfYourDonorCanInteractOnline")
-                    (item .Form.Options.No.String "offlineUsingPaperFormsAndByPhone" "hint" "wellGiveYouMoreInformationAboutHowToGetPaperForms")
+                {{ template "new-radios-fieldset" (newFieldset . .Form.YesNo
+                    (legend (tr .App "howWouldYouLikeToContinue") "govuk-fieldset__legend--m")
+                    (item .Form.YesNo.Options.Yes.String (tr .App "makeAnOnlineLPA") "hint" "chooseThisIfYourDonorCanInteractOnline")
+                    (item .Form.YesNo.Options.No.String (tr .App "offlineUsingPaperFormsAndByPhone") "hint" "wellGiveYouMoreInformationAboutHowToGetPaperForms")
                     ) }}
 
                 <div class="govuk-button-group">

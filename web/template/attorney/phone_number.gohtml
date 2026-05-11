@@ -10,7 +10,13 @@
 
         <p class="govuk-body">{{ tr .App "youCanChooseToTellUsYourPhoneNumber" }}</p>
 
-        {{ template "input" (input . "phone" "enterYourUKPhoneNumberOptional" .Form.Phone "hint" "enterYourUKMobileOrLandlineHint" "classes" "govuk-input--width-20 govuk-input--extra-letter-spacing" "labelClasses" "govuk-label--s" "type" "tel" "autocomplete" "tel") }}
+        {{ template "new-input" (newInput . .Form.Phone
+            "label" (tr .App "enterYourUKPhoneNumberOptional")
+            "hint" (tr .App "enterYourUKMobileOrLandlineHint")
+            "classes" "govuk-input--width-20 govuk-input--extra-letter-spacing"
+            "labelClasses" "govuk-label--s"
+            "type" "tel"
+            "autocomplete" "tel") }}
 
         {{ template "buttons" (button .App "saveAndContinue") }}
         {{ template "csrf-field" . }}

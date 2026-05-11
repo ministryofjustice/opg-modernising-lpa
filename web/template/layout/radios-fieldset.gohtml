@@ -21,3 +21,30 @@
         </fieldset>
     </div>
 {{ end }}
+
+{{ define "new-radios-fieldset" }}
+    <div class="govuk-form-group {{ if .Field.Error }}govuk-form-group--error{{ end }}">
+        <fieldset class="govuk-fieldset" {{ if .Field.Error }}aria-describedby="{{ .Field.Name }}-error"{{ end }}>
+            <legend class="govuk-fieldset__legend {{ .Legend.Classes }}">
+                {{ if .Legend.H1 }}
+                    <h1 class="govuk-fieldset__heading">
+                        {{ .Legend.Label }}
+                    </h1>
+                {{ else }}
+                    {{ .Legend.Label }}
+                {{ end }}
+            </legend>
+            {{ if .Legend.Hint }}
+                <div class="govuk-hint">
+                    {{ .Legend.Hint }}
+                </div>
+            {{ end }}
+            {{ if .Field.Error }}
+                <p id="{{ .Field.Name }}-error" class="govuk-error-message">
+                    <span class="govuk-visually-hidden">Error:</span> {{ .Field.Error.Format .Dot.App.Localizer }}
+                </p>
+            {{ end }}
+            {{ template "new-radios" . }}
+        </fieldset>
+    </div>
+{{ end }}

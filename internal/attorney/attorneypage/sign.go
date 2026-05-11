@@ -10,6 +10,7 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/attorney/attorneydata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/localize"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/lpastore/lpadata"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/newforms"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/task"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/validation"
@@ -29,33 +30,34 @@ type signData struct {
 
 func Sign(tmpl template.Template, attorneyStore AttorneyStore, lpaStoreClient LpaStoreClient, now func() time.Time) Handler {
 	signAttorney := func(appData appcontext.Data, w http.ResponseWriter, r *http.Request, provided *attorneydata.Provided, lpa *lpadata.Lpa) error {
-		data := &signData{
-			App:                         appData,
-			Lpa:                         lpa,
-			IsReplacement:               appData.IsReplacementAttorney(),
-			LpaCanBeUsedWhenHasCapacity: lpa.WhenCanTheLpaBeUsed.IsHasCapacity(),
-			Form:                        &signForm{},
-		}
-
 		attorneys := lpa.Attorneys
 		if appData.IsReplacementAttorney() {
 			attorneys = lpa.ReplacementAttorneys
 		}
 
-		{
-			attorney, ok := attorneys.Get(appData.AttorneyUID)
-			if !ok {
-				return page.PathDashboard.Redirect(w, r, appData)
-			}
+		thisAttorney, ok := attorneys.Get(appData.AttorneyUID)
+		if !ok {
+			return page.PathDashboard.Redirect(w, r, appData)
+		}
 
-			data.Attorney = attorney
+		data := &signData{
+			App:                         appData,
+			Lpa:                         lpa,
+			IsReplacement:               appData.IsReplacementAttorney(),
+			LpaCanBeUsedWhenHasCapacity: lpa.WhenCanTheLpaBeUsed.IsHasCapacity(),
+			Attorney:                    thisAttorney,
+			Form: newSignForm(
+				appData.Localizer,
+				appData.IsTrustCorporation(),
+				appData.IsReplacementAttorney(),
+				lpa.Language,
+				thisAttorney.FullName(),
+				"",
+			),
 		}
 
 		if r.Method == http.MethodPost {
-			data.Form = readSignForm(r, lpa.Language)
-			data.Errors = data.Form.Validate(appData.IsTrustCorporation(), appData.IsReplacementAttorney())
-
-			if data.Errors.None() {
+			if data.Form.Parse(r) {
 				provided.Tasks.SignTheLpa = task.StateCompleted
 				provided.SignedAt = now()
 
@@ -92,30 +94,34 @@ func Sign(tmpl template.Template, attorneyStore AttorneyStore, lpaStoreClient Lp
 
 		signatory := attorneyProvidedDetails.AuthorisedSignatories[signatoryIndex]
 
+		trustCorporation := lpa.Attorneys.TrustCorporation
+		if appData.IsReplacementAttorney() {
+			trustCorporation = lpa.ReplacementAttorneys.TrustCorporation
+		}
+
 		data := &signData{
 			App:                         appData,
 			Lpa:                         lpa,
 			IsReplacement:               appData.IsReplacementAttorney(),
 			IsSecondSignatory:           signatoryIndex == 1,
 			LpaCanBeUsedWhenHasCapacity: lpa.WhenCanTheLpaBeUsed.IsHasCapacity(),
-			Form: &signForm{
-				FirstNames:        signatory.FirstNames,
-				LastName:          signatory.LastName,
-				ProfessionalTitle: signatory.ProfessionalTitle,
-			},
+			TrustCorporation:            trustCorporation,
+			Form: newSignForm(
+				appData.Localizer,
+				appData.IsTrustCorporation(),
+				appData.IsReplacementAttorney(),
+				lpa.Language,
+				"",
+				trustCorporation.Name,
+			),
 		}
 
-		if appData.IsReplacementAttorney() {
-			data.TrustCorporation = lpa.ReplacementAttorneys.TrustCorporation
-		} else {
-			data.TrustCorporation = lpa.Attorneys.TrustCorporation
-		}
+		data.Form.FirstNames.Input = signatory.FirstNames
+		data.Form.LastName.Input = signatory.LastName
+		data.Form.ProfessionalTitle.Input = signatory.ProfessionalTitle
 
 		if r.Method == http.MethodPost {
-			data.Form = readSignForm(r, lpa.Language)
-			data.Errors = data.Form.Validate(appData.IsTrustCorporation(), appData.IsReplacementAttorney())
-
-			if data.Errors.None() {
+			if data.Form.Parse(r) {
 				if signatoryIndex == 1 {
 					attorneyProvidedDetails.Tasks.SignTheLpaSecond = task.StateCompleted
 				} else {
@@ -123,9 +129,9 @@ func Sign(tmpl template.Template, attorneyStore AttorneyStore, lpaStoreClient Lp
 				}
 
 				attorneyProvidedDetails.AuthorisedSignatories[signatoryIndex] = attorneydata.TrustCorporationSignatory{
-					FirstNames:        data.Form.FirstNames,
-					LastName:          data.Form.LastName,
-					ProfessionalTitle: data.Form.ProfessionalTitle,
+					FirstNames:        data.Form.FirstNames.Value,
+					LastName:          data.Form.LastName.Value,
+					ProfessionalTitle: data.Form.ProfessionalTitle.Value,
 					SignedAt:          now(),
 				}
 
@@ -172,58 +178,89 @@ func Sign(tmpl template.Template, attorneyStore AttorneyStore, lpaStoreClient Lp
 }
 
 type signForm struct {
-	FirstNames        string
-	LastName          string
-	ProfessionalTitle string
-	Confirm           bool
-	WrongLanguage     bool
+	FirstNames        *newforms.String
+	LastName          *newforms.String
+	ProfessionalTitle *newforms.String
+	Confirm           *newforms.Bool
+	WrongLanguage     *newforms.Bool
+	Errors            []newforms.Field
 
-	lpaLanguage localize.Lang
+	isTrustCorporation bool
+	lpaLanguage        localize.Lang
 }
 
-func readSignForm(r *http.Request, lang localize.Lang) *signForm {
-	return &signForm{
-		FirstNames:        page.PostFormString(r, "first-names"),
-		LastName:          page.PostFormString(r, "last-name"),
-		ProfessionalTitle: page.PostFormString(r, "professional-title"),
-		Confirm:           page.PostFormString(r, "confirm") == "1",
-		WrongLanguage:     page.PostFormString(r, "wrong-language") == "1",
-		lpaLanguage:       lang,
+func newSignForm(l Localizer, isTrustCorporation, isReplacement bool, lang localize.Lang, attorneyFullName, trustCorporationName string) *signForm {
+	confirmError := l.T("youMustSelectTheBoxToSignAttorney")
+
+	// TODO: this copies the previous logic, but do we not want to show
+	// replacement content to a trust corporation??
+	if isReplacement && !isTrustCorporation {
+		confirmError = l.T("youMustSelectTheBoxToSignReplacementAttorney")
 	}
-}
 
-func (f *signForm) Validate(isTrustCorporation, isReplacement bool) validation.List {
-	var errors validation.List
+	confirmLabel := l.Format("iAttorneyConfirmTheseStatements", map[string]any{
+		"AttorneyFullName": attorneyFullName,
+	})
+	if isTrustCorporation {
+		confirmLabel = l.Format("iTrustCorporationConfirmTheseStatements", map[string]any{
+			"TrustCorporationName": trustCorporationName,
+		})
+	}
 
 	if isTrustCorporation {
-		errors.String("first-names", "firstNames", f.FirstNames,
-			validation.Empty())
-		errors.String("last-name", "lastName", f.LastName,
-			validation.Empty())
-		errors.String("professional-title", "professionalTitle", f.ProfessionalTitle,
-			validation.Empty())
-		errors.Bool("confirm", "youMustSelectTheBoxToSignAttorney", f.Confirm,
-			validation.Selected().CustomError())
-	} else if isReplacement {
-		errors.Bool("confirm", "youMustSelectTheBoxToSignReplacementAttorney", f.Confirm,
-			validation.Selected().CustomError())
+		return &signForm{
+			FirstNames: newforms.NewString("first-names", l.T("firstNames")).
+				NotEmpty(),
+			LastName: newforms.NewString("last-name", l.T("lastName")).
+				NotEmpty(),
+			ProfessionalTitle: newforms.NewString("professional-title", l.T("professionalTitle")).
+				NotEmpty(),
+			Confirm: newforms.NewBool("confirm", confirmLabel).
+				True(confirmError),
+			WrongLanguage:      newforms.NewBool("wrong-language", ""),
+			isTrustCorporation: true,
+			lpaLanguage:        lang,
+		}
 	} else {
-		errors.Bool("confirm", "youMustSelectTheBoxToSignAttorney", f.Confirm,
-			validation.Selected().CustomError())
+		return &signForm{
+			Confirm: newforms.NewBool("confirm", confirmLabel).
+				True(confirmError),
+			WrongLanguage:      newforms.NewBool("wrong-language", ""),
+			isTrustCorporation: false,
+			lpaLanguage:        lang,
+		}
+	}
+}
+
+func (f *signForm) Parse(r *http.Request) bool {
+	if f.isTrustCorporation {
+		f.Errors = newforms.ParsePostForm(r,
+			f.FirstNames,
+			f.LastName,
+			f.ProfessionalTitle,
+			f.Confirm,
+			f.WrongLanguage,
+		)
+	} else {
+		f.Errors = newforms.ParsePostForm(r,
+			f.Confirm,
+			f.WrongLanguage,
+		)
 	}
 
-	if f.Confirm && f.WrongLanguage {
-		errors.Add("confirm", toSignLpaYouMustViewInLanguageError{LpaLanguage: f.lpaLanguage})
+	if f.Confirm.Value && f.WrongLanguage.Value {
+		f.Confirm.Error = toSignLpaYouMustViewInLanguageError{LpaLanguage: f.lpaLanguage}
+		f.Errors = append(f.Errors, f.Confirm.Field)
 	}
 
-	return errors
+	return len(f.Errors) == 0
 }
 
 type toSignLpaYouMustViewInLanguageError struct {
 	LpaLanguage localize.Lang
 }
 
-func (e toSignLpaYouMustViewInLanguageError) Format(l validation.Localizer) string {
+func (e toSignLpaYouMustViewInLanguageError) Format(l newforms.Localizer) string {
 	return l.Format("toSignLpaYouMustViewInLanguage", map[string]any{
 		"InLang": l.T("in:" + e.LpaLanguage.String()),
 	})

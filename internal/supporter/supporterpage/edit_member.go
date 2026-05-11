@@ -7,7 +7,7 @@ import (
 
 	"github.com/ministryofjustice/opg-go-common/template"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/appcontext"
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/newforms"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/supporter"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/supporter/supporterdata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/validation"
@@ -37,31 +37,28 @@ func EditMember(logger Logger, tmpl template.Template, memberStore MemberStore) 
 		canEditAll := appData.IsAdmin() && !isLoggedInMember
 
 		data := &editMemberData{
-			App: appData,
-			Form: &editMemberForm{
-				FirstNames:        member.FirstNames,
-				LastName:          member.LastName,
-				Permission:        member.Permission,
-				PermissionOptions: supporterdata.PermissionValues,
-				Status:            member.Status,
-				StatusOptions:     supporterdata.StatusValues,
-			},
+			App:        appData,
+			Form:       newEditMemberForm(appData.Localizer, canEditAll),
 			Member:     member,
 			CanEditAll: canEditAll,
 		}
 
-		if r.Method == http.MethodPost {
-			data.Form = readEditMemberForm(r, canEditAll)
-			data.Errors = data.Form.Validate()
+		data.Form.FirstNames.SetInput(member.FirstNames)
+		data.Form.LastName.SetInput(member.LastName)
+		if canEditAll {
+			data.Form.Permission.SetInput(member.Permission)
+			data.Form.Status.SetInput(member.Status)
+		}
 
-			if data.Errors.None() {
+		if r.Method == http.MethodPost {
+			if data.Form.Parse(r) {
 				query := url.Values{}
 				changed := false
 
-				if data.Form.FirstNames != member.FirstNames || data.Form.LastName != member.LastName {
+				if data.Form.FirstNames.Value != member.FirstNames || data.Form.LastName.Value != member.LastName {
 					changed = true
-					member.FirstNames = data.Form.FirstNames
-					member.LastName = data.Form.LastName
+					member.FirstNames = data.Form.FirstNames.Value
+					member.LastName = data.Form.LastName.Value
 
 					query.Add("nameUpdated", member.FullName())
 
@@ -71,18 +68,24 @@ func EditMember(logger Logger, tmpl template.Template, memberStore MemberStore) 
 				}
 
 				if canEditAll {
-					if data.Form.Permission != member.Permission {
+					if data.Form.Permission.Value != member.Permission {
 						changed = true
-						logger.InfoContext(r.Context(), "member permission changed", slog.String("member_id", member.ID), slog.String("permission_old", member.Permission.String()), slog.String("permission_new", data.Form.Permission.String()))
-						member.Permission = data.Form.Permission
+						logger.InfoContext(r.Context(), "member permission changed",
+							slog.String("member_id", member.ID),
+							slog.String("permission_old", member.Permission.String()),
+							slog.String("permission_new", data.Form.Permission.Value.String()))
+						member.Permission = data.Form.Permission.Value
 					}
 
-					if data.Form.Status != member.Status {
+					if data.Form.Status.Value != member.Status {
 						changed = true
-						logger.InfoContext(r.Context(), "member status changed", slog.String("member_id", member.ID), slog.String("status_old", member.Status.String()), slog.String("status_new", data.Form.Status.String()))
-						query.Add("statusUpdated", data.Form.Status.String())
+						logger.InfoContext(r.Context(), "member status changed",
+							slog.String("member_id", member.ID),
+							slog.String("status_old", member.Status.String()),
+							slog.String("status_new", data.Form.Status.Value.String()))
+						query.Add("statusUpdated", data.Form.Status.Value.String())
 						query.Add("statusEmail", member.Email)
-						member.Status = data.Form.Status
+						member.Status = data.Form.Status.Value
 					}
 				}
 
@@ -106,50 +109,49 @@ func EditMember(logger Logger, tmpl template.Template, memberStore MemberStore) 
 }
 
 type editMemberForm struct {
-	FirstNames        string
-	LastName          string
-	Permission        supporterdata.Permission
-	PermissionOptions supporterdata.PermissionOptions
-	PermissionError   error
-	Status            supporterdata.Status
-	StatusOptions     supporterdata.StatusOptions
-	StatusError       error
-	canEditAll        bool
+	FirstNames *newforms.String
+	LastName   *newforms.String
+	Permission *newforms.Enum[supporterdata.Permission, supporterdata.PermissionOptions, *supporterdata.Permission]
+	Status     *newforms.Enum[supporterdata.Status, supporterdata.StatusOptions, *supporterdata.Status]
+	Errors     []newforms.Field
+	canEditAll bool
 }
 
-func readEditMemberForm(r *http.Request, canEditAll bool) *editMemberForm {
+func newEditMemberForm(l Localizer, canEditAll bool) *editMemberForm {
 	f := &editMemberForm{
-		FirstNames: page.PostFormString(r, "first-names"),
-		LastName:   page.PostFormString(r, "last-name"),
+		FirstNames: newforms.NewString("first-names", l.T("firstNames")).
+			NotEmpty().
+			MaxLength(53),
+		LastName: newforms.NewString("last-name", l.T("lastName")).
+			NotEmpty().
+			MaxLength(61),
 		canEditAll: canEditAll,
 	}
 
 	if canEditAll {
-		f.Permission, f.PermissionError = supporterdata.ParsePermission(page.PostFormString(r, "permission"))
-		f.Status, f.StatusError = supporterdata.ParseStatus(page.PostFormString(r, "status"))
+		f.Permission = newforms.NewEnum[supporterdata.Permission]("permission", l.T("permissions"), supporterdata.PermissionValues).
+			OrDefault(supporterdata.PermissionNone)
+		f.Status = newforms.NewEnum[supporterdata.Status]("status", l.T("status"), supporterdata.StatusValues).
+			Selected()
 	}
 
 	return f
 }
 
-func (f *editMemberForm) Validate() validation.List {
-	var errors validation.List
-
-	errors.String("first-names", "firstNames", f.FirstNames,
-		validation.Empty(),
-		validation.StringTooLong(53))
-
-	errors.String("last-name", "lastName", f.LastName,
-		validation.Empty(),
-		validation.StringTooLong(61))
-
+func (f *editMemberForm) Parse(r *http.Request) bool {
 	if f.canEditAll {
-		errors.Options("permission", "makeThisPersonAnAdmin", []string{f.Permission.String()},
-			validation.Select(supporterdata.PermissionNone.String(), supporterdata.PermissionAdmin.String()))
-
-		errors.Error("status", "status", f.StatusError,
-			validation.Selected())
+		f.Errors = newforms.ParsePostForm(r,
+			f.FirstNames,
+			f.LastName,
+			f.Permission,
+			f.Status,
+		)
+	} else {
+		f.Errors = newforms.ParsePostForm(r,
+			f.FirstNames,
+			f.LastName,
+		)
 	}
 
-	return errors
+	return len(f.Errors) == 0
 }

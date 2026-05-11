@@ -75,19 +75,19 @@
                         <span id="fieldset-legend" class="govuk-summary-card__title">{{ tr .App "yourSignature" }}</span>
                     </div>
                     <div class="govuk-summary-card__content">
-                        <div class="govuk-form-group govuk-!-margin-bottom-0 {{ if .Errors.Has "confirm" }}govuk-form-group--error{{ end }}">
-                            <fieldset class="govuk-fieldset" aria-labelledby="fieldset-legend" {{ if .Errors.Has "confirm" }}aria-describedby="confirm-error"{{ end }}>
-                                {{ template "error-message" (errorMessage . "confirm") }}
+                        <div class="govuk-form-group govuk-!-margin-bottom-0 {{ if .Form.Confirm.Error }}govuk-form-group--error{{ end }}">
+                            <fieldset class="govuk-fieldset" aria-labelledby="fieldset-legend" {{ if .Form.Confirm.Error }}aria-describedby="{{ .Form.Confirm.Name }}-error"{{ end }}>
+                                {{ if .Form.Confirm.Error }}
+                                    <p id="{{ .Form.Confirm.Name }}-error" class="govuk-error-message">
+                                        <span class="govuk-visually-hidden">Error:</span> {{ .Form.Confirm.Error.Format .App.Localizer }}
+                                    </p>
+                                {{ end }}
 
                                 <div class="govuk-checkboxes">
                                     <div class="govuk-checkboxes__item">
-                                        <input class="govuk-checkboxes__input" id="f-confirm" name="confirm" type="checkbox" value="1" {{ if .Form.Confirm }}checked{{ end }}>
-                                        <label class="govuk-label govuk-checkboxes__label" for="f-confirm">
-                                            {{ if .App.IsTrustCorporation }}
-                                                {{ trFormat .App "iTrustCorporationConfirmTheseStatements" "TrustCorporationName" .TrustCorporation.Name }}
-                                            {{ else }}
-                                                {{ trFormat .App "iAttorneyConfirmTheseStatements" "AttorneyFullName" .Attorney.FullName }}
-                                            {{ end }}
+                                        <input class="govuk-checkboxes__input" id="f-{{ .Form.Confirm.Name }}" name="{{ .Form.Confirm.Name }}" type="checkbox" value="1" {{ if .Form.Confirm.Input }}checked{{ end }}>
+                                        <label class="govuk-label govuk-checkboxes__label" for="f-{{ .Form.Confirm.Name }}">
+                                            {{ .Form.Confirm.Label }}
                                         </label>
                                     </div>
                                 </div>

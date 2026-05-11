@@ -6,9 +6,9 @@ import (
 
 	"github.com/ministryofjustice/opg-go-common/template"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/appcontext"
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/form"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/lpastore/lpadata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/names"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/newforms"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/task"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/validation"
@@ -19,7 +19,7 @@ import (
 type confirmAllowedToVouchData struct {
 	App                 appcontext.Data
 	Errors              validation.List
-	Form                *form.YesNoForm
+	Form                *newforms.YesNoForm
 	Lpa                 *lpadata.Lpa
 	SurnameMatchesDonor bool
 	MatchIdentity       bool
@@ -34,18 +34,15 @@ func ConfirmAllowedToVouch(tmpl template.Template, lpaStoreResolvingService LpaS
 
 		data := &confirmAllowedToVouchData{
 			App:                 appData,
-			Form:                form.NewYesNoForm(form.YesNoUnknown),
+			Form:                newforms.NewYesNoForm(appData.Localizer.T("yesIfAllowedToVouch")),
 			Lpa:                 lpa,
 			SurnameMatchesDonor: names.Equal(provided.LastName, lpa.Donor.LastName),
 			MatchIdentity:       provided.Tasks.ConfirmYourIdentity.IsInProgress(),
 		}
 
 		if r.Method == http.MethodPost {
-			data.Form = form.ReadYesNoForm(r, "yesIfAllowedToVouch")
-			data.Errors = data.Form.Validate()
-
-			if data.Errors.None() {
-				if data.Form.YesNo.IsNo() {
+			if ok := data.Form.Parse(r); ok {
+				if data.Form.YesNo.Value.IsNo() {
 					if err := fail(r.Context(), provided, lpa); err != nil {
 						return err
 					}
