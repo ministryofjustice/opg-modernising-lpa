@@ -1,10 +1,7 @@
 package donordata
 
 import (
-	"net/http"
-	"strings"
-
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/validation"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/newforms"
 )
 
 //go:generate go tool enumerator -type YesNoMaybe -linecomment -empty
@@ -16,25 +13,8 @@ const (
 	Maybe
 )
 
-type YesNoMaybeForm struct {
-	errorLabel string
-	Option     YesNoMaybe
-}
+type YesNoMaybeForm = newforms.EnumForm[YesNoMaybe, YesNoMaybeOptions, *YesNoMaybe]
 
-func ReadYesNoMaybeForm(r *http.Request, errorLabel string) *YesNoMaybeForm {
-	option, _ := ParseYesNoMaybe(strings.TrimSpace(r.PostFormValue("option")))
-
-	return &YesNoMaybeForm{
-		errorLabel: errorLabel,
-		Option:     option,
-	}
-}
-
-func (f *YesNoMaybeForm) Validate() validation.List {
-	var errors validation.List
-
-	errors.Enum("option", f.errorLabel, f.Option,
-		validation.Selected())
-
-	return errors
+func NewYesNoMaybeForm(errorLabel string) *YesNoMaybeForm {
+	return newforms.NewEnumForm[YesNoMaybe](errorLabel, YesNoMaybeValues)
 }

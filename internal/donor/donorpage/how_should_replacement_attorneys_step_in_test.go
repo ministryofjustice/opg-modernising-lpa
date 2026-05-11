@@ -306,8 +306,7 @@ func TestPostHowShouldReplacementAttorneysStepInWhenPutStoreError(t *testing.T) 
 
 func TestHowShouldReplacementAttorneysStepInFormValidate(t *testing.T) {
 	testCases := map[string]struct {
-		form           *howShouldReplacementAttorneysStepInForm
-		expectedErrors validation.List
+		form *howShouldReplacementAttorneysStepInForm
 	}{
 		"valid": {
 			form: &howShouldReplacementAttorneysStepInForm{

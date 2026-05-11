@@ -8,20 +8,14 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/attorney"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/attorney/attorneydata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/lpastore/lpadata"
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/newforms"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/task"
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/validation"
 )
 
 type phoneNumberData struct {
-	App    appcontext.Data
-	Donor  *lpadata.Lpa
-	Form   *phoneNumberForm
-	Errors validation.List
-}
-
-type phoneNumberForm struct {
-	Phone string
+	App   appcontext.Data
+	Donor *lpadata.Lpa
+	Form  *phoneNumberForm
 }
 
 func PhoneNumber(tmpl template.Template, attorneyStore AttorneyStore) Handler {
@@ -32,18 +26,15 @@ func PhoneNumber(tmpl template.Template, attorneyStore AttorneyStore) Handler {
 		}
 
 		data := &phoneNumberData{
-			App: appData,
-			Form: &phoneNumberForm{
-				Phone: mobile,
-			},
+			App:  appData,
+			Form: newPhoneNumberForm(appData.Localizer),
 		}
 
-		if r.Method == http.MethodPost {
-			data.Form = readPhoneNumberForm(r)
-			data.Errors = data.Form.Validate()
+		data.Form.Phone.Input = mobile
 
-			if data.Errors.None() {
-				provided.Phone = data.Form.Phone
+		if r.Method == http.MethodPost {
+			if data.Form.Parse(r) {
+				provided.Phone = data.Form.Phone.Value
 				provided.PhoneSet = true
 				if provided.Tasks.ConfirmYourDetails == task.StateNotStarted {
 					provided.Tasks.ConfirmYourDetails = task.StateInProgress
@@ -61,17 +52,17 @@ func PhoneNumber(tmpl template.Template, attorneyStore AttorneyStore) Handler {
 	}
 }
 
-func readPhoneNumberForm(r *http.Request) *phoneNumberForm {
+type phoneNumberForm struct {
+	newforms.Form
+	Phone *newforms.String
+}
+
+func newPhoneNumberForm(l Localizer) *phoneNumberForm {
 	return &phoneNumberForm{
-		Phone: page.PostFormString(r, "phone"),
+		Phone: newforms.NewString("phone", l.T("phone")).Phone(),
 	}
 }
 
-func (f *phoneNumberForm) Validate() validation.List {
-	var errors validation.List
-
-	errors.String("phone", "phone", f.Phone,
-		validation.Phone())
-
-	return errors
+func (f *phoneNumberForm) Parse(r *http.Request) bool {
+	return f.ParsePostForm(r, f.Phone)
 }

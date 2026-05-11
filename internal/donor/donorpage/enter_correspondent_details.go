@@ -9,8 +9,7 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/appcontext"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor/donordata"
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/form"
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/newforms"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/validation"
 )
 
@@ -24,37 +23,36 @@ type enterCorrespondentDetailsData struct {
 func EnterCorrespondentDetails(tmpl template.Template, service CorrespondentService) Handler {
 	return func(appData appcontext.Data, w http.ResponseWriter, r *http.Request, provided *donordata.Provided) error {
 		data := &enterCorrespondentDetailsData{
-			App: appData,
-			Form: &enterCorrespondentDetailsForm{
-				FirstNames:   provided.Correspondent.FirstNames,
-				LastName:     provided.Correspondent.LastName,
-				Email:        provided.Correspondent.Email,
-				Organisation: provided.Correspondent.Organisation,
-				Phone:        provided.Correspondent.Phone,
-				WantAddress:  form.NewYesNoForm(provided.Correspondent.WantAddress),
-			},
+			App:               appData,
+			Form:              newEnterCorrespondentDetailsForm(appData.Localizer),
 			CompletedAllTasks: provided.CompletedAllTasks(),
 		}
 
-		if r.Method == http.MethodPost {
-			data.Form = readEnterCorrespondentDetailsForm(r, provided.Donor)
-			data.Errors = data.Form.Validate()
+		data.Form.FirstNames.SetInput(provided.Correspondent.FirstNames)
+		data.Form.LastName.SetInput(provided.Correspondent.LastName)
+		data.Form.Email.SetInput(provided.Correspondent.Email)
+		data.Form.Organisation.SetInput(provided.Correspondent.Organisation)
+		data.Form.Phone.SetInput(provided.Correspondent.Phone)
+		data.Form.WantAddress.SetInput(provided.Correspondent.WantAddress)
 
-			nameMatchesDonor := correspondentNameMatchesDonor(provided, data.Form.FirstNames, data.Form.LastName)
+		if r.Method == http.MethodPost {
+			ok := data.Form.Parse(r, appData.Localizer, provided.Donor)
+
+			nameMatchesDonor := correspondentNameMatchesDonor(provided, data.Form.FirstNames.Value, data.Form.LastName.Value)
 			redirectToWarning := false
 
-			if provided.Correspondent.NameHasChanged(data.Form.FirstNames, data.Form.LastName) && nameMatchesDonor {
+			if provided.Correspondent.NameHasChanged(data.Form.FirstNames.Value, data.Form.LastName.Value) && nameMatchesDonor {
 				redirectToWarning = true
 			}
 
-			if data.Errors.None() {
-				provided.Correspondent.FirstNames = data.Form.FirstNames
-				provided.Correspondent.LastName = data.Form.LastName
-				provided.Correspondent.Email = data.Form.Email
-				provided.Correspondent.Organisation = data.Form.Organisation
-				provided.Correspondent.Phone = data.Form.Phone
+			if ok {
+				provided.Correspondent.FirstNames = data.Form.FirstNames.Value
+				provided.Correspondent.LastName = data.Form.LastName.Value
+				provided.Correspondent.Email = data.Form.Email.Value
+				provided.Correspondent.Organisation = data.Form.Organisation.Value
+				provided.Correspondent.Phone = data.Form.Phone.Value
 				wantedAddress := provided.Correspondent.WantAddress
-				provided.Correspondent.WantAddress = data.Form.WantAddress.YesNo
+				provided.Correspondent.WantAddress = data.Form.WantAddress.Value
 
 				var redirect donor.Path
 				if provided.Correspondent.WantAddress.IsNo() {
@@ -92,55 +90,54 @@ func EnterCorrespondentDetails(tmpl template.Template, service CorrespondentServ
 }
 
 type enterCorrespondentDetailsForm struct {
-	FirstNames      string
-	LastName        string
-	Email           string
-	Organisation    string
-	Phone           string
-	WantAddress     *form.YesNoForm
+	newforms.Form
+	FirstNames   *newforms.String
+	LastName     *newforms.String
+	Email        *newforms.String
+	Organisation *newforms.String
+	Phone        *newforms.String
+	WantAddress  *newforms.YesNo
+
 	DonorEmailMatch bool
 	DonorFullName   string
 }
 
-func readEnterCorrespondentDetailsForm(r *http.Request, donor donordata.Donor) *enterCorrespondentDetailsForm {
-	email := page.PostFormString(r, "email")
-
+func newEnterCorrespondentDetailsForm(l Localizer) *enterCorrespondentDetailsForm {
 	return &enterCorrespondentDetailsForm{
-		FirstNames:      page.PostFormString(r, "first-names"),
-		LastName:        page.PostFormString(r, "last-name"),
-		Email:           page.PostFormString(r, "email"),
-		Organisation:    page.PostFormString(r, "organisation"),
-		Phone:           page.PostFormString(r, "phone"),
-		WantAddress:     form.ReadYesNoForm(r, "yesToAddAnAddress"),
-		DonorEmailMatch: email == donor.Email,
-		DonorFullName:   donor.FullName(),
+		FirstNames: newforms.NewString("first-names", l.T("firstNames")).
+			NotEmpty().
+			MaxLength(53),
+		LastName: newforms.NewString("last-name", l.T("lastName")).
+			NotEmpty().
+			MaxLength(61),
+		Email: newforms.NewString("email", l.T("email")).
+			NotEmpty().
+			Email(),
+		Organisation: newforms.NewString("organisation", ""),
+		Phone: newforms.NewString("phone", l.T("phoneNumber")).
+			Phone(),
+		WantAddress: newforms.NewYesNo(l.T("yesToAddAnAddress")),
 	}
 }
 
-func (f *enterCorrespondentDetailsForm) Validate() validation.List {
-	var errors validation.List
+func (f *enterCorrespondentDetailsForm) Parse(r *http.Request, l Localizer, donor donordata.Donor) bool {
+	ok := f.ParsePostForm(r,
+		f.FirstNames,
+		f.LastName,
+		f.Email,
+		f.Organisation,
+		f.Phone,
+		f.WantAddress,
+	)
 
-	errors.String("first-names", "firstNames", f.FirstNames,
-		validation.Empty(),
-		validation.StringTooLong(53))
-
-	errors.String("last-name", "lastName", f.LastName,
-		validation.Empty(),
-		validation.StringTooLong(61))
-
-	errors.String("email", "email", f.Email,
-		validation.Empty(),
-		validation.Email())
-
-	if f.DonorEmailMatch {
-		errors.Add("email", validation.CustomFormattedError{
-			Label: "youProvidedThisEmailForDonorError",
-			Data:  map[string]any{"DonorFullName": f.DonorFullName},
-		})
+	if f.Email.Value == donor.Email {
+		f.Email.Error = newforms.FormattedError{
+			Key:  "youProvidedThisEmailForDonorError",
+			Data: map[string]any{"DonorFullName": f.DonorFullName},
+		}
+		f.Errors = append(f.Errors, f.Email.Field)
+		ok = false
 	}
 
-	errors.String("phone", "phoneNumber", f.Phone,
-		validation.Phone())
-
-	return errors.Append(f.WantAddress.Validate())
+	return ok
 }

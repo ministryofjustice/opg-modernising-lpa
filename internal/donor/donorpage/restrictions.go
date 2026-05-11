@@ -13,10 +13,9 @@ import (
 )
 
 type restrictionsData struct {
-	App    appcontext.Data
-	Errors validation.List
-	Form   *restrictionsForm
-	Donor  *donordata.Provided
+	App   appcontext.Data
+	Form  *restrictionsForm
+	Donor *donordata.Provided
 }
 
 func Restrictions(tmpl template.Template, donorStore DonorStore) Handler {

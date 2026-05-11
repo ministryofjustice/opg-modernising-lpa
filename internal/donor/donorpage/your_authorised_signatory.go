@@ -16,9 +16,8 @@ import (
 )
 
 type yourAuthorisedSignatoryData struct {
-	App    appcontext.Data
-	Errors validation.List
-	Form   *yourAuthorisedSignatoryForm
+	App  appcontext.Data
+	Form *yourAuthorisedSignatoryForm
 }
 
 func YourAuthorisedSignatory(tmpl template.Template, donorStore DonorStore, newUID func() actoruid.UID) Handler {

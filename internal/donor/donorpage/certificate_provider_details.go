@@ -9,48 +9,43 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/appcontext"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor/donordata"
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/validation"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/newforms"
 )
 
 type certificateProviderDetailsData struct {
-	App    appcontext.Data
-	Errors validation.List
-	Form   *certificateProviderDetailsForm
+	App  appcontext.Data
+	Form *certificateProviderDetailsForm
 }
 
 func CertificateProviderDetails(tmpl template.Template, service CertificateProviderService) Handler {
 	return func(appData appcontext.Data, w http.ResponseWriter, r *http.Request, provided *donordata.Provided) error {
 		data := &certificateProviderDetailsData{
-			App: appData,
-			Form: &certificateProviderDetailsForm{
-				FirstNames:     provided.CertificateProvider.FirstNames,
-				LastName:       provided.CertificateProvider.LastName,
-				HasNonUKMobile: provided.CertificateProvider.HasNonUKMobile,
-			},
+			App:  appData,
+			Form: newCertificateProviderDetailsForm(appData.Localizer),
 		}
 
+		data.Form.FirstNames.SetInput(provided.CertificateProvider.FirstNames)
+		data.Form.LastName.SetInput(provided.CertificateProvider.LastName)
+		data.Form.HasNonUKMobile.SetInput(provided.CertificateProvider.HasNonUKMobile)
+
 		if provided.CertificateProvider.HasNonUKMobile {
-			data.Form.NonUKMobile = provided.CertificateProvider.Mobile
+			data.Form.NonUKMobile.SetInput(provided.CertificateProvider.Mobile)
 		} else {
-			data.Form.Mobile = provided.CertificateProvider.Mobile
+			data.Form.Mobile.SetInput(provided.CertificateProvider.Mobile)
 		}
 
 		if r.Method == http.MethodPost {
-			data.Form = readCertificateProviderDetailsForm(r)
-			data.Errors = data.Form.Validate()
+			if data.Form.Parse(r) {
+				nameHasChanged := provided.CertificateProvider.NameHasChanged(data.Form.FirstNames.Value, data.Form.LastName.Value)
 
-			if data.Errors.None() {
-				nameHasChanged := provided.CertificateProvider.NameHasChanged(data.Form.FirstNames, data.Form.LastName)
+				provided.CertificateProvider.FirstNames = data.Form.FirstNames.Value
+				provided.CertificateProvider.LastName = data.Form.LastName.Value
+				provided.CertificateProvider.HasNonUKMobile = data.Form.HasNonUKMobile.Value
 
-				provided.CertificateProvider.FirstNames = data.Form.FirstNames
-				provided.CertificateProvider.LastName = data.Form.LastName
-				provided.CertificateProvider.HasNonUKMobile = data.Form.HasNonUKMobile
-
-				if data.Form.HasNonUKMobile {
-					provided.CertificateProvider.Mobile = data.Form.NonUKMobile
+				if data.Form.HasNonUKMobile.Value {
+					provided.CertificateProvider.Mobile = data.Form.NonUKMobile.Value
 				} else {
-					provided.CertificateProvider.Mobile = data.Form.Mobile
+					provided.CertificateProvider.Mobile = data.Form.Mobile.Value
 				}
 
 				// Allow changing details for certificate provider on the page they
@@ -82,41 +77,42 @@ func CertificateProviderDetails(tmpl template.Template, service CertificateProvi
 }
 
 type certificateProviderDetailsForm struct {
-	FirstNames     string
-	LastName       string
-	Mobile         string
-	HasNonUKMobile bool
-	NonUKMobile    string
+	newforms.Form
+	FirstNames     *newforms.String
+	LastName       *newforms.String
+	HasNonUKMobile *newforms.Bool
+	Mobile         *newforms.String
+	NonUKMobile    *newforms.String
 }
 
-func readCertificateProviderDetailsForm(r *http.Request) *certificateProviderDetailsForm {
+func newCertificateProviderDetailsForm(l Localizer) *certificateProviderDetailsForm {
 	return &certificateProviderDetailsForm{
-		FirstNames:     page.PostFormString(r, "first-names"),
-		LastName:       page.PostFormString(r, "last-name"),
-		Mobile:         page.PostFormString(r, "mobile"),
-		HasNonUKMobile: page.PostFormString(r, "has-non-uk-mobile") == "1",
-		NonUKMobile:    page.PostFormString(r, "non-uk-mobile"),
+		FirstNames: newforms.NewString("first-names", l.T("firstNames")).
+			NotEmpty(),
+		LastName: newforms.NewString("last-name", l.T("lastName")).
+			NotEmpty(),
+		HasNonUKMobile: newforms.NewBool("has-non-uk-mobile", l.T("theyDoNotHaveAUkMobileNumber")),
+		Mobile: newforms.NewString("mobile", l.T("ukMobileNumber")).
+			NotEmpty().
+			Mobile(),
+		NonUKMobile: newforms.NewString("non-uk-mobile", l.T("mobilePhoneNumber")).
+			NotEmpty().
+			NonUKMobile(),
 	}
 }
 
-func (d *certificateProviderDetailsForm) Validate() validation.List {
-	var errors validation.List
+func (f *certificateProviderDetailsForm) Parse(r *http.Request) bool {
+	ok := f.ParsePostForm(r,
+		f.FirstNames,
+		f.LastName,
+		f.HasNonUKMobile,
+	)
 
-	errors.String("first-names", "firstNames", d.FirstNames,
-		validation.Empty())
-
-	errors.String("last-name", "lastName", d.LastName,
-		validation.Empty())
-
-	if d.HasNonUKMobile {
-		errors.String("non-uk-mobile", "yourCertificateProvidersMobileNumber", d.NonUKMobile,
-			validation.Empty(),
-			validation.NonUKMobile().ErrorLabel("enterAMobileNumberInTheCorrectFormat"))
+	if f.HasNonUKMobile.Value {
+		ok = f.ParsePostForm(r, f.NonUKMobile) && ok
 	} else {
-		errors.String("mobile", "yourCertificateProvidersUkMobileNumber", d.Mobile,
-			validation.Empty(),
-			validation.Mobile().ErrorLabel("enterAMobileNumberInTheCorrectFormat"))
+		ok = f.ParsePostForm(r, f.Mobile) && ok
 	}
 
-	return errors
+	return ok
 }

@@ -17,7 +17,6 @@ type chooseReplacementAttorneysSummaryData struct {
 	Errors    validation.List
 	Form      *donordata.YesNoMaybeForm
 	Donor     *donordata.Provided
-	Options   donordata.YesNoMaybeOptions
 	CanChoose bool
 }
 
@@ -35,18 +34,15 @@ func ChooseReplacementAttorneysSummary(tmpl template.Template, service AttorneyS
 		data := &chooseReplacementAttorneysSummaryData{
 			App:       appData,
 			Donor:     provided,
-			Options:   donordata.YesNoMaybeValues,
+			Form:      donordata.NewYesNoMaybeForm(appData.Localizer.T("yesToAddAnotherReplacementAttorney")),
 			CanChoose: len(attorneys) > 0,
 		}
 
 		if r.Method == http.MethodPost {
-			data.Form = donordata.ReadYesNoMaybeForm(r, "yesToAddAnotherReplacementAttorney")
-			data.Errors = data.Form.Validate()
-
 			if data.Errors.None() {
-				if data.Form.Option.IsYes() {
+				if data.Form.Enum.Value.IsYes() {
 					return donor.PathEnterReplacementAttorney.RedirectQuery(w, r, appData, provided, url.Values{"addAnother": {"1"}, "id": {newUID().String()}})
-				} else if data.Form.Option.IsMaybe() {
+				} else if data.Form.Enum.Value.IsMaybe() {
 					return donor.PathChooseReplacementAttorneys.Redirect(w, r, appData, provided)
 				} else if provided.ReplacementAttorneys.Len() > 1 && (provided.Attorneys.Len() == 1 || provided.AttorneyDecisions.How.IsJointly()) {
 					return donor.PathHowShouldReplacementAttorneysMakeDecisions.Redirect(w, r, appData, provided)

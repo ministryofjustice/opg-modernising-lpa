@@ -13,12 +13,10 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/supporter"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/supporter/invitecode"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/supporter/supporterdata"
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/validation"
 )
 
 type manageTeamMembersData struct {
 	App            appcontext.Data
-	Errors         validation.List
 	Organisation   *supporterdata.Organisation
 	InvitedMembers []*supporterdata.MemberInvite
 	Members        []*supporterdata.Member
@@ -30,43 +28,41 @@ func ManageTeamMembers(tmpl template.Template, memberStore MemberStore, generate
 		data := &manageTeamMembersData{
 			App:          appData,
 			Organisation: organisation,
+			Form:         newInviteMemberForm(appData.Localizer),
 		}
 
 		if r.Method == http.MethodPost {
-			data.Form = readInviteMemberForm(r)
-			data.Errors = data.Form.Validate()
-
-			if data.Errors.None() {
-				if err := memberStore.DeleteMemberInvite(r.Context(), organisation.ID, data.Form.Email); err != nil {
-					return err
-				}
-
-				plainCode, hashedCode := generate()
-				if err := memberStore.CreateMemberInvite(
-					r.Context(),
-					organisation,
-					data.Form.FirstNames,
-					data.Form.LastName,
-					data.Form.Email,
-					hashedCode,
-					data.Form.Permission,
-				); err != nil {
-					return err
-				}
-
-				if err := notifyClient.SendEmail(r.Context(), notify.ToCustomEmail(localize.En, data.Form.Email), notify.OrganisationMemberInviteEmail{
-					OrganisationName:      organisation.Name,
-					InviterEmail:          appData.LoginSessionEmail,
-					InviteCode:            plainCode.Plain(),
-					JoinAnOrganisationURL: appPublicURL + page.PathSupporterStart.Format(),
-				}); err != nil {
-					return err
-				}
-
-				return supporter.PathManageTeamMembers.RedirectQuery(w, r, appData, url.Values{"inviteSent": {data.Form.Email}})
+			if !data.Form.Parse(r) {
+				return errors.New("unable to resend invite")
 			}
 
-			return errors.New("unable to resend invite")
+			if err := memberStore.DeleteMemberInvite(r.Context(), organisation.ID, data.Form.Email.Value); err != nil {
+				return err
+			}
+
+			plainCode, hashedCode := generate()
+			if err := memberStore.CreateMemberInvite(
+				r.Context(),
+				organisation,
+				data.Form.FirstNames.Value,
+				data.Form.LastName.Value,
+				data.Form.Email.Value,
+				hashedCode,
+				data.Form.Permission.Value,
+			); err != nil {
+				return err
+			}
+
+			if err := notifyClient.SendEmail(r.Context(), notify.ToCustomEmail(localize.En, data.Form.Email.Value), notify.OrganisationMemberInviteEmail{
+				OrganisationName:      organisation.Name,
+				InviterEmail:          appData.LoginSessionEmail,
+				InviteCode:            plainCode.Plain(),
+				JoinAnOrganisationURL: appPublicURL + page.PathSupporterStart.Format(),
+			}); err != nil {
+				return err
+			}
+
+			return supporter.PathManageTeamMembers.RedirectQuery(w, r, appData, url.Values{"inviteSent": {data.Form.Email.Value}})
 		}
 
 		invitedMembers, err := memberStore.InvitedMembers(r.Context())

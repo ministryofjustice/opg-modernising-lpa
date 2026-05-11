@@ -14,17 +14,15 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor/donordata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/dynamo"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/localize"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/newforms"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/notify"
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/scheduled"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/scheduled/scheduleddata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/task"
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/validation"
 )
 
 type checkYourLpaData struct {
 	App                          appcontext.Data
-	Errors                       validation.List
 	Donor                        *donordata.Provided
 	Form                         *checkYourLpaForm
 	CertificateProviderContacted bool
@@ -137,9 +135,7 @@ func CheckYourLpa(tmpl template.Template, donorStore DonorStore, accessCodeSende
 		data := &checkYourLpaData{
 			App:   appData,
 			Donor: provided,
-			Form: &checkYourLpaForm{
-				CheckedAndHappy: !provided.CheckedAt.IsZero(),
-			},
+			Form:  newCheckYourLpaForm(appData.Localizer, provided.CertificateProvider),
 			CertificateProviderContacted: !provided.CheckedAt.IsZero() &&
 				provided.CertificateProvider.Email == provided.CertificateProviderInvitedEmail,
 			// need to consider CheckYourLpa.IsInProgress for the scenario of changing
@@ -148,11 +144,10 @@ func CheckYourLpa(tmpl template.Template, donorStore DonorStore, accessCodeSende
 			CanContinue: provided.CheckedHashChanged() || provided.Tasks.CheckYourLpa.IsInProgress(),
 		}
 
-		if r.Method == http.MethodPost && data.CanContinue {
-			data.Form = readCheckYourLpaForm(r)
-			data.Errors = data.Form.Validate()
+		data.Form.CheckedAndHappy.SetInput(!provided.CheckedAt.IsZero())
 
-			if data.Errors.None() {
+		if r.Method == http.MethodPost && data.CanContinue {
+			if data.Form.Parse(r) {
 				provided.Tasks.CheckYourLpa = task.StateCompleted
 				provided.CheckedAt = now()
 				provided.IdentityDetailsCausedCheck = false
@@ -181,20 +176,22 @@ func CheckYourLpa(tmpl template.Template, donorStore DonorStore, accessCodeSende
 }
 
 type checkYourLpaForm struct {
-	CheckedAndHappy bool
+	newforms.Form
+	CheckedAndHappy *newforms.Bool
 }
 
-func readCheckYourLpaForm(r *http.Request) *checkYourLpaForm {
+func newCheckYourLpaForm(l Localizer, certificateProvider donordata.CertificateProvider) *checkYourLpaForm {
+	label := "iveCheckedThisLpaAndImHappyToShareWithCertificateProvider"
+	if certificateProvider.CarryOutBy.IsPaper() {
+		label = "iveCheckedThisLpaAndImHappyToShowToCertificateProvider"
+	}
+
 	return &checkYourLpaForm{
-		CheckedAndHappy: page.PostFormString(r, "checked-and-happy") == "1",
+		CheckedAndHappy: newforms.NewBool("checked-and-happy", l.Format(label, map[string]any{"CertificateProviderFullName": certificateProvider.FullName()})).
+			True(l.T("theBoxIfYouHaveCheckedAndHappyToShareLpa")),
 	}
 }
 
-func (f *checkYourLpaForm) Validate() validation.List {
-	var errors validation.List
-
-	errors.Bool("checked-and-happy", "theBoxIfYouHaveCheckedAndHappyToShareLpa", f.CheckedAndHappy,
-		validation.Selected())
-
-	return errors
+func (f *checkYourLpaForm) Parse(r *http.Request) bool {
+	return f.ParsePostForm(r, f.CheckedAndHappy)
 }

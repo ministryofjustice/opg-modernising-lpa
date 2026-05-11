@@ -11,7 +11,7 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/date"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor/donordata"
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/newforms"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/validation"
 )
 
@@ -72,8 +72,8 @@ func EnterAttorney(tmpl template.Template, service AttorneyService) Handler {
 				redirectToWarning = true
 			}
 
-			dobWarning := dateOfBirthWarning(data.Form.Dob, actorType)
-			if (data.Form.Dob != attorney.DateOfBirth || attorney.DateOfBirth.After(date.Today().AddDate(-18, 0, 0))) && dobWarning != "" {
+			dobWarning := dateOfBirthWarning(data.Form.Dob.Value, actorType)
+			if (data.Form.Dob.Value != attorney.DateOfBirth || attorney.DateOfBirth.After(date.Today().AddDate(-18, 0, 0))) && dobWarning != "" {
 				redirectToWarning = true
 			}
 
@@ -82,10 +82,10 @@ func EnterAttorney(tmpl template.Template, service AttorneyService) Handler {
 					attorney = donordata.Attorney{UID: uid}
 				}
 
-				attorney.FirstNames = data.Form.FirstNames
-				attorney.LastName = data.Form.LastName
-				attorney.Email = data.Form.Email
-				attorney.DateOfBirth = data.Form.Dob
+				attorney.FirstNames = data.Form.FirstNames.Value
+				attorney.LastName = data.Form.LastName.Value
+				attorney.Email = data.Form.Email.Value
+				attorney.DateOfBirth = data.Form.Dob.Value
 
 				if err := service.Put(r.Context(), provided, attorney); err != nil {
 					return err
@@ -112,43 +112,35 @@ func EnterAttorney(tmpl template.Template, service AttorneyService) Handler {
 }
 
 type enterAttorneyForm struct {
-	FirstNames string
-	LastName   string
-	Email      string
-	Dob        date.Date
+	newforms.Form
+	FirstNames *newforms.String
+	LastName   *newforms.String
+	Email      *newforms.String
+	Dob        *newforms.Date
 }
 
-func readEnterAttorneyForm(r *http.Request) *enterAttorneyForm {
-	d := &enterAttorneyForm{}
-	d.FirstNames = page.PostFormString(r, "first-names")
-	d.LastName = page.PostFormString(r, "last-name")
-	d.Email = page.PostFormString(r, "email")
-	d.Dob = date.New(
-		page.PostFormString(r, "date-of-birth-year"),
-		page.PostFormString(r, "date-of-birth-month"),
-		page.PostFormString(r, "date-of-birth-day"))
-
-	return d
+func newEnterAttorneyForm(l Localizer) *enterAttorneyForm {
+	return &enterAttorneyForm{
+		FirstNames: newforms.NewString("first-names", l.T("firstNames")).
+			NotEmpty().
+			MaxLength(53),
+		LastName: newforms.NewString("last-name", l.T("lastName")).
+			NotEmpty().
+			MaxLength(61),
+		Email: newforms.NewString("email", l.T("email")).
+			Email(),
+		Dob: newforms.NewDate("date-of-birth", l.T("dateOfBirth")).
+			NotEmpty().
+			MustBePast().
+			MustBeReal(),
+	}
 }
 
-func (f *enterAttorneyForm) Validate() validation.List {
-	var errors validation.List
-
-	errors.String("first-names", "firstNames", f.FirstNames,
-		validation.Empty(),
-		validation.StringTooLong(53))
-
-	errors.String("last-name", "lastName", f.LastName,
-		validation.Empty(),
-		validation.StringTooLong(61))
-
-	errors.String("email", "email", f.Email,
-		validation.Email())
-
-	errors.Date("date-of-birth", "dateOfBirth", f.Dob,
-		validation.DateMissing(),
-		validation.DateMustBeReal(),
-		validation.DateMustBePast())
-
-	return errors
+func (f *enterAttorneyForm) Parse(r *http.Request) bool {
+	return f.ParsePostForm(r,
+		f.FirstNames,
+		f.LastName,
+		f.Email,
+		f.Dob,
+	)
 }

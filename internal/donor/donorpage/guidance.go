@@ -6,13 +6,11 @@ import (
 	"github.com/ministryofjustice/opg-go-common/template"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/appcontext"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor/donordata"
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/validation"
 )
 
 type guidanceData struct {
-	App    appcontext.Data
-	Errors validation.List
-	Donor  *donordata.Provided
+	App   appcontext.Data
+	Donor *donordata.Provided
 }
 
 func Guidance(tmpl template.Template) Handler {

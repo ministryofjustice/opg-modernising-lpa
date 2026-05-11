@@ -7,15 +7,13 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/appcontext"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor/donordata"
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/form"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/newforms"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/task"
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/validation"
 )
 
 type checkYouCanSignData struct {
 	App         appcontext.Data
-	Errors      validation.List
-	Form        *form.YesNoForm
+	Form        *newforms.YesNoForm
 	CanTaskList bool
 }
 
@@ -23,16 +21,15 @@ func CheckYouCanSign(tmpl template.Template, donorStore DonorStore) Handler {
 	return func(appData appcontext.Data, w http.ResponseWriter, r *http.Request, provided *donordata.Provided) error {
 		data := &checkYouCanSignData{
 			App:         appData,
-			Form:        form.NewYesNoForm(provided.Donor.CanSign),
+			Form:        newforms.NewYesNoForm(appData.Localizer.T("yesIfYouWillBeAbleToSignYourself")),
 			CanTaskList: !provided.Type.Empty(),
 		}
 
-		if r.Method == http.MethodPost {
-			data.Form = form.ReadYesNoForm(r, "yesIfYouWillBeAbleToSignYourself")
-			data.Errors = data.Form.Validate()
+		data.Form.YesNo.SetInput(provided.Donor.CanSign)
 
-			if data.Errors.None() {
-				provided.Donor.CanSign = data.Form.YesNo
+		if r.Method == http.MethodPost {
+			if data.Form.Parse(r) {
+				provided.Donor.CanSign = data.Form.YesNo.Value
 
 				if provided.Donor.CanSign.IsYes() {
 					provided.AuthorisedSignatory = donordata.AuthorisedSignatory{}

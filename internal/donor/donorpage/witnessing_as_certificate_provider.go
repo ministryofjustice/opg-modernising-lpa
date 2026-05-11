@@ -17,10 +17,9 @@ import (
 )
 
 type witnessingAsCertificateProviderData struct {
-	App    appcontext.Data
-	Errors validation.List
-	Form   *witnessingAsCertificateProviderForm
-	Donor  *donordata.Provided
+	App   appcontext.Data
+	Form  *witnessingAsCertificateProviderForm
+	Donor *donordata.Provided
 }
 
 func WitnessingAsCertificateProvider(

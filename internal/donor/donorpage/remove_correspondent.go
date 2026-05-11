@@ -8,14 +8,12 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor/donordata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/form"
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/validation"
 )
 
 type removeCorrespondentData struct {
-	App    appcontext.Data
-	Name   string
-	Errors validation.List
-	Form   *form.YesNoForm
+	App  appcontext.Data
+	Name string
+	Form *form.YesNoForm
 }
 
 func RemoveCorrespondent(tmpl template.Template, service CorrespondentService) Handler {

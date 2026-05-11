@@ -15,3 +15,21 @@
     {{ end }}
   </div>
 {{ end }}
+
+{{ define "new-checkboxes" }}
+  <div class="govuk-checkboxes {{ if .Field.Error }}govuk-checkboxes--error{{ end }}">
+    {{ range $i, $e := .Items }}
+      <div class="govuk-checkboxes__item">
+        <input class="govuk-checkboxes__input" id="f-{{ fieldID $.Field.Name $i }}" name="{{ $.Field.Name }}" type="checkbox" value="{{ $e.value }}" {{ if checkboxEq $e.value $.Field.Input }}checked{{ end }} {{ if $e.hint }}aria-describedby="{{ fieldID $.Field.Name $i }}-item-hint"{{ end }}>
+        <label class="govuk-label govuk-checkboxes__label" for="f-{{ $.Field.Name }}{{ if ne $i 0 }}-{{ inc $i }}{{ end }}">
+            {{ $e.label }}
+        </label>
+        {{ if $e.hint }}
+          <div id="{{ fieldID $.Field.Name $i }}-item-hint" class="govuk-hint govuk-checkboxes__hint">
+            {{ $e.hint }}
+          </div>
+        {{ end }}
+      </div>
+    {{ end }}
+  </div>
+{{ end }}

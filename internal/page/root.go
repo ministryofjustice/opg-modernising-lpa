@@ -6,12 +6,10 @@ import (
 
 	"github.com/ministryofjustice/opg-go-common/template"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/appcontext"
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/validation"
 )
 
 type rootData struct {
-	App    appcontext.Data
-	Errors validation.List
+	App appcontext.Data
 }
 
 func Root(tmpl template.Template, logger Logger, donorStartURL string) Handler {

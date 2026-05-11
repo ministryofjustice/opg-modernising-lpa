@@ -10,12 +10,10 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/appcontext"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor/donordata"
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/validation"
 )
 
 type chooseAttorneysData struct {
 	App                      appcontext.Data
-	Errors                   validation.List
 	Form                     *chooseAttorneysForm
 	Donor                    *donordata.Provided
 	Attorneys                []donordata.Attorney

@@ -11,13 +11,11 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor/donordata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/form"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/notify"
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/validation"
 )
 
 type areYouSureYouNoLongerNeedVoucherData struct {
-	App    appcontext.Data
-	Errors validation.List
-	Donor  *donordata.Provided
+	App   appcontext.Data
+	Donor *donordata.Provided
 }
 
 func AreYouSureYouNoLongerNeedVoucher(tmpl template.Template, donorStore DonorStore, notifyClient NotifyClient) Handler {

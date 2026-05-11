@@ -12,7 +12,7 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor/donordata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/dynamo"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/lpastore/lpadata"
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/newforms"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/validation"
 )
 
@@ -35,45 +35,40 @@ func HowWouldCertificateProviderPreferToCarryOutTheirRole(tmpl template.Template
 		data := &howWouldCertificateProviderPreferToCarryOutTheirRoleData{
 			App:                 appData,
 			CertificateProvider: provided.CertificateProvider,
-			Form: &howWouldCertificateProviderPreferToCarryOutTheirRoleForm{
-				CarryOutBy: provided.CertificateProvider.CarryOutBy,
-				Email:      provided.CertificateProvider.Email,
-			},
-			Options: lpadata.ChannelValues,
+			Form:                newHowWouldCertificateProviderPreferToCarryOutTheirRoleForm(appData.Localizer),
+			Options:             lpadata.ChannelValues,
 		}
 
-		if r.Method == http.MethodPost {
-			data.Form = readHowWouldCertificateProviderPreferToCarryOutTheirRole(r)
-			data.Errors = data.Form.Validate()
+		data.Form.CarryOutBy.SetInput(provided.CertificateProvider.CarryOutBy)
+		data.Form.Email.SetInput(provided.CertificateProvider.Email)
 
-			if data.Errors.None() {
-				emailChanged := provided.CertificateProvider.Email != data.Form.Email
+		if r.Method == http.MethodPost && data.Form.Parse(r) {
+			emailChanged := provided.CertificateProvider.Email != data.Form.Email.Value
 
-				provided.CertificateProvider.CarryOutBy = data.Form.CarryOutBy
-				provided.CertificateProvider.Email = data.Form.Email
+			provided.CertificateProvider.CarryOutBy = data.Form.CarryOutBy.Value
+			provided.CertificateProvider.Email = data.Form.Email.Value
 
-				if emailChanged && !provided.CertificateProviderInvitedAt.IsZero() && !provided.Tasks.SignTheLpa.IsCompleted() {
-					if err := accessCodeStore.DeleteByActor(r.Context(), provided.CertificateProvider.UID); err != nil {
-						return fmt.Errorf("deleting certificate provider access code: %w", err)
-					}
-
-					if err := accessCodeSender.SendCertificateProviderInvite(r.Context(), appData, provided); err != nil {
-						return fmt.Errorf("sending certificate provider access code: %w", err)
-					}
-
-					provided.CertificateProviderInvitedAt = now()
+			if emailChanged && !provided.CertificateProviderInvitedAt.IsZero() && !provided.Tasks.SignTheLpa.IsCompleted() {
+				if err := accessCodeStore.DeleteByActor(r.Context(), provided.CertificateProvider.UID); err != nil {
+					return fmt.Errorf("deleting certificate provider access code: %w", err)
 				}
 
-				if err := reuseStore.PutCertificateProvider(r.Context(), provided.CertificateProvider); err != nil {
-					return fmt.Errorf("put certificate provider reuse data: %w", err)
+				if err := accessCodeSender.SendCertificateProviderInvite(r.Context(), appData, provided); err != nil {
+					return fmt.Errorf("sending certificate provider access code: %w", err)
 				}
 
-				if err := donorStore.Put(r.Context(), provided); err != nil {
-					return err
-				}
-
-				return donor.PathCertificateProviderAddress.Redirect(w, r, appData, provided)
+				provided.CertificateProviderInvitedAt = now()
 			}
+
+			if err := reuseStore.PutCertificateProvider(r.Context(), provided.CertificateProvider); err != nil {
+				return fmt.Errorf("put certificate provider reuse data: %w", err)
+			}
+
+			if err := donorStore.Put(r.Context(), provided); err != nil {
+				return err
+			}
+
+			return donor.PathCertificateProviderAddress.Redirect(w, r, appData, provided)
 		}
 
 		return tmpl(w, data)
@@ -81,35 +76,27 @@ func HowWouldCertificateProviderPreferToCarryOutTheirRole(tmpl template.Template
 }
 
 type howWouldCertificateProviderPreferToCarryOutTheirRoleForm struct {
-	CarryOutBy lpadata.Channel
-	Email      string
+	newforms.Form
+	CarryOutBy *newforms.Enum[lpadata.Channel, lpadata.ChannelOptions, *lpadata.Channel]
+	Email      *newforms.String
 }
 
-func readHowWouldCertificateProviderPreferToCarryOutTheirRole(r *http.Request) *howWouldCertificateProviderPreferToCarryOutTheirRoleForm {
-	channel, _ := lpadata.ParseChannel(page.PostFormString(r, "carry-out-by"))
-
-	email := page.PostFormString(r, "email")
-	if channel.IsPaper() {
-		email = ""
-	}
-
+func newHowWouldCertificateProviderPreferToCarryOutTheirRoleForm(l Localizer) *howWouldCertificateProviderPreferToCarryOutTheirRoleForm {
 	return &howWouldCertificateProviderPreferToCarryOutTheirRoleForm{
-		CarryOutBy: channel,
-		Email:      email,
+		CarryOutBy: newforms.NewEnum[lpadata.Channel]("carry-out-by", l.T("howYourCertificateProviderWouldPreferToCarryOutTheirRole"), lpadata.ChannelValues).
+			Selected(),
+		Email: newforms.NewString("email", l.T("certificateProvidersEmail")).
+			NotEmpty().
+			Email(),
 	}
 }
 
-func (f *howWouldCertificateProviderPreferToCarryOutTheirRoleForm) Validate() validation.List {
-	var errors validation.List
+func (f *howWouldCertificateProviderPreferToCarryOutTheirRoleForm) Parse(r *http.Request) bool {
+	ok := f.ParsePostForm(r, f.CarryOutBy)
 
-	errors.Enum("carry-out-by", "howYourCertificateProviderWouldPreferToCarryOutTheirRole", f.CarryOutBy,
-		validation.Selected())
-
-	if f.CarryOutBy.IsOnline() {
-		errors.String("email", "certificateProvidersEmail", f.Email,
-			validation.Empty(),
-			validation.Email())
+	if f.CarryOutBy.Value.IsOnline() {
+		ok = f.ParsePostForm(r, f.Email) && ok
 	}
 
-	return errors
+	return ok
 }

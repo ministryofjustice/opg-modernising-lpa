@@ -47,3 +47,56 @@
     </fieldset>
   </div>
 {{ end }}
+
+{{ define "new-date" }}
+  <div class="govuk-form-group {{ if .Field.Error }}govuk-form-group--error{{ end }} govuk-!-margin-bottom-6">
+    <fieldset class="govuk-fieldset" role="group" aria-describedby="{{ .Field.Name }}-hint {{ if .Field.Error }}{{ .Field.Name }}-error{{ end }}">
+      {{ if .Extra.heading }}
+        <legend class="govuk-fieldset__legend govuk-fieldset__legend--xl">
+          <h1 class="govuk-fieldset__heading">{{ .Field.Label }}</h1>
+        </legend>
+      {{ else }}
+        <legend class="govuk-fieldset__legend govuk-fieldset__legend--m">{{ .Field.Label }}</legend>
+      {{ end }}
+      {{ if .Extra.context }}
+        <p class="govuk-body">
+          {{ .Extra.context }}
+        </p>
+      {{ end }}
+      {{ if .Extra.hint }}
+        <div id="{{ .Field.Name }}-hint" class="govuk-hint">
+          {{ .Extra.hint }}
+        </div>
+      {{ end }}
+
+      {{ if .Field.Error }}
+          <p id="{{ .Field.Name }}-error" class="govuk-error-message">
+              <span class="govuk-visually-hidden">{{ tr .Dot.App "error:" }}</span> {{ .Field.Error.Format .Dot.App.Localizer }}
+          </p>
+      {{ end }}
+
+      <div class="govuk-date-input">
+        <div class="govuk-date-input__item">
+          <div class="govuk-form-group">
+            <label class="govuk-label govuk-date-input__label" for="f-{{ .Field.Name }}">{{ tr .Dot.App "day" }}</label>
+            <input class="govuk-input govuk-date-input__input govuk-input--width-2 {{ if .Field.ErrorPart "day" }}govuk-input--error{{ end }}" id="f-{{ .Field.Name }}" name="{{ .Field.Name }}-day" type="text" pattern="[0-9]*" inputmode="numeric" value="{{ index .Field.Inputs 2 }}" />
+          </div>
+        </div>
+
+        <div class="govuk-date-input__item">
+          <div class="govuk-form-group">
+            <label class="govuk-label govuk-date-input__label" for="f-{{ .Field.Name }}-month">{{ tr .Dot.App "month" }}</label>
+            <input class="govuk-input govuk-date-input__input govuk-input--width-2 {{ if .Field.ErrorPart "month" }}govuk-input--error{{ end }}" id="f-{{ .Field.Name }}-month" name="{{ .Field.Name }}-month" type="text" pattern="[0-9]*" inputmode="numeric" value="{{ index .Field.Inputs 1 }}" />
+          </div>
+        </div>
+
+        <div class="govuk-date-input__item">
+          <div class="govuk-form-group">
+            <label class="govuk-label govuk-date-input__label" for="f-{{ .Field.Name }}-year">{{ tr .Dot.App "year" }}</label>
+            <input class="govuk-input govuk-date-input__input govuk-input--width-4 {{ if .Field.ErrorPart "year" }}govuk-input--error{{ end }}" id="f-{{ .Field.Name }}-year" name="{{ .Field.Name }}-year" type="text" pattern="[0-9]*" inputmode="numeric" value="{{ index .Field.Inputs 0 }}" />
+          </div>
+        </div>
+      </div>
+    </fieldset>
+  </div>
+{{ end }}

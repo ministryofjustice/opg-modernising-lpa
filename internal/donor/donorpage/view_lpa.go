@@ -9,13 +9,11 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor/donordata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/lpastore"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/lpastore/lpadata"
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/validation"
 )
 
 type viewLpaData struct {
-	App    appcontext.Data
-	Errors validation.List
-	Lpa    *lpadata.Lpa
+	App appcontext.Data
+	Lpa *lpadata.Lpa
 }
 
 func ViewLpa(tmpl template.Template, lpaStoreClient LpaStoreClient) Handler {

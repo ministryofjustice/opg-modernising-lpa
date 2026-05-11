@@ -5,34 +5,28 @@ import (
 
 	"github.com/ministryofjustice/opg-go-common/template"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/appcontext"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/newforms"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/validation"
 )
 
 type enterYourNameData struct {
-	App    appcontext.Data
-	Errors validation.List
-	Form   *enterYourNameForm
+	App  appcontext.Data
+	Form *enterYourNameForm
 }
 
 func EnterYourName(tmpl template.Template, memberStore MemberStore) page.Handler {
 	return func(appData appcontext.Data, w http.ResponseWriter, r *http.Request) error {
 		data := &enterYourNameData{
 			App:  appData,
-			Form: &enterYourNameForm{},
+			Form: newEnterYourNameForm(appData.Localizer),
 		}
 
-		if r.Method == http.MethodPost {
-			data.Form = readEnterYourNameForm(r)
-			data.Errors = data.Form.Validate()
-
-			if data.Errors.None() {
-				if _, err := memberStore.Create(r.Context(), data.Form.FirstNames, data.Form.LastName); err != nil {
-					return err
-				}
-
-				return page.PathSupporterEnterOrganisationName.Redirect(w, r, appData)
+		if r.Method == http.MethodPost && data.Form.Parse(r) {
+			if _, err := memberStore.Create(r.Context(), data.Form.FirstNames.Value, data.Form.LastName.Value); err != nil {
+				return err
 			}
+
+			return page.PathSupporterEnterOrganisationName.Redirect(w, r, appData)
 		}
 
 		return tmpl(w, data)
@@ -40,27 +34,25 @@ func EnterYourName(tmpl template.Template, memberStore MemberStore) page.Handler
 }
 
 type enterYourNameForm struct {
-	FirstNames string
-	LastName   string
+	newforms.Form
+	FirstNames *newforms.String
+	LastName   *newforms.String
 }
 
-func readEnterYourNameForm(r *http.Request) *enterYourNameForm {
+func newEnterYourNameForm(l Localizer) *enterYourNameForm {
 	return &enterYourNameForm{
-		FirstNames: page.PostFormString(r, "first-names"),
-		LastName:   page.PostFormString(r, "last-name"),
+		FirstNames: newforms.NewString("first-names", l.T("firstNames")).
+			NotEmpty().
+			MaxLength(53),
+		LastName: newforms.NewString("last-name", l.T("lastName")).
+			NotEmpty().
+			MaxLength(61),
 	}
 }
 
-func (f *enterYourNameForm) Validate() validation.List {
-	var errors validation.List
-
-	errors.String("first-names", "firstNames", f.FirstNames,
-		validation.Empty(),
-		validation.StringTooLong(53))
-
-	errors.String("last-name", "lastName", f.LastName,
-		validation.Empty(),
-		validation.StringTooLong(61))
-
-	return errors
+func (f *enterYourNameForm) Parse(r *http.Request) bool {
+	return f.ParsePostForm(r,
+		f.FirstNames,
+		f.LastName,
+	)
 }

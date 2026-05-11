@@ -16,9 +16,8 @@ import (
 )
 
 type yourIndependentWitnessData struct {
-	App    appcontext.Data
-	Errors validation.List
-	Form   *yourIndependentWitnessForm
+	App  appcontext.Data
+	Form *yourIndependentWitnessForm
 }
 
 func YourIndependentWitness(tmpl template.Template, donorStore DonorStore, newUID func() actoruid.UID) Handler {

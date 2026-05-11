@@ -11,16 +11,16 @@
 
             <form novalidate method="post">
                 {{ if .CanChoose }}
-                    {{ template "radios-fieldset" (fieldset . "option" ""
-                        (legend "doYouWantToAddAnotherAttorney" "govuk-fieldset__legend--l")
-                        (item .Options.Maybe.String "yesWantToChoosePreviousAttorney")
-                        (item .Options.Yes.String "yesWantToAddNewAttorney")
-                        (item .Options.No.String "no")) }}
+                    {{ template "new-radios-fieldset" (newFieldset . .Form.Enum
+                        (legend (tr .App "doYouWantToAddAnotherAttorney") "govuk-fieldset__legend--l")
+                        (item .Options.Maybe.String (tr .App "yesWantToChoosePreviousAttorney"))
+                        (item .Options.Yes.String (tr .App "yesWantToAddNewAttorney"))
+                        (item .Options.No.String (tr .App "no"))) }}
                 {{ else }}
-                    {{ template "radios-fieldset" (fieldset . "option" ""
-                        (legend "doYouWantToAddAnotherAttorney" "govuk-fieldset__legend--l")
-                        (item .Options.Yes.String "yes")
-                        (item .Options.No.String "no")) }}
+                    {{ template "new-radios-fieldset" (newFieldset . .Form.Enum
+                        (legend (tr .App "doYouWantToAddAnotherAttorney") "govuk-fieldset__legend--l")
+                        (item .Options.Yes.String (tr .App "yes"))
+                        (item .Options.No.String (tr .App "no"))) }}
                 {{ end }}
 
                 {{ template "buttons" (button .App "continue") }}

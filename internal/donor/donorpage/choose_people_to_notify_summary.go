@@ -17,7 +17,6 @@ type choosePeopleToNotifySummaryData struct {
 	Errors    validation.List
 	Form      *donordata.YesNoMaybeForm
 	Donor     *donordata.Provided
-	Options   donordata.YesNoMaybeOptions
 	CanChoose bool
 }
 
@@ -35,16 +34,13 @@ func ChoosePeopleToNotifySummary(tmpl template.Template, service PeopleToNotifyS
 		data := &choosePeopleToNotifySummaryData{
 			App:       appData,
 			Donor:     provided,
-			Options:   donordata.YesNoMaybeValues,
+			Form:      donordata.NewYesNoMaybeForm(appData.Localizer.T("yesToAddAnotherPersonToNotify")),
 			CanChoose: len(peopleToNotify) > 0,
 		}
 
 		if r.Method == http.MethodPost {
-			data.Form = donordata.ReadYesNoMaybeForm(r, "yesToAddAnotherPersonToNotify")
-			data.Errors = data.Form.Validate()
-
-			if data.Errors.None() {
-				switch data.Form.Option {
+			if data.Form.Parse(r) {
+				switch data.Form.Enum.Value {
 				case donordata.Yes:
 					return donor.PathEnterPersonToNotify.RedirectQuery(w, r, appData, provided, url.Values{"addAnother": {"1"}})
 

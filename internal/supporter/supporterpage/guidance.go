@@ -7,13 +7,11 @@ import (
 	"github.com/ministryofjustice/opg-go-common/template"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/appcontext"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/supporter/supporterdata"
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/validation"
 )
 
 type guidanceData struct {
 	App          appcontext.Data
 	Query        url.Values
-	Errors       validation.List
 	Organisation *supporterdata.Organisation
 }
 

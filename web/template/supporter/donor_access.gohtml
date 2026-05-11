@@ -69,7 +69,7 @@
                 {{ trHtml .App "donorsEmailAddressContent" }}
 
                 <form novalidate method="post">
-                    {{ template "input" (input . "email" "email" .Form.Email "classes" "govuk-input--width-20" "type" "email" "spellcheck" "false" "autocomplete" "email") }}
+                    {{ template "new-input" (newInput . .Form.Email "classes" "govuk-input--width-20" "type" "email" "spellcheck" "false" "autocomplete" "email") }}
 
                     <button type="submit" class="govuk-button" data-module="govuk-button">{{ tr .App "sendInvite" }}</button>
                     {{ template "csrf-field" . }}

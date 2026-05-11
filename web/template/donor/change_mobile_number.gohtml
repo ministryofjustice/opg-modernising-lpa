@@ -8,20 +8,41 @@
       <form novalidate method="post">
         <h1 class="govuk-heading-xl">{{ tr .App "changeYourMobileNumber" }}</h1>
 
-        <p class="govuk-body">{{ trFormatHtml .App (printf "weNeedYourCorrectMobileNumber:%s" .ActorType.String) "FirstNames" .FirstNames  }}</p>
+        <p class="govuk-body">
+            {{ trFormatHtml .App (printf "weNeedYourCorrectMobileNumber:%s" .ActorType.String) "FirstNames" .FirstNames  }}
+        </p>
 
-        {{ template "input" (input . "mobile" "ukMobileNumber" .Form.Mobile "hint" "enterYourUkMobileHint" "classes" "govuk-input--width-20 govuk-input--extra-letter-spacing" "labelClasses" "govuk-label--s" "type" "tel" "autocomplete" "tel") }}
+        {{ template "new-input" (newInput . .Form.Mobile
+            "label" (tr .App "ukMobileNumber")
+            "hint" (tr .App "enterYourUkMobileHint")
+            "classes" "govuk-input--width-20 govuk-input--extra-letter-spacing"
+            "labelClasses" "govuk-label--s"
+            "type" "tel"
+            "autocomplete" "tel") }}
 
         <div class="govuk-form-group">
           <div class="govuk-checkboxes" data-module="govuk-checkboxes">
             <div class="govuk-checkboxes__item">
-              <input class="govuk-checkboxes__input" id="f-has-non-uk-mobile" name="has-non-uk-mobile" type="checkbox" value="1" data-aria-controls="conditional-has-non-uk-mobile" {{ if .Form.HasNonUKMobile }}checked{{ end }}>
-              <label class="govuk-label govuk-checkboxes__label" for="f-has-non-uk-mobile">
-                {{ tr .App "iDoNotHaveAUkMobileNumber" }}
+              <input class="govuk-checkboxes__input"
+                  id="f-{{ .Form.HasNonUKMobile.Name }}"
+                  name="{{ .Form.HasNonUKMobile.Name }}"
+                  type="checkbox"
+                  value="1"
+                  data-aria-controls="conditional-{{ .Form.HasNonUKMobile.Name }}"
+                  {{ if .Form.HasNonUKMobile.Input }}checked{{ end }}>
+
+              <label class="govuk-label govuk-checkboxes__label" for="f-{{ .Form.HasNonUKMobile.Name }}">
+                {{ .Form.HasNonUKMobile.Label }}
               </label>
             </div>
-            <div class="govuk-checkboxes__conditional govuk-checkboxes__conditional--hidden" id="conditional-has-non-uk-mobile">
-              {{ template "input" (input . "non-uk-mobile" "mobilePhoneNumber" .Form.NonUKMobile "hint" "nonUkMobileHint" "classes" "govuk-input--width-20 govuk-input--extra-letter-spacing" "type" "tel" "autocomplete" "tel") }}
+            <div class="govuk-checkboxes__conditional govuk-checkboxes__conditional--hidden"
+                id="conditional-{{ .Form.HasNonUKMobile.Name }}">
+              {{ template "new-input" (newInput . .Form.NonUKMobile
+                  "label" (tr .App "mobilePhoneNumber")
+                  "hint" (tr .App "nonUkMobileHint")
+                  "classes" "govuk-input--width-20 govuk-input--extra-letter-spacing"
+                  "type" "tel"
+                  "autocomplete" "tel") }}
             </div>
           </div>
         </div>

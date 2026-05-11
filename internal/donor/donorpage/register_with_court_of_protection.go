@@ -9,14 +9,12 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor/donordata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/event"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/form"
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/validation"
 )
 
 type registerWithCourtOfProtectionData struct {
-	App    appcontext.Data
-	Errors validation.List
-	Form   *form.YesNoForm
-	Donor  *donordata.Provided
+	App   appcontext.Data
+	Form  *form.YesNoForm
+	Donor *donordata.Provided
 }
 
 func RegisterWithCourtOfProtection(tmpl template.Template, donorStore DonorStore, eventClient EventClient) Handler {

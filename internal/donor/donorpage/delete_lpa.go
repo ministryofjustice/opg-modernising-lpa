@@ -12,13 +12,11 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/localize"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/notify"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/validation"
 )
 
 type deleteLpaData struct {
-	App    appcontext.Data
-	Errors validation.List
-	Donor  *donordata.Provided
+	App   appcontext.Data
+	Donor *donordata.Provided
 }
 
 func DeleteLpa(tmpl template.Template, donorStore DonorStore, notifyClient NotifyClient, certificateProviderStartURL string, eventClient EventClient) Handler {

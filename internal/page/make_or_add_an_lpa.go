@@ -9,8 +9,12 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/appcontext"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/event"
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/validation"
 )
+
+type makeOrAddAnLPAData struct {
+	App          appcontext.Data
+	HasDonorLPAs bool
+}
 
 func MakeOrAddAnLPA(tmpl template.Template, donorStore DonorStore, dashboardStore DashboardStore, eventClient EventClient) Handler {
 	return func(appData appcontext.Data, w http.ResponseWriter, r *http.Request) error {
@@ -44,10 +48,4 @@ func MakeOrAddAnLPA(tmpl template.Template, donorStore DonorStore, dashboardStor
 
 		return tmpl(w, data)
 	}
-}
-
-type makeOrAddAnLPAData struct {
-	App          appcontext.Data
-	Errors       validation.List
-	HasDonorLPAs bool
 }

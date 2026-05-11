@@ -7,12 +7,10 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/appcontext"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor/donordata"
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/validation"
 )
 
 type resendVoucherAccessCodeData struct {
-	App    appcontext.Data
-	Errors validation.List
+	App appcontext.Data
 }
 
 func ResendVoucherAccessCode(tmpl template.Template, accessCodeSender AccessCodeSender) Handler {

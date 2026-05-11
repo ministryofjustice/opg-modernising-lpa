@@ -13,17 +13,15 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/event"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/localize"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/lpastore/lpadata"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/newforms"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/notify"
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/scheduled"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/scheduled/scheduleddata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/task"
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/validation"
 )
 
 type provideCertificateData struct {
 	App                 appcontext.Data
-	Errors              validation.List
 	CertificateProvider *certificateproviderdata.Provided
 	Lpa                 *lpadata.Lpa
 	Form                *provideCertificateForm
@@ -50,17 +48,14 @@ func ProvideCertificate(
 			App:                 appData,
 			CertificateProvider: certificateProvider,
 			Lpa:                 lpa,
-			Form: &provideCertificateForm{
-				AgreeToStatement: !certificateProvider.SignedAt.IsZero(),
-			},
+			Form:                newProvideCertificateForm(appData.Localizer, lpa.Language, lpa.CertificateProvider.FullName()),
 		}
 
-		if r.Method == http.MethodPost {
-			data.Form = readProvideCertificateForm(r, lpa.Language)
-			data.Errors = data.Form.Validate()
+		data.Form.AgreeToStatement.SetInput(!certificateProvider.SignedAt.IsZero())
 
-			if data.Errors.None() {
-				if data.Form.Submittable == "cannot-submit" {
+		if r.Method == http.MethodPost {
+			if data.Form.Parse(r) {
+				if data.Form.Submittable.Value == "cannot-submit" {
 					return certificateprovider.PathConfirmDontWantToBeCertificateProvider.Redirect(w, r, appData, certificateProvider.LpaID)
 				}
 
@@ -152,39 +147,47 @@ func ProvideCertificate(
 }
 
 type provideCertificateForm struct {
-	Submittable      string
-	AgreeToStatement bool
-	lpaLanguage      localize.Lang
+	newforms.Form
+	Submittable      *newforms.String
+	AgreeToStatement *newforms.Bool
+
+	lpaLanguage localize.Lang
 }
 
-func readProvideCertificateForm(r *http.Request, lang localize.Lang) *provideCertificateForm {
+func newProvideCertificateForm(l Localizer, lang localize.Lang, certificateProviderFullName string) *provideCertificateForm {
 	return &provideCertificateForm{
-		Submittable:      r.FormValue("submittable"),
-		AgreeToStatement: page.PostFormString(r, "agree-to-statement") == "1",
+		Submittable:      newforms.NewString("submittable", ""),
+		AgreeToStatement: newforms.NewBool("agree-to-statement", l.Format("iAgreeToTheseStatements", map[string]any{"FullName": certificateProviderFullName})),
 		lpaLanguage:      lang,
 	}
 }
 
-func (f *provideCertificateForm) Validate() validation.List {
-	var errors validation.List
+func (f *provideCertificateForm) Parse(r *http.Request) bool {
+	ok := f.ParsePostForm(r,
+		f.Submittable,
+		f.AgreeToStatement,
+	)
 
-	if f.Submittable != "cannot-submit" {
-		errors.Bool("agree-to-statement", "toSignAsCertificateProvider", f.AgreeToStatement,
-			validation.Selected())
+	if f.Submittable.Value != "cannot-submit" && !f.AgreeToStatement.Value {
+		f.AgreeToStatement.Error = newforms.NewSelectError("toSignAsCertificateProvider")
+		f.Errors = append(f.Errors, f.AgreeToStatement.Field)
+		ok = false
 	}
 
-	if f.Submittable == "wrong-language" && f.AgreeToStatement {
-		errors.Add("agree-to-statement", toSignCertificateYouMustViewInLanguageError{LpaLanguage: f.lpaLanguage})
+	if f.Submittable.Value == "wrong-language" && f.AgreeToStatement.Value {
+		f.AgreeToStatement.Error = toSignCertificateYouMustViewInLanguageError{LpaLanguage: f.lpaLanguage}
+		f.Errors = append(f.Errors, f.AgreeToStatement.Field)
+		ok = false
 	}
 
-	return errors
+	return ok
 }
 
 type toSignCertificateYouMustViewInLanguageError struct {
 	LpaLanguage localize.Lang
 }
 
-func (e toSignCertificateYouMustViewInLanguageError) Format(l validation.Localizer) string {
+func (e toSignCertificateYouMustViewInLanguageError) Format(l newforms.Localizer) string {
 	return l.Format("toSignCertificateYouMustViewInLanguage", map[string]any{
 		"Lang": l.T(e.LpaLanguage.String()),
 	})

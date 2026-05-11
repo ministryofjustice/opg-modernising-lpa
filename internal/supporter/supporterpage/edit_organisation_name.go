@@ -8,36 +8,30 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/appcontext"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/supporter"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/supporter/supporterdata"
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/validation"
 )
 
 type editOrganisationNameData struct {
-	App    appcontext.Data
-	Errors validation.List
-	Form   *organisationNameForm
+	App  appcontext.Data
+	Form *organisationNameForm
 }
 
 func EditOrganisationName(tmpl template.Template, organisationStore OrganisationStore) Handler {
 	return func(appData appcontext.Data, w http.ResponseWriter, r *http.Request, organisation *supporterdata.Organisation, _ *supporterdata.Member) error {
 		data := &editOrganisationNameData{
-			App: appData,
-			Form: &organisationNameForm{
-				Name: organisation.Name,
-			},
+			App:  appData,
+			Form: newOrganisationNameForm(appData.Localizer.T("yourOrganisationName")),
 		}
 
-		if r.Method == http.MethodPost {
-			data.Form = readOrganisationNameForm(r, "yourOrganisationName")
-			data.Errors = data.Form.Validate()
+		data.Form.Name.SetInput(organisation.Name)
 
-			if data.Errors.None() {
-				organisation.Name = data.Form.Name
-				if err := organisationStore.Put(r.Context(), organisation); err != nil {
-					return err
-				}
+		if r.Method == http.MethodPost && data.Form.Parse(r) {
+			organisation.Name = data.Form.Name.Value
 
-				return supporter.PathOrganisationDetails.RedirectQuery(w, r, appData, url.Values{"updated": {"name"}})
+			if err := organisationStore.Put(r.Context(), organisation); err != nil {
+				return err
 			}
+
+			return supporter.PathOrganisationDetails.RedirectQuery(w, r, appData, url.Values{"updated": {"name"}})
 		}
 
 		return tmpl(w, data)

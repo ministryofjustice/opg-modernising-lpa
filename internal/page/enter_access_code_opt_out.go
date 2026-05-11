@@ -10,9 +10,8 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/appcontext"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/dynamo"
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/form"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/newforms"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/sesh"
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/validation"
 )
 
 type SetLpaDataSessionStore interface {
@@ -23,38 +22,35 @@ func EnterAccessCodeOptOut(tmpl template.Template, accessCodeStore AccessCodeSto
 	return func(appData appcontext.Data, w http.ResponseWriter, r *http.Request) error {
 		data := enterAccessCodeData{
 			App:  appData,
-			Form: form.NewAccessCodeForm(),
+			Form: newforms.NewAccessCodeForm(appData.Localizer),
 		}
 
-		if r.Method == http.MethodPost {
-			data.Form.Read(r)
-			data.Errors = data.Form.Validate()
+		if r.Method == http.MethodPost && data.Form.Parse(r) {
+			referenceNumber := accesscodedata.HashedFromString(data.Form.AccessCode.Value, data.Form.DonorLastName.Value)
 
-			if data.Errors.None() {
-				referenceNumber := accesscodedata.HashedFromString(data.Form.AccessCode, data.Form.DonorLastName)
-
-				accessCode, err := accessCodeStore.Get(r.Context(), actorType, referenceNumber)
-				if err != nil {
-					if errors.Is(err, dynamo.NotFoundError{}) {
-						data.Errors.Add(form.FieldNames.AccessCode, validation.IncorrectError{Label: "accessCode"})
-						data.Errors.Add(form.FieldNames.DonorLastName, validation.IncorrectError{Label: "donorLastName"})
-						return tmpl(w, data)
-					}
-
-					if errors.Is(err, dynamo.ErrTooManyRequests) {
-						data.Errors.Add(form.FieldNames.AccessCode, validation.CustomError{Label: "tooManyAccessCodeAttempts"})
-						return tmpl(w, data)
-					}
-
-					return fmt.Errorf("getting accesscode: %w", err)
+			accessCode, err := accessCodeStore.Get(r.Context(), actorType, referenceNumber)
+			if err != nil {
+				if errors.Is(err, dynamo.NotFoundError{}) {
+					data.Form.AccessCode.Error = newforms.NewIncorrectError(appData.Localizer.T("accessCode"))
+					data.Form.DonorLastName.Error = newforms.NewIncorrectError(appData.Localizer.T("donorLastName"))
+					data.Form.Errors = append(data.Form.Errors, data.Form.AccessCode.Field, data.Form.DonorLastName.Field)
+					return tmpl(w, data)
 				}
 
-				if err := sessionStore.SetLpaData(r, w, &sesh.LpaDataSession{LpaID: accessCode.LpaKey.ID()}); err != nil {
-					return fmt.Errorf("setting session lpa data: %w", err)
+				if errors.Is(err, dynamo.ErrTooManyRequests) {
+					data.Form.AccessCode.Error = newforms.CustomError(appData.Localizer.T("tooManyAccessCodeAttempts"))
+					data.Form.Errors = append(data.Form.Errors, data.Form.AccessCode.Field)
+					return tmpl(w, data)
 				}
 
-				return redirect.RedirectQuery(w, r, appData, referenceNumber.Query())
+				return fmt.Errorf("getting accesscode: %w", err)
 			}
+
+			if err := sessionStore.SetLpaData(r, w, &sesh.LpaDataSession{LpaID: accessCode.LpaKey.ID()}); err != nil {
+				return fmt.Errorf("setting session lpa data: %w", err)
+			}
+
+			return redirect.RedirectQuery(w, r, appData, referenceNumber.Query())
 		}
 
 		return tmpl(w, data)

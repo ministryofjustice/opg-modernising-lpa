@@ -6,48 +6,44 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/validation"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/newforms"
 	"github.com/stretchr/testify/assert"
 )
 
-func TestReadYesNoMaybeForm(t *testing.T) {
-	form := url.Values{
-		"option": {Yes.String()},
-	}
-
-	r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(form.Encode()))
-	r.Header.Add("Content-Type", "application/x-www-form-urlencoded")
-
-	f := ReadYesNoMaybeForm(r, "hey")
-	assert.Equal(t, "hey", f.errorLabel)
-	assert.Equal(t, Yes, f.Option)
-}
-
-func TestYesNoMaybeFormValidate(t *testing.T) {
+func TestYesNoMaybeForm(t *testing.T) {
 	testcases := map[string]struct {
-		form   *YesNoMaybeForm
-		errors validation.List
+		value YesNoMaybe
+		error newforms.Error
 	}{
 		"yes": {
-			form: &YesNoMaybeForm{Option: Yes},
+			value: Yes,
 		},
 		"no": {
-			form: &YesNoMaybeForm{Option: No},
+			value: No,
 		},
 		"maybe": {
-			form: &YesNoMaybeForm{Option: Maybe},
+			value: Maybe,
 		},
 		"not selected": {
-			form: &YesNoMaybeForm{
-				errorLabel: "hey",
-			},
-			errors: validation.With("option", validation.SelectError{Label: "hey"}),
+			error: newforms.NewSelectError("hey"),
 		},
 	}
 
 	for name, tc := range testcases {
 		t.Run(name, func(t *testing.T) {
-			assert.Equal(t, tc.errors, tc.form.Validate())
+			form := NewYesNoMaybeForm("hey")
+
+			query := url.Values{
+				form.Enum.Name: {tc.value.String()},
+			}
+
+			r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(query.Encode()))
+			r.Header.Add("Content-Type", "application/x-www-form-urlencoded")
+
+			assert.Equal(t, tc.error == nil, form.Parse(r))
+			if tc.error != nil {
+				assert.Equal(t, tc.error, form.Enum.Error)
+			}
 		})
 	}
 }

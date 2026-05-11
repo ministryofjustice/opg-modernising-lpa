@@ -10,14 +10,12 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/appcontext"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor/donordata"
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/validation"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/newforms"
 )
 
 type enterPersonToNotifyData struct {
-	App    appcontext.Data
-	Errors validation.List
-	Form   *enterPersonToNotifyForm
+	App  appcontext.Data
+	Form *enterPersonToNotifyForm
 }
 
 func EnterPersonToNotify(tmpl template.Template, service PeopleToNotifyService) Handler {
@@ -34,27 +32,26 @@ func EnterPersonToNotify(tmpl template.Template, service PeopleToNotifyService) 
 		}
 
 		data := &enterPersonToNotifyData{
-			App: appData,
-			Form: &enterPersonToNotifyForm{
-				FirstNames: personToNotify.FirstNames,
-				LastName:   personToNotify.LastName,
-			},
+			App:  appData,
+			Form: newEnterPersonToNotifyForm(appData.Localizer),
 		}
 
-		if r.Method == http.MethodPost {
-			data.Form = readEnterPersonToNotifyForm(r)
-			data.Errors = data.Form.Validate()
+		data.Form.FirstNames.SetInput(personToNotify.FirstNames)
+		data.Form.LastName.SetInput(personToNotify.LastName)
 
-			nameMatches := personToNotifyMatches(provided, personToNotify.UID, data.Form.FirstNames, data.Form.LastName)
+		if r.Method == http.MethodPost {
+			ok := data.Form.Parse(r)
+
+			nameMatches := personToNotifyMatches(provided, personToNotify.UID, data.Form.FirstNames.Value, data.Form.LastName.Value)
 			redirectToWarning := false
 
-			if !nameMatches.IsNone() && personToNotify.NameHasChanged(data.Form.FirstNames, data.Form.LastName) {
+			if !nameMatches.IsNone() && personToNotify.NameHasChanged(data.Form.FirstNames.Value, data.Form.LastName.Value) {
 				redirectToWarning = true
 			}
 
-			if data.Errors.None() {
-				personToNotify.FirstNames = data.Form.FirstNames
-				personToNotify.LastName = data.Form.LastName
+			if ok {
+				personToNotify.FirstNames = data.Form.FirstNames.Value
+				personToNotify.LastName = data.Form.LastName.Value
 
 				uid, err := service.Put(r.Context(), provided, personToNotify)
 				if err != nil {
@@ -82,27 +79,22 @@ func EnterPersonToNotify(tmpl template.Template, service PeopleToNotifyService) 
 }
 
 type enterPersonToNotifyForm struct {
-	FirstNames string
-	LastName   string
+	newforms.Form
+	FirstNames *newforms.String
+	LastName   *newforms.String
 }
 
-func readEnterPersonToNotifyForm(r *http.Request) *enterPersonToNotifyForm {
+func newEnterPersonToNotifyForm(l Localizer) *enterPersonToNotifyForm {
 	return &enterPersonToNotifyForm{
-		FirstNames: page.PostFormString(r, "first-names"),
-		LastName:   page.PostFormString(r, "last-name"),
+		FirstNames: newforms.NewString("first-names", l.T("firstNames")).
+			NotEmpty().
+			MaxLength(53),
+		LastName: newforms.NewString("last-name", l.T("lastName")).
+			NotEmpty().
+			MaxLength(61),
 	}
 }
 
-func (f *enterPersonToNotifyForm) Validate() validation.List {
-	var errors validation.List
-
-	errors.String("first-names", "firstNames", f.FirstNames,
-		validation.Empty(),
-		validation.StringTooLong(53))
-
-	errors.String("last-name", "lastName", f.LastName,
-		validation.Empty(),
-		validation.StringTooLong(61))
-
-	return errors
+func (f *enterPersonToNotifyForm) Parse(r *http.Request) bool {
+	return f.ParsePostForm(r, f.FirstNames, f.LastName)
 }

@@ -9,12 +9,10 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/appcontext"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor/donordata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/dynamo"
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/validation"
 )
 
 type certificateProviderSummaryData struct {
 	App            appcontext.Data
-	Errors         validation.List
 	Donor          *donordata.Provided
 	CanChangeEmail bool
 }

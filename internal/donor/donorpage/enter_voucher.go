@@ -9,54 +9,47 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor/donordata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/names"
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/validation"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/newforms"
 )
 
 type enterVoucherData struct {
-	App    appcontext.Data
-	Errors validation.List
-	Form   *enterVoucherForm
+	App  appcontext.Data
+	Form *enterVoucherForm
 }
 
 func EnterVoucher(tmpl template.Template, donorStore DonorStore, newUID func() actoruid.UID) Handler {
 	return func(appData appcontext.Data, w http.ResponseWriter, r *http.Request, provided *donordata.Provided) error {
 		data := &enterVoucherData{
-			App: appData,
-			Form: &enterVoucherForm{
-				FirstNames: provided.Voucher.FirstNames,
-				LastName:   provided.Voucher.LastName,
-				Email:      provided.Voucher.Email,
-			},
+			App:  appData,
+			Form: newEnterVoucherForm(appData.Localizer),
 		}
 
-		if r.Method == http.MethodPost {
-			data.Form = readEnterVoucherForm(r)
-			data.Errors = data.Form.Validate()
+		data.Form.FirstNames.SetInput(provided.Voucher.FirstNames)
+		data.Form.LastName.SetInput(provided.Voucher.LastName)
+		data.Form.Email.SetInput(provided.Voucher.Email)
 
-			if data.Errors.None() {
-				if provided.Voucher.UID.IsZero() {
-					provided.Voucher.UID = newUID()
-				}
-
-				if provided.Voucher.FirstNames != data.Form.FirstNames || provided.Voucher.LastName != data.Form.LastName {
-					provided.Voucher.FirstNames = data.Form.FirstNames
-					provided.Voucher.LastName = data.Form.LastName
-					provided.Voucher.Allowed = len(provided.Voucher.Matches(provided)) == 0 && !names.Equal(provided.Voucher.LastName, provided.Donor.LastName)
-				}
-
-				provided.Voucher.Email = data.Form.Email
-
-				if err := donorStore.Put(r.Context(), provided); err != nil {
-					return err
-				}
-
-				if !provided.Voucher.Allowed {
-					return donor.PathConfirmPersonAllowedToVouch.Redirect(w, r, appData, provided)
-				}
-
-				return donor.PathCheckYourDetails.Redirect(w, r, appData, provided)
+		if r.Method == http.MethodPost && data.Form.Parse(r) {
+			if provided.Voucher.UID.IsZero() {
+				provided.Voucher.UID = newUID()
 			}
+
+			if provided.Voucher.FirstNames != data.Form.FirstNames.Value || provided.Voucher.LastName != data.Form.LastName.Value {
+				provided.Voucher.FirstNames = data.Form.FirstNames.Value
+				provided.Voucher.LastName = data.Form.LastName.Value
+				provided.Voucher.Allowed = len(provided.Voucher.Matches(provided)) == 0 && !names.Equal(provided.Voucher.LastName, provided.Donor.LastName)
+			}
+
+			provided.Voucher.Email = data.Form.Email.Value
+
+			if err := donorStore.Put(r.Context(), provided); err != nil {
+				return err
+			}
+
+			if !provided.Voucher.Allowed {
+				return donor.PathConfirmPersonAllowedToVouch.Redirect(w, r, appData, provided)
+			}
+
+			return donor.PathCheckYourDetails.Redirect(w, r, appData, provided)
 		}
 
 		return tmpl(w, data)
@@ -64,33 +57,30 @@ func EnterVoucher(tmpl template.Template, donorStore DonorStore, newUID func() a
 }
 
 type enterVoucherForm struct {
-	FirstNames string
-	LastName   string
-	Email      string
+	newforms.Form
+	FirstNames *newforms.String
+	LastName   *newforms.String
+	Email      *newforms.String
 }
 
-func readEnterVoucherForm(r *http.Request) *enterVoucherForm {
+func newEnterVoucherForm(l Localizer) *enterVoucherForm {
 	return &enterVoucherForm{
-		FirstNames: page.PostFormString(r, "first-names"),
-		LastName:   page.PostFormString(r, "last-name"),
-		Email:      page.PostFormString(r, "email"),
+		FirstNames: newforms.NewString("first-names", l.T("firstNames")).
+			NotEmpty().
+			MaxLength(53),
+		LastName: newforms.NewString("last-name", l.T("lastName")).
+			NotEmpty().
+			MaxLength(61),
+		Email: newforms.NewString("email", l.T("email")).
+			NotEmpty().
+			Email(),
 	}
 }
 
-func (f *enterVoucherForm) Validate() validation.List {
-	var errors validation.List
-
-	errors.String("first-names", "firstNames", f.FirstNames,
-		validation.Empty(),
-		validation.StringTooLong(53))
-
-	errors.String("last-name", "lastName", f.LastName,
-		validation.Empty(),
-		validation.StringTooLong(61))
-
-	errors.String("email", "email", f.Email,
-		validation.Empty(),
-		validation.Email())
-
-	return errors
+func (f *enterVoucherForm) Parse(r *http.Request) bool {
+	return f.ParsePostForm(r,
+		f.FirstNames,
+		f.LastName,
+		f.Email,
+	)
 }

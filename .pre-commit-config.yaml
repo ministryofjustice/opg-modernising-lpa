@@ -51,14 +51,14 @@ repos:
         name: prevent unsafe Cypress command chaining
         entry: go run ./scripts/pre-commit/prevent_unsafe_chains/main.go
         language: golang
-        language_version: 1.24.3
+        language_version: 1.26.2
         types: [ file ]
         files: \.cy.js$
       - id: stop-only
         name: stop Cypress it.only
         entry: go run ./scripts/pre-commit/prevent_it_only/main.go
         language: golang
-        language_version: 1.24.3
+        language_version: 1.26.2
         types: [ file ]
         files: \.cy.js$
   - repo: https://github.com/Yelp/detect-secrets

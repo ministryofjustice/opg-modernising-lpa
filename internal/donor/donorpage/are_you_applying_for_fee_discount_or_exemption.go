@@ -7,17 +7,15 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/appcontext"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor/donordata"
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/form"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/newforms"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/pay"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/task"
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/validation"
 )
 
 type areYouApplyingForFeeDiscountOrExemptionData struct {
 	App                 appcontext.Data
-	Errors              validation.List
 	CertificateProvider donordata.CertificateProvider
-	Form                *form.YesNoForm
+	Form                *newforms.YesNoForm
 }
 
 func AreYouApplyingForFeeDiscountOrExemption(tmpl template.Template, payer Handler, donorStore DonorStore) Handler {
@@ -25,20 +23,17 @@ func AreYouApplyingForFeeDiscountOrExemption(tmpl template.Template, payer Handl
 		data := &areYouApplyingForFeeDiscountOrExemptionData{
 			App:                 appData,
 			CertificateProvider: provided.CertificateProvider,
-			Form:                form.NewYesNoForm(form.YesNoUnknown),
+			Form:                newforms.NewYesNoForm(appData.Localizer.T("whetherApplyingForDifferentFeeType")),
 		}
 
 		if r.Method == http.MethodPost {
-			data.Form = form.ReadYesNoForm(r, "whetherApplyingForDifferentFeeType")
-			data.Errors = data.Form.Validate()
-
-			if data.Errors.None() {
+			if data.Form.Parse(r) {
 				provided.Tasks.PayForLpa = task.PaymentStateInProgress
 				if err := donorStore.Put(r.Context(), provided); err != nil {
 					return err
 				}
 
-				if data.Form.YesNo.IsNo() {
+				if data.Form.YesNo.Value.IsNo() {
 					if !provided.FeeType.IsFullFee() {
 						provided.FeeType = pay.FullFee
 						if err := donorStore.Put(r.Context(), provided); err != nil {

@@ -6,15 +6,13 @@ import (
 
 	"github.com/ministryofjustice/opg-go-common/template"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/appcontext"
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/validation"
 )
 
 type ErrorHandler func(http.ResponseWriter, *http.Request, error)
 
 type errorData struct {
-	App    appcontext.Data
-	Errors validation.List
-	Err    error
+	App appcontext.Data
+	Err error
 }
 
 func Error(tmpl template.Template, logger Logger, showError bool) ErrorHandler {

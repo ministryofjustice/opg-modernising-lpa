@@ -13,8 +13,7 @@ import (
 )
 
 type resendWitnessCodeData struct {
-	App    appcontext.Data
-	Errors validation.List
+	App appcontext.Data
 }
 
 func ResendWitnessCode(tmpl template.Template, witnessCodeSender WitnessCodeSender, actorType actor.Type) Handler {

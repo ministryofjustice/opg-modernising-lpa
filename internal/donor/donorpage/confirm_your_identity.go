@@ -10,13 +10,11 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor/donordata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/identity"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/task"
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/validation"
 )
 
 type confirmYourIdentityData struct {
-	App    appcontext.Data
-	Errors validation.List
-	NonUK  bool
+	App   appcontext.Data
+	NonUK bool
 }
 
 func ConfirmYourIdentity(tmpl template.Template, donorStore DonorStore) Handler {

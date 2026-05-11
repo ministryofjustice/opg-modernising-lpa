@@ -25,7 +25,6 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/supporter/invitecode"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/supporter/supporterdata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/task"
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/validation"
 )
 
 type Logger interface {
@@ -222,7 +221,6 @@ func makeHandle(mux *http.ServeMux, store SessionStore, errorHandler page.ErrorH
 
 type suspendedData struct {
 	App              appcontext.Data
-	Errors           validation.List
 	OrganisationName string
 }
 

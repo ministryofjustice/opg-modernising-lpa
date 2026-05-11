@@ -10,14 +10,12 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/form"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/lpastore/lpadata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/task"
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/validation"
 )
 
 type whenCanTheLpaBeUsedData struct {
-	App    appcontext.Data
-	Errors validation.List
-	Donor  *donordata.Provided
-	Form   *form.SelectForm[lpadata.CanBeUsedWhen, lpadata.CanBeUsedWhenOptions, *lpadata.CanBeUsedWhen]
+	App   appcontext.Data
+	Donor *donordata.Provided
+	Form  *form.SelectForm[lpadata.CanBeUsedWhen, lpadata.CanBeUsedWhenOptions, *lpadata.CanBeUsedWhen]
 }
 
 func WhenCanTheLpaBeUsed(tmpl template.Template, donorStore DonorStore) Handler {

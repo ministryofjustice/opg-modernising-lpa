@@ -7,13 +7,11 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/appcontext"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor/donordata"
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/validation"
 )
 
 type checkYourDetailsData struct {
-	App    appcontext.Data
-	Errors validation.List
-	Donor  *donordata.Provided
+	App   appcontext.Data
+	Donor *donordata.Provided
 }
 
 func CheckYourDetails(tmpl template.Template, accessCodeSender AccessCodeSender, donorStore DonorStore) Handler {

@@ -27,3 +27,33 @@
         {{ end }}
     </div>
 {{ end }}
+
+{{ define "new-radios" }}
+    <div class="govuk-radios {{ if .Field.Error }}govuk-radios--error{{ end }}" data-module="govuk-radios">
+        {{ range $i, $e := .Items }}
+            {{ if $e }}
+                <div class="govuk-radios__item">
+                    <input class="govuk-radios__input"
+                        id="f-{{ fieldID $.Field.Name $i }}"
+                        name="{{ $.Field.Name }}"
+                        type="radio"
+                        value="{{ $e.value }}"
+                        {{ if eq $.Field.Input $e.value }}checked{{ end }}
+                        {{ if $e.hint }}aria-describedby="{{ fieldID $.Field.Name $i }}-item-hint"{{ end }}
+                    >
+                    <label class="govuk-label govuk-radios__label" for="f-{{ $.Field.Name }}{{ if ne $i 0 }}-{{ inc $i }}{{ end }}">
+                        {{ $e.label }}
+                    </label>
+                    {{ if $e.hint }}
+                        <div id="{{ fieldID $.Field.Name $i }}-item-hint" class="govuk-hint govuk-radios__hint">
+                            {{ tr $.Dot.App $e.hint }}
+                        </div>
+                    {{ end }}
+                </div>
+                {{ if $e.orDivider }}
+                    <div class="govuk-radios__divider">{{ tr $.Dot.App "or" }}</div>
+                {{ end }}
+            {{ end }}
+        {{ end }}
+    </div>
+{{ end }}

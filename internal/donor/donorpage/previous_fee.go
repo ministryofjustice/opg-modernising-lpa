@@ -9,13 +9,11 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor/donordata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/form"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/pay"
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/validation"
 )
 
 type previousFeeData struct {
-	App    appcontext.Data
-	Errors validation.List
-	Form   *form.SelectForm[pay.PreviousFee, pay.PreviousFeeOptions, *pay.PreviousFee]
+	App  appcontext.Data
+	Form *form.SelectForm[pay.PreviousFee, pay.PreviousFeeOptions, *pay.PreviousFee]
 }
 
 func PreviousFee(tmpl template.Template, payer Handler, donorStore DonorStore) Handler {

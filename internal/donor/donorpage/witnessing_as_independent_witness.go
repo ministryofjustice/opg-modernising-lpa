@@ -14,10 +14,9 @@ import (
 )
 
 type witnessingAsIndependentWitnessData struct {
-	App    appcontext.Data
-	Errors validation.List
-	Form   *witnessingAsIndependentWitnessForm
-	Donor  *donordata.Provided
+	App   appcontext.Data
+	Form  *witnessingAsIndependentWitnessForm
+	Donor *donordata.Provided
 }
 
 func WitnessingAsIndependentWitness(tmpl template.Template, donorStore DonorStore, now func() time.Time) Handler {

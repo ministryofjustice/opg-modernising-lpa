@@ -10,7 +10,6 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor/donordata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/search"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/supporter/supporterdata"
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/validation"
 )
 
 type SearchClient interface {
@@ -20,7 +19,6 @@ type SearchClient interface {
 
 type dashboardData struct {
 	App         appcontext.Data
-	Errors      validation.List
 	Donors      []donordata.Provided
 	CurrentPage int
 	Pagination  *search.Pagination

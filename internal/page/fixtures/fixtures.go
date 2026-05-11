@@ -29,7 +29,6 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/lpastore/lpadata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/place"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/random"
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/validation"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/voucher"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/voucher/voucherdata"
 )
@@ -45,7 +44,6 @@ type fixturesData struct {
 	Sub                    string
 	DonorEmail             string
 	DonorMobile            string
-	Errors                 validation.List
 	Members                []Name
 	PaymentStatuses        []string
 	IdStatuses             []string

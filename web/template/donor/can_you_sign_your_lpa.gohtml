@@ -16,10 +16,10 @@
 
                         {{ template "error-message" (errorMessage . .Form.FieldName) }}
 
-                        {{ template "radios" (items . .Form.FieldName .Form.Selected.String
-                            (item .Form.Options.Yes.String "yesGallaf")
-                            (item .Form.Options.No.String "noNaAllaf")
-                            (item .Form.Options.Maybe.String "iDontKnow")
+                        {{ template "new-radios" (newItems . .Form.Enum
+                            (item .Form.Enum.Options.Yes.String (tr .App "yesGallaf"))
+                            (item .Form.Enum.Options.No.String (tr .App "noNaAllaf"))
+                            (item .Form.Enum.Options.Maybe.String (tr .App "iDontKnow"))
                             ) }}
                     </fieldset>
                 </div>
@@ -29,7 +29,7 @@
                 {{ else }}
                     {{ template "button" (button .App "saveAndContinue")  }}
                 {{ end }}
-                
+
                 {{ template "csrf-field" . }}
             </form>
         </div>

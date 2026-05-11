@@ -21,16 +21,18 @@
                             {{ trFormat .App "iAmVouchingThat" "VoucherFullName" .Voucher.FullName }}
                         </p>
 
-                        {{ $hasError := .Errors.Has "confirm" }}
-                        <div class="govuk-form-group govuk-!-margin-bottom-0 {{ if $hasError }}govuk-form-group--error{{ end }}">
-                            <fieldset class="govuk-fieldset" aria-labelledby="fieldset-legend" {{ if $hasError }}aria-describedby="confirm-error"{{ end }}>
-                                {{ template "error-message" (errorMessage . "confirm") }}
-
+                        <div class="govuk-form-group govuk-!-margin-bottom-0 {{ if .Form.Bool.Error }}govuk-form-group--error{{ end }}">
+                            <fieldset class="govuk-fieldset" aria-labelledby="fieldset-legend" {{ if .Form.Bool.Error }}aria-describedby="{{ .Form.Bool.Name }}-error"{{ end }}>
+                                {{ if .Form.Bool.Error }}
+                                    <p id="{{ .Form.Bool.Name }}-error" class="govuk-error-message">
+                                        <span class="govuk-visually-hidden">Error:</span> {{ .Form.Bool.Error.Format .App.Localizer }}
+                                    </p>
+                                {{ end }}
                                 <div class="govuk-checkboxes" data-module="govuk-checkboxes">
                                     <div class="govuk-checkboxes__item">
-                                        <input class="govuk-checkboxes__input" id="f-confirm" name="confirm" type="checkbox" value="1" {{ if .Form.Confirm }}checked{{ end }}>
-                                        <label class="govuk-label govuk-checkboxes__label" for="f-confirm">
-                                            {{ trFormat .App "toTheBestOfMyKnowledgeDeclaration" "DonorFullName" .Lpa.Donor.FullName }}
+                                        <input class="govuk-checkboxes__input" id="f-{{ .Form.Bool.Name }}" name="{{ .Form.Bool.Name }}" type="checkbox" value="1" {{ if .Form.Bool.Value }}checked{{ end }}>
+                                        <label class="govuk-label govuk-checkboxes__label" for="f-{{ .Form.Bool.Name }}">
+                                            {{ .Form.Bool.Label }}
                                         </label>
                                     </div>
                                 </div>
@@ -40,7 +42,7 @@
                 </div>
 
                 {{ template "details" (details . "howTickingActsAsSignatureDeclaration" "howTickingActsAsSignatureDeclarationContent" false) }}
-                
+
                 {{ template "buttons" (button .App "submitMySignature") }}
                 {{ template "csrf-field" . }}
             </form>

@@ -9,7 +9,7 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/appcontext"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor/donordata"
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/newforms"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/validation"
 )
 
@@ -36,29 +36,24 @@ func EnterTrustCorporation(tmpl template.Template, service AttorneyService, newU
 		}
 
 		data := &enterTrustCorporationData{
-			App: appData,
-			Form: &enterTrustCorporationForm{
-				Name:  trustCorporation.Name,
-				Email: trustCorporation.Email,
-			},
+			App:                 appData,
+			Form:                newEnterTrustCorporationForm(appData.Localizer),
 			LpaID:               provided.LpaID,
 			ChooseAttorneysPath: enterPath.FormatQuery(provided.LpaID, url.Values{"id": {newUID().String()}}),
 		}
 
-		if r.Method == http.MethodPost {
-			data.Form = readEnterTrustCorporationForm(r)
-			data.Errors = data.Form.Validate(service.IsReplacement(), otherTrustCorporation)
+		data.Form.Name.SetInput(trustCorporation.Name)
+		data.Form.Email.SetInput(trustCorporation.Email)
 
-			if data.Errors.None() {
-				trustCorporation.Name = data.Form.Name
-				trustCorporation.Email = data.Form.Email
+		if r.Method == http.MethodPost && data.Form.Parse(r, service.IsReplacement(), otherTrustCorporation) {
+			trustCorporation.Name = data.Form.Name.Value
+			trustCorporation.Email = data.Form.Email.Value
 
-				if err := service.PutTrustCorporation(r.Context(), provided, trustCorporation); err != nil {
-					return err
-				}
-
-				return addressPath.Redirect(w, r, appData, provided)
+			if err := service.PutTrustCorporation(r.Context(), provided, trustCorporation); err != nil {
+				return err
 			}
+
+			return addressPath.Redirect(w, r, appData, provided)
 		}
 
 		return tmpl(w, data)
@@ -66,32 +61,30 @@ func EnterTrustCorporation(tmpl template.Template, service AttorneyService, newU
 }
 
 type enterTrustCorporationForm struct {
-	Name  string
-	Email string
+	newforms.Form
+	Name  *newforms.String
+	Email *newforms.String
 }
 
-func readEnterTrustCorporationForm(r *http.Request) *enterTrustCorporationForm {
+func newEnterTrustCorporationForm(l Localizer) *enterTrustCorporationForm {
 	return &enterTrustCorporationForm{
-		Name:  page.PostFormString(r, "name"),
-		Email: page.PostFormString(r, "email"),
+		Name: newforms.NewString("name", l.T("trustCorporationName")).
+			NotEmpty(),
+		Email: newforms.NewString("email", l.T("trustCorporationEmailAddress")).
+			Email(),
 	}
 }
 
-func (f *enterTrustCorporationForm) Validate(isReplacement bool, otherTrustCorporation donordata.TrustCorporation) validation.List {
-	var errors validation.List
+func (f *enterTrustCorporationForm) Parse(r *http.Request, isReplacement bool, otherTrustCorporation donordata.TrustCorporation) bool {
+	ok := f.ParsePostForm(r, f.Name, f.Email)
 
-	errors.String("name", "trustCorporationName", f.Name,
-		validation.Empty())
-
-	if f.Name == otherTrustCorporation.Name {
-		errors.Add("name", trustCorporationCannotAlsoBeError{Name: f.Name, Replacement: isReplacement})
-
+	if f.Name.Value == otherTrustCorporation.Name {
+		f.Name.Error = trustCorporationCannotAlsoBeError{Name: f.Name.Value, Replacement: isReplacement}
+		f.Errors = append(f.Errors, f.Name.Field)
+		ok = false
 	}
 
-	errors.String("email", "trustCorporationEmailAddress", f.Email,
-		validation.Email())
-
-	return errors
+	return ok
 }
 
 type trustCorporationCannotAlsoBeError struct {
@@ -99,7 +92,7 @@ type trustCorporationCannotAlsoBeError struct {
 	Replacement bool
 }
 
-func (e trustCorporationCannotAlsoBeError) Format(l validation.Localizer) string {
+func (e trustCorporationCannotAlsoBeError) Format(l newforms.Localizer) string {
 	isAppointed, cannotBe := "aReplacementAttorney", "anOriginalAttorney"
 	if e.Replacement {
 		isAppointed, cannotBe = cannotBe, isAppointed

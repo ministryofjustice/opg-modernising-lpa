@@ -9,12 +9,10 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/search"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/supporter/supporterdata"
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/validation"
 )
 
 type deleteOrganisationData struct {
 	App                appcontext.Data
-	Errors             validation.List
 	InProgressLPACount int
 }
 

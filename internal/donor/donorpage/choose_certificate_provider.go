@@ -14,7 +14,6 @@ import (
 
 type chooseCertificateProviderData struct {
 	App                  appcontext.Data
-	Errors               validation.List
 	Form                 *chooseCertificateProviderForm
 	Donor                *donordata.Provided
 	CertificateProviders []donordata.CertificateProvider

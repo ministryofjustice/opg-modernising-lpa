@@ -14,7 +14,6 @@ import (
 
 type chooseCorrespondentData struct {
 	App            appcontext.Data
-	Errors         validation.List
 	Form           *chooseCorrespondentForm
 	Donor          *donordata.Provided
 	Correspondents []donordata.Correspondent

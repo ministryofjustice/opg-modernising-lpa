@@ -7,28 +7,25 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/appcontext"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor/donordata"
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/form"
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/validation"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/newforms"
 )
 
 type chooseSomeoneToVouchForYouData struct {
-	App    appcontext.Data
-	Errors validation.List
-	Form   *form.YesNoForm
+	App  appcontext.Data
+	Form *newforms.YesNoForm
 }
 
 func ChooseSomeoneToVouchForYou(tmpl template.Template, donorStore DonorStore) Handler {
 	return func(appData appcontext.Data, w http.ResponseWriter, r *http.Request, provided *donordata.Provided) error {
 		data := &chooseSomeoneToVouchForYouData{
 			App:  appData,
-			Form: form.NewYesNoForm(provided.WantVoucher),
+			Form: newforms.NewYesNoForm(appData.Localizer.T("yesIfHaveSomeoneCanVouchForYou")),
 		}
 
-		if r.Method == http.MethodPost {
-			f := form.ReadYesNoForm(r, "yesIfHaveSomeoneCanVouchForYou")
-			data.Errors = f.Validate()
+		data.Form.YesNo.SetInput(provided.WantVoucher)
 
-			if data.Errors.None() {
+		if r.Method == http.MethodPost {
+			if data.Form.Parse(r) {
 				provided.WantVoucher = f.YesNo
 				if err := donorStore.Put(r.Context(), provided); err != nil {
 					return err

@@ -12,14 +12,12 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/form"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/notify"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/validation"
 )
 
 type removeCertificateProviderData struct {
-	App    appcontext.Data
-	Name   string
-	Errors validation.List
-	Form   *form.YesNoForm
+	App  appcontext.Data
+	Name string
+	Form *form.YesNoForm
 }
 
 func RemoveCertificateProvider(tmpl template.Template, service CertificateProviderService, notifyClient NotifyClient, appPublicURL string) Handler {

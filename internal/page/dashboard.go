@@ -8,7 +8,6 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/appcontext"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/dashboard/dashboarddata"
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/validation"
 )
 
 type DashboardStore interface {
@@ -18,7 +17,6 @@ type DashboardStore interface {
 
 type dashboardData struct {
 	App                     appcontext.Data
-	Errors                  validation.List
 	NeedsTabs               bool
 	DonorLpas               []dashboarddata.Actor
 	RegisteredDonorLpas     []dashboarddata.Actor

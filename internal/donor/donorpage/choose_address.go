@@ -31,7 +31,6 @@ func newChooseAddressData(appData appcontext.Data, actorLabel, fullName string, 
 
 type chooseAddressData struct {
 	App               appcontext.Data
-	Errors            validation.List
 	ActorLabel        string
 	FullName          string
 	UID               actoruid.UID

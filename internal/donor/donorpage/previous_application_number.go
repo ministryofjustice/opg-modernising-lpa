@@ -12,9 +12,8 @@ import (
 )
 
 type previousApplicationNumberData struct {
-	App    appcontext.Data
-	Errors validation.List
-	Form   *previousApplicationNumberForm
+	App  appcontext.Data
+	Form *previousApplicationNumberForm
 }
 
 func PreviousApplicationNumber(tmpl template.Template, donorStore DonorStore) Handler {

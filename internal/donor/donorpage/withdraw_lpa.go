@@ -12,13 +12,11 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/localize"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/notify"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/validation"
 )
 
 type withdrawLpaData struct {
-	App    appcontext.Data
-	Errors validation.List
-	Donor  *donordata.Provided
+	App   appcontext.Data
+	Donor *donordata.Provided
 }
 
 func WithdrawLpa(tmpl template.Template, donorStore DonorStore, now func() time.Time, lpaStoreClient LpaStoreClient, notifyClient NotifyClient, lpaStoreResolvingService LpaStoreResolvingService, certificateProviderStore CertificateProviderStore, certificateProviderStartURL, attorneyStartURL string) Handler {

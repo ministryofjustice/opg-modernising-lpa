@@ -8,7 +8,7 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor/donordata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/lpastore/lpadata"
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/newforms"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/validation"
 )
 
@@ -62,31 +62,27 @@ func HowShouldReplacementAttorneysStepIn(tmpl template.Template, donorStore Dono
 }
 
 type howShouldReplacementAttorneysStepInForm struct {
-	WhenToStepIn lpadata.ReplacementAttorneysStepIn
-	OtherDetails string
+	newforms.Form
+	WhenToStepIn *newforms.Enum[lpadata.ReplacementAttorneysStepIn, lpadata.ReplacementAttorneysStepInOptions, *lpadata.ReplacementAttorneysStepIn]
+	OtherDetails *newforms.String
 }
 
-func readHowShouldReplacementAttorneysStepInForm(r *http.Request) *howShouldReplacementAttorneysStepInForm {
-	when, _ := lpadata.ParseReplacementAttorneysStepIn(page.PostFormString(r, "when-to-step-in"))
-
+func newHowShouldReplacementAttorneysStepInForm(l Localizer) *howShouldReplacementAttorneysStepInForm {
 	return &howShouldReplacementAttorneysStepInForm{
-		WhenToStepIn: when,
-		OtherDetails: page.PostFormString(r, "other-details"),
+		WhenToStepIn: newforms.NewEnum[lpadata.ReplacementAttorneysStepIn]("when-to-step-in", l.T("whenYourReplacementAttorneysStepIn"), lpadata.ReplacementAttorneysStepInValues).
+			Selected(),
+		OtherDetails: newforms.NewString("other-details", l.T("detailsOfWhenToStepIn")).
+			NotEmpty().
+			NoLinks(newforms.LocalizedError("yourInstructionsForAttorneys")),
 	}
 }
 
-func (f *howShouldReplacementAttorneysStepInForm) Validate() validation.List {
-	var errors validation.List
+func (f *howShouldReplacementAttorneysStepInForm) Parse(r *http.Request) bool {
+	ok := f.ParsePostForm(r, f.WhenToStepIn)
 
-	errors.Enum("when-to-step-in", "whenYourReplacementAttorneysStepIn", f.WhenToStepIn,
-		validation.Selected())
-
-	if f.WhenToStepIn == lpadata.ReplacementAttorneysStepInAnotherWay {
-		errors.String("other-details", "detailsOfWhenToStepIn", f.OtherDetails,
-			validation.Empty())
-		errors.String("other-details", "yourInstructionsForAttorneys", f.OtherDetails,
-			validation.NoLinks())
+	if f.WhenToStepIn.Value == lpadata.ReplacementAttorneysStepInAnotherWay {
+		ok = f.ParsePostForm(r, f.OtherDetails) && ok
 	}
 
-	return errors
+	return ok
 }

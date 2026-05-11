@@ -17,3 +17,7 @@ const (
 	TypeVoucher                          // voucher
 	TypeCorrespondent                    // correspondent
 )
+
+func (t Type) Empty() bool {
+	return t.IsNone()
+}

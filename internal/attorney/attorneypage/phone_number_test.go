@@ -261,8 +261,7 @@ func TestReadPhoneNumberForm(t *testing.T) {
 
 func TestPhoneNumberFormValidate(t *testing.T) {
 	testCases := map[string]struct {
-		form   *phoneNumberForm
-		errors validation.List
+		form *phoneNumberForm
 	}{
 		"valid": {
 			form: &phoneNumberForm{

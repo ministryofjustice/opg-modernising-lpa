@@ -7,15 +7,13 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/appcontext"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor/donordata"
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/form"
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/validation"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/newforms"
 )
 
 type addCorrespondentData struct {
-	App    appcontext.Data
-	Errors validation.List
-	Form   *form.YesNoForm
-	Donor  *donordata.Provided
+	App   appcontext.Data
+	Form  *newforms.YesNoForm
+	Donor *donordata.Provided
 }
 
 func AddCorrespondent(tmpl template.Template, service CorrespondentService) Handler {
@@ -27,15 +25,14 @@ func AddCorrespondent(tmpl template.Template, service CorrespondentService) Hand
 		data := &addCorrespondentData{
 			App:   appData,
 			Donor: provided,
-			Form:  form.NewYesNoForm(provided.AddCorrespondent),
+			Form:  newforms.NewYesNoForm(appData.Localizer.T("yesToAddCorrespondent")),
 		}
 
-		if r.Method == http.MethodPost {
-			f := form.ReadYesNoForm(r, "yesToAddCorrespondent")
-			data.Errors = f.Validate()
+		data.Form.YesNo.SetInput(provided.AddCorrespondent)
 
-			if data.Errors.None() {
-				provided.AddCorrespondent = f.YesNo
+		if r.Method == http.MethodPost {
+			if data.Form.Parse(r) {
+				provided.AddCorrespondent = data.Form.YesNo.Value
 
 				if provided.AddCorrespondent.IsNo() {
 					if err := service.NotWanted(r.Context(), provided); err != nil {

@@ -10,13 +10,12 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/appcontext"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor/donordata"
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/newforms"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/validation"
 )
 
 type changeMobileNumberData struct {
 	App        appcontext.Data
-	Errors     validation.List
 	Form       *changeMobileNumberForm
 	ActorType  actor.Type
 	FirstNames string
@@ -49,23 +48,20 @@ func ChangeMobileNumber(tmpl template.Template, witnessCodeSender WitnessCodeSen
 		}
 
 		if r.Method == http.MethodPost {
-			data.Form = readChangeMobileNumberForm(r)
-			data.Errors = data.Form.Validate()
-
-			if data.Errors.None() {
+			if data.Form.Parse(r) {
 				if actorType == actor.TypeIndependentWitness {
-					provided.IndependentWitness.HasNonUKMobile = data.Form.HasNonUKMobile
-					if data.Form.HasNonUKMobile {
-						provided.IndependentWitness.Mobile = data.Form.NonUKMobile
+					provided.IndependentWitness.HasNonUKMobile = data.Form.HasNonUKMobile.Value
+					if data.Form.HasNonUKMobile.Value {
+						provided.IndependentWitness.Mobile = data.Form.NonUKMobile.Value
 					} else {
-						provided.IndependentWitness.Mobile = data.Form.Mobile
+						provided.IndependentWitness.Mobile = data.Form.Mobile.Value
 					}
 				} else {
-					provided.CertificateProvider.HasNonUKMobile = data.Form.HasNonUKMobile
-					if data.Form.HasNonUKMobile {
-						provided.CertificateProvider.Mobile = data.Form.NonUKMobile
+					provided.CertificateProvider.HasNonUKMobile = data.Form.HasNonUKMobile.Value
+					if data.Form.HasNonUKMobile.Value {
+						provided.CertificateProvider.Mobile = data.Form.NonUKMobile.Value
 					} else {
-						provided.CertificateProvider.Mobile = data.Form.Mobile
+						provided.CertificateProvider.Mobile = data.Form.Mobile.Value
 					}
 				}
 
@@ -87,31 +83,28 @@ func ChangeMobileNumber(tmpl template.Template, witnessCodeSender WitnessCodeSen
 }
 
 type changeMobileNumberForm struct {
-	Mobile         string
-	HasNonUKMobile bool
-	NonUKMobile    string
+	newforms.Form
+	HasNonUKMobile *newforms.Bool
+	Mobile         *newforms.String
+	NonUKMobile    *newforms.String
 }
 
-func readChangeMobileNumberForm(r *http.Request) *changeMobileNumberForm {
+func newChangeMobileNumberForm(l Localizer) *changeMobileNumberForm {
 	return &changeMobileNumberForm{
-		Mobile:         page.PostFormString(r, "mobile"),
-		HasNonUKMobile: page.PostFormString(r, "has-non-uk-mobile") == "1",
-		NonUKMobile:    page.PostFormString(r, "non-uk-mobile"),
+		HasNonUKMobile: newforms.NewBool("has-non-uk-mobile", l.T("iDoNotHaveAUkMobileNumber")),
+		Mobile:         newforms.NewString("mobile", l.T("aUKMobileNumber")),
+		NonUKMobile:    newforms.NewString("non-uk-mobile", l.T("aMobilePhoneNumber")),
 	}
 }
 
-func (f *changeMobileNumberForm) Validate() validation.List {
-	var errors validation.List
+func (f *changeMobileNumberForm) Parse(r *http.Request) bool {
+	ok := f.ParsePostForm(r, f.HasNonUKMobile)
 
-	if f.HasNonUKMobile {
-		errors.String("non-uk-mobile", "aMobilePhoneNumber", f.NonUKMobile,
-			validation.Empty(),
-			validation.NonUKMobile().ErrorLabel("enterAMobileNumberInTheCorrectFormat"))
+	if f.HasNonUKMobile.Value {
+		ok = f.ParsePostForm(r, f.NonUKMobile) && ok
 	} else {
-		errors.String("mobile", "aUKMobileNumber", f.Mobile,
-			validation.Empty(),
-			validation.Mobile().ErrorLabel("enterAMobileNumberInTheCorrectFormat"))
+		ok = f.ParsePostForm(r, f.Mobile) && ok
 	}
 
-	return errors
+	return ok
 }

@@ -19,22 +19,22 @@
 
             <form novalidate method="post">
                 {{ if eq 5 (len .Donor.PeopleToNotify) }}
-                    <input type="hidden" name="option" value="{{ .Options.No.String }}">
+                    <input type="hidden" name="option" value="{{ .Form.Enum.Options.No.String }}">
 
                     {{ template "buttons" (button .App "continue") }}
                 {{ else if .CanChoose }}
-                    {{ template "radios-fieldset" (fieldset . "option" ""
-                        (legend "doYouWantToAddAnotherPersonToNotify" "govuk-fieldset__legend--l")
-                        (item .Options.Maybe.String "yesWantToChoosePreviousPersonToNotify")
-                        (item .Options.Yes.String "yesWantToAddNewPersonToNotify")
-                        (item .Options.No.String "no")) }}
+                    {{ template "new-radios-fieldset" (newFieldset . .Form.Enum
+                        (legend (tr .App "doYouWantToAddAnotherPersonToNotify") "govuk-fieldset__legend--l")
+                        (item .Form.Enum.Options.Maybe.String (tr .App "yesWantToChoosePreviousPersonToNotify"))
+                        (item .Form.Enum.Options.Yes.String (tr .App "yesWantToAddNewPersonToNotify"))
+                        (item .Form.Enum.Options.No.String (tr .App "no"))) }}
 
                     {{ template "buttons" (button .App "saveAndContinue") }}
                 {{ else }}
-                    {{ template "radios-fieldset" (fieldset . "option" ""
-                        (legend "doYouWantToAddAnotherPersonToNotify" "govuk-fieldset__legend--l")
-                        (item .Options.Yes.String "yes")
-                        (item .Options.No.String "no")) }}
+                    {{ template "new-radios-fieldset" (newFieldset . .Form.Enum
+                        (legend (tr .App "doYouWantToAddAnotherPersonToNotify") "govuk-fieldset__legend--l")
+                        (item .Form.Enum.Options.Yes.String (tr .App "yes"))
+                        (item .Form.Enum.Options.No.String (tr .App "no"))) }}
 
                     {{ template "buttons" (button .App "saveAndContinue") }}
                 {{ end }}
