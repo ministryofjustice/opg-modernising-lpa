@@ -22,4 +22,9 @@ ignore:
         reason: None Given
         expires: 2026-05-25T16:43:45.000Z
         created: 2026-03-26T16:43:45.000Z
+  SNYK-GOLANG-GOLANGORGXNETHTTP2-16535157:
+    - "*":
+        reason: None Given
+        expires: 2026-06-12T14:19:45.000Z
+        created: 2026-05-12T14:19:45.000Z
 patch: {}

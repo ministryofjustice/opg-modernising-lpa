@@ -197,7 +197,7 @@ jobs:
           fi
 
       - name: Upload SARIF results part 1
-        uses: github/codeql-action/upload-sarif@95e58e9a2cdfd71adc6e0353d5c52f41a045d225 # v4.35.2
+        uses: github/codeql-action/upload-sarif@e46ed2cbd01164d986452f91f178727624ae40d7 # v4.35.3
         if: always() && hashFiles(format('./test-results/{0}_snyk_part_01.sarif',
           matrix.scan_id)) != ''
         with:
@@ -205,7 +205,7 @@ jobs:
           category: ${{ matrix.scan_id }}-1
 
       - name: Upload SARIF results part 2
-        uses: github/codeql-action/upload-sarif@95e58e9a2cdfd71adc6e0353d5c52f41a045d225 # v4.35.2
+        uses: github/codeql-action/upload-sarif@e46ed2cbd01164d986452f91f178727624ae40d7 # v4.35.3
         if: always() && hashFiles(format('./test-results/{0}_snyk_part_02.sarif',
           matrix.scan_id)) != ''
         with:
