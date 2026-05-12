@@ -7,13 +7,15 @@ on:
         description: 'The terraform workspace to target for account actions'
         required: true
         type: string
+      oidc_role_arn:
+        description: 'ARN for OIDC role to assume for terraform tasks'
+        required: true
+        type: string
     secrets:
       pagerduty_api_key:
         description: 'Pagerduty API Key'
         required: true
-      oidc_role_arn:
-        description: 'ARN for OIDC role to assume for terraform tasks'
-        required: true
+
 permissions:
   id-token: write
 
@@ -30,7 +32,6 @@ jobs:
       - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
         with:
           fetch-depth: '0'
-      - uses: unfor19/install-aws-cli-action@f5b46b7f32cf5e7ebd652656c5036bf83dd1e60c # v1
       - name: Parse terraform version
         id: tf_version_setup
         working-directory: ./terraform/account
@@ -43,18 +44,18 @@ jobs:
       - name: "Terraform version [${{ steps.tf_version_setup.outputs.TERRAFORM_VERSION }}]"
         run: echo "terraform version [${{ steps.tf_version_setup.outputs.TERRAFORM_VERSION }}]"
         working-directory: ./terraform/account
-      - uses: hashicorp/setup-terraform@b9cd54a3c349d3f38e8881555d616ced269862dd # v3.1.2
+      - uses: hashicorp/setup-terraform@5e8dbf3c6d9deaf4193ca7a8fb23f2ac83bb6c85 # v4
         with:
           terraform_version: ${{ steps.tf_version_setup.outputs.TERRAFORM_VERSION }}
           terraform_wrapper: false
       - name: Configure AWS Credentials For Terraform
-        uses: aws-actions/configure-aws-credentials@8df5847569e6427dd6c4fb1cf565c83acfa8afa7 # v6.0.0
+        uses: aws-actions/configure-aws-credentials@ec61189d14ec14c8efccab744f656cffd0e33f37 # v6.1.0
         with:
-          role-to-assume: ${{ secrets.oidc_role_arn }}
+          role-to-assume: ${{ inputs.oidc_role_arn }}
           aws-region: eu-west-1
           role-duration-seconds: 3600
           role-session-name: OPGModernisingLPATerraformGithubAction
-      - uses: terraform-linters/setup-tflint@ae78205cfffec9e8d93fd2b3115c7e9d3166d4b6 # v5
+      - uses: terraform-linters/setup-tflint@b480b8fcdaa6f2c577f8e4fa799e89e756bb7c93 # v6
         name: Setup TFLint
         with:
           tflint_version: v${{ env.TFLINT_VERSION }}

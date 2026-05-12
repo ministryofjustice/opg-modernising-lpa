@@ -26,9 +26,6 @@ jobs:
       - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
         with:
           fetch-depth: "0"
-
-      - uses: unfor19/install-aws-cli-action@f5b46b7f32cf5e7ebd652656c5036bf83dd1e60c # v1
-
       - name: Parse terraform version
         id: tf_version_setup
         working-directory: ./terraform/environment
@@ -43,7 +40,7 @@ jobs:
         run: echo "terraform version [${{ steps.tf_version_setup.outputs.TERRAFORM_VERSION }}]"
         working-directory: ./terraform/environment
 
-      - uses: hashicorp/setup-terraform@b9cd54a3c349d3f38e8881555d616ced269862dd # v3.1.2
+      - uses: hashicorp/setup-terraform@5e8dbf3c6d9deaf4193ca7a8fb23f2ac83bb6c85 # v4
         with:
           terraform_version: ${{ steps.tf_version_setup.outputs.TERRAFORM_VERSION }}
           terraform_wrapper: false
@@ -55,7 +52,7 @@ jobs:
         run: pip install awscurl==v0.36
 
       - name: Configure AWS Credentials For Terraform
-        uses: aws-actions/configure-aws-credentials@8df5847569e6427dd6c4fb1cf565c83acfa8afa7 # v6.0.0
+        uses: aws-actions/configure-aws-credentials@ec61189d14ec14c8efccab744f656cffd0e33f37 # v6.1.0
         with:
           role-to-assume: ${{ secrets.WORKSPACE_CLEANUP_OIDC_ROLE }}
           aws-region: eu-west-1

@@ -89,7 +89,7 @@ type sessionData struct {
 	PK        dynamo.SessionKeyType
 	SK        dynamo.MetadataKeyType
 	Encoded   string
-	ExpiresAt int64
+	ExpiresAt time.Time `dynamodbav:",unixtime"`
 }
 
 func (s *DynamoStore) save(ctx context.Context, session *sessions.Session) error {
@@ -104,7 +104,7 @@ func (s *DynamoStore) save(ctx context.Context, session *sessions.Session) error
 		PK:        dynamo.SessionKey(session.ID),
 		SK:        dynamo.MetadataKey(session.ID),
 		Encoded:   encoded,
-		ExpiresAt: expiresAt.Unix(),
+		ExpiresAt: expiresAt,
 	})
 }
 

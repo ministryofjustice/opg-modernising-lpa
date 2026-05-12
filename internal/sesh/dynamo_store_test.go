@@ -175,7 +175,7 @@ func TestDynamoStoreSave(t *testing.T) {
 			PK:        dynamo.SessionKey(sessionID),
 			SK:        dynamo.MetadataKey(sessionID),
 			Encoded:   encodedData,
-			ExpiresAt: expiresAt.Unix(),
+			ExpiresAt: expiresAt,
 		}).
 		Return(nil)
 

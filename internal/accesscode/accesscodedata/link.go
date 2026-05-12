@@ -12,7 +12,7 @@ type Link struct {
 	PK        dynamo.AccessKeyType
 	SK        dynamo.AccessSortKeyType
 	UpdatedAt time.Time
-	ExpiresAt time.Time
+	ExpiresAt time.Time `dynamodbav:",unixtime"`
 
 	// LpaKey is the key for the LPA that will be accessed
 	LpaKey dynamo.LpaKeyType
