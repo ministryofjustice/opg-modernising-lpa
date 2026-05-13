@@ -32,8 +32,3 @@ ignore:
         reason: None Given
         expires: 2026-05-25T16:43:47.000Z
         created: 2026-03-26T16:43:47.000Z
-  SNYK-JS-UUID-16133035:
-    - "*":
-        reason: None Given
-        expires: 2026-06-12T14:19:45.000Z
-        created: 2026-05-12T14:19:45.000Z
