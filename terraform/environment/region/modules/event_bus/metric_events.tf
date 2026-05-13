@@ -8,6 +8,8 @@ resource "aws_cloudwatch_event_rule" "metric_events" {
     detail-type = ["metric"]
   })
   provider = aws.region
+
+  state = "DISABLED"
 }
 
 data "aws_ssm_parameter" "opg_metrics_arn" {
