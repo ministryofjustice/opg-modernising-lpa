@@ -2,8 +2,8 @@ name: "[Workflow] Cleanup PR Workspaces"
 
 on:
   # schedule:
-  #   # every hour
-  #   - cron: "0 * * * *"
+    # every hour
+    # - cron: "0 * * * *"
   workflow_dispatch:
 
 permissions:
@@ -54,14 +54,14 @@ jobs:
       - name: Configure AWS Credentials For Terraform
         uses: aws-actions/configure-aws-credentials@ec61189d14ec14c8efccab744f656cffd0e33f37 # v6.1.0
         with:
-          role-to-assume: ${{ secrets.WORKSPACE_CLEANUP_OIDC_ROLE }}
+          role-to-assume: ${{ vars.OIDC_WORKSPACE_CLEANUP }}
           aws-region: eu-west-1
           role-duration-seconds: 3600
           role-session-name: MRLPAPREnvCleanupGithubAction
 
-      - uses: webfactory/ssh-agent@e83874834305fe9a4a2997156cb26c5de65a8555 # v0.10.0
+      - uses: ministryofjustice/opg-github-actions/actions/github-deploy-key@ceeda9d30ec7f6705c819d0b7664b9a79df99a3b # v4.8.0
         with:
-          ssh-private-key: ${{ secrets.OPG_MODERNISING_LPA_DEPLOY_KEY_PRIVATE_KEY }}
+          deploy_key: ${{ secrets.OPG_MODERNISING_LPA_DEPLOY_KEY_PRIVATE_KEY }}
 
       - name: Install Terraform Workspace Manager
         run: |
@@ -79,4 +79,4 @@ jobs:
           TF_VAR_pagerduty_api_key: ${{ secrets.PAGERDUTY_API_KEY }}
           DEVELOPMENT_OPENSEARCH_COLLECTION_ENDPOINT: ${{ secrets.DEVELOPMENT_OPENSEARCH_COLLECTION_ENDPOINT }}
         run: |
-          ../../scripts/workspace_cleanup.sh $(terraform-workspace-manager -protected-workspaces=true -aws-account-id=653761790766)
+          ../../scripts/workspace_cleanup.sh $(terraform-workspace-manager -protected-workspaces=true -aws-account-id=653761790766 -aws-iam-role=modernising-lpa-ci)
