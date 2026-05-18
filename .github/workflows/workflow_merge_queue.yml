@@ -1,9 +1,8 @@
-name: "Path To Live"
+name: "[Merge Queue] Preproduction Integration"
 
 on:
-  push:
-    branches:
-      - main
+  merge_group:
+    types: [checks_requested]
 
 permissions:
   id-token: write
@@ -65,51 +64,63 @@ jobs:
     secrets:
       pagerduty_api_key: ${{ secrets.PAGERDUTY_API_KEY }}
 
-  terraform_account_workflow_production:
-    name: TF Apply Prod Account
-    needs: [terraform_account_workflow_development]
+  terraform_account_workflow_preproduction:
+    name: TF Apply Preprod Account
+    needs: terraform_account_workflow_development
     uses: ./.github/workflows/terraform_account_job.yml
     with:
-      workspace_name: production
-      oidc_role_arn: ${{ vars.OIDC_TERRAFORM_ROLE_PRODUCTION }}
+      workspace_name: preproduction
+      oidc_role_arn: ${{ vars.OIDC_TERRAFORM_ROLE_PREPRODUCTION }}
     secrets:
       pagerduty_api_key: ${{ secrets.PAGERDUTY_API_KEY }}
 
-  production_deploy:
-    name: Production Deploy
-    needs: [create_tags, terraform_account_workflow_production, docker_build_scan_push]
+  preproduction_deploy:
+    name: Preproduction Deploy
+    needs: [create_tags, terraform_account_workflow_preproduction, docker_build_scan_push]
     uses: ./.github/workflows/terraform_environment_job.yml
     with:
-      workspace_name: production
+      workspace_name: preproduction
       version_tag: ${{ needs.create_tags.outputs.version_tag }}
-      public_access_enabled: false
-      oidc_role_arn: ${{ vars.OIDC_TERRAFORM_ROLE_PRODUCTION }}
+      oidc_role_arn: ${{ vars.OIDC_TERRAFORM_ROLE_PREPRODUCTION }}
     secrets:
       ssh_deploy_key: ${{ secrets.OPG_MODERNISING_LPA_DEPLOY_KEY_PRIVATE_KEY }}
       github_access_token: ${{ secrets.GITHUB_TOKEN }}
       pagerduty_api_key: ${{ secrets.PAGERDUTY_API_KEY }}
 
-  demo_deploy:
-    name: Production Deploy
-    needs: [create_tags, terraform_account_workflow_production, docker_build_scan_push]
-    uses: ./.github/workflows/terraform_environment_job.yml
+  ui_tests_preproduction_env:
+    name: Run Cypress UI Tests On Preproduction Environment
+    uses: ./.github/workflows/ui_test_job.yml
+    needs: [preproduction_deploy, create_tags]
     with:
-      workspace_name: demo
-      version_tag: ${{ needs.create_tags.outputs.version_tag }}
-      public_access_enabled: false
-      oidc_role_arn: ${{ vars.OIDC_TERRAFORM_ROLE_DEVELOPMENT }}
+      run_against_image: false
+      base_url: "https://${{ needs.preproduction_deploy.outputs.url }}"
+      tag: ${{ needs.create_tags.outputs.version_tag }}
+      environment_config_json: ${{ needs.preproduction_deploy.outputs.environment_config_json }}
+      specs: 'cypress/smoke/*.cy.js'
+      dev_mode: ${{ needs.preproduction_deploy.outputs.dev_mode }}
+      ingress_management_oidc_role_arn: ${{ vars.OIDC_INGRESS_MANAGEMENT_PREPRODUCTION }}
     secrets:
-      ssh_deploy_key: ${{ secrets.OPG_MODERNISING_LPA_DEPLOY_KEY_PRIVATE_KEY }}
+      cypress_record_key: ${{ secrets.CYPRESS_RECORD_KEY }}
       github_access_token: ${{ secrets.GITHUB_TOKEN }}
-      pagerduty_api_key: ${{ secrets.PAGERDUTY_API_KEY }}
+      test_onelogin_basic_auth: ${{ secrets.TEST_ONELOGIN_BASIC_AUTH }}
+      test_onelogin_totp_key: ${{ secrets.TEST_ONELOGIN_TOTP_KEY }}
+      test_onelogin_password: ${{ secrets.TEST_ONELOGIN_PASSWORD }}
 
-  end_of_main_workflow:
-    name: End of Main Workflow
-    if: github.ref == 'refs/heads/main'
+  end_of_workflow:
+    name: End of Merge Queue Workflow
     runs-on: ubuntu-latest
-    environment: production
-    needs: [production_deploy]
+    environment: preproduction
+    needs: [ui_tests_preproduction_env]
     steps:
-      - name: End of Path to Live Workflow
+      - name: Complete
         run: |
-          echo "production environment tested, built and deployed"
+          echo "preproduction environment tested, built and deployed"
+
+  always_remove_ingress:
+    name: Remove CI ingress from environment
+    if: ${{ always() }}
+    uses: ./.github/workflows/remove_ingress_job.yml
+    needs: [ui_tests_preproduction_env, preproduction_deploy]
+    with:
+      environment_config_json: ${{ needs.preproduction_deploy.outputs.environment_config_json }}
+      ingress_management_oidc_role_arn: ${{ vars.OIDC_INGRESS_MANAGEMENT_PREPRODUCTION }}
