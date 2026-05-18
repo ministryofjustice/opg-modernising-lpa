@@ -13,8 +13,6 @@
 
         {{ trFormatHtml .App "whoIsEligibleToBeCertificateProviderContent" "DonorFullName" .Lpa.Donor.FullName "DonorFirstNames" .Lpa.Donor.FirstNames  }}
 
-        {{ template "details" (details . "whoIsEligibleToBeCertificateProviderDetails" "whoIsEligibleToBeCertificateProviderDetailsContent" false) }}
-
         <h2 class="govuk-heading-m">{{ tr .App "whoCannotBeCertificateProvider" }}</h2>
 
         {{ trFormatHtml .App "whoCannotBeCertificateProviderContent" "DonorFirstNames" .Lpa.Donor.FirstNames }}
