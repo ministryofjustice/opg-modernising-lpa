@@ -135,8 +135,9 @@ jobs:
           CYPRESS_TEST_ONELOGIN_TOTP_KEY: ${{ secrets.test_onelogin_totp_key }}
           CYPRESS_TEST_ONELOGIN_PASSWORD: ${{ secrets.test_onelogin_password }}
           GITHUB_TOKEN: ${{ secrets.github_access_token }}
-        run:
-          npm run cypress:parallel-with-specs -- --spec ${{ inputs.specs }} ${{ inputs.dev_mode != '1' && '--env grepTags=-@dev,grepFilterSpecs=true' || '' }}
+        run: |
+          shopt -s globstar # makes ** in glob patterns match zero or more directories recursively
+          eval "npm run cypress:parallel-with-specs -- --spec ${{ inputs.specs }} ${{ inputs.dev_mode != '1' && '--env grepTags=-@dev,grepFilterSpecs=true' || '' }}"
 
       - name: Persist Cypress failure screenshots as artifacts
         if: failure()
