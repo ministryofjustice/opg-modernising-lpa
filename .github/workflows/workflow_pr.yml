@@ -75,26 +75,6 @@ jobs:
     secrets:
       pagerduty_api_key: ${{ secrets.PAGERDUTY_API_KEY }}
 
-  terraform_account_workflow_preproduction:
-    name: TF Plan Preprod Account
-    needs: terraform_account_workflow_development
-    uses: ./.github/workflows/terraform_account_job.yml
-    with:
-      workspace_name: preproduction
-      oidc_role_arn: ${{ vars.OIDC_TERRAFORM_ROLE_PREPRODUCTION }}
-    secrets:
-      pagerduty_api_key: ${{ secrets.PAGERDUTY_API_KEY }}
-
-  # terraform_account_workflow_production:
-  #   name: TF Plan Prod Account
-  #   needs: terraform_account_workflow_development
-  #   uses: ./.github/workflows/terraform_account_job.yml
-  #   with:
-  #     workspace_name: production
-  #     oidc_role_arn: ${{ vars.OIDC_TERRAFORM_ROLE_PRODUCTION }}
-  #   secrets:
-  #     pagerduty_api_key: ${{ secrets.PAGERDUTY_API_KEY }}
-
   ui_tests_image:
     name: Run Cypress UI Tests On Images
     if: needs.detect_changes.outputs.changes_detected == 'true' &&
@@ -155,8 +135,8 @@ jobs:
       environment_config_json: ${{ needs.pr_deploy.outputs.environment_config_json }}
       ingress_management_oidc_role_arn: ${{ vars.OIDC_INGRESS_MANAGEMENT_DEVELOPMENT }}
 
-  end_of_pr_workflow:
-    name: End of PR Workflow
+  end_of_workflow:
+    name: End of Workflow
     runs-on: ubuntu-latest
     if: always()
     environment:
@@ -167,9 +147,7 @@ jobs:
         pr_deploy,
         create_tags,
         ui_tests_pr_env,
-        terraform_account_workflow_development,
-        terraform_account_workflow_preproduction,
-        # terraform_account_workflow_production,
+        terraform_account_workflow_development
       ]
     steps:
       - name: End of PR Workflow

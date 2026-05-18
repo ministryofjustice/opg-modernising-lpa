@@ -1,5 +1,8 @@
 name: "Path To Live"
 
+concurrency:
+  group: ${{ github.ref }}-${{ github.workflow }}
+
 on:
   push:
     branches:
@@ -62,78 +65,18 @@ jobs:
     with:
       workspace_name: development
       oidc_role_arn: ${{ vars.OIDC_TERRAFORM_ROLE_DEVELOPMENT }}
+      apply: true
     secrets:
       pagerduty_api_key: ${{ secrets.PAGERDUTY_API_KEY }}
-
-  terraform_account_workflow_preproduction:
-    name: TF Apply Preprod Account
-    needs: terraform_account_workflow_development
-    uses: ./.github/workflows/terraform_account_job.yml
-    with:
-      workspace_name: preproduction
-      oidc_role_arn: ${{ vars.OIDC_TERRAFORM_ROLE_PREPRODUCTION }}
-    secrets:
-      pagerduty_api_key: ${{ secrets.PAGERDUTY_API_KEY }}
-
-  preproduction_deploy:
-    name: Preproduction Deploy
-    needs: [create_tags, terraform_account_workflow_preproduction, docker_build_scan_push]
-    uses: ./.github/workflows/terraform_environment_job.yml
-    with:
-      workspace_name: preproduction
-      version_tag: ${{ needs.create_tags.outputs.version_tag }}
-      oidc_role_arn: ${{ vars.OIDC_TERRAFORM_ROLE_PREPRODUCTION }}
-    secrets:
-      ssh_deploy_key: ${{ secrets.OPG_MODERNISING_LPA_DEPLOY_KEY_PRIVATE_KEY }}
-      github_access_token: ${{ secrets.GITHUB_TOKEN }}
-      pagerduty_api_key: ${{ secrets.PAGERDUTY_API_KEY }}
-
-  ui_tests_preproduction_env:
-    name: Run Cypress UI Tests On Preproduction Environment
-    uses: ./.github/workflows/ui_test_job.yml
-    needs: [preproduction_deploy, create_tags]
-    with:
-      run_against_image: false
-      base_url: "https://${{ needs.preproduction_deploy.outputs.url }}"
-      tag: ${{ needs.create_tags.outputs.version_tag }}
-      environment_config_json: ${{ needs.preproduction_deploy.outputs.environment_config_json }}
-      specs: 'cypress/smoke/*.cy.js'
-      dev_mode: ${{ needs.preproduction_deploy.outputs.dev_mode }}
-      ingress_management_oidc_role_arn: ${{ vars.OIDC_INGRESS_MANAGEMENT_PREPRODUCTION }}
-    secrets:
-      cypress_record_key: ${{ secrets.CYPRESS_RECORD_KEY }}
-      github_access_token: ${{ secrets.GITHUB_TOKEN }}
-      test_onelogin_basic_auth: ${{ secrets.TEST_ONELOGIN_BASIC_AUTH }}
-      test_onelogin_totp_key: ${{ secrets.TEST_ONELOGIN_TOTP_KEY }}
-      test_onelogin_password: ${{ secrets.TEST_ONELOGIN_PASSWORD }}
-
-  preproduction_deploy_complete:
-    name: Preproduction Deployment
-    if: github.ref == 'refs/heads/main'
-    runs-on: ubuntu-latest
-    environment: preproduction
-    needs: [ui_tests_preproduction_env]
-    steps:
-      - name: Complete
-        run: |
-          echo "preproduction environment tested, built and deployed"
-
-  always_remove_ingress:
-    name: Remove CI ingress from environment
-    if: ${{ always() }}
-    uses: ./.github/workflows/remove_ingress_job.yml
-    needs: [ui_tests_preproduction_env, preproduction_deploy]
-    with:
-      environment_config_json: ${{ needs.preproduction_deploy.outputs.environment_config_json }}
-      ingress_management_oidc_role_arn: ${{ vars.OIDC_INGRESS_MANAGEMENT_PREPRODUCTION }}
 
   terraform_account_workflow_production:
     name: TF Apply Prod Account
-    needs: [preproduction_deploy_complete]
+    needs: [terraform_account_workflow_development]
     uses: ./.github/workflows/terraform_account_job.yml
     with:
       workspace_name: production
       oidc_role_arn: ${{ vars.OIDC_TERRAFORM_ROLE_PRODUCTION }}
+      apply: true
     secrets:
       pagerduty_api_key: ${{ secrets.PAGERDUTY_API_KEY }}
 
@@ -165,8 +108,8 @@ jobs:
       github_access_token: ${{ secrets.GITHUB_TOKEN }}
       pagerduty_api_key: ${{ secrets.PAGERDUTY_API_KEY }}
 
-  end_of_main_workflow:
-    name: End of Main Workflow
+  end_of_workflow:
+    name: End of Workflow
     if: github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
     environment: production

@@ -11,6 +11,11 @@ on:
         description: 'ARN for OIDC role to assume for terraform tasks'
         required: true
         type: string
+      apply:
+        description: 'Boolean for whether to apply terraform changes'
+        required: false
+        default: false
+        type: boolean
     secrets:
       pagerduty_api_key:
         description: 'Pagerduty API Key'
@@ -88,7 +93,7 @@ jobs:
         env:
           TF_WORKSPACE: ${{ inputs.workspace_name }}
           TF_VAR_pagerduty_api_key: ${{ secrets.pagerduty_api_key }}
-        if: github.ref == 'refs/heads/main'
+        if: inputs.apply
         run: |
           terraform apply -lock-timeout=300s -input=false -auto-approve -parallelism=30 terraform.plan
         working-directory: ./terraform/account
