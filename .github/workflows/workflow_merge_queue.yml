@@ -1,5 +1,8 @@
 name: "[Merge Queue] Preproduction Integration"
 
+concurrency:
+  group: ${{ github.ref }}-${{ github.workflow }}
+
 on:
   merge_group:
     types: [checks_requested]

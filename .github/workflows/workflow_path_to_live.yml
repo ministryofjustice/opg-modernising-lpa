@@ -1,5 +1,8 @@
 name: "Path To Live"
 
+concurrency:
+  group: ${{ github.ref }}-${{ github.workflow }}
+
 on:
   push:
     branches:
