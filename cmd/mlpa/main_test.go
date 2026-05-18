@@ -222,8 +222,6 @@ func TestUnusedTranslations(t *testing.T) {
 		"your-jointly",
 		"property-and-affairs:covers",
 		"personal-welfare:covers",
-		"when-has-capacity:3rd",
-		"when-capacity-lost:3rd",
 	}
 
 	tokens, err := readStringsFromFiles("internal", "web/template")
