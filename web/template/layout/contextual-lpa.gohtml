@@ -195,7 +195,7 @@
     <dl class="govuk-summary-list app-stacked-summary-list">
         {{ with .Lpa.WhenCanTheLpaBeUsed }}
             {{ $data := staticSummaryRow $.App "whenAttorneysCanUseTheLpa"
-                (trHtml $.App (printf "%s:3rd" .String)) }}
+                (trHtml $.App .String) }}
 
             {{ if $.Lpa.WhenTheLpaCanBeUsedIsDefault }}
                 {{ template "defaulted-summary-row" $data }}
