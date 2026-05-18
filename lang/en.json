@@ -138,12 +138,11 @@
     "attorney": "Attorney",
     "wantReplacementAttorneys": "Do you want any replacement attorneys?",
     "yesToAddReplacementAttorneys": "yes to add replacement attorneys",
-    "replacementAttorneysStepIn": "Replacement attorneys can only begin acting if one of your attorneys steps down or can no longer act. For example, because they die or lose capacity.",
     "replacementAttorneysStepInExplanation": {
-        "one": "Having replacement attorneys is optional. However, having one or more replacement attorneys helps make sure your LPA will keep working if {{ .AttorneysFullNames }} (your attorney) can no longer act.",
-        "other": "Having replacement attorneys is optional. However, having one or more replacement attorneys helps make sure your LPA will keep working if {{ .AttorneysFullNames }} (your attorneys) can no longer act."
+        "one": "Replacement attorneys are optional. However, having one helps make sure your LPA will keep working if your original attorney, {{ .AttorneysFullNames }}, steps down or can no longer act. For example, because they die or lose mental capacity.",
+        "other": "Replacement attorneys are optional. However, having one helps make sure your LPA will keep working if one of your original attorneys, {{ .AttorneysFullNames }}, steps down or can no longer act. For example, because they die or lose mental capacity."
     },
-    "replacementAttorneyRequirements": "A replacement attorney must meet the same <a href=\"{{.SelectAttorneysHelpLink}}\" class=\"govuk-link\" target=\"_blank\" rel=\"noreferrer noopener\">requirements as an original attorney (opens in new tab)</a>. This includes being 18 or over.",
+    "replacementAttorneyRequirements": "A replacement attorney must meet the same <a href=\"{{.SelectAttorneysHelpLink}}\" class=\"govuk-link\" target=\"_blank\" rel=\"noreferrer noopener\">requirements as an original attorney (opens in new tab)</a>. This includes being 18 or over, and not being bankrupt or having a Debt Relief Order.",
     "findOutMoreAboutReplacementAttorneysContent": "<p class=\"govuk-body\"><a href=\"{{ .ReplacementAttorneysHelpLink }}\" class=\"govuk-link\" target=\"_blank\" rel=\"noreferrer noopener\">Find out more about replacement attorneys (opens in a new tab).</a></p>",
     "yesReplacementAttorneys": "Yes, I want replacement attorneys",
     "noReplacementAttorneys": "No, I do not want replacement attorneys",
