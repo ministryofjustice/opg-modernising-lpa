@@ -128,7 +128,7 @@ services:
 
   opensearch:
     container_name: opensearch
-    image: opensearchproject/opensearch:2.19.4@sha256:9e0b3b3b6805811bd63d9b9503ffe34a58ba33d03cc346000e318c6ff5c05bd9
+    image: opensearchproject/opensearch:2.19.5@sha256:3a73623acf3cdd566ad7d0c6c06190a528e6b8a5d54fe1f4327258e32bd8df26
     environment:
       - node.name=opensearch
       - cluster.name=opensearch-docker-cluster
@@ -152,7 +152,7 @@ services:
       timeout: 5s
 
   mock-lpa-store:
-    image: outofcoffee/imposter:4.9.0@sha256:d28ed1a752392454aad04443a72161fd28c36f271e04379b2a185798e8cbf10d
+    image: outofcoffee/imposter:4.9.2@sha256:a5c3f32236b7de8b9e1395657badcba39a85f52677cfaade78b7687590ef70fe
     volumes:
       - ./mock-lpa-store/:/opt/imposter/config/
     container_name: mock-lpa-store
@@ -193,7 +193,7 @@ services:
       - IMPOSTER_LOG_LEVEL=TRACE
 
   mock-uid:
-    image: outofcoffee/imposter:4.9.0@sha256:d28ed1a752392454aad04443a72161fd28c36f271e04379b2a185798e8cbf10d
+    image: outofcoffee/imposter:4.9.2@sha256:a5c3f32236b7de8b9e1395657badcba39a85f52677cfaade78b7687590ef70fe
     volumes:
       - ./mock-uid/:/opt/imposter/config/
     container_name: mock-uid

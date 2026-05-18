@@ -48,7 +48,6 @@ module "eu_west_1" {
     schedule_runner_lambda                  = module.global.iam_roles.schedule_runner_lambda
     schedule_runner_scheduler               = module.global.iam_roles.schedule_runner_scheduler
     guardduty_malware_protection            = module.global.iam_roles.guardduty_malware_protection
-    opg_metrics                             = module.global.iam_roles.opg_metrics
     mainstream_content_task_role            = module.global.iam_roles.mainstream_content_task_role
   }
   application_log_retention_days          = local.environment.cloudwatch_log_groups.application_log_retention_days
@@ -128,7 +127,6 @@ module "eu_west_2" {
     schedule_runner_lambda                  = module.global.iam_roles.schedule_runner_lambda
     schedule_runner_scheduler               = module.global.iam_roles.schedule_runner_scheduler
     guardduty_malware_protection            = module.global.iam_roles.guardduty_malware_protection
-    opg_metrics                             = module.global.iam_roles.opg_metrics
     mainstream_content_task_role            = module.global.iam_roles.mainstream_content_task_role
   }
   application_log_retention_days          = local.environment.cloudwatch_log_groups.application_log_retention_days

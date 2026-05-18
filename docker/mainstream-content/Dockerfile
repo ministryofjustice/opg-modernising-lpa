@@ -17,6 +17,9 @@ COPY --link docker/mainstream-content/alpine_image_hardening.sh /harden.sh
 
 COPY --from=fetched-repo app/register-lpa-prototype/package*.json ./
 
+# update uuid to 11.1.1 to fix security vulnerability via govuk-prototype-kit
+RUN npm pkg set overrides.uuid=11.1.1
+
 RUN npm install
 
 COPY --from=fetched-repo app/register-lpa-prototype/app ./app
