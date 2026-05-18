@@ -106,8 +106,8 @@ jobs:
       github_access_token: ${{ secrets.GITHUB_TOKEN }}
       pagerduty_api_key: ${{ secrets.PAGERDUTY_API_KEY }}
 
-  end_of_main_workflow:
-    name: End of Main Workflow
+  end_of_workflow:
+    name: End of Workflow
     if: github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
     environment: production

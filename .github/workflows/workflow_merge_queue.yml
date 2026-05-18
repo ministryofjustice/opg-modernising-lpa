@@ -53,7 +53,7 @@ jobs:
     uses: ./.github/workflows/docker_job.yml
     needs: [go_unit_tests,go_integration_tests,create_tags]
     with:
-      tag: ${{ needs.create_tags.outputs.version_tag }}
+      tag: integration-${{ needs.create_tags.outputs.version_tag }}
       branch_name: main
     secrets:
       SNYK_OPG_ORG_TOKEN: ${{ secrets.SNYK_OPG_ORG_TOKEN }}
@@ -110,7 +110,7 @@ jobs:
       test_onelogin_password: ${{ secrets.TEST_ONELOGIN_PASSWORD }}
 
   end_of_workflow:
-    name: End of Merge Queue Workflow
+    name: End of Workflow
     runs-on: ubuntu-latest
     environment: preproduction
     needs: [ui_tests_preproduction_env]

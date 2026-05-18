@@ -135,8 +135,8 @@ jobs:
       environment_config_json: ${{ needs.pr_deploy.outputs.environment_config_json }}
       ingress_management_oidc_role_arn: ${{ vars.OIDC_INGRESS_MANAGEMENT_DEVELOPMENT }}
 
-  end_of_pr_workflow:
-    name: End of PR Workflow
+  end_of_workflow:
+    name: End of Workflow
     runs-on: ubuntu-latest
     if: always()
     environment:
