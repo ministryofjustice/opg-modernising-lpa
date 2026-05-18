@@ -136,7 +136,7 @@ jobs:
           CYPRESS_TEST_ONELOGIN_PASSWORD: ${{ secrets.test_onelogin_password }}
           GITHUB_TOKEN: ${{ secrets.github_access_token }}
         run:
-          npm run cypress:parallel-with-specs -- --spec ${{ inputs.specs }} ${{ inputs.dev_mode != '1' && '--env grepTags=-@dev,grepFilterSpecs=true' || '' }}
+          eval "npm run cypress:parallel-with-specs -- --spec ${{ inputs.specs }} ${{ inputs.dev_mode != '1' && '--env grepTags=-@dev,grepFilterSpecs=true' || '' }}" # using eval to force a re-parse and expand glob patterns
 
       - name: Persist Cypress failure screenshots as artifacts
         if: failure()

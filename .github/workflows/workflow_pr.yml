@@ -95,8 +95,8 @@ jobs:
   #   secrets:
   #     pagerduty_api_key: ${{ secrets.PAGERDUTY_API_KEY }}
 
-  ui_tests_image:
-    name: Run Cypress UI Tests On Images
+  ui_tests_image_donor:
+    name: Run Cypress UI Tests On Images (Donor)
     if: needs.detect_changes.outputs.changes_detected == 'true' &&
       (needs.docker_build_scan_push.result == 'success' || needs.docker_build_scan_push.result == 'skipped')
     uses: ./.github/workflows/ui_test_job.yml
@@ -104,7 +104,23 @@ jobs:
     with:
       run_against_image: true
       tag: ${{ needs.create_tags.outputs.version_tag }}
-      specs: "cypress/e2e/**/*.cy.js"
+      specs: "cypress/e2e/donor/*.cy.js"
+      dev_mode: "1"
+      ingress_management_oidc_role_arn: ${{ vars.OIDC_INGRESS_MANAGEMENT_DEVELOPMENT }}
+    secrets:
+      cypress_record_key: ${{ secrets.CYPRESS_RECORD_KEY }}
+      github_access_token: ${{ secrets.GITHUB_TOKEN }}
+
+  ui_tests_image_remaining:
+    name: Run Cypress UI Tests On Images (Remaining)
+    if: needs.detect_changes.outputs.changes_detected == 'true' &&
+      (needs.docker_build_scan_push.result == 'success' || needs.docker_build_scan_push.result == 'skipped')
+    uses: ./.github/workflows/ui_test_job.yml
+    needs: [ docker_build_scan_push, create_tags ]
+    with:
+      run_against_image: true
+      tag: ${{ needs.create_tags.outputs.version_tag }}
+      specs: "cypress/e2e/accessibility/**/*.cy.js cypress/e2e/attorney/**/*.cy.js cypress/e2e/certificate-provider/**/*.cy.js cypress/e2e/supporter/**/*.cy.js cypress/e2e/voucher/**/*.cy.js cypress/e2e/*.cy.js"
       dev_mode: "1"
       ingress_management_oidc_role_arn: ${{ vars.OIDC_INGRESS_MANAGEMENT_DEVELOPMENT }}
     secrets:
@@ -116,8 +132,9 @@ jobs:
     if: always() &&
       (needs.go_unit_tests.result == 'success' || needs.go_unit_tests.result == 'skipped') &&
       (needs.docker_build_scan_push.result == 'success' || needs.docker_build_scan_push.result == 'skipped') &&
-      (needs.ui_tests_image.result == 'success' || needs.ui_tests_image.result == 'skipped')
-    needs: [create_tags, go_unit_tests, docker_build_scan_push, ui_tests_image]
+      (needs.ui_tests_image_donor.result == 'success' || needs.ui_tests_image_donor.result == 'skipped') &&
+      (needs.ui_tests_image_remaining.result == 'success' || needs.ui_tests_image_remaining.result == 'skipped')
+    needs: [create_tags, go_unit_tests, docker_build_scan_push, ui_tests_image_donor, ui_tests_image_remaining]
     uses: ./.github/workflows/terraform_environment_job.yml
     with:
       workspace_name: ${{ needs.create_tags.outputs.environment_workspace_name }}
