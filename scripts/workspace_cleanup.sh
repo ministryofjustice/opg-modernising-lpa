@@ -27,6 +27,7 @@ do
     *)
       echo "cleaning up workspace $workspace..."
       terraform workspace select "$workspace"
+      terraform destroy -auto-approve
       if ! terraform destroy -auto-approve; then
         TF_EXIT_CODE=1
       fi
