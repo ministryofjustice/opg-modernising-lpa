@@ -58,22 +58,13 @@ jobs:
     secrets:
       SNYK_OPG_ORG_TOKEN: ${{ secrets.SNYK_OPG_ORG_TOKEN }}
 
-  terraform_account_workflow_development:
-    name: TF Apply Dev Account
-    uses: ./.github/workflows/terraform_account_job.yml
-    with:
-      workspace_name: development
-      oidc_role_arn: ${{ vars.OIDC_TERRAFORM_ROLE_DEVELOPMENT }}
-    secrets:
-      pagerduty_api_key: ${{ secrets.PAGERDUTY_API_KEY }}
-
   terraform_account_workflow_preproduction:
     name: TF Apply Preprod Account
-    needs: terraform_account_workflow_development
     uses: ./.github/workflows/terraform_account_job.yml
     with:
       workspace_name: preproduction
       oidc_role_arn: ${{ vars.OIDC_TERRAFORM_ROLE_PREPRODUCTION }}
+      apply: true
     secrets:
       pagerduty_api_key: ${{ secrets.PAGERDUTY_API_KEY }}
 
