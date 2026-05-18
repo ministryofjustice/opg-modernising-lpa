@@ -1,4 +1,4 @@
-import { AddressFormAssertions, TestEmail } from "../../support/e2e";
+import { AddressFormAssertions, TestEmail } from "../../../support/e2e.js";
 
 describe('Choose replacement attorneys task', () => {
     it('is not started when no replacement attorneys are set', () => {

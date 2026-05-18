@@ -120,7 +120,7 @@ jobs:
     with:
       run_against_image: true
       tag: ${{ needs.create_tags.outputs.version_tag }}
-      specs: "cypress/e2e/accessibility/**/*.cy.js cypress/e2e/attorney/**/*.cy.js cypress/e2e/certificate-provider/**/*.cy.js cypress/e2e/supporter/**/*.cy.js cypress/e2e/voucher/**/*.cy.js cypress/e2e/*.cy.js"
+      specs: "cypress/e2e/accessibility/**/*.cy.js cypress/e2e/attorney/**/*.cy.js cypress/e2e/certificate-provider/**/*.cy.js cypress/e2e/donor/long-running/**/*.cy.js cypress/e2e/supporter/**/*.cy.js cypress/e2e/voucher/**/*.cy.js cypress/e2e/*.cy.js"
       dev_mode: "1"
       ingress_management_oidc_role_arn: ${{ vars.OIDC_INGRESS_MANAGEMENT_DEVELOPMENT }}
     secrets:

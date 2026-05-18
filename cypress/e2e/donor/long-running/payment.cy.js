@@ -1,4 +1,4 @@
-const { eventLoggerUrl } = require("../../support/e2e");
+const { eventLoggerUrl } = require("../../../support/e2e.js");
 
 describe('Pay for LPA', { pageLoadTimeout: 8000 }, () => {
     it('can pay full fee', () => {

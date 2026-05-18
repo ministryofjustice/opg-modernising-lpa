@@ -159,7 +159,7 @@
         "time": 4272,
         "weight": 10
     },
-    "cypress/e2e/donor/choose-replacement-attorneys-task.cy.js": {
+    "cypress/e2e/donor/long-running/choose-replacement-attorneys-task.cy.js": {
         "time": 41123,
         "weight": 98
     },
@@ -259,7 +259,7 @@
         "time": 2418,
         "weight": 5
     },
-    "cypress/e2e/donor/payment.cy.js": {
+    "cypress/e2e/donor/long-running/payment.cy.js": {
         "time": 26656,
         "weight": 63
     },
