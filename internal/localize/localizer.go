@@ -7,8 +7,6 @@ import (
 	"strings"
 	"time"
 	_ "time/tzdata" // To ensure timezone database is available
-	"unicode"
-	"unicode/utf8"
 
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/date"
 )
@@ -183,9 +181,4 @@ func (l *defaultLocalizer) FormatDateTime(t time.Time) string {
 
 func (l *defaultLocalizer) Lang() Lang {
 	return l.lang
-}
-
-func LowerFirst(s string) string {
-	r, n := utf8.DecodeRuneInString(s)
-	return string(unicode.ToLower(r)) + s[n:]
 }
