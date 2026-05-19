@@ -7,6 +7,7 @@ import (
 	"os"
 	"path"
 	"strings"
+	"unicode/utf8"
 )
 
 type parsedMessage struct {
@@ -75,10 +76,12 @@ func (b *Bundle) LoadMessageFile(p string) error {
 		"lowerFirst": LowerFirst,
 	}
 
-	if lang == "en" {
+	switch lang {
+	case "en":
 		if err := verifyEn(v); err != nil {
 			return err
 		}
+
 		fns["possessive"] = func(s string) string {
 			format := "%s’s"
 
@@ -88,11 +91,23 @@ func (b *Bundle) LoadMessageFile(p string) error {
 
 			return fmt.Sprintf(format, s)
 		}
-	} else if lang == "cy" {
+
+	case "cy":
 		if err := verifyCy(v); err != nil {
 			return err
 		}
-	} else {
+
+		fns["aac"] = func(s string) string {
+			r, _ := utf8.DecodeRuneInString(s)
+			switch r {
+			case 'A', 'E', 'I', 'O', 'U', 'Y':
+				return "ac " + s
+			default:
+				return "a " + s
+			}
+		}
+
+	default:
 		return errors.New("only supports en or cy")
 	}
 
