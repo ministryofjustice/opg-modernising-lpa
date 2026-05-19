@@ -100,15 +100,44 @@ jobs:
       test_onelogin_totp_key: ${{ secrets.TEST_ONELOGIN_TOTP_KEY }}
       test_onelogin_password: ${{ secrets.TEST_ONELOGIN_PASSWORD }}
 
+  # end_of_workflow:
+  #   name: End of Workflow
+  #   runs-on: ubuntu-latest
+  #   environment: preproduction
+  #   needs: [ui_tests_preproduction_env]
+  #   steps:
+  #     - name: Complete
+  #       run: |
+  #         echo "preproduction environment tested, built and deployed"
   end_of_workflow:
     name: End of Workflow
     runs-on: ubuntu-latest
-    environment: preproduction
-    needs: [ui_tests_preproduction_env]
+    needs:
+      - go_unit_tests
+      - go_integration_tests
+      - docker_build_scan_push
+      - terraform_account_workflow_preproduction
+      - preproduction_deploy
+      - ui_tests_preproduction_env
+    environment:
+      name: "preproduction"
     steps:
-      - name: Complete
+      - name: End of Workflow
         run: |
-          echo "preproduction environment tested, built and deployed"
+          if ${{ contains(needs.go_unit_tests.result, 'success')}} &&
+            ${{ contains(needs.go_integration_tests.result, 'success')}} &&
+            ${{ contains(needs.docker_build_scan_push.result, 'success')}} &&
+            ${{ contains(needs.terraform_account_workflow_preproduction.result, 'success')}} &&
+            ${{ contains(needs.preproduction_deploy.result, 'success')}} &&
+            ${{ contains(needs.ui_tests_preproduction_env.result, 'success')}}; then
+            echo "Preproduction environment tested, built and deployed"
+            echo "Tag Deployed: integration-${{ needs.create_tags.outputs.version_tag }}"
+            exit 0
+          else
+            echo "Previous jobs in pipeline failed."
+            exit 1
+          fi
+    if: always()
 
   always_remove_ingress:
     name: Remove CI ingress from environment
