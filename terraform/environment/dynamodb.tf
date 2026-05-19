@@ -83,12 +83,18 @@ resource "aws_dynamodb_resource_policy" "lpas_table_replica" {
   resource_arn = aws_dynamodb_table_replica.lpas_table[0].arn
   policy       = data.aws_iam_policy_document.lpas_table.json
   provider     = aws.eu_west_2
+  depends_on = [
+    module.global
+  ]
 }
 
 resource "aws_dynamodb_resource_policy" "lpas_table" {
   resource_arn = aws_dynamodb_table.lpas_table.arn
   policy       = data.aws_iam_policy_document.lpas_table.json
   provider     = aws.eu_west_1
+  depends_on = [
+    module.global
+  ]
 }
 
 data "aws_iam_policy_document" "lpas_table" {
@@ -259,12 +265,18 @@ resource "aws_dynamodb_resource_policy" "sessions_table_replica" {
   resource_arn = aws_dynamodb_table_replica.sessions_table[0].arn
   policy       = data.aws_iam_policy_document.sessions_table.json
   provider     = aws.eu_west_2
+  depends_on = [
+    module.global
+  ]
 }
 
 resource "aws_dynamodb_resource_policy" "sessions_table" {
   resource_arn = aws_dynamodb_table.sessions_table.arn
   policy       = data.aws_iam_policy_document.sessions_table.json
   provider     = aws.eu_west_1
+  depends_on = [
+    module.global
+  ]
 }
 
 data "aws_iam_policy_document" "sessions_table" {
