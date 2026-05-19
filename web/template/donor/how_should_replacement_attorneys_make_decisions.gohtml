@@ -45,9 +45,10 @@
 
                 <div id="decision-type-3-item-hint" class="govuk-radios__hint">
                   <p class="govuk-body">{{ tr .App "jointlyAndSeverallyMixedHintReplacementAttorneys" }}</p>
-                  <p class="govuk-body">{{ trFormatHtml .App (printf "jointlyAndSeverallyMixedHintReplacementAttorneysExample:%s" .Donor.Type.String)
-                                        "GuidanceLink" (link .App global.Paths.HowDecisionsAreMadeWithMultipleAttorneys.Format | printf "%s#jointly-for-some-decisions-and-jointly-and-severally-attorneys-must-agree-and-act-together-for-some-decisions") }}</p>
-                  <p class="govuk-body">{{ tr .App "ifYouChooseThisOptionMustStateDecisionsAgreedJointly" }}</p>
+                  <p class="govuk-body">
+                      {{ trFormatHtml .App (printf "jointlyAndSeverallyMixedHintReplacementAttorneysExample:%s" .Donor.Type.String)
+                          "GuidanceLink" (link .App global.Paths.HowDecisionsAreMadeWithMultipleAttorneys.Format | printf "%s#jointly-for-some-decisions-and-jointly-and-severally-attorneys-must-agree-and-act-together-for-some-decisions") }}
+                  </p>
                 </div>
               </div>
               <div class="govuk-radios__conditional govuk-radios__conditional--hidden" id="decision-type-3-conditional-div">
