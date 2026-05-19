@@ -100,19 +100,11 @@ jobs:
       test_onelogin_totp_key: ${{ secrets.TEST_ONELOGIN_TOTP_KEY }}
       test_onelogin_password: ${{ secrets.TEST_ONELOGIN_PASSWORD }}
 
-  # end_of_workflow:
-  #   name: End of Workflow
-  #   runs-on: ubuntu-latest
-  #   environment: preproduction
-  #   needs: [ui_tests_preproduction_env]
-  #   steps:
-  #     - name: Complete
-  #       run: |
-  #         echo "preproduction environment tested, built and deployed"
   end_of_workflow:
     name: End of Workflow
     runs-on: ubuntu-latest
     needs:
+      - create_tags
       - go_unit_tests
       - go_integration_tests
       - docker_build_scan_push
