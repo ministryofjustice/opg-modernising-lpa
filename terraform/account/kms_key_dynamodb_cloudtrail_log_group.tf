@@ -128,7 +128,7 @@ data "aws_iam_policy_document" "dynamodb_cloudtrail_log_group" {
     ]
     actions = [
       "kms:Decrypt",
-      "kms:GenerateDataKey*",
+      # "kms:GenerateDataKey*",
       "kms:DescribeKey",
     ]
 

@@ -75,10 +75,10 @@ data "aws_iam_policy_document" "schedule_runner" {
 
     actions = [
       "kms:Decrypt",
-      "kms:GenerateDataKey",
-      "kms:GenerateDataKeyPair",
-      "kms:GenerateDataKeyPairWithoutPlaintext",
-      "kms:GenerateDataKeyWithoutPlaintext",
+      # "kms:GenerateDataKey",
+      # "kms:GenerateDataKeyPair",
+      # "kms:GenerateDataKeyPairWithoutPlaintext",
+      # "kms:GenerateDataKeyWithoutPlaintext",
       "kms:DescribeKey",
     ]
   }

@@ -209,7 +209,7 @@ data "aws_iam_policy_document" "task_role_access_policy" {
 
     actions = [
       "kms:Decrypt",
-      "kms:GenerateDataKey",
+      # "kms:GenerateDataKey",
     ]
 
     resources = [

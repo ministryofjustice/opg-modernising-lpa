@@ -69,7 +69,7 @@ data "aws_iam_policy_document" "secrets_manager_kms" {
     ]
     actions = [
       "kms:Decrypt",
-      "kms:GenerateDataKey*",
+      # "kms:GenerateDataKey*",
       "kms:DescribeKey",
     ]
 

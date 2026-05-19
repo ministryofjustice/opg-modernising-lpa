@@ -151,7 +151,7 @@ data "aws_iam_policy_document" "reduced_fees_uploads_s3_kms" {
     ]
     actions = [
       "kms:Decrypt",
-      "kms:GenerateDataKey*",
+      # "kms:GenerateDataKey*",
       "kms:DescribeKey",
     ]
 

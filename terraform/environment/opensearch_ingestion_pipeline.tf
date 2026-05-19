@@ -95,7 +95,7 @@ data "aws_iam_policy_document" "opensearch_pipeline" {
     effect = "Allow"
     actions = [
       "kms:Decrypt",
-      "kms:GenerateDataKey",
+      # "kms:GenerateDataKey",
     ]
     resources = [
       data.aws_kms_alias.dynamodb_encryption_key.target_key_arn,

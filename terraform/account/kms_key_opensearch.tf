@@ -143,7 +143,7 @@ data "aws_iam_policy_document" "opensearch_kms" {
     ]
     actions = [
       "kms:Decrypt",
-      "kms:GenerateDataKey*",
+      # "kms:GenerateDataKey*",
       "kms:DescribeKey",
     ]
 

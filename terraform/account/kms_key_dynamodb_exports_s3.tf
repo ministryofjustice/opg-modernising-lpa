@@ -150,7 +150,7 @@ data "aws_iam_policy_document" "dynamodb_exports_s3_bucket_kms" {
     ]
     actions = [
       "kms:Decrypt",
-      "kms:GenerateDataKey*",
+      # "kms:GenerateDataKey*",
       "kms:DescribeKey",
     ]
 

@@ -88,7 +88,7 @@ data "aws_iam_policy_document" "event_received_sqs_kms" {
     ]
     actions = [
       "kms:Decrypt",
-      "kms:GenerateDataKey*",
+      # "kms:GenerateDataKey*",
       "kms:DescribeKey",
     ]
 
@@ -110,7 +110,7 @@ data "aws_iam_policy_document" "event_received_sqs_kms" {
     ]
     actions = [
       "kms:Decrypt",
-      "kms:GenerateDataKey*",
+      # "kms:GenerateDataKey*",
       "kms:DescribeKey",
     ]
 
@@ -205,7 +205,7 @@ data "aws_iam_policy_document" "event_received_sqs_kms" {
     ]
     actions = [
       "kms:Decrypt",
-      "kms:GenerateDataKey*",
+      # "kms:GenerateDataKey*",
       "kms:DescribeKey",
     ]
 
