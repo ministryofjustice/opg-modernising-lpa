@@ -309,7 +309,6 @@
     "jointlyAndSeverallyMixedHintReplacementAttorneys": "You must specify which decisions must be made jointly by your replacement attorneys. All other decisions can be made jointly and severally.",
     "jointlyAndSeverallyMixedHintReplacementAttorneysExample:property-and-affairs": "If one replacement attorney can no longer act, none of your other replacement attorneys can make the joint decisions you specify, unless you state otherwise in your <a href=\"{{.GuidanceLink}}\" class=\"govuk-link\" target=\"_blank\" rel=\"noreferrer noopener\">restrictions and conditions (opens in a new tab)</a>. Your LPA will stop working for those decisions.",
     "jointlyAndSeverallyMixedHintReplacementAttorneysExample:personal-welfare": "If one replacement attorney can no longer act, none of your other replacement attorneys can make the joint decisions you specify. Your LPA will stop working for those decisions.",
-    "ifYouChooseThisOptionMustStateDecisionsAgreedJointly": "If you choose this option you must state which decisions need to be agreed jointly.",
     "readTheGuidanceToSeeSomeExamples": "Read the guidance to see some examples.",
     "enterDetailsOfDecisionsReplacement": "Enter details of any decisions your replacement attorneys must make jointly",
     "details": "Details",
