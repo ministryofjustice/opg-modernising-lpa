@@ -80,7 +80,7 @@ jobs:
             name: make-and-register-lpa-mainstream-content
             path: ./docker/mainstream-content/Dockerfile
             service_path: ./docker/mainstream-content
-            snyk_policy_path: docker/mainstream-content/.snyk
+            snyk_policy_path: ./docker/mainstream-content/.snyk
             scan_id: make_and_register_lpa_mainstream_content
             platforms: linux/arm64
 
