@@ -74,7 +74,7 @@ jobs:
     uses: ./.github/workflows/terraform_environment_job.yml
     with:
       workspace_name: preproduction
-      version_tag: ${{ needs.create_tags.outputs.version_tag }}
+      version_tag: integration-${{ needs.create_tags.outputs.version_tag }}
       oidc_role_arn: ${{ vars.OIDC_TERRAFORM_ROLE_PREPRODUCTION }}
     secrets:
       ssh_deploy_key: ${{ secrets.OPG_MODERNISING_LPA_DEPLOY_KEY_PRIVATE_KEY }}
