@@ -75,24 +75,22 @@ func (b *Bundle) LoadMessageFile(p string) error {
 		"lowerFirst": LowerFirst,
 	}
 
-	if lang == "en" {
+	switch lang {
+	case "en":
 		if err := verifyEn(v); err != nil {
 			return err
 		}
-		fns["possessive"] = func(s string) string {
-			format := "%s’s"
 
-			if strings.HasSuffix(s, "s") {
-				format = "%s’"
-			}
+		fns["possessive"] = enPossessive
 
-			return fmt.Sprintf(format, s)
-		}
-	} else if lang == "cy" {
+	case "cy":
 		if err := verifyCy(v); err != nil {
 			return err
 		}
-	} else {
+
+		fns["aac"] = cyAac
+
+	default:
 		return errors.New("only supports en or cy")
 	}
 
