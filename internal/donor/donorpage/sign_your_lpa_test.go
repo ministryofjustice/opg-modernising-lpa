@@ -284,11 +284,11 @@ func TestSignYourLpaFormValidate(t *testing.T) {
 func TestYouMustViewAndSignInLanguageError(t *testing.T) {
 	localizer := newMockLocalizer(t)
 	localizer.EXPECT().
-		T("in:cy").
-		Return("in Welsh")
+		T("cy").
+		Return("Welsh")
 	localizer.EXPECT().
 		Format("youMustViewAndSignInLanguage", map[string]any{
-			"InLang": "in Welsh",
+			"Lang": "Welsh",
 		}).
 		Return("some words")
 
@@ -298,11 +298,11 @@ func TestYouMustViewAndSignInLanguageError(t *testing.T) {
 func TestYouMustViewAndSignInLanguageErrorWhenDonorFullName(t *testing.T) {
 	localizer := newMockLocalizer(t)
 	localizer.EXPECT().
-		T("in:cy").
-		Return("in Welsh")
+		T("cy").
+		Return("Welsh")
 	localizer.EXPECT().
 		Format("errorYouMustViewAndSignDonorsLpaInLanguage", map[string]any{
-			"InLang":        "in Welsh",
+			"Lang":          "Welsh",
 			"DonorFullName": "Mike",
 		}).
 		Return("some words")
