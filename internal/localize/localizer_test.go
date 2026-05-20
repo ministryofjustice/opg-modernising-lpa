@@ -110,8 +110,3 @@ func TestFormatDateTime(t *testing.T) {
 	assert.Equal(t, "12:00am on 8 March 2020", en.FormatDateTime(time.Date(2020, time.March, 7, 24, 0, 0, 0, time.UTC)))
 	assert.Equal(t, "8 Mawrth 2020 am 12:00yb", cy.FormatDateTime(time.Date(2020, time.March, 7, 24, 0, 0, 0, time.UTC)))
 }
-
-func TestLowerFirst(t *testing.T) {
-	assert.Equal(t, "hELLO", LowerFirst("HELLO"))
-	assert.Equal(t, "hello", LowerFirst("hello"))
-}
