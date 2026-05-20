@@ -21,7 +21,8 @@
 
                         {{ if .Donor.AttorneyDecisions.How.IsJointly }}
                             {{ template "warning" (content .App "jointlyReplacementWarning") }}
-                            {{ trHtml .App "jointlyReplacementWarningContent" }}
+                            {{ trFormatHtml .App "jointlyReplacementWarningContent"
+                                "ReplacingLink" (link .App global.Paths.ReplacementAttorneys.Format | printf "%s#replacing-attorneys-who-act-jointly") }}
                         {{ else if .Donor.AttorneyDecisions.How.IsJointlyForSomeSeverallyForOthers }}
                             {{ template "warning" (content .App "mixedReplacementWarning") }}
                             {{ trFormatHtml .App "mixedReplacementWarningContent"

@@ -8,7 +8,8 @@
             <h1 class="govuk-heading-xl">{{ tr .App "howYourAttorneysShouldMakeDecisions" }}</h1>
 
             {{ trFormatHtml .App "howYourAttorneysShouldMakeDecisionsContent"
-                "GuidanceLink" (link .App global.Paths.HowDecisionsAreMadeWithMultipleAttorneys.Format) }}
+                "GuidanceLink" (link .App global.Paths.HowDecisionsAreMadeWithMultipleAttorneys.Format)
+                "JointlyGuidanceLink" (link .App global.Paths.HowDecisionsAreMadeWithMultipleAttorneys.Format | printf "%s#jointly-for-some-decisions-and-jointly-and-severally-attorneys-must-agree-and-act-together-for-some-decisions") }}
 
             <form novalidate method="post">
                 {{ $hasError := .Errors.Has "decision-type" }}
