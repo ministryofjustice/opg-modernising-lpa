@@ -10,7 +10,6 @@ data "aws_iam_policy_document" "replication" {
 
     actions = [
       "kms:Decrypt",
-      "kms:GenerateDataKey",
       "kms:RetireGrant",
     ]
 
