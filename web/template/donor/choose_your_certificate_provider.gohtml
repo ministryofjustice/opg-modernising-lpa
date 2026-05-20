@@ -11,7 +11,7 @@
 
       {{ template "details" (details . "examplesOfProfessionalCertificateProviders" "examplesOfProfessionalCertificateProvidersContent" false) }}
 
-      <p class="govuk-body">{{ tr .App "chooseSomeoneYoureComfortableHavingAConversationWith" }}</p>
+      {{ trHtml .App "chooseSomeoneYoureComfortableHavingAConversationWith" }}
 
       {{ if not .Donor.HasTrustCorporation }}
         {{ trFormatHtml .App "whoCannotBeACertificateProviderAttorneys" "AttorneysFirstNamesOr" (concatOr .App .Donor.AllLayAttorneysFirstNames) }}
