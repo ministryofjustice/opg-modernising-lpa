@@ -225,6 +225,6 @@ type toSignLpaYouMustViewInLanguageError struct {
 
 func (e toSignLpaYouMustViewInLanguageError) Format(l validation.Localizer) string {
 	return l.Format("toSignLpaYouMustViewInLanguage", map[string]any{
-		"InLang": l.T("in:" + e.LpaLanguage.String()),
+		"Lang": l.T(e.LpaLanguage.String()),
 	})
 }

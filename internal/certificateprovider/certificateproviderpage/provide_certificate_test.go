@@ -1126,11 +1126,11 @@ func TestProvideCertificateFormValidate(t *testing.T) {
 func TestToSignCertificateYouMustViewInLanguageError(t *testing.T) {
 	localizer := newMockLocalizer(t)
 	localizer.EXPECT().
-		T("in:cy").
-		Return("in Welsh")
+		T("cy").
+		Return("Welsh")
 	localizer.EXPECT().
 		Format("toSignCertificateYouMustViewInLanguage", map[string]any{
-			"InLang": "in Welsh",
+			"Lang": "Welsh",
 		}).
 		Return("some words")
 

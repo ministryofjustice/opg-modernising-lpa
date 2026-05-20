@@ -186,6 +186,6 @@ type toSignCertificateYouMustViewInLanguageError struct {
 
 func (e toSignCertificateYouMustViewInLanguageError) Format(l validation.Localizer) string {
 	return l.Format("toSignCertificateYouMustViewInLanguage", map[string]any{
-		"InLang": l.T("in:" + e.LpaLanguage.String()),
+		"Lang": l.T(e.LpaLanguage.String()),
 	})
 }

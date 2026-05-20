@@ -2,29 +2,27 @@
 
 
 {{ define "pageTitle" }}
-    {{ $inSelected := tr .App (printf "in:%s" .SelectedLanguage.String) }}
-    {{ trFormat .App "yourLpaWillBeRegisteredInLanguage" "InLang" $inSelected }}
+    {{ trFormat .App "yourLpaWillBeRegisteredInLanguage" "Lang" (tr .App .SelectedLanguage.String) }}
 {{ end }}
 
 {{ define "main" }}
-    {{ $inSelected := tr .App (printf "in:%s" .SelectedLanguage.String) }}
-    {{ $fromSelected := tr .App (printf "from:%s" .SelectedLanguage.String) }}
-    {{ $inUnselected := tr .App (printf "in:%s" .UnselectedLanguage.String) }}
-    {{ $toUnselected := tr .App (printf "to:%s" .UnselectedLanguage.String) }}
+    {{ $selected := tr .App .SelectedLanguage.String }}
+    {{ $unselected := tr .App .UnselectedLanguage.String }}
 
     <div class="govuk-grid-row">
         <div class="govuk-grid-column-two-thirds">
             <h1 class="govuk-heading-xl">{{ template "pageTitle" . }}</h1>
 
-            {{ trFormatHtml .App "yourLpaLanguageContent" "InSelected" $inSelected "FromSelected" $fromSelected "ToUnselected" $toUnselected }}
+            {{ trFormatHtml .App "yourLpaLanguageContent" "Selected" $selected "Unselected" $unselected }}
 
-            {{ template "warning" (content .App (trFormat .App "anyRestrictionsWillNotBeTranslatedWarning" "InSelected" $inSelected "InUnselected" $inUnselected)) }}
+            {{ template "warning" (content .App (trFormat .App "anyRestrictionsWillNotBeTranslatedWarning" "Selected" $selected "Unselected" $unselected)) }}
 
             <form novalidate method="post">
                 {{ template "radios-fieldset" (fieldset . .Form.FieldName .Form.YesNo.String
                     (legend "whatWouldYouLikeToDo" "govuk-fieldset__legend--s")
-                    (item .Form.Options.Yes.String (trFormat .App "registerMyLpaIn" "InLang" $inSelected))
-                    (item .Form.Options.No.String (trFormat .App "registerMyLpaIn" "InLang" $inUnselected) "hint" (trFormat .App "iUnderstandThatRestrictionsWillNotBeTranslated" "InUnselected" $inUnselected "InSelected" $inSelected))
+                    (item .Form.Options.Yes.String (trFormat .App "registerMyLpaIn" "Lang" $selected))
+                    (item .Form.Options.No.String (trFormat .App "registerMyLpaIn" "Lang" $unselected)
+                        "hint" (trFormat .App "iUnderstandThatRestrictionsWillNotBeTranslated" "Unselected" $unselected "Selected" $selected))
                     ) }}
 
                 {{ template "buttons" (button .App "saveAndContinue") }}
