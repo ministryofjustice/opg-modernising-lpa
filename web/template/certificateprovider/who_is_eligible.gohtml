@@ -17,7 +17,7 @@
 
         {{ trFormatHtml .App "whoCannotBeCertificateProviderContent" "DonorFirstNames" .Lpa.Donor.FirstNames }}
 
-        <p class="govuk-inset-text">{{ trFormatHtml .App "theCourtOfProtectionCanAlsoMakeDecisions" "DonorFullName" .Lpa.Donor.FullName }} </p>
+        <div class="govuk-inset-text">{{ trFormatHtml .App "theCourtOfProtectionCanAlsoMakeDecisions" "DonorFullName" .Lpa.Donor.FullName }}</div>
 
         <a class="govuk-button" href="{{ link .App (global.Paths.CertificateProvider.EnterDateOfBirth.Format .App.LpaID) }}" data-module="govuk-button">{{ tr .App "continue" }}</a>
     </div>
