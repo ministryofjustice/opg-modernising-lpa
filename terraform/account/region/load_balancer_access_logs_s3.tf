@@ -8,6 +8,8 @@ resource "aws_s3_bucket_server_side_encryption_configuration" "access_log" {
   provider = aws.region
   bucket   = aws_s3_bucket.access_log.id
   rule {
+    blocked_encryption_types = ["SSE-C"]
+    bucket_key_enabled       = false
     apply_server_side_encryption_by_default {
       # Access logging for ALBs only supports Amazon S3 Managed Encryption Keys (SSE-S3)
       sse_algorithm = "aws:kms"
