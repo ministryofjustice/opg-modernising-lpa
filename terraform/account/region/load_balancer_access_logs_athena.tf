@@ -46,6 +46,8 @@ resource "aws_s3_bucket_server_side_encryption_configuration" "athena_results" {
   bucket = aws_s3_bucket.athena_results[0].id
 
   rule {
+    blocked_encryption_types = ["SSE-C"]
+    bucket_key_enabled       = false
     apply_server_side_encryption_by_default {
       sse_algorithm     = "aws:kms"
       kms_master_key_id = var.athena_s3_target_key_id
