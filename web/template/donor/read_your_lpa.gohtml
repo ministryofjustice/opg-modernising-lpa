@@ -6,13 +6,12 @@
     <div class="govuk-grid-row">
         <div class="govuk-grid-column-two-thirds">
             {{ $unselected := tr .BannerApp .BannerApp.Lang.String }}
-            {{ $inUnselected := tr .BannerApp (printf "in:%s" .BannerApp.Lang.String) }}
-            {{ $inSelected := tr .BannerApp (printf "in:%s" .Donor.Donor.LpaLanguagePreference) }}
+            {{ $selected := tr .BannerApp .Donor.Donor.LpaLanguagePreference.String }}
 
             {{ if and (ne .BannerApp.Lang .App.Lang) (ne .BannerApp.Lang .Donor.Donor.LpaLanguagePreference) }}
-                {{ template "notification-banner" (notificationBanner .BannerApp "important" (trFormatHtml .BannerApp "youHaveChosenToHaveYourLpaRegisteredInContent" "Unselected" $unselected "InSelected" $inSelected "InUnselected" $inUnselected) "contents") }}
+                {{ template "notification-banner" (notificationBanner .BannerApp "important" (trFormatHtml .BannerApp "youHaveChosenToHaveYourLpaRegisteredInContent" "Unselected" $unselected "Selected" $selected) "contents") }}
             {{ else if ne .App.Lang .Donor.Donor.LpaLanguagePreference }}
-                {{ template "notification-banner" (notificationBanner .BannerApp "important" (trFormatHtml .BannerApp "youHaveChosenToHaveYourLpaRegisteredInThisIsTranslationContent" "InSelected" $inSelected) "contents") }}
+                {{ template "notification-banner" (notificationBanner .BannerApp "important" (trFormatHtml .BannerApp "youHaveChosenToHaveYourLpaRegisteredInThisIsTranslationContent" "Selected" $selected) "contents") }}
             {{ end }}
 
             <h1 class="govuk-heading-xl">{{ tr .App "readYourLpa" }}</h1>

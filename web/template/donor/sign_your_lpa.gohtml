@@ -4,13 +4,12 @@
 
 {{ define "main" }}
     {{ $unselected := tr .App .App.Lang.String }}
-    {{ $inUnselected := tr .App (printf "in:%s" .App.Lang.String) }}
-    {{ $inSelected := tr .App (printf "in:%s" .Donor.Donor.LpaLanguagePreference.String) }}
+    {{ $selected := tr .App .Donor.Donor.LpaLanguagePreference.String }}
 
     <div class="govuk-grid-row">
         <div class="govuk-grid-column-two-thirds">
             {{ if and .Errors.None (ne .App.Lang .Donor.Donor.LpaLanguagePreference) }}
-                {{ template "notification-banner" (notificationBanner .App "important" (trFormatHtml .App "youMustViewAndSignYourLpaInLanguage" "Unselected" $unselected "InUnselected" $inUnselected "InSelected" $inSelected) "contents") }}
+                {{ template "notification-banner" (notificationBanner .App "important" (trFormatHtml .App "youMustViewAndSignYourLpaInLanguage" "Unselected" $unselected "Selected" $selected) "contents") }}
             {{ end }}
 
             <h1 class="govuk-heading-xl">
@@ -94,7 +93,7 @@
                             {{ $prefix = "/cy" }}
                         {{ end }}
 
-                        <a href="{{ $prefix }}{{ .App.Path }}{{ .App.EncodeQuery }}" class="govuk-link">{{ trFormat .App "viewThisPageIn" "In" $inSelected }}</a>
+                        <a href="{{ $prefix }}{{ .App.Path }}{{ .App.EncodeQuery }}" class="govuk-link">{{ trFormat .App "viewThisPageIn" "Lang" $selected }}</a>
                     </p>
 
                     <input type="hidden" name="wrong-language" value="1">

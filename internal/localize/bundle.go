@@ -89,6 +89,7 @@ func (b *Bundle) LoadMessageFile(p string) error {
 		}
 
 		fns["aac"] = cyAac
+		fns["softMutate"] = cySoftMutate
 
 	default:
 		return errors.New("only supports en or cy")

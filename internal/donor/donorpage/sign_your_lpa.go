@@ -139,12 +139,12 @@ type youMustViewAndSignInLanguageError struct {
 func (e youMustViewAndSignInLanguageError) Format(l validation.Localizer) string {
 	if e.DonorFullName != "" {
 		return l.Format("errorYouMustViewAndSignDonorsLpaInLanguage", map[string]any{
-			"InLang":        l.T("in:" + e.LpaLanguage.String()),
+			"Lang":          l.T(e.LpaLanguage.String()),
 			"DonorFullName": e.DonorFullName,
 		})
 	}
 
 	return l.Format("youMustViewAndSignInLanguage", map[string]any{
-		"InLang": l.T("in:" + e.LpaLanguage.String()),
+		"Lang": l.T(e.LpaLanguage.String()),
 	})
 }
