@@ -18,15 +18,24 @@ resource "aws_dynamodb_table" "lpas_table" {
   range_key                   = "SK"
 
   global_secondary_index {
-    name            = "SKUpdatedAtIndex"
-    hash_key        = "SK"
-    range_key       = "UpdatedAt"
+    name = "SKUpdatedAtIndex"
+    key_schema {
+      attribute_name = "SK"
+      key_type       = "HASH"
+    }
+    key_schema {
+      attribute_name = "UpdatedAt"
+      key_type       = "RANGE"
+    }
     projection_type = "ALL"
   }
 
   global_secondary_index {
-    name            = "LpaUIDIndex"
-    hash_key        = "LpaUID"
+    name = "LpaUIDIndex"
+    key_schema {
+      attribute_name = "LpaUID"
+      key_type       = "HASH"
+    }
     projection_type = "KEYS_ONLY"
   }
 
