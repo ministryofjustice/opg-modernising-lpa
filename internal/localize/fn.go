@@ -31,3 +31,49 @@ func cyAac(s string) string {
 		return "a " + s
 	}
 }
+
+func cySoftMutate(s string) string {
+	r, n := utf8.DecodeRuneInString(s)
+	switch r {
+	case 'C':
+		return "G" + s[n:]
+	case 'c':
+		return "g" + s[n:]
+	case 'P':
+		return "B" + s[n:]
+	case 'p':
+		return "b" + s[n:]
+	case 'T':
+		return "D" + s[n:]
+	case 't':
+		return "d" + s[n:]
+	case 'G', 'g':
+		return s[n:]
+	case 'B', 'M':
+		return "F" + s[n:]
+	case 'b', 'm':
+		return "f" + s[n:]
+	case 'D':
+		return "Dd" + s[n:]
+	case 'd':
+		return "dd" + s[n:]
+	case 'R':
+		if r2, n2 := utf8.DecodeRuneInString(s[n:]); r2 == 'h' {
+			return "R" + s[n+n2:]
+		}
+	case 'r':
+		if r2, n2 := utf8.DecodeRuneInString(s[n:]); r2 == 'h' {
+			return "r" + s[n+n2:]
+		}
+	case 'L':
+		if r2, n2 := utf8.DecodeRuneInString(s[n:]); r2 == 'l' {
+			return "L" + s[n+n2:]
+		}
+	case 'l':
+		if r2, n2 := utf8.DecodeRuneInString(s[n:]); r2 == 'l' {
+			return "l" + s[n+n2:]
+		}
+	}
+
+	return s
+}
