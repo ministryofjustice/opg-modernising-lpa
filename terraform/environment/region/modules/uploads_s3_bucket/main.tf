@@ -25,6 +25,8 @@ resource "aws_s3_bucket_server_side_encryption_configuration" "bucket_encryption
   bucket = aws_s3_bucket.bucket.bucket
 
   rule {
+    blocked_encryption_types = ["SSE-C"]
+    bucket_key_enabled       = false
     apply_server_side_encryption_by_default {
       kms_master_key_id = data.aws_kms_alias.reduced_fees_uploads_s3_encryption.target_key_id
       sse_algorithm     = "aws:kms"
