@@ -86,60 +86,14 @@ resource "aws_route53_record" "mainstream_content" {
 }
 
 # internal facing domain SPF and DMARC Records
-resource "aws_route53_record" "spf_app_modernising_lpa" {
-  provider = aws.management
-  zone_id  = data.aws_route53_zone.modernising_lpa.zone_id
-  name     = "${local.dns_namespace_for_environment}app.${data.aws_route53_zone.modernising_lpa.name}"
-  type     = "TXT"
-  ttl      = "300"
-
-  records = [
-    "v=spf1 -all",
-  ]
-
-  lifecycle {
-    create_before_destroy = true
+module "dkim_app_modernising_lpa" {
+  source   = "./modules/dns_email_no_send"
+  dns_name = "${local.dns_namespace_for_environment}app."
+  aws_route53_zone = {
+    name    = data.aws_route53_zone.modernising_lpa.name
+    zone_id = data.aws_route53_zone.modernising_lpa.zone_id
   }
-}
-
-resource "aws_route53_record" "spf_app_modernising_lpa_redirect" {
-  count    = data.aws_default_tags.current.tags.environment-name == "production" ? 1 : 0
-  provider = aws.management
-  zone_id  = data.aws_route53_zone.modernising_lpa.zone_id
-  name     = data.aws_route53_zone.modernising_lpa.name
-  type     = "TXT"
-  ttl      = "300"
-
-  records = [
-    "v=spf1 -all",
-  ]
-
-  lifecycle {
-    create_before_destroy = true
+  providers = {
+    aws.management = aws.management
   }
-}
-
-resource "aws_route53_record" "dmarc_app_modernising_lpa" {
-  provider = aws.management
-  zone_id  = data.aws_route53_zone.modernising_lpa.zone_id
-  name     = "_dmarc.${local.dns_namespace_for_environment}app.${data.aws_route53_zone.modernising_lpa.name}"
-  type     = "TXT"
-  ttl      = "300"
-
-  records = [
-    "v=DMARC1; p=reject; sp=reject; fo=1; rua=mailto:dmarc-rua@dmarc.service.gov.uk; ruf=mailto:dmarc-ruf@dmarc.service.gov.uk",
-  ]
-}
-
-resource "aws_route53_record" "dmarc_app_modernising_lpa_redirect" {
-  count    = data.aws_default_tags.current.tags.environment-name == "production" ? 1 : 0
-  provider = aws.management
-  zone_id  = data.aws_route53_zone.modernising_lpa.zone_id
-  name     = "_dmarc.${data.aws_route53_zone.modernising_lpa.name}"
-  type     = "TXT"
-  ttl      = "300"
-
-  records = [
-    "v=DMARC1; p=reject; sp=reject; fo=1; rua=mailto:dmarc-rua@dmarc.service.gov.uk; ruf=mailto:dmarc-ruf@dmarc.service.gov.uk",
-  ]
 }
