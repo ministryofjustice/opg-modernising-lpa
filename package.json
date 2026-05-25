@@ -28,16 +28,16 @@
     },
     "devDependencies": {
         "@axe-core/playwright": "4.11.3",
-        "@playwright/test": "1.59.1",
+        "@playwright/test": "1.60.0",
         "@cypress/grep": "6.0.0",
         "axe-core": "4.11.4",
-        "cypress": "15.14.2",
+        "cypress": "15.15.0",
         "cypress-axe": "1.7.0",
         "cypress-file-upload": "5.0.8",
         "cypress-multi-reporters": "2.0.5",
         "cypress-parallel": "0.15.0",
         "cypress-real-events": "1.15.0",
-        "playwright": "1.59.1",
+        "playwright": "1.60.0",
         "totp-generator": "1.0.0"
     },
     "engines": {
