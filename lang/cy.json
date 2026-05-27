@@ -1812,7 +1812,7 @@
     "checkYourCertificateProvidersDetails": "Welsh",
     "checkYourReplacementAttorneysDetails": "Welsh",
     "checkYourCorrespondentsDetails": "Welsh",
-    "checkYourPersonToNotifysDetails": "Gwirio manylion eich person i'w hysbysu",
+    "checkYourPersonToNotifysDetails": "Gwirio manylion eich person i’w hysbysu",
     "checkYourAuthorisedSignatorysDetails": "Welsh",
     "checkYourIndependentWitnesssDetails": "Gwirio manylion eich tyst annibynnol",
     "actorMatchesSameActorTypeNameWarning": "<p class=\"govuk-body\">Welsh {{.FullName}} {{lowerFirst .MatchArticleAndType}}</p><p class=\"govuk-body\">Welsh {{.TypePlural}}</p>",
