@@ -84,3 +84,16 @@ resource "aws_route53_record" "mainstream_content" {
     create_before_destroy = true
   }
 }
+
+# internal facing domain SPF and DMARC Records
+module "dkim_app_modernising_lpa" {
+  source   = "./modules/dns_email_no_send"
+  dns_name = "${local.dns_namespace_for_environment}app."
+  aws_route53_zone = {
+    name    = data.aws_route53_zone.modernising_lpa.name
+    zone_id = data.aws_route53_zone.modernising_lpa.zone_id
+  }
+  providers = {
+    aws.management = aws.management
+  }
+}
