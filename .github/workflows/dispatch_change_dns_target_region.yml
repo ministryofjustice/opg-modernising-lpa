@@ -37,9 +37,9 @@ jobs:
   change_dns_target_region:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+      - uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6.0.3
       - name: Configure AWS credentials for dns target region parameter change
-        uses: aws-actions/configure-aws-credentials@99214aa6889fcddfa57764031d71add364327e59 # v6.1.3
+        uses: aws-actions/configure-aws-credentials@e7f100cf4c008499ea8adda475de1042d6975c7b # v6.2.0
         with:
           aws-region: us-east-1
           role-duration-seconds: 3600
@@ -68,14 +68,14 @@ jobs:
           terraform_version: ${{ steps.tf_version_setup.outputs.TERRAFORM_VERSION }}
           terraform_wrapper: false
       - name: Configure AWS Credentials For Terraform
-        uses: aws-actions/configure-aws-credentials@99214aa6889fcddfa57764031d71add364327e59 # v6.1.3
+        uses: aws-actions/configure-aws-credentials@e7f100cf4c008499ea8adda475de1042d6975c7b # v6.2.0
         with:
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID_ACTIONS }}
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY_ACTIONS }}
           aws-region: eu-west-1
           role-duration-seconds: 3600
           role-session-name: OPGModernisingLPATerraformGithubAction
-      - uses: ministryofjustice/opg-github-actions/actions/github-deploy-key@83663a5235330cc2193319b25d559885610c6bd5 # v4.8.4
+      - uses: ministryofjustice/opg-github-actions/actions/github-deploy-key@2ad72748485e27f590599a7e9768b9fc0d5b8e03 # v4.8.7
         with:
           deploy_key: ${{ secrets.OPG_MODERNISING_LPA_DEPLOY_KEY_PRIVATE_KEY }}
       - name: Terraform Init
