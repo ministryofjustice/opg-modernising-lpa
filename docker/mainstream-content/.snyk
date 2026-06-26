@@ -5,12 +5,12 @@ ignore:
   SNYK-JS-FOLLOWREDIRECTS-16032162:
     - "*":
         reason: None Given
-        expires: 2026-06-25T16:43:47.000Z
+        expires: 2026-07-25T16:43:47.000Z
         created: 2026-03-26T16:43:47.000Z
   SNYK-JS-BRACEEXPANSION-16755174:
     - "*":
         reason: None Given
-        expires: 2026-06-19T12:23:47.000Z
+        expires: 2026-07-19T12:23:47.000Z
         created: 2026-05-19T12:23:47.000Z
   SNYK-JS-PICOMATCH-15765511:
     - "*":
@@ -27,3 +27,18 @@ ignore:
         reason: None Given
         expires: 2026-07-08T08:22:22.000Z
         created: 2026-06-08T08:22:22.000Z
+  SNYK-JS-UNDICI-17372758:
+    - "*":
+        reason: None Given
+        expires: 2026-07-26T13:07:51.000Z
+        created: 2026-06-26T13:07:51.000Z
+  SNYK-JS-UNDICI-17372754:
+    - "*":
+        reason: None Given
+        expires: 2026-07-26T13:08:11.000Z
+        created: 2026-06-26T13:08:11.000Z
+  SNYK-JS-UNDICI-17372658:
+    - "*":
+        reason: None Given
+        expires: 2026-07-26T13:08:22.000Z
+        created: 2026-06-26T13:08:22.000Z
