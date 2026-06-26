@@ -689,3 +689,55 @@ func TestStackedNotifications(t *testing.T) {
 func TestList(t *testing.T) {
 	assert.Equal(t, []string{"a", "b", "c"}, list("a", "b", "c"))
 }
+
+func TestHasFormErrors(t *testing.T) {
+	type Form struct {
+		Errors []int
+	}
+
+	hasValue := struct{ Form Form }{
+		Form: Form{Errors: []int{1}},
+	}
+	hasPointedValue := struct{ Form *Form }{
+		Form: &Form{Errors: []int{1}},
+	}
+
+	emptyValue := struct{ Form Form }{
+		Form: Form{Errors: []int{}},
+	}
+	emptyPointedValue := struct{ Form *Form }{
+		Form: &Form{Errors: []int{}},
+	}
+
+	nilValue := struct{ Form Form }{}
+	nilPointedValue := struct{ Form *Form }{}
+
+	assert.True(t, hasFormErrors(hasValue))
+	assert.True(t, hasFormErrors(&hasValue))
+	assert.True(t, hasFormErrors(hasPointedValue))
+	assert.False(t, hasFormErrors(emptyValue))
+	assert.False(t, hasFormErrors(&emptyValue))
+	assert.False(t, hasFormErrors(emptyPointedValue))
+	assert.False(t, hasFormErrors(nilValue))
+	assert.False(t, hasFormErrors(&nilValue))
+	assert.False(t, hasFormErrors(nilPointedValue))
+}
+
+func TestHasErrors(t *testing.T) {
+	hasValue := struct{ Errors []int }{
+		Errors: []int{1},
+	}
+
+	emptyValue := struct{ Errors []int }{
+		Errors: []int{},
+	}
+
+	nilValue := struct{ Errors []int }{}
+
+	assert.True(t, hasErrors(hasValue))
+	assert.True(t, hasErrors(&hasValue))
+	assert.False(t, hasErrors(emptyValue))
+	assert.False(t, hasErrors(&emptyValue))
+	assert.False(t, hasErrors(nilValue))
+	assert.False(t, hasErrors(&nilValue))
+}
