@@ -10,6 +10,7 @@ import (
 
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor/donordata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/dynamo"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/forms"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/identity"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/localize"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/lpastore/lpadata"
@@ -18,7 +19,6 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/scheduled"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/scheduled/scheduleddata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/task"
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/validation"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/voucher"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/voucher/voucherdata"
 	"github.com/stretchr/testify/assert"
@@ -30,6 +30,7 @@ func TestGetYourDeclaration(t *testing.T) {
 	r, _ := http.NewRequest(http.MethodGet, "/", nil)
 
 	lpa := &lpadata.Lpa{
+		Donor:   lpadata.Donor{FirstNames: "A", LastName: "B"},
 		Voucher: lpadata.Voucher{FirstNames: "V", LastName: "W"},
 	}
 	provided := &voucherdata.Provided{LpaID: "lpa-id"}
@@ -45,7 +46,7 @@ func TestGetYourDeclaration(t *testing.T) {
 			App:     testAppData,
 			Lpa:     lpa,
 			Voucher: provided,
-			Form:    &yourDeclarationForm{},
+			Form:    newYourDeclarationForm(testAppData.Localizer, "A B"),
 		}).
 		Return(nil)
 
@@ -456,8 +457,9 @@ func TestPostYourDeclarationWhenValidationError(t *testing.T) {
 
 	template := newMockTemplate(t)
 	template.EXPECT().
-		Execute(w, mock.MatchedBy(func(d *yourDeclarationData) bool {
-			return assert.Equal(t, validation.With("confirm", validation.CustomError{Label: "youMustSelectTheBoxToVouch"}), d.Errors)
+		Execute(w, mock.MatchedBy(func(data *yourDeclarationData) bool {
+			return assert.Equal(t, []forms.Field{data.Form.Confirm.Field}, data.Form.Errors) &&
+				assert.Equal(t, "youMustSelectTheBoxToVouch", data.Form.Confirm.Error.Format(testAppData.Localizer))
 		})).
 		Return(nil)
 
@@ -680,41 +682,6 @@ func TestPostYourDeclarationWhenStoreErrors(t *testing.T) {
 
 			err := YourDeclaration(nil, lpaStoreResolvingService, voucherStore, donorStore, notifyClient, nil, scheduledStore, testNowFn, "", localizer)(testAppData, w, r, &voucherdata.Provided{LpaID: "lpa-id"})
 			assert.ErrorIs(t, err, expectedError)
-		})
-	}
-}
-
-func TestReadYourDeclarationForm(t *testing.T) {
-	form := url.Values{
-		"confirm": {"1"},
-	}
-
-	r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(form.Encode()))
-	r.Header.Add("Content-Type", page.FormUrlEncoded)
-
-	result := readYourDeclarationForm(r)
-	assert.Equal(t, true, result.Confirm)
-}
-
-func TestYourDeclarationFormValidate(t *testing.T) {
-	testCases := map[string]struct {
-		form   *yourDeclarationForm
-		errors validation.List
-	}{
-		"valid": {
-			form: &yourDeclarationForm{
-				Confirm: true,
-			},
-		},
-		"not selected": {
-			form:   &yourDeclarationForm{},
-			errors: validation.With("confirm", validation.CustomError{Label: "youMustSelectTheBoxToVouch"}),
-		},
-	}
-
-	for name, tc := range testCases {
-		t.Run(name, func(t *testing.T) {
-			assert.Equal(t, tc.errors, tc.form.Validate())
 		})
 	}
 }

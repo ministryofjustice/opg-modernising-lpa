@@ -26,10 +26,10 @@
                 "DonorFirstNames" .Lpa.Donor.FirstNames }}
 
             <form novalidate method="post">
-                {{ template "radios-fieldset" (fieldset . .Form.FieldName .Form.YesNo.String
-                    (legend "areYouAllowedToVouch" "govuk-fieldset__legend--s")
-                    (item .Form.Options.Yes.String "yes")
-                    (item .Form.Options.No.String "no")) }}
+                {{ template "new-radios-fieldset" (newFieldset . .Form.YesNo
+                    (legend (tr .App "areYouAllowedToVouch") "govuk-fieldset__legend--s")
+                    (item .Form.YesNo.Options.Yes.String (tr .App "yes"))
+                    (item .Form.YesNo.Options.No.String (tr .App "no"))) }}
 
                 {{ template "buttons" (button .App "continue") }}
                 {{ template "csrf-field" . }}
