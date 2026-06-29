@@ -7,10 +7,9 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/form"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/forms"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/task"
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/validation"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/voucher"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/voucher/voucherdata"
 	"github.com/stretchr/testify/assert"
@@ -25,7 +24,7 @@ func TestGetHowWillYouConfirmYourIdentity(t *testing.T) {
 	template.EXPECT().
 		Execute(w, &howWillYouConfirmYourIdentityData{
 			App:  testAppData,
-			Form: form.NewEmptySelectForm[howYouWillConfirmYourIdentity](howYouWillConfirmYourIdentityValues, "howYouWillConfirmYourIdentity"),
+			Form: forms.NewEnumForm[howYouWillConfirmYourIdentity]("howYouWillConfirmYourIdentity", howYouWillConfirmYourIdentityValues),
 		}).
 		Return(nil)
 
@@ -70,7 +69,7 @@ func TestPostHowWillYouConfirmYourIdentity(t *testing.T) {
 	for name, tc := range testCases {
 		t.Run(name, func(t *testing.T) {
 			form := url.Values{
-				form.FieldNames.Select: {tc.how.String()},
+				"enum": {tc.how.String()},
 			}
 
 			w := httptest.NewRecorder()
@@ -89,7 +88,7 @@ func TestPostHowWillYouConfirmYourIdentity(t *testing.T) {
 
 func TestPostHowWillYouConfirmYourIdentityWhenAtPostOfficeSelected(t *testing.T) {
 	form := url.Values{
-		form.FieldNames.Select: {howYouWillConfirmYourIdentityAtPostOffice.String()},
+		"enum": {howYouWillConfirmYourIdentityAtPostOffice.String()},
 	}
 
 	w := httptest.NewRecorder()
@@ -114,7 +113,7 @@ func TestPostHowWillYouConfirmYourIdentityWhenAtPostOfficeSelected(t *testing.T)
 
 func TestPostHowWillYouConfirmYourIdentityWhenStoreErrors(t *testing.T) {
 	form := url.Values{
-		form.FieldNames.Select: {howYouWillConfirmYourIdentityAtPostOffice.String()},
+		"enum": {howYouWillConfirmYourIdentityAtPostOffice.String()},
 	}
 
 	w := httptest.NewRecorder()
@@ -138,7 +137,8 @@ func TestPostHowWillYouConfirmYourIdentityWhenValidationErrors(t *testing.T) {
 	template := newMockTemplate(t)
 	template.EXPECT().
 		Execute(w, mock.MatchedBy(func(data *howWillYouConfirmYourIdentityData) bool {
-			return assert.Equal(t, validation.With(form.FieldNames.Select, validation.SelectError{Label: "howYouWillConfirmYourIdentity"}), data.Errors)
+			return assert.Equal(t, []forms.Field{data.Form.Enum.Field}, data.Form.Errors) &&
+				assert.Equal(t, "errorSelect:Label=howYouWillConfirmYourIdentity", data.Form.Enum.Error.Format(testAppData.Localizer))
 		})).
 		Return(nil)
 
