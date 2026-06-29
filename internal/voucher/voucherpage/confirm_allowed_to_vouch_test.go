@@ -7,7 +7,7 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/form"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/forms"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/lpastore/lpadata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/task"
@@ -34,7 +34,7 @@ func TestGetConfirmAllowedToVouch(t *testing.T) {
 			},
 			data: &confirmAllowedToVouchData{
 				App:  testAppData,
-				Form: form.NewYesNoForm(form.YesNoUnknown),
+				Form: forms.NewYesNoForm("yesIfAllowedToVouch"),
 				Lpa: &lpadata.Lpa{
 					Voucher: lpadata.Voucher{FirstNames: "V", LastName: "W"},
 				},
@@ -52,7 +52,7 @@ func TestGetConfirmAllowedToVouch(t *testing.T) {
 			},
 			data: &confirmAllowedToVouchData{
 				App:  testAppData,
-				Form: form.NewYesNoForm(form.YesNoUnknown),
+				Form: forms.NewYesNoForm("yesIfAllowedToVouch"),
 				Lpa: &lpadata.Lpa{
 					Donor:   lpadata.Donor{FirstNames: "A", LastName: "W"},
 					Voucher: lpadata.Voucher{FirstNames: "V", LastName: "W"},
@@ -75,7 +75,7 @@ func TestGetConfirmAllowedToVouch(t *testing.T) {
 			},
 			data: &confirmAllowedToVouchData{
 				App:  testAppData,
-				Form: form.NewYesNoForm(form.YesNoUnknown),
+				Form: forms.NewYesNoForm("yesIfAllowedToVouch"),
 				Lpa: &lpadata.Lpa{
 					Donor:   lpadata.Donor{FirstNames: "A", LastName: "W"},
 					Voucher: lpadata.Voucher{FirstNames: "V", LastName: "W"},
@@ -147,14 +147,14 @@ func TestGetConfirmAllowedToVouchWhenTemplateErrors(t *testing.T) {
 
 func TestPostConfirmAllowedToVouch(t *testing.T) {
 	testcases := map[task.IdentityState]voucherdata.Tasks{
-		task.IdentityStateNotStarted: voucherdata.Tasks{ConfirmYourName: task.StateCompleted},
-		task.IdentityStateInProgress: voucherdata.Tasks{ConfirmYourIdentity: task.IdentityStateCompleted},
+		task.IdentityStateNotStarted: {ConfirmYourName: task.StateCompleted},
+		task.IdentityStateInProgress: {ConfirmYourIdentity: task.IdentityStateCompleted},
 	}
 
 	for taskState, tasks := range testcases {
 		t.Run(taskState.String(), func(t *testing.T) {
 			f := url.Values{
-				form.FieldNames.YesNo: {form.Yes.String()},
+				"yesNo": {forms.Yes.String()},
 			}
 
 			w := httptest.NewRecorder()
@@ -183,7 +183,7 @@ func TestPostConfirmAllowedToVouch(t *testing.T) {
 
 func TestPostConfirmAllowedToVouchWhenNo(t *testing.T) {
 	f := url.Values{
-		form.FieldNames.YesNo: {form.No.String()},
+		"yesNo": {forms.No.String()},
 	}
 
 	w := httptest.NewRecorder()
@@ -213,7 +213,7 @@ func TestPostConfirmAllowedToVouchWhenNo(t *testing.T) {
 
 func TestPostConfirmAllowedToVouchWhenStoreErrors(t *testing.T) {
 	f := url.Values{
-		form.FieldNames.YesNo: {form.Yes.String()},
+		"yesNo": {forms.Yes.String()},
 	}
 
 	w := httptest.NewRecorder()
@@ -236,7 +236,7 @@ func TestPostConfirmAllowedToVouchWhenStoreErrors(t *testing.T) {
 
 func TestPostConfirmAllowedToVouchWhenNoWhenFailVouchError(t *testing.T) {
 	f := url.Values{
-		form.FieldNames.YesNo: {form.No.String()},
+		"yesNo": {forms.No.String()},
 	}
 
 	w := httptest.NewRecorder()
