@@ -13,6 +13,7 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/date"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor/donordata"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/forms"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/localize"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/lpastore/lpadata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
@@ -69,6 +70,21 @@ func TestInputWithAttrs(t *testing.T) {
 
 func TestInputWithUnevenAttrs(t *testing.T) {
 	assert.Panics(t, func() { input(1, "name", "label", 2, "hint") })
+}
+
+func TestNewInput(t *testing.T) {
+	dot := 1
+	field := forms.NewString("a", "b")
+
+	v := newInput(dot, field, "this", "that")
+
+	assert.Equal(t, dot, v.Dot)
+	assert.Equal(t, field, v.Field)
+	assert.Equal(t, map[string]any{"this": "that"}, v.Extra)
+}
+
+func TestNewInputWithUnevenExtra(t *testing.T) {
+	assert.Panics(t, func() { newInput(nil, forms.NewString("a", "b"), "this") })
 }
 
 func TestButton(t *testing.T) {
@@ -688,4 +704,66 @@ func TestStackedNotifications(t *testing.T) {
 
 func TestList(t *testing.T) {
 	assert.Equal(t, []string{"a", "b", "c"}, list("a", "b", "c"))
+}
+
+func TestHasFormErrors(t *testing.T) {
+	type Form struct {
+		Errors []int
+	}
+
+	hasValue := struct{ Form Form }{
+		Form: Form{Errors: []int{1}},
+	}
+	hasPointedValue := struct{ Form *Form }{
+		Form: &Form{Errors: []int{1}},
+	}
+
+	emptyValue := struct{ Form Form }{
+		Form: Form{Errors: []int{}},
+	}
+	emptyPointedValue := struct{ Form *Form }{
+		Form: &Form{Errors: []int{}},
+	}
+
+	nilValue := struct{ Form Form }{}
+	nilPointedValue := struct{ Form *Form }{}
+
+	wrongFormValue := struct{ Form []int }{}
+	wrongErrorsValue := struct{ Form struct{ Errors int } }{}
+
+	assert.True(t, hasFormErrors(hasValue))
+	assert.True(t, hasFormErrors(&hasValue))
+	assert.True(t, hasFormErrors(hasPointedValue))
+	assert.False(t, hasFormErrors(emptyValue))
+	assert.False(t, hasFormErrors(&emptyValue))
+	assert.False(t, hasFormErrors(emptyPointedValue))
+	assert.False(t, hasFormErrors(nilValue))
+	assert.False(t, hasFormErrors(&nilValue))
+	assert.False(t, hasFormErrors(nilPointedValue))
+	assert.False(t, hasFormErrors(wrongFormValue))
+	assert.False(t, hasFormErrors(wrongErrorsValue))
+	assert.False(t, hasFormErrors(nil))
+}
+
+func TestHasErrors(t *testing.T) {
+	hasValue := struct{ Errors []int }{
+		Errors: []int{1},
+	}
+
+	emptyValue := struct{ Errors []int }{
+		Errors: []int{},
+	}
+
+	nilValue := struct{ Errors []int }{}
+
+	wrongValue := struct{ Errors bool }{}
+
+	assert.True(t, hasErrors(hasValue))
+	assert.True(t, hasErrors(&hasValue))
+	assert.False(t, hasErrors(emptyValue))
+	assert.False(t, hasErrors(&emptyValue))
+	assert.False(t, hasErrors(nilValue))
+	assert.False(t, hasErrors(&nilValue))
+	assert.False(t, hasErrors(wrongValue))
+	assert.False(t, hasErrors(nil))
 }
