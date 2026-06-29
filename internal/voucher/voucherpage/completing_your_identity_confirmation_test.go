@@ -7,10 +7,9 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/form"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/forms"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/lpastore/lpadata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/validation"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/voucher"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/voucher/voucherdata"
 	"github.com/stretchr/testify/assert"
@@ -33,7 +32,7 @@ func TestGetCompletingYourIdentityConfirmation(t *testing.T) {
 	template.EXPECT().
 		Execute(w, &completingYourIdentityConfirmationData{
 			App:      testAppData,
-			Form:     form.NewEmptySelectForm[howYouWillConfirmYourIdentity](howYouWillConfirmYourIdentityValues, "howYouWouldLikeToContinue"),
+			Form:     forms.NewEnumForm[howYouWillConfirmYourIdentity]("howYouWouldLikeToContinue", howYouWillConfirmYourIdentityValues),
 			Donor:    lpadata.Donor{FirstNames: "A", LastName: "B"},
 			Deadline: testNow.AddDate(0, 6, 0),
 		}).
@@ -85,7 +84,7 @@ func TestPostCompletingYourIdentityConfirmation(t *testing.T) {
 	for name, tc := range testCases {
 		t.Run(name, func(t *testing.T) {
 			form := url.Values{
-				form.FieldNames.Select: {tc.how.String()},
+				"enum": {tc.how.String()},
 			}
 
 			w := httptest.NewRecorder()
@@ -115,7 +114,8 @@ func TestPostCompletingYourIdentityConfirmationWhenValidationErrors(t *testing.T
 	template := newMockTemplate(t)
 	template.EXPECT().
 		Execute(w, mock.MatchedBy(func(data *completingYourIdentityConfirmationData) bool {
-			return assert.Equal(t, validation.With(form.FieldNames.Select, validation.SelectError{Label: "howYouWouldLikeToContinue"}), data.Errors)
+			return assert.Equal(t, []forms.Field{data.Form.Enum.Field}, data.Form.Errors) &&
+				assert.Equal(t, "errorSelect:Label=howYouWouldLikeToContinue", data.Form.Enum.Error.Format(testAppData.Localizer))
 		})).
 		Return(nil)
 
