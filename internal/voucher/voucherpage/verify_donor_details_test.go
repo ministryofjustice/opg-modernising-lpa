@@ -8,7 +8,7 @@ import (
 	"testing"
 
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor/donordata"
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/form"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/forms"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/lpastore/lpadata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/task"
@@ -36,7 +36,7 @@ func TestGetVerifyDonorDetails(t *testing.T) {
 			Lpa: &lpadata.Lpa{
 				Voucher: lpadata.Voucher{FirstNames: "V", LastName: "W"},
 			},
-			Form: form.NewYesNoForm(form.YesNoUnknown),
+			Form: forms.NewYesNoForm("yesIfTheseDetailsMatch"),
 		}).
 		Return(nil)
 
@@ -84,7 +84,7 @@ func TestGetVerifyDonorDetailsWhenTemplateErrors(t *testing.T) {
 
 func TestPostVerifyDonorDetailsWhenYes(t *testing.T) {
 	f := url.Values{
-		form.FieldNames.YesNo: {form.Yes.String()},
+		"yesNo": {forms.Yes.String()},
 	}
 
 	r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(f.Encode()))
@@ -100,7 +100,7 @@ func TestPostVerifyDonorDetailsWhenYes(t *testing.T) {
 	voucherStore.EXPECT().
 		Put(r.Context(), &voucherdata.Provided{
 			LpaID:             "lpa-id",
-			DonorDetailsMatch: form.Yes,
+			DonorDetailsMatch: forms.Yes,
 			Tasks:             voucherdata.Tasks{VerifyDonorDetails: task.StateCompleted},
 		}).
 		Return(nil)
@@ -123,7 +123,7 @@ func TestPostVerifyDonorDetailsWhenYes(t *testing.T) {
 
 func TestPostVerifyDonorDetailsWhenNo(t *testing.T) {
 	f := url.Values{
-		form.FieldNames.YesNo: {form.No.String()},
+		"yesNo": {forms.No.String()},
 	}
 
 	r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(f.Encode()))
@@ -133,7 +133,7 @@ func TestPostVerifyDonorDetailsWhenNo(t *testing.T) {
 	lpa := &lpadata.Lpa{Donor: lpadata.Donor{FirstNames: "John", LastName: "Smith"}}
 	provided := &voucherdata.Provided{
 		LpaID:             "lpa-id",
-		DonorDetailsMatch: form.No,
+		DonorDetailsMatch: forms.No,
 		Tasks:             voucherdata.Tasks{VerifyDonorDetails: task.StateCompleted},
 	}
 
@@ -170,7 +170,7 @@ func TestPostVerifyDonorDetailsWhenNo(t *testing.T) {
 
 func TestPostVerifyDonorDetailsWhenVoucherStoreErrors(t *testing.T) {
 	f := url.Values{
-		form.FieldNames.YesNo: {form.Yes.String()},
+		"yesNo": {forms.Yes.String()},
 	}
 
 	w := httptest.NewRecorder()
@@ -221,7 +221,7 @@ func TestPostVerifyDonorDetailsWhenDonorStoreErrors(t *testing.T) {
 	for name, tc := range testcases {
 		t.Run(name, func(t *testing.T) {
 			f := url.Values{
-				form.FieldNames.YesNo: {form.Yes.String()},
+				"yesNo": {forms.Yes.String()},
 			}
 
 			r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(f.Encode()))
@@ -237,7 +237,7 @@ func TestPostVerifyDonorDetailsWhenDonorStoreErrors(t *testing.T) {
 			voucherStore.EXPECT().
 				Put(r.Context(), &voucherdata.Provided{
 					LpaID:             "lpa-id",
-					DonorDetailsMatch: form.Yes,
+					DonorDetailsMatch: forms.Yes,
 					Tasks:             voucherdata.Tasks{VerifyDonorDetails: task.StateCompleted},
 				}).
 				Return(nil)
@@ -251,7 +251,7 @@ func TestPostVerifyDonorDetailsWhenDonorStoreErrors(t *testing.T) {
 
 func TestPostVerifyDonorDetailsWhenFailVouchErrors(t *testing.T) {
 	f := url.Values{
-		form.FieldNames.YesNo: {form.No.String()},
+		"yesNo": {forms.No.String()},
 	}
 
 	w := httptest.NewRecorder()

@@ -64,6 +64,52 @@ func (_c *mockLocalizer_Format_Call) RunAndReturn(run func(string, map[string]in
 	return _c
 }
 
+// T provides a mock function with given fields: msgid
+func (_m *mockLocalizer) T(msgid string) string {
+	ret := _m.Called(msgid)
+
+	if len(ret) == 0 {
+		panic("no return value specified for T")
+	}
+
+	var r0 string
+	if rf, ok := ret.Get(0).(func(string) string); ok {
+		r0 = rf(msgid)
+	} else {
+		r0 = ret.Get(0).(string)
+	}
+
+	return r0
+}
+
+// mockLocalizer_T_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'T'
+type mockLocalizer_T_Call struct {
+	*mock.Call
+}
+
+// T is a helper method to define mock.On call
+//   - msgid string
+func (_e *mockLocalizer_Expecter) T(msgid interface{}) *mockLocalizer_T_Call {
+	return &mockLocalizer_T_Call{Call: _e.mock.On("T", msgid)}
+}
+
+func (_c *mockLocalizer_T_Call) Run(run func(msgid string)) *mockLocalizer_T_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		run(args[0].(string))
+	})
+	return _c
+}
+
+func (_c *mockLocalizer_T_Call) Return(_a0 string) *mockLocalizer_T_Call {
+	_c.Call.Return(_a0)
+	return _c
+}
+
+func (_c *mockLocalizer_T_Call) RunAndReturn(run func(string) string) *mockLocalizer_T_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
 // newMockLocalizer creates a new instance of mockLocalizer. It also registers a testing interface on the mock and a cleanup function to assert the mocks expectations.
 // The first argument is typically a *testing.T value.
 func newMockLocalizer(t interface {

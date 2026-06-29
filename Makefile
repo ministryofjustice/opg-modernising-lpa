@@ -32,7 +32,7 @@ go-integration-test: ##@testing Runs go integration test suite
 	go test -run TestIntegration ./internal/dynamo
 
 go-generate: ##@testing Runs go generate for mocks and enums
-	git ls-files | grep '.*/enum_.*\.go' | xargs rm -f
+	git ls-files | grep '.*/enum_.*\.go' | grep -v 'internal/forms/enum_\(form\|test\)'  | xargs rm -f
 	go generate ./...
 	git ls-files | grep '.*/mock_.*_test\.go' | xargs rm -f
 	go tool mockery

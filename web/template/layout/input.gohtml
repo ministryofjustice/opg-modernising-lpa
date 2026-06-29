@@ -48,11 +48,7 @@
         {{ if .Extra.hint }}
             <div id="{{.Field.Name}}-hint" class="govuk-hint">{{ .Extra.hint }}</div>
         {{ end }}
-        {{ if .Field.Error }}
-            <p id="{{.Field.Name}}-error" class="govuk-error-message">
-                <span class="govuk-visually-hidden">{{ tr .Dot.App "error:" }}</span> {{ .Field.Error.Format .Dot.App.Localizer }}
-            </p>
-        {{ end }}
+        {{ template "new-error-message" (newErrorMessage .Dot .Field) }}
         <input id="f-{{.Field.Name}}" name="{{.Field.Name}}" value="{{.Field.Input}}"
             class="govuk-input {{ .Extra.classes }} {{ if .Field.Error }}govuk-input--error{{ end }}"
             {{ with .Extra.autocomplete }}autocomplete="{{ . }}"{{ end }}
