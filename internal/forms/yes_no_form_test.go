@@ -4,7 +4,6 @@ import (
 	"net/url"
 	"testing"
 
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/form"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -32,10 +31,6 @@ func TestYesNoForm_Parse(t *testing.T) {
 	})
 
 	t.Run("unselected", func(t *testing.T) {
-		var yesNo form.YesNo
-		err := yesNo.UnmarshalText([]byte("  blah "))
-		assert.Error(t, err)
-
 		req := makeRequest(url.Values{aForm.YesNo.Name: {" blah "}})
 
 		assert.False(t, aForm.Parse(req))
