@@ -7,12 +7,10 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/appcontext"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/attorney/attorneydata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/lpastore/lpadata"
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/validation"
 )
 
 type progressData struct {
 	App             appcontext.Data
-	Errors          validation.List
 	Lpa             *lpadata.Lpa
 	Signed          bool
 	AttorneysSigned bool
