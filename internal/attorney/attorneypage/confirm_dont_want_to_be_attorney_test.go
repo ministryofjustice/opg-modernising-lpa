@@ -86,6 +86,7 @@ func TestPostConfirmDontWantToBeAttorney(t *testing.T) {
 		T("personal-welfare").
 		Return("Personal welfare")
 
+	testAppData := testAppData
 	testAppData.Localizer = localizer
 
 	notifyClient := newMockNotifyClient(t)
@@ -215,6 +216,7 @@ func TestPostConfirmDontWantToBeAttorneyErrors(t *testing.T) {
 				T(mock.Anything).
 				Return("a")
 
+			testAppData := testAppData
 			testAppData.Localizer = localizer
 
 			err := ConfirmDontWantToBeAttorney(nil, evalT(tc.attorneyStore, t), evalT(tc.notifyClient, t), evalT(tc.lpaStoreClient, t))(testAppData, w, r, &attorneydata.Provided{}, &lpadata.Lpa{LpaUID: "lpa-uid", SignedAt: time.Now()})
