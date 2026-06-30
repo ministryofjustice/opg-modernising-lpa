@@ -17,6 +17,22 @@ func (v withError[T]) Validate(t T) Error {
 	return nil
 }
 
+type withErrorLabel[T any] struct {
+	replace string
+	wrapped validator[T]
+}
+
+func (v withErrorLabel[T]) Validate(t T) Error {
+	error := v.wrapped.Validate(t)
+
+	if ferror, ok := error.(formattedError); ok {
+		ferror.Data["Label"] = v.replace
+		return ferror
+	}
+
+	return error
+}
+
 type Error interface {
 	Format(localizer Localizer) string
 }
@@ -56,6 +72,13 @@ func newTooLongError(label string, length int) formattedError {
 func newSelectError(label string) formattedError {
 	return formattedError{
 		Key:  "errorSelect",
+		Data: map[string]any{"Label": label},
+	}
+}
+
+func newPhoneError(label string) formattedError {
+	return formattedError{
+		Key:  "errorPhone",
 		Data: map[string]any{"Label": label},
 	}
 }
