@@ -15,6 +15,7 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/date"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor/donordata"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/forms"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/localize"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/lpastore"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/lpastore/lpadata"
@@ -52,6 +53,7 @@ func All(globals *Globals) map[string]any {
 		"isEnglish":            isEnglish,
 		"isWelsh":              isWelsh,
 		"input":                input,
+		"newInput":             newInput,
 		"button":               button,
 		"items":                items,
 		"item":                 item,
@@ -98,6 +100,8 @@ func All(globals *Globals) map[string]any {
 		"addressLines":         addressLines,
 		"stackedNotifications": stackedNotifications,
 		"list":                 list,
+		"hasFormErrors":        hasFormErrors,
+		"hasErrors":            hasErrors,
 	}
 }
 
@@ -126,6 +130,20 @@ func input(top interface{}, name, label string, value interface{}, attrs ...inte
 	}
 
 	return field
+}
+
+type newInputVars struct {
+	Dot   any
+	Field *forms.String
+	Extra map[string]any
+}
+
+func newInput(dot any, field *forms.String, args ...any) newInputVars {
+	return newInputVars{
+		Dot:   dot,
+		Field: field,
+		Extra: pair(args),
+	}
 }
 
 func button(app appcontext.Data, label string, attrs ...any) map[string]any {
@@ -635,4 +653,59 @@ func stackedNotifications(appData appcontext.Data, notifications []page.Notifica
 
 func list(els ...string) []string {
 	return els
+}
+
+func pair(args []any) map[string]any {
+	if len(args)%2 != 0 {
+		panic("pair: must have even number of attrs")
+	}
+
+	res := map[string]any{}
+	for i := 0; i < len(args); i += 2 {
+		res[args[i].(string)] = args[i+1]
+	}
+
+	return res
+}
+
+func hasFormErrors(dot any) bool {
+	v := reflect.ValueOf(dot)
+	for v.Kind() == reflect.Pointer {
+		v = v.Elem()
+	}
+	if v.Kind() != reflect.Struct {
+		return false
+	}
+
+	v = v.FieldByName("Form")
+	for v.Kind() == reflect.Pointer {
+		v = v.Elem()
+	}
+	if v.Kind() != reflect.Struct {
+		return false
+	}
+
+	v = v.FieldByName("Errors")
+	if v.Kind() != reflect.Slice {
+		return false
+	}
+
+	return v.Len() > 0
+}
+
+func hasErrors(dot any) bool {
+	v := reflect.ValueOf(dot)
+	for v.Kind() == reflect.Pointer {
+		v = v.Elem()
+	}
+	if v.Kind() != reflect.Struct {
+		return false
+	}
+
+	v = v.FieldByName("Errors")
+	if v.Kind() != reflect.Slice {
+		return false
+	}
+
+	return v.Len() > 0
 }

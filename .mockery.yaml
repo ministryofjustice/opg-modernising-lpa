@@ -24,6 +24,7 @@ packages:
   github.com/ministryofjustice/opg-modernising-lpa/internal/donor:
   github.com/ministryofjustice/opg-modernising-lpa/internal/dynamo:
   github.com/ministryofjustice/opg-modernising-lpa/internal/event:
+  github.com/ministryofjustice/opg-modernising-lpa/internal/forms:
   github.com/ministryofjustice/opg-modernising-lpa/internal/lambda:
   github.com/ministryofjustice/opg-modernising-lpa/internal/lpastore:
   github.com/ministryofjustice/opg-modernising-lpa/internal/notify:

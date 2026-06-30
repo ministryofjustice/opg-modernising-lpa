@@ -52,3 +52,8 @@ ignore:
         reason: None Given
         expires: 2026-07-26T13:25:08.000Z
         created: 2026-06-26T13:25:08.000Z
+  SNYK-UPSTREAM-NODE-17674807:
+    - "*":
+        reason: None Given
+        expires: 2026-07-30T09:55:47.000Z
+        created: 2026-06-30T09:55:47.000Z
