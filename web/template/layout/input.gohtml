@@ -1,6 +1,6 @@
 {{ define "input" }}
     {{ $hasError := .top.Errors.Has .name }}
-    
+
     <div class="govuk-form-group {{ if $hasError }}govuk-form-group--error{{ end }}">
         {{ if .heading }}
             <h1 class="govuk-label-wrapper">
@@ -26,5 +26,38 @@
             {{ if .spellcheck }}spellcheck="{{ .spellcheck }}"{{ end }}
             {{ if .type }}type="{{ .type }}"{{ end }}
             {{ if or .hint $hasError }}aria-describedby="{{ if .hint }}{{ .name }}-hint{{ end }} {{ if $hasError }}{{ .name  }}-error{{ end }}"{{ end }} />
+    </div>
+{{ end }}
+
+{{ define "new-input" }}
+    <div class="govuk-form-group {{ if .Field.Error }}govuk-form-group--error{{ end }}">
+        {{ if .Extra.heading }}
+            <h1 class="govuk-label-wrapper">
+                <label class="govuk-label govuk-label--xl {{.Extra.labelClasses}}" for="f-{{ .Field.Name }}">
+                    {{ with .Extra.label }}{{ . }}{{ else }}{{ .Field.Label }}{{ end }}
+                </label>
+            </h1>
+        {{ else }}
+            <label class="{{ if .Extra.context }}govuk-heading-m{{ else }}govuk-label{{ end }} {{ .Extra.labelClasses }}" for="f-{{.Field.Name}}">
+                {{ with .Extra.label }}{{ . }}{{ else }}{{ .Field.Label }}{{ end }}
+            </label>
+        {{ end }}
+        {{ if .Extra.context }}
+            <p class="govuk-body">{{ .Extra.context }}</p>
+        {{ end }}
+        {{ if .Extra.hint }}
+            <div id="{{.Field.Name}}-hint" class="govuk-hint">{{ .Extra.hint }}</div>
+        {{ end }}
+        {{ if .Field.Error }}
+            <p id="{{.Field.Name}}-error" class="govuk-error-message">
+                <span class="govuk-visually-hidden">{{ tr .Dot.App "error:" }}</span> {{ .Field.Error.Format .Dot.App.Localizer }}
+            </p>
+        {{ end }}
+        <input id="f-{{.Field.Name}}" name="{{.Field.Name}}" value="{{.Field.Input}}"
+            class="govuk-input {{ .Extra.classes }} {{ if .Field.Error }}govuk-input--error{{ end }}"
+            {{ with .Extra.autocomplete }}autocomplete="{{ . }}"{{ end }}
+            {{ with .Extra.spellcheck }}spellcheck="{{ . }}"{{ end }}
+            {{ with .Extra.type }}type="{{ . }}"{{ end }}
+            {{ if or .Extra.hint .Field.Error }}aria-describedby="{{ if .Extra.hint }}{{ .Field.Name }}-hint{{ end }} {{ if .Field.Error }}{{ .Field.Name }}-error{{ end }}"{{ end }}>
     </div>
 {{ end }}
