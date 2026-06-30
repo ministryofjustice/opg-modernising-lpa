@@ -2,6 +2,7 @@ package forms
 
 import (
 	"net/url"
+	"regexp"
 	"strings"
 )
 
@@ -44,6 +45,16 @@ func (f *String) WithError(replace Error) *String {
 	return f
 }
 
+// WithErrorLabel overrides the label used by the error returned by the
+// previously defined validator.
+func (f *String) WithErrorLabel(replace string) *String {
+	if l := len(f.validators); l > 0 {
+		f.validators[l-1] = withErrorLabel[string]{replace: replace, wrapped: f.validators[l-1]}
+	}
+
+	return f
+}
+
 type notEmptyValidator struct{ Label string }
 
 func (v notEmptyValidator) Validate(s string) Error {
@@ -73,6 +84,26 @@ func (v maxLengthValidator) Validate(s string) Error {
 
 func (f *String) MaxLength(max int) *String {
 	f.validators = append(f.validators, maxLengthValidator{Label: f.Field.Label, Max: max})
+
+	return f
+}
+
+var phoneRegex = regexp.MustCompile(`^\+?\d{4,15}$`)
+
+type phoneValidator struct {
+	Label string
+}
+
+func (v phoneValidator) Validate(s string) Error {
+	if s != "" && !phoneRegex.MatchString(strings.ReplaceAll(s, " ", "")) {
+		return newPhoneError(v.Label)
+	}
+
+	return nil
+}
+
+func (f *String) Phone() *String {
+	f.validators = append(f.validators, phoneValidator{Label: f.Field.Label})
 
 	return f
 }

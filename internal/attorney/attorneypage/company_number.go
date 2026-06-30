@@ -2,26 +2,19 @@ package attorneypage
 
 import (
 	"net/http"
-	"strings"
 
 	"github.com/ministryofjustice/opg-go-common/template"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/appcontext"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/attorney"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/attorney/attorneydata"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/forms"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/lpastore/lpadata"
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/task"
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/validation"
 )
 
 type companyNumberData struct {
-	App    appcontext.Data
-	Errors validation.List
-	Form   *companyNumberForm
-}
-
-type companyNumberForm struct {
-	CompanyNumber string
+	App  appcontext.Data
+	Form *companyNumberForm
 }
 
 func CompanyNumber(tmpl template.Template, attorneyStore AttorneyStore) Handler {
@@ -32,40 +25,38 @@ func CompanyNumber(tmpl template.Template, attorneyStore AttorneyStore) Handler 
 
 		data := &companyNumberData{
 			App:  appData,
-			Form: &companyNumberForm{CompanyNumber: provided.CompanyNumber},
+			Form: newCompanyNumberForm(appData.Localizer),
 		}
 
-		if r.Method == http.MethodPost {
-			data.Form = readCompanyNumberForm(r)
-			data.Errors = data.Form.Validate()
+		data.Form.CompanyNumber.Set(provided.CompanyNumber)
 
-			if data.Errors.None() {
-				provided.Tasks.ConfirmYourDetails = task.StateInProgress
-				provided.CompanyNumber = data.Form.CompanyNumber
+		if r.Method == http.MethodPost && data.Form.Parse(r) {
+			provided.Tasks.ConfirmYourDetails = task.StateInProgress
+			provided.CompanyNumber = data.Form.CompanyNumber.Value
 
-				if err := attorneyStore.Put(r.Context(), provided); err != nil {
-					return err
-				}
-
-				return attorney.PathPhoneNumber.Redirect(w, r, appData, provided.LpaID)
+			if err := attorneyStore.Put(r.Context(), provided); err != nil {
+				return err
 			}
+
+			return attorney.PathPhoneNumber.Redirect(w, r, appData, provided.LpaID)
 		}
 
 		return tmpl(w, data)
 	}
 }
 
-func readCompanyNumberForm(r *http.Request) *companyNumberForm {
+type companyNumberForm struct {
+	forms.Form
+	CompanyNumber *forms.String
+}
+
+func newCompanyNumberForm(l Localizer) *companyNumberForm {
 	return &companyNumberForm{
-		CompanyNumber: page.PostFormString(r, "company-number"),
+		CompanyNumber: forms.NewString("company-number", l.T("enterYourCompanyNumber")).
+			NotEmpty().WithErrorLabel(l.T("yourCompanyNumber")),
 	}
 }
 
-func (f *companyNumberForm) Validate() validation.List {
-	var errors validation.List
-
-	errors.String("company-number", "yourCompanyNumber", strings.TrimSpace(f.CompanyNumber),
-		validation.Empty())
-
-	return errors
+func (f *companyNumberForm) Parse(r *http.Request) bool {
+	return f.ParsePostForm(r, f.CompanyNumber)
 }

@@ -12,7 +12,7 @@ describe('Confirm your details', () => {
             cy.url().should('contain', '/your-preferred-language');
             cy.checkA11yApp();
 
-            cy.get('[name="language-preference"]').check('cy', { force: true })
+            cy.get('[name="language"]').check('cy', { force: true })
 
             cy.contains('button', 'Save and continue').click()
 
@@ -41,7 +41,7 @@ describe('Confirm your details', () => {
 
             cy.url().should('contain', '/your-preferred-language');
 
-            cy.get('[name="language-preference"]').check('cy', { force: true })
+            cy.get('[name="language"]').check('cy', { force: true })
 
             cy.contains('button', 'Save and continue').click()
 

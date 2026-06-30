@@ -32,7 +32,7 @@ describe('As a trust corporation', () => {
         cy.contains('button', 'Save and continue').click();
 
         // language preferences
-        cy.get('[name="language-preference"]').check('cy', { force: true })
+        cy.get('[name="language"]').check('cy', { force: true })
         cy.contains('button', 'Save and continue').click()
 
         // confirm your company details

@@ -9,12 +9,10 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/attorney/attorneydata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/lpastore/lpadata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/task"
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/validation"
 )
 
 type taskListData struct {
 	App      appcontext.Data
-	Errors   validation.List
 	Provided *attorneydata.Provided
 	Lpa      *lpadata.Lpa
 	Items    []taskListItem
