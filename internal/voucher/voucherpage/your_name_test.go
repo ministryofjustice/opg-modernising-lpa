@@ -7,10 +7,10 @@ import (
 	"strings"
 	"testing"
 
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/forms"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/lpastore/lpadata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/task"
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/validation"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/voucher"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/voucher/voucherdata"
 	"github.com/stretchr/testify/assert"
@@ -28,14 +28,15 @@ func TestGetYourName(t *testing.T) {
 			Voucher: lpadata.Voucher{FirstNames: "V", LastName: "W"},
 		}, nil)
 
+	form := newYourNameForm(testAppData.Localizer)
+	form.FirstNames.Set("V")
+	form.LastName.Set("W")
+
 	template := newMockTemplate(t)
 	template.EXPECT().
-		Execute(w, &yourNameData{
-			App: testAppData,
-			Form: &yourNameForm{
-				FirstNames: "V",
-				LastName:   "W",
-			},
+		Execute(w, yourNameData{
+			App:  testAppData,
+			Form: form,
 		}).
 		Return(nil)
 
@@ -57,14 +58,15 @@ func TestGetYourNameWhenChanged(t *testing.T) {
 			Voucher: lpadata.Voucher{FirstNames: "V", LastName: "W"},
 		}, nil)
 
+	form := newYourNameForm(testAppData.Localizer)
+	form.FirstNames.Set("A")
+	form.LastName.Set("B")
+
 	template := newMockTemplate(t)
 	template.EXPECT().
-		Execute(w, &yourNameData{
-			App: testAppData,
-			Form: &yourNameForm{
-				FirstNames: "A",
-				LastName:   "B",
-			},
+		Execute(w, yourNameData{
+			App:  testAppData,
+			Form: form,
 		}).
 		Return(nil)
 
@@ -204,8 +206,9 @@ func TestPostYourNameWhenInputRequired(t *testing.T) {
 
 	template := newMockTemplate(t)
 	template.EXPECT().
-		Execute(w, mock.MatchedBy(func(data *yourNameData) bool {
-			return assert.Equal(t, validation.With("first-names", validation.EnterError{Label: "firstNames"}), data.Errors)
+		Execute(w, mock.MatchedBy(func(data yourNameData) bool {
+			return assert.Equal(t, []forms.Field{data.Form.FirstNames.Field}, data.Form.Errors) &&
+				assert.Equal(t, "errorEnter:Label=firstNames", data.Form.FirstNames.Error.Format(testAppData.Localizer))
 		})).
 		Return(nil)
 
