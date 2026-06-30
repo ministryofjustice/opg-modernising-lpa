@@ -11,10 +11,9 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/appcontext"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/attorney"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/attorney/attorneydata"
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/form"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/forms"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/lpastore/lpadata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/validation"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
 )
@@ -23,11 +22,14 @@ func TestGetWouldLikeSecondSignatory(t *testing.T) {
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest(http.MethodGet, "/", nil)
 
+	form := forms.NewYesNoForm("yesIfWouldLikeSecondSignatory")
+	form.YesNo.Set(forms.YesNoUnknown)
+
 	template := newMockTemplate(t)
 	template.EXPECT().
 		Execute(w, &wouldLikeSecondSignatoryData{
 			App:  testAppData,
-			Form: form.NewYesNoForm(form.YesNoUnknown),
+			Form: form,
 		}).
 		Return(nil)
 
@@ -57,11 +59,14 @@ func TestGetWouldLikeSecondSignatoryWhenTemplateErrors(t *testing.T) {
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest(http.MethodGet, "/", nil)
 
+	form := forms.NewYesNoForm("yesIfWouldLikeSecondSignatory")
+	form.YesNo.Set(forms.YesNoUnknown)
+
 	template := newMockTemplate(t)
 	template.EXPECT().
 		Execute(w, &wouldLikeSecondSignatoryData{
 			App:  testAppData,
-			Form: form.NewYesNoForm(form.YesNoUnknown),
+			Form: form,
 		}).
 		Return(expectedError)
 
@@ -74,7 +79,7 @@ func TestGetWouldLikeSecondSignatoryWhenTemplateErrors(t *testing.T) {
 
 func TestPostWouldLikeSecondSignatoryWhenYes(t *testing.T) {
 	f := url.Values{
-		form.FieldNames.YesNo: {form.Yes.String()},
+		"yesNo": {forms.Yes.String()},
 	}
 
 	w := httptest.NewRecorder()
@@ -85,7 +90,7 @@ func TestPostWouldLikeSecondSignatoryWhenYes(t *testing.T) {
 	attorneyStore.EXPECT().
 		Put(r.Context(), &attorneydata.Provided{
 			LpaID:                    "lpa-id",
-			WouldLikeSecondSignatory: form.Yes,
+			WouldLikeSecondSignatory: forms.Yes,
 		}).
 		Return(nil)
 
@@ -103,11 +108,11 @@ func TestPostWouldLikeSecondSignatoryWhenNo(t *testing.T) {
 	lpa := &lpadata.Lpa{SignedAt: time.Now()}
 	updatedAttorney := &attorneydata.Provided{
 		LpaID:                    "lpa-id",
-		WouldLikeSecondSignatory: form.No,
+		WouldLikeSecondSignatory: forms.No,
 	}
 
 	f := url.Values{
-		form.FieldNames.YesNo: {form.No.String()},
+		"yesNo": {forms.No.String()},
 	}
 
 	w := httptest.NewRecorder()
@@ -161,11 +166,11 @@ func TestPostWouldLikeSecondSignatoryWhenNoAndSignedInLpaStore(t *testing.T) {
 		t.Run(name, func(t *testing.T) {
 			updatedAttorney := &attorneydata.Provided{
 				LpaID:                    "lpa-id",
-				WouldLikeSecondSignatory: form.No,
+				WouldLikeSecondSignatory: forms.No,
 			}
 
 			f := url.Values{
-				form.FieldNames.YesNo: {form.No.String()},
+				"yesNo": {forms.No.String()},
 			}
 
 			w := httptest.NewRecorder()
@@ -193,7 +198,7 @@ func TestPostWouldLikeSecondSignatoryWhenLpaStoreClientErrors(t *testing.T) {
 	lpa := &lpadata.Lpa{SignedAt: time.Now()}
 
 	f := url.Values{
-		form.FieldNames.YesNo: {form.No.String()},
+		"yesNo": {forms.No.String()},
 	}
 
 	w := httptest.NewRecorder()
@@ -211,7 +216,7 @@ func TestPostWouldLikeSecondSignatoryWhenLpaStoreClientErrors(t *testing.T) {
 
 func TestPostWouldLikeSecondSignatoryWhenAttorneyStoreErrors(t *testing.T) {
 	form := url.Values{
-		form.FieldNames.YesNo: {form.No.String()},
+		"yesNo": {forms.No.String()},
 	}
 
 	w := httptest.NewRecorder()
@@ -234,19 +239,18 @@ func TestPostWouldLikeSecondSignatoryWhenAttorneyStoreErrors(t *testing.T) {
 
 func TestPostWouldLikeSecondSignatoryWhenValidationError(t *testing.T) {
 	f := url.Values{
-		form.FieldNames.YesNo: {""},
+		"yesNo": {""},
 	}
 
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(f.Encode()))
 	r.Header.Add("Content-Type", page.FormUrlEncoded)
 
-	validationError := validation.With(form.FieldNames.YesNo, validation.SelectError{Label: "yesIfWouldLikeSecondSignatory"})
-
 	template := newMockTemplate(t)
 	template.EXPECT().
 		Execute(w, mock.MatchedBy(func(data *wouldLikeSecondSignatoryData) bool {
-			return assert.Equal(t, validationError, data.Errors)
+			return assert.Equal(t, []forms.Field{data.Form.YesNo.Field}, data.Form.Errors) &&
+				assert.Equal(t, "errorSelect:Label=yesIfWouldLikeSecondSignatory", data.Form.YesNo.Error.Format(testAppData.Localizer))
 		})).
 		Return(nil)
 

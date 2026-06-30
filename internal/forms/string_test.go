@@ -40,6 +40,26 @@ func TestString_ParsePostForm(t *testing.T) {
 		})
 	})
 
+	t.Run("WithErrorLabel", func(t *testing.T) {
+		aForm := formType{
+			S: NewString("s", "S").NotEmpty().WithErrorLabel("nope"),
+		}
+
+		t.Run("valid", func(t *testing.T) {
+			req := makeRequest(url.Values{aForm.S.Name: {" something "}})
+
+			assert.True(t, aForm.ParsePostForm(req, aForm.S))
+			assert.Nil(t, aForm.S.Error)
+		})
+
+		t.Run("invalid", func(t *testing.T) {
+			req := makeRequest(url.Values{aForm.S.Name: {" "}})
+
+			assert.False(t, aForm.ParsePostForm(req, aForm.S))
+			assert.Equal(t, newEmptyError("nope"), aForm.S.Error)
+		})
+	})
+
 	t.Run("NotEmpty", func(t *testing.T) {
 		aForm := formType{
 			S: NewString("s", "S").NotEmpty(),
@@ -68,7 +88,7 @@ func TestString_ParsePostForm(t *testing.T) {
 
 	t.Run("MaxLength", func(t *testing.T) {
 		aForm := formType{
-			S: NewString("s", "S").NotEmpty().MaxLength(5),
+			S: NewString("s", "S").MaxLength(5),
 		}
 
 		t.Run("valid", func(t *testing.T) {
@@ -89,6 +109,32 @@ func TestString_ParsePostForm(t *testing.T) {
 			assert.Equal(t, "123456", aForm.S.Input)
 			assert.Equal(t, "123456", aForm.S.Value)
 			assert.Equal(t, newTooLongError("S", 5), aForm.S.Error)
+		})
+	})
+
+	t.Run("Phone", func(t *testing.T) {
+		aForm := formType{
+			S: NewString("s", "S").Phone(),
+		}
+
+		t.Run("valid", func(t *testing.T) {
+			req := makeRequest(url.Values{aForm.S.Name: {" 123456789 "}})
+
+			assert.True(t, aForm.ParsePostForm(req, aForm.S))
+			assert.Empty(t, aForm.Errors)
+			assert.Equal(t, "123456789", aForm.S.Input)
+			assert.Equal(t, "123456789", aForm.S.Value)
+			assert.Nil(t, aForm.S.Error)
+		})
+
+		t.Run("invalid", func(t *testing.T) {
+			req := makeRequest(url.Values{aForm.S.Name: {" a dog "}})
+
+			assert.False(t, aForm.ParsePostForm(req, aForm.S))
+			assert.Equal(t, []Field{aForm.S.Field}, aForm.Errors)
+			assert.Equal(t, "a dog", aForm.S.Input)
+			assert.Equal(t, "a dog", aForm.S.Value)
+			assert.Equal(t, newPhoneError("S"), aForm.S.Error)
 		})
 	})
 }
