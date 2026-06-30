@@ -8,15 +8,13 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/appcontext"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/attorney"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/attorney/attorneydata"
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/form"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/forms"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/lpastore/lpadata"
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/validation"
 )
 
 type wouldLikeSecondSignatoryData struct {
-	App    appcontext.Data
-	Errors validation.List
-	Form   *form.YesNoForm
+	App  appcontext.Data
+	Form *forms.YesNoForm
 }
 
 func WouldLikeSecondSignatory(tmpl template.Template, attorneyStore AttorneyStore, lpaStoreClient LpaStoreClient) Handler {
@@ -27,41 +25,38 @@ func WouldLikeSecondSignatory(tmpl template.Template, attorneyStore AttorneyStor
 
 		data := &wouldLikeSecondSignatoryData{
 			App:  appData,
-			Form: form.NewYesNoForm(attorneyProvidedDetails.WouldLikeSecondSignatory),
+			Form: forms.NewYesNoForm(appData.Localizer.T("yesIfWouldLikeSecondSignatory")),
 		}
 
-		if r.Method == http.MethodPost {
-			form := form.ReadYesNoForm(r, "yesIfWouldLikeSecondSignatory")
-			data.Errors = form.Validate()
+		data.Form.YesNo.Set(attorneyProvidedDetails.WouldLikeSecondSignatory)
 
-			if data.Errors.None() {
-				attorneyProvidedDetails.WouldLikeSecondSignatory = form.YesNo
+		if r.Method == http.MethodPost && data.Form.Parse(r) {
+			attorneyProvidedDetails.WouldLikeSecondSignatory = data.Form.YesNo.Value
 
-				if form.YesNo.IsYes() {
-					if err := attorneyStore.Put(r.Context(), attorneyProvidedDetails); err != nil {
-						return err
-					}
-
-					return attorney.PathSign.RedirectQuery(w, r, appData, attorneyProvidedDetails.LpaID, url.Values{"second": {""}})
-				}
-
-				hasSigned := (appData.IsReplacementAttorney() &&
-					len(lpa.ReplacementAttorneys.TrustCorporation.Signatories) > 0) ||
-					(!appData.IsReplacementAttorney() &&
-						len(lpa.Attorneys.TrustCorporation.Signatories) > 0)
-
-				if !hasSigned {
-					if err := lpaStoreClient.SendAttorney(r.Context(), lpa, attorneyProvidedDetails); err != nil {
-						return err
-					}
-				}
-
+			if data.Form.YesNo.Value.IsYes() {
 				if err := attorneyStore.Put(r.Context(), attorneyProvidedDetails); err != nil {
 					return err
 				}
 
-				return attorney.PathWhatHappensNext.Redirect(w, r, appData, attorneyProvidedDetails.LpaID)
+				return attorney.PathSign.RedirectQuery(w, r, appData, attorneyProvidedDetails.LpaID, url.Values{"second": {""}})
 			}
+
+			hasSigned := (appData.IsReplacementAttorney() &&
+				len(lpa.ReplacementAttorneys.TrustCorporation.Signatories) > 0) ||
+				(!appData.IsReplacementAttorney() &&
+					len(lpa.Attorneys.TrustCorporation.Signatories) > 0)
+
+			if !hasSigned {
+				if err := lpaStoreClient.SendAttorney(r.Context(), lpa, attorneyProvidedDetails); err != nil {
+					return err
+				}
+			}
+
+			if err := attorneyStore.Put(r.Context(), attorneyProvidedDetails); err != nil {
+				return err
+			}
+
+			return attorney.PathWhatHappensNext.Redirect(w, r, appData, attorneyProvidedDetails.LpaID)
 		}
 
 		return tmpl(w, data)
