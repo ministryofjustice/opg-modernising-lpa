@@ -11,13 +11,11 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/localize"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/lpastore/lpadata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/task"
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/validation"
 )
 
 type readTheLpaData struct {
 	App       appcontext.Data
 	BannerApp appcontext.Data
-	Errors    validation.List
 	Lpa       *lpadata.Lpa
 }
 

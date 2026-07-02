@@ -10,13 +10,11 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/certificateprovider/certificateproviderdata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/lpastore/lpadata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/task"
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/validation"
 )
 
 type confirmYourIdentityData struct {
-	App    appcontext.Data
-	Errors validation.List
-	Lpa    *lpadata.Lpa
+	App appcontext.Data
+	Lpa *lpadata.Lpa
 }
 
 func ConfirmYourIdentity(tmpl template.Template, certificateProviderStore CertificateProviderStore) Handler {
