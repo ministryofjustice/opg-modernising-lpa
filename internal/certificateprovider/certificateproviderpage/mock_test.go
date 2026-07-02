@@ -29,7 +29,7 @@ var (
 		Lang:      localize.En,
 		Localizer: fakeLocalizer{},
 	}
-	testNow   = time.Now()
+	testNow   = time.Date(2020, time.February, 3, 12, 13, 14, 15, time.UTC)
 	testNowFn = func() time.Time { return testNow }
 )
 
@@ -52,11 +52,11 @@ func (f fakeLocalizer) Format(messageID string, data map[string]any) string {
 func (f fakeLocalizer) FormatCount(messageID string, count int, data map[string]any) string {
 	return ""
 }
-func (f fakeLocalizer) FormatDate(t date.TimeOrDate) string { return "" }
-func (f fakeLocalizer) FormatDateTime(t time.Time) string   { return "" }
-func (f fakeLocalizer) FormatTime(t time.Time) string       { return "" }
+func (f fakeLocalizer) FormatDate(t date.TimeOrDate) string { return t.Format(time.DateOnly) }
+func (f fakeLocalizer) FormatDateTime(t time.Time) string   { return t.Format(time.RFC3339) }
+func (f fakeLocalizer) FormatTime(t time.Time) string       { return t.Format(time.TimeOnly) }
 func (f fakeLocalizer) Lang() localize.Lang                 { return localize.En }
-func (f fakeLocalizer) Possessive(s string) string          { return "" }
+func (f fakeLocalizer) Possessive(s string) string          { return s + "'s" }
 func (f fakeLocalizer) ShowTranslationKeys() bool           { return false }
 func (f fakeLocalizer) SetShowTranslationKeys(s bool)       {}
 func (f fakeLocalizer) T(s string) string                   { return s }

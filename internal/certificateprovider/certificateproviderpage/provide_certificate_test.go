@@ -14,6 +14,7 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/certificateprovider/certificateproviderdata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor/donordata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/event"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/forms"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/identity"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/localize"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/lpastore/lpadata"
@@ -22,7 +23,6 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/scheduled"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/scheduled/scheduleddata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/task"
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/validation"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
 )
@@ -31,7 +31,15 @@ func TestGetProvideCertificate(t *testing.T) {
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest(http.MethodGet, "/", nil)
 
-	donor := &lpadata.Lpa{SignedAt: time.Now(), WitnessedByCertificateProviderAt: time.Now()}
+	donor := &lpadata.Lpa{
+		SignedAt: time.Now(),
+		Language: localize.En,
+		CertificateProvider: lpadata.CertificateProvider{
+			FirstNames: "c",
+			LastName:   "d",
+		},
+		WitnessedByCertificateProviderAt: time.Now(),
+	}
 
 	template := newMockTemplate(t)
 	template.EXPECT().
@@ -39,7 +47,7 @@ func TestGetProvideCertificate(t *testing.T) {
 			App:                 testAppData,
 			CertificateProvider: &certificateproviderdata.Provided{},
 			Lpa:                 donor,
-			Form:                &provideCertificateForm{},
+			Form:                newProvideCertificateForm(testAppData.Localizer, localize.En, "c d"),
 		}).
 		Return(nil)
 
@@ -112,31 +120,14 @@ func TestPostProvideCertificate(t *testing.T) {
 		Put(r.Context(), certificateProvider).
 		Return(nil)
 
-	localizer := newMockLocalizer(t)
-	localizer.EXPECT().
-		Possessive("c").
-		Return("the possessive first names")
-	localizer.EXPECT().
-		Possessive("c d").
-		Return("the possessive full name")
-	localizer.EXPECT().
-		T("property-and-affairs").
-		Return("the translated term")
-	localizer.EXPECT().
-		FormatDateTime(testNow).
-		Return("the formatted date")
-
-	testAppData := testAppData
-	testAppData.Localizer = localizer
-
 	notifyClient := newMockNotifyClient(t)
 	notifyClient.EXPECT().
 		SendActorEmail(r.Context(), notify.ToLpaCertificateProvider(certificateProvider, lpa), "lpa-uid", notify.CertificateProviderCertificateProvidedEmail{
-			DonorFullNamePossessive:     "the possessive full name",
-			DonorFirstNamesPossessive:   "the possessive first names",
-			LpaType:                     "the translated term",
+			DonorFullNamePossessive:     "c d's",
+			DonorFirstNamesPossessive:   "c's",
+			LpaType:                     "property-and-affairs",
 			CertificateProviderFullName: "a b",
-			CertificateProvidedDateTime: "the formatted date",
+			CertificateProvidedDateTime: "2020-02-03T12:13:14Z",
 		}).
 		Return(nil)
 
@@ -236,31 +227,14 @@ func TestPostProvideCertificateWhenIdentityCompleted(t *testing.T) {
 		Put(r.Context(), certificateProvider).
 		Return(nil)
 
-	localizer := newMockLocalizer(t)
-	localizer.EXPECT().
-		Possessive("c").
-		Return("the possessive first names")
-	localizer.EXPECT().
-		Possessive("c d").
-		Return("the possessive full name")
-	localizer.EXPECT().
-		T("property-and-affairs").
-		Return("the translated term")
-	localizer.EXPECT().
-		FormatDateTime(testNow).
-		Return("the formatted date")
-
-	testAppData := testAppData
-	testAppData.Localizer = localizer
-
 	notifyClient := newMockNotifyClient(t)
 	notifyClient.EXPECT().
 		SendActorEmail(r.Context(), notify.ToLpaCertificateProvider(certificateProvider, lpa), "lpa-uid", notify.CertificateProviderCertificateProvidedEmail{
-			DonorFullNamePossessive:     "the possessive full name",
-			DonorFirstNamesPossessive:   "the possessive first names",
-			LpaType:                     "the translated term",
+			DonorFullNamePossessive:     "c d's",
+			DonorFirstNamesPossessive:   "c's",
+			LpaType:                     "property-and-affairs",
 			CertificateProviderFullName: "a b",
-			CertificateProvidedDateTime: "the formatted date",
+			CertificateProvidedDateTime: "2020-02-03T12:13:14Z",
 		}).
 		Return(nil)
 
@@ -352,31 +326,14 @@ func TestPostProvideCertificateWhenIdentityFailed(t *testing.T) {
 		Put(r.Context(), certificateProvider).
 		Return(nil)
 
-	localizer := newMockLocalizer(t)
-	localizer.EXPECT().
-		Possessive("c").
-		Return("the possessive first names")
-	localizer.EXPECT().
-		Possessive("c d").
-		Return("the possessive full name")
-	localizer.EXPECT().
-		T("property-and-affairs").
-		Return("the translated term")
-	localizer.EXPECT().
-		FormatDateTime(testNow).
-		Return("the formatted date")
-
-	testAppData := testAppData
-	testAppData.Localizer = localizer
-
 	notifyClient := newMockNotifyClient(t)
 	notifyClient.EXPECT().
 		SendActorEmail(r.Context(), notify.ToLpaCertificateProvider(certificateProvider, lpa), "lpa-uid", notify.CertificateProviderCertificateProvidedEmail{
-			DonorFullNamePossessive:     "the possessive full name",
-			DonorFirstNamesPossessive:   "the possessive first names",
-			LpaType:                     "the translated term",
+			DonorFullNamePossessive:     "c d's",
+			DonorFirstNamesPossessive:   "c's",
+			LpaType:                     "property-and-affairs",
 			CertificateProviderFullName: "a b",
-			CertificateProvidedDateTime: "the formatted date",
+			CertificateProvidedDateTime: "2020-02-03T12:13:14Z",
 		}).
 		Return(nil)
 	notifyClient.EXPECT().
@@ -386,7 +343,7 @@ func TestPostProvideCertificateWhenIdentityFailed(t *testing.T) {
 		SendActorEmail(r.Context(), notify.ToLpaDonor(lpa), "lpa-uid", notify.CertificateProviderFailedIdentityCheckEmail{
 			Greeting:                    "Dear donor",
 			CertificateProviderFullName: "a b",
-			LpaType:                     "the translated term",
+			LpaType:                     "property-and-affairs",
 			LpaReferenceNumber:          "lpa-uid",
 			DonorStartPageURL:           "donorStartURL",
 		}).
@@ -468,31 +425,14 @@ func TestPostProvideCertificateWhenSignedInLpaStore(t *testing.T) {
 		Put(r.Context(), certificateProvider).
 		Return(nil)
 
-	localizer := newMockLocalizer(t)
-	localizer.EXPECT().
-		Possessive("c").
-		Return("the possessive first names")
-	localizer.EXPECT().
-		Possessive("c d").
-		Return("the possessive full name")
-	localizer.EXPECT().
-		T("property-and-affairs").
-		Return("the translated term")
-	localizer.EXPECT().
-		FormatDateTime(signedAt).
-		Return("the formatted date")
-
-	testAppData := testAppData
-	testAppData.Localizer = localizer
-
 	notifyClient := newMockNotifyClient(t)
 	notifyClient.EXPECT().
 		SendActorEmail(r.Context(), notify.ToLpaCertificateProvider(certificateProvider, lpa), "lpa-uid", notify.CertificateProviderCertificateProvidedEmail{
-			DonorFullNamePossessive:     "the possessive full name",
-			DonorFirstNamesPossessive:   "the possessive first names",
-			LpaType:                     "the translated term",
+			DonorFullNamePossessive:     "c d's",
+			DonorFirstNamesPossessive:   "c's",
+			LpaType:                     "property-and-affairs",
 			CertificateProviderFullName: "a b",
-			CertificateProvidedDateTime: "the formatted date",
+			CertificateProvidedDateTime: "2020-02-03T12:08:14Z",
 		}).
 		Return(nil)
 
@@ -586,20 +526,6 @@ func TestPostProvideCertificateWhenScheduledStoreErrors(t *testing.T) {
 		Type:  lpadata.LpaTypePropertyAndAffairs,
 	}
 
-	localizer := newMockLocalizer(t)
-	localizer.EXPECT().
-		Possessive(mock.Anything).
-		Return("the possessive first names")
-	localizer.EXPECT().
-		T(mock.Anything).
-		Return("the translated term")
-	localizer.EXPECT().
-		FormatDateTime(mock.Anything).
-		Return("the formatted date")
-
-	testAppData := testAppData
-	testAppData.Localizer = localizer
-
 	notifyClient := newMockNotifyClient(t)
 	notifyClient.EXPECT().
 		SendActorEmail(mock.Anything, mock.Anything, mock.Anything, mock.Anything).
@@ -655,20 +581,6 @@ func TestPostProvideCertificateWhenDonorStoreGetErrors(t *testing.T) {
 		Type:  lpadata.LpaTypePropertyAndAffairs,
 	}
 
-	localizer := newMockLocalizer(t)
-	localizer.EXPECT().
-		Possessive(mock.Anything).
-		Return("the possessive first names")
-	localizer.EXPECT().
-		T(mock.Anything).
-		Return("the translated term")
-	localizer.EXPECT().
-		FormatDateTime(mock.Anything).
-		Return("the formatted date")
-
-	testAppData := testAppData
-	testAppData.Localizer = localizer
-
 	notifyClient := newMockNotifyClient(t)
 	notifyClient.EXPECT().
 		SendActorEmail(mock.Anything, mock.Anything, mock.Anything, mock.Anything).
@@ -715,20 +627,6 @@ func TestPostProvideCertificateWhenDonorStorePutErrors(t *testing.T) {
 		Donor: lpadata.Donor{FirstNames: "c", LastName: "d"},
 		Type:  lpadata.LpaTypePropertyAndAffairs,
 	}
-
-	localizer := newMockLocalizer(t)
-	localizer.EXPECT().
-		Possessive(mock.Anything).
-		Return("the possessive first names")
-	localizer.EXPECT().
-		T(mock.Anything).
-		Return("the translated term")
-	localizer.EXPECT().
-		FormatDateTime(mock.Anything).
-		Return("the formatted date")
-
-	testAppData := testAppData
-	testAppData.Localizer = localizer
 
 	notifyClient := newMockNotifyClient(t)
 	notifyClient.EXPECT().
@@ -777,23 +675,6 @@ func TestPostProvideCertificateOnStoreError(t *testing.T) {
 		Put(r.Context(), mock.Anything).
 		Return(expectedError)
 
-	localizer := newMockLocalizer(t)
-	localizer.EXPECT().
-		Possessive(mock.Anything).
-		Return("")
-	localizer.EXPECT().
-		Possessive(mock.Anything).
-		Return("")
-	localizer.EXPECT().
-		T(mock.Anything).
-		Return("")
-	localizer.EXPECT().
-		FormatDateTime(mock.Anything).
-		Return("")
-
-	testAppData := testAppData
-	testAppData.Localizer = localizer
-
 	notifyClient := newMockNotifyClient(t)
 	notifyClient.EXPECT().
 		SendActorEmail(r.Context(), mock.Anything, mock.Anything, mock.Anything).
@@ -840,23 +721,6 @@ func TestPostProvideCertificateOnEventClientError(t *testing.T) {
 	certificateProviderStore.EXPECT().
 		Put(r.Context(), mock.Anything).
 		Return(nil)
-
-	localizer := newMockLocalizer(t)
-	localizer.EXPECT().
-		Possessive(mock.Anything).
-		Return("")
-	localizer.EXPECT().
-		Possessive(mock.Anything).
-		Return("")
-	localizer.EXPECT().
-		T(mock.Anything).
-		Return("")
-	localizer.EXPECT().
-		FormatDateTime(mock.Anything).
-		Return("")
-
-	testAppData := testAppData
-	testAppData.Localizer = localizer
 
 	notifyClient := newMockNotifyClient(t)
 	notifyClient.EXPECT().
@@ -955,23 +819,6 @@ func TestPostProvideCertificateOnNotifyClientError(t *testing.T) {
 			r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(form.Encode()))
 			r.Header.Add("Content-Type", page.FormUrlEncoded)
 
-			localizer := newMockLocalizer(t)
-			localizer.EXPECT().
-				Possessive(mock.Anything).
-				Return("")
-			localizer.EXPECT().
-				Possessive(mock.Anything).
-				Return("")
-			localizer.EXPECT().
-				T(mock.Anything).
-				Return("")
-			localizer.EXPECT().
-				FormatDateTime(mock.Anything).
-				Return("")
-
-			testAppData := testAppData
-			testAppData.Localizer = localizer
-
 			notifyClient := newMockNotifyClient(t)
 			setupNotifyClient(notifyClient)
 
@@ -1008,23 +855,6 @@ func TestPostProvideCertificateWhenAccessCodeSenderErrors(t *testing.T) {
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(form.Encode()))
 	r.Header.Add("Content-Type", page.FormUrlEncoded)
-
-	localizer := newMockLocalizer(t)
-	localizer.EXPECT().
-		Possessive("c").
-		Return("the possessive first names")
-	localizer.EXPECT().
-		Possessive("c d").
-		Return("the possessive full name")
-	localizer.EXPECT().
-		T("property-and-affairs").
-		Return("the translated term")
-	localizer.EXPECT().
-		FormatDateTime(testNow).
-		Return("the formatted date")
-
-	testAppData := testAppData
-	testAppData.Localizer = localizer
 
 	notifyClient := newMockNotifyClient(t)
 	notifyClient.EXPECT().
@@ -1063,7 +893,8 @@ func TestPostProvideCertificateWhenValidationErrors(t *testing.T) {
 	template := newMockTemplate(t)
 	template.EXPECT().
 		Execute(w, mock.MatchedBy(func(data *provideCertificateData) bool {
-			return assert.Equal(t, validation.With("agree-to-statement", validation.SelectError{Label: "toSignAsCertificateProvider"}), data.Errors)
+			return assert.Equal(t, []forms.Field{data.Form.AgreeToStatement.Field}, data.Form.Errors) &&
+				assert.Equal(t, "errorSelect:Label=toSignAsCertificateProvider", data.Form.AgreeToStatement.Error.Format(testAppData.Localizer))
 		})).
 		Return(nil)
 
@@ -1072,66 +903,6 @@ func TestPostProvideCertificateWhenValidationErrors(t *testing.T) {
 
 	assert.Nil(t, err)
 	assert.Equal(t, http.StatusOK, resp.StatusCode)
-}
-
-func TestReadProvideCertificateForm(t *testing.T) {
-	assert := assert.New(t)
-
-	form := url.Values{
-		"agree-to-statement": {" 1   "},
-		"submittable":        {"can-submit"},
-	}
-
-	r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(form.Encode()))
-	r.Header.Add("Content-Type", page.FormUrlEncoded)
-
-	result := readProvideCertificateForm(r, localize.En)
-
-	assert.Equal(true, result.AgreeToStatement)
-	assert.Equal("can-submit", result.Submittable)
-}
-
-func TestProvideCertificateFormValidate(t *testing.T) {
-	testCases := map[string]struct {
-		form   *provideCertificateForm
-		errors validation.List
-	}{
-		"selected": {
-			form: &provideCertificateForm{
-				AgreeToStatement: true,
-			},
-		},
-		"cannot submit": {
-			form: &provideCertificateForm{
-				Submittable: "cannot-submit",
-			},
-		},
-		"not selected": {
-			form:   &provideCertificateForm{},
-			errors: validation.With("agree-to-statement", validation.SelectError{Label: "toSignAsCertificateProvider"}),
-		},
-		"selected with wrong language": {
-			form: &provideCertificateForm{
-				AgreeToStatement: true,
-				Submittable:      "wrong-language",
-				lpaLanguage:      localize.Cy,
-			},
-			errors: validation.With("agree-to-statement", toSignCertificateYouMustViewInLanguageError{LpaLanguage: localize.Cy}),
-		},
-		"not selected with wrong language": {
-			form: &provideCertificateForm{
-				Submittable: "wrong-language",
-				lpaLanguage: localize.Cy,
-			},
-			errors: validation.With("agree-to-statement", validation.SelectError{Label: "toSignAsCertificateProvider"}),
-		},
-	}
-
-	for name, tc := range testCases {
-		t.Run(name, func(t *testing.T) {
-			assert.Equal(t, tc.errors, tc.form.Validate())
-		})
-	}
 }
 
 func TestToSignCertificateYouMustViewInLanguageError(t *testing.T) {

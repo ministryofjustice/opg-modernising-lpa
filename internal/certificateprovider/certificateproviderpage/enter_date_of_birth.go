@@ -8,46 +8,38 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/certificateprovider"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/certificateprovider/certificateproviderdata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/date"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/forms"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/lpastore/lpadata"
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/task"
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/validation"
 )
 
 type dateOfBirthData struct {
 	App        appcontext.Data
 	Lpa        *lpadata.Lpa
 	Form       *dateOfBirthForm
-	Errors     validation.List
 	DobWarning string
-}
-
-type dateOfBirthForm struct {
-	Dob              date.Date
-	IgnoreDobWarning string
 }
 
 func EnterDateOfBirth(tmpl template.Template, certificateProviderStore CertificateProviderStore) Handler {
 	return func(appData appcontext.Data, w http.ResponseWriter, r *http.Request, certificateProvider *certificateproviderdata.Provided, lpa *lpadata.Lpa) error {
 		data := &dateOfBirthData{
-			App: appData,
-			Lpa: lpa,
-			Form: &dateOfBirthForm{
-				Dob: certificateProvider.DateOfBirth,
-			},
+			App:  appData,
+			Lpa:  lpa,
+			Form: newDateOfBirthForm(appData.Localizer),
 		}
 
+		data.Form.Dob.Set(certificateProvider.DateOfBirth)
+
 		if r.Method == http.MethodPost {
-			data.Form = readDateOfBirthForm(r)
-			data.Errors = data.Form.Validate()
+			ok := data.Form.Parse(r)
 			dobWarning := data.Form.DobWarning()
 
-			if data.Errors.Any() || data.Form.IgnoreDobWarning != dobWarning {
+			if !ok || data.Form.IgnoreDobWarning.Value != dobWarning {
 				data.DobWarning = dobWarning
 			}
 
-			if data.Errors.None() && data.DobWarning == "" {
-				certificateProvider.DateOfBirth = data.Form.Dob
+			if ok && data.DobWarning == "" {
+				certificateProvider.DateOfBirth = data.Form.Dob.Value
 				if !certificateProvider.Tasks.ConfirmYourDetails.IsCompleted() {
 					certificateProvider.Tasks.ConfirmYourDetails = task.StateInProgress
 				}
@@ -64,10 +56,20 @@ func EnterDateOfBirth(tmpl template.Template, certificateProviderStore Certifica
 	}
 }
 
-func readDateOfBirthForm(r *http.Request) *dateOfBirthForm {
+type dateOfBirthForm struct {
+	forms.Form
+	Dob              *forms.Date
+	IgnoreDobWarning *forms.String
+}
+
+func newDateOfBirthForm(l Localizer) *dateOfBirthForm {
 	return &dateOfBirthForm{
-		Dob:              date.New(page.PostFormString(r, "date-of-birth-year"), page.PostFormString(r, "date-of-birth-month"), page.PostFormString(r, "date-of-birth-day")),
-		IgnoreDobWarning: page.PostFormString(r, "ignore-dob-warning"),
+		Dob: forms.NewDate("date-of-birth", l.T("dateOfBirth")).
+			NotEmpty().
+			Real().
+			Past().
+			BeforeYears(18).WithError(forms.ErrorMessage(l.T("youAreUnder18Error"))),
+		IgnoreDobWarning: forms.NewString("ignore-dob-warning", ""),
 	}
 }
 
@@ -76,26 +78,13 @@ func (f *dateOfBirthForm) DobWarning() string {
 		hundredYearsEarlier = date.Today().AddDate(-100, 0, 0)
 	)
 
-	if !f.Dob.IsZero() {
-		if f.Dob.Before(hundredYearsEarlier) {
-			return "dateOfBirthIsOver100"
-		}
+	if !f.Dob.Value.IsZero() && f.Dob.Value.Before(hundredYearsEarlier) {
+		return "dateOfBirthIsOver100"
 	}
 
 	return ""
 }
 
-func (f *dateOfBirthForm) Validate() validation.List {
-	var errors validation.List
-
-	errors.Date("date-of-birth", "dateOfBirth", f.Dob,
-		validation.DateMissing(),
-		validation.DateMustBeReal(),
-		validation.DateMustBePast())
-
-	if f.Dob.After(date.Today().AddDate(-18, 0, 0)) {
-		errors.Add("date-of-birth", validation.CustomError{Label: "youAreUnder18Error"})
-	}
-
-	return errors
+func (f *dateOfBirthForm) Parse(r *http.Request) bool {
+	return f.ParsePostForm(r, f.Dob, f.IgnoreDobWarning)
 }
