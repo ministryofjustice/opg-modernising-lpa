@@ -87,6 +87,21 @@ func TestNewInputWithUnevenExtra(t *testing.T) {
 	assert.Panics(t, func() { newInput(nil, forms.NewString("a", "b"), "this") })
 }
 
+func TestNewDateInput(t *testing.T) {
+	dot := 1
+	field := forms.NewDate("a", "b")
+
+	v := newDateInput(dot, field, "this", "that")
+
+	assert.Equal(t, dot, v.Dot)
+	assert.Equal(t, field, v.Field)
+	assert.Equal(t, map[string]any{"this": "that"}, v.Extra)
+}
+
+func TestNewDateInputWithUnevenExtra(t *testing.T) {
+	assert.Panics(t, func() { newDateInput(nil, forms.NewDate("a", "b"), "this") })
+}
+
 func TestButton(t *testing.T) {
 	appData := appcontext.Data{Path: "1"}
 
