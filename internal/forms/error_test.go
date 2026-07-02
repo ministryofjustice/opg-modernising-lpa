@@ -31,3 +31,19 @@ func TestFormattedError_Format(t *testing.T) {
 
 	assert.Equal(t, "ok", error.Format(localizer))
 }
+
+func TestDateMissingError_Format(t *testing.T) {
+	localizer := newMockLocalizer(t)
+	localizer.EXPECT().
+		T("a").
+		Return("a")
+	localizer.EXPECT().
+		Format("errorDateMissing", map[string]any{
+			"Label":   "D",
+			"Missing": "a year",
+		}).
+		Return("ok")
+
+	error := dateMissingError{Label: "D", MissingYear: true}
+	assert.Equal(t, "ok", error.Format(localizer))
+}
