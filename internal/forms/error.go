@@ -1,6 +1,7 @@
 package forms
 
 type Localizer interface {
+	T(msgid string) string
 	Format(msgid string, data map[string]any) string
 }
 
@@ -16,8 +17,30 @@ func (v withError[T]) Validate(t T) Error {
 	return nil
 }
 
+type withErrorLabel[T any] struct {
+	replace string
+	wrapped validator[T]
+}
+
+func (v withErrorLabel[T]) Validate(t T) Error {
+	error := v.wrapped.Validate(t)
+
+	if ferror, ok := error.(formattedError); ok {
+		ferror.Data["Label"] = v.replace
+		return ferror
+	}
+
+	return error
+}
+
 type Error interface {
 	Format(localizer Localizer) string
+}
+
+type ErrorMessage string
+
+func (e ErrorMessage) Format(l Localizer) string {
+	return l.T(string(e))
 }
 
 type formattedError struct {
@@ -43,5 +66,19 @@ func newTooLongError(label string, length int) formattedError {
 			"Label":  label,
 			"Length": length,
 		},
+	}
+}
+
+func newSelectError(label string) formattedError {
+	return formattedError{
+		Key:  "errorSelect",
+		Data: map[string]any{"Label": label},
+	}
+}
+
+func newPhoneError(label string) formattedError {
+	return formattedError{
+		Key:  "errorPhone",
+		Data: map[string]any{"Label": label},
 	}
 }

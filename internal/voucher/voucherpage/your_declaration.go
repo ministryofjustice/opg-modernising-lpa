@@ -8,22 +8,20 @@ import (
 
 	"github.com/ministryofjustice/opg-go-common/template"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/appcontext"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/forms"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/identity"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/localize"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/lpastore/lpadata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/notify"
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/scheduled"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/scheduled/scheduleddata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/task"
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/validation"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/voucher"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/voucher/voucherdata"
 )
 
 type yourDeclarationData struct {
 	App     appcontext.Data
-	Errors  validation.List
 	Form    *yourDeclarationForm
 	Lpa     *lpadata.Lpa
 	Voucher *voucherdata.Provided
@@ -93,62 +91,57 @@ func YourDeclaration(
 
 		data := &yourDeclarationData{
 			App:     appData,
-			Form:    &yourDeclarationForm{},
+			Form:    newYourDeclarationForm(appData.Localizer, lpa.Donor.FullName()),
 			Lpa:     lpa,
 			Voucher: provided,
 		}
 
-		if r.Method == http.MethodPost {
-			data.Form = readYourDeclarationForm(r)
-			data.Errors = data.Form.Validate()
-
-			if data.Errors.None() {
-				if err := sendNotification(r.Context(), lpa, provided, localizer); err != nil {
-					return fmt.Errorf("error sending notification: %w", err)
-				}
-
-				donor, err := donorStore.GetAny(r.Context())
-				if err != nil {
-					return fmt.Errorf("error getting donor: %w", err)
-				}
-
-				donor.IdentityUserData = identity.UserData{
-					Status:         identity.StatusConfirmed,
-					FirstNames:     donor.Donor.FirstNames,
-					LastName:       donor.Donor.LastName,
-					DateOfBirth:    donor.Donor.DateOfBirth,
-					CurrentAddress: donor.Donor.Address,
-					CheckedAt:      now(),
-				}
-				donor.Tasks.ConfirmYourIdentity = task.IdentityStateCompleted
-				if err := donorStore.Put(r.Context(), donor); err != nil {
-					return fmt.Errorf("error updating donor: %w", err)
-				}
-
-				provided.SignedAt = now()
-				provided.Tasks.SignTheDeclaration = task.StateCompleted
-				if err := voucherStore.Put(r.Context(), provided); err != nil {
-					return fmt.Errorf("error updating voucher: %w", err)
-				}
-
-				if lpa.Submitted {
-					if err := lpaStoreClient.SendDonorConfirmIdentity(r.Context(), donor); err != nil {
-						return fmt.Errorf("error sending donor identity confirmation: %w", err)
-					}
-				}
-
-				if err := scheduledStore.Create(r.Context(), scheduled.Event{
-					At:                donor.IdentityUserData.CheckedAt.AddDate(0, 6, 0),
-					Action:            scheduleddata.ActionExpireDonorIdentity,
-					TargetLpaKey:      donor.PK,
-					TargetLpaOwnerKey: donor.SK,
-					LpaUID:            donor.LpaUID,
-				}); err != nil {
-					return fmt.Errorf("error scheduling identity expiry: %w", err)
-				}
-
-				return voucher.PathThankYou.Redirect(w, r, appData, appData.LpaID)
+		if r.Method == http.MethodPost && data.Form.Parse(r) {
+			if err := sendNotification(r.Context(), lpa, provided, localizer); err != nil {
+				return fmt.Errorf("error sending notification: %w", err)
 			}
+
+			donor, err := donorStore.GetAny(r.Context())
+			if err != nil {
+				return fmt.Errorf("error getting donor: %w", err)
+			}
+
+			donor.IdentityUserData = identity.UserData{
+				Status:         identity.StatusConfirmed,
+				FirstNames:     donor.Donor.FirstNames,
+				LastName:       donor.Donor.LastName,
+				DateOfBirth:    donor.Donor.DateOfBirth,
+				CurrentAddress: donor.Donor.Address,
+				CheckedAt:      now(),
+			}
+			donor.Tasks.ConfirmYourIdentity = task.IdentityStateCompleted
+			if err := donorStore.Put(r.Context(), donor); err != nil {
+				return fmt.Errorf("error updating donor: %w", err)
+			}
+
+			provided.SignedAt = now()
+			provided.Tasks.SignTheDeclaration = task.StateCompleted
+			if err := voucherStore.Put(r.Context(), provided); err != nil {
+				return fmt.Errorf("error updating voucher: %w", err)
+			}
+
+			if lpa.Submitted {
+				if err := lpaStoreClient.SendDonorConfirmIdentity(r.Context(), donor); err != nil {
+					return fmt.Errorf("error sending donor identity confirmation: %w", err)
+				}
+			}
+
+			if err := scheduledStore.Create(r.Context(), scheduled.Event{
+				At:                donor.IdentityUserData.CheckedAt.AddDate(0, 6, 0),
+				Action:            scheduleddata.ActionExpireDonorIdentity,
+				TargetLpaKey:      donor.PK,
+				TargetLpaOwnerKey: donor.SK,
+				LpaUID:            donor.LpaUID,
+			}); err != nil {
+				return fmt.Errorf("error scheduling identity expiry: %w", err)
+			}
+
+			return voucher.PathThankYou.Redirect(w, r, appData, appData.LpaID)
 		}
 
 		return tmpl(w, data)
@@ -156,20 +149,19 @@ func YourDeclaration(
 }
 
 type yourDeclarationForm struct {
-	Confirm bool
+	forms.Form
+	Confirm *forms.Bool
 }
 
-func readYourDeclarationForm(r *http.Request) *yourDeclarationForm {
+func newYourDeclarationForm(l Localizer, donorFullName string) *yourDeclarationForm {
 	return &yourDeclarationForm{
-		Confirm: page.PostFormString(r, "confirm") == "1",
+		Confirm: forms.NewBool("confirm", l.Format("toTheBestOfMyKnowledgeDeclaration", map[string]any{
+			"DonorFullName": donorFullName,
+		})).
+			Selected().WithError(forms.ErrorMessage("youMustSelectTheBoxToVouch")),
 	}
 }
 
-func (f *yourDeclarationForm) Validate() validation.List {
-	var errors validation.List
-
-	errors.Bool("confirm", "youMustSelectTheBoxToVouch", f.Confirm,
-		validation.Selected().CustomError())
-
-	return errors
+func (f *yourDeclarationForm) Parse(r *http.Request) bool {
+	return f.ParsePostForm(r, f.Confirm)
 }

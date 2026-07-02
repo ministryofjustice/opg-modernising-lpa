@@ -57,3 +57,8 @@ ignore:
         reason: None Given
         expires: 2026-07-30T09:55:47.000Z
         created: 2026-06-30T09:55:47.000Z
+  SNYK-JS-BRACEEXPANSION-17706650:
+    - "*":
+        reason: None Given
+        expires: 2026-07-30T15:38:19.000Z
+        created: 2026-06-30T15:38:19.000Z
