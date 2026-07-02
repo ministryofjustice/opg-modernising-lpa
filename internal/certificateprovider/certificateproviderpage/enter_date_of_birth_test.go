@@ -12,10 +12,10 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/certificateprovider"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/certificateprovider/certificateproviderdata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/date"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/forms"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/lpastore/lpadata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/task"
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/validation"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
 )
@@ -33,7 +33,7 @@ func TestGetEnterDateOfBirth(t *testing.T) {
 		Execute(w, &dateOfBirthData{
 			App:  testAppData,
 			Lpa:  lpa,
-			Form: &dateOfBirthForm{},
+			Form: newDateOfBirthForm(testAppData.Localizer),
 		}).
 		Return(nil)
 
@@ -48,14 +48,15 @@ func TestGetEnterDateOfBirthFromStore(t *testing.T) {
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest(http.MethodGet, "/", nil)
 
+	form := newDateOfBirthForm(testAppData.Localizer)
+	form.Dob.Set(date.New("1997", "1", "2"))
+
 	template := newMockTemplate(t)
 	template.EXPECT().
 		Execute(w, &dateOfBirthData{
-			App: testAppData,
-			Lpa: &lpadata.Lpa{},
-			Form: &dateOfBirthForm{
-				Dob: date.New("1997", "1", "2"),
-			},
+			App:  testAppData,
+			Lpa:  &lpadata.Lpa{},
+			Form: form,
 		}).
 		Return(nil)
 
@@ -79,7 +80,7 @@ func TestGetEnterDateOfBirthWhenTemplateErrors(t *testing.T) {
 		Execute(w, &dateOfBirthData{
 			App:  testAppData,
 			Lpa:  donor,
-			Form: &dateOfBirthForm{},
+			Form: newDateOfBirthForm(testAppData.Localizer),
 		}).
 		Return(expectedError)
 
@@ -171,7 +172,8 @@ func TestPostEnterDateOfBirthWhenInputRequired(t *testing.T) {
 				"date-of-birth-year":  {validBirthYear},
 			},
 			dataMatcher: func(t *testing.T, data *dateOfBirthData) bool {
-				return assert.Equal(t, validation.With("date-of-birth", validation.DateMustBeRealError{Label: "dateOfBirth"}), data.Errors)
+				return assert.Equal(t, []forms.Field{data.Form.Dob.Field}, data.Form.Errors) &&
+					assert.Equal(t, "errorDateMustBeReal:Label=dateOfBirth", data.Form.Dob.Error.Format(testAppData.Localizer))
 			},
 		},
 		"dob warning": {
@@ -205,77 +207,6 @@ func TestPostEnterDateOfBirthWhenInputRequired(t *testing.T) {
 
 			assert.Nil(t, err)
 			assert.Equal(t, http.StatusOK, resp.StatusCode)
-		})
-	}
-}
-
-func TestReadDateOfBirthForm(t *testing.T) {
-	assert := assert.New(t)
-
-	form := url.Values{
-		"date-of-birth-day":   {"2"},
-		"date-of-birth-month": {"1"},
-		"date-of-birth-year":  {"1990"},
-		"ignore-dob-warning":  {"xyz"},
-	}
-
-	r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(form.Encode()))
-	r.Header.Add("Content-Type", page.FormUrlEncoded)
-
-	result := readDateOfBirthForm(r)
-
-	assert.Equal(date.New("1990", "1", "2"), result.Dob)
-	assert.Equal("xyz", result.IgnoreDobWarning)
-}
-
-func TestDateOfBirthFormValidate(t *testing.T) {
-	now := date.Today()
-	validDob := now.AddDate(-18, 0, -1)
-
-	testCases := map[string]struct {
-		form   *dateOfBirthForm
-		errors validation.List
-	}{
-		"valid": {
-			form: &dateOfBirthForm{
-				Dob:              validDob,
-				IgnoreDobWarning: "xyz",
-			},
-		},
-		"missing": {
-			form: &dateOfBirthForm{},
-			errors: validation.
-				With("date-of-birth", validation.EnterError{Label: "dateOfBirth"}),
-		},
-		"future-dob": {
-			form: &dateOfBirthForm{
-				Dob: now.AddDate(0, 0, 1),
-			},
-			errors: validation.With("date-of-birth", validation.DateMustBePastError{Label: "dateOfBirth"}),
-		},
-		"dob-under-18": {
-			form: &dateOfBirthForm{
-				Dob: now.AddDate(0, 0, -1),
-			},
-			errors: validation.With("date-of-birth", validation.CustomError{Label: "youAreUnder18Error"}),
-		},
-		"invalid-dob": {
-			form: &dateOfBirthForm{
-				Dob: date.New("2000", "22", "2"),
-			},
-			errors: validation.With("date-of-birth", validation.DateMustBeRealError{Label: "dateOfBirth"}),
-		},
-		"invalid-missing-dob": {
-			form: &dateOfBirthForm{
-				Dob: date.New("1", "", "1"),
-			},
-			errors: validation.With("date-of-birth", validation.DateMissingError{Label: "dateOfBirth", MissingMonth: true}),
-		},
-	}
-
-	for name, tc := range testCases {
-		t.Run(name, func(t *testing.T) {
-			assert.Equal(t, tc.errors, tc.form.Validate())
 		})
 	}
 }

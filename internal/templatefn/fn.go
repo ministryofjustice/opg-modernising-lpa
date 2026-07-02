@@ -54,6 +54,7 @@ func All(globals *Globals) map[string]any {
 		"isWelsh":              isWelsh,
 		"input":                input,
 		"newInput":             newInput,
+		"newDateInput":         newDateInput,
 		"button":               button,
 		"items":                items,
 		"item":                 item,
@@ -142,6 +143,20 @@ type newInputVars struct {
 
 func newInput(dot any, field *forms.String, args ...any) newInputVars {
 	return newInputVars{
+		Dot:   dot,
+		Field: field,
+		Extra: pair(args),
+	}
+}
+
+type newDateInputVars struct {
+	Dot   any
+	Field *forms.Date
+	Extra map[string]any
+}
+
+func newDateInput(dot any, field *forms.Date, args ...any) newDateInputVars {
+	return newDateInputVars{
 		Dot:   dot,
 		Field: field,
 		Extra: pair(args),
