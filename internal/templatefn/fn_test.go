@@ -87,6 +87,21 @@ func TestNewInputWithUnevenExtra(t *testing.T) {
 	assert.Panics(t, func() { newInput(nil, forms.NewString("a", "b"), "this") })
 }
 
+func TestNewDateInput(t *testing.T) {
+	dot := 1
+	field := forms.NewDate("a", "b")
+
+	v := newDateInput(dot, field, "this", "that")
+
+	assert.Equal(t, dot, v.Dot)
+	assert.Equal(t, field, v.Field)
+	assert.Equal(t, map[string]any{"this": "that"}, v.Extra)
+}
+
+func TestNewDateInputWithUnevenExtra(t *testing.T) {
+	assert.Panics(t, func() { newDateInput(nil, forms.NewDate("a", "b"), "this") })
+}
+
 func TestButton(t *testing.T) {
 	appData := appcontext.Data{Path: "1"}
 
@@ -167,6 +182,18 @@ func TestErrorMessage(t *testing.T) {
 
 	assert.Equal(t, top, v["top"])
 	assert.Equal(t, name, v["name"])
+}
+
+func TestNewErrorMessage(t *testing.T) {
+	dot := 1
+	field := "name"
+
+	v := newErrorMessage(dot, field)
+
+	assert.Equal(t, errorMessageData{
+		Dot:   dot,
+		Field: field,
+	}, v)
 }
 
 func TestDetails(t *testing.T) {
@@ -673,6 +700,20 @@ func TestFieldset(t *testing.T) {
 		Legend: aLegend,
 		Items:  items("top", "a-name", "a-value", anItem),
 	}, fieldset("top", "a-name", "a-value", aLegend, anItem))
+}
+
+func TestNewFieldset(t *testing.T) {
+	dot := "1"
+	aField := "2"
+	aLegend := legend("a-label")
+	anItem := item("a-value", "another-label")
+
+	assert.Equal(t, newFieldsetData{
+		Dot:    dot,
+		Field:  aField,
+		Legend: aLegend,
+		Items:  []any{anItem},
+	}, newFieldset(dot, aField, aLegend, anItem))
 }
 
 func TestAddressLines(t *testing.T) {

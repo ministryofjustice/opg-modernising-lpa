@@ -54,11 +54,13 @@ func All(globals *Globals) map[string]any {
 		"isWelsh":              isWelsh,
 		"input":                input,
 		"newInput":             newInput,
+		"newDateInput":         newDateInput,
 		"button":               button,
 		"items":                items,
 		"item":                 item,
 		"fieldID":              fieldID,
 		"errorMessage":         errorMessage,
+		"newErrorMessage":      newErrorMessage,
 		"details":              details,
 		"inc":                  inc,
 		"link":                 link,
@@ -96,6 +98,7 @@ func All(globals *Globals) map[string]any {
 		"legend":               legend,
 		"legendHeading":        legendHeading,
 		"fieldset":             fieldset,
+		"newFieldset":          newFieldset,
 		"htmlContent":          htmlContent,
 		"addressLines":         addressLines,
 		"stackedNotifications": stackedNotifications,
@@ -140,6 +143,20 @@ type newInputVars struct {
 
 func newInput(dot any, field *forms.String, args ...any) newInputVars {
 	return newInputVars{
+		Dot:   dot,
+		Field: field,
+		Extra: pair(args),
+	}
+}
+
+type newDateInputVars struct {
+	Dot   any
+	Field *forms.Date
+	Extra map[string]any
+}
+
+func newDateInput(dot any, field *forms.Date, args ...any) newDateInputVars {
+	return newDateInputVars{
 		Dot:   dot,
 		Field: field,
 		Extra: pair(args),
@@ -209,6 +226,18 @@ func errorMessage(top interface{}, name string) map[string]interface{} {
 	return map[string]interface{}{
 		"top":  top,
 		"name": name,
+	}
+}
+
+type errorMessageData struct {
+	Dot   any
+	Field any // forms.Field
+}
+
+func newErrorMessage(dot any, field any) errorMessageData {
+	return errorMessageData{
+		Dot:   dot,
+		Field: field,
 	}
 }
 
@@ -620,6 +649,22 @@ func fieldset(top any, name string, value any, legend legendData, is ...any) fie
 		Name:   name,
 		Legend: legend,
 		Items:  items(top, name, value, is...),
+	}
+}
+
+type newFieldsetData struct {
+	Dot    any
+	Field  any // forms.Enum
+	Legend legendData
+	Items  []any
+}
+
+func newFieldset(dot any, field any, legend legendData, is ...any) newFieldsetData {
+	return newFieldsetData{
+		Dot:    dot,
+		Field:  field,
+		Legend: legend,
+		Items:  is,
 	}
 }
 

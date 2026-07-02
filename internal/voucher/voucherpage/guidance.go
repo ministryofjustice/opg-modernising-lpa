@@ -6,13 +6,11 @@ import (
 	"github.com/ministryofjustice/opg-go-common/template"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/appcontext"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/lpastore/lpadata"
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/validation"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/voucher/voucherdata"
 )
 
 type guidanceData struct {
 	App      appcontext.Data
-	Errors   validation.List
 	Provided *voucherdata.Provided
 	Lpa      *lpadata.Lpa
 }

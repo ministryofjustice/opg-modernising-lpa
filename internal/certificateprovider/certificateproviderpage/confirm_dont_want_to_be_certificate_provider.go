@@ -12,13 +12,11 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/notify"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/task"
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/validation"
 )
 
 type confirmDontWantToBeCertificateProviderData struct {
-	App    appcontext.Data
-	Errors validation.List
-	Lpa    *lpadata.Lpa
+	App appcontext.Data
+	Lpa *lpadata.Lpa
 }
 
 func ConfirmDontWantToBeCertificateProvider(tmpl template.Template, lpaStoreClient LpaStoreClient, donorStore DonorStore, certificateProviderStore CertificateProviderStore, notifyClient NotifyClient, donorStartURL string) Handler {
