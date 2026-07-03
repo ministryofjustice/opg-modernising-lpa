@@ -8,3 +8,7 @@ const (
 	Yes                // yes
 	No                 // no
 )
+
+func (e YesNo) Empty() bool {
+	return e == YesNoUnknown
+}

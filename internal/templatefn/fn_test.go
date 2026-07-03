@@ -169,6 +169,18 @@ func TestErrorMessage(t *testing.T) {
 	assert.Equal(t, name, v["name"])
 }
 
+func TestNewErrorMessage(t *testing.T) {
+	dot := 1
+	field := "name"
+
+	v := newErrorMessage(dot, field)
+
+	assert.Equal(t, errorMessageData{
+		Dot:   dot,
+		Field: field,
+	}, v)
+}
+
 func TestDetails(t *testing.T) {
 	top := 1
 	name := "name"
@@ -673,6 +685,20 @@ func TestFieldset(t *testing.T) {
 		Legend: aLegend,
 		Items:  items("top", "a-name", "a-value", anItem),
 	}, fieldset("top", "a-name", "a-value", aLegend, anItem))
+}
+
+func TestNewFieldset(t *testing.T) {
+	dot := "1"
+	aField := "2"
+	aLegend := legend("a-label")
+	anItem := item("a-value", "another-label")
+
+	assert.Equal(t, newFieldsetData{
+		Dot:    dot,
+		Field:  aField,
+		Legend: aLegend,
+		Items:  []any{anItem},
+	}, newFieldset(dot, aField, aLegend, anItem))
 }
 
 func TestAddressLines(t *testing.T) {

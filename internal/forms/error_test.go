@@ -6,6 +6,17 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
+func TestErrorMessage_Format(t *testing.T) {
+	localizer := newMockLocalizer(t)
+
+	localizer.EXPECT().
+		T("blah").
+		Return("ok")
+
+	error := ErrorMessage("blah")
+	assert.Equal(t, "ok", error.Format(localizer))
+}
+
 func TestFormattedError_Format(t *testing.T) {
 	localizer := newMockLocalizer(t)
 
