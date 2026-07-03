@@ -5,3 +5,11 @@
     </p>
   {{ end }}
 {{ end }}
+
+{{ define "new-error-message" }}
+    {{ if .Field.Error }}
+        <p id="{{ .Field.Name }}-error" class="govuk-error-message">
+            <span class="govuk-visually-hidden">Error:</span> {{ .Field.Error.Format .Dot.App.Localizer }}
+        </p>
+    {{ end }}
+{{ end }}

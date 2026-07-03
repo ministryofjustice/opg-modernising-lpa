@@ -17,9 +17,9 @@ func (_m *mockValidator[T]) EXPECT() *mockValidator_Expecter[T] {
 	return &mockValidator_Expecter[T]{mock: &_m.Mock}
 }
 
-// Validate provides a mock function with given fields: v
-func (_m *mockValidator[T]) Validate(v T) Error {
-	ret := _m.Called(v)
+// Validate provides a mock function with given fields: t
+func (_m *mockValidator[T]) Validate(t T) Error {
+	ret := _m.Called(t)
 
 	if len(ret) == 0 {
 		panic("no return value specified for Validate")
@@ -27,7 +27,7 @@ func (_m *mockValidator[T]) Validate(v T) Error {
 
 	var r0 Error
 	if rf, ok := ret.Get(0).(func(T) Error); ok {
-		r0 = rf(v)
+		r0 = rf(t)
 	} else {
 		if ret.Get(0) != nil {
 			r0 = ret.Get(0).(Error)
@@ -43,12 +43,12 @@ type mockValidator_Validate_Call[T interface{}] struct {
 }
 
 // Validate is a helper method to define mock.On call
-//   - v T
-func (_e *mockValidator_Expecter[T]) Validate(v interface{}) *mockValidator_Validate_Call[T] {
-	return &mockValidator_Validate_Call[T]{Call: _e.mock.On("Validate", v)}
+//   - t T
+func (_e *mockValidator_Expecter[T]) Validate(t interface{}) *mockValidator_Validate_Call[T] {
+	return &mockValidator_Validate_Call[T]{Call: _e.mock.On("Validate", t)}
 }
 
-func (_c *mockValidator_Validate_Call[T]) Run(run func(v T)) *mockValidator_Validate_Call[T] {
+func (_c *mockValidator_Validate_Call[T]) Run(run func(t T)) *mockValidator_Validate_Call[T] {
 	_c.Call.Run(func(args mock.Arguments) {
 		run(args[0].(T))
 	})

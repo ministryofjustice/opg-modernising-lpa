@@ -6,7 +6,7 @@ import (
 
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor/donordata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/dynamo"
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/form"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/forms"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/localize"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/lpastore/lpadata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/notify"
@@ -30,7 +30,7 @@ func TestVouchFailer(t *testing.T) {
 	}
 	donor := &donordata.Provided{
 		VouchAttempts: 1,
-		WantVoucher:   form.Yes,
+		WantVoucher:   forms.Yes,
 		Voucher:       donordata.Voucher{FirstNames: "A"},
 	}
 
