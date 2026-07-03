@@ -217,6 +217,7 @@ func TestPostConfirmDontWantToBeAttorneyLoggedOut(t *testing.T) {
 				T("personal-welfare").
 				Return("Personal welfare")
 
+			testAppData := testAppData
 			testAppData.Localizer = localizer
 
 			lpaStoreClient := newMockLpaStoreClient(t)
@@ -462,6 +463,7 @@ func TestPostConfirmDontWantToBeAttorneyLoggedOutErrors(t *testing.T) {
 		t.Run(name, func(t *testing.T) {
 			w := httptest.NewRecorder()
 
+			testAppData := testAppData
 			testAppData.Localizer = evalT(tc.localizer, t)
 
 			err := ConfirmDontWantToBeAttorneyLoggedOut(nil, evalT(tc.accessCodeStore, t), evalT(tc.lpaStoreResolvingService, t), evalT(tc.sessionStore, t), evalT(tc.notifyClient, t), evalT(tc.lpaStoreClient, t))(testAppData, w, r)
