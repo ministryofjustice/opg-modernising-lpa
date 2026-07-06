@@ -25,7 +25,7 @@ jobs:
           fetch-depth: "0"
       - name: "Generate semver tag and release"
         id: semver_tag
-        uses: ministryofjustice/opg-github-actions/actions/semver@2ad72748485e27f590599a7e9768b9fc0d5b8e03 # v4.8.7
+        uses: ministryofjustice/opg-github-actions/actions/semver@77bb12e7fec3bcee9a6a35cb21361195e027a12a # v4.9.0
         with:
           create_release: false
     outputs:
@@ -55,7 +55,7 @@ jobs:
     needs: [ create_tags, generate_environment_workspace_name ]
     steps:
       - name: Configure AWS Credentials
-        uses: aws-actions/configure-aws-credentials@e7f100cf4c008499ea8adda475de1042d6975c7b # v6.2.0
+        uses: aws-actions/configure-aws-credentials@254c19bd240aabef8777f48595e9d2d7b972184b # v6.2.1
         with:
           aws-region: us-east-1
           role-to-assume: ${{ vars.OIDC_SSM_GET_PARAMETER }}
