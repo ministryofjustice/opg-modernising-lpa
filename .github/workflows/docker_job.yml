@@ -103,10 +103,10 @@ jobs:
         uses: docker/setup-buildx-action@d7f5e7f509e45cec5c76c4d5afdd7de93d0b3df5 # v4
         id: buildx_setup
         with:
-          version: v0.34.1
+          version: v0.35.0
           platforms: linux/amd64,linux/arm64
       - name: Configure AWS Credentials
-        uses: aws-actions/configure-aws-credentials@e7f100cf4c008499ea8adda475de1042d6975c7b # v6.2.0
+        uses: aws-actions/configure-aws-credentials@254c19bd240aabef8777f48595e9d2d7b972184b # v6.2.1
         with:
           aws-region: eu-west-1
           role-to-assume: ${{ vars.OIDC_ECR_PUSH }}
@@ -115,7 +115,7 @@ jobs:
 
       - name: ECR Login
         id: login_ecr
-        uses: aws-actions/amazon-ecr-login@fa648b43de3d4d023bcb3f89ed6940096949c419 # v2.1.5
+        uses: aws-actions/amazon-ecr-login@d539f0932e70871a027e9d5a9d8fc38589180a64 # v2.1.6
         with:
           mask-password: true
           registries: 311462405659
@@ -142,7 +142,7 @@ jobs:
       #SNYK SCAN STEPS
       - name: Run SNYK vulnerability scan for ${{ matrix.scan_id }}
         id: snyk_scan
-        uses: ministryofjustice/opg-github-actions/actions/snyk-scan@2ad72748485e27f590599a7e9768b9fc0d5b8e03 # v4.8.7
+        uses: ministryofjustice/opg-github-actions/actions/snyk-scan@77bb12e7fec3bcee9a6a35cb21361195e027a12a # v4.9.0
         with:
           SNYK_TEST_IMAGE: ${{ matrix.ecr_repository }}:${{ inputs.tag }}
           SNYK_TOKEN: ${{ secrets.SNYK_OPG_ORG_TOKEN }}
