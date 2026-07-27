@@ -17,6 +17,9 @@ COPY --link docker/mainstream-content/alpine_image_hardening.sh /harden.sh
 
 COPY --from=fetched-repo app/register-lpa-prototype/package*.json ./
 
+# npm 11.13.0 pulls vulnerable tar/undici/brace-expansion transitively; npm 12 includes patched ranges
+RUN npm install -g npm@12.0.1
+
 # update uuid to 11.1.1 to fix security vulnerability via govuk-prototype-kit
 RUN npm pkg set overrides.uuid=11.1.1
 

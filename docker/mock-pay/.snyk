@@ -27,3 +27,18 @@ ignore:
         reason: None Given
         expires: 2026-08-28T08:15:19.000Z
         created: 2026-06-08T08:15:19.000Z
+  SNYK-JS-BRACEEXPANSION-18313044:
+    - "*":
+        reason: None Given
+        expires: 2026-08-28T08:15:19.000Z
+        created: 2026-06-08T08:15:19.000Z
+  SNYK-JS-IMMUTABLE-17900558:
+    - "*":
+        reason: None Given
+        expires: 2026-08-28T08:15:19.000Z
+        created: 2026-06-08T08:15:19.000Z
+  SNYK-JS-IMMUTABLE-17900573:
+    - "*":
+        reason: None Given
+        expires: 2026-08-28T08:15:19.000Z
+        created: 2026-06-08T08:15:19.000Z

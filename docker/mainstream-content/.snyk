@@ -77,3 +77,18 @@ ignore:
         reason: no direct upgrade or patch (npm)
         expires: 2026-08-28T08:32:38.540Z
         created: 2026-07-06T08:32:38.546Z
+  SNYK-JS-BRACEEXPANSION-18313044:
+    - '*':
+        reason: no direct upgrade or patch (govuk-prototype-kit 13.20.2 shrinkwrap)
+        expires: 2026-08-28T15:40:00.000Z
+        created: 2026-07-27T15:40:00.000Z
+  SNYK-JS-IMMUTABLE-17900558:
+    - '*':
+        reason: no direct upgrade or patch (govuk-prototype-kit 13.20.2 shrinkwrap)
+        expires: 2026-08-28T15:40:00.000Z
+        created: 2026-07-27T15:40:00.000Z
+  SNYK-JS-IMMUTABLE-17900573:
+    - '*':
+        reason: no direct upgrade or patch (govuk-prototype-kit 13.20.2 shrinkwrap)
+        expires: 2026-08-28T15:40:00.000Z
+        created: 2026-07-27T15:40:00.000Z
