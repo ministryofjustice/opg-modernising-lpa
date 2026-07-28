@@ -20,8 +20,12 @@ COPY --from=fetched-repo app/register-lpa-prototype/package*.json ./
 # npm 11.13.0 pulls vulnerable tar/undici/brace-expansion transitively; npm 12 includes patched ranges
 RUN npm install -g npm@12.0.1
 
-# update uuid to 11.1.1 to fix security vulnerability via govuk-prototype-kit
-RUN npm pkg set overrides.uuid=11.1.1
+# pin vulnerable transitive deps to patched versions
+RUN npm pkg set overrides.uuid=11.1.1 \
+  && npm pkg set overrides.tar=7.5.22 \
+  && npm pkg set overrides.form-data=4.0.6 \
+  && npm pkg set overrides.ws=8.21.1 \
+  && npm pkg set overrides.engine.io=6.6.9
 
 RUN npm install
 
