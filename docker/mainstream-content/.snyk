@@ -5,32 +5,32 @@ ignore:
   SNYK-JS-FOLLOWREDIRECTS-16032162:
     - '*':
         reason: None Given
-        expires: 2026-07-25T16:43:47.000Z
+        expires: 2026-08-28T16:43:47.000Z
         created: 2026-03-26T16:43:47.000Z
   SNYK-JS-BRACEEXPANSION-16755174:
     - '*':
         reason: None Given
-        expires: 2026-07-19T12:23:47.000Z
+        expires: 2026-08-28T12:23:47.000Z
         created: 2026-05-19T12:23:47.000Z
   SNYK-JS-PICOMATCH-15765511:
     - '*':
         reason: None Given
-        expires: 2026-07-08T08:22:08.000Z
+        expires: 2026-08-28T08:22:08.000Z
         created: 2026-06-08T08:22:08.000Z
   SNYK-JS-PACOTE-8225084:
     - '*':
         reason: None Given
-        expires: 2026-07-08T08:22:15.000Z
+        expires: 2026-08-28T08:22:15.000Z
         created: 2026-06-08T08:22:15.000Z
   SNYK-JS-BRACEEXPANSION-15789759:
     - '*':
         reason: None Given
-        expires: 2026-07-08T08:22:22.000Z
+        expires: 2026-08-28T08:22:22.000Z
         created: 2026-06-08T08:22:22.000Z
   SNYK-JS-UNDICI-17372758:
     - '*':
         reason: None Given
-        expires: 2026-07-26T13:07:51.000Z
+        expires: 2026-08-28T13:07:51.000Z
         created: 2026-06-26T13:07:51.000Z
   SNYK-JS-UNDICI-17372754:
     - '*':
@@ -40,40 +40,55 @@ ignore:
   SNYK-JS-UNDICI-17372658:
     - '*':
         reason: None Given
-        expires: 2026-07-26T13:08:22.000Z
+        expires: 2026-08-28T13:08:22.000Z
         created: 2026-06-26T13:08:22.000Z
   SNYK-JS-WS-17344547:
     - '*':
         reason: None Given
-        expires: 2026-07-26T13:18:13.000Z
+        expires: 2026-08-28T13:18:13.000Z
         created: 2026-06-26T13:18:13.000Z
   SNYK-UPSTREAM-NODE-17430980:
     - '*':
         reason: None Given
-        expires: 2026-07-26T13:25:08.000Z
+        expires: 2026-08-28T13:25:08.000Z
         created: 2026-06-26T13:25:08.000Z
   SNYK-UPSTREAM-NODE-17674807:
     - '*':
         reason: None Given
-        expires: 2026-07-30T09:55:47.000Z
+        expires: 2026-08-28T09:55:47.000Z
         created: 2026-06-30T09:55:47.000Z
   SNYK-JS-BRACEEXPANSION-17706650:
     - '*':
         reason: None Given
-        expires: 2026-07-30T15:38:19.000Z
+        expires: 2026-08-28T15:38:19.000Z
         created: 2026-06-30T15:38:19.000Z
   SNYK-JS-SIGSTORE-17817054:
     - '*':
         reason: no direct upgrade or patch (npm)
-        expires: 2026-08-05T08:08:41.080Z
+        expires: 2026-08-28T08:08:41.080Z
         created: 2026-07-06T08:08:41.088Z
   SNYK-JS-SIGSTOREVERIFY-17817052:
     - '*':
         reason: no direct upgrade or patch (npm)
-        expires: 2026-08-05T08:32:10.114Z
+        expires: 2026-08-28T08:32:10.114Z
         created: 2026-07-06T08:32:10.125Z
   SNYK-JS-SIGSTOREVERIFY-17817056:
     - '*':
         reason: no direct upgrade or patch (npm)
-        expires: 2026-08-05T08:32:38.540Z
+        expires: 2026-08-28T08:32:38.540Z
         created: 2026-07-06T08:32:38.546Z
+  SNYK-JS-BRACEEXPANSION-18313044:
+    - '*':
+        reason: no direct upgrade or patch (govuk-prototype-kit 13.20.2 shrinkwrap)
+        expires: 2026-08-28T15:40:00.000Z
+        created: 2026-07-27T15:40:00.000Z
+  SNYK-JS-IMMUTABLE-17900558:
+    - '*':
+        reason: no direct upgrade or patch (govuk-prototype-kit 13.20.2 shrinkwrap)
+        expires: 2026-08-28T15:40:00.000Z
+        created: 2026-07-27T15:40:00.000Z
+  SNYK-JS-IMMUTABLE-17900573:
+    - '*':
+        reason: no direct upgrade or patch (govuk-prototype-kit 13.20.2 shrinkwrap)
+        expires: 2026-08-28T15:40:00.000Z
+        created: 2026-07-27T15:40:00.000Z
