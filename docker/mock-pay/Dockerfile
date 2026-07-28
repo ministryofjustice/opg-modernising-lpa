@@ -5,7 +5,7 @@ RUN addgroup -S user && \
 
 # install golang net package to fix security vulnerability (can be removed once patched in imposter-go)
 RUN go mod init tmp \
-  && go get github.com/imposter-project/imposter-go/cmd/imposter@v1.8.0 golang.org/x/net@v0.53.0 \
+  && go get github.com/imposter-project/imposter-go/cmd/imposter@v1.8.0 golang.org/x/net@v0.53.0 google.golang.org/grpc@v1.82.1 \
   && go install github.com/imposter-project/imposter-go/cmd/imposter \
   && mv "$GOPATH/bin/imposter" /tmp/imposter
 
