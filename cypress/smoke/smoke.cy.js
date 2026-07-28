@@ -47,6 +47,10 @@ describe('Smoke tests', () => {
                                 if ($body.text().includes('terms of use update')) {
                                     cy.contains('button', 'Continue').click()
                                 }
+
+                                if ($body.text().includes('Sign in faster with your face, fingerprint or passcode')) {
+                                    cy.contains('button', 'Skip for now').click()
+                                }
                             })
                         });
                     }
