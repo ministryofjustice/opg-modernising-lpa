@@ -27,26 +27,6 @@ ignore:
         reason: None Given
         expires: 2026-08-28T08:22:22.000Z
         created: 2026-06-08T08:22:22.000Z
-  SNYK-JS-UNDICI-17372758:
-    - '*':
-        reason: None Given
-        expires: 2026-08-28T13:07:51.000Z
-        created: 2026-06-26T13:07:51.000Z
-  SNYK-JS-UNDICI-17372754:
-    - '*':
-        reason: None Given
-        expires: 2026-07-26T13:08:11.000Z
-        created: 2026-06-26T13:08:11.000Z
-  SNYK-JS-UNDICI-17372658:
-    - '*':
-        reason: None Given
-        expires: 2026-08-28T13:08:22.000Z
-        created: 2026-06-26T13:08:22.000Z
-  SNYK-JS-WS-17344547:
-    - '*':
-        reason: None Given
-        expires: 2026-08-28T13:18:13.000Z
-        created: 2026-06-26T13:18:13.000Z
   SNYK-UPSTREAM-NODE-17430980:
     - '*':
         reason: None Given
