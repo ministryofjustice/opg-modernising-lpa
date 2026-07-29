@@ -10,10 +10,10 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/appcontext"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/attorney"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/attorney/attorneydata"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/forms"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/lpastore/lpadata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/task"
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/validation"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
 )
@@ -39,7 +39,7 @@ func TestGetPhoneNumber(t *testing.T) {
 			template.EXPECT().
 				Execute(w, &phoneNumberData{
 					App:  tc.appData,
-					Form: &phoneNumberForm{},
+					Form: newPhoneNumberForm(tc.appData.Localizer),
 				}).
 				Return(nil)
 
@@ -70,13 +70,14 @@ func TestGetPhoneNumberFromStore(t *testing.T) {
 			w := httptest.NewRecorder()
 			r, _ := http.NewRequest(http.MethodGet, "/", nil)
 
+			form := newPhoneNumberForm(tc.appData.Localizer)
+			form.Phone.Set("07535111222")
+
 			template := newMockTemplate(t)
 			template.EXPECT().
 				Execute(w, &phoneNumberData{
-					App: tc.appData,
-					Form: &phoneNumberForm{
-						Phone: "07535111222",
-					},
+					App:  tc.appData,
+					Form: form,
 				}).
 				Return(nil)
 
@@ -204,14 +205,11 @@ func TestPostPhoneNumberWhenValidationError(t *testing.T) {
 	r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(form.Encode()))
 	r.Header.Add("Content-Type", page.FormUrlEncoded)
 
-	dataMatcher := func(t *testing.T, data *phoneNumberData) bool {
-		return assert.Equal(t, validation.With("phone", validation.PhoneError{Tmpl: "errorPhone", Label: "phone"}), data.Errors)
-	}
-
 	template := newMockTemplate(t)
 	template.EXPECT().
 		Execute(w, mock.MatchedBy(func(data *phoneNumberData) bool {
-			return dataMatcher(t, data)
+			return assert.Equal(t, []forms.Field{data.Form.Phone.Field}, data.Form.Errors) &&
+				assert.Equal(t, "errorPhone:Label=phone", data.Form.Phone.Error.Format(testAppData.Localizer))
 		})).
 		Return(nil)
 
@@ -242,47 +240,4 @@ func TestPostPhoneNumberWhenAttorneyStoreErrors(t *testing.T) {
 
 	assert.Equal(t, expectedError, err)
 	assert.Equal(t, http.StatusOK, resp.StatusCode)
-}
-
-func TestReadPhoneNumberForm(t *testing.T) {
-	assert := assert.New(t)
-
-	form := url.Values{
-		"phone": {"07535111222"},
-	}
-
-	r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(form.Encode()))
-	r.Header.Add("Content-Type", page.FormUrlEncoded)
-
-	result := readPhoneNumberForm(r)
-
-	assert.Equal("07535111222", result.Phone)
-}
-
-func TestPhoneNumberFormValidate(t *testing.T) {
-	testCases := map[string]struct {
-		form   *phoneNumberForm
-		errors validation.List
-	}{
-		"valid": {
-			form: &phoneNumberForm{
-				Phone: "07535999222",
-			},
-		},
-		"missing": {
-			form: &phoneNumberForm{},
-		},
-		"invalid-phone-format": {
-			form: &phoneNumberForm{
-				Phone: "123",
-			},
-			errors: validation.With("phone", validation.PhoneError{Tmpl: "errorPhone", Label: "phone"}),
-		},
-	}
-
-	for name, tc := range testCases {
-		t.Run(name, func(t *testing.T) {
-			assert.Equal(t, tc.errors, tc.form.Validate())
-		})
-	}
 }

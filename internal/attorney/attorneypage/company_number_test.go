@@ -9,10 +9,10 @@ import (
 
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/attorney"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/attorney/attorneydata"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/forms"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/lpastore/lpadata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/task"
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/validation"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
 )
@@ -25,7 +25,7 @@ func TestGetCompanyNumber(t *testing.T) {
 	template.EXPECT().
 		Execute(w, &companyNumberData{
 			App:  testTrustCorporationAppData,
-			Form: &companyNumberForm{},
+			Form: newCompanyNumberForm(testTrustCorporationAppData.Localizer),
 		}).
 		Return(nil)
 
@@ -40,13 +40,14 @@ func TestGetCompanyNumberFromStore(t *testing.T) {
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest(http.MethodGet, "/", nil)
 
+	form := newCompanyNumberForm(testTrustCorporationAppData.Localizer)
+	form.CompanyNumber.Set("12345678")
+
 	template := newMockTemplate(t)
 	template.EXPECT().
 		Execute(w, &companyNumberData{
-			App: testTrustCorporationAppData,
-			Form: &companyNumberForm{
-				CompanyNumber: "12345678",
-			},
+			App:  testTrustCorporationAppData,
+			Form: form,
 		}).
 		Return(nil)
 
@@ -142,7 +143,8 @@ func TestPostCompanyNumberWhenValidationError(t *testing.T) {
 	r.Header.Add("Content-Type", page.FormUrlEncoded)
 
 	dataMatcher := func(t *testing.T, data *companyNumberData) bool {
-		return assert.Equal(t, validation.With("company-number", validation.EnterError{Label: "yourCompanyNumber"}), data.Errors)
+		return assert.Equal(t, []forms.Field{data.Form.CompanyNumber.Field}, data.Form.Errors) &&
+			assert.Equal(t, "errorEnter:Label=yourCompanyNumber", data.Form.CompanyNumber.Error.Format(testTrustCorporationAppData.Localizer))
 	}
 
 	template := newMockTemplate(t)
@@ -178,48 +180,4 @@ func TestPostCompanyNumberWhenAttorneyStoreErrors(t *testing.T) {
 
 	assert.Equal(t, expectedError, err)
 	assert.Equal(t, http.StatusOK, resp.StatusCode)
-}
-
-func TestReadCompanyNumberForm(t *testing.T) {
-	form := url.Values{
-		"company-number": {"12345678"},
-	}
-
-	r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(form.Encode()))
-	r.Header.Add("Content-Type", page.FormUrlEncoded)
-
-	result := readCompanyNumberForm(r)
-
-	assert.Equal(t, "12345678", result.CompanyNumber)
-}
-
-func TestCompanyNumberFormValidate(t *testing.T) {
-	testCases := map[string]struct {
-		form   *companyNumberForm
-		errors validation.List
-	}{
-		"valid": {
-			form: &companyNumberForm{
-				CompanyNumber: "12345678",
-			},
-		},
-		"empty": {
-			form: &companyNumberForm{
-				CompanyNumber: "",
-			},
-			errors: validation.With("company-number", validation.EnterError{Label: "yourCompanyNumber"}),
-		},
-		"whitespace only": {
-			form: &companyNumberForm{
-				CompanyNumber: "   ",
-			},
-			errors: validation.With("company-number", validation.EnterError{Label: "yourCompanyNumber"}),
-		},
-	}
-
-	for name, tc := range testCases {
-		t.Run(name, func(t *testing.T) {
-			assert.Equal(t, tc.errors, tc.form.Validate())
-		})
-	}
 }

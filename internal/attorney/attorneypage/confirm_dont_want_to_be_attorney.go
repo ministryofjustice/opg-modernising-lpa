@@ -11,13 +11,11 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/lpastore/lpadata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/notify"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/validation"
 )
 
 type confirmDontWantToBeAttorneyData struct {
-	App    appcontext.Data
-	Errors validation.List
-	Lpa    *lpadata.Lpa
+	App appcontext.Data
+	Lpa *lpadata.Lpa
 }
 
 func ConfirmDontWantToBeAttorney(tmpl template.Template, attorneyStore AttorneyStore, notifyClient NotifyClient, lpaStoreClient LpaStoreClient) Handler {

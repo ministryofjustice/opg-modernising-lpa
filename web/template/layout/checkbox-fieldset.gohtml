@@ -1,0 +1,16 @@
+{{ define "new-checkbox-fieldset" }}
+    <div class="govuk-form-group {{ if .Form.Confirm.Error }}govuk-form-group--error{{ end }}">
+        <fieldset class="govuk-fieldset" aria-labelledby="fieldset-legend" {{ if .Form.Confirm.Error }}aria-describedby="{{ .Form.Confirm.Name }}-error"{{ end }}>
+            {{ template "new-error-message" (newErrorMessage . .Form.Confirm) }}
+
+            <div class="govuk-checkboxes" data-module="govuk-checkboxes">
+                <div class="govuk-checkboxes__item">
+                    <input class="govuk-checkboxes__input" id="f-{{ .Form.Confirm.Name }}" name="{{ .Form.Confirm.Name }}" type="checkbox" value="1" {{ if .Form.Confirm.Input }}checked{{ end }}>
+                    <label class="govuk-label govuk-checkboxes__label" for="f-{{ .Form.Confirm.Name }}">
+                        {{ .Form.Confirm.Label }}
+                    </label>
+                </div>
+            </div>
+        </fieldset>
+    </div>
+{{ end }}

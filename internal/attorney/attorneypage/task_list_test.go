@@ -10,7 +10,7 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/appcontext"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/attorney"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/attorney/attorneydata"
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/form"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/forms"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/lpastore/lpadata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/task"
 	"github.com/stretchr/testify/assert"
@@ -100,7 +100,7 @@ func TestGetTaskList(t *testing.T) {
 				CertificateProvider:              lpadata.CertificateProvider{SignedAt: &signedAt},
 			},
 			provided: &attorneydata.Provided{
-				WouldLikeSecondSignatory: form.Yes,
+				WouldLikeSecondSignatory: forms.Yes,
 				Tasks: attorneydata.Tasks{
 					ConfirmYourDetails: task.StateCompleted,
 					ReadTheLpa:         task.StateCompleted,
