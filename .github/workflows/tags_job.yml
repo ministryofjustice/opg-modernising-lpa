@@ -20,12 +20,12 @@ jobs:
     if: ${{ inputs.changes_detected == 'true' }}
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6.0.3
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6.1.0
         with:
           fetch-depth: "0"
       - name: "Generate semver tag and release"
         id: semver_tag
-        uses: ministryofjustice/opg-github-actions/actions/semver@77bb12e7fec3bcee9a6a35cb21361195e027a12a # v4.9.0
+        uses: ministryofjustice/opg-github-actions/actions/semver@722a5f955424aaba01e9ca43d68390cd4048d6e1 # v4.10.2
         with:
           create_release: false
     outputs:
@@ -55,7 +55,7 @@ jobs:
     needs: [ create_tags, generate_environment_workspace_name ]
     steps:
       - name: Configure AWS Credentials
-        uses: aws-actions/configure-aws-credentials@254c19bd240aabef8777f48595e9d2d7b972184b # v6.2.1
+        uses: aws-actions/configure-aws-credentials@e6de054238d6b7531b4efff3b6587d9aade6a06c # v6.2.3
         with:
           aws-region: us-east-1
           role-to-assume: ${{ vars.OIDC_SSM_GET_PARAMETER }}
