@@ -6,8 +6,10 @@
     <div class="govuk-grid-row">
         <div class="govuk-grid-column-two-thirds">
             <form novalidate method="post">
-                {{ template "input" (input . "company-number" "enterYourCompanyNumber" .Form.CompanyNumber
-                "classes" "govuk-input--width-20" "heading" true "hint" "enterYourCompanyNumberHint") }}
+                {{ template "new-input" (newInput . .Form.CompanyNumber
+                    "classes" "govuk-input--width-20"
+                    "heading" true
+                    "hint" (tr .App "enterYourCompanyNumberHint")) }}
 
                 {{ template "buttons" (button .App "saveAndContinue") }}
                 {{ template "csrf-field" . }}

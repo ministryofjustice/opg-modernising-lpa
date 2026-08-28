@@ -10,7 +10,7 @@ describe('Confirm your details', () => {
             cy.get('#f-phone').invoke('val', TestMobile);
             cy.contains('button', 'Save and continue').click();
 
-            cy.get('[name="language-preference"]').check('cy', { force: true })
+            cy.get('[name="language"]').check('cy', { force: true })
             cy.contains('button', 'Save and continue').click()
         });
 
@@ -38,7 +38,7 @@ describe('Confirm your details', () => {
             cy.get('#f-phone').invoke('val', TestMobile);
             cy.contains('button', 'Save and continue').click();
 
-            cy.get('[name="language-preference"]').check('cy', { force: true })
+            cy.get('[name="language"]').check('cy', { force: true })
             cy.contains('button', 'Save and continue').click()
         });
 
@@ -63,7 +63,7 @@ describe('Confirm your details', () => {
 
             cy.contains('li', 'Confirm your details').should('contain', 'Not started').click();
 
-            cy.get('[name="language-preference"]').check('cy', { force: true })
+            cy.get('[name="language"]').check('cy', { force: true })
             cy.contains('button', 'Save and continue').click()
         });
 

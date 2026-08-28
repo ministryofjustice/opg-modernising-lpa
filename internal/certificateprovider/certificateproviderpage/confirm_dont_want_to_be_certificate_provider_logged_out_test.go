@@ -294,6 +294,7 @@ func TestPostConfirmDontWantToBeCertificateProviderLoggedOut(t *testing.T) {
 				T("personal-welfare").
 				Return("Personal welfare")
 
+			testAppData := testAppData
 			testAppData.Localizer = localizer
 
 			err := ConfirmDontWantToBeCertificateProviderLoggedOut(nil, accessCodeStore, lpaStoreResolvingService, tc.lpaStoreClient(), tc.donorStore(), sessionStore, notifyClient, "example.com")(testAppData, w, r)
@@ -592,6 +593,7 @@ func TestPostConfirmDontWantToBeCertificateProviderLoggedOutErrors(t *testing.T)
 		t.Run(name, func(t *testing.T) {
 			w := httptest.NewRecorder()
 
+			testAppData := testAppData
 			testAppData.Localizer = tc.localizer(t)
 
 			err := ConfirmDontWantToBeCertificateProviderLoggedOut(nil, tc.accessCodeStore(t), tc.lpaStoreResolvingService(t), tc.lpaStoreClient(t), tc.donorStore(t), tc.sessionStore(t), tc.notifyClient(t), "example.com")(testAppData, w, r)

@@ -7,21 +7,15 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/appcontext"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/attorney"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/attorney/attorneydata"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/forms"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/lpastore/lpadata"
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/task"
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/validation"
 )
 
 type phoneNumberData struct {
-	App    appcontext.Data
-	Donor  *lpadata.Lpa
-	Form   *phoneNumberForm
-	Errors validation.List
-}
-
-type phoneNumberForm struct {
-	Phone string
+	App   appcontext.Data
+	Donor *lpadata.Lpa
+	Form  *phoneNumberForm
 }
 
 func PhoneNumber(tmpl template.Template, attorneyStore AttorneyStore) Handler {
@@ -32,46 +26,42 @@ func PhoneNumber(tmpl template.Template, attorneyStore AttorneyStore) Handler {
 		}
 
 		data := &phoneNumberData{
-			App: appData,
-			Form: &phoneNumberForm{
-				Phone: mobile,
-			},
+			App:  appData,
+			Form: newPhoneNumberForm(appData.Localizer),
 		}
 
-		if r.Method == http.MethodPost {
-			data.Form = readPhoneNumberForm(r)
-			data.Errors = data.Form.Validate()
+		data.Form.Phone.Set(mobile)
 
-			if data.Errors.None() {
-				provided.Phone = data.Form.Phone
-				provided.PhoneSet = true
-				if provided.Tasks.ConfirmYourDetails == task.StateNotStarted {
-					provided.Tasks.ConfirmYourDetails = task.StateInProgress
-				}
-
-				if err := attorneyStore.Put(r.Context(), provided); err != nil {
-					return err
-				}
-
-				return attorney.PathYourPreferredLanguage.Redirect(w, r, appData, provided.LpaID)
+		if r.Method == http.MethodPost && data.Form.Parse(r) {
+			provided.Phone = data.Form.Phone.Value
+			provided.PhoneSet = true
+			if provided.Tasks.ConfirmYourDetails == task.StateNotStarted {
+				provided.Tasks.ConfirmYourDetails = task.StateInProgress
 			}
+
+			if err := attorneyStore.Put(r.Context(), provided); err != nil {
+				return err
+			}
+
+			return attorney.PathYourPreferredLanguage.Redirect(w, r, appData, provided.LpaID)
 		}
 
 		return tmpl(w, data)
 	}
 }
 
-func readPhoneNumberForm(r *http.Request) *phoneNumberForm {
+type phoneNumberForm struct {
+	forms.Form
+	Phone *forms.String
+}
+
+func newPhoneNumberForm(l Localizer) *phoneNumberForm {
 	return &phoneNumberForm{
-		Phone: page.PostFormString(r, "phone"),
+		Phone: forms.NewString("phone", l.T("enterYourUKPhoneNumberOptional")).
+			Phone().WithErrorLabel(l.T("phone")),
 	}
 }
 
-func (f *phoneNumberForm) Validate() validation.List {
-	var errors validation.List
-
-	errors.String("phone", "phone", f.Phone,
-		validation.Phone())
-
-	return errors
+func (f *phoneNumberForm) Parse(r *http.Request) bool {
+	return f.ParsePostForm(r, f.Phone)
 }

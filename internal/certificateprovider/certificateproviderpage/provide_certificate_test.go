@@ -126,6 +126,7 @@ func TestPostProvideCertificate(t *testing.T) {
 		FormatDateTime(testNow).
 		Return("the formatted date")
 
+	testAppData := testAppData
 	testAppData.Localizer = localizer
 
 	notifyClient := newMockNotifyClient(t)
@@ -249,6 +250,7 @@ func TestPostProvideCertificateWhenIdentityCompleted(t *testing.T) {
 		FormatDateTime(testNow).
 		Return("the formatted date")
 
+	testAppData := testAppData
 	testAppData.Localizer = localizer
 
 	notifyClient := newMockNotifyClient(t)
@@ -364,6 +366,7 @@ func TestPostProvideCertificateWhenIdentityFailed(t *testing.T) {
 		FormatDateTime(testNow).
 		Return("the formatted date")
 
+	testAppData := testAppData
 	testAppData.Localizer = localizer
 
 	notifyClient := newMockNotifyClient(t)
@@ -479,6 +482,7 @@ func TestPostProvideCertificateWhenSignedInLpaStore(t *testing.T) {
 		FormatDateTime(signedAt).
 		Return("the formatted date")
 
+	testAppData := testAppData
 	testAppData.Localizer = localizer
 
 	notifyClient := newMockNotifyClient(t)
@@ -593,6 +597,7 @@ func TestPostProvideCertificateWhenScheduledStoreErrors(t *testing.T) {
 		FormatDateTime(mock.Anything).
 		Return("the formatted date")
 
+	testAppData := testAppData
 	testAppData.Localizer = localizer
 
 	notifyClient := newMockNotifyClient(t)
@@ -661,6 +666,7 @@ func TestPostProvideCertificateWhenDonorStoreGetErrors(t *testing.T) {
 		FormatDateTime(mock.Anything).
 		Return("the formatted date")
 
+	testAppData := testAppData
 	testAppData.Localizer = localizer
 
 	notifyClient := newMockNotifyClient(t)
@@ -721,6 +727,7 @@ func TestPostProvideCertificateWhenDonorStorePutErrors(t *testing.T) {
 		FormatDateTime(mock.Anything).
 		Return("the formatted date")
 
+	testAppData := testAppData
 	testAppData.Localizer = localizer
 
 	notifyClient := newMockNotifyClient(t)
@@ -784,6 +791,7 @@ func TestPostProvideCertificateOnStoreError(t *testing.T) {
 		FormatDateTime(mock.Anything).
 		Return("")
 
+	testAppData := testAppData
 	testAppData.Localizer = localizer
 
 	notifyClient := newMockNotifyClient(t)
@@ -847,6 +855,7 @@ func TestPostProvideCertificateOnEventClientError(t *testing.T) {
 		FormatDateTime(mock.Anything).
 		Return("")
 
+	testAppData := testAppData
 	testAppData.Localizer = localizer
 
 	notifyClient := newMockNotifyClient(t)
@@ -960,6 +969,7 @@ func TestPostProvideCertificateOnNotifyClientError(t *testing.T) {
 				FormatDateTime(mock.Anything).
 				Return("")
 
+			testAppData := testAppData
 			testAppData.Localizer = localizer
 
 			notifyClient := newMockNotifyClient(t)
@@ -1013,6 +1023,7 @@ func TestPostProvideCertificateWhenAccessCodeSenderErrors(t *testing.T) {
 		FormatDateTime(testNow).
 		Return("the formatted date")
 
+	testAppData := testAppData
 	testAppData.Localizer = localizer
 
 	notifyClient := newMockNotifyClient(t)
