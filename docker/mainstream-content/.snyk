@@ -1,4 +1,24 @@
 # Snyk (https://snyk.io) policy file, patches or ignores known vulnerabilities.
 version: v1.25.1
 # ignores vulnerabilities until expiry date; change duration by modifying expiry date
-ignore: {}
+ignore:
+  SNYK-JS-BRACEEXPANSION-18313044:
+    - '*':
+        reason: no direct upgrade or patch (part of npm v12)
+        expires: 2026-10-10T09:00:00.000Z
+        created: 2026-09-10T18:00:00.000Z
+  SNYK-JS-BRACEEXPANSION-18512280:
+    - '*':
+        reason: no direct upgrade or patch (part of npm v12)
+        expires: 2026-10-10T09:00:00.000Z
+        created: 2026-09-10T18:00:00.000Z
+  SNYK-JS-UNDICI-19635210:
+    - '*':
+        reason: no direct upgrade or patch (part of npm v12)
+        expires: 2026-10-10T09:00:00.000Z
+        created: 2026-09-10T18:00:00.000Z
+  SNYK-JS-UNDICI-19635226:
+    - '*':
+        reason: no direct upgrade or patch (part of npm v12)
+        expires: 2026-10-10T09:00:00.000Z
+        created: 2026-09-10T18:00:00.000Z
