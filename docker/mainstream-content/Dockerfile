@@ -3,8 +3,8 @@ FROM node:24-alpine@sha256:fb71d01345f11b708a3553c66e7c74074f2d506400ea81973343d
 WORKDIR /app
 
 RUN apk add --no-cache git=2.54.0-r0
-ADD https://api.github.com/repos/ministryofjustice/register-lpa-prototype/git/refs/heads/main version.json
-RUN git clone -b main https://github.com/ministryofjustice/register-lpa-prototype.git
+ADD https://api.github.com/repos/ministryofjustice/opg-register-lpa-prototype/git/refs/heads/main version.json
+RUN git clone -b main https://github.com/ministryofjustice/opg-register-lpa-prototype.git
 
 FROM node:24-alpine@sha256:fb71d01345f11b708a3553c66e7c74074f2d506400ea81973343d915cb64eef0 AS production
 
@@ -15,7 +15,7 @@ WORKDIR /app
 
 COPY --link docker/mainstream-content/alpine_image_hardening.sh /harden.sh
 
-COPY --from=fetched-repo app/register-lpa-prototype/package*.json ./
+COPY --from=fetched-repo app/opg-register-lpa-prototype/package*.json ./
 
 # npm 11.13.0 pulls vulnerable tar/undici/brace-expansion transitively; npm 12 includes patched ranges
 RUN npm install -g npm@12.0.1
@@ -29,7 +29,7 @@ RUN npm pkg set overrides.uuid=11.1.1 \
 
 RUN npm install
 
-COPY --from=fetched-repo app/register-lpa-prototype/app ./app
+COPY --from=fetched-repo app/opg-register-lpa-prototype/app ./app
 COPY --link docker/mainstream-content/start.sh ./app/start.sh
 RUN chown -R appuser:appgroup /app
 
