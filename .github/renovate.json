@@ -24,6 +24,9 @@
     "lockFileMaintenance": {
         "enabled": false
     },
+    "postUpdateOptions": [
+        "gomodTidy"
+    ],
     "packageRules": [
         {
             "automerge": true,
