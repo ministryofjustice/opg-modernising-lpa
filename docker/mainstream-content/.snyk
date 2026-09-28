@@ -4,21 +4,41 @@ version: v1.25.1
 ignore:
   SNYK-JS-BRACEEXPANSION-18313044:
     - '*':
-        reason: no direct upgrade or patch (part of npm v12)
+        reason: "no direct upgrade or patch (part of npm v12)"
         expires: 2026-10-10T09:00:00.000Z
         created: 2026-09-10T18:00:00.000Z
   SNYK-JS-BRACEEXPANSION-18512280:
     - '*':
-        reason: no direct upgrade or patch (part of npm v12)
+        reason: "no direct upgrade or patch (part of npm v12)"
         expires: 2026-10-10T09:00:00.000Z
         created: 2026-09-10T18:00:00.000Z
   SNYK-JS-UNDICI-19635210:
     - '*':
-        reason: no direct upgrade or patch (part of npm v12)
+        reason: "no direct upgrade or patch (part of npm v12)"
         expires: 2026-10-10T09:00:00.000Z
         created: 2026-09-10T18:00:00.000Z
   SNYK-JS-UNDICI-19635226:
     - '*':
-        reason: no direct upgrade or patch (part of npm v12)
+        reason: "no direct upgrade or patch (part of npm v12)"
         expires: 2026-10-10T09:00:00.000Z
         created: 2026-09-10T18:00:00.000Z
+  SNYK-JS-HTTPCACHESEMANTICS-19964064:
+    - "*":
+        reason: This service doesn't cache any user data
+        expires: 2026-10-28T09:06:03.000Z
+        created: 2026-09-28T10:06:03.000Z
+  SNYK-JS-HTTPCACHESEMANTICS-19964068:
+    - "*":
+        reason: This service doesn't cache any user data
+        expires: 2026-10-28T09:06:03.000Z
+        created: 2026-09-28T10:06:03.000Z
+  SNYK-JS-BRACES-19963945:
+    - "*":
+        reason: "No version to upgrade to"
+        expires: 2026-10-28T09:06:03.000Z
+        created: 2026-09-28T10:06:03.000Z
+  SNYK-JS-PROXYADDR-19812342:
+    - "*":
+        reason: Unexploitable (I think)
+        expires: 2026-10-28T09:06:03.000Z
+        created: 2026-09-28T10:06:03.000Z
