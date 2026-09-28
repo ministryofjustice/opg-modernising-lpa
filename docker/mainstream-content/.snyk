@@ -22,3 +22,13 @@ ignore:
         reason: no direct upgrade or patch (part of npm v12)
         expires: 2026-10-10T09:00:00.000Z
         created: 2026-09-10T18:00:00.000Z
+  SNYK-JS-HTTPCACHESEMANTICS-19964064:
+    - "*":
+        reason: This service doesn't cache any user data
+        expires: 2026-10-28T09:06:03.000Z
+        created: 2026-09-28T10:06:03.000Z
+  SNYK-JS-HTTPCACHESEMANTICS-19964068:
+    - "*":
+        reason: This service doesn't cache any user data
+        expires: 2026-10-28T09:06:03.000Z
+        created: 2026-09-28T10:06:03.000Z
