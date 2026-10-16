@@ -9,11 +9,10 @@ import (
 
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/certificateprovider"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/certificateprovider/certificateproviderdata"
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/form"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/forms"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/localize"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/lpastore/lpadata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/validation"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
 )
@@ -22,16 +21,15 @@ func TestGetYourPreferredLanguage(t *testing.T) {
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest(http.MethodGet, "/", nil)
 
+	form := forms.NewLanguageForm("whichLanguageYouWouldLikeUsToUseWhenWeContactYou")
+	form.Language.Set(localize.Cy)
+
 	template := newMockTemplate(t)
 	template.EXPECT().
 		Execute(w, &yourPreferredLanguageData{
-			App: testAppData,
-			Form: &form.LanguagePreferenceForm{
-				Preference: localize.Cy,
-			},
-			Options:   localize.LangValues,
-			FieldName: form.FieldNames.LanguagePreference,
-			Lpa:       &lpadata.Lpa{},
+			App:  testAppData,
+			Lpa:  &lpadata.Lpa{},
+			Form: form,
 		}).
 		Return(nil)
 
@@ -64,7 +62,7 @@ func TestPostYourPreferredLanguage(t *testing.T) {
 
 	for _, lang := range testCases {
 		t.Run(lang.String(), func(t *testing.T) {
-			formValues := url.Values{form.FieldNames.LanguagePreference: {lang.String()}}
+			formValues := url.Values{"language": {lang.String()}}
 
 			w := httptest.NewRecorder()
 			r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(formValues.Encode()))
@@ -86,7 +84,7 @@ func TestPostYourPreferredLanguage(t *testing.T) {
 }
 
 func TestPostYourPreferredLanguageWhenCertificateProviderStoreError(t *testing.T) {
-	formValues := url.Values{form.FieldNames.LanguagePreference: {localize.En.String()}}
+	formValues := url.Values{"language": {localize.En.String()}}
 
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(formValues.Encode()))
@@ -105,7 +103,7 @@ func TestPostYourPreferredLanguageWhenCertificateProviderStoreError(t *testing.T
 }
 
 func TestPostYourPreferredLanguageWhenInvalidData(t *testing.T) {
-	formValues := url.Values{form.FieldNames.LanguagePreference: {"not-a-lang"}}
+	formValues := url.Values{"language": {"not-a-lang"}}
 
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(formValues.Encode()))
@@ -113,16 +111,10 @@ func TestPostYourPreferredLanguageWhenInvalidData(t *testing.T) {
 
 	template := newMockTemplate(t)
 	template.EXPECT().
-		Execute(w, &yourPreferredLanguageData{
-			App: testAppData,
-			Form: &form.LanguagePreferenceForm{
-				ErrorLabel: "whichLanguageYouWouldLikeUsToUseWhenWeContactYou",
-			},
-			Options:   localize.LangValues,
-			FieldName: form.FieldNames.LanguagePreference,
-			Errors:    validation.With(form.FieldNames.LanguagePreference, validation.SelectError{Label: "whichLanguageYouWouldLikeUsToUseWhenWeContactYou"}),
-			Lpa:       &lpadata.Lpa{},
-		}).
+		Execute(w, mock.MatchedBy(func(data *yourPreferredLanguageData) bool {
+			return assert.Equal(t, []forms.Field{data.Form.Language.Field}, data.Form.Errors) &&
+				assert.Equal(t, "errorSelect:Label=whichLanguageYouWouldLikeUsToUseWhenWeContactYou", data.Form.Language.Error.Format(testAppData.Localizer))
+		})).
 		Return(nil)
 
 	err := YourPreferredLanguage(template.Execute, nil)(testAppData, w, r, &certificateproviderdata.Provided{LpaID: "lpa-id"}, &lpadata.Lpa{})

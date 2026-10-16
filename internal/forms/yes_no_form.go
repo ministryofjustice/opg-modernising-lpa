@@ -6,6 +6,8 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/form"
 )
 
+type YesNo = form.YesNo
+
 var (
 	YesNoUnknown = form.YesNoUnknown
 	Yes          = form.Yes

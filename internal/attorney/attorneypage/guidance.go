@@ -7,13 +7,11 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/appcontext"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/attorney/attorneydata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/lpastore/lpadata"
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/validation"
 )
 
 type guidanceData struct {
-	App    appcontext.Data
-	Errors validation.List
-	Lpa    *lpadata.Lpa
+	App appcontext.Data
+	Lpa *lpadata.Lpa
 }
 
 func Guidance(tmpl template.Template) Handler {

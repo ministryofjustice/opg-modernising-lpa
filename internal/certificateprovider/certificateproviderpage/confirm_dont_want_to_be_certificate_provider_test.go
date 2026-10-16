@@ -193,6 +193,7 @@ func TestPostConfirmDontWantToBeCertificateProvider(t *testing.T) {
 				T("personal-welfare").
 				Return("Personal welfare")
 
+			testAppData := testAppData
 			testAppData.Localizer = localizer
 
 			notifyClient := newMockNotifyClient(t)
@@ -403,6 +404,7 @@ func TestPostConfirmDontWantToBeCertificateProviderErrors(t *testing.T) {
 		t.Run(name, func(t *testing.T) {
 			w := httptest.NewRecorder()
 
+			testAppData := testAppData
 			testAppData.Localizer = tc.localizer(t)
 
 			err := ConfirmDontWantToBeCertificateProvider(nil, tc.lpaStoreClient(t), tc.donorStore(t), tc.certificateProviderStore(t), tc.notifyClient(t), "example.com")(testAppData, w, r, nil, tc.lpa)
