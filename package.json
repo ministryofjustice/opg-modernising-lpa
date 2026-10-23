@@ -23,27 +23,27 @@
         "@ministryofjustice/frontend": "9.0.0",
         "aws-rum-web": "^2.0.0",
         "esbuild": "^0.28.0",
-        "govuk-frontend": "6.3.0",
+        "govuk-frontend": "6.6.0",
         "sass": "^1.56.1"
     },
     "devDependencies": {
-        "@axe-core/playwright": "4.12.1",
-        "@playwright/test": "1.61.1",
-        "@cypress/grep": "6.0.2",
-        "axe-core": "4.12.1",
-        "cypress": "15.18.0",
+        "@axe-core/playwright": "4.14.0",
+        "@playwright/test": "1.64.1",
+        "@cypress/grep": "6.0.3",
+        "axe-core": "4.14.0",
+        "cypress": "15.21.1",
         "cypress-axe": "1.7.0",
         "cypress-file-upload": "5.0.8",
         "cypress-multi-reporters": "2.0.5",
         "cypress-parallel": "0.15.0",
-        "cypress-real-events": "1.15.0",
-        "playwright": "1.61.1",
+        "cypress-real-events": "1.15.1",
+        "playwright": "1.64.1",
         "totp-generator": "1.0.0"
     },
     "engines": {
-        "node": "24.18.0"
+        "node": "24.22.0"
     },
-    "packageManager": "npm@11.17.0+sha512.3eeaf18997b11070d313849268b23766b9db0068997dec9471073170fe43fa17f2b4d0337bf0f52330ee2274e7f5754b21b01052742e48f5c9c74d8b1e32ef43",
+    "packageManager": "npm@11.21.1+sha512.613ccbe90044257c87713bb426251ced128ca7e9b3949b65eeb18b98445a5d441e14720c73d6ad76be86f4cf42f2f0d66efe347a9a13400ccd2f6fcfb5954385",
     "overrides": {
         "brace-expansion": "2.1.2",
         "minimatch": {
@@ -51,7 +51,7 @@
         },
         "form-data": "4.0.6",
         "immutable": "5.1.9",
-        "js-yaml": "4.3.0",
+        "js-yaml": "4.3.2",
         "tmp": "0.2.7"
     }
 }
